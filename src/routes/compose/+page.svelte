@@ -22,6 +22,7 @@
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 	import { icelandicArchive } from "$morphe";
 	import {
+		CAPABILITIES,
 		CATEGORY_LABELS,
 		composeAnswer,
 		emptyState,
@@ -31,6 +32,7 @@
 		registerComposeCompounds,
 		SYSTEMS,
 	} from "$lib/compose";
+	import type { Capability } from "$lib/compose";
 
 	// Register the five compose compounds through the factory gate. Idempotent —
 	// safe under HMR and repeated imports. Done at module-eval so the registry is
@@ -42,52 +44,122 @@
 	// appears exactly when the answer was actually capped.
 	const COLLAPSED_LIMIT = 9;
 
-	// The control surface state: the things a visitor controls. `showAll` is a
-	// pure chrome affordance (NOT part of the composed Morphe tree): collapsed by
-	// default, it caps the answer at COLLAPSED_LIMIT cards until the visitor opts in.
+	// Control-surface state. `pain` + `selected` are what the visitor edits; the
+	// RANKING is computed on SUBMIT (the Voyage reranker runs server-side), not live
+	// as you type. `showAll` is a pure chrome affordance that caps the answer at
+	// COLLAPSED_LIMIT cards until the visitor opts in.
 	let pain = $state("");
 	let selected = $state<string[]>(SYSTEMS.map((s) => s.id));
 	let showAll = $state(false);
+
+	// The last submitted ranking: capability ids over the WHOLE corpus in relevance
+	// order. The server ranks everything once; we filter by the current selection
+	// below, so toggling a system is instant and needs no re-rank. null = nothing
+	// submitted yet (the surface shows the featured breadth).
+	let rankedIds = $state<string[] | null>(null);
+	let ranking = $state(false); // a rerank request is in flight
+	let rankedBy = $state<"voyage" | "local" | null>(null);
+	// The pain that produced `rankedIds` — lets us flag when the field has drifted.
+	let submittedPain = $state("");
 
 	function toggleSystem(id: string): void {
 		selected = selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id];
 	}
 
-	// The reactive pipeline. parseQuery narrows + dedupes to known systems; the
-	// matcher and presenters are pure. Empty match set shows the featured breadth
-	// so the page is never blank, even before the visitor types.
 	const query = $derived(parseQuery({ pain, systems: selected }));
-	const matches = $derived(matchCapabilities(query));
 
-	// The cards on screen: the visitor's real matches when their pain resolves to
-	// any, otherwise the featured breadth so the surface is never blank. BOTH obey
-	// the same collapse + "Show all" affordance below — one mental model, whether the
-	// cards are a real answer or the default breadth teaser.
-	const results = $derived(matches.length > 0 ? matches : featuredCapabilities(query.systems));
+	// Deterministic full-corpus ranking — the local floor and the fallback when the
+	// reranker is unavailable. matchCapabilities returns only tag-matched eligible
+	// caps, so we rank by it then append the rest to get a stable total order over
+	// every capability (the same shape the reranker returns).
+	function localRankIds(painText: string): string[] {
+		const q = parseQuery({ pain: painText, systems: SYSTEMS.map((s) => s.id) });
+		const matched = matchCapabilities(q).map((c) => c.id);
+		const seen = new Set(matched);
+		const rest = CAPABILITIES.filter((c) => !seen.has(c.id)).map((c) => c.id);
+		return [...matched, ...rest];
+	}
 
-	// Collapsed shows the first COLLAPSED_LIMIT highest-ranked cards; "Show all"
-	// lifts the cap (Infinity = every card). composeAnswer / emptyState treat any
-	// limit >= card count as "show everything", so passing Infinity renders the full set.
+	// Submit: rank the corpus against the stated pain. Voyage when available, the
+	// deterministic matcher as a silent fallback — the surface never shows an error.
+	async function compose(): Promise<void> {
+		showAll = false;
+		const painText = pain.trim();
+		submittedPain = painText;
+		if (painText.length === 0) {
+			// Empty pain -> back to the featured breadth (no ranking).
+			rankedIds = null;
+			rankedBy = null;
+			return;
+		}
+		ranking = true;
+		try {
+			const res = await fetch("/compose/rerank", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ pain: painText }),
+			});
+			const data = (await res.json()) as {
+				source?: string;
+				ranked?: { id: string; score: number }[];
+			};
+			if (data.source === "voyage" && Array.isArray(data.ranked) && data.ranked.length > 0) {
+				rankedIds = data.ranked.map((r) => r.id);
+				rankedBy = "voyage";
+			} else {
+				rankedIds = localRankIds(painText);
+				rankedBy = "local";
+			}
+		} catch {
+			rankedIds = localRankIds(painText);
+			rankedBy = "local";
+		} finally {
+			ranking = false;
+		}
+	}
+
+	// The button is the primary path; Cmd/Ctrl+Enter from the field also submits.
+	function onPainKeydown(e: KeyboardEvent): void {
+		if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+			e.preventDefault();
+			void compose();
+		}
+	}
+
+	// The ranked caps to show: the submitted ranking resolved to caps and filtered
+	// to the current selection (so a toggle re-filters instantly). null before submit.
+	const ranked = $derived.by<Capability[] | null>(() => {
+		if (rankedIds === null) return null;
+		const byId = new Map(CAPABILITIES.map((c) => [c.id, c]));
+		const sel = new Set(selected);
+		const out: Capability[] = [];
+		for (const id of rankedIds) {
+			const cap = byId.get(id);
+			if (cap && cap.systems.every((s) => sel.has(s))) out.push(cap);
+		}
+		return out;
+	});
+
+	// Cards on screen: the reranked answer after submit, else the featured breadth so
+	// the surface is never blank. Both obey the same collapse + "Show all" affordance.
 	const limit = $derived(showAll ? Number.POSITIVE_INFINITY : COLLAPSED_LIMIT);
-	const tree = $derived(
-		matches.length > 0
-			? composeAnswer(matches, query, limit)
+	const results = $derived.by<readonly Capability[]>(() =>
+		ranked !== null && ranked.length > 0 ? ranked : featuredCapabilities(query.systems),
+	);
+	const tree = $derived.by(() =>
+		ranked !== null && ranked.length > 0
+			? composeAnswer(ranked, query, limit)
 			: emptyState(query, results, limit),
 	);
-
-	// How many cards are currently hidden behind the collapsed cap. > 0 only when
-	// the view is collapsed AND there are more cards than the cap, which is exactly
-	// when the "Show all N" button should appear (matches or featured breadth alike).
 	const hiddenCount = $derived(showAll ? 0 : Math.max(0, results.length - COLLAPSED_LIMIT));
 
-	// Re-collapse whenever the query changes: a new search should start scannable,
-	// not inherit a previous "Show all". The effect depends ONLY on the query
-	// inputs (pain + the joined selection) and writes showAll, never reads it, so
-	// it cannot loop. Effects do not run during SSR, so the server still renders the
-	// collapsed default, which is SSR-safe.
+	// The field has drifted from the submitted ranking — invite a re-compose.
+	const stale = $derived(rankedIds !== null && pain.trim() !== submittedPain);
+
+	// Re-collapse "Show all" when the selection changes (a different subset is a new
+	// view). Pain-submit collapse is handled in compose(). Effects skip SSR, so the
+	// server renders the collapsed default — SSR-safe.
 	$effect(() => {
-		// Touch the query inputs so this re-runs when either changes.
-		void pain;
 		void selected.join(",");
 		showAll = false;
 	});
@@ -131,7 +203,13 @@
 			read-only; it does not touch your systems.
 		</p>
 
-		<div class="control__form">
+		<form
+			class="control__form"
+			onsubmit={(e) => {
+				e.preventDefault();
+				void compose();
+			}}
+		>
 			<div class="field">
 				<label class="field__label" for="compose-pain">Describe the friction</label>
 				<textarea
@@ -140,6 +218,7 @@
 					rows="3"
 					placeholder="e.g. shift planning is slow and error prone, and overtime keeps blowing the budget"
 					bind:value={pain}
+					onkeydown={onPainKeydown}
 				></textarea>
 			</div>
 
@@ -161,7 +240,16 @@
 					{/each}
 				</div>
 			</fieldset>
-		</div>
+
+			<div class="actions">
+				<button type="submit" class="actions__submit" disabled={ranking}>
+					{ranking ? "Ranking…" : "Compose"}
+				</button>
+				{#if stale}
+					<span class="actions__hint">Press Compose to update the results.</span>
+				{/if}
+			</div>
+		</form>
 
 		<p class="control__note">
 			Composed live as you type. Nothing is sent and nothing is changed. The
@@ -368,6 +456,51 @@
 		font-size: var(--mo-type-1);
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
+		color: var(--mo-intent-on-surface-muted);
+	}
+
+	/* The primary action of the control surface: submit composes the answer. The
+	   beacon (primary-action) is used sparingly — this single button earns it. */
+	.actions {
+		display: flex;
+		align-items: center;
+		gap: var(--mo-space-4);
+		flex-wrap: wrap;
+		margin-block-start: var(--mo-space-2);
+	}
+	.actions__submit {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+		padding: var(--mo-space-3) var(--mo-space-6);
+		border-radius: var(--mo-radius-3);
+		background: var(--mo-intent-primary-action-surface);
+		color: var(--mo-intent-primary-action-on);
+		font-family: var(--mo-font-body);
+		font-size: var(--mo-type-3);
+		font-weight: 600;
+		transition:
+			background-color 160ms ease,
+			opacity 160ms ease;
+	}
+	.actions__submit:hover {
+		background: var(--mo-intent-primary-action-hover);
+	}
+	.actions__submit:active {
+		background: var(--mo-intent-primary-action-active);
+	}
+	.actions__submit:disabled {
+		background: var(--mo-intent-primary-action-disabled);
+		cursor: default;
+	}
+	.actions__submit:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
+	}
+	.actions__hint {
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-2);
+		letter-spacing: 0.01em;
 		color: var(--mo-intent-on-surface-muted);
 	}
 
