@@ -54,7 +54,10 @@ export const ARCHIVE_SURFACES: Readonly<Record<string, string>> = {
 	// tone, not shadow. Scrim is the one translucent-fill backdrop token.
 	"--mo-intent-surface-overlay": "var(--mo-neutral-6)",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
-	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 60%, transparent)",
+	// Muted on-surface, raised to 74%: at 60% it resolved to ~#8F9092 and dipped to
+	// ~3.95:1 on the highest raised card tier (under WCAG AA). 74% clears 4.5:1 on
+	// every surface tier while staying visibly quieter than full on-surface.
+	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 74%, transparent)",
 	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-7) 70%, transparent)",
 	"--mo-scrim": "color-mix(in srgb, var(--mo-neutral-0) 62%, transparent)",
 };

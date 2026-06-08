@@ -30,7 +30,7 @@
 	   via tone, not the seed's shadow-lg. */
 	--mo-intent-surface-overlay: var(--mo-neutral-6);
 	--mo-intent-on-surface: var(--mo-neutral-11);
-	--mo-intent-on-surface-muted: color-mix(in srgb, var(--mo-neutral-11) 60%, transparent);
+	--mo-intent-on-surface-muted: color-mix(in srgb, var(--mo-neutral-11) 74%, transparent);
 	--mo-intent-outline: color-mix(in srgb, var(--mo-neutral-7) 70%, transparent);
 	/* Modal backdrop — the one overlay token expressed purely as a translucent
 	   fill (no tonal-layering substitute exists for a scrim). */

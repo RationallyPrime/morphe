@@ -38,9 +38,12 @@ import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 // before the tree renders.
 registerComposeCompounds();
 
-// The default number of cards the answer shows before the visitor asks for the
-// rest. Matches composeAnswer's own DEFAULT_LIMIT so the "Show all" button
-// appears exactly when the answer was actually capped.
+// How many capability cards the answer shows before "Show all". BREADTH is the
+// product — Sókrates composes across the visitor's systems — so the answer is not
+// short-sold to a few. The cards are deliberately light (each rests on its outcome
+// + tier, with the mechanism and the verifiable endpoints behind an on-demand
+// "How Sókrates wires this" disclosure), so a wall of them reads as reach, not
+// clutter. "Show all" lifts to the full corpus. Matches composeAnswer's DEFAULT_LIMIT.
 const COLLAPSED_LIMIT = 9;
 
 // Control-surface state. `pain` + `selected` are what the visitor edits; the

@@ -72,7 +72,6 @@ export function governanceLadder(): Node {
 		role: "section",
 		direction: "block",
 		children: [
-			eyebrow("Governance"),
 			t(
 				"Read by default. Propose with evidence. Act under a signed envelope.",
 				"heading",
@@ -149,7 +148,6 @@ export function sovereigntySplit(): Node {
 				"/images/the-box.png",
 				"The Sókrates appliance: a matte-black on-premises box with the amber mark etched into the lid, on a wooden desk.",
 			),
-			eyebrow: eyebrow("The box"),
 			heading: t("Your hardware. Your data. Your department.", "heading", {
 				emphasis: "strong",
 			}),
@@ -180,7 +178,6 @@ export function closingCta(): Node {
 		kind: "compound",
 		name: "SiteCtaBanner",
 		args: {
-			eyebrow: eyebrow("Reykjavík · MMXXVI"),
 			heading: t("One conversation is usually enough.", "heading", {
 				emphasis: "strong",
 			}),
@@ -224,21 +221,43 @@ export function homeBody(): Node {
 		surface: "base",
 		budget: 4,
 		children: [
-			// --- Differentiators ---------------------------------------------
+						// --- Differentiators: a dominant feature row + a 2-up of two minor panels,
+			// so the trio is no longer a uniform 3-up (the substrate claim leads).
 			{
 				kind: "stack",
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("Why it is different"),
-					t(
-						"Not a chatbot. Not a consultant. A department that stays.",
-						"heading",
-						{
-							emphasis: "strong",
-						},
-					),
-					{ kind: "spacer", size: "sm" },
+					t("Not a chatbot. Not a consultant. A department that stays.", "heading", {
+						emphasis: "strong",
+					}),
+					{ kind: "spacer", size: "md" },
+					// DOMINANT — the substrate claim as a wide feature row: claim + proof side
+					// by side, raised, owning the section before the minor pair.
+					{
+						kind: "frame",
+						role: "panel",
+						surface: "raised",
+						children: [
+							{
+								kind: "grid",
+								role: "list",
+								minTrack: "wide",
+								children: [
+									t("It reads your systems. It doesn't guess.", "subheading", {
+										emphasis: "strong",
+									}),
+									t(
+										"Sókrates compiles your ERP, your finance stack and the spreadsheets that actually run the place into one typed map. Every answer carries a citation to the row that proves it. The model is never the source of truth; the map is.",
+										"body",
+										{ emphasis: "muted" },
+									),
+								],
+							},
+						],
+					},
+					{ kind: "spacer", size: "md" },
+					// The two minor differentiators, a 2-up beneath the dominant.
 					{
 						kind: "grid",
 						role: "list",
@@ -248,33 +267,9 @@ export function homeBody(): Node {
 								kind: "compound",
 								name: "SiteValueProp",
 								args: {
-									index: eyebrow("Substrate"),
-									heading: t(
-										"It reads your systems. It doesn't guess.",
-										"subheading",
-										{
-											emphasis: "strong",
-										},
-									),
-									body: t(
-										"Sókrates compiles your ERP, your finance stack and the spreadsheets that actually run the place into one typed map. Every answer carries a citation to the row that proves it. The model is never the source of truth; the map is.",
-										"body",
-										{ emphasis: "muted" },
-									),
-								},
-							},
-							{
-								kind: "compound",
-								name: "SiteValueProp",
-								args: {
-									index: eyebrow("Governance"),
-									heading: t(
-										"It proposes. You authorise. It records.",
-										"subheading",
-										{
-											emphasis: "strong",
-										},
-									),
+									heading: t("It proposes. You authorise. It records.", "subheading", {
+										emphasis: "strong",
+									}),
 									body: t(
 										"Discovery is always on; action waits for your sign-off. Every act it takes carries a signed envelope you can audit as a single record. A Sókrates answer should never be accepted because the AI said so.",
 										"body",
@@ -286,7 +281,6 @@ export function homeBody(): Node {
 								kind: "compound",
 								name: "SiteValueProp",
 								args: {
-									index: eyebrow("Sovereignty"),
 									heading: t("The box sits on your premises.", "subheading", {
 										emphasis: "strong",
 									}),
@@ -304,8 +298,6 @@ export function homeBody(): Node {
 					},
 				],
 			},
-
-			{ kind: "spacer", size: "lg" },
 
 			// --- Pull quote --------------------------------------------------
 			{
@@ -329,12 +321,12 @@ export function homeBody(): Node {
 				},
 			},
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- The box -----------------------------------------------------
 			sovereigntySplit(),
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- Governance ladder -------------------------------------------
 			governanceLadder(),
@@ -349,7 +341,6 @@ export function contactLead(): Node {
 		role: "section",
 		direction: "block",
 		children: [
-			eyebrow("Contact"),
 			t("Ready? Here is how to start.", "heading", { emphasis: "strong" }),
 			t(
 				"Tell us what runs your operation today. Hákon reads every one and replies by hand, usually within 48 hours. No deck, no slides.",
@@ -369,7 +360,6 @@ export function howItWorksHero(): Node {
 		kind: "compound",
 		name: "SiteHero",
 		args: {
-			eyebrow: eyebrow("How it works"),
 			title: t("From your systems to governed work, in one map.", "display", {
 				emphasis: "strong",
 			}),
@@ -395,7 +385,6 @@ export function howItWorksBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("The map"),
 					t("The map is a function of the territory.", "heading", {
 						emphasis: "strong",
 					}),
@@ -407,12 +396,12 @@ export function howItWorksBody(): Node {
 				],
 			},
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- The governance ladder ---------------------------------------
 			governanceLadder(),
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- The gap is the queue ----------------------------------------
 			{
@@ -420,7 +409,6 @@ export function howItWorksBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("Onboarding is finite"),
 					t("The gap is the queue.", "heading", { emphasis: "strong" }),
 					t(
 						"When Sókrates hits something it cannot yet do, that gap is not a failure: it is the work queue. It closes the gap by extending its own capability layer, with a new internal tool or a permission request, never by silently writing into your external software. Each onboarding is the finite delta between your systems and what the platform already knows; what one customer's onboarding surfaces, the next inherits.",
@@ -430,14 +418,12 @@ export function howItWorksBody(): Node {
 				],
 			},
 
-			{ kind: "spacer", size: "lg" },
-
-			// --- Sovereignty -------------------------------------------------
-			sovereigntySplit(),
-
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- FAQ ---------------------------------------------------------
+			// (The sovereignty / "your hardware" beat is carried by the hero plate on
+			// this page and by the exit FAQ below, so the mid-page box split is dropped
+			// — one appliance photograph per page, never the same plate twice.)
 			faqSection(),
 		],
 	};
@@ -487,7 +473,6 @@ export function faqSection(): Node {
 		role: "section",
 		direction: "block",
 		children: [
-			eyebrow("Before you ask"),
 			t("The honest version.", "heading", { emphasis: "strong" }),
 			{ kind: "spacer", size: "xs" },
 			{ kind: "stack", role: "list", direction: "block", children: items },
@@ -504,7 +489,6 @@ export function architectureHero(): Node {
 		kind: "compound",
 		name: "SiteHero",
 		args: {
-			eyebrow: eyebrow("Architecture"),
 			title: t(
 				"Five primitives. One typed map. A signed envelope on every act.",
 				"display",
@@ -534,7 +518,6 @@ export function architectureBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("The substrate"),
 					t("Matter, form, actor, cause.", "heading", { emphasis: "strong" }),
 					{ kind: "spacer", size: "sm" },
 					{
@@ -572,7 +555,7 @@ export function architectureBody(): Node {
 				],
 			},
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- Pull quote --------------------------------------------------
 			{
@@ -590,7 +573,7 @@ export function architectureBody(): Node {
 				},
 			},
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- The four agents ---------------------------------------------
 			{
@@ -598,7 +581,6 @@ export function architectureBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("The four-agent core"),
 					t(
 						"One sovereign router. Three vassals, each with one job.",
 						"heading",
@@ -642,7 +624,7 @@ export function architectureBody(): Node {
 				],
 			},
 
-			{ kind: "spacer", size: "lg" },
+			{ kind: "spacer", size: "xl" },
 
 			// --- Read / write seam -------------------------------------------
 			{
@@ -650,7 +632,6 @@ export function architectureBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					eyebrow("The seam"),
 					t("Read by default. Write under a current envelope.", "heading", {
 						emphasis: "strong",
 					}),

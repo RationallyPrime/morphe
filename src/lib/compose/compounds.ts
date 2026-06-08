@@ -441,8 +441,6 @@ export const CapabilityCard: CompoundDef = {
 					// SUPPORTING: the short human name of the capability — call site owns the
 					// register (a quiet caption under the outcome, not a heading above it).
 					{ kind: "param-ref", param: "title" },
-					// SUPPORTING: one plain sentence of what it does (call site sets caption/muted).
-					{ kind: "param-ref", param: "transform" },
 					{ kind: "spacer", size: "xs" },
 					// DEMOTED PROOF — the differentiator, quieted to a footnote. The flow edge,
 					// the verifiable endpoint rows and the compiled-model chips ALL live inside
@@ -457,6 +455,10 @@ export const CapabilityCard: CompoundDef = {
 						kind: "disclosure",
 						summary: "How Sókrates wires this",
 						children: [
+							// The plain-language mechanism, demoted out of the resting card so the
+							// wall reads as pure outcomes; the "how" reveals on demand with the
+							// verifiable plumbing it describes (call site sets caption/muted).
+							{ kind: "param-ref", param: "transform" },
 							// The source → target map edge.
 							{
 								kind: "slot",

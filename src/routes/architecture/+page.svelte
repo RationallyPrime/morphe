@@ -23,14 +23,19 @@
 	/>
 </svelte:head>
 
-<section class="s-section">
-	<div class="s-wrap">
-		<MorpheRoot tree={heroTree} />
-		<div class="s-cta-row">
-			<CtaLink href="/" label="See it compose" variant="primary" />
-			<CtaLink href="/how-it-works" label="How it works" variant="secondary" />
+<section class="s-section s-hero">
+	<div class="s-wrap s-hero__grid">
+		<div class="s-hero__copy">
+			<MorpheRoot tree={heroTree} />
+			<div class="s-cta-row">
+				<CtaLink href="/" label="See it compose" variant="primary" />
+				<CtaLink href="/how-it-works" label="How it works" variant="secondary" />
+			</div>
+			<p class="s-proof">Read-side discovery always on. Write-side action only under a current envelope.</p>
 		</div>
-		<p class="s-proof">Read-side discovery always on. Write-side action only under a current envelope.</p>
+		<figure class="s-hero__seal" aria-hidden="true">
+			<img class="s-hero__seal-img" src="/images/sokrates-mark.svg" alt="" width="220" height="220" />
+		</figure>
 	</div>
 </section>
 

@@ -22,14 +22,27 @@
 	/>
 </svelte:head>
 
-<section class="s-section">
-	<div class="s-wrap">
-		<MorpheRoot tree={heroTree} />
-		<div class="s-cta-row">
-			<CtaLink href="/" label="See it compose" variant="primary" />
-			<CtaLink href="/#contact" label="Talk to us" variant="secondary" />
+<section class="s-section s-hero">
+	<div class="s-wrap s-hero__grid s-hero__grid--flip">
+		<div class="s-hero__copy">
+			<MorpheRoot tree={heroTree} />
+			<div class="s-cta-row">
+				<CtaLink href="/" label="See it compose" variant="primary" />
+				<CtaLink href="/#contact" label="Talk to us" variant="secondary" />
+			</div>
+			<p class="s-proof">Finance and operations first. The rest of the back office as the map grows.</p>
 		</div>
-		<p class="s-proof">Finance and operations first. The rest of the back office as the map grows.</p>
+		<figure class="s-plate s-hero__plate">
+			<img
+				class="s-plate__img"
+				src="/images/the-box.png"
+				alt="The Sókrates appliance on a wooden desk, the philosopher mark etched into the lid."
+				width="512"
+				height="512"
+				decoding="async"
+			/>
+			<figcaption class="s-plate__cap">One appliance, compiling the systems you already run into a map you can question.</figcaption>
+		</figure>
 	</div>
 </section>
 

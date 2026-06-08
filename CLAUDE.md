@@ -6,7 +6,7 @@ Guidance for Claude Code (and any agent) working in this repo. These instruction
 
 **Morphe** is a stratified adaptive-UI substrate: UI is authored as **data** (a typed `Node` tree), rendered through a fixed grammar + a context algebra + a three-layer token system, and re-themed by swapping a **dialect** without touching the authored tree. On top of that substrate lives the **Sókrates marketing site** (the composer + the marketing pages). The substrate is the product's foundation; treat it as a real design system, not a scratch app.
 
-The default dialect, `icelandic-archive`, **is** the Sókrates "Icelandic Archive" design system: amber `#f2ca50` beacon on a `#121416` tonal surface stack, Newsreader (display) + Hanken Grotesk (body) + IBM Plex Mono (mono/label). Identity is committed; do not reach for other fonts/palettes.
+The **design system is the Morphe substrate itself** — the grammar, the context algebra, the three token strata, and the dialect mechanism. `icelandic-archive` is its **default theme** (one fixed point in dialect-space), NOT the design system, and no dialect is sacred (rewrite/replace them freely; the *substrate* is the locked part). The committed Sókrates identity the default theme currently realizes: amber `#f2ca50` beacon on a `#121416` tonal surface stack, **Spectral** (display) + **Hanken Grotesk** (body) + **Fragment Mono** (mono/label). The full canon is `PRODUCT.md` (strategy) + `DESIGN.md` (visual system); read them before design work.
 
 ## Stack & commands
 

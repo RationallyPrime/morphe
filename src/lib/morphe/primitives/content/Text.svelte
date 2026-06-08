@@ -105,13 +105,20 @@
 		text-wrap: pretty;
 	}
 
-	/* Headline register: serif display family, tighter leading. */
+	/* Headline register: engraved serif display family (Bodoni Moda), tight leading. */
 	.mo-text[data-as="display"],
-	.mo-text[data-as="heading"],
-	.mo-text[data-as="subheading"] {
+	.mo-text[data-as="heading"] {
 		font-family: var(--mo-font-headline);
 		line-height: var(--mo-leading-tight);
-		letter-spacing: -0.01em;
+		letter-spacing: -0.005em;
+		text-wrap: balance;
+	}
+	/* Subheadings drop to the body sans: a high-contrast didone goes spindly at
+	   small sizes, and the serif-display / sans-subhead split is the type rhythm. */
+	.mo-text[data-as="subheading"] {
+		font-family: var(--mo-font-body);
+		line-height: var(--mo-leading-snug);
+		letter-spacing: -0.005em;
 		text-wrap: balance;
 	}
 
@@ -121,7 +128,7 @@
 	 * collapsing into body in a demoted context yet bounds it in a generous one.
 	 */
 	.mo-text[data-as="display"] {
-		font-size: clamp(var(--mo-ctx-type, var(--mo-type-4)), calc(var(--mo-ctx-type, var(--mo-type-4)) * 1.45), var(--mo-type-8));
+		font-size: clamp(var(--mo-ctx-type, var(--mo-type-4)), calc(var(--mo-ctx-type, var(--mo-type-4)) * 1.5 + 1.4vw), var(--mo-type-8));
 		font-weight: 500;
 	}
 	.mo-text[data-as="heading"] {
@@ -130,7 +137,7 @@
 	}
 	.mo-text[data-as="subheading"] {
 		font-size: clamp(var(--mo-type-5), var(--mo-ctx-type, var(--mo-type-5)), var(--mo-type-6));
-		font-weight: 500;
+		font-weight: 600;
 	}
 	.mo-text[data-as="body"] {
 		font-size: clamp(var(--mo-type-3), var(--mo-ctx-type, var(--mo-type-4)), var(--mo-type-5));
@@ -159,6 +166,13 @@
 	}
 	.mo-text[data-emphasis="critical"] {
 		font-weight: 700;
+	}
+
+	/* An empty text node (an omitted optional kicker/eyebrow/lede default) collapses
+	   to nothing instead of leaving an empty line — so a presenter can drop a kicker
+	   by simply not passing it, without an empty <small> reserving space. */
+	.mo-text:empty {
+		display: none;
 	}
 
 	/* Line clamp (author intent: a line count). Unset -> no clamp. */

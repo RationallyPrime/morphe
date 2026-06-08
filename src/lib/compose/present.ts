@@ -38,7 +38,9 @@ import type { Capability, SurfaceUse, SystemId } from "./capability.js";
 import type { ComposeQuery } from "./input.js";
 import { SYSTEMS, tagsFromText } from "./taxonomy.js";
 
-/** A sensible default cap on rendered cards when the call site omits `limit`. */
+/** Default cap on rendered cards when the call site omits `limit`. Generous: the
+ * cards are light (outcome + tier, with mechanism/endpoints behind a disclosure),
+ * so breadth is the point — the route's "Show all" lifts to the full corpus. */
 const DEFAULT_LIMIT = 9;
 
 /** Display label for a system id, resolved from the canonical `SYSTEMS` table. */

@@ -39,7 +39,7 @@
 	--mo-type-5: 1.0625rem; /* 17px — deck */
 	--mo-type-6: 1.375rem; /* 22px — subheading */
 	--mo-type-7: 1.875rem; /* 30px — heading */
-	--mo-type-8: 2.75rem; /* 44px — display */
+	--mo-type-8: clamp(2.75rem, 1.1rem + 4.6vw, 4.5rem); /* 44px → 72px — display, fluid */
 
 	/* --- Line-height ramp --------------------------------------------------- */
 	--mo-leading-tight: 1.15;
@@ -128,7 +128,7 @@
 	/* --- Font families (pulled through from the Archive; the three families) - */
 	/* The host app wires the actual @font-face / next-font variables into these
 	   three vars; Morphe references only these neutral handles. */
-	--mo-font-display: var(--font-display, "Newsreader"), Georgia, "Times New Roman", serif;
+	--mo-font-display: var(--font-display, "Spectral"), "Times New Roman", Georgia, serif;
 	--mo-font-body: var(--font-body, "Hanken Grotesk"), system-ui, -apple-system, sans-serif;
-	--mo-font-mono: var(--font-mono, "IBM Plex Mono"), ui-monospace, "SF Mono", monospace;
+	--mo-font-mono: var(--font-mono, "Fragment Mono"), ui-monospace, "SF Mono", monospace;
 }

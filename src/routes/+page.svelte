@@ -35,15 +35,31 @@ const ctaTree = closingCta();
 	/>
 </svelte:head>
 
-<!-- Hero -->
-<section class="s-section hero">
-	<div class="s-wrap">
-		<MorpheRoot tree={heroTree} />
-		<div class="s-cta-row">
-			<CtaLink href="/#contact" label="Start the conversation" variant="primary" />
-			<CtaLink href="/onboarding" label="Begin onboarding" variant="secondary" />
+<!-- Hero — an asymmetric archive plate: copy hung off the left axis, the appliance
+     as the dominant artifact on the right (no more dead space, and the page's one
+     photograph leads instead of hiding below the fold). -->
+<section class="s-section s-hero">
+	<div class="s-wrap s-hero__grid">
+		<div class="s-hero__copy">
+			<MorpheRoot tree={heroTree} />
+			<div class="s-cta-row">
+				<CtaLink href="/#contact" label="Start the conversation" variant="primary" />
+				<CtaLink href="/onboarding" label="Begin onboarding" variant="secondary" />
+			</div>
+			<p class="s-proof">On-premises · Read-only until you authorise · Clean exit, no fees</p>
 		</div>
-		<p class="s-proof">On-premises · Read-only until you authorise · Clean exit, no fees</p>
+		<figure class="s-plate s-hero__plate">
+			<img
+				class="s-plate__img"
+				src="/images/the-box.png"
+				alt="The Sókrates appliance: a matte-black on-premises box with the philosopher mark etched into the lid, on a wooden desk."
+				width="512"
+				height="512"
+				fetchpriority="high"
+				decoding="async"
+			/>
+			<figcaption class="s-plate__cap">The department, in a box. On your premises, behind your firewall.</figcaption>
+		</figure>
 	</div>
 </section>
 
