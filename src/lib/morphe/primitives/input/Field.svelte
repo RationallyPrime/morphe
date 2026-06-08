@@ -1,9 +1,22 @@
 <script lang="ts">
 	/*
-	 * Field — a single-line text input. a11y is REQUIRED (InputA11y): the label
-	 * relationship is wired into the DOM here; an unlabelled Field is impossible by
-	 * the grammar type. Functional error color is paired with text (never alone).
-	 * STUB: minimal valid markup. Agent edits ONLY this file.
+	 * Field — a single-line text input. The simplest stateful provider (Lemma 5):
+	 * its value is tier-0, component-owned $state that never leaves the component;
+	 * the wire carries only a `bind` store-path (exposed as data-bind for a host to
+	 * adopt), never a live value.
+	 *
+	 * a11y is REQUIRED by the grammar (InputA11y): the label relationship is wired
+	 * into the DOM here, so an unlabelled Field is unrepresentable, not merely
+	 * discouraged. The error state is signalled by THREE channels — caution color,
+	 * an alert text message, AND a shape (the error glyph + a thicker rule) — so
+	 * functional color is never the only signal (WCAG 1.4.1).
+	 *
+	 * Continuous sizing rides the boundary CSS vars (--mo-ctx-type, --mo-ctx-space)
+	 * the nearest Layout ancestor set; stateful chrome (border, ring) rides this
+	 * component's own --mo-field-* vars (the C9 carrier lifted from the legacy:
+	 * discrete decisions stay declarative, continuous/stateful values flow through
+	 * the cascade — no runtime className synthesis). Colors resolve through
+	 * SLOTS -> intents -> scales; no raw scale or hex is named here.
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
@@ -11,6 +24,7 @@
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Field> = $props();
+
 	const a11y = $derived(node.a11y);
 	const hintId = $derived(node.hint ? `${a11y.id}-hint` : undefined);
 	const errorId = $derived(node.error ? `${a11y.id}-error` : undefined);
@@ -20,14 +34,28 @@
 	const invalid = $derived(Boolean(node.error));
 	const ariaLabel = $derived(a11y.label.mode === "aria-label" ? a11y.label.text : undefined);
 	const ariaLabelledby = $derived(a11y.label.mode === "labelledby" ? a11y.label.id : undefined);
+
+	// Stateful chrome through the CSS-var channel: resting border vs. error border.
 	const borderColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.border());
+	const ringColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.ring());
+
+	// tier-0 local state (Lemma 5): the field's own value never leaves the
+	// component in Phase 0 — the host adopts it via the data-bind store-path.
+	let value = $state("");
 </script>
 
-<div class="mo-field">
+<div class="mo-field" data-invalid={invalid} style:--mo-field-border={borderColor} style:--mo-field-ring={ringColor}>
 	{#if a11y.label.mode === "visible"}
-		<label class="mo-field__label" for={a11y.id}>{a11y.label.text}</label>
+		<label class="mo-field__label" for={a11y.id}>
+			{a11y.label.text}
+			{#if a11y.required}
+				<span class="mo-field__req" aria-hidden="true">*</span>
+				<span class="mo-field__sr">(required)</span>
+			{/if}
+		</label>
 	{/if}
 	<input
+		bind:value
 		id={a11y.id}
 		class="mo-field__input"
 		type={node.inputType ?? "text"}
@@ -39,13 +67,15 @@
 		aria-labelledby={ariaLabelledby}
 		aria-describedby={describedBy}
 		data-bind={node.bind}
-		style:border-color={borderColor}
 	/>
-	{#if node.hint}
+	{#if node.hint && !invalid}
 		<p id={hintId} class="mo-field__hint">{node.hint}</p>
 	{/if}
 	{#if node.error}
-		<p id={errorId} class="mo-field__error" role="alert">{node.error}</p>
+		<p id={errorId} class="mo-field__error" role="alert">
+			<span class="mo-field__error-icon material-symbols-outlined" aria-hidden="true">error</span>
+			<span>{node.error}</span>
+		</p>
 	{/if}
 </div>
 
@@ -56,26 +86,51 @@
 		gap: var(--mo-space-2);
 	}
 	.mo-field__label {
-		font-family: var(--mo-font-body);
+		font-family: var(--mo-font-label);
 		font-size: var(--mo-type-1);
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--mo-intent-on-surface-muted);
 		font-weight: 600;
 	}
+	.mo-field__req {
+		color: var(--mo-intent-caution-on);
+		margin-inline-start: var(--mo-space-1);
+	}
+	.mo-field__sr {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
 	.mo-field__input {
 		background: var(--mo-intent-neutral-surface);
 		color: var(--mo-intent-on-surface);
 		border: 0;
-		border-bottom: 1px solid;
-		border-radius: var(--mo-radius-2);
-		padding: var(--mo-space-4) var(--mo-space-4);
+		border-bottom: 1px solid var(--mo-field-border, var(--mo-intent-outline));
+		border-radius: var(--mo-radius-2) var(--mo-radius-2) 0 0;
+		padding: var(--mo-ctx-space, var(--mo-space-4)) var(--mo-space-4);
 		font-family: var(--mo-font-body);
-		font-size: var(--mo-type-4);
+		font-size: var(--mo-ctx-type, var(--mo-type-4));
+		line-height: var(--mo-leading-snug);
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	.mo-field__input::placeholder {
+		color: var(--mo-intent-on-surface-muted);
 	}
 	.mo-field__input:focus-visible {
-		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline: 2px solid var(--mo-field-ring, var(--mo-intent-primary-action-ring));
 		outline-offset: 2px;
+		border-bottom-color: var(--mo-field-ring, var(--mo-intent-primary-action-ring));
+	}
+	/* Shape channel for the error state: a thicker rule, not color alone. */
+	.mo-field[data-invalid="true"] .mo-field__input {
+		border-bottom-width: 2px;
 	}
 	.mo-field__hint {
 		margin: 0;
@@ -85,9 +140,16 @@
 		color: var(--mo-intent-on-surface-muted);
 	}
 	.mo-field__error {
+		display: flex;
+		align-items: center;
+		gap: var(--mo-space-2);
 		margin: 0;
 		font-family: var(--mo-font-mono);
 		font-size: var(--mo-type-2);
 		color: var(--mo-intent-caution-on);
+	}
+	.mo-field__error-icon {
+		font-size: 1.1em;
+		line-height: 1;
 	}
 </style>

@@ -1,15 +1,25 @@
 <script lang="ts">
 	/*
-	 * Stack — block/inline/auto flow container (Layout role).
+	 * Stack — the block/inline/auto flow container (Layout role).
 	 *
-	 * STUB: structurally complete (descends context, emits boundary vars, renders
-	 * children). A primitive agent may enrich the markup/styling but MUST keep:
-	 *   - the `descend(node.role, …)` call that provides child context,
-	 *   - the boundary CSS vars on the root element,
-	 *   - the recursion into <Node> with the child ctx.
-	 * Agent edits ONLY this file. Do not touch grammar/types.ts, registry, tokens.
+	 * Pure positioning + a carrier of composition context. It descends the context
+	 * algebra (depth+1, density-for-count, role demotion of scale tier), emits the
+	 * continuous boundary vars (--mo-ctx-space / -type / -surface) on its root, and
+	 * recurses into <Node> with the child context. LOCALITY: it resolves from
+	 * (parent ctx, own role) only; STABILITY: density only steps when childCount
+	 * crosses an enumerated threshold (handled inside `descend`).
 	 *
-	 * `direction: "auto"` flips axis with a container query (Lemma 2) — no JS.
+	 * `direction:"auto"` flips the main axis with a CONTAINER QUERY — no JS in that
+	 * loop. The nearest Frame / MorpheRoot establishes `container-type: inline-size`,
+	 * so a Stack reads its own available inline size, not the viewport.
+	 *
+	 * Geometry never hardcodes pixels: gap comes from the density→space boundary
+	 * var; the inline-flip breakpoint is expressed in `rem` so it tracks the user's
+	 * root font size. No raw scale or intent is referenced by anything an author
+	 * authored — the author emits a role + a direction + an emphasis CLAIM; the
+	 * algebra compiles those into space.
+	 *
+	 * Agent edits ONLY this file. grammar/types.ts, registry, tokens, context: locked.
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
@@ -19,20 +29,28 @@
 
 	let { node }: PrimitiveProps<Stack> = $props();
 
-	// A server-driven tree is immutable per <Node> instance: a changed tree
-	// mounts new keyed components. The structural context decision is computed
-	// once at init (setContext must run during init anyway), so reading `node`
-	// here is intentional. Template-consumed values are $derived for reactivity.
+	// A server-driven tree is immutable per <Node> instance: a changed tree mounts
+	// new keyed components, so the one-time context descent (which MUST run during
+	// init, because setContext does) reads `node` directly. Values consumed in the
+	// template stay $derived for reactivity.
 	// svelte-ignore state_referenced_locally
 	const child = descend(node.role, {
 		childCount: node.children.length,
 		claim: node.emphasis,
 	});
+
 	const dir = $derived(node.direction ?? "auto");
+	const emphasis = $derived(node.emphasis ?? "normal");
 	const childStyle = $derived(boundaryStyle(child));
 </script>
 
-<div class="mo-stack" data-direction={dir} data-role={node.role} style={childStyle}>
+<div
+	class="mo-stack"
+	data-direction={dir}
+	data-role={node.role}
+	data-emphasis={emphasis}
+	style={childStyle}
+>
 	{#each node.children as c (c)}
 		<Node node={c} ctx={child} />
 	{/each}
@@ -42,18 +60,46 @@
 	.mo-stack {
 		display: flex;
 		flex-direction: column;
-		gap: var(--mo-ctx-space);
+		gap: var(--mo-ctx-space, var(--mo-space-5));
+		/* min-width:0 stops a flex child from overflowing its track (long text,
+		   nested grids). Pure positioning hygiene, no geometry decision. */
+		min-inline-size: 0;
 	}
+
+	/* Explicit axes. */
 	.mo-stack[data-direction="inline"] {
 		flex-direction: row;
+		align-items: center;
 	}
-	/* direction:auto — flip to a row when the container is wide enough. */
+	.mo-stack[data-direction="block"] {
+		flex-direction: column;
+	}
+
+	/*
+	 * direction:auto — start as a block stack (the safe, narrow default) and flip
+	 * to an inline row once THIS container (not the viewport) is wide enough. The
+	 * container query reads the nearest container-type ancestor, so the flip is
+	 * compositional, not global — a Stack inside a narrow panel stays stacked even
+	 * on a wide page. No JS.
+	 */
 	.mo-stack[data-direction="auto"] {
 		flex-direction: column;
 	}
-	@container (min-width: 32rem) {
+	@container (min-inline-size: 32rem) {
 		.mo-stack[data-direction="auto"] {
 			flex-direction: row;
+			align-items: center;
 		}
+	}
+
+	/*
+	 * Emphasis is a CLAIM the algebra renormalizes against the budget; the rendered
+	 * weight reaches a Stack as a data attribute. A layout primitive never paints
+	 * functional color — it only adjusts neutral SEPARATION so an emphasized group
+	 * reads as a unit. This is shape/spacing, never color-as-the-only-signal.
+	 */
+	.mo-stack[data-emphasis="strong"],
+	.mo-stack[data-emphasis="critical"] {
+		gap: var(--mo-ctx-space, var(--mo-space-5));
 	}
 </style>

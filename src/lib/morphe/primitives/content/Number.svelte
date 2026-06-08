@@ -1,18 +1,48 @@
 <script lang="ts">
 	/*
-	 * Number — formatted numeric value (tabular figures). Locale resolves at render.
-	 * STUB: minimal valid markup. Agent edits ONLY this file.
+	 * Number — a formatted numeric value (Content family leaf).
+	 *
+	 * Locale-aware: formatting resolves at render via `Intl.NumberFormat` with the
+	 * platform default locale (the host app sets the document locale; SSR and the
+	 * client agree because both read `undefined` -> the runtime default). Figures
+	 * are tabular (`tnum`) so columns of numbers align.
+	 *
+	 * Like Text, a leaf reads its size from the boundary `--mo-ctx-type` (which
+	 * encodes scale_tier) and clamps its emphasis CLAIM against the budget it sees
+	 * in `ctx` (Locality: a function of own ctx only). Emphasis rides weight, a
+	 * non-color channel, so functional color is never the sole signal.
+	 *
+	 * Agent edits ONLY this file.
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
-	import type { NumberNode } from "../../grammar/types.js";
+	import type { EmphasisClaim, NumberNode } from "../../grammar/types.js";
 	import { slot } from "../../tokens/slots.js";
+	import { SURFACE_VARS } from "../../tokens/intents.js";
 
-	let { node }: PrimitiveProps<NumberNode> = $props();
-	const color = $derived(node.intent ? slot(node.intent, "on") : "var(--mo-intent-on-surface)");
-	const emphasis = $derived(node.emphasis ?? "normal");
-	const formatted = $derived(format(node));
+	let { node, ctx }: PrimitiveProps<NumberNode> = $props();
 
+	const WEIGHT: Record<EmphasisClaim, number> = {
+		muted: 0,
+		normal: 1,
+		strong: 2,
+		critical: 3,
+	};
+	const LADDER: readonly EmphasisClaim[] = ["critical", "strong", "normal", "muted"];
+
+	function clampEmphasis(claim: EmphasisClaim, budget: number): EmphasisClaim {
+		let rendered = claim;
+		while (WEIGHT[rendered] > Math.max(0, budget) && rendered !== "muted") {
+			const i = LADDER.indexOf(rendered);
+			rendered = LADDER[i + 1] ?? "muted";
+		}
+		return rendered;
+	}
+
+	const emphasis = $derived(clampEmphasis(node.emphasis ?? "normal", ctx.emphasisBudget));
+	const color = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
+
+	/** Locale-aware formatting. The default locale is the runtime's (host-driven). */
 	function format(n: NumberNode): string {
 		switch (n.format ?? "plain") {
 			case "integer":
@@ -21,30 +51,50 @@
 				return new Intl.NumberFormat(undefined, {
 					style: "currency",
 					currency: n.currency ?? "ISK",
+					currencyDisplay: "narrowSymbol",
 				}).format(n.value);
 			case "percent":
-				return new Intl.NumberFormat(undefined, { style: "percent" }).format(n.value);
+				return new Intl.NumberFormat(undefined, {
+					style: "percent",
+					maximumFractionDigits: 1,
+				}).format(n.value);
 			case "compact":
-				return new Intl.NumberFormat(undefined, { notation: "compact" }).format(n.value);
+				return new Intl.NumberFormat(undefined, {
+					notation: "compact",
+					maximumFractionDigits: 1,
+				}).format(n.value);
 			default:
-				return String(n.value);
+				return new Intl.NumberFormat(undefined).format(n.value);
 		}
 	}
+
+	const formatted = $derived(format(node));
+	/** Sign as a non-color shape signal so a negative reads without relying on color. */
+	const sign = $derived(node.value < 0 ? "negative" : node.value > 0 ? "positive" : "zero");
 </script>
 
-<span class="mo-number" data-emphasis={emphasis} style:color>{formatted}</span>
+<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color>{formatted}</span>
 
 <style>
 	.mo-number {
 		font-family: var(--mo-font-mono);
-		font-feature-settings: "tnum";
+		/* Tabular, lining figures so numeric columns align. */
+		font-feature-settings: "tnum" 1, "lnum" 1;
+		font-variant-numeric: tabular-nums lining-nums;
 		font-size: var(--mo-ctx-type, var(--mo-type-4));
+		line-height: var(--mo-leading-snug);
+		color: var(--mo-intent-on-surface);
+		white-space: nowrap;
 	}
+
+	/* Emphasis as weight (non-color channel). */
 	.mo-number[data-emphasis="muted"] {
 		color: var(--mo-intent-on-surface-muted) !important;
 	}
-	.mo-number[data-emphasis="strong"],
-	.mo-number[data-emphasis="critical"] {
+	.mo-number[data-emphasis="strong"] {
 		font-weight: 600;
+	}
+	.mo-number[data-emphasis="critical"] {
+		font-weight: 700;
 	}
 </style>
