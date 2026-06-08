@@ -71,15 +71,7 @@ export const PainPrompt: CompoundDef = {
 		direction: "block",
 		emphasis: "strong",
 		children: [
-			{
-				kind: "cluster",
-				role: "inline",
-				align: "center",
-				children: [
-					{ kind: "icon", name: "hub", a11y: { role: "decorative" }, intent: "accession" },
-					{ kind: "text", value: "What Sókrates can do", as: "caption", intent: "accession" },
-				],
-			},
+			{ kind: "text", value: "What Sókrates can do", as: "caption", intent: "accession" },
 			// The visitor's answered question — call site owns the register.
 			{ kind: "param-ref", param: "heading" },
 			{ kind: "param-ref", param: "sub" },

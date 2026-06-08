@@ -11,7 +11,7 @@
  * This module is pure DATA + pure functions. No clock, no RNG, no I/O.
  */
 
-import type { SystemRef } from "./capability.js";
+import type { Category, SystemId, SystemRef } from "./capability.js";
 
 /** The closed set of pain tags. A `Capability.painPoints` is a subset of these. */
 export type PainTag =
@@ -315,9 +315,54 @@ export function tagsFromText(text: string): PainTag[] {
 	return PAIN_TAGS.filter((tag) => hit.has(tag));
 }
 
-/** The three systems the composer answers for. Order is the display order. */
-export const SYSTEMS: readonly SystemRef[] = [
-	{ id: "humanity", label: "Humanity" },
-	{ id: "dkplus", label: "dkPlus" },
-	{ id: "twenty", label: "Twenty" },
+/* ---------------------------------------------------------------------------
+ * SYSTEMS + CATEGORIES — the product registry and the system-agnostic axis.
+ *
+ * Each system is classified by `Category` (the system-AGNOSTIC concept it fills).
+ * Capabilities reach across categories ("CRM -> ERP"); the concrete systems that
+ * realize them are the grounding. With one product per category today, surfacing by
+ * category and by system is identical — this classification is the seam for a second
+ * product in a category later. To add one: add a `System` here with its category;
+ * the binding/grounding of capabilities to it is the deferred template work.
+ * ------------------------------------------------------------------------- */
+
+/** A registered system: a display ref plus the category it fills. */
+export interface System extends SystemRef {
+	category: Category;
+}
+
+/** The canonical, ordered list of categories. */
+export const CATEGORIES: readonly Category[] = ["crm", "erp", "wfm"];
+
+/** Human label for each category (the system-agnostic register). */
+export const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
+	crm: "CRM",
+	erp: "ERP / Finance",
+	wfm: "Workforce",
+};
+
+/** The systems the composer answers for. Order is the display order. */
+export const SYSTEMS: readonly System[] = [
+	{ id: "humanity", label: "Humanity", category: "wfm" },
+	{ id: "dkplus", label: "dkPlus", category: "erp" },
+	{ id: "twenty", label: "Twenty", category: "crm" },
 ];
+
+/** The category a system fills, or `undefined` for an unknown id. */
+export function categoryOf(id: SystemId): Category | undefined {
+	return SYSTEMS.find((s) => s.id === id)?.category;
+}
+
+/**
+ * The set of categories a group of systems covers, in canonical `CATEGORIES` order
+ * and deduped. This is a capability's system-agnostic reach (its `systems` mapped
+ * through `categoryOf`) — the key a future template/binding split would surface on.
+ */
+export function categoriesOf(systems: readonly SystemId[]): Category[] {
+	const seen = new Set<Category>();
+	for (const id of systems) {
+		const c = categoryOf(id);
+		if (c !== undefined) seen.add(c);
+	}
+	return CATEGORIES.filter((c) => seen.has(c));
+}

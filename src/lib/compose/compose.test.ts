@@ -17,7 +17,7 @@ import { CAPABILITIES } from "./corpus.js";
 import { capabilityCard, composeAnswer } from "./present.js";
 import { matchCapabilities } from "./match.js";
 import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
-import { SYSTEMS } from "./taxonomy.js";
+import { CATEGORIES, CATEGORY_LABELS, categoriesOf, categoryOf, SYSTEMS } from "./taxonomy.js";
 import type { ComposeQuery } from "./input.js";
 
 describe("compose compounds — registration through the factory gate", () => {
@@ -494,3 +494,45 @@ function leafForms(dotted: string): Set<string> {
 	}
 	return out;
 }
+
+describe("compose taxonomy — category classification (system-agnostic axis)", () => {
+	it("every system is classified into a known category with a label", () => {
+		for (const s of SYSTEMS) {
+			expect(CATEGORIES, `${s.id} category`).toContain(s.category);
+			expect(CATEGORY_LABELS[s.category], `${s.category} label`).toBeTruthy();
+			expect(categoryOf(s.id)).toBe(s.category);
+		}
+	});
+
+	it("categoryOf is undefined for an unknown system", () => {
+		expect(categoryOf("salesforce")).toBeUndefined();
+	});
+
+	it("each category is filled by exactly one product today (1:1 mapping)", () => {
+		for (const cat of CATEGORIES) {
+			const filling = SYSTEMS.filter((s) => s.category === cat);
+			expect(filling.length, `${cat} products`).toBe(1);
+		}
+	});
+
+	it("categoriesOf maps a system set to its deduped, canonically ordered categories", () => {
+		// Order follows CATEGORIES (crm, erp, wfm), not the input order.
+		expect(categoriesOf(["dkplus", "twenty"])).toEqual(["crm", "erp"]);
+		expect(categoriesOf(["twenty", "dkplus", "humanity"])).toEqual(["crm", "erp", "wfm"]);
+		expect(categoriesOf([])).toEqual([]);
+		// Unknown ids contribute no category.
+		expect(categoriesOf(["hubspot"])).toEqual([]);
+	});
+
+	it("every capability's systems all classify — its category footprint is coherent", () => {
+		for (const cap of CAPABILITIES) {
+			for (const s of cap.systems) {
+				expect(categoryOf(s), `${cap.id}: system "${s}" has no category`).toBeDefined();
+			}
+			// One category per system today, so the footprint cardinality matches.
+			expect(categoriesOf(cap.systems).length, `${cap.id} category footprint`).toBe(
+				cap.systems.length,
+			);
+		}
+	});
+});

@@ -22,6 +22,16 @@
 /** Stable slug for a source system, e.g. "humanity", "dkplus". */
 export type SystemId = string;
 
+/**
+ * The product CATEGORY a system belongs to — the system-AGNOSTIC axis. A
+ * capability's reach is conceptually a category shape ("CRM -> ERP"); the concrete
+ * systems that realize it (Twenty -> dkPlus) are the GROUNDING axis. Today there is
+ * exactly one product per category, so category-keyed and system-keyed surfacing are
+ * identical; this type is the seam that lets a second product in a category light up
+ * the same capabilities later (see MIGRATION.md — the template/binding split).
+ */
+export type Category = "crm" | "erp" | "wfm";
+
 export interface SystemRef {
 	id: SystemId;
 	label: string; // display name: "Humanity", "dkPlus"

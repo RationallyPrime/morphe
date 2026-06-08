@@ -22,6 +22,7 @@
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 	import { icelandicArchive } from "$morphe";
 	import {
+		CATEGORY_LABELS,
 		composeAnswer,
 		emptyState,
 		featuredCapabilities,
@@ -118,7 +119,7 @@
 	-->
 	<header class="control">
 		<div class="control__brand">
-			<span class="control__glyph material-symbols-outlined" aria-hidden="true">hub</span>
+			<img class="control__mark" src="/sokrates-mark.svg" alt="" aria-hidden="true" width="28" height="28" />
 			<p class="control__kicker">Sókrates · Composer</p>
 		</div>
 
@@ -154,7 +155,8 @@
 								onchange={() => toggleSystem(system.id)}
 							/>
 							<span class="chip__dot" aria-hidden="true"></span>
-							{system.label}
+							<span class="chip__label">{system.label}</span>
+							<span class="chip__cat">{CATEGORY_LABELS[system.category]}</span>
 						</label>
 					{/each}
 				</div>
@@ -213,10 +215,11 @@
 		align-items: center;
 		gap: var(--mo-space-3);
 	}
-	.control__glyph {
-		font-size: var(--mo-type-6);
-		color: var(--mo-intent-accession-on);
-		line-height: 1;
+	.control__mark {
+		inline-size: 1.75rem;
+		block-size: 1.75rem;
+		display: block;
+		flex: none;
 	}
 	.control__kicker {
 		margin: 0;
@@ -358,6 +361,14 @@
 	}
 	.chip[data-active="true"] .chip__dot {
 		background: var(--mo-intent-accession-on);
+	}
+	/* The product name carries the chip; the category is a quiet system-agnostic tag. */
+	.chip__cat {
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-1);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--mo-intent-on-surface-muted);
 	}
 
 	.control__note {

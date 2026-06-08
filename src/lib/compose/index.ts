@@ -20,6 +20,7 @@ export { CAPABILITIES, COMPOSE_CORPUS } from "./corpus.js";
 export type {
 	Capability,
 	CapabilityCorpus,
+	Category,
 	Direction,
 	GovernanceTier,
 	SurfaceUse,
@@ -45,9 +46,19 @@ export {
 	SurfaceEvidence,
 } from "./compounds.js";
 
-// Taxonomy — the closed pain vocabulary + the systems we answer for.
-export { PAIN_KEYWORDS, PAIN_TAGS, SYSTEMS, tagsFromText } from "./taxonomy.js";
-export type { PainTag } from "./taxonomy.js";
+// Taxonomy — the closed pain vocabulary, the systems we answer for, and the
+// system-agnostic category classification (the seam for a second product later).
+export {
+	CATEGORIES,
+	CATEGORY_LABELS,
+	categoriesOf,
+	categoryOf,
+	PAIN_KEYWORDS,
+	PAIN_TAGS,
+	SYSTEMS,
+	tagsFromText,
+} from "./taxonomy.js";
+export type { PainTag, System } from "./taxonomy.js";
 
 // Input — visitor-input validation (hand-written, not orval zod).
 export { composeQuerySchema, parseQuery } from "./input.js";
