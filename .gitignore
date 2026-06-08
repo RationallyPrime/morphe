@@ -11,3 +11,5 @@ vite.config.ts.timestamp-*
 vite.config.js.timestamp-*
 /generated
 src/lib/compose/generated/
+# orchestration scratch (pre-authored workflow scripts; not part of the build)
+/scratch/
