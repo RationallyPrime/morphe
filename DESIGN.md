@@ -216,6 +216,41 @@ which are the *system* (not cows to kill):
 - Priors are clamped (budget 1..6, scaleTier 2..4) so Lemma 2's laws survive any
   dialect.
 
+### The three shipped dialects are pulled apart at the loudest signals
+
+A dialect swap must be legible at a glance, and the place a viewer reads first is
+the **beacon (the one amber primary action) and the surface temperature** — not the
+secondary citation/record hues. So the three shipped dialects are deliberately
+separated *there*:
+
+| Dialect | Beacon (`primary-action`) | Surface | Authority mark (`seal`) |
+|---|---|---|---|
+| `icelandic-archive` (default) | **amber** `--mo-amber-500` | warm graphite | grave amber |
+| `clinical` | **steel-blue** `--mo-blue-500` | cool slate (neutral × blue-700) | green sign-off |
+| `reykjavik-registry` | **amethyst** `--mo-violet-500` | violet-cooled (neutral × violet-700) | amethyst stamp |
+
+`violet` is a *third* neutral scale ramp added to `tokens/scales.css` for exactly
+this — green/red are reserved for success/caution, and amber/blue were already
+spent, so a genuinely distinct third beacon needs its own vertical-neutral ramp.
+The functional/lineage intents (`provenance`, `info`, `caution`, `success`) stay
+near-constant across dialects on purpose: a citation is blue, a deviation is red,
+in every reading. All three dialects clear WCAG AA on muted on-surface text
+(`on-surface-muted` at 74%).
+
+### Cohorts: dialects as ad-profile-targeted pitches (direction)
+
+The dialect mechanism is not just a substrate demo — it is the lever for
+**cohort-targeted marketing**. A visitor arriving from a given ad profile is a known
+customer cohort; the same authored marketing tree can re-theme (and, as a next step,
+re-*copy*) into the pitch that cohort responds to, with zero change to the authored
+nodes. The palette differentiation above is step one (each cohort reads as its own
+brand). The shippable next steps, not yet built: (1) read a landing `?cohort=` param
+and set `activeDialect` on arrival; (2) branch the centralized copy in
+`$lib/site/present.ts` per cohort/persona so the *pitch*, not only the palette,
+fits the profile. Copy-per-cohort is a product decision (which cohorts, which
+pitches) and the Icelandic copy is the user's — so it waits for that input rather
+than being invented here.
+
 ### Project bans (reject on sight; these are the AI/old-sketch tells)
 
 - **Eyebrow above every section.** Tiny uppercase tracked mono label on every

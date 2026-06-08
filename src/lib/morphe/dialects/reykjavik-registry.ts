@@ -10,11 +10,13 @@
  * vertical-neutral; the vertical vocabulary is an injection (Lemma 4).
  *
  * Selecting this dialect re-themes the page WITHOUT changing one authored node —
- * the on-screen proof of the fixed point (Lemma 3). Where the Archive reads warm
- * (amber beacon, warm neutrals), the Registry reads as a cool court record:
- * citation-blue forward, judicial-crimson caution, a denser registrar prior.
- * Values are scale vars only — never hex — keeping the vertical out of the scale
- * layer.
+ * the on-screen proof of the fixed point (Lemma 3). The three shipped dialects are
+ * pulled apart at the loudest signals (the §8 beacon + surface differentiation):
+ * where the Archive reads warm (AMBER beacon, warm graphite) and the Clinical cold
+ * (steel-BLUE beacon, slate), the Registry reads AMETHYST — a violet amendment
+ * beacon on a faintly violet-cooled substrate — with citation-blue retained only
+ * for the lineage intents (provenance/info) and judicial-crimson caution. Values
+ * are scale vars only — never hex — keeping the vertical out of the scale layer.
  *
  * PARITY (CONTRACT §8 fixed point): this is a globally-shipped, globally-
  * selectable dialect, so it MUST meet the same channel/intent/surface bar the
@@ -40,16 +42,19 @@ import type { Dialect, IntentDefinition } from "./types.js";
  * ------------------------------------------------------------------------- */
 
 export const REYKJAVIK_SURFACES: Readonly<Record<string, string>> = {
-	"--mo-intent-surface-base": "color-mix(in srgb, var(--mo-neutral-1) 90%, var(--mo-blue-700))",
-	"--mo-intent-surface-raised": "color-mix(in srgb, var(--mo-neutral-4) 88%, var(--mo-blue-700))",
+	"--mo-intent-surface-base": "color-mix(in srgb, var(--mo-neutral-1) 90%, var(--mo-violet-700))",
+	"--mo-intent-surface-raised": "color-mix(in srgb, var(--mo-neutral-4) 88%, var(--mo-violet-700))",
 	"--mo-intent-surface-sunken": "var(--mo-neutral-0)",
-	// Overlay panel — top tonal tier, cooled toward citation-blue.
-	"--mo-intent-surface-overlay": "color-mix(in srgb, var(--mo-neutral-6) 88%, var(--mo-blue-700))",
+	// Overlay panel — top tonal tier, cooled toward the amethyst registrar accent.
+	"--mo-intent-surface-overlay": "color-mix(in srgb, var(--mo-neutral-6) 88%, var(--mo-violet-700))",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
-	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 62%, transparent)",
-	// A crisper, cooler outline than the Archive's warm ghost — a court record
-	// wants visible structure.
-	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-8) 64%, var(--mo-blue-500))",
+	// Muted on-surface raised to 74% (matching the Archive's AA fix): at 62% it dipped
+	// under 4.5:1 on the highest raised tier. 74% clears AA on every tier while staying
+	// visibly quieter than full on-surface.
+	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 74%, transparent)",
+	// A crisper outline than the Archive's warm ghost, toned to the amethyst accent —
+	// a registry wants visible structure in its own colour.
+	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-8) 64%, var(--mo-violet-600))",
 	// A denser scrim — a registrar console dims the field harder.
 	"--mo-scrim": "color-mix(in srgb, var(--mo-neutral-0) 68%, transparent)",
 };
@@ -62,15 +67,21 @@ export const REYKJAVIK_SURFACES: Readonly<Record<string, string>> = {
  * ------------------------------------------------------------------------- */
 
 const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
-	/** primary-action: amendment-gold beacon, cooler/dimmer than the Archive. */
+	/**
+	 * primary-action: the AMETHYST beacon — the registrar's amendment accent. This
+	 * is the differentiator: where the Archive's beacon is warm amber and the
+	 * Clinical beacon a cold steel-blue, the Registry's is a distinct violet, so
+	 * flipping the dialect re-reads the page's single loudest signal into a wholly
+	 * different hue (not a near-twin of the amber). A bright 500 fill, dark text.
+	 */
 	"primary-action": {
-		surface: "var(--mo-amber-600)",
-		on: "var(--mo-amber-on)",
-		hover: "var(--mo-amber-500)",
-		border: "var(--mo-amber-700)",
-		ring: "var(--mo-amber-600)",
-		active: "var(--mo-amber-700)",
-		disabled: "color-mix(in srgb, var(--mo-amber-600) 38%, var(--mo-neutral-3))",
+		surface: "var(--mo-violet-500)",
+		on: "var(--mo-violet-on)",
+		hover: "var(--mo-violet-400)",
+		border: "var(--mo-violet-600)",
+		ring: "var(--mo-violet-500)",
+		active: "var(--mo-violet-600)",
+		disabled: "color-mix(in srgb, var(--mo-violet-500) 38%, var(--mo-neutral-3))",
 	},
 	/** neutral: cooler chrome than the warm Archive neutral. */
 	neutral: {
@@ -93,28 +104,28 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
 	},
 	/**
-	 * evidence: the court-record register — near-neutral but cooled toward slate,
-	 * so an authored `intent: "evidence"` resolves to a cool record tone here
-	 * instead of falling through to the warm Archive evidence.
+	 * evidence: the record register — near-neutral but cooled toward the amethyst
+	 * substrate, so an authored `intent: "evidence"` resolves to the registry's own
+	 * record tone here instead of falling through to the warm Archive evidence.
 	 */
 	evidence: {
-		surface: "color-mix(in srgb, var(--mo-neutral-3) 86%, var(--mo-blue-700))",
+		surface: "color-mix(in srgb, var(--mo-neutral-3) 86%, var(--mo-violet-700))",
 		on: "var(--mo-neutral-11)",
-		hover: "color-mix(in srgb, var(--mo-neutral-4) 86%, var(--mo-blue-700))",
+		hover: "color-mix(in srgb, var(--mo-neutral-4) 86%, var(--mo-violet-700))",
 		border: "var(--mo-neutral-8)",
-		ring: "var(--mo-blue-400)",
-		active: "color-mix(in srgb, var(--mo-neutral-5) 86%, var(--mo-blue-700))",
+		ring: "var(--mo-violet-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-5) 86%, var(--mo-violet-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
 	},
-	/** accession: the catalog accent reads as citation-blue (a court folio). */
+	/** accession: the catalog accent echoes the amethyst beacon (a registry folio). */
 	accession: {
-		surface: "color-mix(in srgb, var(--mo-blue-700) 38%, var(--mo-neutral-3))",
-		on: "var(--mo-blue-300)",
-		hover: "color-mix(in srgb, var(--mo-blue-700) 50%, var(--mo-neutral-3))",
-		border: "var(--mo-blue-500)",
-		ring: "var(--mo-blue-500)",
-		active: "color-mix(in srgb, var(--mo-blue-700) 58%, var(--mo-neutral-3))",
-		disabled: "color-mix(in srgb, var(--mo-blue-700) 16%, var(--mo-neutral-3))",
+		surface: "color-mix(in srgb, var(--mo-violet-700) 42%, var(--mo-neutral-3))",
+		on: "var(--mo-violet-300)",
+		hover: "color-mix(in srgb, var(--mo-violet-700) 54%, var(--mo-neutral-3))",
+		border: "var(--mo-violet-600)",
+		ring: "var(--mo-violet-500)",
+		active: "color-mix(in srgb, var(--mo-violet-700) 62%, var(--mo-neutral-3))",
+		disabled: "color-mix(in srgb, var(--mo-violet-700) 18%, var(--mo-neutral-3))",
 	},
 	/** caution: judicial-crimson — a louder court red. */
 	caution: {
@@ -157,40 +168,39 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * ------------------------------------------------------------------------- */
 
 const REYKJAVIK_REGISTER: Readonly<Record<string, IntentDefinition>> = {
-	/** Folio → docket/case-number register: a cool mono label tone. */
+	/** Folio → docket/case-number register: an amethyst-toned mono label. */
 	folio: {
 		surface: "transparent",
-		on: "color-mix(in srgb, var(--mo-blue-300) 72%, transparent)",
-		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-blue-700))",
+		on: "color-mix(in srgb, var(--mo-violet-300) 72%, transparent)",
+		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-violet-700))",
 		border: "color-mix(in srgb, var(--mo-neutral-8) 50%, transparent)",
-		ring: "var(--mo-blue-400)",
-		active: "color-mix(in srgb, var(--mo-neutral-3) 82%, var(--mo-blue-700))",
+		ring: "var(--mo-violet-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-3) 82%, var(--mo-violet-700))",
 		disabled: "transparent",
 	},
-	/** Marginalia → annotation/aside register: a citation-toned aside. */
+	/** Marginalia → annotation/aside register: an amethyst-toned aside. */
 	marginalia: {
-		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-blue-700))",
+		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-violet-700))",
 		on: "var(--mo-neutral-10)",
-		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-blue-700))",
+		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-violet-700))",
 		border: "var(--mo-neutral-8)",
-		ring: "var(--mo-blue-400)",
-		active: "color-mix(in srgb, var(--mo-neutral-6) 72%, var(--mo-blue-700))",
+		ring: "var(--mo-violet-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-6) 72%, var(--mo-violet-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
 	},
 	/**
-	 * Seal → the registrar's stamp / authority mark. In a court record the
-	 * authority mark is a deliberate citation-blue stamp — the cool counterpart of
-	 * the Archive's grave amber seal and the clinical green sign-off, same name,
-	 * same slot.
+	 * Seal → the registrar's stamp / authority mark. The Registry's authority mark
+	 * is a deliberate AMETHYST stamp — the violet counterpart of the Archive's grave
+	 * amber seal and the Clinical green sign-off, same name, same slot, its own hue.
 	 */
 	seal: {
-		surface: "var(--mo-blue-700)",
-		on: "var(--mo-blue-300)",
-		hover: "color-mix(in srgb, var(--mo-blue-700) 82%, var(--mo-blue-300))",
-		border: "var(--mo-blue-500)",
-		ring: "var(--mo-blue-400)",
-		active: "color-mix(in srgb, var(--mo-blue-700) 70%, var(--mo-blue-300))",
-		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
+		surface: "var(--mo-violet-700)",
+		on: "var(--mo-violet-300)",
+		hover: "color-mix(in srgb, var(--mo-violet-700) 82%, var(--mo-violet-300))",
+		border: "var(--mo-violet-600)",
+		ring: "var(--mo-violet-400)",
+		active: "color-mix(in srgb, var(--mo-violet-700) 70%, var(--mo-violet-300))",
+		disabled: "color-mix(in srgb, var(--mo-violet-700) 40%, var(--mo-neutral-3))",
 	},
 };
 

@@ -124,6 +124,18 @@
 	--mo-red-500: #ff897d;
 	--mo-red-700: #93000a;
 	--mo-red-on: #690005;
+	/* Violet (amethyst) — a THIRD chromatic family so a dialect's beacon can be a
+	   distinct hue from the amber (Archive) and periwinkle-blue (Clinical) ones.
+	   Like every ramp here it is vertical-NEUTRAL: a raw amethyst progression the
+	   intent layer assigns meaning to (the Reykjavík Registry reads it as its
+	   amendment/registrar accent). 500 is the on-dark beacon tone; 700 the deep
+	   surface tone; `on` the dark text that rides the bright 500 fill. */
+	--mo-violet-300: #e7d8ff;
+	--mo-violet-400: #cbb0ff;
+	--mo-violet-500: #b794f6; /* the amethyst beacon */
+	--mo-violet-600: #9b73ec;
+	--mo-violet-700: #34245f;
+	--mo-violet-on: #241046; /* on-violet (dark text on the beacon) */
 
 	/* --- Font families (pulled through from the Archive; the three families) - */
 	/* The host app wires the actual @font-face / next-font variables into these

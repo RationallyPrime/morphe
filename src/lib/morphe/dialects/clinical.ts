@@ -56,7 +56,9 @@ export const CLINICAL_SURFACES: Readonly<Record<string, string>> = {
 	// Overlay panel — top tonal tier, cooled toward slate to match the console.
 	"--mo-intent-surface-overlay": "color-mix(in srgb, var(--mo-neutral-6) 86%, var(--mo-blue-700))",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
-	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 64%, transparent)",
+	// Muted on-surface raised to 74% (matching the Archive's AA fix): at 64% it dipped
+	// under 4.5:1 on the highest raised tier of the cool slate stack.
+	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 74%, transparent)",
 	// A crisper outline than the Archive's warm, low-opacity ghost — a console
 	// wants visible structure, not dissolved sectioning.
 	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-8) 60%, var(--mo-blue-500))",
