@@ -17,6 +17,7 @@ import { CAPABILITIES } from "./corpus.js";
 import { capabilityCard, composeAnswer } from "./present.js";
 import { matchCapabilities } from "./match.js";
 import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
+import { SYSTEMS } from "./taxonomy.js";
 import type { ComposeQuery } from "./input.js";
 
 describe("compose compounds — registration through the factory gate", () => {
@@ -65,6 +66,83 @@ describe("compose matching — deterministic, pain-led ranking", () => {
 	});
 });
 
+describe("compose matching — subset eligibility across one, two and three systems", () => {
+	// The hard gate: a capability surfaces only when its full required `systems` set
+	// is a SUBSET of the visitor's selected systems. Helper: are all of `cap.systems`
+	// in the selection? (mirrors match.ts's gate, asserted from the outside).
+	const systemsSubsetOf = (
+		required: readonly string[],
+		selected: readonly string[],
+	): boolean => {
+		const sel = new Set(selected);
+		return required.every((id) => sel.has(id));
+	};
+
+	it("['twenty'] surfaces ONLY caps whose systems are a subset of {twenty}", () => {
+		const query: ComposeQuery = {
+			// "stale deal" + "duplicate" + "tasks" hit the Twenty-only families.
+			pain: "stale deals are piling up and our pipeline is full of duplicate companies",
+			systems: ["twenty"],
+		};
+		const matches = matchCapabilities(query);
+		expect(matches.length).toBeGreaterThan(0);
+		// EVERY match must be runnable with only Twenty selected.
+		for (const cap of matches) {
+			expect(cap.systems, `${cap.id} leaked into a twenty-only selection`).toEqual(["twenty"]);
+			expect(systemsSubsetOf(cap.systems, ["twenty"])).toBe(true);
+		}
+		// And it actually found a real Twenty-only capability.
+		expect(matches.some((c) => c.id === "twenty-stale-deal-detection")).toBe(true);
+	});
+
+	it("['twenty','dkplus'] includes a Twenty×dkPlus cap and excludes any needing Humanity", () => {
+		const query: ComposeQuery = {
+			pain: "when a deal is won we re-key the customer and the sales order by hand to invoice it",
+			systems: ["twenty", "dkplus"],
+		};
+		const matches = matchCapabilities(query);
+		expect(matches.length).toBeGreaterThan(0);
+		// The CRM→ERP pair cap is eligible and present.
+		const pair = matches.find((c) => c.id === "won-opportunity-to-dkplus-customer-and-sales-order");
+		expect(pair, "Twenty×dkPlus cap not surfaced").toBeDefined();
+		expect(pair?.systems).toEqual(["twenty", "dkplus"]);
+		// Nothing requiring Humanity (a two-system pair we didn't select, or the
+		// three-way loop) may leak through.
+		for (const cap of matches) {
+			expect(cap.systems.includes("humanity"), `${cap.id} requires unselected humanity`).toBe(
+				false,
+			);
+			expect(systemsSubsetOf(cap.systems, ["twenty", "dkplus"])).toBe(true);
+		}
+	});
+
+	it("all three selected unlocks a three-way 'deal to delivery' capability", () => {
+		const query: ComposeQuery = {
+			pain: "a won deal should staff the crew, open the project and advance the stage",
+			systems: ["twenty", "humanity", "dkplus"],
+		};
+		const matches = matchCapabilities(query);
+		expect(matches.length).toBeGreaterThan(0);
+		const threeWay = matches.find(
+			(c) => c.id === "deal-to-delivery-staff-project-and-advance-stage",
+		);
+		expect(threeWay, "three-way loop not surfaced with all systems selected").toBeDefined();
+		expect([...(threeWay?.systems ?? [])].sort()).toEqual(["dkplus", "humanity", "twenty"]);
+		// A three-system cap can only ever surface when all three are selected.
+		expect(systemsSubsetOf(threeWay?.systems ?? [], ["twenty", "humanity", "dkplus"])).toBe(true);
+	});
+
+	it("removing a required system drops its dependent caps (gate is hard, not soft)", () => {
+		const pain = "a won deal should staff the crew, open the project and advance the stage";
+		const withAll = matchCapabilities({ pain, systems: ["twenty", "humanity", "dkplus"] });
+		const withoutHumanity = matchCapabilities({ pain, systems: ["twenty", "dkplus"] });
+		const id = "deal-to-delivery-staff-project-and-advance-stage";
+		expect(withAll.some((c) => c.id === id)).toBe(true);
+		// Drop Humanity and the three-way loop must disappear entirely.
+		expect(withoutHumanity.some((c) => c.id === id)).toBe(false);
+	});
+});
+
 describe("compose presenting — the answer is a well-formed Frame of cards", () => {
 	const query: ComposeQuery = {
 		pain: "shift planning is slow and error prone",
@@ -73,7 +151,9 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 
 	it("composeAnswer returns a Frame node containing CapabilityCard refs", () => {
 		const matches = matchCapabilities(query);
-		const tree = composeAnswer(matches, query);
+		// Pass an explicit limit at/above the match count so every match renders — the
+		// structural invariant under test is "one card per matched capability".
+		const tree = composeAnswer(matches, query, matches.length);
 
 		expect(tree.kind).toBe("frame");
 
@@ -85,6 +165,54 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		// Structurally: a card ref per matched capability, all of the right name.
 		const cards = collectCompoundRefs(tree, "ComposeCapabilityCard");
 		expect(cards.length).toBe(matches.length);
+	});
+
+	it("composeAnswer honors `limit` — caps the cards and notes the full count", () => {
+		const matches = matchCapabilities(query);
+		// This query out-yields a small cap, so the limit is exercised honestly.
+		expect(matches.length).toBeGreaterThan(3);
+
+		const tree = composeAnswer(matches, query, 3);
+		const cards = collectCompoundRefs(tree, "ComposeCapabilityCard");
+		// At most `limit` cards render.
+		expect(cards.length).toBe(3);
+
+		// The masthead carries an honest "Showing N of M" count note (no silent cut).
+		const json = JSON.stringify(tree);
+		expect(json).toContain(`Showing 3 of ${matches.length}`);
+	});
+
+	it("composeAnswer omits the count note when nothing was capped", () => {
+		const matches = matchCapabilities(query);
+		const tree = composeAnswer(matches, query, matches.length);
+		expect(JSON.stringify(tree)).not.toContain("Showing");
+	});
+
+	it("show-more cap: limit 9 yields at most 9 cards when matches exceed it; omitted shows all", () => {
+		// A broad, multi-tag pain across all three systems out-yields the collapsed
+		// cap so the "Show all" flow is exercised honestly (this is the page's
+		// COLLAPSED_LIMIT of 9).
+		const broad: ComposeQuery = {
+			pain: "scheduling, overtime, invoicing, margin, deals, master-data and reporting are all painful",
+			systems: ["humanity", "dkplus", "twenty"],
+		};
+		const matches = matchCapabilities(broad);
+		expect(matches.length).toBeGreaterThan(9);
+
+		// Collapsed (limit 9): at most 9 cards render — the page's default view.
+		const collapsed = composeAnswer(matches, broad, 9);
+		expect(collectCompoundRefs(collapsed, "ComposeCapabilityCard").length).toBe(9);
+
+		// "Show all" passes Infinity; with omitted limit composeAnswer also renders
+		// every match. Both must yield one card per matched capability.
+		const expandedInfinity = composeAnswer(matches, broad, Number.POSITIVE_INFINITY);
+		expect(collectCompoundRefs(expandedInfinity, "ComposeCapabilityCard").length).toBe(
+			matches.length,
+		);
+		const expandedOmitted = composeAnswer(matches, broad);
+		// Omitting the limit applies the DEFAULT_LIMIT (9), so it caps too — the
+		// route lifts that cap explicitly via Infinity. Assert the documented default.
+		expect(collectCompoundRefs(expandedOmitted, "ComposeCapabilityCard").length).toBe(9);
 	});
 });
 
@@ -125,9 +253,11 @@ describe("compose presenting — expanded cards render honest tier + real method
 describe("compose grounding — every cited surface is a real endpoint", () => {
 	const humanity = loadEvidence("humanity.json");
 	const dkplus = loadEvidence("dkplus.json");
+	const twenty = loadEvidence("twenty.json");
 	const index: Record<string, Map<string, EvidenceOp>> = {
 		humanity: new Map(humanity.operations.map((o) => [o.operationId, o])),
 		dkplus: new Map(dkplus.operations.map((o) => [o.operationId, o])),
+		twenty: new Map(twenty.operations.map((o) => [o.operationId, o])),
 	};
 
 	it("resolves every surface operationId to a real op with matching method and path", () => {
@@ -157,9 +287,104 @@ describe("compose grounding — every cited surface is a real endpoint", () => {
 	});
 });
 
-describe("compose corpus — exactly 45 grounded capabilities", () => {
-	it("has exactly 45 capabilities", () => {
-		expect(CAPABILITIES.length).toBe(45);
+describe("compose grounding — every cited MODEL name is a real compiled model", () => {
+	// The endpoint half of "real endpoint + real compiled-model name" is gated above;
+	// this is the model half. It is drift-tolerant for the three legitimate naming
+	// conventions the corpus uses, and tight enough to catch a fabricated model
+	// (the `EmployeeSkills`-style chip that resolved to no Hyle artifact).
+	const twenty = loadEvidence("twenty.json");
+	const dkplus = loadEvidence("dkplus.json");
+	const humanity = loadEvidence("humanity.json");
+	const twentyModels = new Set(twenty.models);
+
+	// Every dkplus.json.models entry, expanded into its readable leaf forms: each
+	// trailing run of dot-segments concatenated (e.g. `dkCloud.Data.Model.Sales.
+	// Quote.Head` -> `Head`, `QuoteHead`, `SalesQuoteHead`, ...), with a plural
+	// namespace segment also admitted in its singular form (`Vendors.InvoiceModel`
+	// -> `VendorInvoiceModel`). This is exactly the leaf-naming the build-evidence
+	// index produces; membership here means the leaf maps to a real dotted model.
+	const dkplusLeafForms = new Set<string>();
+	for (const dotted of dkplus.models) {
+		for (const form of leafForms(dotted)) dkplusLeafForms.add(form);
+	}
+
+	// Humanity ships `models: []` (264 inline titles are unrecoverable per
+	// specs-scope.md §3), so we cannot diff against the spec. Instead we guard
+	// against fabrication with the hand-picked specs-scope.md §2 capability-model
+	// row labels — the only Humanity model names the corpus is allowed to cite.
+	// A future `EmployeeSkills`-style name fails here.
+	const HUMANITY_ALLOWED_MODELS = new Set([
+		"Availability",
+		"Budget",
+		"Employee",
+		"Leave",
+		"Location",
+		"Position",
+		"Shift",
+		"Skill",
+		"Timeclock",
+		"TimeclockEvent",
+	]);
+
+	const assertModel = (
+		system: string,
+		model: string,
+		where: string,
+	): void => {
+		if (system === "twenty") {
+			// Twenty has a complete, exactly-matching schema set (75) — exact membership.
+			expect(twentyModels.has(model), `${where}: twenty model "${model}" not in twenty.json.models`).toBe(true);
+		} else if (system === "dkplus") {
+			// dkPlus uses readable leaf display-names that map to dotted evidence keys.
+			expect(dkplusLeafForms.has(model), `${where}: dkplus model "${model}" matches no dkplus.json.models leaf`).toBe(true);
+		} else if (system === "humanity") {
+			// Humanity titles are unrecoverable; allow only the curated §2 labels.
+			expect(HUMANITY_ALLOWED_MODELS.has(model), `${where}: humanity model "${model}" is not a specs-scope.md §2 label (fabrication?)`).toBe(true);
+		} else {
+			throw new Error(`${where}: unknown system "${system}"`);
+		}
+	};
+
+	it("humanity.json still ships no models — the §2 guard is the right tool here", () => {
+		// If Humanity ever recovers its inline titles, switch the guard to a real diff.
+		expect(humanity.models.length).toBe(0);
+	});
+
+	it("every surface.model resolves to a real compiled model for its system", () => {
+		for (const cap of CAPABILITIES) {
+			for (const s of cap.surfaces) {
+				if (s.model === undefined) continue; // surfaces without a model are honest blanks
+				assertModel(s.system, s.model, `${cap.id}/${s.operationId ?? s.path}`);
+			}
+		}
+	});
+
+	it("every cap.models entry resolves to a real compiled model on one of the cap's systems", () => {
+		for (const cap of CAPABILITIES) {
+			for (const model of cap.models ?? []) {
+				// A cap-level model must be real for AT LEAST ONE of the systems the cap
+				// spans (the corpus doesn't tag cap.models by system; surfaces do).
+				const matchesSomeSystem = cap.systems.some((system) => {
+					if (system === "twenty") return twentyModels.has(model);
+					if (system === "dkplus") return dkplusLeafForms.has(model);
+					if (system === "humanity") return HUMANITY_ALLOWED_MODELS.has(model);
+					return false;
+				});
+				expect(
+					matchesSomeSystem,
+					`${cap.id}: cap model "${model}" is real for none of [${cap.systems.join(", ")}] (fabrication?)`,
+				).toBe(true);
+			}
+		}
+	});
+});
+
+describe("compose corpus — grounded, three-system, subset-aware", () => {
+	// The corpus grew past the original 45 Humanity×dkPlus automations: it now also
+	// carries single-system caps (so any one selection is never empty), the two new
+	// cross-system pairs (Twenty×dkPlus, Twenty×Humanity) and the three-way loop.
+	it("has more than the original 45 capabilities", () => {
+		expect(CAPABILITIES.length).toBeGreaterThan(45);
 	});
 
 	it("every capability carries at least one real endpoint surface", () => {
@@ -171,6 +396,27 @@ describe("compose corpus — exactly 45 grounded capabilities", () => {
 	it("every capability id is unique", () => {
 		const ids = new Set(CAPABILITIES.map((c) => c.id));
 		expect(ids.size).toBe(CAPABILITIES.length);
+	});
+
+	it("every capability declares a non-empty `systems` of known SYSTEM ids", () => {
+		const known = new Set(SYSTEMS.map((s) => s.id));
+		for (const cap of CAPABILITIES) {
+			// A capability with no required systems would be vacuously subset-eligible
+			// and surface for an empty selection — the subset gate would be a no-op.
+			expect(cap.systems.length, `${cap.id}: empty systems`).toBeGreaterThanOrEqual(1);
+			for (const id of cap.systems) {
+				expect(known.has(id), `${cap.id}: unknown system "${id}"`).toBe(true);
+			}
+		}
+	});
+
+	it("spans the whole lattice — single, every pair, and the three-way", () => {
+		// At least one capability at each subset cardinality, proving "one system,
+		// any two, all three" are all answerable.
+		const bySize = (n: number) => CAPABILITIES.some((c) => c.systems.length === n);
+		expect(bySize(1), "no single-system capability").toBe(true);
+		expect(bySize(2), "no two-system capability").toBe(true);
+		expect(bySize(3), "no three-system capability").toBe(true);
 	});
 });
 
@@ -217,4 +463,34 @@ interface EvidenceFile {
 function loadEvidence(file: string): EvidenceFile {
 	const url = new URL(`../../../data/evidence/${file}`, import.meta.url);
 	return JSON.parse(readFileSync(url, "utf8")) as EvidenceFile;
+}
+
+/* ---------------------------------------------------------------------------
+ * dkPlus leaf-naming — the dkPlus corpus cites readable leaf display-names that
+ * map to dotted evidence keys. Given a dotted model (e.g.
+ * `dkCloud.Data.Model.Sales.Quote.Head`), enumerate every leaf form the
+ * build-evidence index could have bound to an operation: each trailing run of
+ * dot-segments concatenated CamelCase (`Head`, `QuoteHead`, `SalesQuoteHead`, …),
+ * admitting a plural namespace segment in its singular form too (`Vendors` ->
+ * `Vendor`, so `Vendors.InvoiceModel` -> `VendorInvoiceModel`). Membership of a
+ * corpus leaf name in these forms proves it resolves to a real dotted model.
+ * ------------------------------------------------------------------------- */
+function leafForms(dotted: string): Set<string> {
+	const segs = dotted.split(".");
+	const out = new Set<string>();
+	const segVariants = (seg: string): string[] =>
+		seg.endsWith("s") ? [seg, seg.slice(0, -1)] : [seg];
+	// every trailing run of segments, each segment optionally singularized
+	for (let i = 0; i < segs.length; i++) {
+		let combos: string[] = [""];
+		for (let j = i; j < segs.length; j++) {
+			const next: string[] = [];
+			const seg = segs[j];
+			if (seg === undefined) continue;
+			for (const c of combos) for (const v of segVariants(seg)) next.push(c + v);
+			combos = next;
+		}
+		for (const c of combos) out.add(c);
+	}
+	return out;
 }

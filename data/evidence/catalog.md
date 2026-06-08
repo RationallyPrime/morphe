@@ -970,3 +970,490 @@ NOTE: No support for discount groups (Product_GetProductDiscounts) → `dkPlus.S
 - `vLink.dkSoftware.dkSOAP.TRecordChange`
 - `vLink.dkSoftware.dkSOAP.TVariation`
 - `vLink.dkSoftware.dkSOAP.TWorkLine`
+
+## Twenty (CRM)
+
+Spec: 3.1.1 · 327 operations · 75 models · `/home/rationallyprime/projects/morphe/generated/twenty_openapi_core.json`
+
+### attachments
+
+- `DELETE /attachments` — Delete Many attachments (deleteManyAttachments)
+- `GET /attachments` — Find Many attachments (findManyAttachments) → `AttachmentForResponse`
+- `PATCH /attachments` — Update Many attachments (updateManyAttachments) → `AttachmentForResponse`
+- `POST /attachments` — Create One attachment (createOneAttachment) → `AttachmentForResponse`
+- `DELETE /attachments/{id}` — Delete One attachment (deleteOneAttachment)
+- `GET /attachments/{id}` — Find One attachment (findOneAttachment) → `AttachmentForResponse`
+- `PATCH /attachments/{id}` — Update One attachment (UpdateOneAttachment) → `AttachmentForResponse`
+- `POST /attachments/duplicates` — Find attachment Duplicates (findAttachmentDuplicates) → `AttachmentForResponse`
+- `GET /attachments/groupBy` — Group By attachments (groupByAttachments) → `AttachmentForResponse`
+- `PATCH /attachments/merge` — Merge Many attachments (mergeManyAttachments) → `AttachmentForResponse`
+- `POST /batch/attachments` — Create Many attachments (createManyAttachments) → `AttachmentForResponse`
+- `PATCH /restore/attachments` — Restore Many attachments (restoreManyAttachments) → `AttachmentForResponse`
+- `PATCH /restore/attachments/{id}` — Restore One attachment (restoreOneAttachment) → `AttachmentForResponse`
+
+### blocklists
+
+- `POST /batch/blocklists` — Create Many blocklists (createManyBlocklists) → `BlocklistForResponse`
+- `DELETE /blocklists` — Delete Many blocklists (deleteManyBlocklists)
+- `GET /blocklists` — Find Many blocklists (findManyBlocklists) → `BlocklistForResponse`
+- `PATCH /blocklists` — Update Many blocklists (updateManyBlocklists) → `BlocklistForResponse`
+- `POST /blocklists` — Create One blocklist (createOneBlocklist) → `BlocklistForResponse`
+- `DELETE /blocklists/{id}` — Delete One blocklist (deleteOneBlocklist)
+- `GET /blocklists/{id}` — Find One blocklist (findOneBlocklist) → `BlocklistForResponse`
+- `PATCH /blocklists/{id}` — Update One blocklist (UpdateOneBlocklist) → `BlocklistForResponse`
+- `POST /blocklists/duplicates` — Find blocklist Duplicates (findBlocklistDuplicates) → `BlocklistForResponse`
+- `GET /blocklists/groupBy` — Group By blocklists (groupByBlocklists) → `BlocklistForResponse`
+- `PATCH /blocklists/merge` — Merge Many blocklists (mergeManyBlocklists) → `BlocklistForResponse`
+- `PATCH /restore/blocklists` — Restore Many blocklists (restoreManyBlocklists) → `BlocklistForResponse`
+- `PATCH /restore/blocklists/{id}` — Restore One blocklist (restoreOneBlocklist) → `BlocklistForResponse`
+
+### calendarChannelEventAssociations
+
+- `POST /batch/calendarChannelEventAssociations` — Create Many calendarChannelEventAssociations (createManyCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `DELETE /calendarChannelEventAssociations` — Delete Many calendarChannelEventAssociations (deleteManyCalendarChannelEventAssociations)
+- `GET /calendarChannelEventAssociations` — Find Many calendarChannelEventAssociations (findManyCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `PATCH /calendarChannelEventAssociations` — Update Many calendarChannelEventAssociations (updateManyCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `POST /calendarChannelEventAssociations` — Create One calendarChannelEventAssociation (createOneCalendarChannelEventAssociation) → `CalendarChannelEventAssociationForResponse`
+- `DELETE /calendarChannelEventAssociations/{id}` — Delete One calendarChannelEventAssociation (deleteOneCalendarChannelEventAssociation)
+- `GET /calendarChannelEventAssociations/{id}` — Find One calendarChannelEventAssociation (findOneCalendarChannelEventAssociation) → `CalendarChannelEventAssociationForResponse`
+- `PATCH /calendarChannelEventAssociations/{id}` — Update One calendarChannelEventAssociation (UpdateOneCalendarChannelEventAssociation) → `CalendarChannelEventAssociationForResponse`
+- `POST /calendarChannelEventAssociations/duplicates` — Find calendarChannelEventAssociation Duplicates (findCalendarChannelEventAssociationDuplicates) → `CalendarChannelEventAssociationForResponse`
+- `GET /calendarChannelEventAssociations/groupBy` — Group By calendarChannelEventAssociations (groupByCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `PATCH /calendarChannelEventAssociations/merge` — Merge Many calendarChannelEventAssociations (mergeManyCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `PATCH /restore/calendarChannelEventAssociations` — Restore Many calendarChannelEventAssociations (restoreManyCalendarChannelEventAssociations) → `CalendarChannelEventAssociationForResponse`
+- `PATCH /restore/calendarChannelEventAssociations/{id}` — Restore One calendarChannelEventAssociation (restoreOneCalendarChannelEventAssociation) → `CalendarChannelEventAssociationForResponse`
+
+### calendarEventParticipants
+
+- `POST /batch/calendarEventParticipants` — Create Many calendarEventParticipants (createManyCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `DELETE /calendarEventParticipants` — Delete Many calendarEventParticipants (deleteManyCalendarEventParticipants)
+- `GET /calendarEventParticipants` — Find Many calendarEventParticipants (findManyCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `PATCH /calendarEventParticipants` — Update Many calendarEventParticipants (updateManyCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `POST /calendarEventParticipants` — Create One calendarEventParticipant (createOneCalendarEventParticipant) → `CalendarEventParticipantForResponse`
+- `DELETE /calendarEventParticipants/{id}` — Delete One calendarEventParticipant (deleteOneCalendarEventParticipant)
+- `GET /calendarEventParticipants/{id}` — Find One calendarEventParticipant (findOneCalendarEventParticipant) → `CalendarEventParticipantForResponse`
+- `PATCH /calendarEventParticipants/{id}` — Update One calendarEventParticipant (UpdateOneCalendarEventParticipant) → `CalendarEventParticipantForResponse`
+- `POST /calendarEventParticipants/duplicates` — Find calendarEventParticipant Duplicates (findCalendarEventParticipantDuplicates) → `CalendarEventParticipantForResponse`
+- `GET /calendarEventParticipants/groupBy` — Group By calendarEventParticipants (groupByCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `PATCH /calendarEventParticipants/merge` — Merge Many calendarEventParticipants (mergeManyCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `PATCH /restore/calendarEventParticipants` — Restore Many calendarEventParticipants (restoreManyCalendarEventParticipants) → `CalendarEventParticipantForResponse`
+- `PATCH /restore/calendarEventParticipants/{id}` — Restore One calendarEventParticipant (restoreOneCalendarEventParticipant) → `CalendarEventParticipantForResponse`
+
+### calendarEvents
+
+- `POST /batch/calendarEvents` — Create Many calendarEvents (createManyCalendarEvents) → `CalendarEventForResponse`
+- `DELETE /calendarEvents` — Delete Many calendarEvents (deleteManyCalendarEvents)
+- `GET /calendarEvents` — Find Many calendarEvents (findManyCalendarEvents) → `CalendarEventForResponse`
+- `PATCH /calendarEvents` — Update Many calendarEvents (updateManyCalendarEvents) → `CalendarEventForResponse`
+- `POST /calendarEvents` — Create One calendarEvent (createOneCalendarEvent) → `CalendarEventForResponse`
+- `DELETE /calendarEvents/{id}` — Delete One calendarEvent (deleteOneCalendarEvent)
+- `GET /calendarEvents/{id}` — Find One calendarEvent (findOneCalendarEvent) → `CalendarEventForResponse`
+- `PATCH /calendarEvents/{id}` — Update One calendarEvent (UpdateOneCalendarEvent) → `CalendarEventForResponse`
+- `POST /calendarEvents/duplicates` — Find calendarEvent Duplicates (findCalendarEventDuplicates) → `CalendarEventForResponse`
+- `GET /calendarEvents/groupBy` — Group By calendarEvents (groupByCalendarEvents) → `CalendarEventForResponse`
+- `PATCH /calendarEvents/merge` — Merge Many calendarEvents (mergeManyCalendarEvents) → `CalendarEventForResponse`
+- `PATCH /restore/calendarEvents` — Restore Many calendarEvents (restoreManyCalendarEvents) → `CalendarEventForResponse`
+- `PATCH /restore/calendarEvents/{id}` — Restore One calendarEvent (restoreOneCalendarEvent) → `CalendarEventForResponse`
+
+### callRecordings
+
+- `POST /batch/callRecordings` — Create Many callRecordings (createManyCallRecordings) → `CallRecordingForResponse`
+- `DELETE /callRecordings` — Delete Many callRecordings (deleteManyCallRecordings)
+- `GET /callRecordings` — Find Many callRecordings (findManyCallRecordings) → `CallRecordingForResponse`
+- `PATCH /callRecordings` — Update Many callRecordings (updateManyCallRecordings) → `CallRecordingForResponse`
+- `POST /callRecordings` — Create One callRecording (createOneCallRecording) → `CallRecordingForResponse`
+- `DELETE /callRecordings/{id}` — Delete One callRecording (deleteOneCallRecording)
+- `GET /callRecordings/{id}` — Find One callRecording (findOneCallRecording) → `CallRecordingForResponse`
+- `PATCH /callRecordings/{id}` — Update One callRecording (UpdateOneCallRecording) → `CallRecordingForResponse`
+- `POST /callRecordings/duplicates` — Find callRecording Duplicates (findCallRecordingDuplicates) → `CallRecordingForResponse`
+- `GET /callRecordings/groupBy` — Group By callRecordings (groupByCallRecordings) → `CallRecordingForResponse`
+- `PATCH /callRecordings/merge` — Merge Many callRecordings (mergeManyCallRecordings) → `CallRecordingForResponse`
+- `PATCH /restore/callRecordings` — Restore Many callRecordings (restoreManyCallRecordings) → `CallRecordingForResponse`
+- `PATCH /restore/callRecordings/{id}` — Restore One callRecording (restoreOneCallRecording) → `CallRecordingForResponse`
+
+### companies
+
+- `POST /batch/companies` — Create Many companies (createManyCompanies) → `CompanyForResponse`
+- `DELETE /companies` — Delete Many companies (deleteManyCompanies)
+- `GET /companies` — Find Many companies (findManyCompanies) → `CompanyForResponse`
+- `PATCH /companies` — Update Many companies (updateManyCompanies) → `CompanyForResponse`
+- `POST /companies` — Create One company (createOneCompany) → `CompanyForResponse`
+- `DELETE /companies/{id}` — Delete One company (deleteOneCompany)
+- `GET /companies/{id}` — Find One company (findOneCompany) → `CompanyForResponse`
+- `PATCH /companies/{id}` — Update One company (UpdateOneCompany) → `CompanyForResponse`
+- `POST /companies/duplicates` — Find company Duplicates (findCompanyDuplicates) → `CompanyForResponse`
+- `GET /companies/groupBy` — Group By companies (groupByCompanies) → `CompanyForResponse`
+- `PATCH /companies/merge` — Merge Many companies (mergeManyCompanies) → `CompanyForResponse`
+- `PATCH /restore/companies` — Restore Many companies (restoreManyCompanies) → `CompanyForResponse`
+- `PATCH /restore/companies/{id}` — Restore One company (restoreOneCompany) → `CompanyForResponse`
+
+### dashboards
+
+- `POST /batch/dashboards` — Create Many dashboards (createManyDashboards) → `DashboardForResponse`
+- `DELETE /dashboards` — Delete Many dashboards (deleteManyDashboards)
+- `GET /dashboards` — Find Many dashboards (findManyDashboards) → `DashboardForResponse`
+- `PATCH /dashboards` — Update Many dashboards (updateManyDashboards) → `DashboardForResponse`
+- `POST /dashboards` — Create One dashboard (createOneDashboard) → `DashboardForResponse`
+- `DELETE /dashboards/{id}` — Delete One dashboard (deleteOneDashboard)
+- `GET /dashboards/{id}` — Find One dashboard (findOneDashboard) → `DashboardForResponse`
+- `PATCH /dashboards/{id}` — Update One dashboard (UpdateOneDashboard) → `DashboardForResponse`
+- `POST /dashboards/{id}/duplicate` — Duplicate a dashboard (duplicateDashboard) → `DashboardForResponse`
+- `POST /dashboards/duplicates` — Find dashboard Duplicates (findDashboardDuplicates) → `DashboardForResponse`
+- `GET /dashboards/groupBy` — Group By dashboards (groupByDashboards) → `DashboardForResponse`
+- `PATCH /dashboards/merge` — Merge Many dashboards (mergeManyDashboards) → `DashboardForResponse`
+- `PATCH /restore/dashboards` — Restore Many dashboards (restoreManyDashboards) → `DashboardForResponse`
+- `PATCH /restore/dashboards/{id}` — Restore One dashboard (restoreOneDashboard) → `DashboardForResponse`
+
+### General
+
+- `GET /open-api/core` — Get Open Api Schema (GetOpenApiSchema)
+
+### messageChannelMessageAssociationMessageFolders
+
+- `POST /batch/messageChannelMessageAssociationMessageFolders` — Create Many messageChannelMessageAssociationMessageFolders (createManyMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `DELETE /messageChannelMessageAssociationMessageFolders` — Delete Many messageChannelMessageAssociationMessageFolders (deleteManyMessageChannelMessageAssociationMessageFolders)
+- `GET /messageChannelMessageAssociationMessageFolders` — Find Many messageChannelMessageAssociationMessageFolders (findManyMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `PATCH /messageChannelMessageAssociationMessageFolders` — Update Many messageChannelMessageAssociationMessageFolders (updateManyMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `POST /messageChannelMessageAssociationMessageFolders` — Create One messageChannelMessageAssociationMessageFolder (createOneMessageChannelMessageAssociationMessageFolder) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `DELETE /messageChannelMessageAssociationMessageFolders/{id}` — Delete One messageChannelMessageAssociationMessageFolder (deleteOneMessageChannelMessageAssociationMessageFolder)
+- `GET /messageChannelMessageAssociationMessageFolders/{id}` — Find One messageChannelMessageAssociationMessageFolder (findOneMessageChannelMessageAssociationMessageFolder) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `PATCH /messageChannelMessageAssociationMessageFolders/{id}` — Update One messageChannelMessageAssociationMessageFolder (UpdateOneMessageChannelMessageAssociationMessageFolder) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `POST /messageChannelMessageAssociationMessageFolders/duplicates` — Find messageChannelMessageAssociationMessageFolder Duplicates (findMessageChannelMessageAssociationMessageFolderDuplicates) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `GET /messageChannelMessageAssociationMessageFolders/groupBy` — Group By messageChannelMessageAssociationMessageFolders (groupByMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `PATCH /messageChannelMessageAssociationMessageFolders/merge` — Merge Many messageChannelMessageAssociationMessageFolders (mergeManyMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `PATCH /restore/messageChannelMessageAssociationMessageFolders` — Restore Many messageChannelMessageAssociationMessageFolders (restoreManyMessageChannelMessageAssociationMessageFolders) → `MessageChannelMessageAssociationMessageFolderForResponse`
+- `PATCH /restore/messageChannelMessageAssociationMessageFolders/{id}` — Restore One messageChannelMessageAssociationMessageFolder (restoreOneMessageChannelMessageAssociationMessageFolder) → `MessageChannelMessageAssociationMessageFolderForResponse`
+
+### messageChannelMessageAssociations
+
+- `POST /batch/messageChannelMessageAssociations` — Create Many messageChannelMessageAssociations (createManyMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `DELETE /messageChannelMessageAssociations` — Delete Many messageChannelMessageAssociations (deleteManyMessageChannelMessageAssociations)
+- `GET /messageChannelMessageAssociations` — Find Many messageChannelMessageAssociations (findManyMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `PATCH /messageChannelMessageAssociations` — Update Many messageChannelMessageAssociations (updateManyMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `POST /messageChannelMessageAssociations` — Create One messageChannelMessageAssociation (createOneMessageChannelMessageAssociation) → `MessageChannelMessageAssociationForResponse`
+- `DELETE /messageChannelMessageAssociations/{id}` — Delete One messageChannelMessageAssociation (deleteOneMessageChannelMessageAssociation)
+- `GET /messageChannelMessageAssociations/{id}` — Find One messageChannelMessageAssociation (findOneMessageChannelMessageAssociation) → `MessageChannelMessageAssociationForResponse`
+- `PATCH /messageChannelMessageAssociations/{id}` — Update One messageChannelMessageAssociation (UpdateOneMessageChannelMessageAssociation) → `MessageChannelMessageAssociationForResponse`
+- `POST /messageChannelMessageAssociations/duplicates` — Find messageChannelMessageAssociation Duplicates (findMessageChannelMessageAssociationDuplicates) → `MessageChannelMessageAssociationForResponse`
+- `GET /messageChannelMessageAssociations/groupBy` — Group By messageChannelMessageAssociations (groupByMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `PATCH /messageChannelMessageAssociations/merge` — Merge Many messageChannelMessageAssociations (mergeManyMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `PATCH /restore/messageChannelMessageAssociations` — Restore Many messageChannelMessageAssociations (restoreManyMessageChannelMessageAssociations) → `MessageChannelMessageAssociationForResponse`
+- `PATCH /restore/messageChannelMessageAssociations/{id}` — Restore One messageChannelMessageAssociation (restoreOneMessageChannelMessageAssociation) → `MessageChannelMessageAssociationForResponse`
+
+### messageParticipants
+
+- `POST /batch/messageParticipants` — Create Many messageParticipants (createManyMessageParticipants) → `MessageParticipantForResponse`
+- `DELETE /messageParticipants` — Delete Many messageParticipants (deleteManyMessageParticipants)
+- `GET /messageParticipants` — Find Many messageParticipants (findManyMessageParticipants) → `MessageParticipantForResponse`
+- `PATCH /messageParticipants` — Update Many messageParticipants (updateManyMessageParticipants) → `MessageParticipantForResponse`
+- `POST /messageParticipants` — Create One messageParticipant (createOneMessageParticipant) → `MessageParticipantForResponse`
+- `DELETE /messageParticipants/{id}` — Delete One messageParticipant (deleteOneMessageParticipant)
+- `GET /messageParticipants/{id}` — Find One messageParticipant (findOneMessageParticipant) → `MessageParticipantForResponse`
+- `PATCH /messageParticipants/{id}` — Update One messageParticipant (UpdateOneMessageParticipant) → `MessageParticipantForResponse`
+- `POST /messageParticipants/duplicates` — Find messageParticipant Duplicates (findMessageParticipantDuplicates) → `MessageParticipantForResponse`
+- `GET /messageParticipants/groupBy` — Group By messageParticipants (groupByMessageParticipants) → `MessageParticipantForResponse`
+- `PATCH /messageParticipants/merge` — Merge Many messageParticipants (mergeManyMessageParticipants) → `MessageParticipantForResponse`
+- `PATCH /restore/messageParticipants` — Restore Many messageParticipants (restoreManyMessageParticipants) → `MessageParticipantForResponse`
+- `PATCH /restore/messageParticipants/{id}` — Restore One messageParticipant (restoreOneMessageParticipant) → `MessageParticipantForResponse`
+
+### messages
+
+- `POST /batch/messages` — Create Many messages (createManyMessages) → `MessageForResponse`
+- `DELETE /messages` — Delete Many messages (deleteManyMessages)
+- `GET /messages` — Find Many messages (findManyMessages) → `MessageForResponse`
+- `PATCH /messages` — Update Many messages (updateManyMessages) → `MessageForResponse`
+- `POST /messages` — Create One message (createOneMessage) → `MessageForResponse`
+- `DELETE /messages/{id}` — Delete One message (deleteOneMessage)
+- `GET /messages/{id}` — Find One message (findOneMessage) → `MessageForResponse`
+- `PATCH /messages/{id}` — Update One message (UpdateOneMessage) → `MessageForResponse`
+- `POST /messages/duplicates` — Find message Duplicates (findMessageDuplicates) → `MessageForResponse`
+- `GET /messages/groupBy` — Group By messages (groupByMessages) → `MessageForResponse`
+- `PATCH /messages/merge` — Merge Many messages (mergeManyMessages) → `MessageForResponse`
+- `PATCH /restore/messages` — Restore Many messages (restoreManyMessages) → `MessageForResponse`
+- `PATCH /restore/messages/{id}` — Restore One message (restoreOneMessage) → `MessageForResponse`
+
+### messageThreads
+
+- `POST /batch/messageThreads` — Create Many messageThreads (createManyMessageThreads) → `MessageThreadForResponse`
+- `DELETE /messageThreads` — Delete Many messageThreads (deleteManyMessageThreads)
+- `GET /messageThreads` — Find Many messageThreads (findManyMessageThreads) → `MessageThreadForResponse`
+- `PATCH /messageThreads` — Update Many messageThreads (updateManyMessageThreads) → `MessageThreadForResponse`
+- `POST /messageThreads` — Create One messageThread (createOneMessageThread) → `MessageThreadForResponse`
+- `DELETE /messageThreads/{id}` — Delete One messageThread (deleteOneMessageThread)
+- `GET /messageThreads/{id}` — Find One messageThread (findOneMessageThread) → `MessageThreadForResponse`
+- `PATCH /messageThreads/{id}` — Update One messageThread (UpdateOneMessageThread) → `MessageThreadForResponse`
+- `POST /messageThreads/duplicates` — Find messageThread Duplicates (findMessageThreadDuplicates) → `MessageThreadForResponse`
+- `GET /messageThreads/groupBy` — Group By messageThreads (groupByMessageThreads) → `MessageThreadForResponse`
+- `PATCH /messageThreads/merge` — Merge Many messageThreads (mergeManyMessageThreads) → `MessageThreadForResponse`
+- `PATCH /restore/messageThreads` — Restore Many messageThreads (restoreManyMessageThreads) → `MessageThreadForResponse`
+- `PATCH /restore/messageThreads/{id}` — Restore One messageThread (restoreOneMessageThread) → `MessageThreadForResponse`
+
+### notes
+
+- `POST /batch/notes` — Create Many notes (createManyNotes) → `NoteForResponse`
+- `DELETE /notes` — Delete Many notes (deleteManyNotes)
+- `GET /notes` — Find Many notes (findManyNotes) → `NoteForResponse`
+- `PATCH /notes` — Update Many notes (updateManyNotes) → `NoteForResponse`
+- `POST /notes` — Create One note (createOneNote) → `NoteForResponse`
+- `DELETE /notes/{id}` — Delete One note (deleteOneNote)
+- `GET /notes/{id}` — Find One note (findOneNote) → `NoteForResponse`
+- `PATCH /notes/{id}` — Update One note (UpdateOneNote) → `NoteForResponse`
+- `POST /notes/duplicates` — Find note Duplicates (findNoteDuplicates) → `NoteForResponse`
+- `GET /notes/groupBy` — Group By notes (groupByNotes) → `NoteForResponse`
+- `PATCH /notes/merge` — Merge Many notes (mergeManyNotes) → `NoteForResponse`
+- `PATCH /restore/notes` — Restore Many notes (restoreManyNotes) → `NoteForResponse`
+- `PATCH /restore/notes/{id}` — Restore One note (restoreOneNote) → `NoteForResponse`
+
+### noteTargets
+
+- `POST /batch/noteTargets` — Create Many noteTargets (createManyNoteTargets) → `NoteTargetForResponse`
+- `DELETE /noteTargets` — Delete Many noteTargets (deleteManyNoteTargets)
+- `GET /noteTargets` — Find Many noteTargets (findManyNoteTargets) → `NoteTargetForResponse`
+- `PATCH /noteTargets` — Update Many noteTargets (updateManyNoteTargets) → `NoteTargetForResponse`
+- `POST /noteTargets` — Create One noteTarget (createOneNoteTarget) → `NoteTargetForResponse`
+- `DELETE /noteTargets/{id}` — Delete One noteTarget (deleteOneNoteTarget)
+- `GET /noteTargets/{id}` — Find One noteTarget (findOneNoteTarget) → `NoteTargetForResponse`
+- `PATCH /noteTargets/{id}` — Update One noteTarget (UpdateOneNoteTarget) → `NoteTargetForResponse`
+- `POST /noteTargets/duplicates` — Find noteTarget Duplicates (findNoteTargetDuplicates) → `NoteTargetForResponse`
+- `GET /noteTargets/groupBy` — Group By noteTargets (groupByNoteTargets) → `NoteTargetForResponse`
+- `PATCH /noteTargets/merge` — Merge Many noteTargets (mergeManyNoteTargets) → `NoteTargetForResponse`
+- `PATCH /restore/noteTargets` — Restore Many noteTargets (restoreManyNoteTargets) → `NoteTargetForResponse`
+- `PATCH /restore/noteTargets/{id}` — Restore One noteTarget (restoreOneNoteTarget) → `NoteTargetForResponse`
+
+### opportunities
+
+- `POST /batch/opportunities` — Create Many opportunities (createManyOpportunities) → `OpportunityForResponse`
+- `DELETE /opportunities` — Delete Many opportunities (deleteManyOpportunities)
+- `GET /opportunities` — Find Many opportunities (findManyOpportunities) → `OpportunityForResponse`
+- `PATCH /opportunities` — Update Many opportunities (updateManyOpportunities) → `OpportunityForResponse`
+- `POST /opportunities` — Create One opportunity (createOneOpportunity) → `OpportunityForResponse`
+- `DELETE /opportunities/{id}` — Delete One opportunity (deleteOneOpportunity)
+- `GET /opportunities/{id}` — Find One opportunity (findOneOpportunity) → `OpportunityForResponse`
+- `PATCH /opportunities/{id}` — Update One opportunity (UpdateOneOpportunity) → `OpportunityForResponse`
+- `POST /opportunities/duplicates` — Find opportunity Duplicates (findOpportunityDuplicates) → `OpportunityForResponse`
+- `GET /opportunities/groupBy` — Group By opportunities (groupByOpportunities) → `OpportunityForResponse`
+- `PATCH /opportunities/merge` — Merge Many opportunities (mergeManyOpportunities) → `OpportunityForResponse`
+- `PATCH /restore/opportunities` — Restore Many opportunities (restoreManyOpportunities) → `OpportunityForResponse`
+- `PATCH /restore/opportunities/{id}` — Restore One opportunity (restoreOneOpportunity) → `OpportunityForResponse`
+
+### people
+
+- `POST /batch/people` — Create Many people (createManyPeople) → `PersonForResponse`
+- `DELETE /people` — Delete Many people (deleteManyPeople)
+- `GET /people` — Find Many people (findManyPeople) → `PersonForResponse`
+- `PATCH /people` — Update Many people (updateManyPeople) → `PersonForResponse`
+- `POST /people` — Create One person (createOnePerson) → `PersonForResponse`
+- `DELETE /people/{id}` — Delete One person (deleteOnePerson)
+- `GET /people/{id}` — Find One person (findOnePerson) → `PersonForResponse`
+- `PATCH /people/{id}` — Update One person (UpdateOnePerson) → `PersonForResponse`
+- `POST /people/duplicates` — Find person Duplicates (findPersonDuplicates) → `PersonForResponse`
+- `GET /people/groupBy` — Group By people (groupByPeople) → `PersonForResponse`
+- `PATCH /people/merge` — Merge Many people (mergeManyPeople) → `PersonForResponse`
+- `PATCH /restore/people` — Restore Many people (restoreManyPeople) → `PersonForResponse`
+- `PATCH /restore/people/{id}` — Restore One person (restoreOnePerson) → `PersonForResponse`
+
+### tasks
+
+- `POST /batch/tasks` — Create Many tasks (createManyTasks) → `TaskForResponse`
+- `PATCH /restore/tasks` — Restore Many tasks (restoreManyTasks) → `TaskForResponse`
+- `PATCH /restore/tasks/{id}` — Restore One task (restoreOneTask) → `TaskForResponse`
+- `DELETE /tasks` — Delete Many tasks (deleteManyTasks)
+- `GET /tasks` — Find Many tasks (findManyTasks) → `TaskForResponse`
+- `PATCH /tasks` — Update Many tasks (updateManyTasks) → `TaskForResponse`
+- `POST /tasks` — Create One task (createOneTask) → `TaskForResponse`
+- `DELETE /tasks/{id}` — Delete One task (deleteOneTask)
+- `GET /tasks/{id}` — Find One task (findOneTask) → `TaskForResponse`
+- `PATCH /tasks/{id}` — Update One task (UpdateOneTask) → `TaskForResponse`
+- `POST /tasks/duplicates` — Find task Duplicates (findTaskDuplicates) → `TaskForResponse`
+- `GET /tasks/groupBy` — Group By tasks (groupByTasks) → `TaskForResponse`
+- `PATCH /tasks/merge` — Merge Many tasks (mergeManyTasks) → `TaskForResponse`
+
+### taskTargets
+
+- `POST /batch/taskTargets` — Create Many taskTargets (createManyTaskTargets) → `TaskTargetForResponse`
+- `PATCH /restore/taskTargets` — Restore Many taskTargets (restoreManyTaskTargets) → `TaskTargetForResponse`
+- `PATCH /restore/taskTargets/{id}` — Restore One taskTarget (restoreOneTaskTarget) → `TaskTargetForResponse`
+- `DELETE /taskTargets` — Delete Many taskTargets (deleteManyTaskTargets)
+- `GET /taskTargets` — Find Many taskTargets (findManyTaskTargets) → `TaskTargetForResponse`
+- `PATCH /taskTargets` — Update Many taskTargets (updateManyTaskTargets) → `TaskTargetForResponse`
+- `POST /taskTargets` — Create One taskTarget (createOneTaskTarget) → `TaskTargetForResponse`
+- `DELETE /taskTargets/{id}` — Delete One taskTarget (deleteOneTaskTarget)
+- `GET /taskTargets/{id}` — Find One taskTarget (findOneTaskTarget) → `TaskTargetForResponse`
+- `PATCH /taskTargets/{id}` — Update One taskTarget (UpdateOneTaskTarget) → `TaskTargetForResponse`
+- `POST /taskTargets/duplicates` — Find taskTarget Duplicates (findTaskTargetDuplicates) → `TaskTargetForResponse`
+- `GET /taskTargets/groupBy` — Group By taskTargets (groupByTaskTargets) → `TaskTargetForResponse`
+- `PATCH /taskTargets/merge` — Merge Many taskTargets (mergeManyTaskTargets) → `TaskTargetForResponse`
+
+### timelineActivities
+
+- `POST /batch/timelineActivities` — Create Many timelineActivities (createManyTimelineActivities) → `TimelineActivityForResponse`
+- `PATCH /restore/timelineActivities` — Restore Many timelineActivities (restoreManyTimelineActivities) → `TimelineActivityForResponse`
+- `PATCH /restore/timelineActivities/{id}` — Restore One timelineActivity (restoreOneTimelineActivity) → `TimelineActivityForResponse`
+- `DELETE /timelineActivities` — Delete Many timelineActivities (deleteManyTimelineActivities)
+- `GET /timelineActivities` — Find Many timelineActivities (findManyTimelineActivities) → `TimelineActivityForResponse`
+- `PATCH /timelineActivities` — Update Many timelineActivities (updateManyTimelineActivities) → `TimelineActivityForResponse`
+- `POST /timelineActivities` — Create One timelineActivity (createOneTimelineActivity) → `TimelineActivityForResponse`
+- `DELETE /timelineActivities/{id}` — Delete One timelineActivity (deleteOneTimelineActivity)
+- `GET /timelineActivities/{id}` — Find One timelineActivity (findOneTimelineActivity) → `TimelineActivityForResponse`
+- `PATCH /timelineActivities/{id}` — Update One timelineActivity (UpdateOneTimelineActivity) → `TimelineActivityForResponse`
+- `POST /timelineActivities/duplicates` — Find timelineActivity Duplicates (findTimelineActivityDuplicates) → `TimelineActivityForResponse`
+- `GET /timelineActivities/groupBy` — Group By timelineActivities (groupByTimelineActivities) → `TimelineActivityForResponse`
+- `PATCH /timelineActivities/merge` — Merge Many timelineActivities (mergeManyTimelineActivities) → `TimelineActivityForResponse`
+
+### workflowAutomatedTriggers
+
+- `POST /batch/workflowAutomatedTriggers` — Create Many workflowAutomatedTriggers (createManyWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+- `PATCH /restore/workflowAutomatedTriggers` — Restore Many workflowAutomatedTriggers (restoreManyWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+- `PATCH /restore/workflowAutomatedTriggers/{id}` — Restore One workflowAutomatedTrigger (restoreOneWorkflowAutomatedTrigger) → `WorkflowAutomatedTriggerForResponse`
+- `DELETE /workflowAutomatedTriggers` — Delete Many workflowAutomatedTriggers (deleteManyWorkflowAutomatedTriggers)
+- `GET /workflowAutomatedTriggers` — Find Many workflowAutomatedTriggers (findManyWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+- `PATCH /workflowAutomatedTriggers` — Update Many workflowAutomatedTriggers (updateManyWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+- `POST /workflowAutomatedTriggers` — Create One workflowAutomatedTrigger (createOneWorkflowAutomatedTrigger) → `WorkflowAutomatedTriggerForResponse`
+- `DELETE /workflowAutomatedTriggers/{id}` — Delete One workflowAutomatedTrigger (deleteOneWorkflowAutomatedTrigger)
+- `GET /workflowAutomatedTriggers/{id}` — Find One workflowAutomatedTrigger (findOneWorkflowAutomatedTrigger) → `WorkflowAutomatedTriggerForResponse`
+- `PATCH /workflowAutomatedTriggers/{id}` — Update One workflowAutomatedTrigger (UpdateOneWorkflowAutomatedTrigger) → `WorkflowAutomatedTriggerForResponse`
+- `POST /workflowAutomatedTriggers/duplicates` — Find workflowAutomatedTrigger Duplicates (findWorkflowAutomatedTriggerDuplicates) → `WorkflowAutomatedTriggerForResponse`
+- `GET /workflowAutomatedTriggers/groupBy` — Group By workflowAutomatedTriggers (groupByWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+- `PATCH /workflowAutomatedTriggers/merge` — Merge Many workflowAutomatedTriggers (mergeManyWorkflowAutomatedTriggers) → `WorkflowAutomatedTriggerForResponse`
+
+### workflowRuns
+
+- `POST /batch/workflowRuns` — Create Many workflowRuns (createManyWorkflowRuns) → `WorkflowRunForResponse`
+- `PATCH /restore/workflowRuns` — Restore Many workflowRuns (restoreManyWorkflowRuns) → `WorkflowRunForResponse`
+- `PATCH /restore/workflowRuns/{id}` — Restore One workflowRun (restoreOneWorkflowRun) → `WorkflowRunForResponse`
+- `DELETE /workflowRuns` — Delete Many workflowRuns (deleteManyWorkflowRuns)
+- `GET /workflowRuns` — Find Many workflowRuns (findManyWorkflowRuns) → `WorkflowRunForResponse`
+- `PATCH /workflowRuns` — Update Many workflowRuns (updateManyWorkflowRuns) → `WorkflowRunForResponse`
+- `POST /workflowRuns` — Create One workflowRun (createOneWorkflowRun) → `WorkflowRunForResponse`
+- `DELETE /workflowRuns/{id}` — Delete One workflowRun (deleteOneWorkflowRun)
+- `GET /workflowRuns/{id}` — Find One workflowRun (findOneWorkflowRun) → `WorkflowRunForResponse`
+- `PATCH /workflowRuns/{id}` — Update One workflowRun (UpdateOneWorkflowRun) → `WorkflowRunForResponse`
+- `POST /workflowRuns/duplicates` — Find workflowRun Duplicates (findWorkflowRunDuplicates) → `WorkflowRunForResponse`
+- `GET /workflowRuns/groupBy` — Group By workflowRuns (groupByWorkflowRuns) → `WorkflowRunForResponse`
+- `PATCH /workflowRuns/merge` — Merge Many workflowRuns (mergeManyWorkflowRuns) → `WorkflowRunForResponse`
+
+### workflows
+
+- `POST /batch/workflows` — Create Many workflows (createManyWorkflows) → `WorkflowForResponse`
+- `PATCH /restore/workflows` — Restore Many workflows (restoreManyWorkflows) → `WorkflowForResponse`
+- `PATCH /restore/workflows/{id}` — Restore One workflow (restoreOneWorkflow) → `WorkflowForResponse`
+- `DELETE /workflows` — Delete Many workflows (deleteManyWorkflows)
+- `GET /workflows` — Find Many workflows (findManyWorkflows) → `WorkflowForResponse`
+- `PATCH /workflows` — Update Many workflows (updateManyWorkflows) → `WorkflowForResponse`
+- `POST /workflows` — Create One workflow (createOneWorkflow) → `WorkflowForResponse`
+- `DELETE /workflows/{id}` — Delete One workflow (deleteOneWorkflow)
+- `GET /workflows/{id}` — Find One workflow (findOneWorkflow) → `WorkflowForResponse`
+- `PATCH /workflows/{id}` — Update One workflow (UpdateOneWorkflow) → `WorkflowForResponse`
+- `POST /workflows/duplicates` — Find workflow Duplicates (findWorkflowDuplicates) → `WorkflowForResponse`
+- `GET /workflows/groupBy` — Group By workflows (groupByWorkflows) → `WorkflowForResponse`
+- `PATCH /workflows/merge` — Merge Many workflows (mergeManyWorkflows) → `WorkflowForResponse`
+
+### workflowVersions
+
+- `POST /batch/workflowVersions` — Create Many workflowVersions (createManyWorkflowVersions) → `WorkflowVersionForResponse`
+- `PATCH /restore/workflowVersions` — Restore Many workflowVersions (restoreManyWorkflowVersions) → `WorkflowVersionForResponse`
+- `PATCH /restore/workflowVersions/{id}` — Restore One workflowVersion (restoreOneWorkflowVersion) → `WorkflowVersionForResponse`
+- `DELETE /workflowVersions` — Delete Many workflowVersions (deleteManyWorkflowVersions)
+- `GET /workflowVersions` — Find Many workflowVersions (findManyWorkflowVersions) → `WorkflowVersionForResponse`
+- `PATCH /workflowVersions` — Update Many workflowVersions (updateManyWorkflowVersions) → `WorkflowVersionForResponse`
+- `POST /workflowVersions` — Create One workflowVersion (createOneWorkflowVersion) → `WorkflowVersionForResponse`
+- `DELETE /workflowVersions/{id}` — Delete One workflowVersion (deleteOneWorkflowVersion)
+- `GET /workflowVersions/{id}` — Find One workflowVersion (findOneWorkflowVersion) → `WorkflowVersionForResponse`
+- `PATCH /workflowVersions/{id}` — Update One workflowVersion (UpdateOneWorkflowVersion) → `WorkflowVersionForResponse`
+- `POST /workflowVersions/duplicates` — Find workflowVersion Duplicates (findWorkflowVersionDuplicates) → `WorkflowVersionForResponse`
+- `GET /workflowVersions/groupBy` — Group By workflowVersions (groupByWorkflowVersions) → `WorkflowVersionForResponse`
+- `PATCH /workflowVersions/merge` — Merge Many workflowVersions (mergeManyWorkflowVersions) → `WorkflowVersionForResponse`
+
+### workspaceMembers
+
+- `POST /batch/workspaceMembers` — Create Many workspaceMembers (createManyWorkspaceMembers) → `WorkspaceMemberForResponse`
+- `PATCH /restore/workspaceMembers` — Restore Many workspaceMembers (restoreManyWorkspaceMembers) → `WorkspaceMemberForResponse`
+- `PATCH /restore/workspaceMembers/{id}` — Restore One workspaceMember (restoreOneWorkspaceMember) → `WorkspaceMemberForResponse`
+- `DELETE /workspaceMembers` — Delete Many workspaceMembers (deleteManyWorkspaceMembers)
+- `GET /workspaceMembers` — Find Many workspaceMembers (findManyWorkspaceMembers) → `WorkspaceMemberForResponse`
+- `PATCH /workspaceMembers` — Update Many workspaceMembers (updateManyWorkspaceMembers) → `WorkspaceMemberForResponse`
+- `POST /workspaceMembers` — Create One workspaceMember (createOneWorkspaceMember) → `WorkspaceMemberForResponse`
+- `DELETE /workspaceMembers/{id}` — Delete One workspaceMember (deleteOneWorkspaceMember)
+- `GET /workspaceMembers/{id}` — Find One workspaceMember (findOneWorkspaceMember) → `WorkspaceMemberForResponse`
+- `PATCH /workspaceMembers/{id}` — Update One workspaceMember (UpdateOneWorkspaceMember) → `WorkspaceMemberForResponse`
+- `POST /workspaceMembers/duplicates` — Find workspaceMember Duplicates (findWorkspaceMemberDuplicates) → `WorkspaceMemberForResponse`
+- `GET /workspaceMembers/groupBy` — Group By workspaceMembers (groupByWorkspaceMembers) → `WorkspaceMemberForResponse`
+- `PATCH /workspaceMembers/merge` — Merge Many workspaceMembers (mergeManyWorkspaceMembers) → `WorkspaceMemberForResponse`
+
+### Models (75)
+
+- `Attachment`
+- `AttachmentForResponse`
+- `AttachmentForUpdate`
+- `Blocklist`
+- `BlocklistForResponse`
+- `BlocklistForUpdate`
+- `CalendarChannelEventAssociation`
+- `CalendarChannelEventAssociationForResponse`
+- `CalendarChannelEventAssociationForUpdate`
+- `CalendarEvent`
+- `CalendarEventForResponse`
+- `CalendarEventForUpdate`
+- `CalendarEventParticipant`
+- `CalendarEventParticipantForResponse`
+- `CalendarEventParticipantForUpdate`
+- `CallRecording`
+- `CallRecordingForResponse`
+- `CallRecordingForUpdate`
+- `Company`
+- `CompanyForResponse`
+- `CompanyForUpdate`
+- `Dashboard`
+- `DashboardForResponse`
+- `DashboardForUpdate`
+- `Message`
+- `MessageChannelMessageAssociation`
+- `MessageChannelMessageAssociationForResponse`
+- `MessageChannelMessageAssociationForUpdate`
+- `MessageChannelMessageAssociationMessageFolder`
+- `MessageChannelMessageAssociationMessageFolderForResponse`
+- `MessageChannelMessageAssociationMessageFolderForUpdate`
+- `MessageForResponse`
+- `MessageForUpdate`
+- `MessageParticipant`
+- `MessageParticipantForResponse`
+- `MessageParticipantForUpdate`
+- `MessageThread`
+- `MessageThreadForResponse`
+- `MessageThreadForUpdate`
+- `Note`
+- `NoteForResponse`
+- `NoteForUpdate`
+- `NoteTarget`
+- `NoteTargetForResponse`
+- `NoteTargetForUpdate`
+- `Opportunity`
+- `OpportunityForResponse`
+- `OpportunityForUpdate`
+- `Person`
+- `PersonForResponse`
+- `PersonForUpdate`
+- `Task`
+- `TaskForResponse`
+- `TaskForUpdate`
+- `TaskTarget`
+- `TaskTargetForResponse`
+- `TaskTargetForUpdate`
+- `TimelineActivity`
+- `TimelineActivityForResponse`
+- `TimelineActivityForUpdate`
+- `Workflow`
+- `WorkflowAutomatedTrigger`
+- `WorkflowAutomatedTriggerForResponse`
+- `WorkflowAutomatedTriggerForUpdate`
+- `WorkflowForResponse`
+- `WorkflowForUpdate`
+- `WorkflowRun`
+- `WorkflowRunForResponse`
+- `WorkflowRunForUpdate`
+- `WorkflowVersion`
+- `WorkflowVersionForResponse`
+- `WorkflowVersionForUpdate`
+- `WorkspaceMember`
+- `WorkspaceMemberForResponse`
+- `WorkspaceMemberForUpdate`

@@ -102,14 +102,35 @@ export const PainPrompt: CompoundDef = {
 };
 
 /* ===========================================================================
- * FlowArrow — source-system → (label) → target-system.
+ * FlowArrow — source-system → (label) → [via → ] target-system.
  *
  * params: source (node, required) · target (node, required) · label (string)
+ *         · via (node)
  *
  * A directional pairing read inline: the source system, a decorative arrow icon
- * (optionally captioned with the flow label), then the target system. Reads as a
- * map edge, not an action. The arrow glyph is decorative — the systems carry the
- * meaning.
+ * (optionally captioned with the flow label), an OPTIONAL intermediate `via` hop,
+ * then the target system. Reads as a map edge — or a two-hop map path for the
+ * three-way "deal to delivery" capabilities — not an action. The arrow glyphs are
+ * decorative; the systems carry the meaning.
+ *
+ * `via` is OPTIONAL and DEFAULTED to a blank Text node, so it follows the SAME
+ * no-op idiom the existing `label` param already uses (an empty param-ref → blank
+ * Text → nothing rendered). The DEFAULT carries no arrow of its own, so an
+ * OMITTED `via` collapses to nothing and the template renders EXACTLY as before:
+ * source → (arrow + label) → target, a single hop. Every existing two-/three-arg
+ * FlowArrow ref therefore stays valid and the grammar fixed point is preserved.
+ *
+ * When the call site WANTS the intermediate hop it passes `via` as a complete
+ * sub-segment node — a Cluster of [via-system label, decorative TRAILING arrow] —
+ * so the second arrow exists ONLY when there is a via to point at (no stray glyph on
+ * the single-hop path). Order is load-bearing: the template's own leading arrow
+ * cluster bridges source → via, and the via's trailing arrow bridges via → target,
+ * so the chain reads source → (arrow) → via → (arrow) → target with one arrow
+ * between every pair. Keeping the via-arrow inside the `via` node (rather than
+ * hardcoding a second arrow in the template) is what lets presence/absence branch
+ * cleanly under the conditional-free factory. References intents only (accession for
+ * the endpoint systems, provenance for the decorative edge); a11y on the arrow stays
+ * decorative.
  * ========================================================================= */
 
 export const FlowArrow: CompoundDef = {
@@ -134,6 +155,15 @@ export const FlowArrow: CompoundDef = {
 				default: "",
 				description: "Optional caption on the flow edge (e.g. 'on approval').",
 			},
+			via: {
+				type: "node",
+				// Default is a blank Text node carrying NO arrow — an omitted via renders
+				// nothing, so the single-hop template is byte-for-byte unchanged. The call
+				// site supplies the arrow+system sub-segment only when a hop is wanted.
+				default: { kind: "text", value: "" },
+				description:
+					"Optional intermediate hop in a multi-hop chain — a sub-segment node (a Cluster of [decorative arrow, via-system label]) the call site builds when it wants source → via → target. Defaulted to a blank Text node so an omitted via collapses to nothing and the single-hop render is unchanged (same no-op idiom as the empty `label`).",
+			},
 		},
 	},
 	template: {
@@ -157,6 +187,11 @@ export const FlowArrow: CompoundDef = {
 					{ kind: "param-ref", param: "label" },
 				],
 			},
+			// The OPTIONAL intermediate hop. Defaulted blank (renders nothing) so the
+			// single-hop case is unchanged; when supplied it carries its OWN arrow +
+			// via-system, making source → via → target a two-hop read with no stray
+			// glyph on the single-hop path.
+			{ kind: "param-ref", param: "via" },
 			{ kind: "param-ref", param: "target" },
 		],
 	},
@@ -285,7 +320,10 @@ export const ModelView: CompoundDef = {
 		role: "inline",
 		align: "center",
 		children: [
-			{ kind: "icon", name: "schema", a11y: { role: "img", label: "Compiled model" }, intent: "accession" },
+			// The schema glyph is a category marker; the model-name Text beside it carries
+			// the meaning, so the icon is decorative — otherwise a card touching N models
+			// makes a screen reader announce "Compiled model" N times before each name.
+			{ kind: "icon", name: "schema", a11y: { role: "decorative" }, intent: "accession" },
 			{ kind: "param-ref", param: "name" },
 			{ kind: "param-ref", param: "system" },
 		],

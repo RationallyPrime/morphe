@@ -36,9 +36,17 @@
 	// ready before the tree renders.
 	registerComposeCompounds();
 
-	// The control surface state — the only two things a visitor controls.
+	// The default number of cards the answer shows before the visitor asks for
+	// the rest. Matches composeAnswer's own DEFAULT_LIMIT so the "Show all" button
+	// appears exactly when the answer was actually capped.
+	const COLLAPSED_LIMIT = 9;
+
+	// The control surface state: the things a visitor controls. `showAll` is a
+	// pure chrome affordance (NOT part of the composed Morphe tree): collapsed by
+	// default, it caps the answer at COLLAPSED_LIMIT cards until the visitor opts in.
 	let pain = $state("");
 	let selected = $state<string[]>(SYSTEMS.map((s) => s.id));
+	let showAll = $state(false);
 
 	function toggleSystem(id: string): void {
 		selected = selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id];
@@ -49,11 +57,39 @@
 	// so the page is never blank, even before the visitor types.
 	const query = $derived(parseQuery({ pain, systems: selected }));
 	const matches = $derived(matchCapabilities(query));
+
+	// The cards on screen: the visitor's real matches when their pain resolves to
+	// any, otherwise the featured breadth so the surface is never blank. BOTH obey
+	// the same collapse + "Show all" affordance below — one mental model, whether the
+	// cards are a real answer or the default breadth teaser.
+	const results = $derived(matches.length > 0 ? matches : featuredCapabilities(query.systems));
+
+	// Collapsed shows the first COLLAPSED_LIMIT highest-ranked cards; "Show all"
+	// lifts the cap (Infinity = every card). composeAnswer / emptyState treat any
+	// limit >= card count as "show everything", so passing Infinity renders the full set.
+	const limit = $derived(showAll ? Number.POSITIVE_INFINITY : COLLAPSED_LIMIT);
 	const tree = $derived(
 		matches.length > 0
-			? composeAnswer(matches, query)
-			: emptyState(query, featuredCapabilities()),
+			? composeAnswer(matches, query, limit)
+			: emptyState(query, results, limit),
 	);
+
+	// How many cards are currently hidden behind the collapsed cap. > 0 only when
+	// the view is collapsed AND there are more cards than the cap, which is exactly
+	// when the "Show all N" button should appear (matches or featured breadth alike).
+	const hiddenCount = $derived(showAll ? 0 : Math.max(0, results.length - COLLAPSED_LIMIT));
+
+	// Re-collapse whenever the query changes: a new search should start scannable,
+	// not inherit a previous "Show all". The effect depends ONLY on the query
+	// inputs (pain + the joined selection) and writes showAll, never reads it, so
+	// it cannot loop. Effects do not run during SSR, so the server still renders the
+	// collapsed default, which is SSR-safe.
+	$effect(() => {
+		// Touch the query inputs so this re-runs when either changes.
+		void pain;
+		void selected.join(",");
+		showAll = false;
+	});
 </script>
 
 <svelte:head>
@@ -134,6 +170,22 @@
 	<main class="surface">
 		<MorpheRoot tree={tree} dialect={icelandicArchive} />
 	</main>
+
+	<!--
+	  "Show all" is page CHROME, not part of the composed answer; it lives OUTSIDE
+	  the Morphe tree, mirroring the system checkboxes above. It appears only when
+	  the collapsed view actually hid cards (hiddenCount > 0); clicking it lifts the
+	  cap so the full ranked set renders. A new search re-collapses (the $effect),
+	  so the button reappears for the next query when there is more to reveal.
+	-->
+	{#if hiddenCount > 0}
+		<div class="more">
+			<button type="button" class="more__button" onclick={() => (showAll = true)}>
+				<span class="more__glyph material-symbols-outlined" aria-hidden="true">expand_more</span>
+				Show all {results.length}
+			</button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -322,5 +374,49 @@
 		overflow: clip;
 		outline: 1px solid var(--mo-intent-outline);
 		outline-offset: -1px;
+	}
+
+	/*
+	 * "Show all" chrome: a quiet, centered affordance under the collapsed answer.
+	 * Reads from the same --mo-* tokens as the chips so it stays consistent with the
+	 * active dialect; the amber beacon is reserved for the answer, so this control
+	 * stays neutral until focus/hover.
+	 */
+	.more {
+		display: flex;
+		justify-content: center;
+		margin-block-start: var(--mo-space-4);
+	}
+	.more__button {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mo-space-2);
+		padding: var(--mo-space-3) var(--mo-space-5);
+		border: 0;
+		border-radius: var(--mo-radius-3);
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface-muted);
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-3);
+		letter-spacing: 0.02em;
+		cursor: pointer;
+		outline: 1px solid var(--mo-intent-outline);
+		outline-offset: -1px;
+		transition:
+			color 160ms ease,
+			outline-color 160ms ease;
+	}
+	.more__button:hover {
+		color: var(--mo-intent-on-surface);
+		outline-color: var(--mo-intent-accession-on);
+	}
+	.more__button:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 1px;
+		color: var(--mo-intent-on-surface);
+	}
+	.more__glyph {
+		font-size: var(--mo-type-4);
+		line-height: 1;
 	}
 </style>

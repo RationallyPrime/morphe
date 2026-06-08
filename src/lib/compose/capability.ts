@@ -57,6 +57,12 @@ export interface Capability {
 	title: string; // "Approved timeclock -> payroll/work-journal posting"
 	/** Matchable phrases/tags a visitor's stated pain maps onto. */
 	painPoints: string[];
+	/**
+	 * The FULL set of systems this capability requires. A capability only surfaces
+	 * when this set is a subset of the visitor's selected systems: one entry for a
+	 * single-system cap, two for a cross-system pair, three for a three-way loop.
+	 */
+	systems: readonly SystemId[];
 	source: SystemRef; // the trigger system
 	target: SystemRef; // the system acted upon (== source for single-system caps)
 	transform: string; // one plain-language sentence: what it does

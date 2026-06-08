@@ -1,20 +1,28 @@
 /**
- * THE COMPOSE CORPUS — the 45 Humanity×dkPlus capabilities as typed, GROUNDED data.
+ * THE COMPOSE CORPUS — cross-system capabilities as typed, GROUNDED data, now
+ * over THREE systems (Humanity, dkPlus, Twenty CRM) and subset-aware.
  *
- * Each `Capability` is one cross-system automation the composer surfaces. Every
- * `surface` is copied from a REAL operation in `data/evidence/*.json`
- * (operationId/method/path/summary verbatim); every `model` is a REAL compiled
- * model name (clean dkPlus model leaf names, e.g. `SalesInvoiceModel`,
- * `GeneralLedgerAccount`; or Humanity capability models like `Shift`, `Timeclock`).
- * `painPoints` are drawn from the closed `PainTag` vocabulary in `taxonomy.ts` and
- * are the axis `match.ts` scores against.
+ * Each `Capability` is one automation the composer surfaces. Every `surface` is
+ * copied from a REAL operation in `data/evidence/*.json` (operationId/method/path/
+ * summary verbatim); every `model` is a REAL compiled model name (clean dkPlus
+ * model leaf names, e.g. `SalesInvoiceModel`, `GeneralLedgerAccount`; Humanity
+ * capability models like `Shift`, `Timeclock`; Twenty component schemas like
+ * `OpportunityForResponse`, `CompanyForResponse`). `painPoints` are drawn from the
+ * closed `PainTag` vocabulary in `taxonomy.ts` and are the axis `match.ts` scores
+ * against.
+ *
+ * SUBSET-AWARE: each capability declares the FULL `systems` set it requires and
+ * only surfaces when that set is a subset of the visitor's selected systems. The
+ * corpus spans the whole lattice — single-system (Twenty-only, Humanity-only,
+ * dkPlus-only), the three pairs (Twenty×dkPlus, Twenty×Humanity, Humanity×dkPlus)
+ * and the three-way "deal to delivery" loop.
  *
  * Read-only by construction: `tier` is "read-only" for pure read/analyze/forecast/
  * detect/report capabilities and "proposes" for ones that draft/recommend/route
  * for approval. Never "acts" on this surface.
  *
- * Source of truth for the 45: `data/capability-seed.md` (in order).
- * Grounding source: `data/evidence/humanity.json` + `data/evidence/dkplus.json`.
+ * Source of truth for the original 45: `data/capability-seed.md` (in order).
+ * Grounding source: `data/evidence/{humanity,dkplus,twenty}.json`.
  */
 
 import type { Capability, CapabilityCorpus, SystemRef } from "./capability.js";
@@ -22,6 +30,7 @@ import { SYSTEMS } from "./taxonomy.js";
 
 const HUMANITY: SystemRef = { id: "humanity", label: "Humanity" };
 const DKPLUS: SystemRef = { id: "dkplus", label: "dkPlus" };
+const TWENTY: SystemRef = { id: "twenty", label: "Twenty" };
 
 export const CAPABILITIES: readonly Capability[] = [
 	// 1
@@ -29,6 +38,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "approved-timeclock-to-payroll-work-journal-posting",
 		title: "Approved timeclock to payroll and work journal posting",
 		painPoints: ["payroll", "labor-cost", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -79,6 +89,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "schedule-to-labor-cost-forecast",
 		title: "Schedule to labor cost forecast",
 		painPoints: ["labor-cost", "forecasting", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -121,6 +132,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "labor-variance-engine-scheduled-vs-actual-vs-paid",
 		title: "Labor variance engine: scheduled vs actual vs paid",
 		painPoints: ["labor-cost", "anomaly", "payroll"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -163,6 +175,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "project-job-costing-from-shifts",
 		title: "Project and job costing from shifts",
 		painPoints: ["labor-cost", "margin", "payroll"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -214,6 +227,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "auto-invoice-billable-labor",
 		title: "Auto-invoice billable labor",
 		painPoints: ["invoicing", "labor-cost", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -265,6 +279,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "customer-project-demand-to-schedule-generation",
 		title: "Customer and project demand to schedule generation",
 		painPoints: ["scheduling", "forecasting"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -307,6 +322,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "availability-aware-staffing-recommendations",
 		title: "Availability-aware staffing recommendations",
 		painPoints: ["scheduling", "utilization"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -329,7 +345,7 @@ export const CAPABILITIES: readonly Capability[] = [
 				path: "/skills",
 				operationId: "get-skills",
 				summary: "GET Skills",
-				model: "EmployeeSkills",
+				model: "Skill",
 			},
 			{
 				system: "dkplus",
@@ -341,7 +357,7 @@ export const CAPABILITIES: readonly Capability[] = [
 				model: "Request",
 			},
 		],
-		models: ["Availability", "EmployeeSkills", "Request"],
+		models: ["Availability", "Skill", "Request"],
 		tier: "proposes",
 	},
 	// 8
@@ -349,6 +365,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "overtime-prevention-before-schedules-publish",
 		title: "Overtime prevention before schedules publish",
 		painPoints: ["overtime", "labor-cost", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -391,6 +408,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "auto-create-and-update-employees-across-both-systems",
 		title: "Auto-create and update employees across both systems",
 		painPoints: ["master-data"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -433,6 +451,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "position-to-project-task-mapping",
 		title: "Position to project task mapping",
 		painPoints: ["master-data"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -475,6 +494,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "budget-guardrails-at-schedule-creation",
 		title: "Budget guardrails at schedule creation",
 		painPoints: ["labor-cost", "margin", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -517,6 +537,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "real-time-margin-dashboard-by-location-project-customer",
 		title: "Real-time margin dashboard by location, project and customer",
 		painPoints: ["margin", "reporting", "labor-cost"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -559,6 +580,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "unbilled-labor-detector",
 		title: "Unbilled labor detector",
 		painPoints: ["invoicing", "margin", "anomaly"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -601,6 +623,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "payroll-exception-copilot",
 		title: "Payroll exception copilot",
 		painPoints: ["payroll", "anomaly", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -642,6 +665,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "automatic-gl-accruals-for-labor",
 		title: "Automatic GL accruals for labor",
 		painPoints: ["payroll", "labor-cost", "reporting"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -684,6 +708,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "shift-to-inventory-planning",
 		title: "Shift to inventory planning",
 		painPoints: ["inventory", "forecasting", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -726,6 +751,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "inventory-transfer-based-on-staffing-location",
 		title: "Inventory transfer based on staffing and location",
 		painPoints: ["inventory", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -768,6 +794,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "pos-demand-to-labor-demand-feedback-loop",
 		title: "POS demand to labor demand feedback loop",
 		painPoints: ["forecasting", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -809,6 +836,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "invoice-pricing-validation-against-labor-reality",
 		title: "Invoice pricing validation against labor reality",
 		painPoints: ["invoicing", "margin", "anomaly"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -851,6 +879,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "project-request-scheduling-assistant",
 		title: "Project request scheduling assistant",
 		painPoints: ["scheduling", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -893,6 +922,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "absence-leave-impact-analyzer",
 		title: "Absence and leave impact analyzer",
 		painPoints: ["scheduling", "compliance"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -935,6 +965,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "customer-sla-breach-prevention",
 		title: "Customer SLA breach prevention",
 		painPoints: ["compliance", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -966,10 +997,10 @@ export const CAPABILITIES: readonly Capability[] = [
 				path: "/skills",
 				operationId: "get-skills",
 				summary: "GET Skills",
-				model: "EmployeeSkills",
+				model: "Skill",
 			},
 		],
-		models: ["ProjectModel", "Shift", "EmployeeSkills"],
+		models: ["ProjectModel", "Shift", "Skill"],
 		tier: "read-only",
 	},
 	// 23
@@ -977,6 +1008,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "training-gated-scheduling",
 		title: "Training-gated scheduling",
 		painPoints: ["compliance", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -998,7 +1030,7 @@ export const CAPABILITIES: readonly Capability[] = [
 				path: "/skills",
 				operationId: "get-skills",
 				summary: "GET Skills",
-				model: "EmployeeSkills",
+				model: "Skill",
 			},
 			{
 				system: "dkplus",
@@ -1010,7 +1042,7 @@ export const CAPABILITIES: readonly Capability[] = [
 				model: "TaskModel",
 			},
 		],
-		models: ["EmployeeSkills", "TaskModel"],
+		models: ["Skill", "TaskModel"],
 		tier: "proposes",
 	},
 	// 24
@@ -1018,6 +1050,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "worker-utilization-and-bench-reporting",
 		title: "Worker utilization and bench reporting",
 		painPoints: ["utilization", "reporting", "margin"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1059,6 +1092,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "automated-shift-publishing-from-approved-erp-demand",
 		title: "Automated shift publishing from approved ERP demand",
 		painPoints: ["scheduling", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1100,6 +1134,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "two-way-employee-identity-resolver",
 		title: "Two-way employee identity resolver",
 		painPoints: ["master-data"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1142,6 +1177,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "duplicate-and-stale-master-data-cleanup",
 		title: "Duplicate and stale master-data cleanup",
 		painPoints: ["master-data", "anomaly"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1184,6 +1220,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "approval-workflow-unification",
 		title: "Approval workflow unification",
 		painPoints: ["approvals", "reporting"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1225,6 +1262,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "manager-daily-operating-brief",
 		title: "Manager daily operating brief",
 		painPoints: ["reporting", "scheduling", "overtime"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1266,6 +1304,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "end-of-day-close-bot",
 		title: "End-of-day close bot",
 		painPoints: ["reporting", "payroll", "approvals"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1308,6 +1347,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "tips-breaks-and-compliance-reconciliation",
 		title: "Tips, breaks and compliance reconciliation",
 		painPoints: ["payroll", "compliance"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1349,6 +1389,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "labor-backed-quote-generation",
 		title: "Labor-backed quote generation",
 		painPoints: ["quoting", "labor-cost", "margin"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1391,6 +1432,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "actual-cost-quote-improvement-loop",
 		title: "Actual-cost quote improvement loop",
 		painPoints: ["quoting", "margin", "labor-cost"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1433,6 +1475,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "automated-customer-communication",
 		title: "Automated customer communication",
 		painPoints: ["customer-comms", "scheduling"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1474,6 +1517,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "location-and-warehouse-alignment",
 		title: "Location and warehouse alignment",
 		painPoints: ["master-data", "reporting", "inventory"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1516,6 +1560,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "demand-based-hiring-signals",
 		title: "Demand-based hiring signals",
 		painPoints: ["hiring", "overtime", "forecasting"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1557,6 +1602,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "skill-gap-heatmap",
 		title: "Skill gap heatmap",
 		painPoints: ["hiring", "compliance", "utilization"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1588,10 +1634,10 @@ export const CAPABILITIES: readonly Capability[] = [
 				path: "/skills",
 				operationId: "get-skills",
 				summary: "GET Skills",
-				model: "EmployeeSkills",
+				model: "Skill",
 			},
 		],
-		models: ["TaskModel", "Request", "EmployeeSkills"],
+		models: ["TaskModel", "Request", "Skill"],
 		tier: "read-only",
 	},
 	// 38
@@ -1599,6 +1645,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "subscription-service-plan-staffing",
 		title: "Subscription and service-plan staffing",
 		painPoints: ["scheduling", "forecasting"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1641,6 +1688,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "vendor-invoice-approval-context",
 		title: "Vendor invoice approval context",
 		painPoints: ["approvals", "anomaly"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1683,6 +1731,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "fraud-anomaly-detection",
 		title: "Fraud and anomaly detection",
 		painPoints: ["anomaly", "payroll", "compliance"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1725,6 +1774,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "revenue-per-labor-hour-optimization",
 		title: "Revenue per labor hour optimization",
 		painPoints: ["margin", "reporting", "utilization"],
+		systems: ["humanity", "dkplus"],
 		source: HUMANITY,
 		target: DKPLUS,
 		transform:
@@ -1767,6 +1817,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "auto-create-open-shifts-from-sales-spikes",
 		title: "Auto-create open shifts from sales spikes",
 		painPoints: ["scheduling", "forecasting"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1808,6 +1859,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "customer-profitability-with-labor-attribution",
 		title: "Customer profitability with labor attribution",
 		painPoints: ["margin", "reporting", "utilization"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1850,6 +1902,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "operational-single-command-bar",
 		title: "Operational single command bar",
 		painPoints: ["scheduling", "overtime", "quoting"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1892,6 +1945,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		id: "company-wide-integration-health-monitor",
 		title: "Company-wide integration health monitor",
 		painPoints: ["master-data", "anomaly", "reporting"],
+		systems: ["humanity", "dkplus"],
 		source: DKPLUS,
 		target: HUMANITY,
 		transform:
@@ -1927,6 +1981,796 @@ export const CAPABILITIES: readonly Capability[] = [
 		models: ["CompanyStatusResponse"],
 		tier: "read-only",
 	},
+
+	/* =========================================================================
+	 * SINGLE-SYSTEM — so selecting one system is never empty.
+	 *   Twenty-only (CRM hygiene), Humanity-only (scheduling), dkPlus-only (ERP).
+	 * Every surface is the same one real system; `source === target`.
+	 * ======================================================================= */
+
+	// 46 — Twenty-only
+	{
+		id: "twenty-stale-deal-detection",
+		title: "Stale deal detection across the pipeline",
+		painPoints: ["sales-pipeline", "deals", "anomaly"],
+		systems: ["twenty"],
+		source: TWENTY,
+		target: TWENTY,
+		transform:
+			"Read every open Twenty opportunity, group it by stage, and flag the deals that have sat untouched past their stage's healthy age so reps can re-engage or close them out.",
+		value: "Dead weight in the pipeline gets surfaced instead of inflating the forecast.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities/groupBy",
+				operationId: "groupByOpportunities",
+				summary: "Group By opportunities",
+				model: "OpportunityForResponse",
+			},
+		],
+		models: ["OpportunityForResponse"],
+		tier: "read-only",
+	},
+	// 47 — Twenty-only
+	{
+		id: "twenty-duplicate-company-person-cleanup",
+		title: "Duplicate company and contact cleanup",
+		painPoints: ["master-data", "contacts", "crm"],
+		systems: ["twenty"],
+		source: TWENTY,
+		target: TWENTY,
+		transform:
+			"Run Twenty's own duplicate finders over companies and people, then propose merges so the same account or contact is not split across several records.",
+		value: "One clean record per company and person instead of a fragmented book.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "POST",
+				path: "/companies/duplicates",
+				operationId: "findCompanyDuplicates",
+				summary: "Find company Duplicates",
+				model: "CompanyForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "POST",
+				path: "/people/duplicates",
+				operationId: "findPersonDuplicates",
+				summary: "Find person Duplicates",
+				model: "PersonForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "PATCH",
+				path: "/companies/merge",
+				operationId: "mergeManyCompanies",
+				summary: "Merge Many companies",
+				model: "CompanyForResponse",
+			},
+		],
+		models: ["CompanyForResponse", "PersonForResponse"],
+		tier: "proposes",
+	},
+	// 48 — Twenty-only
+	{
+		id: "twenty-pipeline-hygiene-audit",
+		title: "Pipeline hygiene audit",
+		painPoints: ["sales-pipeline", "crm", "master-data"],
+		systems: ["twenty"],
+		source: TWENTY,
+		target: TWENTY,
+		transform:
+			"Scan Twenty opportunities and the companies they belong to for missing amounts, no close date, no linked company or an orphaned stage, then list each gap for the owner to fix.",
+		value: "The pipeline data stays trustworthy enough to forecast from.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/companies",
+				operationId: "findManyCompanies",
+				summary: "Find Many companies",
+				model: "CompanyForResponse",
+			},
+		],
+		models: ["OpportunityForResponse", "CompanyForResponse"],
+		tier: "read-only",
+	},
+	// 49 — Twenty-only
+	{
+		id: "twenty-task-sla-and-activity-capture",
+		title: "Task SLA and activity capture",
+		painPoints: ["sales-pipeline", "approvals", "crm"],
+		systems: ["twenty"],
+		source: TWENTY,
+		target: TWENTY,
+		transform:
+			"Read open Twenty tasks against their due dates, flag the follow-ups slipping past SLA, and draft a recap note on the affected deals so nothing goes silent.",
+		value: "Follow-ups land on time and every deal carries a written trail.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/tasks",
+				operationId: "findManyTasks",
+				summary: "Find Many tasks",
+				model: "TaskForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+		],
+		models: ["TaskForResponse", "NoteForResponse"],
+		tier: "proposes",
+	},
+	// 50 — Humanity-only
+	{
+		id: "humanity-open-shift-coverage-gaps",
+		title: "Open shift coverage gaps",
+		painPoints: ["scheduling", "hiring"],
+		systems: ["humanity"],
+		source: HUMANITY,
+		target: HUMANITY,
+		transform:
+			"Read upcoming Humanity shifts and employee availability to find the open shifts and coverage holes, then rank who is free and qualified to fill each one.",
+		value: "Coverage gaps are caught and matched to available staff before the day arrives.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+		],
+		models: ["Shift", "Availability"],
+		tier: "read-only",
+	},
+	// 51 — Humanity-only
+	{
+		id: "humanity-overtime-early-warning",
+		title: "Overtime early warning",
+		painPoints: ["overtime", "scheduling", "labor-cost"],
+		systems: ["humanity"],
+		source: HUMANITY,
+		target: HUMANITY,
+		transform:
+			"Read this week's Humanity shifts and clocked time per employee, project the weekly total against the overtime threshold, and warn before a publish tips someone into overtime.",
+		value: "Overtime is visible while the schedule can still be changed, not after payroll.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+		],
+		models: ["Shift", "Timeclock"],
+		tier: "read-only",
+	},
+	// 52 — dkPlus-only
+	{
+		id: "dkplus-unbilled-customer-detector",
+		title: "Unbilled customer detector",
+		painPoints: ["invoicing", "margin", "anomaly"],
+		systems: ["dkplus"],
+		source: DKPLUS,
+		target: DKPLUS,
+		transform:
+			"Read dkPlus sales orders and the invoices already raised against each customer, then find delivered orders that never turned into an invoice and draft the missing bills.",
+		value: "Work that shipped but was never billed gets caught instead of quietly lost.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/sales/order",
+				operationId: "SalesOrder_GetOrderFromFilter",
+				summary: "Get Orders by Filter",
+				model: "SalesOrderModel",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/sales/invoice/page/{page}/{count}",
+				operationId: "Invoice_GetInvoicesPaged",
+				summary: "Get Sale Invoices",
+				model: "InvoiceModel",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/invoice",
+				operationId: "Invoice_CreateInvoice",
+				summary: "Create a Sales Invoice",
+				model: "InvoiceModel",
+			},
+		],
+		models: ["SalesOrderModel", "InvoiceModel"],
+		tier: "proposes",
+	},
+	// 53 — dkPlus-only
+	{
+		id: "dkplus-customer-profitability-report",
+		title: "Customer profitability report",
+		painPoints: ["margin", "reporting"],
+		systems: ["dkplus"],
+		source: DKPLUS,
+		target: DKPLUS,
+		transform:
+			"For each dkPlus customer, join their invoices and ledger transactions to show revenue, cost and net margin per account, ranked from best to worst.",
+		value: "A clear view of which customers actually make money for the business.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/invoice",
+				operationId: "Customer_GetCustomerInvoices",
+				summary: "Get Invoices for a Customer",
+				model: "InvoiceModel",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/transaction",
+				operationId: "Customer_GetCustomerTransactions",
+				summary: "Get Transactions for a Customer",
+				model: "TransactionModel",
+			},
+		],
+		models: ["InvoiceModel", "TransactionModel"],
+		tier: "read-only",
+	},
+
+	/* =========================================================================
+	 * TWENTY × dkPlus — CRM to ERP.
+	 *   Won opportunity -> customer + sales order/invoice; company<->customer
+	 *   sync; quote from opportunity; revenue-by-customer back to the CRM.
+	 * ======================================================================= */
+
+	// 54
+	{
+		id: "won-opportunity-to-dkplus-customer-and-sales-order",
+		title: "Won opportunity to customer and sales order",
+		painPoints: ["deals", "invoicing", "master-data"],
+		systems: ["twenty", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"When a Twenty opportunity is won, read the deal and its company, ensure a matching dkPlus customer exists, then draft the sales order that turns the win into revenue.",
+		value: "A closed deal becomes a real order in the books with no re-keying between CRM and ERP.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/Customer",
+				operationId: "Customer_CreateCustomer",
+				summary: "Create Customer",
+				model: "CustomerModel",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/order",
+				operationId: "SalesOrder_CreateOrder",
+				summary: "Create Sales Order",
+				model: "SalesOrderModel",
+			},
+		],
+		models: ["OpportunityForResponse", "CustomerModel", "SalesOrderModel"],
+		tier: "proposes",
+	},
+	// 55
+	{
+		id: "won-opportunity-to-dkplus-invoice",
+		title: "Won opportunity to sales invoice",
+		painPoints: ["deals", "invoicing", "approvals"],
+		systems: ["twenty", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"When a Twenty deal closes won, read its amount and company, match the dkPlus customer, then draft the sales invoice with the deal value for finance to approve and send.",
+		value: "Closed-won deals turn into invoices instead of waiting on a hand-off email.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/page/{page}/{count}",
+				operationId: "Customer_GetCustomersPaged",
+				summary: "Get Customers base on Filter",
+				model: "CustomerModel",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/invoice",
+				operationId: "Invoice_CreateInvoice",
+				summary: "Create a Sales Invoice",
+				model: "InvoiceModel",
+			},
+		],
+		models: ["OpportunityForResponse", "CustomerModel", "InvoiceModel"],
+		tier: "proposes",
+	},
+	// 56
+	{
+		id: "company-customer-sync",
+		title: "Company to customer sync",
+		painPoints: ["master-data", "contacts", "crm"],
+		systems: ["twenty", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Keep Twenty companies and dkPlus customers in step: read both books, match on name and identifiers, and create or update the dkPlus customer when the CRM account is ahead.",
+		value: "One account record stays consistent across CRM and ERP without double entry.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/companies",
+				operationId: "findManyCompanies",
+				summary: "Find Many companies",
+				model: "CompanyForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/page/{page}/{count}",
+				operationId: "Customer_GetCustomersPaged",
+				summary: "Get Customers base on Filter",
+				model: "CustomerModel",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/Customer",
+				operationId: "Customer_CreateCustomer",
+				summary: "Create Customer",
+				model: "CustomerModel",
+			},
+		],
+		models: ["CompanyForResponse", "CustomerModel"],
+		tier: "proposes",
+	},
+	// 57
+	{
+		id: "quote-from-opportunity",
+		title: "Quote from opportunity",
+		painPoints: ["quoting", "deals", "sales-pipeline"],
+		systems: ["twenty", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"When a Twenty opportunity reaches the proposal stage, read the deal and its company and draft a dkPlus sales quote with the right customer, amount and references.",
+		value: "A deal in the proposal stage gets a real quote drafted instead of a manual spreadsheet.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/page/{page}/{count}",
+				operationId: "Customer_GetCustomersPaged",
+				summary: "Get Customers base on Filter",
+				model: "CustomerModel",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/quote",
+				operationId: "Quote_CreateSalesOrder",
+				summary: "Create Sales Quote",
+				model: "QuoteHead",
+			},
+		],
+		models: ["OpportunityForResponse", "CustomerModel", "QuoteHead"],
+		tier: "proposes",
+	},
+	// 58
+	{
+		id: "revenue-by-customer-back-to-crm",
+		title: "Revenue by customer back to the CRM",
+		painPoints: ["reporting", "margin", "crm"],
+		systems: ["twenty", "dkplus"],
+		source: DKPLUS,
+		target: TWENTY,
+		transform:
+			"Read dkPlus invoices per customer, total billed revenue by account, and post a recap note onto the matching Twenty company so the sales team sees real revenue beside the deal.",
+		value: "Reps see what each account has actually paid, not just what was promised.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/invoice",
+				operationId: "Customer_GetCustomerInvoices",
+				summary: "Get Invoices for a Customer",
+				model: "InvoiceModel",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/companies",
+				operationId: "findManyCompanies",
+				summary: "Find Many companies",
+				model: "CompanyForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+		],
+		models: ["InvoiceModel", "CompanyForResponse", "NoteForResponse"],
+		tier: "proposes",
+	},
+
+	/* =========================================================================
+	 * TWENTY × Humanity — CRM to scheduling.
+	 *   Won deal -> staff the work; contact -> employee; task -> time.
+	 * ======================================================================= */
+
+	// 59
+	{
+		id: "won-deal-to-staffing",
+		title: "Won deal to staffing",
+		painPoints: ["deals", "scheduling"],
+		systems: ["twenty", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"When a Twenty opportunity is won, read the deal, check Humanity availability for the dates it needs, and draft the shifts to staff the work it just committed to.",
+		value: "A closed deal turns straight into a staffing plan instead of a scramble.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+		],
+		models: ["OpportunityForResponse", "Availability", "Shift"],
+		tier: "proposes",
+	},
+	// 60
+	{
+		id: "contact-to-employee",
+		title: "Contact to employee onboarding",
+		painPoints: ["contacts", "master-data", "hiring"],
+		systems: ["twenty", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"When a Twenty person is marked as a new hire, read the contact record and create the matching Humanity employee with their name, email and contact details.",
+		value: "A hire tracked in the CRM becomes a schedulable employee with no re-typing.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/people",
+				operationId: "findManyPeople",
+				summary: "Find Many people",
+				model: "PersonForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/employees",
+				operationId: "post-employee",
+				summary: "POST Employee",
+				model: "Employee",
+			},
+		],
+		models: ["PersonForResponse", "Employee"],
+		tier: "proposes",
+	},
+	// 61
+	{
+		id: "task-to-time",
+		title: "Task to scheduled time",
+		painPoints: ["scheduling", "crm", "utilization"],
+		systems: ["twenty", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Read Twenty tasks that carry an owner and a due date, check that person's Humanity availability, and draft a shift block so the committed work has time on the calendar.",
+		value: "CRM commitments get real time reserved against them instead of sitting as wishful to-dos.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/tasks",
+				operationId: "findManyTasks",
+				summary: "Find Many tasks",
+				model: "TaskForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+		],
+		models: ["TaskForResponse", "Availability", "Shift"],
+		tier: "proposes",
+	},
+
+	/* =========================================================================
+	 * TWENTY × Humanity × dkPlus — the three-way "deal to delivery" loop.
+	 *   Opportunity won -> schedule the crew (Humanity) + open project & invoice
+	 *   (dkPlus) + advance the CRM stage (Twenty).
+	 * ======================================================================= */
+
+	// 62
+	{
+		id: "deal-to-delivery-staff-project-and-advance-stage",
+		title: "Deal to delivery: staff, open project, advance stage",
+		painPoints: ["deals", "scheduling", "invoicing"],
+		systems: ["twenty", "humanity", "dkplus"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"When a Twenty opportunity is won, draft the Humanity shifts to staff it, open the matching dkPlus project, and advance the deal's stage so all three systems reflect the win.",
+		value: "A single won deal lands as a staffed, costed, tracked job across CRM, scheduling and ERP at once.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/project",
+				operationId: "Project_CreateProject",
+				summary: "Method used to create a new Project(Job)",
+				model: "ProjectModel",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "PATCH",
+				path: "/opportunities/{id}",
+				operationId: "UpdateOneOpportunity",
+				summary: "Update One opportunity",
+				model: "OpportunityForResponse",
+			},
+		],
+		models: ["OpportunityForResponse", "Shift", "ProjectModel"],
+		tier: "proposes",
+	},
+	// 63
+	{
+		id: "deal-to-delivery-invoice-on-completion",
+		title: "Deal to delivery: invoice on completion",
+		painPoints: ["deals", "invoicing", "labor-cost"],
+		systems: ["twenty", "humanity", "dkplus"],
+		source: HUMANITY,
+		target: DKPLUS,
+		transform:
+			"When the Humanity work for a won Twenty deal is clocked and complete, draft the dkPlus invoice from the actual hours and post a completion note back onto the CRM deal.",
+		value: "Delivery, billing and the CRM record all close together from the same real labor.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/invoice",
+				operationId: "Invoice_CreateInvoice",
+				summary: "Create a Sales Invoice",
+				model: "InvoiceModel",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+		],
+		models: ["Timeclock", "InvoiceModel", "NoteForResponse"],
+		tier: "proposes",
+	},
+	// 64
+	{
+		id: "deal-to-delivery-pipeline-to-capacity-forecast",
+		title: "Deal to delivery: pipeline to capacity forecast",
+		painPoints: ["forecasting", "sales-pipeline", "scheduling"],
+		systems: ["twenty", "humanity", "dkplus"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Read the weighted Twenty pipeline, the dkPlus projects already committed and current Humanity availability to project where deals about to close will outstrip the crew.",
+		value: "Sales momentum and delivery capacity are compared before a won deal has nobody to staff it.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities/groupBy",
+				operationId: "groupByOpportunities",
+				summary: "Group By opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/project",
+				operationId: "Project_GetProjects",
+				summary: "Get all Projects",
+				model: "ProjectModel",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+		],
+		models: ["OpportunityForResponse", "ProjectModel", "Availability"],
+		tier: "read-only",
+	},
 ];
 
 /** The full corpus the composer answers for, with grounding provenance. */
@@ -1943,6 +2787,11 @@ export const COMPOSE_CORPUS: CapabilityCorpus = {
 			system: "dkplus",
 			specVersion: "2.0",
 			source: "dkplus_swagger_2_0.json",
+		},
+		{
+			system: "twenty",
+			specVersion: "3.1.1",
+			source: "twenty_openapi_core.json",
 		},
 	],
 };

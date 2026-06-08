@@ -14,6 +14,7 @@
  * Emits (committed grounding artifacts; the raw specs stay gitignored):
  *   data/evidence/humanity.json
  *   data/evidence/dkplus.json
+ *   data/evidence/twenty.json
  *   data/evidence/catalog.md
  */
 
@@ -48,6 +49,7 @@ const HTTP_METHODS = ["get", "put", "post", "patch", "delete"] as const;
 const HUMANITY_SPEC = "/home/rationallyprime/projects/humanity-schedule-v2.openapi.json";
 const DKPLUS_SPEC =
 	"/home/rationallyprime/projects/mcp-registry/dk-mcp/openapi/dkplus_swagger_2_0.json";
+const TWENTY_SPEC = resolve(import.meta.dirname, "..", "generated", "twenty_openapi_core.json");
 
 const EVIDENCE_DIR = resolve(import.meta.dirname, "..", "data", "evidence");
 
@@ -192,12 +194,84 @@ function humanityModel(op: JsonObject): string | undefined {
 	return undefined;
 }
 
+/**
+ * Resolve a `#/components/schemas/X` name from anywhere inside an OpenAPI 3.1
+ * schema node — direct `$ref`, array `items.$ref`, or a `$ref` nested under the
+ * `data.<entity>` response envelope Twenty uses (e.g. response.data.company,
+ * response.data.companies[]). Bounded depth, depth-first; the first `$ref` wins.
+ */
+function deepRefName(node: JsonValue | undefined, depth: number): string | undefined {
+	if (!isObject(node) || depth > 6) {
+		return undefined;
+	}
+	const ref = asString(node.$ref);
+	if (ref) {
+		return ref.replace("#/components/schemas/", "");
+	}
+	const items = deepRefName(node.items, depth + 1);
+	if (items) {
+		return items;
+	}
+	if (isObject(node.properties)) {
+		for (const value of Object.values(node.properties)) {
+			const nested = deepRefName(value, depth + 1);
+			if (nested) {
+				return nested;
+			}
+		}
+	}
+	return undefined;
+}
+
+/**
+ * Twenty (OpenAPI 3.1.1): model = the first component schema referenced by a 2xx
+ * response (peeling the `data.<entity>` envelope), else by the request body.
+ */
+function twentyModel(op: JsonObject): string | undefined {
+	const responses = op.responses;
+	if (isObject(responses)) {
+		for (const code of twoXxCodes(responses)) {
+			const resp = responses[code];
+			if (!isObject(resp) || !isObject(resp.content)) {
+				continue;
+			}
+			for (const mediaType of Object.values(resp.content)) {
+				if (isObject(mediaType)) {
+					const name = deepRefName(mediaType.schema, 0);
+					if (name) {
+						return name;
+					}
+				}
+			}
+		}
+	}
+	const requestBody = op.requestBody;
+	if (isObject(requestBody) && isObject(requestBody.content)) {
+		for (const mediaType of Object.values(requestBody.content)) {
+			if (isObject(mediaType)) {
+				const name = deepRefName(mediaType.schema, 0);
+				if (name) {
+					return name;
+				}
+			}
+		}
+	}
+	return undefined;
+}
+
 interface SpecConfig {
 	system: string;
 	label: string;
 	source: string;
 	specVersionKey: "swagger" | "openapi";
 	modelFor: (op: JsonObject) => string | undefined;
+	/**
+	 * Canonical model list for this spec, overriding the default
+	 * `definitions`-else-inline derivation. Twenty declares its models as
+	 * `components.schemas` keys, so the catalog lists ALL of them, not only the
+	 * subset bound to an operation.
+	 */
+	modelsFor?: (spec: JsonObject) => string[];
 }
 
 function buildIndex(spec: JsonObject, config: SpecConfig): EvidenceIndex {
@@ -253,10 +327,13 @@ function buildIndex(spec: JsonObject, config: SpecConfig): EvidenceIndex {
 		return a.method.localeCompare(b.method);
 	});
 
-	// Models: dkPlus -> definition keys; Humanity -> distinct inline titles.
+	// Models: Twenty -> components.schemas keys (via modelsFor); dkPlus ->
+	// definition keys; Humanity -> distinct inline titles.
 	let models: string[];
 	const definitions = spec.definitions;
-	if (isObject(definitions) && Object.keys(definitions).length > 0) {
+	if (config.modelsFor) {
+		models = config.modelsFor(spec).sort((a, b) => a.localeCompare(b));
+	} else if (isObject(definitions) && Object.keys(definitions).length > 0) {
 		models = Object.keys(definitions).sort((a, b) => a.localeCompare(b));
 	} else {
 		models = [...inlineModels].sort((a, b) => a.localeCompare(b));
@@ -356,12 +433,27 @@ function main(): void {
 		modelFor: dkPlusModel,
 	});
 
+	const twenty = buildIndex(readSpec(TWENTY_SPEC), {
+		system: "twenty",
+		label: "Twenty (CRM)",
+		source: TWENTY_SPEC,
+		specVersionKey: "openapi",
+		modelFor: twentyModel,
+		modelsFor: (spec) => {
+			const components = spec.components;
+			const schemas = isObject(components) ? components.schemas : undefined;
+			return isObject(schemas) ? Object.keys(schemas) : [];
+		},
+	});
+
 	const humanityPath = resolve(EVIDENCE_DIR, "humanity.json");
 	const dkplusPath = resolve(EVIDENCE_DIR, "dkplus.json");
+	const twentyPath = resolve(EVIDENCE_DIR, "twenty.json");
 	const catalogPath = resolve(EVIDENCE_DIR, "catalog.md");
 
 	writeJson(humanityPath, humanity);
 	writeJson(dkplusPath, dkplus);
+	writeJson(twentyPath, twenty);
 
 	const catalog = [
 		"# Grounding-Evidence Catalog",
@@ -372,11 +464,12 @@ function main(): void {
 		"",
 		renderCatalogSection(humanity),
 		renderCatalogSection(dkplus),
+		renderCatalogSection(twenty),
 	].join("\n");
 	mkdirSync(dirname(catalogPath), { recursive: true });
 	writeFileSync(catalogPath, `${catalog}`, "utf8");
 
-	for (const index of [humanity, dkplus]) {
+	for (const index of [humanity, dkplus, twenty]) {
 		// biome-ignore lint/suspicious/noConsole: build script progress output.
 		console.log(
 			`${index.system}: ${index.operationCount} operations, ${index.modelCount} models`,
@@ -386,6 +479,8 @@ function main(): void {
 	console.log(`wrote ${humanityPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${dkplusPath}`);
+	// biome-ignore lint/suspicious/noConsole: build script progress output.
+	console.log(`wrote ${twentyPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${catalogPath}`);
 }

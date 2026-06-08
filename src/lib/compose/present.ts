@@ -30,9 +30,17 @@
  */
 
 import type { CompoundRef, Node } from "$morphe";
-import type { Capability, SurfaceUse } from "./capability.js";
+import type { Capability, SurfaceUse, SystemId } from "./capability.js";
 import type { ComposeQuery } from "./input.js";
-import { tagsFromText } from "./taxonomy.js";
+import { SYSTEMS, tagsFromText } from "./taxonomy.js";
+
+/** A sensible default cap on rendered cards when the call site omits `limit`. */
+const DEFAULT_LIMIT = 9;
+
+/** Display label for a system id, resolved from the canonical `SYSTEMS` table. */
+function systemLabel(id: SystemId): string {
+	return SYSTEMS.find((s) => s.id === id)?.label ?? id;
+}
 
 /* ---------------------------------------------------------------------------
  * Small typed Node helpers — keep the presenters readable and the registers
@@ -92,17 +100,81 @@ function tagLabel(tag: string): string {
  * Leaf compound refs — one capability's grounding broken into its three slots.
  * ------------------------------------------------------------------------- */
 
-/** A FlowArrow ref naming the source and target systems plus a flow verb. */
+/**
+ * The intermediate system in a three-way chain: the one member of `cap.systems`
+ * that is neither the source nor the target. Returns `undefined` for one- and
+ * two-system capabilities (where there is no middle hop to render). Pure — reads
+ * only the capability's declared `systems` set against its source/target ids.
+ */
+function viaSystem(cap: Capability): SystemId | undefined {
+	if (cap.systems.length < 3) return undefined;
+	return cap.systems.find((id) => id !== cap.source.id && id !== cap.target.id);
+}
+
+/**
+ * The OPTIONAL `via` sub-segment for a three-way FlowArrow: the intermediate
+ * system label followed by a decorative arrow. Order matters — the FlowArrow
+ * template is [source, (arrow + label), via, target], so the via's TRAILING arrow
+ * is what bridges via -> target (the second hop). The template's own leading arrow
+ * cluster bridges source -> via (the first hop), giving a correct two-hop chain
+ * "source -> via -> target" with one arrow between every pair. The arrow lives
+ * INSIDE this node so it exists only when there is a hop to point at — an omitted
+ * via collapses to the template's blank default and no stray glyph survives.
+ *
+ * The middle hop is a WAYPOINT, not an endpoint, so its label is muted (no
+ * accession amber): only the source and target systems carry the amber accent, so
+ * a three-way card reads as two amber endpoints bridged by a quiet waypoint rather
+ * than three equal-weight amber labels on one line. The edge arrow stays provenance.
+ */
+function viaSegment(viaId: SystemId): Node {
+	return {
+		kind: "cluster",
+		role: "inline",
+		align: "center",
+		children: [
+			text(systemLabel(viaId), "caption", { emphasis: "muted" }),
+			{ kind: "icon", name: "arrow_forward", a11y: { role: "decorative" }, intent: "provenance" },
+		],
+	};
+}
+
+/**
+ * A FlowArrow ref naming the source and target systems plus a flow verb. For a
+ * three-way "deal to delivery" capability the middle system rides as the optional
+ * `via` hop, so the edge reads as a chain: source -> via -> target. One- and
+ * two-system capabilities pass no `via`, leaving the single-hop render unchanged.
+ */
 function flowArrow(cap: Capability): CompoundRef {
+	const via = viaSystem(cap);
 	return {
 		kind: "compound",
 		name: "ComposeFlowArrow",
 		args: {
 			source: text(cap.source.label, "caption", { intent: "accession" }),
 			target: text(cap.target.label, "caption", { intent: "accession" }),
-			label: flowVerb(cap),
+			// Two-system edges carry the flow verb ("reads"/"proposes") on the single arrow.
+			// The three-way chain drops it: the path reads as a clean source -> via -> target
+			// map (the posture is already stated by the card's tier Status), so no verb floats
+			// between the first arrow and the via waypoint.
+			label: via !== undefined ? "" : flowVerb(cap),
+			// The middle hop only exists for three-system caps; omitted otherwise so the
+			// FlowArrow template's blank default keeps the single/two-system render intact.
+			...(via !== undefined ? { via: viaSegment(via) } : {}),
 		},
 	};
+}
+
+/**
+ * The `flow` slot for a card. A single-system capability (source === target) has
+ * no edge to draw, so it renders ONE system label and no arrow — never a FlowArrow
+ * pointing a system at itself. Multi-system capabilities render the FlowArrow ref
+ * (which itself chains through `via` for the three-way case).
+ */
+function flowSlot(cap: Capability): Node {
+	if (cap.source.id === cap.target.id) {
+		return text(cap.source.label, "caption", { intent: "accession" });
+	}
+	return flowArrow(cap);
 }
 
 /** One SurfaceEvidence ref per real endpoint the capability composes. */
@@ -121,7 +193,7 @@ function surfaceEvidence(surface: SurfaceUse): CompoundRef {
 			},
 			path: surface.path,
 			summary: surface.summary ?? "",
-			system: surface.system,
+			system: systemLabel(surface.system),
 			direction: surface.direction,
 		},
 	};
@@ -199,7 +271,7 @@ export function capabilityCard(cap: Capability): CompoundRef {
 			pairing,
 		},
 		slots: {
-			flow: [flowArrow(cap)],
+			flow: [flowSlot(cap)],
 			evidence: [evidenceDisclosure(cap)],
 			models: [modelsCluster(cap)],
 		},
@@ -211,11 +283,18 @@ export function capabilityCard(cap: Capability): CompoundRef {
  * ------------------------------------------------------------------------- */
 
 /**
- * The summary slot for the PainPrompt masthead: a result-count line followed by
- * a Cluster of intent-"evidence" Badges, one per active pain tag matched from
- * the visitor's free text. With no tags matched, just the count line shows.
+ * The summary slot for the PainPrompt masthead: a result-count line, an OPTIONAL
+ * "showing N of M" note when the answer was capped below the full match count,
+ * then a Cluster of intent-"evidence" Badges, one per active pain tag matched from
+ * the visitor's free text. With no tags matched, just the count line (and the cap
+ * note, if any) shows.
+ *
+ * `matchCount` is the FULL number of matched capabilities; `shownCount` is how many
+ * cards were actually rendered. When `shownCount < matchCount` the answer was
+ * limited, so an honest note tells the visitor exactly how many of the total they
+ * are seeing and how to narrow — no silent truncation.
  */
-function summaryNodes(matchCount: number, query: ComposeQuery): Node[] {
+function summaryNodes(matchCount: number, shownCount: number, query: ComposeQuery): Node[] {
 	const tags = tagsFromText(query.pain);
 	const countLine = text(
 		`${matchCount} ${matchCount === 1 ? "capability matches" : "capabilities match"} your operation`,
@@ -223,10 +302,19 @@ function summaryNodes(matchCount: number, query: ComposeQuery): Node[] {
 		{ emphasis: "strong" },
 	);
 	const nodes: Node[] = [countLine];
+	if (shownCount < matchCount) {
+		nodes.push(
+			text(
+				`Showing ${shownCount} of ${matchCount}. Refine the friction or the systems you run to narrow this.`,
+				"caption",
+				{ emphasis: "muted" },
+			),
+		);
+	}
 	if (tags.length > 0) {
 		const badges: Node[] = tags.map((tag) => ({
 			kind: "badge",
-			label: tag,
+			label: tagLabel(tag),
 			intent: "evidence",
 			icon: "sell",
 		}));
@@ -249,11 +337,28 @@ function summaryNodes(matchCount: number, query: ComposeQuery): Node[] {
  * read-only-honest sub line; summary slot = result line + active-tag badges)
  * over a Grid(list) of capabilityCard(cap), one card per matched capability.
  * Empty match set delegates to `emptyState`.
+ *
+ * `limit` caps how many cards render. Omitted (or any value `>= caps.length`) it
+ * renders ALL matches, the original behavior. When `caps.length > limit` only the
+ * first `limit` (the highest-ranked, since `caps` arrives pre-sorted from the
+ * matcher) render, and the masthead carries an honest "Showing N of M" note. The
+ * default cap keeps the first view scannable; the route's "Show all" affordance
+ * passes a larger `limit` to reveal the rest. Pure — `limit` only narrows what is
+ * rendered, never reorders.
  */
-export function composeAnswer(caps: readonly Capability[], query: ComposeQuery): Node {
+export function composeAnswer(
+	caps: readonly Capability[],
+	query: ComposeQuery,
+	limit: number = DEFAULT_LIMIT,
+): Node {
 	if (caps.length === 0) {
 		return emptyState(query, []);
 	}
+
+	// A non-positive limit would render nothing and read as a bug; clamp to the
+	// full set so the surface degrades to "show everything" rather than blank.
+	const cap = limit > 0 ? Math.min(limit, caps.length) : caps.length;
+	const shown = caps.slice(0, cap);
 
 	const masthead: CompoundRef = {
 		kind: "compound",
@@ -267,11 +372,11 @@ export function composeAnswer(caps: readonly Capability[], query: ComposeQuery):
 			),
 		},
 		slots: {
-			summary: summaryNodes(caps.length, query),
+			summary: summaryNodes(caps.length, shown.length, query),
 		},
 	};
 
-	const cards: Node[] = caps.map((cap) => capabilityCard(cap));
+	const cards: Node[] = shown.map((c) => capabilityCard(c));
 
 	return {
 		kind: "frame",
@@ -302,7 +407,11 @@ export function composeAnswer(caps: readonly Capability[], query: ComposeQuery):
  * they type, an honest "nothing matched that" once they have. No false count, no
  * tag badges — the masthead owns the framing and the cards show the breadth.
  */
-export function emptyState(query: ComposeQuery, featured: readonly Capability[]): Node {
+export function emptyState(
+	query: ComposeQuery,
+	featured: readonly Capability[],
+	limit: number = DEFAULT_LIMIT,
+): Node {
 	const typed = query.pain.trim().length > 0;
 	const heading = typed ? "No direct match yet" : "What Sókrates can compose for you";
 	const sub = typed
@@ -312,6 +421,21 @@ export function emptyState(query: ComposeQuery, featured: readonly Capability[])
 		? "Try naming the pain point in different words, or browse the examples below."
 		: "Name a pain point and the systems you run to narrow this to your situation.";
 
+	// The featured breadth obeys the same cap as a real answer so the default view
+	// stays scannable instead of dumping every example; the route's "Show all"
+	// affordance lifts it. A non-positive limit degrades to "show everything".
+	const cap = limit > 0 ? Math.min(limit, featured.length) : featured.length;
+	const shown = featured.slice(0, cap);
+
+	const summary: Node[] = [text(note, "caption", { emphasis: "muted" })];
+	if (shown.length < featured.length) {
+		summary.push(
+			text(`Showing ${shown.length} of ${featured.length} examples.`, "caption", {
+				emphasis: "muted",
+			}),
+		);
+	}
+
 	const masthead: CompoundRef = {
 		kind: "compound",
 		name: "ComposePainPrompt",
@@ -320,11 +444,11 @@ export function emptyState(query: ComposeQuery, featured: readonly Capability[])
 			sub: text(sub, "body", { emphasis: "muted" }),
 		},
 		slots: {
-			summary: [text(note, "caption", { emphasis: "muted" })],
+			summary,
 		},
 	};
 
-	const cards: Node[] = featured.map((cap) => capabilityCard(cap));
+	const cards: Node[] = shown.map((c) => capabilityCard(c));
 
 	const children: Node[] = [masthead, { kind: "spacer", size: "md" }];
 	if (cards.length > 0) {

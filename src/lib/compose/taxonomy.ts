@@ -31,7 +31,11 @@ export type PainTag =
 	| "anomaly"
 	| "utilization"
 	| "quoting"
-	| "hiring";
+	| "hiring"
+	| "sales-pipeline"
+	| "deals"
+	| "contacts"
+	| "crm";
 
 /** The canonical, ordered list of every pain tag. */
 export const PAIN_TAGS: readonly PainTag[] = [
@@ -52,6 +56,10 @@ export const PAIN_TAGS: readonly PainTag[] = [
 	"utilization",
 	"quoting",
 	"hiring",
+	"sales-pipeline",
+	"deals",
+	"contacts",
+	"crm",
 ];
 
 /**
@@ -248,6 +256,46 @@ export const PAIN_KEYWORDS: Readonly<Record<string, PainTag>> = {
 	"short staffed": "hiring",
 	"short-staffed": "hiring",
 	fte: "hiring",
+
+	// sales-pipeline
+	pipeline: "sales-pipeline",
+	"sales pipeline": "sales-pipeline",
+	"sales stage": "sales-pipeline",
+	"deal stage": "sales-pipeline",
+	"stuck deal": "sales-pipeline",
+	"stale deal": "sales-pipeline",
+	"win rate": "sales-pipeline",
+	funnel: "sales-pipeline",
+
+	// deals
+	deal: "deals",
+	deals: "deals",
+	opportunity: "deals",
+	opportunities: "deals",
+	"won deal": "deals",
+	"closed won": "deals",
+	"close the deal": "deals",
+	lead: "deals",
+	leads: "deals",
+
+	// contacts
+	contact: "contacts",
+	contacts: "contacts",
+	"contact record": "contacts",
+	person: "contacts",
+	people: "contacts",
+	account: "contacts",
+	"company record": "contacts",
+
+	// crm
+	crm: "crm",
+	"sales team": "crm",
+	"sales rep": "crm",
+	salesforce: "crm",
+	hubspot: "crm",
+	pipedrive: "crm",
+	"follow up": "crm",
+	"follow-up": "crm",
 };
 
 /**
@@ -267,8 +315,9 @@ export function tagsFromText(text: string): PainTag[] {
 	return PAIN_TAGS.filter((tag) => hit.has(tag));
 }
 
-/** The two systems the composer answers for. Order is the display order. */
+/** The three systems the composer answers for. Order is the display order. */
 export const SYSTEMS: readonly SystemRef[] = [
 	{ id: "humanity", label: "Humanity" },
 	{ id: "dkplus", label: "dkPlus" },
+	{ id: "twenty", label: "Twenty" },
 ];
