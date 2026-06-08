@@ -302,6 +302,11 @@ const KNOWN_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	"progress",
 	"status",
 	"inline-alert",
+	"button",
+	"link",
+	"dialog",
+	"popover",
+	"disclosure",
 	"slot",
 	"param-ref",
 	"vary",
@@ -315,6 +320,9 @@ export function childrenOf(node: Node): readonly Node[] {
 		case "grid":
 		case "cluster":
 		case "frame":
+		case "dialog":
+		case "popover":
+		case "disclosure":
 			return node.children;
 		case "vary":
 			return node.options;
@@ -332,7 +340,12 @@ function withChildren(node: Node, children: Node[]): Node {
 		case "grid":
 		case "cluster":
 		case "frame":
+		case "dialog":
+		case "popover":
+		case "disclosure":
 			return { ...node, children };
+		case "vary":
+			return { ...node, options: children };
 		default:
 			return node;
 	}

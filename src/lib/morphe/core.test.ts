@@ -164,6 +164,64 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		});
 		expect(expanded.kind).toBe("stack");
 	});
+
+	it("registers + fills slots in newer Action/Overlay kinds (totality of KNOWN_KINDS)", () => {
+		const reg = new CompoundRegistry();
+		const panelWithDisclosure: CompoundDef = {
+			name: "panel-with-disclosure",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "frame",
+				role: "panel",
+				children: [
+					// A button with a visible label — proves "button" is a KNOWN_KIND.
+					{ kind: "button", label: "Toggle details", action: "toggle" },
+					// A disclosure containing a slot — proves childrenOf/withChildren
+					// descend into the overlay kind AND fill the nested slot.
+					{
+						kind: "disclosure",
+						summary: "Details",
+						children: [{ kind: "slot", name: "details" }],
+					},
+				],
+			},
+		};
+
+		// KNOWN_KINDS fix: a template using button + disclosure registers cleanly.
+		const result = reg.register(panelWithDisclosure);
+		expect(result.ok).toBe(true);
+		expect(reg.has("panel-with-disclosure")).toBe(true);
+
+		// childrenOf/withChildren fix: the call-site fill lands INSIDE the
+		// disclosure's children, not dropped at expansion.
+		const expanded = reg.expand({
+			kind: "compound",
+			name: "panel-with-disclosure",
+			args: {},
+			slots: {
+				details: [
+					{ kind: "text", value: "First note", as: "body" },
+					{ kind: "text", value: "Second note", as: "caption" },
+				],
+			},
+		});
+
+		expect(expanded.kind).toBe("frame");
+		if (expanded.kind !== "frame") throw new Error("expected a frame root");
+		const disclosure = expanded.children.find((c) => c.kind === "disclosure");
+		expect(disclosure).toBeDefined();
+		if (!disclosure || disclosure.kind !== "disclosure") {
+			throw new Error("expected a disclosure child");
+		}
+		const filledText = disclosure.children
+			.filter((c): c is Extract<Node, { kind: "text" }> => c.kind === "text")
+			.map((c) => c.value);
+		expect(filledText).toEqual(["First note", "Second note"]);
+		// No Slot leaf survived the expansion.
+		expect(JSON.stringify(expanded)).not.toContain('"kind":"slot"');
+	});
 });
 
 describe("dialect application (Lemma 4)", () => {
