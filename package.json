@@ -16,7 +16,7 @@
 		"codegen": "orval --config ./orval.config.ts"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/adapter-vercel": "^6.3.3",
 		"@sveltejs/kit": "^2.8.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@types/node": "^25.9.2",
