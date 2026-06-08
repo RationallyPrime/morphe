@@ -3,8 +3,8 @@
  * surface is coherent end to end: the five domain compounds register cleanly
  * through the factory gate, the deterministic matcher ranks a representative pain
  * sensibly, the presenter turns matches into a well-formed Frame tree of
- * CapabilityCard refs, and the grounded corpus is exactly the 45 capabilities,
- * each one carrying at least one real endpoint surface.
+ * CapabilityCard refs, and the grounded corpus stays large and mechanically
+ * valid, each capability carrying at least one real endpoint surface.
  *
  * Everything under test is pure data + pure functions; no clock, no RNG, no I/O.
  */
@@ -15,7 +15,7 @@ import { CompoundRegistry } from "$morphe";
 import type { CompoundRef, Node } from "$morphe";
 import { CAPABILITIES } from "./corpus.js";
 import { capabilityCard, composeAnswer } from "./present.js";
-import { matchCapabilities } from "./match.js";
+import { featuredCapabilities, matchCapabilities } from "./match.js";
 import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
 import { CATEGORIES, CATEGORY_LABELS, categoriesOf, categoryOf, SYSTEMS } from "./taxonomy.js";
 import type { ComposeQuery } from "./input.js";
@@ -451,6 +451,15 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		expect(CAPABILITIES.length).toBeGreaterThan(45);
 	});
 
+	it("adds a large new high-ROI surface without changing empty featured behavior", () => {
+		// 73 was the pre-expansion corpus: the original 45 Humanity×dkPlus caps plus
+		// single-system, pair, and three-way seed coverage. This pass should surface
+		// roughly forty more evidence-grounded examples without making the no-system
+		// default behave like an all-systems browser.
+		expect(CAPABILITIES.length).toBeGreaterThanOrEqual(113);
+		expect(featuredCapabilities([])).toEqual([]);
+	});
+
 	it("every capability carries at least one real endpoint surface", () => {
 		for (const cap of CAPABILITIES) {
 			expect(cap.surfaces.length).toBeGreaterThanOrEqual(1);
@@ -482,6 +491,25 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		expect(bySize(2), "no two-system capability").toBe(true);
 		expect(bySize(3), "no three-system capability").toBe(true);
 	});
+
+	it("has high-ROI examples for every non-empty exact system footprint", () => {
+		const keyOf = (systems: readonly string[]): string => [...systems].sort().join("|");
+		const countExact = (systems: readonly string[]): number => {
+			const key = keyOf(systems);
+			return CAPABILITIES.filter(
+				(cap) => cap.systems.length === systems.length && keyOf(cap.systems) === key,
+			).length;
+		};
+
+		expect(countExact(["twenty"]), "Twenty-only").toBeGreaterThanOrEqual(8);
+		expect(countExact(["dkplus"]), "dkPlus-only").toBeGreaterThanOrEqual(8);
+		expect(countExact(["humanity"]), "Humanity-only").toBeGreaterThanOrEqual(8);
+		expect(countExact(["twenty", "dkplus"]), "Twenty×dkPlus").toBeGreaterThanOrEqual(12);
+		expect(countExact(["twenty", "humanity"]), "Twenty×Humanity").toBeGreaterThanOrEqual(12);
+		expect(countExact(["humanity", "dkplus"]), "Humanity×dkPlus").toBeGreaterThanOrEqual(53);
+		expect(countExact(["twenty", "humanity", "dkplus"]), "three-way").toBeGreaterThanOrEqual(12);
+	});
+
 });
 
 /* ---------------------------------------------------------------------------
