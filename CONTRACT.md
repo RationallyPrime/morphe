@@ -9,8 +9,14 @@ The proposal (`morphe-design-system-proposal.md`, kept in the sokrates-website
 repo) is the *why*; this is the *what* and the *how*. Where they disagree, this
 file wins for Phase-0 implementation.
 
-Status: scaffolded, installed, `svelte-check` clean (0 errors, 0 warnings),
-13/13 core tests passing.
+Status: implemented + integrated. `bun run check` clean (0 errors, 0 warnings),
+88/88 tests passing, `bun run build` succeeds. The ACTION (`Button`, `Link`) and
+OVERLAY (`Dialog`, `Popover`, `Disclosure`) families and the input MODE
+extensions (`Field.multiline`, `Toggle.variant:"checkbox"`,
+`Select.variant:"radiogroup"`) are in the grammar, registry, tokens, and both
+dialects, and the component bodies are FILLED (no longer stubs) — see §11 and
+`STATUS.md`. No grammar signature drifted during implementation; the only
+integration fix was a Svelte-tokenizer caveat (see §1).
 
 ---
 
@@ -30,6 +36,23 @@ The stubs already wire structure (context descent for layout, a11y relationships
 for inputs, the discrete/continuous carrier split). Keep that wiring; enrich the
 markup and styling inside it.
 
+**The 8 parallel implementation assignments (one agent per file):**
+
+| Agent | File (the ONLY file it edits) | Node kind / mode it owns |
+|---|---|---|
+| 1 | `primitives/action/Button.svelte` | `Button` (solid/outline/ghost variants, busy, icon-only a11y) |
+| 2 | `primitives/action/Link.svelte` | `Link` (external-tab affordance) |
+| 3 | `primitives/overlay/Dialog.svelte` | `Dialog` (native `<dialog>`+`showModal()`) |
+| 4 | `primitives/overlay/Popover.svelte` | `Popover` (Popover API + CSS Anchor Positioning; roving for menu/listbox) |
+| 5 | `primitives/overlay/Disclosure.svelte` | `Disclosure` (native `<details>`/`<summary>`) |
+| 6 | `primitives/input/Field.svelte` | `Field` — add the **multiline** (`<textarea>`) mode |
+| 7 | `primitives/input/Toggle.svelte` | `Toggle` — add the **checkbox** mode (incl. indeterminate) |
+| 8 | `primitives/input/Select.svelte` | `Select` — add the **radiogroup** mode (fieldset + roving) |
+
+Agents 6–8 edit an EXISTING primitive file to add a mode; they keep the current
+default mode working. Every one of these files compiles as a stub today
+(`check` is 0/0); the agent enriches it without touching anything shared.
+
 ---
 
 ## 1. Stack & house style
@@ -37,7 +60,16 @@ markup and styling inside it.
 - **Svelte 5 runes only.** `$props`, `$state`, `$derived`, `$effect`. No legacy
   `export let`, no stores-as-reactivity, no VDOM patterns.
 - **TypeScript strict** (`noUncheckedIndexedAccess`, `verbatimModuleSyntax`).
-- **Vite + SvelteKit.** Vitest for tests.
+- **Vite + SvelteKit.** Vitest for tests. Package manager is **bun** (`bun run …`).
+- **TOKENIZER CAVEAT (learned the hard way — it broke `check` + `build`):** never
+  write a raw-text element start tag — `<style>` or `<script>` — inside a
+  `<script>`-block comment. Svelte 5's tokenizer treats those two tags as
+  raw-text boundaries even inside JS comments, loses the `</script>` close, and
+  fails with a misleading `element_unclosed` / "`<script>` was left open" error
+  pointing at the file's last line. Refer to them in prose ("the style block",
+  "the script block") or escape the angle bracket. Other tags (`<details>`,
+  `<Node>`, generics like `$state<HTMLElement>`) are safe; only the two raw-text
+  tags poison the comment.
 - **House style:** tabs, double quotes, semicolons. (Matches Sokrates.)
 - **CSS:** no runtime className synthesis (the legacy's central liability).
   Continuous values flow through CSS custom properties; discrete decisions ride
@@ -79,6 +111,8 @@ src/lib/morphe/
     content/  Text Number Badge Icon Media        # AGENTS EDIT THESE
     input/    Field Select Toggle Range           # AGENTS EDIT THESE
     feedback/ Progress Status InlineAlert         # AGENTS EDIT THESE
+    action/   Button Link                         # AGENTS EDIT THESE (new)
+    overlay/  Dialog Popover Disclosure           # AGENTS EDIT THESE (new)
   index.ts                    # public library barrel
   core.test.ts                # law + factory + dialect tests (extend, don't gut)
 ```
@@ -147,11 +181,31 @@ Media      { kind:"media";  src:string; alt:string; aspect?:"square"|"video"|"po
 ### Input (a11y REQUIRED)
 
 ```ts
-Field   { kind:"field";  a11y:InputA11y; inputType?:"text"|"email"|"password"|"number"|"search"|"tel"|"url"; placeholder?:string; bind?:string; hint?:string; error?:string }
-Select  { kind:"select"; a11y:InputA11y; options:{value:string;label:string;disabled?:boolean}[]; bind?:string; hint?:string; error?:string }
-Toggle  { kind:"toggle"; a11y:InputA11y; bind?:string; hint?:string }
+Field   { kind:"field";  a11y:InputA11y; inputType?:"text"|"email"|"password"|"number"|"search"|"tel"|"url"; placeholder?:string; bind?:string; hint?:string; error?:string;
+          multiline?:boolean; rows?:number; resizable?:boolean }                           // multiline MODE (textarea); single-line when absent
+Select  { kind:"select"; a11y:InputA11y; options:{value:string;label:string;disabled?:boolean}[]; bind?:string; hint?:string; error?:string;
+          variant?:"dropdown"|"radiogroup" }                                               // presentation MODE; "dropdown" (native <select>) by default
+Toggle  { kind:"toggle"; a11y:InputA11y; bind?:string; hint?:string;
+          variant?:"switch"|"checkbox"; indeterminate?:boolean }                           // semantic MODE; "switch" by default; indeterminate is checkbox-only
 Range   { kind:"range";  a11y:InputA11y; min:number; max:number; step?:number; bind?:string; hint?:string }
 ```
+
+**Mode extensions are OPTIONAL and DEFAULTED** (the grammar fixed-point: every
+tree authored before these fields existed is still valid). A mode is NOT a new
+kind — it is a capability of the same input primitive. The implementation agent
+for that primitive must handle BOTH modes inside the SAME `.svelte` file:
+
+- `Field.multiline` → native `<textarea>` (keep `rows`/`resizable`); same
+  `InputA11y` wiring (label relation, `aria-describedby` for hint+error,
+  `aria-invalid`); `:focus-visible` on the control itself, not a wrapper.
+  `inputType` is ignored when multiline.
+- `Toggle.variant:"checkbox"` → native `<input type="checkbox">`; `indeterminate`
+  drives `el.indeterminate` via an `$effect` and `aria-checked="mixed"`. The
+  default `"switch"` keeps the existing `<button role="switch" aria-checked>`.
+- `Select.variant:"radiogroup"` → `<fieldset>`/`<legend>` group of
+  `role="radio"` options with roving tabindex (one tab stop, arrows move
+  selection), `aria-required`/`aria-invalid` on the fieldset, error/hint via
+  `aria-describedby`. The default `"dropdown"` is a native `<select>`.
 
 ### Feedback (functional color never the only signal)
 
@@ -160,6 +214,77 @@ Progress    { kind:"progress";     value?:number; label:string; intent?:IntentRe
 Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal }
 InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; live?:"polite"|"assertive" }
 ```
+
+### Action (real `<button>`/`<a>` — genuine browser capability, NOT compounds)
+
+The action family ships code because the affordance's keyboard / focus /
+activation / navigation semantics ARE platform capability. **A clickable `<div>`
+is FORBIDDEN** — a11y demands the real elements, so the grammar ships them as
+kinds. The action/link split is honest: Button DOES something, Link GOES
+somewhere; neither is polymorphic into the other. Phase 0 has no live wire, so an
+action carries its intent DECLARATIVELY via an `action` id (exactly like `Vary`
+carries an id it cannot yet resolve).
+
+```ts
+type ControlLabel =
+  | { mode:"aria-label";  text:string }
+  | { mode:"labelledby";  id:string };
+
+// Button is a DISCRIMINATED UNION so "icon-only AND unlabelled" is UNREPRESENTABLE:
+//   either it has visible `label` text (the accessible name) OR it carries `a11y`.
+Button (kind:"button"):
+  ButtonBase                                   // kind; variant?:"solid"|"outline"|"ghost"; intent?:IntentRef;
+                                               //   type?:"button"|"submit"|"reset"; disabled?:boolean; busy?:boolean;
+                                               //   action?:string; icon?:string
+  & ( { label:string;       a11y?:ControlLabel }     // visible-text label IS the name
+    | { label?:undefined;   a11y:ControlLabel } )    // icon-only ⇒ a11y name REQUIRED
+
+Link { kind:"link"; href:string; label:string; intent?:IntentRef; external?:"auto"|"force"|"hide" }
+```
+
+- **Button variant is channel SELECTION, never a className matrix:** solid paints
+  surface+on; outline paints border+on over a transparent surface; ghost paints
+  on only with a hover surface. Variants are re-combinations of existing channels.
+- **Button busy** sets `aria-busy` and shows a reduced-motion-aware spinner.
+- **Link external** is server-decided (a server-driven primitive must not read
+  `window`). When the link opens a new tab, render `target="_blank"
+  rel="noopener noreferrer"`, a visible `open_in_new` indicator, AND an SR-only
+  "(opens in new tab)" span. Default intent for Link is the provenance (citation)
+  register, not the amber beacon.
+
+### Overlay (native `<dialog>` / Popover API / `<details>` — PLATFORM TOP LAYER)
+
+> **DECISION: overlays use the platform top layer, not absolutely-positioned divs
+> in overflow containers.** Native `<dialog>`+`showModal()` gives the top layer
+> (no z-index wars, no portal, no overflow clipping), a `::backdrop`, a built-in
+> focus trap, Escape, and focus restoration FOR FREE. The Popover API
+> (`popover` attribute) + CSS Anchor Positioning gives top-layer + light-dismiss
+> + declarative flip/shift (zero JS in the position loop). `<details>`/`<summary>`
+> gives collapse with zero JS. This is the keystone reason these are primitives:
+> the genuine capability lives in the platform, and faking it is the legacy
+> mistake three runtime libraries fought. **No portal surgery in `Node.svelte`
+> was required** — overlays render in place and the platform lifts them.
+
+```ts
+Dialog     { kind:"dialog";     title:string; description?:string; open?:boolean; bind?:string; dismissable?:boolean; children:Node[] }
+Popover    { kind:"popover";    anchor:string; id:string; placement?:"top"|"bottom"|"start"|"end"; role?:"tooltip"|"menu"|"listbox"; open?:boolean; bind?:string; children:Node[] }
+Disclosure { kind:"disclosure"; summary:string; open?:boolean; group?:string; children:Node[] }
+```
+
+- **Dialog** `title` is REQUIRED (wired `aria-labelledby`); `description` wires
+  `aria-describedby`. Open is tier-0 `$state`; an `$effect` calls
+  `showModal()`/`close()` when it flips. `dismissable` (default true) gates the
+  Escape/backdrop/close-affordance path. Ids are derived deterministically (a
+  stable hash of the title) — never `Math.random` (SSR/replay-safe).
+- **Popover** `anchor` + `id` are REQUIRED. `role` picks the keyboard contract: a
+  `tooltip` needs no roving; `menu`/`listbox` use the shared roving-tabindex
+  action. Light-dismiss is native to the Popover API — no hand-rolled
+  outside-click listeners.
+- **Disclosure** `summary` is the REQUIRED trigger label. `group` enables a native
+  exclusive accordion (`name=` on the `<details>`) — no JS. The marker is a SHAPE
+  cue (rotating chevron), not color alone.
+- **Reduced motion** is honoured for every overlay/disclosure transition (a media
+  query in `<style>`, not a JS hook).
 
 ### Meta (no .svelte files — structural)
 
@@ -175,8 +300,10 @@ Vary     { kind:"vary";      id:string; options:Node[]; default?:number; objecti
 CompoundRef { kind:"compound"; name:string; args:Record<string,unknown>; slots?:Record<string,Node[]> }
 ```
 
-`type Node = Layout | Content | Input | Feedback | Meta | CompoundRef`, discriminated by `kind`.
-`assertNever(x)` is the exhaustiveness helper for `switch` defaults.
+`type Node = Layout | Content | Input | Feedback | Action | Overlay | Meta | CompoundRef`,
+discriminated by `kind`. (`ActionNode = Button | Link`; `OverlayNode = Dialog |
+Popover | Disclosure`.) `assertNever(x)` is the exhaustiveness helper for
+`switch` defaults.
 
 ---
 
@@ -279,19 +406,35 @@ ever names a scale or a raw value — that is what makes re-theming/re-dialectin
 fixed point.
 
 - **scales.css** — neutral ramps, prefix `--mo-`: `--mo-space-0..9`,
-  `--mo-type-1..8`, `--mo-radius-0..full`, `--mo-elev-0..4`, neutral
+  `--mo-type-1..8`, `--mo-radius-0..full`, `--mo-elev-0..5`, neutral
   `--mo-neutral-0..11`, chromatic `--mo-amber-* / --mo-blue-* / --mo-green-* /
-  --mo-red-*`, fonts `--mo-font-display / -body / -mono`. **No vertical
-  vocabulary here** — this is the legacy's fatal mistake, not repeated.
+  --mo-red-*`, fonts `--mo-font-display / -body / -mono`, plus the OVERLAY/ACTION
+  additions: a neutral **layer (z-index) ramp** `--mo-layer-{base,dropdown,
+  sticky,overlay,toast,tooltip}` (raw integers; the rare non-top-layer fallback —
+  native showModal/popover own the platform top layer and need none) and the
+  **focus-ring geometry** `--mo-ring-width` / `--mo-ring-offset` (ring COLOR stays
+  per-intent; only the geometry is neutral). `--mo-elev-5` is the overlay tonal
+  tier. **No vertical vocabulary here** — the legacy's fatal mistake, not repeated.
 - **intents.ts** — `intentVar(intent, channel)` → `--mo-intent-<intent>-<channel>`;
-  channels are `surface | on | hover | border | ring`. `CORE_INTENTS` is the
-  iterable list. `SURFACE_VARS` names the non-intent surface vars.
+  channels are `surface | on | hover | border | ring | active | disabled`.
+  (`active` = pressed state, `disabled` = disabled surface; both added for the
+  ACTION family per the seed's `IntentThemeEntry`.) `CORE_INTENTS` is the iterable
+  list. `SURFACE_VARS` names the non-intent surface vars, now including
+  `overlay` (`--mo-intent-surface-overlay`, the floating-panel tier) and `scrim`
+  (`--mo-scrim`, the modal backdrop — the one overlay token that is a translucent
+  fill, since no tonal-layering substitute for a backdrop exists).
 - **intents.css** — the DEFAULT dialect: core intents mapped onto scales under
-  `:root, [data-mo-dialect="icelandic-archive"]`. A dialect re-theme is a remap
-  of this block scoped by `[data-mo-dialect="…"]`.
+  `:root, [data-mo-dialect="icelandic-archive"]`. EVERY core intent now defines
+  all SEVEN channels (incl. `active`/`disabled`); the block also defines
+  `--mo-intent-surface-overlay`, `--mo-scrim`, and `--mo-disabled-opacity`. A
+  dialect re-theme is a remap of this block scoped by `[data-mo-dialect="…"]`.
 - **slots.ts** — `slot(intent, channel, fallback?)` returns a `var(--…)` string;
-  `SLOTS.field.*`, `SLOTS.action.*`, `SLOTS.feedback.*` are named bindings;
-  `toneIntent(tone)` maps a feedback tone to its intent.
+  named bindings are `SLOTS.field.*`, `SLOTS.action.*`
+  (`surface/on/hover/border/ring/active/disabled`, each taking the chosen intent;
+  variants are channel selection), `SLOTS.link.*` (`on/hover/ring`, default
+  provenance), `SLOTS.overlay.*` (`surface/on/scrim/border` + `layer.{dropdown,
+  overlay,toast,tooltip}`), `SLOTS.focus.*` (`ring/width/offset`), and
+  `SLOTS.feedback.*`; `toneIntent(tone)` maps a feedback tone to its intent.
 
 **Core intents** (vertical-neutral): `primary-action` (the amber beacon, used
 sparingly), `neutral`, `provenance` (lineage/citation blue), `evidence` (the
@@ -312,8 +455,20 @@ renames the core set.
 - **Media** requires `alt` (empty string = explicit decorative opt-out).
 - **Functional color is never the only signal.** `Status` requires a
   `StatusSignal` (text + optional icon); `InlineAlert` pairs tone with a `title`;
-  `Badge` may add a shape `icon`; `Progress` requires a `label`.
-- Keep focus-visible rings on interactive primitives.
+  `Badge` may add a shape `icon`; `Progress` requires a `label`. Button error/busy
+  state is shape-bearing (spinner + `aria-busy`); Toggle/Disclosure state is shape
+  (thumb/chevron position), not color alone.
+- **Button** must have an accessible name. The discriminated union makes
+  "icon-only AND unlabelled" a TYPE ERROR: a button with no visible `label` MUST
+  carry `a11y: ControlLabel`.
+- **Link** must carry the external-tab affordance when it opens a new tab:
+  `rel="noopener noreferrer"` + a visible indicator + an SR-only
+  "(opens in new tab)" span. Externality is server-decided (no `window` read).
+- **Dialog** REQUIRES `title` (wired `aria-labelledby`); the close affordance
+  carries an `aria-label`. **Disclosure** REQUIRES `summary` (the trigger label).
+  **Popover** REQUIRES `anchor` + `id`; its `role` picks the keyboard contract.
+- Keep focus-visible rings on interactive primitives (use `SLOTS.focus.*` for the
+  shared geometry over the per-intent ring color — never hardcode px).
 
 ---
 
@@ -336,6 +491,14 @@ overrides as CSS vars, seeds the root context, and renders the tree via `<Node>`
 The default is `icelandic-archive`. Priors are clamped (budget 1..6, scaleTier
 2..4) so Lemma 2's laws survive any dialect.
 
+**The intent keyset is a FIXED POINT across dialects.** Both shipped dialects
+(`icelandic-archive`, `clinical`) define the SAME intent names AND, for the
+core intents, the SAME channel set — now all SEVEN channels including the new
+`active`/`disabled`, plus the `--mo-intent-surface-overlay` / `--mo-scrim`
+surface additions. The `dialects.test.ts` parity tests (`applyDialect().vars`
+keysets must be equal between dialects) enforce this. **When you add a channel,
+add it to BOTH dialects and to `intents.css`, or the fixed-point breaks.**
+
 ---
 
 ## 9. The renderer (Definition 1)
@@ -347,21 +510,38 @@ option; renders a bare `Slot`'s fallback; defensively renders a stray
 `render/registry.ts` and hands it `{ node, ctx }`. Layout primitives own their
 own descent and recurse into `<Node>` with the child ctx.
 
+**`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
+own `children` and recurse into `<Node>` themselves (exactly as layout primitives
+do), and because they render via the platform top layer (`<dialog showModal()>`,
+the Popover API, `<details>`) they appear in place with NO portal. The renderer's
+`{:else}` branch already dispatches every non-Meta kind through the registry, so
+the five new kinds flow through unchanged. No portal/renderer surgery was needed
+— that was a design goal, not an accident.
+
 `render/registry.ts` is an EXHAUSTIVE `Record<PrimitiveKind, Component>` — a
-missing entry is a compile error. Adding a primitive = grammar change + registry
-entry (contract owner only).
+missing entry is a compile error. The five new kinds (`button`, `link`, `dialog`,
+`popover`, `disclosure`) are now mapped to the action/overlay components.
+`PrimitiveProps<N>` is generic over the Node subtype, so each new stub
+instantiates it (`PrimitiveProps<Button>`, `PrimitiveProps<Dialog>`, …) with no
+change to `props.ts`. Adding a primitive = grammar change + registry entry
+(contract owner only).
 
 ---
 
 ## 10. Build / verify
 
 ```bash
-pnpm install
-pnpm check     # svelte-kit sync && svelte-check  — must be 0 errors, 0 warnings
-pnpm test      # vitest — the law/factory/dialect tests
-pnpm dev       # smoke page at / renders a hand-authored tree (the dignity test)
+bun install
+bun run check     # svelte-kit sync && svelte-check  — must be 0 errors, 0 warnings
+bun run test      # vitest — law/factory/dialect + primitive-render suites
+bun run build     # vite build — client + SSR bundles
+bun run dev       # smoke page at / renders a hand-authored tree (the dignity test)
 ```
 
-Before claiming a primitive done: `pnpm check` clean, `pnpm test` green, and your
-primitive renders in the smoke page (or a story you add). Extend `core.test.ts`
-with property tests for any law your work touches — the lemmas ARE the test plan.
+Before claiming a primitive done: `bun run check` clean, `bun run test` green, and
+your primitive renders in the smoke page (or a story you add). Extend
+`core.test.ts` (laws) or `primitives.render.test.ts` (SSR render + a11y) for any
+behaviour your work touches — the lemmas ARE the test plan. Primitive render
+tests use Svelte's server `render()` (no DOM/jsdom; node env) and assert on the
+SSR HTML string; remember open-state `$effect`s (Dialog/Popover) are client-only,
+so SSR emits the CLOSED markup — assert what SSR produces.

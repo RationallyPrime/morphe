@@ -39,6 +39,13 @@ import Range from "../primitives/input/Range.svelte";
 import Progress from "../primitives/feedback/Progress.svelte";
 import Status from "../primitives/feedback/Status.svelte";
 import InlineAlert from "../primitives/feedback/InlineAlert.svelte";
+// Action (real <button>/<a> affordances)
+import Button from "../primitives/action/Button.svelte";
+import Link from "../primitives/action/Link.svelte";
+// Overlay (native <dialog> / Popover API / <details>)
+import Dialog from "../primitives/overlay/Dialog.svelte";
+import Popover from "../primitives/overlay/Popover.svelte";
+import Disclosure from "../primitives/overlay/Disclosure.svelte";
 
 /** The kinds that map to a shipped primitive component (everything but Meta). */
 export type PrimitiveKind = Exclude<NodeKind, "slot" | "param-ref" | "vary" | "compound">;
@@ -67,6 +74,11 @@ export const PRIMITIVES: Record<PrimitiveKind, Component<any>> = {
 	progress: Progress,
 	status: Status,
 	"inline-alert": InlineAlert,
+	button: Button,
+	link: Link,
+	dialog: Dialog,
+	popover: Popover,
+	disclosure: Disclosure,
 };
 
 /** Look up the component for a primitive kind. */

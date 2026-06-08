@@ -61,6 +61,28 @@
 	--mo-elev-2: var(--mo-neutral-3);
 	--mo-elev-3: var(--mo-neutral-4);
 	--mo-elev-4: var(--mo-neutral-5); /* highest / raised */
+	--mo-elev-5: var(--mo-neutral-6); /* overlay / floating panel (top tonal tier) */
+
+	/* --- Layer (z-index) ramp ----------------------------------------------- */
+	/* Neutral stacking-order scale for the OVERLAY family. Ported from the seed's
+	   ZLayer enum as raw integers (neutral, not intent-scoped). Native <dialog>
+	   showModal() and the Popover API render in the PLATFORM TOP LAYER and need no
+	   z-index at all; these exist for the rare non-top-layer fallback and to keep
+	   any sticky/dropdown chrome ordered. Do not reach for these from a real
+	   top-layer overlay. */
+	--mo-layer-base: 0;
+	--mo-layer-dropdown: 10;
+	--mo-layer-sticky: 20;
+	--mo-layer-overlay: 30;
+	--mo-layer-toast: 40;
+	--mo-layer-tooltip: 50;
+
+	/* --- Focus-ring geometry ------------------------------------------------ */
+	/* Ring COLOR is per-intent (the `ring` channel); only the geometry is neutral
+	   and lives here, so every interactive primitive draws a consistent ring
+	   (CONTRACT §7). */
+	--mo-ring-width: 2px;
+	--mo-ring-offset: 2px;
 
 	/* --- Neutral color ramp (the #121416-rooted Archive surface stack) ------ */
 	--mo-neutral-0: #0c0e10; /* container-lowest */

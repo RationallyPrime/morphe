@@ -51,11 +51,62 @@ export const SLOTS = {
 		borderError: (): string => slot("caution", "border"),
 		ring: (): string => slot("primary-action", "ring"),
 	},
-	/** Primary call-to-action surfaces. */
+	/**
+	 * Action (Button) chrome. The Button primitive expresses its VARIANT by
+	 * channel SELECTION (solid = surface+on; outline = border+on, transparent
+	 * surface; ghost = on only, hover surface) — variants are re-combinations of
+	 * these channels, NOT new tokens or a className matrix. Each reader takes the
+	 * chosen intent so the same slot group backs any intent the author picks.
+	 */
 	action: {
-		surface: (): string => slot("primary-action", "surface"),
-		on: (): string => slot("primary-action", "on"),
-		hover: (): string => slot("primary-action", "hover"),
+		surface: (intent: string = "primary-action"): string => slot(intent, "surface"),
+		on: (intent: string = "primary-action"): string => slot(intent, "on"),
+		hover: (intent: string = "primary-action"): string => slot(intent, "hover"),
+		border: (intent: string = "primary-action"): string => slot(intent, "border"),
+		ring: (intent: string = "primary-action"): string => slot(intent, "ring"),
+		/** Pressed state — falls back to hover if a dialect omits the channel. */
+		active: (intent: string = "primary-action"): string =>
+			slot(intent, "active", slot(intent, "hover")),
+		/** Disabled surface — falls back to the surface channel if a dialect omits it. */
+		disabled: (intent: string = "primary-action"): string =>
+			slot(intent, "disabled", slot(intent, "surface")),
+	},
+	/**
+	 * Link chrome — `on`-color forward with a hover shift and an underline. No new
+	 * tokens: links reuse the intent's `on`/`hover` channels. Defaults to the
+	 * provenance (citation) register, not the amber beacon.
+	 */
+	link: {
+		on: (intent: string = "provenance"): string => slot(intent, "on"),
+		hover: (intent: string = "provenance"): string => slot(intent, "hover"),
+		ring: (intent: string = "provenance"): string => slot(intent, "ring"),
+	},
+	/**
+	 * Overlay (Dialog/Popover) chrome. The floating panel surface, the modal
+	 * scrim, a ghost edge over the scrim, and the layer scale (used only by the
+	 * rare non-top-layer fallback — native showModal/popover own the top layer).
+	 */
+	overlay: {
+		surface: (): string => `var(--mo-intent-surface-overlay)`,
+		on: (): string => `var(--mo-intent-on-surface)`,
+		scrim: (): string => `var(--mo-scrim)`,
+		border: (): string => `var(--mo-intent-outline)`,
+		layer: {
+			dropdown: (): string => `var(--mo-layer-dropdown)`,
+			overlay: (): string => `var(--mo-layer-overlay)`,
+			toast: (): string => `var(--mo-layer-toast)`,
+			tooltip: (): string => `var(--mo-layer-tooltip)`,
+		},
+	},
+	/**
+	 * Focus ring. The COLOR is per-intent (`ring` channel); only the geometry is
+	 * neutral, so every interactive primitive draws a consistent ring (CONTRACT
+	 * §7) without hardcoding pixels.
+	 */
+	focus: {
+		ring: (intent: string = "primary-action"): string => slot(intent, "ring"),
+		width: (): string => `var(--mo-ring-width)`,
+		offset: (): string => `var(--mo-ring-offset)`,
 	},
 	/** Feedback tones map onto core intents. */
 	feedback: {

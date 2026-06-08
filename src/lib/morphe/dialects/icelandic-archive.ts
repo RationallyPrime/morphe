@@ -50,9 +50,13 @@ export const ARCHIVE_SURFACES: Readonly<Record<string, string>> = {
 	"--mo-intent-surface-base": "var(--mo-neutral-1)",
 	"--mo-intent-surface-raised": "var(--mo-neutral-4)",
 	"--mo-intent-surface-sunken": "var(--mo-neutral-0)",
+	// Overlay panel surface — the highest tonal tier (Dialog/Popover); depth via
+	// tone, not shadow. Scrim is the one translucent-fill backdrop token.
+	"--mo-intent-surface-overlay": "var(--mo-neutral-6)",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
 	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 60%, transparent)",
 	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-7) 70%, transparent)",
+	"--mo-scrim": "color-mix(in srgb, var(--mo-neutral-0) 62%, transparent)",
 };
 
 /* ------------------------------------------------------------------------- *
@@ -69,6 +73,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-amber-400)",
 		border: "var(--mo-amber-600)",
 		ring: "var(--mo-amber-500)",
+		active: "var(--mo-amber-600)",
+		disabled: "color-mix(in srgb, var(--mo-amber-500) 38%, var(--mo-neutral-3))",
 	},
 	/** Quiet surface-tone controls — the workhorse, no chroma. */
 	neutral: {
@@ -77,6 +83,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-neutral-5)",
 		border: "var(--mo-neutral-7)",
 		ring: "var(--mo-neutral-8)",
+		active: "var(--mo-neutral-6)",
+		disabled: "color-mix(in srgb, var(--mo-neutral-4) 50%, var(--mo-neutral-2))",
 	},
 	/** Lineage / citation blue — "where this came from". */
 	provenance: {
@@ -85,6 +93,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-blue-300))",
 		border: "var(--mo-blue-500)",
 		ring: "var(--mo-blue-500)",
+		active: "color-mix(in srgb, var(--mo-blue-700) 80%, var(--mo-blue-500))",
+		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
 	},
 	/** The document register; on-surface forward, near-neutral. */
 	evidence: {
@@ -93,6 +103,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-neutral-4)",
 		border: "var(--mo-neutral-7)",
 		ring: "var(--mo-neutral-8)",
+		active: "var(--mo-neutral-5)",
+		disabled: "color-mix(in srgb, var(--mo-neutral-3) 60%, var(--mo-neutral-1))",
 	},
 	/** The catalog accent — amber-dim, the archival shelfmark colour. */
 	accession: {
@@ -101,6 +113,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-amber-600) 42%, var(--mo-neutral-3))",
 		border: "var(--mo-amber-700)",
 		ring: "var(--mo-amber-500)",
+		active: "color-mix(in srgb, var(--mo-amber-600) 50%, var(--mo-neutral-3))",
+		disabled: "color-mix(in srgb, var(--mo-amber-600) 14%, var(--mo-neutral-3))",
 	},
 	/** Caution — the red family, quiet by default in the Doxa register. */
 	caution: {
@@ -109,6 +123,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-red-700) 86%, var(--mo-red-300))",
 		border: "var(--mo-red-400)",
 		ring: "var(--mo-red-400)",
+		active: "color-mix(in srgb, var(--mo-red-700) 78%, var(--mo-red-400))",
+		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3))",
 	},
 	/** Success — the green family. */
 	success: {
@@ -117,6 +133,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-green-700) 86%, var(--mo-green-400))",
 		border: "var(--mo-green-500)",
 		ring: "var(--mo-green-500)",
+		active: "color-mix(in srgb, var(--mo-green-700) 78%, var(--mo-green-400))",
+		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
 	},
 	/** Info — blue, brighter / more present than provenance. */
 	info: {
@@ -125,6 +143,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-blue-700) 80%, var(--mo-neutral-3))",
 		border: "var(--mo-blue-500)",
 		ring: "var(--mo-blue-500)",
+		active: "color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-neutral-3))",
+		disabled: "color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3))",
 	},
 };
 
@@ -145,6 +165,8 @@ const ARCHIVE_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "var(--mo-neutral-2)",
 		border: "color-mix(in srgb, var(--mo-neutral-7) 50%, transparent)",
 		ring: "var(--mo-neutral-8)",
+		active: "var(--mo-neutral-3)",
+		disabled: "transparent",
 	},
 	/** Marginalia — annotation/aside tone, a hair warmer than evidence. */
 	marginalia: {
@@ -153,6 +175,8 @@ const ARCHIVE_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "var(--mo-neutral-4)",
 		border: "var(--mo-neutral-7)",
 		ring: "var(--mo-neutral-8)",
+		active: "var(--mo-neutral-5)",
+		disabled: "color-mix(in srgb, var(--mo-neutral-4) 40%, var(--mo-neutral-2))",
 	},
 	/** Seal / authority mark — the amber beacon's grave sibling (deep, rare). */
 	seal: {
@@ -161,6 +185,8 @@ const ARCHIVE_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-amber-700) 84%, var(--mo-amber-500))",
 		border: "var(--mo-amber-600)",
 		ring: "var(--mo-amber-500)",
+		active: "color-mix(in srgb, var(--mo-amber-700) 70%, var(--mo-amber-500))",
+		disabled: "color-mix(in srgb, var(--mo-amber-700) 40%, var(--mo-neutral-3))",
 	},
 };
 

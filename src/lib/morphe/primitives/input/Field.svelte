@@ -1,9 +1,17 @@
 <script lang="ts">
 	/*
-	 * Field — a single-line text input. The simplest stateful provider (Lemma 5):
-	 * its value is tier-0, component-owned $state that never leaves the component;
-	 * the wire carries only a `bind` store-path (exposed as data-bind for a host to
-	 * adopt), never a live value.
+	 * Field — a text input. The simplest stateful provider (Lemma 5): its value is
+	 * tier-0, component-owned $state that never leaves the component; the wire
+	 * carries only a `bind` store-path (exposed as data-bind for a host to adopt),
+	 * never a live value.
+	 *
+	 * TWO MODES, ONE PRIMITIVE (CONTRACT §3): single-line is the default native
+	 * `<input>`; `multiline` switches the substrate to a native `<textarea>` (the
+	 * grammar fixed-point holds — every Field authored before `multiline` existed
+	 * still renders single-line). A mode is a CAPABILITY of the same primitive, not
+	 * a new kind: both arms share the identical a11y wiring, the same stateful-chrome
+	 * CSS-var carriers, and the same error/hint markup. `inputType` is ignored when
+	 * multiline; `rows`/`resizable` are ignored single-line.
 	 *
 	 * a11y is REQUIRED by the grammar (InputA11y): the label relationship is wired
 	 * into the DOM here, so an unlabelled Field is unrepresentable, not merely
@@ -17,6 +25,12 @@
 	 * discrete decisions stay declarative, continuous/stateful values flow through
 	 * the cascade — no runtime className synthesis). Colors resolve through
 	 * SLOTS -> intents -> scales; no raw scale or hex is named here.
+	 *
+	 * Note the seed's TextArea (atoms/TextArea.tsx) put its focus ring on the
+	 * WRAPPER div (focus-within) — the documented a11y bug. Here the control owns
+	 * its own :focus-visible, mirroring the single-line arm, and the seed's
+	 * variant/size className tables + dark: doubling are discarded per the seed-mining
+	 * report (the surface comes from the dialect, not a className matrix).
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
@@ -35,16 +49,34 @@
 	const ariaLabel = $derived(a11y.label.mode === "aria-label" ? a11y.label.text : undefined);
 	const ariaLabelledby = $derived(a11y.label.mode === "labelledby" ? a11y.label.id : undefined);
 
+	// Mode selection (CONTRACT §3): the multiline capability swaps the substrate
+	// to a <textarea>. Defaulted/optional so the grammar fixed-point holds.
+	const multiline = $derived(node.multiline === true);
+	// Native <textarea> rows default; only meaningful in the multiline arm.
+	const rows = $derived(node.rows ?? 3);
+	// User-resize is a genuine textarea capability; on by default like the platform.
+	// "none" is the only deviation from the native "vertical" default — never let it
+	// grow horizontally (would break the editorial column), so we cap to vertical.
+	const resize = $derived(node.resizable === false ? "none" : "vertical");
+
 	// Stateful chrome through the CSS-var channel: resting border vs. error border.
+	// (borderError IS the caution color; identical to the single-line arm.)
 	const borderColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.border());
 	const ringColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.ring());
 
 	// tier-0 local state (Lemma 5): the field's own value never leaves the
-	// component in Phase 0 — the host adopts it via the data-bind store-path.
+	// component in Phase 0 — the host adopts it via the data-bind store-path. Shared
+	// by both arms; <input> and <textarea> bind the same component-owned string.
 	let value = $state("");
 </script>
 
-<div class="mo-field" data-invalid={invalid} style:--mo-field-border={borderColor} style:--mo-field-ring={ringColor}>
+<div
+	class="mo-field"
+	data-invalid={invalid}
+	data-multiline={multiline}
+	style:--mo-field-border={borderColor}
+	style:--mo-field-ring={ringColor}
+>
 	{#if a11y.label.mode === "visible"}
 		<label class="mo-field__label" for={a11y.id}>
 			{a11y.label.text}
@@ -54,20 +86,38 @@
 			{/if}
 		</label>
 	{/if}
-	<input
-		bind:value
-		id={a11y.id}
-		class="mo-field__input"
-		type={node.inputType ?? "text"}
-		placeholder={node.placeholder}
-		required={a11y.required}
-		aria-required={a11y.required}
-		aria-invalid={invalid}
-		aria-label={ariaLabel}
-		aria-labelledby={ariaLabelledby}
-		aria-describedby={describedBy}
-		data-bind={node.bind}
-	/>
+	{#if multiline}
+		<textarea
+			bind:value
+			id={a11y.id}
+			class="mo-field__input mo-field__input--multiline"
+			{rows}
+			placeholder={node.placeholder}
+			required={a11y.required}
+			aria-required={a11y.required}
+			aria-invalid={invalid}
+			aria-label={ariaLabel}
+			aria-labelledby={ariaLabelledby}
+			aria-describedby={describedBy}
+			data-bind={node.bind}
+			style:resize
+		></textarea>
+	{:else}
+		<input
+			bind:value
+			id={a11y.id}
+			class="mo-field__input"
+			type={node.inputType ?? "text"}
+			placeholder={node.placeholder}
+			required={a11y.required}
+			aria-required={a11y.required}
+			aria-invalid={invalid}
+			aria-label={ariaLabel}
+			aria-labelledby={ariaLabelledby}
+			aria-describedby={describedBy}
+			data-bind={node.bind}
+		/>
+	{/if}
 	{#if node.hint && !invalid}
 		<p id={hintId} class="mo-field__hint">{node.hint}</p>
 	{/if}
@@ -108,6 +158,8 @@
 		white-space: nowrap;
 		border: 0;
 	}
+	/* Shared chrome for both substrates: the <input> and the <textarea> read
+	   identically (same surface, same border carrier, same focus-visible ring). */
 	.mo-field__input {
 		background: var(--mo-intent-neutral-surface);
 		color: var(--mo-intent-on-surface);
@@ -120,12 +172,24 @@
 		line-height: var(--mo-leading-snug);
 		transition: border-color 0.15s ease, box-shadow 0.15s ease;
 	}
+	/* Multiline substrate: a native <textarea>. The bottom-rule chrome would read
+	   oddly against a tall box, so the box gets a full outline-variant edge and a
+	   relaxed reading line-height; resize is vertical-only (see `resize` derived). */
+	.mo-field__input--multiline {
+		display: block;
+		inline-size: 100%;
+		min-block-size: calc(var(--mo-ctx-type, var(--mo-type-4)) * 3);
+		line-height: var(--mo-leading-normal);
+		font-family: var(--mo-font-body);
+	}
 	.mo-field__input::placeholder {
 		color: var(--mo-intent-on-surface-muted);
 	}
 	.mo-field__input:focus-visible {
-		outline: 2px solid var(--mo-field-ring, var(--mo-intent-primary-action-ring));
-		outline-offset: 2px;
+		/* The control owns its ring (NOT the wrapper — fixes the seed's bug). */
+		outline: var(--mo-ring-width, 2px) solid
+			var(--mo-field-ring, var(--mo-intent-primary-action-ring));
+		outline-offset: var(--mo-ring-offset, 2px);
 		border-bottom-color: var(--mo-field-ring, var(--mo-intent-primary-action-ring));
 	}
 	/* Shape channel for the error state: a thicker rule, not color alone. */
@@ -151,5 +215,12 @@
 	.mo-field__error-icon {
 		font-size: 1.1em;
 		line-height: 1;
+	}
+	/* Reduced motion: drop the stateful-chrome transition for users who ask for it
+	   (CONTRACT §7 / DNA — respect prefers-reduced-motion for any transition). */
+	@media (prefers-reduced-motion: reduce) {
+		.mo-field__input {
+			transition: none;
+		}
 	}
 </style>

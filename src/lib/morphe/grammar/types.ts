@@ -234,6 +234,17 @@ export interface Field {
 	readonly hint?: string;
 	/** When present, the field is in an error state with this message. */
 	readonly error?: string;
+	/**
+	 * Multiline MODE (the `<textarea>` substrate) — an optional capability of the
+	 * SAME Field primitive, not a new kind. Absent/false = single-line `<input>`.
+	 * Optional + defaulted so every existing authored Field stays valid (the
+	 * grammar fixed-point is preserved). `inputType` is ignored when multiline.
+	 */
+	readonly multiline?: boolean;
+	/** Visible row count in multiline mode; ignored single-line. */
+	readonly rows?: number;
+	/** Whether a multiline control may be user-resized; ignored single-line. */
+	readonly resizable?: boolean;
 }
 
 export interface SelectOption {
@@ -249,6 +260,15 @@ export interface Select {
 	readonly bind?: string;
 	readonly hint?: string;
 	readonly error?: string;
+	/**
+	 * Presentation MODE of the SAME Select primitive — not a new kind.
+	 *   - "dropdown"   (default): a native `<select>` (free keyboard / type-ahead).
+	 *   - "radiogroup": a `<fieldset>`/`<legend>` group of `role="radio"` options
+	 *                   with roving tabindex — for small option sets that read as
+	 *                   one mutually-exclusive choice.
+	 * Optional + defaulted to "dropdown" so existing authored Selects stay valid.
+	 */
+	readonly variant?: "dropdown" | "radiogroup";
 }
 
 export interface Toggle {
@@ -256,6 +276,21 @@ export interface Toggle {
 	readonly a11y: InputA11y;
 	readonly bind?: string;
 	readonly hint?: string;
+	/**
+	 * Semantic MODE of the SAME Toggle primitive — not a new kind.
+	 *   - "switch"   (default): a real `<button role="switch" aria-checked>` —
+	 *                an on/off setting that takes effect immediately.
+	 *   - "checkbox": a native `<input type="checkbox">` — a selectable item in a
+	 *                 set / a form value committed on submit; supports the
+	 *                 indeterminate (`aria-checked="mixed"`) tri-state.
+	 * Optional + defaulted to "switch" so existing authored Toggles stay valid.
+	 */
+	readonly variant?: "switch" | "checkbox";
+	/**
+	 * Tri-state (mixed) for the checkbox mode only — drives `el.indeterminate`
+	 * and `aria-checked="mixed"`. Ignored in switch mode.
+	 */
+	readonly indeterminate?: boolean;
 }
 
 export interface Range {
@@ -295,6 +330,165 @@ export interface InlineAlert {
 	readonly detail?: string;
 	/** "assertive" for errors that interrupt, "polite" otherwise. */
 	readonly live?: "polite" | "assertive";
+}
+
+/* ---------------------------------------------------------------------------
+ * ACTION family — where the genuine BROWSER CAPABILITY of an affordance lives.
+ *
+ * These are PRIMITIVES (P), not compounds: a button and a link are not data you
+ * compose, they are platform elements whose keyboard/focus/activation/navigation
+ * semantics the browser itself supplies. A clickable <div> is FORBIDDEN — a11y
+ * demands the real <button>/<a> elements, so the grammar ships them as kinds.
+ *
+ * The action/link split is kept honest: Button is the <button> ACTION affordance
+ * (does something here), Link is the <a href> NAVIGATION affordance (goes
+ * somewhere). Neither is polymorphic into the other.
+ *
+ * Phase 0 has no live event wire, so an action carries its intent DECLARATIVELY
+ * (an `action` id), exactly as `Vary` carries a variation id it cannot yet
+ * resolve — the later loop binds it; the grammar stays pure-declarative.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * How an interactive control with no visible text is labelled. A Button MAY use
+ * visible child text instead (its `label`); when it has none (an icon-only
+ * button) an accessible name is REQUIRED, so this makes "icon-only & unlabelled"
+ * unrepresentable. Mirrors `LabelRelation` minus the "visible" arm (the visible
+ * arm IS the `label` field).
+ */
+export type ControlLabel =
+	| { readonly mode: "aria-label"; readonly text: string }
+	| { readonly mode: "labelledby"; readonly id: string };
+
+/**
+ * Fields shared by every Button, regardless of how it is named. The a11y arm is
+ * factored out so the public `Button` can REQUIRE a name exactly when there is no
+ * visible `label` — making "icon-only and unlabelled" unrepresentable.
+ */
+interface ButtonBase {
+	readonly kind: "button";
+	/**
+	 * Visual register, mapped onto the action SLOTS by channel SELECTION, never a
+	 * className matrix: solid paints surface+on; outline paints border+on over a
+	 * transparent surface; ghost paints on only with a hover surface.
+	 */
+	readonly variant?: "solid" | "outline" | "ghost";
+	/** Intent backing the chrome; the amber `primary-action` beacon used sparingly. */
+	readonly intent?: IntentRef;
+	/** The native button `type`; "button" by default (no implicit form submit). */
+	readonly type?: "button" | "submit" | "reset";
+	readonly disabled?: boolean;
+	/** Busy/pending: sets `aria-busy` and shows a reduced-motion-aware spinner. */
+	readonly busy?: boolean;
+	/**
+	 * Declarative action id (Phase 0 has no live wire) — carried like `Vary.id`.
+	 * The later loop binds a handler to it; the grammar emits intent, not logic.
+	 */
+	readonly action?: string;
+	/** Optional shape glyph (Material Symbol) shown alongside / instead of text. */
+	readonly icon?: string;
+}
+
+/**
+ * A button is EITHER labelled by visible text (`label`, which is the accessible
+ * name) OR — when icon-only — it MUST carry an explicit accessible-name
+ * relationship in `a11y`. There is no "no visible text and no a11y name"
+ * inhabitant: an inaccessible button is unrepresentable (CONTRACT §7).
+ */
+export type Button =
+	| (ButtonBase & { readonly label: string; readonly a11y?: ControlLabel })
+	| (ButtonBase & { readonly label?: undefined; readonly a11y: ControlLabel });
+
+export interface Link {
+	readonly kind: "link";
+	/** Navigation target. Required — a link without a destination is not a link. */
+	readonly href: string;
+	/** Visible link text (the accessible name). */
+	readonly label: string;
+	/** Intent backing the link; defaults to the provenance/citation register. */
+	readonly intent?: IntentRef;
+	/**
+	 * External-link affordance (the load-bearing a11y detail). The SERVER decides
+	 * (a server-driven primitive must not read `window`):
+	 *   - "auto"  (default): treat as same-origin unless the primitive can tell.
+	 *   - "force": render target=_blank + rel + the "(opens in new tab)" cue.
+	 *   - "hide":  suppress the external cue even if cross-origin.
+	 */
+	readonly external?: "auto" | "force" | "hide";
+}
+
+/* ---------------------------------------------------------------------------
+ * OVERLAY family — the PLATFORM TOP LAYER. Genuine browser capability: native
+ * `<dialog>` (modal, focus-trap, ::backdrop, Escape, focus restoration) and the
+ * Popover API (top layer, light-dismiss, anchored). These are NOT
+ * absolutely-positioned divs in overflow containers — that is the legacy mistake
+ * three runtime libraries fought. Overlays MUST use the platform top layer.
+ *
+ * Open state is carried DECLARATIVELY in Phase 0 (a `bind` store-path + an
+ * `open?` default), like every other stateful provider — the wire never carries
+ * a live value. Reduced motion is honoured for any enter/leave transition.
+ * ------------------------------------------------------------------------- */
+
+export interface Dialog {
+	readonly kind: "dialog";
+	/**
+	 * Accessible title — wired as `aria-labelledby` onto the native `<dialog>`.
+	 * Required: a modal dialog without an accessible name is unrepresentable.
+	 */
+	readonly title: string;
+	/** Optional longer description wired via `aria-describedby`. */
+	readonly description?: string;
+	/** Default open state for the static render; live open rides `bind`. */
+	readonly open?: boolean;
+	/** Optional binding path for open state (Lemma 5); never a live value. */
+	readonly bind?: string;
+	/** Whether Escape / backdrop / a close affordance dismiss it (default true). */
+	readonly dismissable?: boolean;
+	/** The dialog body. */
+	readonly children: readonly Node[];
+}
+
+export interface Popover {
+	readonly kind: "popover";
+	/**
+	 * Id of the anchor element this popover is positioned against (CSS Anchor
+	 * Positioning `position-anchor` / the `popovertarget` invoker). Required: an
+	 * anchored, non-modal overlay must know what it is anchored to.
+	 */
+	readonly anchor: string;
+	/** This popover's own id (the `popovertarget` value / `id` attribute). */
+	readonly id: string;
+	/** Preferred placement; the browser's `position-try` reflows when it won't fit. */
+	readonly placement?: "top" | "bottom" | "start" | "end";
+	/**
+	 * ARIA role appropriate to use: a tooltip needs none of the roving keyboard a
+	 * menu/listbox needs. Defaults to "tooltip".
+	 */
+	readonly role?: "tooltip" | "menu" | "listbox";
+	/** Default open state; live open rides `bind`. */
+	readonly open?: boolean;
+	/** Optional binding path for open state; never a live value. */
+	readonly bind?: string;
+	/** The popover body. */
+	readonly children: readonly Node[];
+}
+
+export interface Disclosure {
+	readonly kind: "disclosure";
+	/**
+	 * The always-visible summary (the `<summary>` / the `aria-expanded` button
+	 * label). Required: a disclosure with no trigger label is unrepresentable.
+	 */
+	readonly summary: string;
+	/** Whether the region starts expanded (the native `<details open>`). */
+	readonly open?: boolean;
+	/**
+	 * Single-open accordion grouping: `<details>` sharing a `name` are mutually
+	 * exclusive natively (no JS). Absent = independent disclosure.
+	 */
+	readonly group?: string;
+	/** The collapsible region content. */
+	readonly children: readonly Node[];
 }
 
 /* ---------------------------------------------------------------------------
@@ -357,6 +551,10 @@ export type LayoutNode = Stack | Grid | Cluster | Frame | Spacer;
 export type ContentNode = Text | NumberNode | Badge | Icon | Media;
 export type InputNode = Field | Select | Toggle | Range;
 export type FeedbackNode = Progress | Status | InlineAlert;
+/** Action family — real <button>/<a> affordances (genuine browser capability). */
+export type ActionNode = Button | Link;
+/** Overlay family — native <dialog> / Popover API / <details> (platform top layer). */
+export type OverlayNode = Dialog | Popover | Disclosure;
 export type MetaNode = Slot | ParamRef | Vary;
 
 export type Node =
@@ -364,6 +562,8 @@ export type Node =
 	| ContentNode
 	| InputNode
 	| FeedbackNode
+	| ActionNode
+	| OverlayNode
 	| MetaNode
 	| CompoundRef;
 

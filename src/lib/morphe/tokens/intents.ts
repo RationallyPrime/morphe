@@ -21,8 +21,17 @@ import type { CoreIntent } from "../grammar/types.js";
 
 export type { CoreIntent };
 
-/** The channels every intent must provide. CSS var names derive from these. */
-export type IntentChannel = "surface" | "on" | "hover" | "border" | "ring";
+/**
+ * The channels every intent must provide. CSS var names derive from these.
+ *
+ * `active` and `disabled` were added for the ACTION family (the seed's
+ * `IntentThemeEntry.activeBg` / `disabledBg` are the evidence): a button needs a
+ * pressed-state surface and a disabled-state surface, and these are intent-scoped
+ * (they shift with the chosen intent). They are OPTIONAL in a dialect's
+ * `IntentDefinition` (Partial), so existing dialects need not define them and
+ * primitives fall back through `slot(... , fallback)`.
+ */
+export type IntentChannel = "surface" | "on" | "hover" | "border" | "ring" | "active" | "disabled";
 
 /** The core intents, as a runtime-iterable list (mirrors the CoreIntent type). */
 export const CORE_INTENTS: readonly CoreIntent[] = [
@@ -51,12 +60,19 @@ export function intentVar(intent: string, channel: IntentChannel): string {
 /**
  * The base surface/on-surface vars (not intent-scoped) used by Frame surfaces
  * and the document body. Kept here so the naming convention has one home.
+ *
+ * `overlay` and `scrim` were added for the OVERLAY family: the floating-panel
+ * surface (Dialog/Popover body — the highest tonal tier, depth via tone not
+ * shadow) and the modal backdrop (the one overlay token expressed purely as a
+ * translucent fill, since there is no tonal-layering substitute for a scrim).
  */
 export const SURFACE_VARS = {
 	base: "--mo-intent-surface-base",
 	raised: "--mo-intent-surface-raised",
 	sunken: "--mo-intent-surface-sunken",
+	overlay: "--mo-intent-surface-overlay",
 	on: "--mo-intent-on-surface",
 	onMuted: "--mo-intent-on-surface-muted",
 	outline: "--mo-intent-outline",
+	scrim: "--mo-scrim",
 } as const;

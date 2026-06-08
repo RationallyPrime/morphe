@@ -12,17 +12,23 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"codegen": "orval --config ./orval.config.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.3.1",
 		"@sveltejs/kit": "^2.8.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@types/node": "^25.9.2",
+		"orval": "^8.15.0",
 		"svelte": "^5.1.0",
 		"svelte-check": "^4.0.0",
 		"typescript": "^5.6.0",
 		"vite": "^5.4.0",
 		"vitest": "^2.1.0"
+	},
+	"dependencies": {
+		"@tanstack/svelte-query": "^6.1.34",
+		"zod": "^4.4.3"
 	}
 }

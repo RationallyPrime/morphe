@@ -53,11 +53,15 @@ export const CLINICAL_SURFACES: Readonly<Record<string, string>> = {
 	"--mo-intent-surface-base": "color-mix(in srgb, var(--mo-neutral-1) 88%, var(--mo-blue-700))",
 	"--mo-intent-surface-raised": "color-mix(in srgb, var(--mo-neutral-4) 86%, var(--mo-blue-700))",
 	"--mo-intent-surface-sunken": "var(--mo-neutral-0)",
+	// Overlay panel — top tonal tier, cooled toward slate to match the console.
+	"--mo-intent-surface-overlay": "color-mix(in srgb, var(--mo-neutral-6) 86%, var(--mo-blue-700))",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
 	"--mo-intent-on-surface-muted": "color-mix(in srgb, var(--mo-neutral-11) 64%, transparent)",
 	// A crisper outline than the Archive's warm, low-opacity ghost — a console
 	// wants visible structure, not dissolved sectioning.
 	"--mo-intent-outline": "color-mix(in srgb, var(--mo-neutral-8) 60%, var(--mo-blue-500))",
+	// A denser scrim — an exception-review console dims the field harder.
+	"--mo-scrim": "color-mix(in srgb, var(--mo-neutral-0) 70%, transparent)",
 };
 
 /* ------------------------------------------------------------------------- *
@@ -77,6 +81,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-blue-400)",
 		border: "var(--mo-blue-700)",
 		ring: "var(--mo-blue-400)",
+		active: "var(--mo-blue-700)",
+		disabled: "color-mix(in srgb, var(--mo-blue-500) 38%, var(--mo-neutral-3))",
 	},
 	/** Quiet console chrome — cooler neutral than the Archive's warm graphite. */
 	neutral: {
@@ -85,6 +91,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 84%, var(--mo-blue-700))",
 		border: "var(--mo-neutral-8)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-6) 84%, var(--mo-blue-700))",
+		disabled: "color-mix(in srgb, var(--mo-neutral-4) 46%, var(--mo-neutral-2))",
 	},
 	/** Provenance — chain-of-custody slate; cooler, more legal than lyrical. */
 	provenance: {
@@ -93,6 +101,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-blue-700)",
 		border: "var(--mo-blue-500)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-blue-700) 92%, var(--mo-neutral-3))",
+		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
 	},
 	/** Evidence — the record register; near-neutral but cooled toward slate. */
 	evidence: {
@@ -101,6 +111,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-neutral-4) 88%, var(--mo-blue-700))",
 		border: "var(--mo-neutral-8)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-5) 88%, var(--mo-blue-700))",
+		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
 	},
 	/**
 	 * Accession — in a controlled console this is the LOT / batch accent. Amber
@@ -113,6 +125,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-amber-600) 38%, var(--mo-neutral-3))",
 		border: "var(--mo-amber-700)",
 		ring: "var(--mo-amber-500)",
+		active: "color-mix(in srgb, var(--mo-amber-600) 46%, var(--mo-neutral-3))",
+		disabled: "color-mix(in srgb, var(--mo-amber-600) 12%, var(--mo-neutral-3))",
 	},
 	/**
 	 * Caution — pushed FORWARD. In an exception-forward register a deviation must
@@ -125,6 +139,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-red-400)",
 		border: "var(--mo-red-300)",
 		ring: "var(--mo-red-400)",
+		active: "color-mix(in srgb, var(--mo-red-500) 84%, var(--mo-red-700))",
+		disabled: "color-mix(in srgb, var(--mo-red-500) 40%, var(--mo-neutral-3))",
 	},
 	/** Success — likewise forward: a released/passing state should glow, calmly. */
 	success: {
@@ -133,6 +149,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "var(--mo-green-400)",
 		border: "var(--mo-green-400)",
 		ring: "var(--mo-green-400)",
+		active: "color-mix(in srgb, var(--mo-green-500) 84%, var(--mo-green-700))",
+		disabled: "color-mix(in srgb, var(--mo-green-500) 40%, var(--mo-neutral-3))",
 	},
 	/** Info — bright clinical blue, distinct from the cooled provenance slate. */
 	info: {
@@ -141,6 +159,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-blue-700) 84%, var(--mo-blue-300))",
 		border: "var(--mo-blue-400)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-blue-700) 92%, var(--mo-blue-300))",
+		disabled: "color-mix(in srgb, var(--mo-blue-700) 38%, var(--mo-neutral-3))",
 	},
 };
 
@@ -158,6 +178,8 @@ const CLINICAL_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 80%, var(--mo-blue-700))",
 		border: "color-mix(in srgb, var(--mo-neutral-8) 50%, transparent)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-3) 80%, var(--mo-blue-700))",
+		disabled: "transparent",
 	},
 	/** Marginalia → reviewer-note register: an aside, slate-toned. */
 	marginalia: {
@@ -166,6 +188,8 @@ const CLINICAL_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 70%, var(--mo-blue-700))",
 		border: "var(--mo-neutral-8)",
 		ring: "var(--mo-blue-400)",
+		active: "color-mix(in srgb, var(--mo-neutral-6) 70%, var(--mo-blue-700))",
+		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
 	},
 	/**
 	 * Seal → SIGN-OFF / electronic-signature mark. In a regulated console the
@@ -178,6 +202,8 @@ const CLINICAL_REGISTER: Readonly<Record<string, IntentDefinition>> = {
 		hover: "color-mix(in srgb, var(--mo-green-700) 82%, var(--mo-green-400))",
 		border: "var(--mo-green-500)",
 		ring: "var(--mo-green-400)",
+		active: "color-mix(in srgb, var(--mo-green-700) 70%, var(--mo-green-400))",
+		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
 	},
 };
 
