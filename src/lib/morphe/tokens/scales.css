@@ -1,0 +1,112 @@
+/*
+ * Morphe SCALES — the bottom token layer (Lemma 3).
+ *
+ * Raw, VERTICAL-NEUTRAL ramps: space, type, radius, elevation, and neutral +
+ * chromatic color ramps. NOTHING authored references these directly. Components
+ * reference SLOTS; slots reference INTENTS; intents reference these scales.
+ *
+ * The legacy's fatal mistake was welding vertical vocabulary into the scale
+ * names (`judicial-crimson` as a *scale*). We do NOT repeat it: a scale is
+ * `--mo-color-amber-500`, never `--mo-color-primary-action`. Domain meaning is
+ * injected one layer up, in intents.css, by the dialect.
+ *
+ * All custom properties are prefixed `--mo-` (morphe) to avoid collision when
+ * Morphe is embedded in a host page (e.g. the Sokrates site).
+ *
+ * The chromatic values are PORTED from the Sokrates "Icelandic Archive" palette
+ * (dark surface #121416, amber beacon #f2ca50), but re-expressed as neutral
+ * ramps so the same scales can back any dialect.
+ */
+
+:root {
+	/* --- Space ramp (rem; a modular-ish progression) ------------------------ */
+	--mo-space-0: 0;
+	--mo-space-1: 0.125rem;
+	--mo-space-2: 0.25rem;
+	--mo-space-3: 0.5rem;
+	--mo-space-4: 0.75rem;
+	--mo-space-5: 1rem;
+	--mo-space-6: 1.5rem;
+	--mo-space-7: 2rem;
+	--mo-space-8: 3rem;
+	--mo-space-9: 4rem;
+
+	/* --- Type ramp (rem) ---------------------------------------------------- */
+	--mo-type-1: 0.6875rem; /* 11px — labels / folio */
+	--mo-type-2: 0.75rem; /* 12px */
+	--mo-type-3: 0.875rem; /* 14px */
+	--mo-type-4: 1rem; /* 16px — body */
+	--mo-type-5: 1.0625rem; /* 17px — deck */
+	--mo-type-6: 1.375rem; /* 22px — subheading */
+	--mo-type-7: 1.875rem; /* 30px — heading */
+	--mo-type-8: 2.75rem; /* 44px — display */
+
+	/* --- Line-height ramp --------------------------------------------------- */
+	--mo-leading-tight: 1.15;
+	--mo-leading-snug: 1.35;
+	--mo-leading-normal: 1.55;
+
+	/* --- Radius ramp (ported from globals.css) ----------------------------- */
+	--mo-radius-0: 0;
+	--mo-radius-1: 0.125rem;
+	--mo-radius-2: 0.25rem;
+	--mo-radius-3: 0.5rem;
+	--mo-radius-full: 999px;
+
+	/* --- Elevation ramp (tonal surface layering; NO drop shadows) ----------- */
+	/* Depth is expressed as surface tone, per the Archive rule. These are the
+	   neutral surface ramp steps; intents pick which step a surface uses. */
+	--mo-elev-0: var(--mo-neutral-1); /* lowest / sunken */
+	--mo-elev-1: var(--mo-neutral-2);
+	--mo-elev-2: var(--mo-neutral-3);
+	--mo-elev-3: var(--mo-neutral-4);
+	--mo-elev-4: var(--mo-neutral-5); /* highest / raised */
+
+	/* --- Neutral color ramp (the #121416-rooted Archive surface stack) ------ */
+	--mo-neutral-0: #0c0e10; /* container-lowest */
+	--mo-neutral-1: #121416; /* surface / base (Archive root) */
+	--mo-neutral-2: #1a1c1e; /* container-low */
+	--mo-neutral-3: #1e2022; /* container */
+	--mo-neutral-4: #282a2c; /* container-high (team plate) */
+	--mo-neutral-5: #333537; /* container-highest / surface-variant */
+	--mo-neutral-6: #37393b; /* surface-bright */
+	--mo-neutral-7: #4d4635; /* outline-variant (warm) */
+	--mo-neutral-8: #99907c; /* outline */
+	--mo-neutral-9: #c5c7c8; /* secondary text */
+	--mo-neutral-10: #d0c5af; /* on-surface-variant (warm) */
+	--mo-neutral-11: #e2e2e5; /* on-surface / on-background */
+
+	/* --- Amber ramp (the Archive beacon, #f2ca50) --------------------------- */
+	--mo-amber-300: #ffe088;
+	--mo-amber-400: #e9c349;
+	--mo-amber-500: #f2ca50; /* the beacon */
+	--mo-amber-600: #d4af37;
+	--mo-amber-700: #735c00;
+	--mo-amber-on: #3c2f00; /* on-amber (dark text on the beacon) */
+
+	/* --- Chromatic ramps (neutral names; dialects assign meaning) ----------- */
+	/* Blue (Archive tertiary) */
+	--mo-blue-300: #dbe1ff;
+	--mo-blue-400: #b4c5ff;
+	--mo-blue-500: #bfcdff;
+	--mo-blue-700: #254188;
+	--mo-blue-on: #082b72;
+	/* Green (success family) */
+	--mo-green-400: #8fd19a;
+	--mo-green-500: #5fb06f;
+	--mo-green-700: #1d4a2a;
+	--mo-green-on: #03210b;
+	/* Red (error / caution family) */
+	--mo-red-300: #ffdad6;
+	--mo-red-400: #ffb4ab;
+	--mo-red-500: #ff897d;
+	--mo-red-700: #93000a;
+	--mo-red-on: #690005;
+
+	/* --- Font families (pulled through from the Archive; the three families) - */
+	/* The host app wires the actual @font-face / next-font variables into these
+	   three vars; Morphe references only these neutral handles. */
+	--mo-font-display: var(--font-display, "Newsreader"), Georgia, "Times New Roman", serif;
+	--mo-font-body: var(--font-body, "Hanken Grotesk"), system-ui, -apple-system, sans-serif;
+	--mo-font-mono: var(--font-mono, "IBM Plex Mono"), ui-monospace, "SF Mono", monospace;
+}
