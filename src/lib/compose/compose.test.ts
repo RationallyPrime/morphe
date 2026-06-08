@@ -216,8 +216,8 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 	});
 });
 
-describe("compose presenting — expanded cards render honest tier + real method (no dead params)", () => {
-	it("a proposes card expands to the honest tier label and real method badges", () => {
+describe("compose presenting — outcome-led card relocates proof but keeps tier + real method", () => {
+	it("a proposes card leads with the outcome and demotes proof under the wiring disclosure", () => {
 		const reg = new CompoundRegistry();
 		registerComposeCompounds(reg);
 		const cap = CAPABILITIES.find((c) => c.tier === "proposes");
@@ -225,15 +225,36 @@ describe("compose presenting — expanded cards render honest tier + real method
 		if (!cap) return;
 
 		// Expand through the factory (fills flow/evidence/models slots + nested refs).
-		const json = JSON.stringify(reg.expand(capabilityCard(cap)));
+		const expanded = reg.expand(capabilityCard(cap));
+		const json = JSON.stringify(expanded);
 
-		// tier param is rendered, not the old hardcoded chip.
+		// THE HERO: the business outcome is present and rendered as the prominent
+		// strong subheading — the customer reads the result first. Assert the outcome
+		// Text node structurally (value + subheading + strong on one node) rather than
+		// by brittle key adjacency, so a human polishing the register later is free to
+		// add fields without breaking this.
+		expect(json).toContain(cap.value);
+		const outcomeNode = findTextNode(
+			expanded,
+			(t) => t.value === cap.value && t.as === "subheading" && t.emphasis === "strong",
+		);
+		expect(outcomeNode, "outcome value is not a strong subheading hero").toBeDefined();
+
+		// tier param is rendered (honest governance is trust, kept visible), not the
+		// old hardcoded chip. The value subheading is the outcome, never the tier.
 		expect(json).toContain("Proposes, never acts");
 		expect(json).not.toContain('"Read-only"');
-		// the first surface's real HTTP method renders (as the evidence badge label).
+
+		// THE PROOF IS DEMOTED, NOT DELETED: the single quiet wiring disclosure owns it.
+		expect(json).toContain("How Sókrates wires this");
+		// the first surface's real HTTP method still renders (as the evidence badge
+		// label) — relocated under the disclosure, still verifiable.
 		const method = cap.surfaces[0]?.method;
 		expect(method).toBeDefined();
 		if (method) expect(json).toContain(method);
+		// the endpoint count caption survives the relocation (proof present, just quiet).
+		const count = cap.surfaces.length;
+		expect(json).toContain(`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`);
 		// no empty-label badge survives expansion (the SurfaceEvidence method-badge fix).
 		expect(json).not.toContain('"label":""');
 	});
@@ -247,6 +268,49 @@ describe("compose presenting — expanded cards render honest tier + real method
 		const json = JSON.stringify(reg.expand(capabilityCard(cap)));
 		expect(json).toContain("Read-only");
 		expect(json).not.toContain("Proposes, never acts");
+	});
+
+	it("the demoted proof rows carry the CAPTION register, not body (quiet lives in the data)", () => {
+		// FINDING-2 REGRESSION: the SurfaceEvidence path/summary/system/direction and
+		// the ModelView name now ride as NODE params with an explicit `caption`
+		// register, so the proof reads QUIETER than the card's outcome. Before the fix
+		// they were bare STRING params that the factory coerced to register-less Text,
+		// which Text defaults to BODY — heavier and larger than the card's own
+		// supporting copy, contradicting the "proof is quiet" hierarchy. Pick a cap
+		// with both an endpoint and a model so both paths are exercised.
+		const reg = new CompoundRegistry();
+		registerComposeCompounds(reg);
+		const cap = CAPABILITIES.find((c) => c.surfaces.length > 0 && (c.models?.length ?? 0) > 0);
+		expect(cap, "no capability with both a surface and a model").toBeDefined();
+		if (!cap) return;
+		const expanded = reg.expand(capabilityCard(cap));
+
+		// The endpoint path renders as a caption Text (the citation locus), never body.
+		const path = cap.surfaces[0]?.path;
+		expect(path).toBeDefined();
+		if (path) {
+			const pathNode = findTextNode(expanded, (t) => t.value === path);
+			expect(pathNode, "endpoint path is not in the tree").toBeDefined();
+			expect(pathNode?.as, "endpoint path is not caption register").toBe("caption");
+		}
+
+		// The compiled-model name renders as a caption Text (the accession chip), not body.
+		const model = cap.models?.[0];
+		expect(model).toBeDefined();
+		if (model) {
+			const modelNode = findTextNode(expanded, (t) => t.value === model);
+			expect(modelNode, "model name is not in the tree").toBeDefined();
+			expect(modelNode?.as, "model name is not caption register").toBe("caption");
+		}
+
+		// No proof leaf fell through to the bare register-less Text the factory would
+		// have produced from a string param (`{ "kind":"text", "value":"…" }` with no
+		// `as`). Every Text under the card declares its register now.
+		const bareLeaf = findTextNode(
+			expanded,
+			(t) => t.value === path && t.as === undefined,
+		);
+		expect(bareLeaf, "a proof path leaf has no explicit register (body fallthrough)").toBeUndefined();
 	});
 });
 
@@ -442,6 +506,28 @@ function collectCompoundRefs(node: Node, name: string): CompoundRef[] {
 function childrenOfNode(node: Node): Node[] {
 	const maybe = (node as { children?: unknown }).children;
 	return Array.isArray(maybe) ? (maybe as Node[]) : [];
+}
+
+/** A Text node's structural shape, narrowed for the predicate below. */
+type TextNode = { kind: "text"; value: string; as?: string; emphasis?: string };
+
+/**
+ * Walk a Node tree and return the first Text node satisfying `pred`. Used to
+ * assert a register (value + `as` + `emphasis`) on the right node WITHOUT relying
+ * on brittle JSON key adjacency, so the assertion survives cosmetic field churn.
+ */
+function findTextNode(node: Node, pred: (t: TextNode) => boolean): TextNode | undefined {
+	let found: TextNode | undefined;
+	const visit = (n: Node): void => {
+		if (found) return;
+		if (n.kind === "text" && pred(n as unknown as TextNode)) {
+			found = n as unknown as TextNode;
+			return;
+		}
+		for (const kid of childrenOfNode(n)) visit(kid);
+	};
+	visit(node);
+	return found;
 }
 
 /* ---------------------------------------------------------------------------

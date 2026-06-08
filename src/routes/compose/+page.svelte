@@ -20,7 +20,6 @@
 	 */
 
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { icelandicArchive } from "$morphe";
 	import {
 		CAPABILITIES,
 		CATEGORY_LABELS,
@@ -258,7 +257,7 @@
 	</header>
 
 	<main class="surface">
-		<MorpheRoot tree={tree} dialect={icelandicArchive} />
+		<MorpheRoot tree={tree} />
 	</main>
 
 	<!--

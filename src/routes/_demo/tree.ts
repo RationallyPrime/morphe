@@ -14,7 +14,7 @@
  * below renders under both dialects with zero edits.
  */
 
-import type { CompoundDef, Dialect, Node } from "$morphe";
+import type { CompoundDef, Node } from "$morphe";
 import { registry } from "$morphe";
 
 /* ===========================================================================
@@ -123,93 +123,14 @@ export function registerDemoCompounds(): void {
 }
 
 /* ===========================================================================
- * 2. THE SECOND DIALECT (Lemma 4 — the persona stratum; Lemma 3 — fixed point).
+ * 2. THE SECOND DIALECT — now promoted to the library.
  *
- * `reykjavik-registry` is the legal/judicial reading of the SAME core intents,
- * lifted from the legacy's mono-vertical palette (judicial-crimson /
- * citation-blue / amendment-gold) but done the elegant way: those names live
- * ONLY here, at the intent layer, mapped onto the NEUTRAL scales. The scale
- * names stay vertical-neutral; the vertical vocabulary is an injection.
- *
- * Toggling to this dialect re-themes the page WITHOUT changing one node of the
- * authored tree — the on-screen proof of the fixed point. Where the Archive
- * reads warm (amber beacon, warm neutrals), the Registry reads as a cool court
- * record: citation-blue forward, judicial-crimson caution, a denser registrar
- * prior. Values are scale vars only — never hex — keeping the vertical out of
- * the scale layer.
+ * `reykjavik-registry` used to be defined inline here. It now lives in the
+ * library (`$morphe` → `dialects/reykjavik-registry.ts`) and is registered in
+ * the global dialect registry, so the demo sources it from the registry like any
+ * other shipped dialect rather than owning it locally. The fixed-point claim is
+ * unchanged: toggling to it re-themes the page without touching the authored tree.
  * ========================================================================= */
-
-export const reykjavikRegistry: Dialect = {
-	id: "reykjavik-registry",
-	label: "Reykjavík Registry",
-	persona: { vertical: "legal", role: "registrar" },
-	intents: {
-		// primary-action: amendment-gold beacon, cooler/dimmer than the Archive.
-		"primary-action": {
-			surface: "var(--mo-amber-600)",
-			on: "var(--mo-amber-on)",
-			hover: "var(--mo-amber-500)",
-			border: "var(--mo-amber-700)",
-			ring: "var(--mo-amber-600)",
-		},
-		// accession: the catalog accent reads as citation-blue (a court folio).
-		accession: {
-			surface: "color-mix(in srgb, var(--mo-blue-700) 38%, var(--mo-neutral-3))",
-			on: "var(--mo-blue-300)",
-			hover: "color-mix(in srgb, var(--mo-blue-700) 50%, var(--mo-neutral-3))",
-			border: "var(--mo-blue-500)",
-			ring: "var(--mo-blue-500)",
-		},
-		// provenance: citation-blue, forward (the lineage of a ruling).
-		provenance: {
-			surface: "var(--mo-blue-700)",
-			on: "var(--mo-blue-300)",
-			hover: "color-mix(in srgb, var(--mo-blue-700) 85%, var(--mo-blue-300))",
-			border: "var(--mo-blue-400)",
-			ring: "var(--mo-blue-400)",
-		},
-		// caution: judicial-crimson — a louder court red.
-		caution: {
-			surface: "var(--mo-red-700)",
-			on: "var(--mo-red-300)",
-			hover: "color-mix(in srgb, var(--mo-red-700) 82%, var(--mo-red-300))",
-			border: "var(--mo-red-500)",
-			ring: "var(--mo-red-500)",
-		},
-		// neutral: cooler chrome than the warm Archive neutral.
-		neutral: {
-			surface: "var(--mo-neutral-3)",
-			on: "var(--mo-neutral-11)",
-			hover: "var(--mo-neutral-4)",
-			border: "var(--mo-neutral-8)",
-			ring: "var(--mo-blue-500)",
-		},
-		// info: blue family, brighter (an open docket note).
-		info: {
-			surface: "color-mix(in srgb, var(--mo-blue-700) 60%, var(--mo-neutral-2))",
-			on: "var(--mo-blue-300)",
-			hover: "color-mix(in srgb, var(--mo-blue-700) 72%, var(--mo-neutral-2))",
-			border: "var(--mo-blue-400)",
-			ring: "var(--mo-blue-400)",
-		},
-		// success: keep green, slightly cooler.
-		success: {
-			surface: "var(--mo-green-700)",
-			on: "var(--mo-green-400)",
-			hover: "color-mix(in srgb, var(--mo-green-700) 84%, var(--mo-green-400))",
-			border: "var(--mo-green-500)",
-			ring: "var(--mo-green-500)",
-		},
-	},
-	// A registrar prior: exception-led, slightly denser, a marginally tighter top
-	// tier than the editorial Archive. Clamped by the provider so Lemma 2 holds.
-	priors: {
-		rootDensity: "compact",
-		rootScaleTier: 3,
-		rootBudget: 3,
-	},
-	compounds: ["CatalogueEntry"],
-};
 
 /* ===========================================================================
  * 3. THE AUTHORED TREE — read top-to-bottom, hand-written, pleasant by hand.

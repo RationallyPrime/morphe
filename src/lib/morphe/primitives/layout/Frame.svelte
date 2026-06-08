@@ -32,16 +32,22 @@
 	import { descendFrame, boundaryStyle } from "../../context/Context.svelte.js";
 	import Node from "../../render/Node.svelte";
 
-	let { node }: PrimitiveProps<Frame> = $props();
+	let { node, ctx }: PrimitiveProps<Frame> = $props();
 
 	// Frame is the one context RESET. Computed once at init (setContext
-	// requirement); the tree is immutable per <Node> instance.
+	// requirement); the tree is immutable per <Node> instance. Descend from the
+	// explicit `ctx` PROP (the prop chain is the real carrier — correct on SSR and
+	// the first client render, where MorpheRoot's seeded context is not yet visible
+	// to a child captured at init), seeding the context channel as a fallback.
 	// svelte-ignore state_referenced_locally
-	const child = descendFrame({
-		surface: node.surface,
-		density: node.density,
-		budget: node.budget,
-	});
+	const child = descendFrame(
+		{
+			surface: node.surface,
+			density: node.density,
+			budget: node.budget,
+		},
+		ctx,
+	);
 
 	const surface = $derived(node.surface ?? "base");
 	const childStyle = $derived(boundaryStyle(child));

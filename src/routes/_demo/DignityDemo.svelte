@@ -15,20 +15,19 @@
 	 */
 
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { icelandicArchive } from "$morphe";
+	import { activeDialect, DIALECTS, DIALECT_IDS } from "$morphe";
 	import type { Dialect } from "$morphe";
-	import { dignityTree, reykjavikRegistry, registerDemoCompounds } from "./tree.js";
+	import { dignityTree, registerDemoCompounds } from "./tree.js";
 
 	// Register the CatalogueEntry compound through the factory gate. Idempotent —
 	// safe under HMR. Done at module-eval so the registry is ready before render.
 	registerDemoCompounds();
 
-	const dialects: readonly Dialect[] = [icelandicArchive, reykjavikRegistry];
-
-	let activeId = $state(icelandicArchive.id);
-	const activeDialect = $derived(
-		dialects.find((d) => d.id === activeId) ?? icelandicArchive,
-	);
+	// The dialect list is the GLOBAL registry — all shipped dialects, in order — not
+	// a list owned by this demo. The toggle DRIVES the global active-dialect store;
+	// reading `activeDialect.id` reflects it back. Because MorpheRoot below omits the
+	// `dialect` prop, flipping the toggle re-themes the whole app, not just the demo.
+	const dialects: readonly Dialect[] = DIALECT_IDS.map((id) => DIALECTS[id] as Dialect);
 </script>
 
 <svelte:head>
@@ -74,9 +73,9 @@
 					type="button"
 					class="toggle__btn"
 					role="radio"
-					aria-checked={activeId === d.id}
-					data-active={activeId === d.id}
-					onclick={() => (activeId = d.id)}
+					aria-checked={activeDialect.id === d.id}
+					data-active={activeDialect.id === d.id}
+					onclick={() => activeDialect.setById(d.id)}
 				>
 					<span class="toggle__swatch" data-dialect={d.id} aria-hidden="true"></span>
 					{d.label}
@@ -86,14 +85,14 @@
 	</header>
 
 	<p class="proof" aria-live="polite">
-		Active dialect:&nbsp;<strong>{activeDialect.label}</strong>
+		Active dialect:&nbsp;<strong>{activeDialect.current.label}</strong>
 		<span class="proof__sep">·</span>
 		the authored tree below is unchanged — only the intent layer was remapped.
 	</p>
 
 	<main class="surface">
-		{#key activeId}
-			<MorpheRoot tree={dignityTree} dialect={activeDialect} />
+		{#key activeDialect.id}
+			<MorpheRoot tree={dignityTree} />
 		{/key}
 	</main>
 </div>
@@ -204,6 +203,9 @@
 	}
 	.toggle__swatch[data-dialect="icelandic-archive"] {
 		background: var(--mo-amber-500);
+	}
+	.toggle__swatch[data-dialect="clinical"] {
+		background: var(--mo-green-500);
 	}
 	.toggle__swatch[data-dialect="reykjavik-registry"] {
 		background: var(--mo-blue-500);

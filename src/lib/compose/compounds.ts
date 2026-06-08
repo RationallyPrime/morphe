@@ -192,14 +192,23 @@ export const FlowArrow: CompoundDef = {
 /* ===========================================================================
  * SurfaceEvidence — one verifiable endpoint citation row.
  *
- * params: method (node, required) · path (string, required) · summary (string)
- *         · system (string) · direction (string)
+ * params: method (node, required) · path (node, required) · summary (node)
+ *         · system (node) · direction (node)
  *
  * The load-bearing proof: a real endpoint, rendered like a citation. The HTTP
  * method is a Badge in the evidence register; the path reads in the caption
  * (monospace-ish) register; the summary is the human label lifted from the spec;
  * the system + direction trail as muted provenance. Nothing here is a claim — it
  * is an artifact a reader can check against the system's own API.
+ *
+ * Every proof field rides as a NODE param (not a bare string) so the call site
+ * owns its register — the path/summary/system/direction arrive as Text nodes at
+ * `as: "caption"`/`emphasis: "muted"` from present.ts. This puts the "quiet"
+ * the card hierarchy promises into the DATA: a bare string param-ref coerces to
+ * `{ kind: "text" }` with NO `as`, which Text defaults to BODY register — heavier
+ * and larger than the card's own supporting copy. NODE params keep the proof
+ * genuinely quieter than the outcome it sits beneath (the same idiom `method`,
+ * and the card's `value`/`title`/`transform`, already use).
  * ========================================================================= */
 
 export const SurfaceEvidence: CompoundDef = {
@@ -216,24 +225,26 @@ export const SurfaceEvidence: CompoundDef = {
 					"HTTP method as a Badge node (e.g. GET / POST) — the badge label carries the accessible method text.",
 			},
 			path: {
-				type: "string",
+				type: "node",
 				required: true,
-				description: "The endpoint path, e.g. /api/v2/timeclocks (caption register).",
+				description:
+					"The endpoint path as a Text node, e.g. /api/v2/timeclocks (the call site sets the caption register so the citation locus stays quiet).",
 			},
 			summary: {
-				type: "string",
-				default: "",
-				description: "Human label lifted from the spec.",
+				type: "node",
+				default: { kind: "text", value: "" },
+				description: "Human label lifted from the spec, as a Text node (caption register).",
 			},
 			system: {
-				type: "string",
-				default: "",
-				description: "System slug the endpoint belongs to.",
+				type: "node",
+				default: { kind: "text", value: "" },
+				description: "System slug the endpoint belongs to, as a Text node (muted caption).",
 			},
 			direction: {
-				type: "string",
-				default: "read",
-				description: "read | write | event — the access posture.",
+				type: "node",
+				default: { kind: "text", value: "read" },
+				description:
+					"read | write | event — the access posture, as a Text node (muted caption).",
 			},
 		},
 	},
@@ -281,11 +292,16 @@ export const SurfaceEvidence: CompoundDef = {
 /* ===========================================================================
  * ModelView — a compiled-model chip.
  *
- * params: name (string, required) · system (string)
+ * params: name (node, required) · system (node)
  *
  * Proof that Hyle ingested the spec: the name of an Eidos/Pydantic model the
  * capability touches, rendered as a small accession-register chip with a schema
  * glyph. Reads like a catalogue accession code, not a claim.
+ *
+ * `name`/`system` ride as NODE params (not bare strings) so the call site owns
+ * the register — they arrive as caption-register Text from present.ts. A bare
+ * string param-ref would coerce to body register (heavier than the card's own
+ * supporting copy), contradicting the quiet accession-chip read this promises.
  * ========================================================================= */
 
 export const ModelView: CompoundDef = {
@@ -296,14 +312,15 @@ export const ModelView: CompoundDef = {
 		type: "object",
 		properties: {
 			name: {
-				type: "string",
+				type: "node",
 				required: true,
-				description: "The compiled model name (an Eidos/Pydantic model).",
+				description:
+					"The compiled model name (an Eidos/Pydantic model) as a Text node — the call site sets the caption/accession register.",
 			},
 			system: {
-				type: "string",
-				default: "",
-				description: "System slug the model belongs to.",
+				type: "node",
+				default: { kind: "text", value: "" },
+				description: "System slug the model belongs to, as a Text node (muted caption).",
 			},
 		},
 	},
@@ -329,14 +346,27 @@ export const ModelView: CompoundDef = {
  *         required) · tier (node, required) · pairing (node)
  * slots:  flow · evidence · models — the variable children the presenter fills.
  *
- * A raised panel: a header toolbar pairing (left) beside a tier Status (right),
- * the capability title, the flow slot (a FlowArrow ref), the transform sentence
- * in a muted caption, the value outcome, then the evidence slot (a Disclosure of
- * SurfaceEvidence rows) and the models slot (a cluster of ModelView chips).
+ * OUTCOME-LED hierarchy. The customer reads the RESULT first, not the plumbing:
+ *
+ *   1. The OUTCOME is the hero. `value` (the business result, in the customer's
+ *      words) is the prominent line — the call site sets it strong/subheading so
+ *      it carries the visual weight. A reader who knows their friction but not an
+ *      API from an Annoying Pipsqueak Infidel sees the result, full stop.
+ *   2. SUPPORTING: a quiet header (the domain `pairing` left, the honest tier
+ *      Status right — read-only / "Proposes, never acts", which is TRUST, not
+ *      jargon), the short human `title`, and one plain `transform` sentence of
+ *      what it does. These frame the outcome without competing with it.
+ *   3. DEMOTED PROOF: the source -> target FLOW, the verifiable ENDPOINT rows and
+ *      the compiled-MODEL chips all live UNDER ONE quiet, default-collapsed
+ *      Disclosure at the BOTTOM ("How Sókrates wires this"). The differentiator
+ *      stays present and verifiable — it is one click away, a footnote, never a
+ *      headline. The proof Disclosure is muted: it does not claim emphasis budget.
  *
  * CRITICAL: this template references NO other compound by name. The flow /
- * evidence / models children arrive entirely through SLOTS from present.ts, so
- * the card registers cleanly regardless of registration order.
+ * evidence / models children arrive entirely through SLOTS from present.ts —
+ * spliced INSIDE the proof Disclosure the template owns — so the card registers
+ * cleanly regardless of registration order, and the "quiet, collapsed, at the
+ * bottom" posture lives in the template (structure), not the presenter (data).
  * ========================================================================= */
 
 export const CapabilityCard: CompoundDef = {
@@ -389,7 +419,9 @@ export const CapabilityCard: CompoundDef = {
 				role: "panel",
 				direction: "block",
 				children: [
-					// Header: the system pairing (left) + a tier Status (right).
+					// Header: the domain pairing (left) + the honest tier Status (right).
+					// Quiet supporting context — it frames the outcome, it does not compete
+					// with it. The tier label (read-only / "Proposes, never acts") is trust.
 					{
 						kind: "cluster",
 						role: "toolbar",
@@ -402,39 +434,57 @@ export const CapabilityCard: CompoundDef = {
 							{ kind: "param-ref", param: "tier" },
 						],
 					},
-					// The capability title — call site owns the register.
-					{ kind: "param-ref", param: "title" },
-					// Flow edge (source → target) filled by the presenter.
-					{
-						kind: "slot",
-						name: "flow",
-						fallback: [
-							{ kind: "text", value: "Cross-system flow", as: "caption", emphasis: "muted" },
-						],
-					},
-					// What it does — one plain sentence (call site sets caption/muted).
-					{ kind: "param-ref", param: "transform" },
-					// The outcome it produces.
+					// THE HERO: the business outcome, in the customer's words. The call site
+					// sets it strong/subheading so it owns the card's visual weight — the
+					// reader sees the RESULT first, before any name or any plumbing.
 					{ kind: "param-ref", param: "value" },
+					// SUPPORTING: the short human name of the capability — call site owns the
+					// register (a quiet caption under the outcome, not a heading above it).
+					{ kind: "param-ref", param: "title" },
+					// SUPPORTING: one plain sentence of what it does (call site sets caption/muted).
+					{ kind: "param-ref", param: "transform" },
 					{ kind: "spacer", size: "xs" },
-					// Verifiable evidence: a Disclosure of SurfaceEvidence rows.
+					// DEMOTED PROOF — the differentiator, quieted to a footnote. The flow edge,
+					// the verifiable endpoint rows and the compiled-model chips ALL live inside
+					// this single default-collapsed Disclosure. It stays one click away and
+					// verifiable, never a headline. The summary is plain language ("How Sókrates
+					// wires this"), not jargon; `open` is omitted so it renders collapsed.
+					//
+					// The variable proof children ride through SLOTS spliced INSIDE the
+					// Disclosure, so the template still references no compound by name and the
+					// "quiet, collapsed, at the bottom" posture is owned by the structure here.
 					{
-						kind: "slot",
-						name: "evidence",
-						fallback: [
+						kind: "disclosure",
+						summary: "How Sókrates wires this",
+						children: [
+							// The source → target map edge.
 							{
-								kind: "text",
-								value: "Evidence pending compilation.",
-								as: "caption",
-								emphasis: "muted",
+								kind: "slot",
+								name: "flow",
+								fallback: [
+									{ kind: "text", value: "Cross-system flow", as: "caption", emphasis: "muted" },
+								],
+							},
+							// Verifiable evidence: the real endpoint rows.
+							{
+								kind: "slot",
+								name: "evidence",
+								fallback: [
+									{
+										kind: "text",
+										value: "Evidence pending compilation.",
+										as: "caption",
+										emphasis: "muted",
+									},
+								],
+							},
+							// Compiled-model chips.
+							{
+								kind: "slot",
+								name: "models",
+								fallback: [],
 							},
 						],
-					},
-					// Compiled-model chips.
-					{
-						kind: "slot",
-						name: "models",
-						fallback: [],
 					},
 				],
 			},

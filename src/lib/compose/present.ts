@@ -17,11 +17,15 @@
  * capability never presents itself as more than it is on the front door.
  *
  * Composition shape:
- *   capabilityCard(cap)            -> a ComposeCapabilityCard CompoundRef whose
- *                                     flow / evidence / models slots are filled
- *                                     with FlowArrow / SurfaceEvidence / ModelView
- *                                     refs derived from the capability's real
- *                                     endpoints and compiled model names.
+ *   capabilityCard(cap)            -> an OUTCOME-LED ComposeCapabilityCard
+ *                                     CompoundRef: the business `value` leads as
+ *                                     the strong hero line, `title`/`transform`
+ *                                     support it quietly, and the flow / evidence
+ *                                     / models slots (FlowArrow / SurfaceEvidence /
+ *                                     ModelView refs derived from the capability's
+ *                                     real endpoints and compiled model names) are
+ *                                     demoted into the template's single collapsed
+ *                                     "How Sókrates wires this" proof footnote.
  *   composeAnswer(caps, query)     -> a Frame(page) with a PainPrompt masthead
  *                                     (summary slot = result line + active-tag
  *                                     badges) over a Grid(list) of capabilityCard.
@@ -94,6 +98,22 @@ function flowVerb(cap: Capability): string {
 function tagLabel(tag: string): string {
 	const spaced = tag.replace(/-/g, " ");
 	return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+/**
+ * Human label for an access posture — never the raw `read`/`write`/`event` enum,
+ * which would leak internal vocabulary onto a citation-grade marketing surface
+ * (the register is human metaphors, not internals). Mirrors tierLabel/tagLabel.
+ */
+function directionLabel(direction: SurfaceUse["direction"]): string {
+	switch (direction) {
+		case "write":
+			return "Writes";
+		case "event":
+			return "On event";
+		default:
+			return "Reads";
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -177,7 +197,14 @@ function flowSlot(cap: Capability): Node {
 	return flowArrow(cap);
 }
 
-/** One SurfaceEvidence ref per real endpoint the capability composes. */
+/**
+ * One SurfaceEvidence ref per real endpoint the capability composes. Every proof
+ * field rides as a NODE arg so the call site owns the register: the path is the
+ * citation locus (caption register), the summary/system/direction trail as muted
+ * captions. NODE args (not bare strings) keep the proof genuinely quieter than
+ * the card's outcome — a bare string coerces to BODY register, which would render
+ * heavier and larger than the card's own supporting copy.
+ */
 function surfaceEvidence(surface: SurfaceUse): CompoundRef {
 	return {
 		kind: "compound",
@@ -191,35 +218,55 @@ function surfaceEvidence(surface: SurfaceUse): CompoundRef {
 				intent: "evidence",
 				icon: "api",
 			},
-			path: surface.path,
-			summary: surface.summary ?? "",
-			system: systemLabel(surface.system),
-			direction: surface.direction,
+			// The endpoint path — the citation locus, in the evidence caption register.
+			path: text(surface.path, "caption", { intent: "evidence" }),
+			// The human label lifted from the spec — a muted caption.
+			summary: text(surface.summary ?? "", "caption", { emphasis: "muted" }),
+			// Provenance trail: which system + which access direction, both muted captions.
+			system: text(systemLabel(surface.system), "caption", { emphasis: "muted" }),
+			direction: text(directionLabel(surface.direction), "caption", { emphasis: "muted" }),
 		},
 	};
 }
 
-/** One ModelView chip per compiled model name the capability touches. */
+/**
+ * One ModelView chip per compiled model name the capability touches. The model
+ * name rides as a caption-register accession Text node so the chip reads as a
+ * quiet catalogue code, not body copy (a bare string coerces to body register).
+ */
 function modelView(name: string): CompoundRef {
 	return {
 		kind: "compound",
 		name: "ComposeModelView",
-		args: { name },
+		args: { name: text(name, "caption", { intent: "accession" }) },
 	};
 }
 
 /**
- * The evidence slot: a single Disclosure ("Grounded in N real endpoints") whose
- * children are one SurfaceEvidence ref per surface. The Disclosure summary is the
- * verifiable claim; opening it reveals the citations a reader can check.
+ * The evidence slot content: the verifiable endpoint citations, one
+ * SurfaceEvidence row per surface, wrapped in a quiet block Stack. This used to
+ * be its OWN "Grounded in N real endpoints" Disclosure, but the card template now
+ * owns the single outer "How Sókrates wires this" Disclosure that demotes ALL the
+ * proof (flow + endpoints + models) to one collapsed footnote — so the evidence
+ * slot is plain rows spliced inside it, not a second nested disclosure. The
+ * real-endpoint count still leads the block as a muted caption so a reader who
+ * opens the footnote sees exactly how many endpoints back the capability — the
+ * differentiator stays present and verifiable, just no longer shouted.
  */
-function evidenceDisclosure(cap: Capability): Node {
+function evidenceRows(cap: Capability): Node {
 	const count = cap.surfaces.length;
 	const rows: Node[] = cap.surfaces.map((surface) => surfaceEvidence(surface));
 	return {
-		kind: "disclosure",
-		summary: `Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`,
-		children: rows,
+		kind: "stack",
+		role: "list",
+		direction: "block",
+		emphasis: "muted",
+		children: [
+			text(`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`, "caption", {
+				emphasis: "muted",
+			}),
+			...rows,
+		],
 	};
 }
 
@@ -243,19 +290,30 @@ function modelsCluster(cap: Capability): Node {
  * ------------------------------------------------------------------------- */
 
 /**
- * Build a `ComposeCapabilityCard` CompoundRef for one capability. The card's
- * params carry the register-owning NODE values (title / transform / value /
- * pairing) plus the honest tier as a Status NODE; the variable children ride the
- * slots:
+ * Build a `ComposeCapabilityCard` CompoundRef for one capability — OUTCOME-LED.
+ *
+ * The customer reads the RESULT first. The register assignment is what inverts the
+ * old hierarchy entirely in DATA (the template owns the order; the call site owns
+ * the weight):
+ *   - value:     THE HERO — the business outcome, promoted to a strong subheading
+ *                so it owns the card's visual weight. Was a plain body line before.
+ *   - title:     SUPPORTING — demoted from a strong subheading to a quiet caption;
+ *                the short human name UNDER the outcome, not a heading above it.
+ *   - transform: SUPPORTING — one plain muted sentence of what it does (unchanged).
+ *   - tier:      the honest governance Status (trust, not jargon) — preserved.
+ *
+ * The variable children ride the slots, spliced INSIDE the template's single
+ * "How Sókrates wires this" Disclosure that demotes ALL the proof to one collapsed
+ * footnote:
  *   - flow:     a FlowArrow ref (source system -> verb -> target system);
- *   - evidence: a Disclosure of SurfaceEvidence rows (one per real endpoint);
+ *   - evidence: a muted Stack of SurfaceEvidence rows led by the endpoint count;
  *   - models:   a Cluster of ModelView chips (one per compiled model name).
  */
 export function capabilityCard(cap: Capability): CompoundRef {
 	// Header-left carries the capability's domain (its lead pain tag) as a quiet,
 	// neutral category label — NOT the source/target systems, which the FlowArrow
-	// below already names. This keeps the amber accent to the single flow locus per
-	// card and turns the header into a scannable domain marker instead of a repeat.
+	// inside the proof footnote names. Muted so it frames the outcome below without
+	// competing with it for the card's single amber accent.
 	const leadTag = cap.painPoints[0];
 	const pairing = text(leadTag ? tagLabel(leadTag) : "Automation", "caption", {
 		emphasis: "muted",
@@ -264,15 +322,19 @@ export function capabilityCard(cap: Capability): CompoundRef {
 		kind: "compound",
 		name: "ComposeCapabilityCard",
 		args: {
-			title: text(cap.title, "subheading", { emphasis: "strong" }),
+			// THE HERO: the outcome carries the weight. Strong subheading, no intent —
+			// the customer reads the business result first.
+			value: text(cap.value, "subheading", { emphasis: "strong" }),
+			// SUPPORTING: the human name, demoted to a quiet caption under the outcome.
+			title: text(cap.title, "caption", { emphasis: "muted" }),
 			transform: text(cap.transform, "caption", { emphasis: "muted" }),
-			value: text(cap.value, "body"),
 			tier: tierStatus(cap.tier),
 			pairing,
 		},
 		slots: {
+			// All three proof children land inside the template's collapsed proof Disclosure.
 			flow: [flowSlot(cap)],
-			evidence: [evidenceDisclosure(cap)],
+			evidence: [evidenceRows(cap)],
 			models: [modelsCluster(cap)],
 		},
 	};

@@ -23,6 +23,7 @@
 import type { Dialect } from "./types.js";
 import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
 import { clinical } from "./clinical.js";
+import { reykjavikRegistry } from "./reykjavik-registry.js";
 
 /**
  * The shipped dialects, keyed by their stable `id` (also the `data-mo-dialect`
@@ -31,6 +32,7 @@ import { clinical } from "./clinical.js";
 export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[icelandicArchive.id]: icelandicArchive,
 	[clinical.id]: clinical,
+	[reykjavikRegistry.id]: reykjavikRegistry,
 });
 
 /** The id of the dialect used when nothing more specific is selected. */

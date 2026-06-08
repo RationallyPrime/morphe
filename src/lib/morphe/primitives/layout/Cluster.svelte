@@ -21,15 +21,21 @@
 	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
 	import Node from "../../render/Node.svelte";
 
-	let { node }: PrimitiveProps<Cluster> = $props();
+	let { node, ctx }: PrimitiveProps<Cluster> = $props();
 
 	// One-time structural descent at init (setContext requirement); the tree is
-	// immutable per <Node> instance. See Stack.svelte for the rule.
+	// immutable per <Node> instance. Descends from the explicit `ctx` PROP (the
+	// real carrier on SSR and first client render); seeds the context channel as a
+	// fallback. See Stack.svelte for the rule.
 	// svelte-ignore state_referenced_locally
-	const child = descend(node.role, {
-		childCount: node.children.length,
-		claim: node.emphasis,
-	});
+	const child = descend(
+		node.role,
+		{
+			childCount: node.children.length,
+			claim: node.emphasis,
+		},
+		ctx,
+	);
 
 	const justify = $derived(node.justify ?? "start");
 	const align = $derived(node.align ?? "center");

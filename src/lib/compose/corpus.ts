@@ -2771,6 +2771,366 @@ export const CAPABILITIES: readonly Capability[] = [
 		models: ["OpportunityForResponse", "ProjectModel", "Availability"],
 		tier: "read-only",
 	},
+
+	/* =========================================================================
+	 * THIN-SPOT FILL — single-system depth + CRM-native and cross-system gaps.
+	 *   More Humanity-only (leave/coverage, certification, conflicts) and
+	 *   dkPlus-only (receivables, GL anomalies) so a lone selection has reach;
+	 *   more CRM->WFM (close date -> capacity, owner -> territory); and the two
+	 *   CRM-native customer views the corpus was missing — a unified Customer 360
+	 *   and a renewal/churn signal off real payment history.
+	 * ======================================================================= */
+
+	// 65 — Humanity-only
+	{
+		id: "humanity-leave-coverage-forecast",
+		title: "Leave and absence coverage forecast",
+		painPoints: ["scheduling", "forecasting", "compliance"],
+		systems: ["humanity"],
+		source: HUMANITY,
+		target: HUMANITY,
+		transform:
+			"Read approved Humanity leave against the published shifts in that window and each employee's availability to forecast which days will run short before the absence lands.",
+		value: "You see the coverage hole an approved holiday will leave weeks before it bites.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/leaves",
+				operationId: "get-leaves",
+				summary: "GET Leaves",
+				model: "Leave",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+		],
+		models: ["Leave", "Shift", "Availability"],
+		tier: "read-only",
+	},
+	// 66 — Humanity-only
+	{
+		id: "humanity-certification-expiry-watch",
+		title: "Certification and training expiry watch",
+		painPoints: ["compliance", "scheduling"],
+		systems: ["humanity"],
+		source: HUMANITY,
+		target: HUMANITY,
+		transform:
+			"Read each employee's Humanity training progress and assigned skills, then flag the certifications about to lapse and the upcoming shifts that would put a lapsed worker on regulated work.",
+		value: "Nobody works a certified job on an expired ticket, because the lapse is caught early.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/trainings/progress",
+				operationId: "get-training-progress",
+				summary: "GET Training Progress",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/skills",
+				operationId: "get-skills",
+				summary: "GET Skills",
+				model: "Skill",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+		],
+		models: ["Skill", "Shift"],
+		tier: "read-only",
+	},
+	// 67 — Humanity-only
+	{
+		id: "humanity-availability-conflict-scan",
+		title: "Availability conflict and double-booking scan",
+		painPoints: ["scheduling", "anomaly"],
+		systems: ["humanity"],
+		source: HUMANITY,
+		target: HUMANITY,
+		transform:
+			"Compare published Humanity shifts against each employee's stated availability to find people scheduled when they are not free and anyone booked into two shifts at once.",
+		value: "Scheduling mistakes surface before publish instead of as a no-show on the day.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+		],
+		models: ["Shift", "Availability"],
+		tier: "read-only",
+	},
+	// 68 — dkPlus-only
+	{
+		id: "dkplus-aged-receivables-exposure",
+		title: "Aged receivables and cashflow exposure",
+		painPoints: ["reporting", "margin", "anomaly"],
+		systems: ["dkplus"],
+		source: DKPLUS,
+		target: DKPLUS,
+		transform:
+			"Read each dkPlus customer's ledger transactions, bucket the open balance by how long it has been outstanding, and rank the accounts carrying the most overdue cash.",
+		value: "You know which customers owe you the most and for how long, without waiting on a manual aging run.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/page/{page}/{count}",
+				operationId: "Customer_GetCustomersPaged",
+				summary: "Get Customers base on Filter",
+				model: "CustomerModel",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/transaction",
+				operationId: "Customer_GetCustomerTransactions",
+				summary: "Get Transactions for a Customer",
+				model: "TransactionModel",
+			},
+		],
+		models: ["CustomerModel", "TransactionModel"],
+		tier: "read-only",
+	},
+	// 69 — dkPlus-only
+	{
+		id: "dkplus-gl-anomaly-scan",
+		title: "General ledger anomaly scan",
+		painPoints: ["anomaly", "reporting", "compliance"],
+		systems: ["dkplus"],
+		source: DKPLUS,
+		target: DKPLUS,
+		transform:
+			"Read the dkPlus chart of accounts and the recent ledger transactions to flag postings that look out of place: duplicates, round-number outliers, entries to dormant accounts and unusual swings.",
+		value: "Odd journal entries get caught while they are still easy to correct, not at year-end close.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/generalledger/account",
+				operationId: "GeneralLedgerAccount_GetGeneralLedgerAccounts",
+				summary: "Get General Ledger Accounts",
+				model: "GeneralLedgerAccount",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/generalledger/transaction/page/{page}/{count}",
+				operationId: "GeneralLedgerTransaction_GetGeneralTransactionPage",
+				summary: "Get General Ledger Transaction",
+				model: "Transaction",
+			},
+		],
+		models: ["GeneralLedgerAccount", "Transaction"],
+		tier: "read-only",
+	},
+	// 70 — Twenty × Humanity (CRM -> WFM)
+	{
+		id: "opportunity-close-date-to-capacity-check",
+		title: "Close date to crew capacity check",
+		painPoints: ["forecasting", "scheduling", "deals"],
+		systems: ["twenty", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Read the Twenty opportunities expected to close soon and the dates the work would land, then check Humanity availability in that window to see if there is a crew to deliver.",
+		value: "A deal about to close gets a yes-or-no on whether anyone is free to do the work.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "POST",
+				path: "/employees/availability",
+				operationId: "get-availability-in-date-period",
+				summary: "Get availability in date period",
+				model: "Availability",
+			},
+		],
+		models: ["OpportunityForResponse", "Availability"],
+		tier: "read-only",
+	},
+	// 71 — Twenty × Humanity (CRM -> WFM)
+	{
+		id: "account-owner-to-territory-scheduling",
+		title: "Account owner to territory scheduling",
+		painPoints: ["scheduling", "contacts", "utilization"],
+		systems: ["twenty", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Read the Twenty people who own accounts and the open tasks tied to them, check each owner's Humanity availability, then draft shift blocks so their territory visits actually get time.",
+		value: "Account visits land on the calendar against the right owner instead of slipping.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/people",
+				operationId: "findManyPeople",
+				summary: "Find Many people",
+				model: "PersonForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/tasks",
+				operationId: "findManyTasks",
+				summary: "Find Many tasks",
+				model: "TaskForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+		],
+		models: ["PersonForResponse", "TaskForResponse", "Shift"],
+		tier: "proposes",
+	},
+	// 72 — Twenty × dkPlus (CRM-native: renewal / churn)
+	{
+		id: "renewal-churn-signal",
+		title: "Renewal and churn signal from payment history",
+		painPoints: ["deals", "reporting", "anomaly"],
+		systems: ["twenty", "dkplus"],
+		source: DKPLUS,
+		target: TWENTY,
+		transform:
+			"Read each customer's dkPlus payment and ledger history, spot accounts that have slowed down, gone quiet or fallen behind, and post a renewal-risk note onto the matching Twenty company.",
+		value: "The sales team hears that an account is going cold from the money, not from a lost renewal.",
+		surfaces: [
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/transaction",
+				operationId: "Customer_GetCustomerTransactions",
+				summary: "Get Transactions for a Customer",
+				model: "TransactionModel",
+			},
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/companies",
+				operationId: "findManyCompanies",
+				summary: "Find Many companies",
+				model: "CompanyForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+		],
+		models: ["TransactionModel", "CompanyForResponse", "NoteForResponse"],
+		tier: "proposes",
+	},
+	// 73 — Twenty × dkPlus × Humanity (CRM-native: unified Customer 360)
+	{
+		id: "customer-360-unified-view",
+		title: "Customer 360: one view across CRM, ERP and labor",
+		painPoints: ["customer-comms", "reporting", "contacts"],
+		systems: ["twenty", "dkplus", "humanity"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Pull the Twenty company and its people, the dkPlus invoices and ledger balance for that customer, and the Humanity hours worked on their jobs into one read-only customer profile.",
+		value: "Anyone touching an account sees the relationship, the money and the work delivered in a single view.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/companies",
+				operationId: "findManyCompanies",
+				summary: "Find Many companies",
+				model: "CompanyForResponse",
+			},
+			{
+				system: "dkplus",
+				direction: "read",
+				method: "GET",
+				path: "/api/v1/Customer/{customer}/invoice",
+				operationId: "Customer_GetCustomerInvoices",
+				summary: "Get Invoices for a Customer",
+				model: "InvoiceModel",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+		],
+		models: ["CompanyForResponse", "InvoiceModel", "Timeclock"],
+		tier: "read-only",
+	},
 ];
 
 /** The full corpus the composer answers for, with grounding provenance. */

@@ -46,25 +46,39 @@ export function provideMorpheContext(ctx: MorpheContext): void {
 /**
  * Compute and provide the child context for a non-Frame container, in one call.
  * Returns the computed context so the caller can also emit boundary vars.
+ *
+ * The parent context is carried by the explicit `ctx` PROP a primitive receives
+ * from <Node> (the prop chain is the real carrier — it is correct on BOTH the
+ * server and the first client render). The Svelte context channel is seeded
+ * alongside it as a FALLBACK for anything that reads `useMorpheContext()`
+ * directly. When `parent` is omitted (a primitive rendered standalone in a test),
+ * we fall back to the context channel.
  */
 export function descend(
 	role: ContainerRole,
 	opts: { readonly childCount?: number; readonly claim?: EmphasisClaim } = {},
+	parent: MorpheContext = useMorpheContext(),
 ): MorpheContext {
-	const child = transform(useMorpheContext(), role, opts);
+	const child = transform(parent, role, opts);
 	provideMorpheContext(child);
 	return child;
 }
 
-/** Frame variant of `descend` — the only context reset (Monotone-depth law). */
+/**
+ * Frame variant of `descend` — the only context reset (Monotone-depth law).
+ * Descends from the explicit `parent` (the `ctx` prop) so a dialect's clamped
+ * density/budget priors take effect on SSR and the first client render; falls
+ * back to the context channel for a standalone render.
+ */
 export function descendFrame(
 	opts: {
 		readonly surface?: "base" | "raised" | "sunken";
 		readonly density?: Density;
 		readonly budget?: number;
 	} = {},
+	parent: MorpheContext = useMorpheContext(),
 ): MorpheContext {
-	const child = enterFrame(useMorpheContext(), opts);
+	const child = enterFrame(parent, opts);
 	provideMorpheContext(child);
 	return child;
 }

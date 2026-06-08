@@ -27,17 +27,23 @@
 	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
 	import Node from "../../render/Node.svelte";
 
-	let { node }: PrimitiveProps<Stack> = $props();
+	let { node, ctx }: PrimitiveProps<Stack> = $props();
 
 	// A server-driven tree is immutable per <Node> instance: a changed tree mounts
 	// new keyed components, so the one-time context descent (which MUST run during
-	// init, because setContext does) reads `node` directly. Values consumed in the
-	// template stay $derived for reactivity.
+	// init, because setContext does) reads `node` directly. It descends from the
+	// explicit `ctx` PROP (the prop chain is the real carrier — correct on SSR and
+	// the first client render) and seeds the context channel as a fallback. Values
+	// consumed in the template stay $derived for reactivity.
 	// svelte-ignore state_referenced_locally
-	const child = descend(node.role, {
-		childCount: node.children.length,
-		claim: node.emphasis,
-	});
+	const child = descend(
+		node.role,
+		{
+			childCount: node.children.length,
+			claim: node.emphasis,
+		},
+		ctx,
+	);
 
 	const dir = $derived(node.direction ?? "auto");
 	const emphasis = $derived(node.emphasis ?? "normal");

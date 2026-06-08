@@ -25,13 +25,32 @@ import { describe, expect, it } from "vitest";
 import { applyDialect } from "./provider.svelte.js";
 import { icelandicArchive, DEFAULT_DIALECT, ARCHIVE_SURFACES } from "./icelandic-archive.js";
 import { clinical, CLINICAL_SURFACES } from "./clinical.js";
+import { reykjavikRegistry, REYKJAVIK_SURFACES } from "./reykjavik-registry.js";
 import { DIALECTS, DIALECT_IDS, getDialect, hasDialect, DEFAULT_DIALECT_ID } from "./registry.js";
 import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
+import type { Dialect } from "./types.js";
 import type { Node } from "../grammar/types.js";
 
-/** Shared register-extension names both dialects re-read (FP3). */
+/** Shared register-extension names every shipped dialect re-reads (FP3). */
 const REGISTER_EXTENSIONS = ["folio", "marginalia", "seal"] as const;
 const CHANNELS = ["surface", "on", "hover", "border", "ring"] as const;
+
+/**
+ * EVERY shipped dialect, driven off the registry (not a literal list), so a new
+ * globally-selectable dialect is AUTOMATICALLY held to the fixed point by the
+ * parity suite below — exactly the gap that let a third dialect ship missing the
+ * `evidence` intent / the action channels / the register extensions / a surface
+ * stack and still go green (CONTRACT §8). If a dialect is added to registry.ts
+ * but not brought to parity, FP2/FP3/FP4 fail here.
+ */
+const SHIPPED_DIALECTS: readonly Dialect[] = DIALECT_IDS.map((id) => DIALECTS[id] as Dialect);
+
+/** Every shipped dialect's surface stack, by id (FP2 — surfaces stay neutral too). */
+const SURFACE_STACKS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+	"icelandic-archive": ARCHIVE_SURFACES,
+	clinical: CLINICAL_SURFACES,
+	"reykjavik-registry": REYKJAVIK_SURFACES,
+};
 
 /**
  * An AUTHORED tree. It references ONLY intent names (core + a register
@@ -94,7 +113,7 @@ describe("FP2 — both dialects keep the scales neutral (no welded vertical)", (
 		return refs.every((r) => r.includes("--mo-"));
 	};
 
-	for (const dialect of [icelandicArchive, clinical]) {
+	for (const dialect of SHIPPED_DIALECTS) {
 		it(`${dialect.id}: every intent channel value references a neutral scale`, () => {
 			for (const [name, def] of Object.entries(dialect.intents)) {
 				for (const [channel, value] of Object.entries(def)) {
@@ -112,19 +131,19 @@ describe("FP2 — both dialects keep the scales neutral (no welded vertical)", (
 				expect(name).not.toMatch(/^(neutral|amber|blue|green|red)-\d+$/);
 			}
 		});
-	}
 
-	it("the surface stacks are neutral-scale only too", () => {
-		for (const stack of [ARCHIVE_SURFACES, CLINICAL_SURFACES]) {
-			for (const value of Object.values(stack)) {
+		it(`${dialect.id}: its surface stack is neutral-scale only too`, () => {
+			const stack = SURFACE_STACKS[dialect.id];
+			expect(stack, `${dialect.id} ships no surface stack`).toBeDefined();
+			for (const value of Object.values(stack ?? {})) {
 				expect(isNeutralScaleExpr(value), value).toBe(true);
 			}
-		}
-	});
+		});
+	}
 });
 
-describe("FP3 — both dialects cover the full intent vocabulary authors may use", () => {
-	for (const dialect of [icelandicArchive, clinical]) {
+describe("FP3 — every shipped dialect covers the full intent vocabulary authors may use", () => {
+	for (const dialect of SHIPPED_DIALECTS) {
 		it(`${dialect.id}: defines all ${CORE_INTENTS.length} core intents, all channels`, () => {
 			for (const core of CORE_INTENTS) {
 				const def = dialect.intents[core];
@@ -135,6 +154,17 @@ describe("FP3 — both dialects cover the full intent vocabulary authors may use
 			}
 		});
 
+		it(`${dialect.id}: every core intent carries the action active/disabled channels`, () => {
+			// The SEVEN-channel set for core intents is part of the §8 fixed point: a
+			// button's pressed/disabled state is intent-scoped, so a dialect that omits
+			// them lets those states fall through to the warm Archive defaults.
+			for (const core of CORE_INTENTS) {
+				const def = dialect.intents[core];
+				expect(def?.active, `${dialect.id}.${core}.active`).toBeTypeOf("string");
+				expect(def?.disabled, `${dialect.id}.${core}.disabled`).toBeTypeOf("string");
+			}
+		});
+
 		it(`${dialect.id}: defines the shared register extensions`, () => {
 			for (const ext of REGISTER_EXTENSIONS) {
 				expect(dialect.intents[ext], `${dialect.id} missing extension ${ext}`).toBeDefined();
@@ -142,10 +172,13 @@ describe("FP3 — both dialects cover the full intent vocabulary authors may use
 		});
 	}
 
-	it("both dialects expose the SAME intent names (refinement, not renaming)", () => {
-		const archiveNames = Object.keys(icelandicArchive.intents).sort();
-		const clinicalNames = Object.keys(clinical.intents).sort();
-		expect(clinicalNames).toEqual(archiveNames);
+	it("every shipped dialect exposes the SAME intent names (refinement, not renaming)", () => {
+		const defaultNames = Object.keys(DEFAULT_DIALECT.intents).sort();
+		for (const dialect of SHIPPED_DIALECTS) {
+			expect(Object.keys(dialect.intents).sort(), `${dialect.id} intent names`).toEqual(
+				defaultNames,
+			);
+		}
 	});
 });
 
@@ -172,20 +205,43 @@ describe("FP4 — the swap is a clean subtree-boundary injection", () => {
 		expect(anyDiffered).toBe(true);
 	});
 
-	it("the boundary var KEYS match across dialects (same slots, different fills)", () => {
-		const a = applyDialect(icelandicArchive);
-		const b = applyDialect(clinical);
-		expect(Object.keys(b.vars).sort()).toEqual(Object.keys(a.vars).sort());
+	it("EVERY shipped dialect's boundary var KEYS equal the default's (the §8 keyset fixed point)", () => {
+		// The whole point of the parity gate: a globally-shipped dialect that omits
+		// any intent/channel produces a SMALLER `vars` keyset, so anything it omits
+		// falls through to the warm Archive `:root` block — a partial re-theme. Hold
+		// every shipped dialect to the default's exact keyset, driven off the registry
+		// so a future dialect is automatically gated.
+		const defaultKeys = Object.keys(applyDialect(DEFAULT_DIALECT).vars).sort();
+		for (const dialect of SHIPPED_DIALECTS) {
+			expect(Object.keys(applyDialect(dialect).vars).sort(), `${dialect.id} keyset`).toEqual(
+				defaultKeys,
+			);
+		}
 	});
 
-	it("a shared register-extension intent is re-read, not dropped, by the swap", () => {
-		const a = applyDialect(icelandicArchive);
-		const b = applyDialect(clinical);
+	it("each non-default shipped dialect actually repaints (a real swap, not a re-attr)", () => {
+		const def = applyDialect(DEFAULT_DIALECT);
+		for (const dialect of SHIPPED_DIALECTS) {
+			if (dialect.id === DEFAULT_DIALECT.id) continue;
+			const other = applyDialect(dialect);
+			expect(other.attr, `${dialect.id} attr`).not.toBe(def.attr);
+			const anyDiffered = Object.keys(def.vars).some((k) => def.vars[k] !== other.vars[k]);
+			expect(anyDiffered, `${dialect.id} paints identically to the default`).toBe(true);
+		}
+	});
+
+	it("a shared register-extension intent is re-read, not dropped, by every swap", () => {
 		const sealSurface = intentVar("seal", "surface");
-		expect(a.vars[sealSurface]).toBeDefined();
-		expect(b.vars[sealSurface]).toBeDefined();
-		// Archive seal = grave amber; clinical seal = sign-off green. A real remap.
-		expect(a.vars[sealSurface]).not.toBe(b.vars[sealSurface]);
+		const defSeal = applyDialect(DEFAULT_DIALECT).vars[sealSurface];
+		expect(defSeal, "default missing seal surface").toBeDefined();
+		for (const dialect of SHIPPED_DIALECTS) {
+			const v = applyDialect(dialect).vars[sealSurface];
+			expect(v, `${dialect.id} missing seal surface`).toBeDefined();
+			if (dialect.id !== DEFAULT_DIALECT.id) {
+				// A different scale mapping per register — the extension-tier fixed point.
+				expect(v, `${dialect.id} seal not remapped`).not.toBe(defSeal);
+			}
+		}
 	});
 });
 
@@ -248,21 +304,25 @@ describe("data ⇄ CSS agreement — the default dialect equals its static fallb
 });
 
 describe("dialect registry — named lookup for the subtree-boundary swap", () => {
-	it("registers both shipped dialects, keyed by id", () => {
+	it("registers all three shipped dialects, keyed by id", () => {
 		expect(DIALECT_IDS).toContain("icelandic-archive");
 		expect(DIALECT_IDS).toContain("clinical");
+		expect(DIALECT_IDS).toContain("reykjavik-registry");
 		expect(DIALECTS["clinical"]).toBe(clinical);
+		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
 	});
 
 	it("getDialect resolves by id and falls back to default for unknown ids", () => {
 		expect(getDialect("clinical")).toBe(clinical);
 		expect(getDialect("icelandic-archive")).toBe(icelandicArchive);
+		expect(getDialect("reykjavik-registry")).toBe(reykjavikRegistry);
 		expect(getDialect("does-not-exist").id).toBe(DEFAULT_DIALECT_ID);
 		expect(getDialect(undefined).id).toBe(DEFAULT_DIALECT_ID);
 	});
 
 	it("hasDialect reports membership without falling back", () => {
 		expect(hasDialect("clinical")).toBe(true);
+		expect(hasDialect("reykjavik-registry")).toBe(true);
 		expect(hasDialect("nope")).toBe(false);
 	});
 

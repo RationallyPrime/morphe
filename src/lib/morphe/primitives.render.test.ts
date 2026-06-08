@@ -435,13 +435,43 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 		return html.slice(open, close);
 	}
 
+	// FP1 is a STRUCTURAL invariant: the element tree / kinds / roles / intents are
+	// the same under any dialect. A dialect's `rootDensity` PRIOR, however, is meant
+	// to move the density-derived CONTINUOUS boundary values (the `--mo-ctx-space`
+	// gap/padding step, the progress track size, the Status compact flag) — clinical
+	// ships `compact`, the Archive `regular`, and FP5 pins that the prior applies. So
+	// normalize exactly those density-derived values before the structural compare;
+	// the dedicated assertion below proves the prior genuinely DID move them (which
+	// before the SSR-seeding fix it silently did not, leaving both at ROOT_CONTEXT).
+	function structuralBody(html: string): string {
+		return innerBody(html)
+			.replace(/--mo-ctx-space:var\(--mo-space-\d+\)/g, "--mo-ctx-space:Z")
+			.replace(/--mo-progress-track: var\(--mo-space-\d+\)/g, "--mo-progress-track: Z")
+			.replace(/data-compact="(?:true|false)"/g, 'data-compact="Z"');
+	}
+
 	it("the same legacy tree renders structurally identical under icelandic-archive and clinical", () => {
 		const a = ssr(legacyTree, icelandicArchive);
 		const b = ssr(legacyTree, clinical);
 		// The two boundaries differ (proves the dialect actually moved)…
 		expect(a).not.toBe(b);
-		// …but the authored TREE body is byte-identical (the fixed point).
-		expect(innerBody(a)).toBe(innerBody(b));
+		// …but the authored TREE structure is identical once the density-derived
+		// boundary values (which the dialect's density prior legitimately moves) are
+		// normalized — the fixed point. Element tree, kinds, roles, intents: invariant.
+		expect(structuralBody(a)).toBe(structuralBody(b));
+	});
+
+	it("the dialect's density PRIOR actually reaches the SSR tree (the seeding regression)", () => {
+		// The complement of the structural invariant: clinical's compact prior must
+		// genuinely compress the density-derived boundary values relative to the
+		// Archive's regular prior on the SERVER render. Before the fix both descended
+		// from ROOT_CONTEXT (regular), so these were byte-identical — the bug.
+		const archive = innerBody(ssr(legacyTree, icelandicArchive));
+		const clinic = innerBody(ssr(legacyTree, clinical));
+		// The root Frame's gap/padding step: compact -> space-3, regular -> space-5.
+		expect(clinic).toContain("--mo-ctx-space:var(--mo-space-3)");
+		expect(archive).toContain("--mo-ctx-space:var(--mo-space-5)");
+		expect(clinic).not.toContain("--mo-ctx-space:var(--mo-space-5)");
 	});
 
 	it("the legacy tree still renders every old input in its DEFAULT mode", () => {
@@ -454,5 +484,55 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 		expect(html).not.toContain("<textarea");
 		expect(html).not.toContain('role="radiogroup"');
 		expect(html).not.toContain('type="checkbox"');
+	});
+});
+
+describe("SSR dialect-prior seeding — the root descends from the dialect's clamped priors", () => {
+	// REGRESSION (CONTRACT §8, the global-dialect seeding bug): the dialect's
+	// density prior must reach the root Frame on the SERVER render. The carrier is
+	// the `ctx` PROP MorpheRoot hands the root Node (not a context set in an effect,
+	// which is stripped on the server and runs too late on the client). A Frame that
+	// OMITS its own `density` inherits it from that parent ctx; the inherited density
+	// becomes the `--mo-ctx-space` boundary var on the Frame's <section>. So this
+	// asserts the priors actually flowed: clinical (compact) -> space-3, default
+	// (regular) -> space-5. Before the fix, both rendered space-5 (ROOT_CONTEXT)
+	// because the root context was never visible to the child captured at init.
+	const frameInheritsDensity: Node = {
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		// NO `density` here — the Frame inherits it from the dialect root context, so
+		// the dialect's compact/regular prior is exactly what this test observes.
+		children: [{ kind: "text", value: "Record", as: "body" }],
+	};
+
+	/** The boundary `--mo-ctx-space` on the OUTERMOST (root) Frame's <section>. */
+	function rootFrameSpace(html: string): string | undefined {
+		const sectionStart = html.indexOf("<section");
+		if (sectionStart === -1) return undefined;
+		const tagEnd = html.indexOf(">", sectionStart);
+		const tag = html.slice(sectionStart, tagEnd);
+		return tag.match(/--mo-ctx-space:\s*([^;"]+)/)?.[1]?.trim();
+	}
+
+	it("under clinical (compact prior) the root Frame emits the compact space step", () => {
+		const space = rootFrameSpace(ssr(frameInheritsDensity, clinical));
+		expect(space, "root Frame has no --mo-ctx-space under clinical").toBeDefined();
+		// compact density -> --mo-space-3 (see densityToSpaceStep). The bug left this
+		// at --mo-space-5 (regular) because the clinical prior never reached the root.
+		expect(space).toBe("var(--mo-space-3)");
+	});
+
+	it("under the default (regular prior) the root Frame emits the regular space step", () => {
+		const space = rootFrameSpace(ssr(frameInheritsDensity, icelandicArchive));
+		expect(space).toBe("var(--mo-space-5)");
+	});
+
+	it("the prior genuinely differs across dialects on the SERVER render", () => {
+		// The two are not equal — proof the dialect's density prior is what the root
+		// resolves from, not a single hardcoded ROOT_CONTEXT for every dialect.
+		expect(rootFrameSpace(ssr(frameInheritsDensity, clinical))).not.toBe(
+			rootFrameSpace(ssr(frameInheritsDensity, icelandicArchive)),
+		);
 	});
 });

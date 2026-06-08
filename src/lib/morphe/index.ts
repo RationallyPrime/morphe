@@ -94,8 +94,18 @@ export { slot, SLOTS, toneIntent } from "./tokens/slots.js";
 // Dialects (Lemma 4)
 export type { Dialect, IntentDialect, IntentDefinition, AlgebraPriors } from "./dialects/types.js";
 export { icelandicArchive, DEFAULT_DIALECT } from "./dialects/icelandic-archive.js";
+export { clinical } from "./dialects/clinical.js";
+export { reykjavikRegistry } from "./dialects/reykjavik-registry.js";
 export { applyDialect, dialectStyle } from "./dialects/provider.svelte.js";
 export type { AppliedDialect } from "./dialects/provider.svelte.js";
+export {
+	getDialect,
+	hasDialect,
+	DIALECTS,
+	DIALECT_IDS,
+	DEFAULT_DIALECT_ID,
+} from "./dialects/registry.js";
+export { activeDialect } from "./dialects/active.svelte.js";
 
 // Render
 export { Node as RenderNode } from "./render/index.js";
