@@ -30,24 +30,6 @@
 	const dialects: readonly Dialect[] = DIALECT_IDS.map((id) => DIALECTS[id] as Dialect);
 </script>
 
-<svelte:head>
-	<title>Morphe — The Dignity Test</title>
-	<meta
-		name="description"
-		content="A hand-authored Node tree rendered through Morphe, re-themed live by a dialect toggle — the Corollary 1 dignity test."
-	/>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
-	/>
-	<link
-		rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0&display=block"
-	/>
-</svelte:head>
-
 <div class="page">
 	<!--
 	  The toggle is OUTSIDE the rendered tree — it is the τ_frame control surface,

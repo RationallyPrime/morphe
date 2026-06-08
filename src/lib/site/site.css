@@ -1,0 +1,50 @@
+/*
+ * Site layout utilities — the marketing chrome's spatial system. These are the
+ * native band/width primitives the Morphe trees sit inside; they read from the
+ * same --mo-* tokens so they follow the active dialect. Prefixed `s-` to stay out
+ * of the way of the core's `mo-` classes and any scoped component styles.
+ */
+
+/* A vertical band: generous, fluid block padding + a safe inline gutter. */
+.s-section {
+	padding-block: clamp(2.5rem, 7vw, 5.5rem);
+	padding-inline: clamp(1rem, 4vw, 2.5rem);
+	/* Keep a hash-jump target clear of the sticky nav. */
+	scroll-margin-block-start: 5.5rem;
+}
+.s-section--tight {
+	padding-block: clamp(1.75rem, 4vw, 3rem);
+}
+/* A sunken band — the one tonal step the Archive uses for sectioning. */
+.s-section--sunken {
+	background: var(--mo-intent-surface-sunken);
+}
+
+/* Editorial width cap (≈1280px) — protects reading line length. */
+.s-wrap {
+	max-inline-size: 80rem;
+	margin-inline: auto;
+}
+/* Application width cap (≈1680px) — for the composer / onboarding work surfaces. */
+.s-wrap--wide {
+	max-inline-size: 105rem;
+	margin-inline: auto;
+}
+
+/* A row of conversion CTAs sitting beside a Morphe copy tree. */
+.s-cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mo-space-4);
+	align-items: center;
+	margin-block-start: var(--mo-space-5);
+}
+
+/* The quiet proof line under a hero's CTAs. */
+.s-proof {
+	margin: var(--mo-space-4) 0 0;
+	font-family: var(--mo-font-mono);
+	font-size: var(--mo-type-2);
+	letter-spacing: 0.02em;
+	color: var(--mo-intent-on-surface-muted);
+}

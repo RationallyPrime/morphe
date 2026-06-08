@@ -17,10 +17,10 @@
  * falls back to its deterministic matcher. The surface never shows an error.
  */
 
-import { env } from "$env/dynamic/private";
 import { error, json } from "@sveltejs/kit";
-import { CAPABILITIES } from "$lib/compose";
+import { env } from "$env/dynamic/private";
 import type { Capability } from "$lib/compose";
+import { CAPABILITIES } from "$lib/compose";
 import type { RequestHandler } from "./$types";
 
 const VOYAGE_RERANK_URL = "https://api.voyageai.com/v1/rerank";

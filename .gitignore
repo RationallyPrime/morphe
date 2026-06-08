@@ -13,3 +13,4 @@ vite.config.js.timestamp-*
 src/lib/compose/generated/
 # orchestration scratch (pre-authored workflow scripts; not part of the build)
 /scratch/
+.vercel
