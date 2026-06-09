@@ -37,10 +37,12 @@
 	import type { Action } from "svelte/action";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Popover } from "../../grammar/types.js";
+	import { boundBoolean, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Popover> = $props();
+	const store = useMorpheStore();
 
 	const role = $derived(node.role ?? "tooltip");
 	const placement = $derived(node.placement ?? "bottom");
@@ -61,10 +63,9 @@
 	 */
 	const anchorName = $derived(`--mo-anchor-${node.anchor}`);
 
-	// tier-0 local open state; reflected onto the native popover. The wire carries
-	// only a `bind` store-path + an `open?` default — never a live value.
+	// tier-0 local open state; seeded from tier-1 when bound, otherwise node.open.
 	// svelte-ignore state_referenced_locally
-	let open = $state(node.open ?? false);
+	let open = $state(boundBoolean(store, node.bind, node.open ?? false));
 	let el = $state<HTMLDivElement | null>(null);
 
 	/** Reflect open state onto the native popover top layer. */
@@ -101,8 +102,15 @@
 
 	/** Native popover toggle event is the single source of truth for open state. */
 	function onToggle(e: ToggleEvent): void {
-		open = e.newState === "open";
-		if (open && isMenu) focusFirstItem();
+		const next = e.newState === "open";
+		setOpen(next);
+		if (next && isMenu) focusFirstItem();
+	}
+
+	function setOpen(next: boolean): void {
+		if (open === next) return;
+		open = next;
+		commitBinding(store, node.bind, next);
 	}
 
 	/* --------------------------------------------------------------------------
@@ -172,7 +180,7 @@
 				case "Escape":
 					// The API light-dismisses on Escape too; closing explicitly keeps
 					// our $state truthful even if focus is on a nested control.
-					open = false;
+					setOpen(false);
 					break;
 			}
 		}

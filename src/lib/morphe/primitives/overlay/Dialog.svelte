@@ -29,10 +29,12 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Dialog } from "../../grammar/types.js";
+	import { boundBoolean, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Dialog> = $props();
+	const store = useMorpheStore();
 
 	// A deterministic id base (no Math.random — SSR/replay-safe). Derived from the
 	// title so the labelledby relationship is stable across re-emits.
@@ -52,9 +54,9 @@
 	const ringWidth = $derived(SLOTS.focus.width());
 	const ringOffset = $derived(SLOTS.focus.offset());
 
-	// tier-0 local open state; the wire carries only a `bind` store-path + default.
+	// tier-0 local open state; seeded from tier-1 when bound, otherwise node.open.
 	// svelte-ignore state_referenced_locally
-	let open = $state(node.open ?? false);
+	let open = $state(boundBoolean(store, node.bind, node.open ?? false));
 	let el = $state<HTMLDialogElement | null>(null);
 
 	// Reflect open state onto the native element. showModal() lifts the dialog to
@@ -74,7 +76,7 @@
 			e.preventDefault();
 			return;
 		}
-		open = false;
+		setOpen(false);
 	}
 
 	// Backdrop light-dismiss. The ::backdrop pseudo-element raises no event, but a
@@ -83,7 +85,13 @@
 	// means the backdrop was hit. Gated by `dismissable`.
 	function onBackdropPointer(e: MouseEvent): void {
 		if (!dismissable) return;
-		if (e.target === el) open = false;
+		if (e.target === el) setOpen(false);
+	}
+
+	function setOpen(next: boolean): void {
+		if (open === next) return;
+		open = next;
+		commitBinding(store, node.bind, next);
 	}
 
 	/** Tiny deterministic FNV-1a hash for a stable id (no runtime randomness). */
@@ -104,7 +112,7 @@
 	aria-describedby={descId}
 	data-bind={node.bind}
 	oncancel={onCancel}
-	onclose={() => (open = false)}
+	onclose={() => setOpen(false)}
 	onclick={onBackdropPointer}
 	style:--mo-overlay-surface={surface}
 	style:--mo-overlay-on={onColor}
@@ -122,7 +130,7 @@
 					type="button"
 					class="mo-dialog__close"
 					aria-label="Close dialog"
-					onclick={() => (open = false)}
+					onclick={() => setOpen(false)}
 				>
 					<span class="material-symbols-outlined" aria-hidden="true">close</span>
 				</button>

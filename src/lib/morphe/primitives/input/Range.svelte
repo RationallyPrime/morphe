@@ -18,9 +18,11 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Range } from "../../grammar/types.js";
+	import { boundNumber, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Range> = $props();
+	const store = useMorpheStore();
 
 	const a11y = $derived(node.a11y);
 	const hintId = $derived(node.hint ? `${a11y.id}-hint` : undefined);
@@ -31,15 +33,21 @@
 	const ariaLabel = $derived(a11y.label.mode === "aria-label" ? a11y.label.text : undefined);
 	const ariaLabelledby = $derived(a11y.label.mode === "labelledby" ? a11y.label.id : undefined);
 
-	// tier-0 local state (Lemma 5); seeded once from node.min at init.
+	// tier-0 local state (Lemma 5); seeded from tier-1 when bound, otherwise min.
 	// svelte-ignore state_referenced_locally
-	let value = $state(node.min);
+	let value = $state(boundNumber(store, node.bind, node.min));
 
 	// Continuous fill position as a percentage, carried through a CSS var.
 	const pct = $derived(
 		node.max > node.min ? ((value - node.min) / (node.max - node.min)) * 100 : 0,
 	);
 	const fill = $derived(SLOTS.action.surface());
+
+	function onRangeChange(event: Event & { currentTarget: HTMLInputElement }): void {
+		const next = Number(event.currentTarget.value);
+		value = Number.isFinite(next) ? next : node.min;
+		commitBinding(store, node.bind, value);
+	}
 </script>
 
 <div class="mo-range" style:--mo-range-pct={`${pct}%`} style:--mo-range-fill={fill}>
@@ -67,6 +75,7 @@
 		aria-labelledby={ariaLabelledby}
 		aria-describedby={describedBy}
 		data-bind={node.bind}
+		onchange={onRangeChange}
 	/>
 	<div class="mo-range__scale" aria-hidden="true">
 		<span class="mo-range__bound">{node.min}</span>
