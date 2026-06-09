@@ -390,9 +390,10 @@ frame stratum today, for visitor cohorts rather than directory-supplied roles:
 ad-click attribution (campaign taxonomy, geo, device — deterministic URL
 parameters, consent-clean) selects the dialect at the `MorpheRoot` boundary,
 and the same authored marketing tree re-poses itself per cohort. Palette
-differentiation is shipped (three dialects pulled apart at the beacon); the
-`?cohort=` arrival wiring and per-cohort copy are the named next steps
-(`DESIGN.md` §9).
+differentiation is shipped (three dialects pulled apart at the beacon), and so
+is the `?cohort=` arrival wiring (a valid landing param selects the dialect
+once, on arrival; an explicit toggle always wins afterward). Per-cohort copy is
+the remaining named next step (`DESIGN.md` §9).
 
 **Remark (stability is a feature at this stratum).** The frame loop is
 deliberately the most hysteretic actor in the system. A CFO whose dashboard
@@ -683,7 +684,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Intent-ref apply-time validation + neutral dialect values | L4 | `MorpheRoot.svelte`, `dialects/provider.svelte.ts`, `dialects.test.ts` | ✔ |
 | Compound dialects (`dialect.compounds[]` render-gated) | L4 | typed, not gated | ○ (Phase 1) |
 | G\|D decoder masks (dialect-restricted emission) | L4 | — | ✗ (Phase 2) |
-| Cohort/attribution → dialect at `MorpheRoot` | L4 | direction in `DESIGN.md` §9 | ✗ (named next step) |
+| Cohort/attribution → dialect at `MorpheRoot` | L4 | `dialects/arrival.ts`, `+layout.svelte` | ✔ (`?cohort=` arrival wiring; per-cohort copy still open) |
 | `bind` store-paths on inputs/overlays | L5 | typed, declarative only | ○ (Phase 1) |
 | Tier-0 local state in input primitives | L5 | input primitives | ✔ |
 | Tier-1/2 escalation, client store, ContextDigest | L5 | — | ✗ (Phase 1) |

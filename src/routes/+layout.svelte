@@ -1,9 +1,17 @@
 <script lang="ts">
+import { untrack } from "svelte";
+import { page } from "$app/state";
 import "../app.css";
 import "$lib/site/site.css";
 import Footer from "$lib/site/Footer.svelte";
 import Nav from "$lib/site/Nav.svelte";
-import { activeDialect, applyDialect, dialectStyle } from "$morphe";
+import {
+	activeDialect,
+	applyDialect,
+	DIALECT_IDS,
+	dialectStyle,
+	resolveArrivalDialect,
+} from "$morphe";
 
 let { children } = $props();
 
@@ -15,15 +23,21 @@ let { children } = $props();
 // default dialect (activeDialect.current is the default until client hydration).
 const shellStyle = $derived(dialectStyle(applyDialect(activeDialect.current)));
 
-// CLIENT-ONLY active-dialect persistence. `$effect` never runs during SSR, so
-// the server always renders the DEFAULT dialect (SSR-safe, no hydration crash).
-// On first client run we hydrate from localStorage; thereafter every change to
-// the global active dialect is written back. `setById` ignores unknown ids, so a
+// CLIENT-ONLY arrival resolution + persistence. `$effect` never runs during SSR,
+// so the server always renders the DEFAULT dialect (SSR-safe, no hydration crash).
+// On first client run we resolve the arrival: a VALID `?cohort=` landing param
+// (τ_frame attribution, DESIGN.md §9) outranks the persisted choice; an unknown
+// param is ignored and the persisted choice stands. The URL read is `untrack`ed
+// and localStorage is non-reactive, so this effect runs ONCE on mount — arrival
+// attribution applies once and never fights a later in-session toggle, which the
+// write-back effect below persists as usual. `setById` ignores unknown ids, so a
 // stale persisted value can never clobber the selection.
 $effect(() => {
 	if (typeof localStorage === "undefined") return;
-	const saved = localStorage.getItem("mo-dialect");
-	if (saved !== null) activeDialect.setById(saved);
+	const cohort = untrack(() => page.url.searchParams.get("cohort"));
+	const persisted = localStorage.getItem("mo-dialect");
+	const resolved = resolveArrivalDialect(cohort, persisted, DIALECT_IDS);
+	if (resolved !== null) activeDialect.setById(resolved);
 });
 $effect(() => {
 	if (typeof localStorage === "undefined") return;

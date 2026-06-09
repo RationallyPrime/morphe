@@ -253,8 +253,11 @@ The dialect mechanism is not just a substrate demo — it is the lever for
 customer cohort; the same authored marketing tree can re-theme (and, as a next step,
 re-*copy*) into the pitch that cohort responds to, with zero change to the authored
 nodes. The palette differentiation above is step one (each cohort reads as its own
-brand). The shippable next steps, not yet built: (1) read a landing `?cohort=` param
-and set `activeDialect` on arrival; (2) branch the centralized copy in
+brand). Step two is **shipped**: the layout reads a landing `?cohort=` param and
+sets `activeDialect` on arrival (`resolveArrivalDialect` in
+`src/lib/morphe/dialects/arrival.ts`; precedence: valid param > persisted choice >
+default, unknown params ignored, an explicit in-session toggle always wins
+afterward). The remaining step, not yet built: branch the centralized copy in
 `$lib/site/present.ts` per cohort/persona so the *pitch*, not only the palette,
 fits the profile. Copy-per-cohort is a product decision (which cohorts, which
 pitches) and the Icelandic copy is the user's — so it waits for that input rather
