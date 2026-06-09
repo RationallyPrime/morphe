@@ -294,7 +294,8 @@
 		inline-size: 100%;
 		background: var(--mo-intent-neutral-surface);
 		color: var(--mo-intent-on-surface);
-		border: 1px solid var(--mo-select-border, var(--mo-intent-outline));
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid
+			var(--mo-select-border, var(--mo-intent-outline));
 		border-radius: var(--mo-radius-2);
 		padding: var(--mo-ctx-space, var(--mo-space-3)) var(--mo-space-8) var(--mo-ctx-space, var(--mo-space-3))
 			var(--mo-space-4);
@@ -305,13 +306,13 @@
 		transition: border-color 0.15s ease;
 	}
 	.mo-select__control:focus-visible {
-		outline: 2px solid var(--mo-select-ring, var(--mo-intent-primary-action-ring));
-		outline-offset: 2px;
+		outline: var(--mo-ring-width) solid var(--mo-select-ring, var(--mo-intent-primary-action-ring));
+		outline-offset: var(--mo-ring-offset);
 		border-color: var(--mo-select-ring, var(--mo-intent-primary-action-ring));
 	}
 	/* Shape channel for error: a thicker rule, not color alone. */
 	.mo-select[data-invalid="true"] .mo-select__control {
-		border-width: 2px;
+		--mo-ctx-stroke: var(--mo-border-width-strong);
 	}
 	.mo-select__chevron {
 		position: absolute;
@@ -335,7 +336,8 @@
 		text-align: start;
 		background: var(--mo-intent-neutral-surface);
 		color: var(--mo-intent-on-surface);
-		border: 1px solid var(--mo-select-border, var(--mo-intent-outline));
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid
+			var(--mo-select-border, var(--mo-intent-outline));
 		border-radius: var(--mo-radius-2);
 		padding: var(--mo-ctx-space, var(--mo-space-3)) var(--mo-space-4);
 		font-family: var(--mo-font-body);
@@ -348,8 +350,8 @@
 		border-color: var(--mo-select-mark, var(--mo-intent-primary-action-surface));
 	}
 	.mo-select__radio:focus-visible {
-		outline: 2px solid var(--mo-select-ring, var(--mo-intent-primary-action-ring));
-		outline-offset: 2px;
+		outline: var(--mo-ring-width) solid var(--mo-select-ring, var(--mo-intent-primary-action-ring));
+		outline-offset: var(--mo-ring-offset);
 	}
 	.mo-select__radio:disabled {
 		cursor: not-allowed;
@@ -359,8 +361,9 @@
 	   change, present even without color. Selected also thickens the rule. */
 	.mo-select__radio[data-selected="true"] {
 		border-color: var(--mo-select-mark, var(--mo-intent-primary-action-surface));
-		border-width: 2px;
-		padding-inline: calc(var(--mo-space-4) - 1px);
+		--mo-ctx-stroke: var(--mo-border-width-strong);
+		/* Compensate the content shift from the heavier (strong) selected border. */
+		padding-inline: calc(var(--mo-space-4) - (var(--mo-border-width-strong) - var(--mo-border-width)));
 	}
 	.mo-select__mark {
 		position: relative;
@@ -368,7 +371,7 @@
 		inline-size: 1.15rem;
 		block-size: 1.15rem;
 		border-radius: var(--mo-radius-full);
-		border: 2px solid var(--mo-intent-on-surface-muted);
+		border: var(--mo-border-width-strong) solid var(--mo-intent-on-surface-muted);
 		transition: border-color 0.15s ease;
 	}
 	.mo-select__radio[data-selected="true"] .mo-select__mark {

@@ -534,6 +534,22 @@ describe("emphasis subalgebra — renormalization reaches the SSR tree (Budget-c
 		// and the siblings render the normal baseline (never quieted to muted).
 		expect(stackEmphases(ssr(tree))).toEqual(["normal", "strong", "normal"]);
 	});
+
+	it("a strong-granted container emits the strong stroke tier for its subtree (the orbit reaches the cascade)", () => {
+		const tree: Node = {
+			kind: "frame",
+			role: "page",
+			surface: "base",
+			budget: 3,
+			children: [{ kind: "stack", role: "list", emphasis: "strong", children: [leaf] }],
+		};
+		// The granted-strong stack emits --mo-ctx-stroke at the emphasis tier so its
+		// descendant control borders inherit a heavier edge; emphasisToStrokeStep maps
+		// strong → the strong border-width step. A normal node emits the hairline step.
+		const html = ssr(tree);
+		expect(html).toMatch(/--mo-ctx-stroke:\s*var\(--mo-border-width-strong\)/); // strong stack
+		expect(html).toMatch(/--mo-ctx-stroke:\s*var\(--mo-border-width\)/); // the page Frame (normal)
+	});
 });
 
 describe("SSR dialect-prior seeding — the root descends from the dialect's clamped priors", () => {

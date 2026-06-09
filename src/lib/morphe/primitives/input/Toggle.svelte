@@ -162,7 +162,7 @@
 		inline-size: 2.75rem;
 		block-size: 1.5rem;
 		border-radius: var(--mo-radius-full);
-		border: 1px solid var(--mo-intent-outline);
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid var(--mo-intent-outline);
 		background: var(--mo-intent-neutral-surface);
 		padding: 0;
 		cursor: pointer;
@@ -253,7 +253,7 @@
 		display: grid;
 		place-items: center;
 		border-radius: var(--mo-radius-1);
-		border: 1px solid var(--mo-intent-outline);
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid var(--mo-intent-outline);
 		background: var(--mo-intent-neutral-surface);
 		pointer-events: none;
 		transition: background-color 0.15s ease, border-color 0.15s ease;

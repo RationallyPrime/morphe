@@ -77,8 +77,9 @@
 		border-radius: var(--mo-radius-2);
 		background: var(--mo-alert-surface);
 		color: var(--mo-alert-on);
-		/* Tonal layering, no shadow; the leading rule is a SHAPE cue, not decoration. */
-		border-inline-start: 3px solid var(--mo-alert-border);
+		/* Tone is carried by the tonal surface + the leading glyph (shape) + the
+		   required title (text) — never a colored edge rule (DESIGN §9 side-stripe
+		   ban). The glyph already IS the shape signal the rule was duplicating. */
 	}
 	.mo-alert__icon {
 		font-size: var(--mo-type-6);

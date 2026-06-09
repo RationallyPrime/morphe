@@ -132,8 +132,8 @@
 		cursor: pointer;
 	}
 	.mo-range__control:focus-visible {
-		outline: 2px solid var(--mo-intent-primary-action-ring);
-		outline-offset: 4px;
+		outline: var(--mo-ring-width) solid var(--mo-intent-primary-action-ring);
+		outline-offset: var(--mo-ring-offset);
 	}
 	.mo-range__control::-webkit-slider-thumb {
 		appearance: none;
@@ -141,7 +141,7 @@
 		block-size: 1.1rem;
 		border-radius: var(--mo-radius-full);
 		background: var(--mo-intent-on-surface);
-		border: 2px solid var(--mo-range-fill, var(--mo-intent-primary-action-surface));
+		border: var(--mo-border-width-strong) solid var(--mo-range-fill, var(--mo-intent-primary-action-surface));
 		cursor: pointer;
 	}
 	.mo-range__control::-moz-range-thumb {
@@ -149,7 +149,7 @@
 		block-size: 1.1rem;
 		border-radius: var(--mo-radius-full);
 		background: var(--mo-intent-on-surface);
-		border: 2px solid var(--mo-range-fill, var(--mo-intent-primary-action-surface));
+		border: var(--mo-border-width-strong) solid var(--mo-range-fill, var(--mo-intent-primary-action-surface));
 		cursor: pointer;
 	}
 	.mo-range__scale {

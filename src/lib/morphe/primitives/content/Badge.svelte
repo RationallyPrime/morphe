@@ -4,8 +4,9 @@
 	 *
 	 * Functional color is never the only signal: the badge's intent contributes
 	 * surface/on color, but the always-present, color-independent signals are the
-	 * label text itself (a non-color channel) and an optional shape `icon`. A start
-	 * border in the intent's `border` channel adds a further redundant shape cue.
+	 * label text itself (a non-color channel) and an optional shape `icon` — so no
+	 * edge rule is needed (a colored side-stripe is a DESIGN §9 ban, and the label
+	 * already carries the non-color signal it would duplicate).
 	 *
 	 * The badge consumes an intent only (no layout descent — it is a leaf); it
 	 * references SLOTS via `slot()`, never an intent name welded into the markup or
@@ -24,10 +25,9 @@
 	/* Defensive fallbacks so an unknown dialect intent still renders legibly. */
 	const surface = $derived(slot(intent, "surface", "var(--mo-intent-neutral-surface)"));
 	const on = $derived(slot(intent, "on", "var(--mo-intent-on-surface)"));
-	const border = $derived(slot(intent, "border", "var(--mo-intent-outline)"));
 </script>
 
-<span class="mo-badge" style:background={surface} style:color={on} style:--mo-badge-border={border}>
+<span class="mo-badge" style:background={surface} style:color={on}>
 	{#if node.icon}
 		<span class="mo-badge__icon material-symbols-outlined" aria-hidden="true">{node.icon}</span>
 	{/if}
@@ -40,8 +40,6 @@
 		align-items: center;
 		gap: var(--mo-space-2);
 		padding: var(--mo-space-1) var(--mo-space-3);
-		/* Start border in the intent's border channel — a non-color shape cue. */
-		border-inline-start: 2px solid var(--mo-badge-border);
 		border-radius: var(--mo-radius-2);
 		font-family: var(--mo-font-label);
 		font-size: var(--mo-type-1);

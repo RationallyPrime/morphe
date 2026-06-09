@@ -30,7 +30,7 @@
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Frame } from "../../grammar/types.js";
 	import { descendFrame, boundaryStyle } from "../../context/Context.svelte.js";
-	import { renderedChildEmphasis } from "../../context/algebra.js";
+	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Frame> = $props();
@@ -59,7 +59,13 @@
 	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
 </script>
 
-<section class="mo-frame" data-surface={surface} data-role={node.role} style={childStyle}>
+<section
+	class="mo-frame"
+	data-surface={surface}
+	data-role={node.role}
+	style={childStyle}
+	style:--mo-ctx-stroke={emphasisToStrokeStep(ctx.renderedEmphasis ?? "normal")}
+>
 	{#each node.children as c, i (c)}
 		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
 	{/each}
@@ -102,8 +108,8 @@
 	 */
 	.mo-frame[data-surface="sunken"],
 	.mo-frame[data-surface="raised"] {
-		outline: 1px solid var(--mo-intent-outline);
-		outline-offset: -1px;
+		outline: var(--mo-border-width) solid var(--mo-intent-outline);
+		outline-offset: calc(-1 * var(--mo-border-width));
 	}
 	.mo-frame[data-surface="sunken"] {
 		background: var(--mo-ctx-surface, var(--mo-intent-surface-sunken));

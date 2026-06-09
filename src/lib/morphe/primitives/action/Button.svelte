@@ -91,7 +91,7 @@
 		/* WCAG 2.5.5/2.5.8: keep the activation target tappable regardless of the
 		   density tier the context hands down. */
 		min-block-size: 2.5rem;
-		border: 1px solid transparent;
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid transparent;
 		border-radius: var(--mo-radius-2);
 		font-family: var(--mo-font-body);
 		/* Type follows the boundary the nearest Layout ancestor set; falls back to

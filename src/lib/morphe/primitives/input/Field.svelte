@@ -164,7 +164,8 @@
 		background: var(--mo-intent-neutral-surface);
 		color: var(--mo-intent-on-surface);
 		border: 0;
-		border-bottom: 1px solid var(--mo-field-border, var(--mo-intent-outline));
+		border-bottom: var(--mo-ctx-stroke, var(--mo-border-width)) solid
+			var(--mo-field-border, var(--mo-intent-outline));
 		border-radius: var(--mo-radius-2) var(--mo-radius-2) 0 0;
 		padding: var(--mo-ctx-space, var(--mo-space-4)) var(--mo-space-4);
 		font-family: var(--mo-font-body);
@@ -192,9 +193,10 @@
 		outline-offset: var(--mo-ring-offset, 2px);
 		border-bottom-color: var(--mo-field-ring, var(--mo-intent-primary-action-ring));
 	}
-	/* Shape channel for the error state: a thicker rule, not color alone. */
+	/* Shape channel for the error state: the stroke steps up to the emphasis tier
+	   (a thicker rule, not color alone) by overriding the orbit var locally. */
 	.mo-field[data-invalid="true"] .mo-field__input {
-		border-bottom-width: 2px;
+		--mo-ctx-stroke: var(--mo-border-width-strong);
 	}
 	.mo-field__hint {
 		margin: 0;

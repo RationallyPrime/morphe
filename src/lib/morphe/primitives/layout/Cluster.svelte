@@ -19,7 +19,7 @@
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Cluster } from "../../grammar/types.js";
 	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
-	import { renderedChildEmphasis } from "../../context/algebra.js";
+	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Cluster> = $props();
@@ -49,6 +49,7 @@
 	data-role={node.role}
 	data-emphasis={emphasis}
 	style={childStyle}
+	style:--mo-ctx-stroke={emphasisToStrokeStep(emphasis)}
 >
 	{#each node.children as c, i (c)}
 		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />

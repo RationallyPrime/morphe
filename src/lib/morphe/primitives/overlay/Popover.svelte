@@ -226,7 +226,7 @@
 		margin: 0;
 		inset: auto;
 		padding: var(--mo-space-4);
-		border: 1px solid var(--mo-overlay-border);
+		border: var(--mo-ctx-stroke, var(--mo-border-width)) solid var(--mo-overlay-border);
 		border-radius: var(--mo-radius-2);
 		background: var(--mo-overlay-surface);
 		color: var(--mo-overlay-on);

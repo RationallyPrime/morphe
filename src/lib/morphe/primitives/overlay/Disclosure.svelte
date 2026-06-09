@@ -71,7 +71,7 @@
 	.mo-disclosure {
 		/* Sectioning by tonal shift, never a 1px structural border: only a low
 		   contrast ghost rule separates stacked disclosures for accessibility. */
-		border-block-end: 1px solid var(--mo-intent-outline);
+		border-block-end: var(--mo-ctx-stroke, var(--mo-border-width)) solid var(--mo-intent-outline);
 		color: var(--mo-disc-on, var(--mo-intent-on-surface));
 	}
 	.mo-disclosure__summary {
