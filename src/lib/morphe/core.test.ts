@@ -17,7 +17,7 @@ import {
 	renormalizeBudget,
 	transform,
 } from "./context/algebra.js";
-import { CompoundRegistry } from "./compounds/factory.js";
+import { CompoundRegistry, restrictCompounds } from "./compounds/factory.js";
 import type { CompoundDef } from "./compounds/factory.js";
 import type { Node } from "./grammar/types.js";
 
@@ -319,6 +319,122 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		expect(filledText).toEqual(["First note", "Second note"]);
 		// No Slot leaf survived the expansion.
 		expect(JSON.stringify(expanded)).not.toContain('"kind":"slot"');
+	});
+});
+
+describe("compound lifecycle + dialect restriction (L1 minting / L4 G|D)", () => {
+	/** A minimal valid def, parameterized by name (each test gets fresh ones). */
+	const def = (name: string): CompoundDef => ({
+		name,
+		version: "1.0.0",
+		grammarVersion: "0.1.0",
+		params: { type: "object", properties: {} },
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [{ kind: "text", value: name }],
+		},
+	});
+
+	it("candidate registration passes the SAME gate (the gate is the gate)", () => {
+		const reg = new CompoundRegistry();
+		const ok = reg.register(def("proposal"), { lifecycle: "candidate" });
+		expect(ok.ok).toBe(true);
+		expect(reg.lifecycleOf("proposal")).toBe("candidate");
+
+		// And a gate-invalid def fails identically regardless of lifecycle.
+		const cyclic: CompoundDef = {
+			...def("loop2"),
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [{ kind: "compound", name: "loop2", args: {} }],
+			},
+		};
+		expect(reg.register(cyclic, { lifecycle: "candidate" }).ok).toBe(false);
+		expect(reg.register({ ...cyclic, name: "loop3" }).ok).toBe(false);
+	});
+
+	it("defaults to promoted, so everything registered today is unchanged", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("core-thing"));
+		expect(reg.lifecycleOf("core-thing")).toBe("promoted");
+		expect(reg.namesOf("promoted")).toEqual(["core-thing"]);
+		expect(reg.namesOf("candidate")).toEqual([]);
+	});
+
+	it("promote flips visibility through an unrestricted view", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("proposal"), { lifecycle: "candidate" });
+		const view = restrictCompounds(reg, { allow: [] });
+
+		// Hidden while candidate (promoted is the default visible set)…
+		expect(view.has("proposal")).toBe(false);
+		expect(view.names).toEqual([]);
+
+		// …visible after promotion. Same view object: the view reads the base live.
+		expect(reg.promote("proposal")).toBe(true);
+		expect(view.has("proposal")).toBe(true);
+		expect(reg.promote("never-registered")).toBe(false);
+	});
+
+	it("a candidate renders where the dialect names it, or under the dev flag", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("proposal"), { lifecycle: "candidate" });
+
+		const optedIn = restrictCompounds(reg, { allow: ["proposal"] });
+		expect(optedIn.has("proposal")).toBe(true);
+
+		const devPreview = restrictCompounds(reg, { allow: [], showCandidates: true });
+		expect(devPreview.has("proposal")).toBe(true);
+	});
+
+	it("a non-empty allowlist treats out-of-dialect names as unknown (no throw at render)", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("inside"));
+		reg.register(def("outside"));
+		const view = restrictCompounds(reg, { allow: ["inside"] });
+
+		// The renderer's totality path: has() is false, so it renders nothing —
+		// it never calls expand() for an invisible name.
+		expect(view.has("inside")).toBe(true);
+		expect(view.has("outside")).toBe(false);
+		expect(view.get("outside")).toBeUndefined();
+		expect(view.names).toEqual(["inside"]);
+
+		// expand() on an invisible name keeps the base's corrupt-call contract.
+		expect(() => view.expand({ kind: "compound", name: "outside", args: {} })).toThrow(
+			/Unknown compound/,
+		);
+	});
+
+	it("an empty allowlist over promoted compounds is behavior-identical to the base", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("a"));
+		reg.register(def("b"));
+		const view = restrictCompounds(reg, { allow: [] });
+
+		expect(view.names).toEqual(reg.names);
+		for (const name of reg.names) {
+			expect(view.has(name)).toBe(reg.has(name));
+			expect(view.get(name)).toBe(reg.get(name));
+			expect(view.expand({ kind: "compound", name, args: {} })).toEqual(
+				reg.expand({ kind: "compound", name, args: {} }),
+			);
+		}
+	});
+
+	it("the base registry is never mutated by a view (two roots, two dialects)", () => {
+		const reg = new CompoundRegistry();
+		reg.register(def("a"));
+		reg.register(def("b"));
+		const narrow = restrictCompounds(reg, { allow: ["a"] });
+		const wide = restrictCompounds(reg, { allow: [] });
+
+		expect(narrow.has("b")).toBe(false);
+		expect(wide.has("b")).toBe(true);
+		expect(reg.has("b")).toBe(true);
+		expect(reg.names).toEqual(["a", "b"]);
 	});
 });
 

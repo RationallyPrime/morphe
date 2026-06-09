@@ -380,12 +380,31 @@ carry its own `new CompoundRegistry()` (DI).
 interface ParamSpec   { type:"string"|"number"|"boolean"|"node"|"node-list"; required?:boolean; default?:unknown; description?:string }
 interface ParamsSchema{ type:"object"; properties:Record<string,ParamSpec> }
 interface CompoundDef { name:string; version:string; params:ParamsSchema; template:Node; grammarVersion:string }
+type CompoundLifecycle = "candidate" | "promoted"        // the L1 minting lifecycle
+interface CompoundResolver { names; has(name); get(name); expand(ref) }   // the render-facing protocol
 
-registry.register(def): { ok:true; name } | { ok:false; name; errors:string[] }   // never throws
+registry.register(def, {lifecycle?}): { ok:true; name } | { ok:false; name; errors:string[] }  // never throws; default "promoted"
 registry.expand(ref:CompoundRef): Node                                            // hygienic expansion
-registry.has(name) / registry.get(name) / registry.names
+registry.has(name) / registry.get(name) / registry.names / registry.namesOf(lifecycle)
+registry.promote(name): boolean                          // candidate -> promoted; never re-runs the gate
+restrictCompounds(registry, {allow, showCandidates?}): CompoundResolver          // G|D view, never mutates
 childrenOf(node): readonly Node[]    // the single source of truth for a node's children
 ```
+
+**Lifecycle (L1 minting):** three producers mint through this one pipeline —
+the curated core, agent proposals, application code — and ALL pass the same
+gate; `lifecycle` only decides default visibility. A `candidate` renders only
+where the active dialect names it in `compounds[]` (an explicit opt-in) or a
+root sets the `showCandidates` dev flag; `promote(name)` moves it into the
+default visible set.
+
+**Dialect restriction (L4, G|D's compound half):** `MorpheRoot` derives
+`restrictCompounds(registry, { allow: dialect.compounds })` and provides it to
+every `<Node>` via context (the prop chain does not survive container
+recursion). An empty `compounds[]` is unrestricted (today's shipped dialects);
+a non-empty list makes out-of-dialect names read as UNKNOWN — render-nothing +
+dev-warn, never a throw. The base registry is never mutated; two roots under
+different dialects hold independent views over the same singleton.
 
 **Registration gate** (a failing compound is NOT added — render stays total):
 1. expand with schema-default args,
@@ -485,7 +504,7 @@ interface Dialect {
   id:string; label:string; persona?:{vertical:string; role?:string};
   intents: Record<string, Partial<Record<IntentChannel,string>>>;  // values MUST be var(--mo-…scale…), never hex
   priors: { rootDensity?:Density; rootScaleTier?:ScaleTier; rootBudget?:number };
-  compounds: string[];                                             // Phase 1 wires the registry
+  compounds: string[];   // render-gated allowlist (G|D): empty = unrestricted; see §5
 }
 applyDialect(d): { attr, rootContext, vars }   // clamps priors; builds CSS var overrides
 dialectStyle(applied): string                  // inline style for the overrides
@@ -581,7 +600,7 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 | Declarative actions | `Button.action` (an id, no live wire) | the later event loop binds a handler to the id; the grammar emits intent, not logic | 1 |
 | Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | wired to Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | ✔ |
 | Variation points | `Vary` (renders `options[default]` today), `Vary.objective` | Lemma 6: the mid loop selects among options within an epoch; `objective` is what it optimizes | 2 |
-| Dialect compound-gating | `Dialect.compounds[]` (typed, not render-gated) | Lemma 4's compound dialect: G\|D restricts the registry per dialect | 1 |
+| Dialect compound-gating | `Dialect.compounds[]` (render-gated via `restrictCompounds`) | wired to Lemma 4's compound dialect: a non-empty list restricts expansion; empty = unrestricted | ✔ |
 | Dialect personas | `Dialect.persona` | τ_frame bootstrap (deployment/directory; cohort attribution on the site) | 2 |
 
 **Planned grammar extensions** (contract changes, owner-only, pre-announced so

@@ -674,7 +674,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Grammar (22 primitive kinds + meta + compound) | L1 | `grammar/types.ts` | ✔ |
 | A11y-required typing (unrepresentable inaccessibility) | L1 | `grammar/types.ts` | ✔ |
 | Compound factory: hygienic expansion + validation gate | L1 | `compounds/factory.ts` | ✔ |
-| Candidate/promoted compound lifecycle | L1 | — | ✗ (Phase 1) |
+| Candidate/promoted compound lifecycle | L1 | `compounds/factory.ts` (`register({lifecycle})`, `promote`) | ✔ |
 | Context algebra: four laws + property tests | L2 | `context/algebra.ts`, `lemmas.property.test.ts` | ✔ |
 | Emphasis renormalization wired into render path | L2 | layout primitives | ✔ |
 | Law-4 × expansion commutation (claim hygiene) | L1×L2 | `grammar/types.ts`, `context/algebra.ts`, `lemmas.property.test.ts` | ✔ |
@@ -682,7 +682,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Dialects: intent remap + bounded priors, global flip | L4 | `dialects/` | ✔ |
 | Intent-keyset fixed point across dialects (tested) | L4 | `dialects.test.ts` | ✔ |
 | Intent-ref apply-time validation + neutral dialect values | L4 | `MorpheRoot.svelte`, `dialects/provider.svelte.ts`, `dialects.test.ts` | ✔ |
-| Compound dialects (`dialect.compounds[]` render-gated) | L4 | typed, not gated | ○ (Phase 1) |
+| Compound dialects (`dialect.compounds[]` render-gated) | L4 | `restrictCompounds` view, `MorpheRoot` → resolver context | ✔ |
 | G\|D decoder masks (dialect-restricted emission) | L4 | — | ✗ (Phase 2) |
 | Cohort/attribution → dialect at `MorpheRoot` | L4 | `dialects/arrival.ts`, `+layout.svelte` | ✔ (`?cohort=` arrival wiring; per-cohort copy still open) |
 | `bind` store-paths on inputs/overlays | L5 | client store + bound primitives | ✔ |
