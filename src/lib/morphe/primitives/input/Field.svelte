@@ -35,9 +35,11 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Field } from "../../grammar/types.js";
+	import { boundString, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Field> = $props();
+	const store = useMorpheStore();
 
 	const a11y = $derived(node.a11y);
 	const hintId = $derived(node.hint ? `${a11y.id}-hint` : undefined);
@@ -64,10 +66,14 @@
 	const borderColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.border());
 	const ringColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.field.ring());
 
-	// tier-0 local state (Lemma 5): the field's own value never leaves the
-	// component in Phase 0 — the host adopts it via the data-bind store-path. Shared
-	// by both arms; <input> and <textarea> bind the same component-owned string.
-	let value = $state("");
+	// tier-0 local state (Lemma 5): seed from tier-1 when bound, then commit only
+	// on native change. Keystrokes stay component-owned and do not leave the field.
+	// svelte-ignore state_referenced_locally
+	let value = $state(boundString(store, node.bind, ""));
+
+	function commitValue(): void {
+		commitBinding(store, node.bind, value);
+	}
 </script>
 
 <div
@@ -100,6 +106,7 @@
 			aria-labelledby={ariaLabelledby}
 			aria-describedby={describedBy}
 			data-bind={node.bind}
+			onchange={commitValue}
 			style:resize
 		></textarea>
 	{:else}
@@ -116,6 +123,7 @@
 			aria-labelledby={ariaLabelledby}
 			aria-describedby={describedBy}
 			data-bind={node.bind}
+			onchange={commitValue}
 		/>
 	{/if}
 	{#if node.hint && !invalid}

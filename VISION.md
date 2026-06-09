@@ -684,9 +684,9 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Compound dialects (`dialect.compounds[]` render-gated) | L4 | typed, not gated | ○ (Phase 1) |
 | G\|D decoder masks (dialect-restricted emission) | L4 | — | ✗ (Phase 2) |
 | Cohort/attribution → dialect at `MorpheRoot` | L4 | direction in `DESIGN.md` §9 | ✗ (named next step) |
-| `bind` store-paths on inputs/overlays | L5 | typed, declarative only | ○ (Phase 1) |
+| `bind` store-paths on inputs/overlays | L5 | client store + bound primitives | ✔ |
 | Tier-0 local state in input primitives | L5 | input primitives | ✔ |
-| Tier-1/2 escalation, client store, ContextDigest | L5 | — | ✗ (Phase 1) |
+| Tier-1/2 event escalation + ContextDigest | L5 | client store exists; event tiers/digest pending | ✗ (Phase 1) |
 | `Vary` nodes (render default option) | L6 | grammar + `Node.svelte` | ○ (Phase 2 wires deltas) |
 | `Within`, epochs, VaryId/delta typing | L6 | — | ✗ (Phase 2) |
 | Mid-loop model (appliance-resident, A4-constrained) | L7 | — | ✗ (Phase 2) |
