@@ -22,7 +22,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyDialect } from "./provider.svelte.js";
+import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
 import { icelandicArchive, DEFAULT_DIALECT, ARCHIVE_SURFACES } from "./icelandic-archive.js";
 import { clinical, CLINICAL_SURFACES } from "./clinical.js";
 import { reykjavikRegistry, REYKJAVIK_SURFACES } from "./reykjavik-registry.js";
@@ -44,6 +44,7 @@ const CHANNELS = ["surface", "on", "hover", "border", "ring"] as const;
  * but not brought to parity, FP2/FP3/FP4 fail here.
  */
 const SHIPPED_DIALECTS: readonly Dialect[] = DIALECT_IDS.map((id) => DIALECTS[id] as Dialect);
+const DIALECT_VALUE_PATTERN = /^(var\(--mo-|color-mix\(|transparent$)/;
 
 /** Every shipped dialect's surface stack, by id (FP2 — surfaces stay neutral too). */
 const SURFACE_STACKS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
@@ -139,6 +140,18 @@ describe("FP2 — both dialects keep the scales neutral (no welded vertical)", (
 				expect(isNeutralScaleExpr(value), value).toBe(true);
 			}
 		});
+
+		it(`${dialect.id}: every intent and surface value uses the dialect value pattern`, () => {
+			for (const [name, def] of Object.entries(dialect.intents)) {
+				for (const [channel, value] of Object.entries(def)) {
+					expect(value, `${dialect.id}.${name}.${channel}`).toMatch(DIALECT_VALUE_PATTERN);
+				}
+			}
+			const stack = SURFACE_STACKS[dialect.id];
+			for (const [name, value] of Object.entries(stack ?? {})) {
+				expect(value, `${dialect.id}.surface.${name}`).toMatch(DIALECT_VALUE_PATTERN);
+			}
+		});
 	}
 });
 
@@ -179,6 +192,22 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 				defaultNames,
 			);
 		}
+	});
+
+	it("unknownIntentsIn reports typo'd intent refs and ignores valid refs", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "valid", intent: "provenance" },
+				{ kind: "badge", label: "bad", intent: "provenence" },
+				{ kind: "status", tone: "caution", signal: { text: "closed union tone" } },
+			],
+		};
+		expect(unknownIntentsIn(tree, DEFAULT_DIALECT.intents)).toEqual(["provenence"]);
+		expect(
+			unknownIntentsIn({ kind: "text", value: "valid", intent: "provenance" }, DEFAULT_DIALECT.intents),
+		).toEqual([]);
 	});
 });
 

@@ -31,6 +31,7 @@ import {
 	type ScaleTier,
 	densityForCount,
 	enterFrame,
+	renderedChildEmphasis,
 	renormalizeBudget,
 	transform,
 } from "./context/algebra.js";
@@ -163,6 +164,27 @@ function walk(node: Node, visit: (n: Node) => void): void {
 /** Structural skeleton: kinds + child arity only — token-free, dialect-free. */
 function skeleton(node: Node): unknown {
 	return { kind: node.kind, children: childrenOf(node).map(skeleton) };
+}
+
+/** Add a root claim to a node, wrapping unclaimable leaves in a neutral container. */
+function withRootClaim(node: Node, claim: EmphasisClaim): Node {
+	switch (node.kind) {
+		case "stack":
+		case "grid":
+		case "cluster":
+		case "text":
+		case "number":
+			return { ...node, emphasis: claim };
+		default:
+			return { kind: "stack", role: "inline", emphasis: claim, children: [node] };
+	}
+}
+
+/** Remove only the root claim; nested authored claims remain part of the subtree. */
+function withoutRootClaim(node: Node): Node {
+	if (!("emphasis" in node)) return node;
+	const { emphasis: _emphasis, ...rest } = node;
+	return rest as Node;
 }
 
 /** The kinds the renderer can resolve at the leaf after compound expansion. */
@@ -498,6 +520,54 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 			const opts = { childCount: intIn(rng, 0, 20), claim: pick(rng, CLAIMS) };
 			// Same inputs ⇒ identical output, every time (deterministic, replayable).
 			expect(transform(parent, role, opts)).toEqual(transform(parent, role, opts));
+		});
+	});
+
+	it("BUDGET-CONSERVATION commutes with pass-through compound wrapping", () => {
+		forEachSeed("L2.expansion-commutation", (rng, seed) => {
+			const n = intIn(rng, 1, 9);
+			const children: Node[] = [];
+			const claims: Array<EmphasisClaim | undefined> = [];
+			for (let i = 0; i < n; i++) {
+				const claim = rng() < 0.75 ? pick(rng, CLAIMS) : undefined;
+				const child = genTree(rng, 2);
+				children.push(claim === undefined ? child : withRootClaim(child, claim));
+				claims.push(claim);
+			}
+
+			const target = intIn(rng, 0, n - 1);
+			const name = `pass-through-${seed}-${target}`;
+			const reg = new CompoundRegistry();
+			const def: CompoundDef = {
+				name,
+				version: "1.0.0",
+				grammarVersion: "0.1.0",
+				params: { type: "object", properties: {} },
+				template: {
+					kind: "stack",
+					role: "inline",
+					children: [{ kind: "slot", name: "body" }],
+				},
+			};
+			expect(reg.register(def).ok).toBe(true);
+
+			const stripped = withoutRootClaim(children[target] as Node);
+			const wrapped: Node =
+				claims[target] === undefined
+					? { kind: "compound", name, args: {}, slots: { body: [stripped] } }
+					: {
+							kind: "compound",
+							name,
+							args: {},
+							emphasis: claims[target],
+							slots: { body: [stripped] },
+						};
+			const wrappedChildren = [...children];
+			wrappedChildren[target] = wrapped;
+			const budget = intIn(rng, 0, 6);
+			expect(renderedChildEmphasis(budget, wrappedChildren)).toEqual(
+				renderedChildEmphasis(budget, children),
+			);
 		});
 	});
 });

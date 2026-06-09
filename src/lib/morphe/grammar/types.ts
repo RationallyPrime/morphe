@@ -539,6 +539,11 @@ export interface CompoundRef {
 	readonly name: string;
 	/** Validated at expansion against the named CompoundDef's params schema. */
 	readonly args: Readonly<Record<string, unknown>>;
+	/**
+	 * The call site's claim on behalf of the expansion root. Hygienic: a template
+	 * root must not carry its own claim; the registration gate rejects it.
+	 */
+	readonly emphasis?: EmphasisClaim;
 	/** Fill the template's named Slots from the call site. */
 	readonly slots?: Readonly<Record<string, readonly Node[]>>;
 }

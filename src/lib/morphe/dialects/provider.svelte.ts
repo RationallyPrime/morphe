@@ -14,7 +14,9 @@
  */
 
 import { type MorpheContext, ROOT_CONTEXT, type ScaleTier } from "../context/algebra.js";
+import { childrenOf } from "../compounds/factory.js";
 import { intentVar } from "../tokens/intents.js";
+import type { Node } from "../grammar/types.js";
 import type { Dialect } from "./types.js";
 
 /** Bounds within which a dialect's priors are clamped (the "bounded" in L4). */
@@ -36,6 +38,26 @@ export interface AppliedDialect {
 
 function clamp(n: number, lo: number, hi: number): number {
 	return Math.min(hi, Math.max(lo, n));
+}
+
+/**
+ * Collect authored intent refs not present in the active dialect's intent set.
+ * Only `intent` is inspected; feedback `tone` is a closed grammar union.
+ */
+export function unknownIntentsIn(
+	tree: Node,
+	intents: Readonly<Record<string, unknown>>,
+): string[] {
+	const known = new Set(Object.keys(intents));
+	const unknown: string[] = [];
+	const walk = (node: Node): void => {
+		if ("intent" in node && typeof node.intent === "string" && !known.has(node.intent)) {
+			unknown.push(node.intent);
+		}
+		for (const child of childrenOf(node)) walk(child);
+	};
+	walk(tree);
+	return unknown;
 }
 
 /** Apply a dialect: clamp priors, build root context, collect intent overrides. */

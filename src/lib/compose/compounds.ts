@@ -69,7 +69,6 @@ export const PainPrompt: CompoundDef = {
 		kind: "stack",
 		role: "section",
 		direction: "block",
-		emphasis: "strong",
 		children: [
 			{ kind: "text", value: "What Sókrates can do", as: "caption", intent: "accession" },
 			// The visitor's answered question — call site owns the register.

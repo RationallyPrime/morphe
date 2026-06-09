@@ -125,6 +125,55 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(html).toContain("Source");
 		expect(html).toContain("Marginalia");
 	});
+
+	it("renders known siblings around an unknown CompoundRef without throwing", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "definitely-not-registered", args: {} },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("allows the same text node instance to appear twice under one container", () => {
+		const shared: Node = { kind: "text", value: "twice", as: "body" };
+		const tree: Node = {
+			kind: "stack",
+			role: "list",
+			children: [shared, shared],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html.match(/twice/g)).toHaveLength(2);
+	});
+
+	it("allows the same spacer node instance to be shared across nested containers", () => {
+		const shared: Node = { kind: "spacer", size: "lg" };
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "cluster", role: "inline", children: [shared] },
+				{ kind: "cluster", role: "inline", children: [shared] },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html.match(/data-size="lg"/g)).toHaveLength(2);
+	});
 });
 
 /* ===========================================================================

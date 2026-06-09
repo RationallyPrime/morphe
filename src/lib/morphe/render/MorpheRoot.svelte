@@ -15,7 +15,7 @@
 	import type { CompoundRegistry } from "../compounds/factory.js";
 	import { registry as defaultRegistry } from "../compounds/factory.js";
 	import { activeDialect } from "../dialects/active.svelte.js";
-	import { applyDialect, dialectStyle } from "../dialects/provider.svelte.js";
+	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
 	import { provideMorpheContext } from "../context/Context.svelte.js";
 	import Node from "./Node.svelte";
 
@@ -31,7 +31,15 @@
 	// when OMITTED, follow the GLOBAL active dialect reactively, so flipping it
 	// re-themes every following root at once.
 	const effective = $derived(dialect ?? activeDialect.current);
-	const applied = $derived(applyDialect(effective));
+	const applied = $derived.by(() => {
+		const next = applyDialect(effective);
+		if (import.meta.env.DEV) {
+			for (const intent of unknownIntentsIn(tree, effective.intents)) {
+				console.warn(`Unknown Morphe intent "${intent}" for dialect "${effective.id}".`);
+			}
+		}
+		return next;
+	});
 
 	// Seed the root context at INIT (not in an effect): setContext must run during
 	// component init to be visible to children synchronously on BOTH the server and

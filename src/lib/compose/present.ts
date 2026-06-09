@@ -467,6 +467,7 @@ export function composeAnswer(
 	const masthead: CompoundRef = {
 		kind: "compound",
 		name: "ComposePainPrompt",
+		emphasis: "strong",
 		args: {
 			heading: text("Here is what Sókrates can take on", "heading", {
 				emphasis: "strong",
@@ -529,6 +530,7 @@ export function emptyState(
 	const masthead: CompoundRef = {
 		kind: "compound",
 		name: "ComposePainPrompt",
+		emphasis: "strong",
 		args: {
 			heading: text(heading, "heading", { emphasis: "strong" }),
 			sub: text(sub, "body", { emphasis: "muted" }),
@@ -569,6 +571,7 @@ export function thinMatchState(caps: readonly Capability[], _query: ComposeQuery
 	const masthead: CompoundRef = {
 		kind: "compound",
 		name: "ComposePainPrompt",
+		emphasis: "strong",
 		args: {
 			heading: text("A loose match so far", "heading", { emphasis: "strong" }),
 			sub: text(
@@ -612,6 +615,7 @@ export function offDomainState(): Node {
 	const masthead: CompoundRef = {
 		kind: "compound",
 		name: "ComposePainPrompt",
+		emphasis: "strong",
 		args: {
 			heading: text("That sits outside what Sókrates works on", "heading", {
 				emphasis: "strong",

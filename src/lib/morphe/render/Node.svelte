@@ -48,7 +48,14 @@
 	);
 
 	/** Expand a CompoundRef once, reactively. */
-	const expanded = $derived(node.kind === "compound" ? registry.expand(node) : undefined);
+	const expanded = $derived.by(() => {
+		if (node.kind !== "compound") return undefined;
+		if (registry.has(node.name)) return registry.expand(node);
+		if (import.meta.env.DEV) {
+			console.warn(`Unknown Morphe compound "${node.name}" rendered as empty.`);
+		}
+		return undefined;
+	});
 </script>
 
 {#if node.kind === "compound"}
@@ -61,7 +68,7 @@
 	{/if}
 {:else if node.kind === "slot"}
 	<!-- A bare Slot outside a compound expansion renders its fallback. -->
-	{#each node.fallback ?? [] as child (child)}
+	{#each node.fallback ?? [] as child, i (i)}
 		<Self node={child} {ctx} {registry} />
 	{/each}
 {:else if node.kind === "param-ref"}

@@ -132,7 +132,7 @@
 			<p id={descId} class="mo-dialog__desc">{node.description}</p>
 		{/if}
 		<div class="mo-dialog__body">
-			{#each node.children as child (child)}
+			{#each node.children as child, i (i)}
 				<Node node={child} {ctx} />
 			{/each}
 		</div>

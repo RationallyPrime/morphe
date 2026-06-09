@@ -89,6 +89,20 @@ describe("emphasis subalgebra — renormalization is WIRED to the children (Budg
 		expect(explicitClaim(critical)).toBe("critical");
 	});
 
+	it("explicitClaim: Vary claims through its clamped default option", () => {
+		const vary: Node = {
+			kind: "vary",
+			id: "default-claim",
+			default: 999,
+			options: [
+				{ kind: "text", value: "plain" },
+				{ kind: "text", value: "loud", emphasis: "strong" },
+			],
+		};
+		expect(explicitClaim(vary)).toBe("strong");
+		expect(renderedChildEmphasis(2, [unmarked, vary])).toEqual(["normal", "strong"]);
+	});
+
 	it("renderedChildEmphasis: unmarked siblings stay the normal baseline and don't compete for budget", () => {
 		// The strong claim is the only competitor for B=2, so it renders strong; the
 		// flanking unmarked siblings render the normal baseline for free (NOT muted —
@@ -193,6 +207,28 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const result = reg.register(selfRef);
 		expect(result.ok).toBe(false);
 		expect(reg.has("loop")).toBe(false);
+	});
+
+	it("rejects a template whose root claims emphasis", () => {
+		const reg = new CompoundRegistry();
+		const result = reg.register({
+			name: "claimed-root",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "stack",
+				role: "panel",
+				emphasis: "strong",
+				children: [],
+			},
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) throw new Error("expected registration to fail");
+		expect(result.errors).toContain(
+			"Template root must not carry an emphasis claim; claim at the call site (CompoundRef.emphasis).",
+		);
+		expect(reg.has("claimed-root")).toBe(false);
 	});
 
 	it("compounds may reference compounds (open under composition)", () => {
