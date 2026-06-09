@@ -73,8 +73,6 @@ Other standing notes:
 
 - Open-state `$effect`s (Dialog/Popover) are client-only; SSR emits CLOSED
   markup by design (no `window` on the server).
-- `clinical` / `reykjavik-registry` / `dialects/registry.ts` are not in the
-  public barrel (`index.ts`) — contract-owner call pending.
 - Fonts / Material Symbols are a CDN dependency.
 
 ---
