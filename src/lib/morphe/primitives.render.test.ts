@@ -30,6 +30,7 @@ import { clinical } from "./dialects/clinical.js";
 import type { Dialect } from "./dialects/types.js";
 import type { Node } from "./grammar/types.js";
 import { createInMemoryMorpheStore, type MorpheStore } from "./state/store.svelte.js";
+import { registry } from "./compounds/factory.js";
 
 /** Render an authored tree through the full core to its SSR HTML body string. */
 function ssr(
@@ -147,6 +148,45 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(() => {
 			html = ssr(tree);
 		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("a dialect's compound allowlist hides an out-of-dialect compound at render (G|D)", () => {
+		// Registered and valid — but the rendering dialect restricts to a
+		// different subset, so the ref reads as unknown: nothing renders, the
+		// siblings survive, and nothing throws (the same totality path).
+		registry.register({
+			name: "render-gating-probe",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [{ kind: "text", value: "gated-content", as: "body" }],
+			},
+		});
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "render-gating-probe", args: {} },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+
+		// Unrestricted dialect (compounds: []): the compound expands.
+		expect(ssr(tree, icelandicArchive)).toContain("gated-content");
+
+		// A dialect restricted to a disjoint subset: same tree, content gone.
+		const restricted: Dialect = { ...icelandicArchive, compounds: ["some-other-compound"] };
+		let html = "";
+		expect(() => {
+			html = ssr(tree, restricted);
+		}).not.toThrow();
+		expect(html).not.toContain("gated-content");
 		expect(html).toContain("before");
 		expect(html).toContain("after");
 	});

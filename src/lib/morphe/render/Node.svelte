@@ -23,7 +23,8 @@
 	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { MorpheContext } from "../context/algebra.js";
 	import { ROOT_CONTEXT } from "../context/algebra.js";
-	import { registry as defaultRegistry, type CompoundRegistry } from "../compounds/factory.js";
+	import { registry as defaultRegistry, type CompoundResolver } from "../compounds/factory.js";
+	import { useCompoundResolver } from "./resolver.svelte.js";
 	import { primitiveFor, type PrimitiveKind } from "./registry.js";
 	import Self from "./Node.svelte";
 
@@ -31,11 +32,23 @@
 		node: MorpheNode;
 		/** Resolved context at this node. Defaults to ROOT for a standalone render. */
 		ctx?: MorpheContext;
-		/** Compound registry to expand against (DI; defaults to the process one). */
-		registry?: CompoundRegistry;
+		/**
+		 * Compound resolver to expand against (DI). Resolution: this prop >
+		 * the `MorpheRoot`-provided context ref (the dialect-restricted view —
+		 * an out-of-dialect or non-promoted name reads as unknown and falls
+		 * into the render-nothing + dev-warn path below, never throwing) > the
+		 * process registry for a standalone render.
+		 */
+		registry?: CompoundResolver;
 	}
 
-	let { node, ctx = ROOT_CONTEXT, registry = defaultRegistry }: Props = $props();
+	let { node, ctx = ROOT_CONTEXT, registry }: Props = $props();
+
+	// Context crosses the container-primitive boundaries the prop chain cannot
+	// (Stack/Frame/… recurse into <Node> with {node, ctx} only). The ref's
+	// `current` getter is reactive, so a dialect change re-derives the view here.
+	const provided = useCompoundResolver();
+	const resolver = $derived(registry ?? provided?.current ?? defaultRegistry);
 
 	/**
 	 * For Vary, pick the default option index, clamped into range. Phase 0 has no
@@ -50,7 +63,7 @@
 	/** Expand a CompoundRef once, reactively. */
 	const expanded = $derived.by(() => {
 		if (node.kind !== "compound") return undefined;
-		if (registry.has(node.name)) return registry.expand(node);
+		if (resolver.has(node.name)) return resolver.expand(node);
 		if (import.meta.env.DEV) {
 			console.warn(`Unknown Morphe compound "${node.name}" rendered as empty.`);
 		}

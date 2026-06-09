@@ -28,6 +28,7 @@ import { clinical, CLINICAL_SURFACES } from "./clinical.js";
 import { reykjavikRegistry, REYKJAVIK_SURFACES } from "./reykjavik-registry.js";
 import { DIALECTS, DIALECT_IDS, getDialect, hasDialect, DEFAULT_DIALECT_ID } from "./registry.js";
 import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
+import { registry as compoundRegistry } from "../compounds/factory.js";
 import type { Dialect } from "./types.js";
 import type { Node } from "../grammar/types.js";
 
@@ -357,5 +358,22 @@ describe("dialect registry — named lookup for the subtree-boundary swap", () =
 
 	it("the registry is frozen (read-only data, not a mutable global)", () => {
 		expect(Object.isFrozen(DIALECTS)).toBe(true);
+	});
+});
+
+describe("FP6 — every shipped dialect's compound subset resolves against the registry", () => {
+	// G|D's compound half (Lemma 4): a dialect's `compounds[]` is an allowlist
+	// over the compound registry. A name that resolves to nothing would make the
+	// restriction silently hide content under exactly one dialect — the kind of
+	// drift this parity suite exists to catch. All shipped lists are EMPTY today
+	// (unrestricted, Corollary 1); this guards the day one is not.
+	it("each declared compound name is registered", () => {
+		for (const d of Object.values(DIALECTS)) {
+			for (const name of d.compounds) {
+				expect(compoundRegistry.has(name), `${d.id}: unregistered compound "${name}"`).toBe(
+					true,
+				);
+			}
+		}
 	});
 });

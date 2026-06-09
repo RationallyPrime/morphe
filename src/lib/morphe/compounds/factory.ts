@@ -68,6 +68,35 @@ export type RegistrationResult =
 	| { readonly ok: true; readonly name: string }
 	| { readonly ok: false; readonly name: string; readonly errors: readonly string[] };
 
+/**
+ * The L1 minting lifecycle. Three producers mint compounds through ONE
+ * pipeline — the design team (curated core), the agent (proposals), and
+ * application code — and all three pass the SAME validation gate. The
+ * lifecycle is the only difference: an agent proposal lands as `candidate`
+ * and renders only where a dialect (or a dev flag) opts in; `promoted` is the
+ * default visible set and the default state for everything registered today.
+ */
+export type CompoundLifecycle = "candidate" | "promoted";
+
+export interface RegisterOptions {
+	readonly lifecycle?: CompoundLifecycle;
+}
+
+/**
+ * The render-facing registry protocol — what `<Node>`/`MorpheRoot` actually
+ * consume. `CompoundRegistry` implements it directly; `restrictCompounds`
+ * wraps one in a dialect-restricted VIEW that implements the same protocol,
+ * so G|D's compound half is a decorator over the registry, never a mutation
+ * of it.
+ */
+export interface CompoundResolver {
+	/** The names visible through this resolver (for tooling / introspection). */
+	readonly names: readonly string[];
+	has(name: string): boolean;
+	get(name: string): CompoundDef | undefined;
+	expand(ref: CompoundRef): Node;
+}
+
 const MAX_EXPANSION_DEPTH = 16;
 
 /**
@@ -75,12 +104,18 @@ const MAX_EXPANSION_DEPTH = 16;
  * for modification (the gate is fixed). Multiple registries can coexist (DI):
  * the default export is the process-wide one, but a dialect can carry its own.
  */
-export class CompoundRegistry {
+export class CompoundRegistry implements CompoundResolver {
 	#defs = new Map<string, CompoundDef>();
+	#lifecycles = new Map<string, CompoundLifecycle>();
 
 	/** All registered compound names (for tooling / introspection). */
 	get names(): readonly string[] {
 		return [...this.#defs.keys()];
+	}
+
+	/** The registered names in a given lifecycle state (the filtered variant). */
+	namesOf(lifecycle: CompoundLifecycle): readonly string[] {
+		return [...this.#defs.keys()].filter((name) => this.#lifecycles.get(name) === lifecycle);
 	}
 
 	has(name: string): boolean {
@@ -91,16 +126,37 @@ export class CompoundRegistry {
 		return this.#defs.get(name);
 	}
 
+	/** The lifecycle state of a registered compound (undefined if unknown). */
+	lifecycleOf(name: string): CompoundLifecycle | undefined {
+		return this.#lifecycles.get(name);
+	}
+
 	/**
 	 * Register a compound through the validation gate. Returns a result rather
 	 * than throwing, so a batch registration can collect failures. A failing
 	 * compound is NOT added to the registry — render stays total.
+	 *
+	 * The gate is IDENTICAL for both lifecycle states (the gate is the gate);
+	 * `lifecycle` only decides default visibility, never validity.
 	 */
-	register(def: CompoundDef): RegistrationResult {
+	register(def: CompoundDef, options: RegisterOptions = {}): RegistrationResult {
 		const errors = this.#validate(def);
 		if (errors.length > 0) return { ok: false, name: def.name, errors };
 		this.#defs.set(def.name, def);
+		this.#lifecycles.set(def.name, options.lifecycle ?? "promoted");
 		return { ok: true, name: def.name };
+	}
+
+	/**
+	 * Promote a candidate into the default visible set. Idempotent on an
+	 * already-promoted name; `false` only for an unknown name (nothing to
+	 * promote). Promotion never re-runs the gate — registration already proved
+	 * the def valid, and the gate result cannot change after the fact.
+	 */
+	promote(name: string): boolean {
+		if (!this.#defs.has(name)) return false;
+		this.#lifecycles.set(name, "promoted");
+		return true;
 	}
 
 	/**
@@ -284,6 +340,75 @@ export class CompoundRegistry {
 
 /** Process-wide default registry (singleton; a dialect may carry its own). */
 export const registry = new CompoundRegistry();
+
+/* ---------------------------------------------------------------------------
+ * Dialect-restricted view — G|D's compound half (Lemma 4).
+ * ------------------------------------------------------------------------- */
+
+export interface RestrictOptions {
+	/**
+	 * The dialect's allowed compound subset (`Dialect.compounds`). EMPTY means
+	 * unrestricted — today's behavior, Corollary 1: a dialect that declares no
+	 * subset sees every promoted compound. Non-empty means a name outside the
+	 * list is treated as UNKNOWN (renders nothing + dev-warns via the renderer's
+	 * existing totality guard; never throws).
+	 */
+	readonly allow: readonly string[];
+	/**
+	 * Dev flag: make `candidate` compounds visible without a dialect opt-in
+	 * (tooling/preview surfaces). Defaults to false — promoted is the default
+	 * visible set.
+	 */
+	readonly showCandidates?: boolean;
+}
+
+/**
+ * Wrap a registry in a dialect-restricted view (decorator — the base registry
+ * is NEVER mutated; multiple roots can hold different views over the same
+ * singleton). Visibility through the view:
+ *
+ *   - unregistered            → invisible (as on the base)
+ *   - outside a non-empty allowlist → invisible (out-of-dialect = unknown)
+ *   - `candidate` lifecycle   → visible only if the dialect names it in its
+ *     allowlist (an explicit opt-in) or `showCandidates` is set
+ *   - otherwise               → visible
+ *
+ * With an empty allowlist and only promoted compounds (everything shipped
+ * today) the view is behavior-identical to the base.
+ */
+export function restrictCompounds(
+	base: CompoundRegistry,
+	options: RestrictOptions,
+): CompoundResolver {
+	const allow = new Set(options.allow);
+	const showCandidates = options.showCandidates ?? false;
+
+	const visible = (name: string): boolean => {
+		if (!base.has(name)) return false;
+		if (allow.size > 0 && !allow.has(name)) return false;
+		if (base.lifecycleOf(name) === "candidate") {
+			return showCandidates || allow.has(name);
+		}
+		return true;
+	};
+
+	return {
+		get names(): readonly string[] {
+			return base.names.filter(visible);
+		},
+		has: visible,
+		get: (name) => (visible(name) ? base.get(name) : undefined),
+		expand: (ref) => {
+			if (!visible(ref.name)) {
+				// Same contract as the base's unknown-name case: expand() throws
+				// only on a corrupt call. The renderer never reaches this — it
+				// checks has() first and renders nothing for an invisible name.
+				throw new Error(`Unknown compound: ${ref.name}`);
+			}
+			return base.expand(ref);
+		},
+	};
+}
 
 /* ---------------------------------------------------------------------------
  * Pure structural helpers — no dependency on the registry.

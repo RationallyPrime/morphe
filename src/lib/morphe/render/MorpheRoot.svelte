@@ -14,10 +14,11 @@
 	import type { Dialect } from "../dialects/types.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
 	import type { MorpheStore } from "../state/store.svelte.js";
-	import { registry as defaultRegistry } from "../compounds/factory.js";
+	import { registry as defaultRegistry, restrictCompounds } from "../compounds/factory.js";
 	import { activeDialect } from "../dialects/active.svelte.js";
 	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
 	import { provideMorpheContext } from "../context/Context.svelte.js";
+	import { provideCompoundResolver } from "./resolver.svelte.js";
 	import {
 		createInMemoryMorpheStore,
 		provideMorpheStore,
@@ -31,9 +32,14 @@
 		dialect?: Dialect;
 		registry?: CompoundRegistry;
 		store?: MorpheStore;
+		/**
+		 * Dev flag: render `candidate`-lifecycle compounds without a dialect
+		 * opt-in (preview/tooling surfaces). Promoted is the default visible set.
+		 */
+		showCandidates?: boolean;
 	}
 
-	let { tree, dialect, registry = defaultRegistry, store }: Props = $props();
+	let { tree, dialect, registry = defaultRegistry, store, showCandidates = false }: Props = $props();
 
 	// An explicit `dialect` prop OVERRIDES (preserving the subtree-boundary swap);
 	// when OMITTED, follow the GLOBAL active dialect reactively, so flipping it
@@ -62,6 +68,23 @@
 	// svelte-ignore state_referenced_locally
 	provideMorpheContext(applied.rootContext);
 
+	// G|D's compound half (Lemma 4): the tree expands against a dialect-restricted
+	// VIEW of the registry, derived from the effective dialect's `compounds`
+	// subset (empty = unrestricted, today's behavior). The base registry is never
+	// mutated — every root holds its own view, so two roots under different
+	// dialects restrict independently over the same singleton. Provided via
+	// CONTEXT (as a reactive ref), not the `<Node>` prop chain: container
+	// primitives recurse into `<Node>` themselves and would drop a prop-threaded
+	// view at the first boundary.
+	const resolver = $derived(
+		restrictCompounds(registry, { allow: effective.compounds, showCandidates }),
+	);
+	provideCompoundResolver({
+		get current() {
+			return resolver;
+		},
+	});
+
 	// Lemma 5 client-store ownership: prop beats inherited context, inherited
 	// context beats the per-root in-memory default. The root provides the resolved
 	// instance synchronously so bound primitives can read their initial tier-1
@@ -74,7 +97,7 @@
 </script>
 
 <div class="mo-root" data-mo-dialect={applied.attr} style={dialectStyle(applied)}>
-	<Node node={tree} ctx={applied.rootContext} {registry} />
+	<Node node={tree} ctx={applied.rootContext} />
 </div>
 
 <style>

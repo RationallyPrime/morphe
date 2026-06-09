@@ -101,12 +101,21 @@ export {
 // Compound factory (Lemma 1)
 export type {
 	CompoundDef,
+	CompoundLifecycle,
+	CompoundResolver,
 	ParamsSchema,
 	ParamSpec,
 	ParamType,
+	RegisterOptions,
 	RegistrationResult,
+	RestrictOptions,
 } from "./compounds/factory.js";
-export { CompoundRegistry, registry, childrenOf } from "./compounds/factory.js";
+export {
+	CompoundRegistry,
+	registry,
+	restrictCompounds,
+	childrenOf,
+} from "./compounds/factory.js";
 
 // Tokens
 export { CORE_INTENTS, intentVar, SURFACE_VARS } from "./tokens/intents.js";
