@@ -170,34 +170,26 @@ A short scroll, one dominant idea, the product doing the talking:
 
 ## Linear (tracking)
 
-A Linear **Morphe** project exists (team Krates-ehf):
-https://linear.app/krates-ehf/project/morphe-f0174d9a64df
+Linear **Morphe** project (team Krates-ehf):
+https://linear.app/krates-ehf/project/morphe-f0174d9a64df — **all 10 issues created.**
 
-Issues created:
-- **KRA-274** — Decisions: home redesign (D1–D5) · `needs-grill` · the gate.
-- **KRA-275** — WS3 · Remove the eyebrow grammar · `ready-for-agent`.
+The gate is **KRA-274** (D1–D5). Grill it with the founder first; everything
+design-touching is `needs-grill` and blocked on it. Only KRA-275 is
+`ready-for-agent`.
 
-**The rest are blocked: the workspace hit the Linear FREE-TIER issue limit.**
-Until it is upgraded (or a trial is started), the remaining workstreams live HERE
-as the source of truth. Intended issues (the agreed breakdown — fatties split,
-everything design-touching gated on the Decisions issue and decided together
-*after* the context clear):
+| Issue | Workstream | Label | Blocked by |
+|---|---|---|---|
+| KRA-274 | Decisions (D1–D5) — the gate | `needs-grill` | — |
+| KRA-275 | WS3 · Remove the eyebrow | `ready-for-agent` | — |
+| KRA-276 | WS4 · De-jargon "compose/composition" | `needs-grill` | — (grill the wording) |
+| KRA-277 | WS7a · Content-catalog DESIGN | `needs-grill` | — (relates D2/D3) |
+| KRA-278 | WS6 · Composer relevance (the 113 bug) | `needs-grill` · Bug | KRA-274 (D4/D5) — **not AFK** |
+| KRA-279 | WS1a · Composer-first top fold | `needs-grill` | KRA-274 |
+| KRA-280 | WS2 · One primary CTA | `needs-grill` | KRA-274 (D1) |
+| KRA-281 | WS5 · Navbar / morph-the-page | `needs-grill` | KRA-274 (D2/D3) |
+| KRA-282 | WS1b · Re-sequence supporting sections | `needs-grill` | KRA-274, KRA-279 |
+| KRA-283 | WS7b · Content-catalog BUILD | `needs-grill` | KRA-276, KRA-277 |
 
-| Intended issue | Label | Blocked by |
-|---|---|---|
-| WS4 · De-jargon "compose/composition" | `needs-grill` (voice) | none — grill the wording |
-| WS6 · Composer relevance (the 113-results bug) | `needs-grill` | KRA-274 — **not AFK**, founder hasn't specified the result behavior/look |
-| WS1a · Composer-first top fold (brief intro + hand-off + composer placement) | `needs-grill` | KRA-274 |
-| WS1b · Re-sequence the supporting sections | `needs-grill` | KRA-274, WS1a |
-| WS2 · Consolidate to one primary CTA | `needs-grill` | KRA-274 (D1) |
-| WS5 · Navbar removal / morph-the-page | `needs-grill` | KRA-274 (D2/D3) |
-| WS7a · Content-catalog DESIGN (Lemma 4 for copy) | `needs-grill` | none — relates to D2/D3 |
-| WS7b · Content-catalog BUILD | `needs-grill` → AFK | WS7a, WS4 |
-
-Labels are provisional and get tidied post-clear. When Linear is upgraded, create
-these eight as issues under the Morphe project (rich bodies were drafted for WS4
-and WS7a — see this doc's WS4 / WS7 sections for the content), each linking back
-to this doc, blocked-by per the table.
-
-The doc travels with the code and is ready for a fresh session to execute from
-as-is; the two live Linear issues + this doc together are the handoff.
+Labels are provisional and get tidied post-clear. This doc is the design narrative;
+each issue links back to it. The doc + the issues together are the handoff — ready
+for a fresh session to execute from as-is.
