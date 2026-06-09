@@ -66,14 +66,13 @@ const ctaTree = closingCta();
 <!--
   The composer — the interactive CENTERPIECE, given a distinct work-surface
   treatment so it reads as the demonstration it is, not as one more editorial
-  band. It runs on the wide (105rem) application cap, the recessed surface marks
-  it as a place you DO something, and a single deliberate kicker ("Try it") above
-  the heading invites the act of composing. This is the one kicker on the page,
-  and it carries real information: this surface is interactive.
+  band. It runs on the wide (105rem) application cap, and the recessed surface
+  alone marks it as a place you DO something — no kicker (DESIGN §9: the
+  tracked-caps mono eyebrow is the AI tell; the recess and the composer's own
+  heading carry the "this is interactive" signal without a label).
 -->
 <section class="s-section recessed s-work" id="composer">
 	<div class="s-wrap--wide">
-		<p class="s-work__kicker">Try it · live, read-only</p>
 		<Composer />
 	</div>
 </section>
@@ -131,34 +130,6 @@ const ctaTree = closingCta();
 	}
 	.contact__form {
 		margin-block-start: var(--mo-space-6);
-	}
-
-	/*
-	 * The composer WORK SURFACE. The recess already marks it as a place you act;
-	 * the kicker is the page's one deliberate mono label (it carries real
-	 * information — this surface is interactive and read-only), set off above the
-	 * composer with a hairline amber index tick, echoing the archive-plate motif.
-	 */
-	.s-work__kicker {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--mo-space-3);
-		margin: 0 0 var(--mo-space-5);
-		padding-inline-start: var(--mo-space-4);
-		position: relative;
-		font-family: var(--mo-font-mono);
-		font-size: var(--mo-type-2);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--mo-intent-on-surface-muted);
-	}
-	.s-work__kicker::before {
-		content: "";
-		position: absolute;
-		inset-inline-start: 0;
-		inset-block: 0.1em;
-		inline-size: 2px;
-		background: var(--mo-intent-primary-action-surface);
 	}
 
 	/*
