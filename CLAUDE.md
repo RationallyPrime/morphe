@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works — it is built to answer that, and the formal contract lives in `CONTRACT.md`.
+Guidance for Claude Code (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works — it is built to answer that: the formal contract lives in `CONTRACT.md`, and the vision it is Phase 0 of (the stratified adaptive tower — why `Vary`, `action` ids, and `bind` paths exist but are inert) lives in `VISION.md`.
 
 ## What this repo is
 
@@ -74,4 +74,4 @@ Five canonical triage roles map onto existing Linear labels: `needs-triage`→`n
 
 ### Domain docs
 
-Single-context. No `CONTEXT.md`/`docs/adr/` yet (proceed silently); the formal corpus is `CONTRACT.md` + `PRODUCT.md` + `DESIGN.md`. See `docs/agents/domain.md`.
+Single-context. No `CONTEXT.md` yet (proceed silently); the formal corpus is `VISION.md` (the stratified-adaptive tower — the why) + `CONTRACT.md` (the substrate contract — the what/how; §11 reserved strata seams, §12 known gaps) + `PRODUCT.md` + `DESIGN.md`, with `docs/reconstruction-plan.md` (code→vision alignment) and `MIGRATION.md` (the Eidos lift) as the forward plans. ADRs live in `docs/adr/`. See `docs/agents/domain.md`.
