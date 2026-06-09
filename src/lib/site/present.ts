@@ -204,15 +204,12 @@ export function closingCta(): Node {
  * ------------------------------------------------------------------------- */
 
 /**
- * The home hero copy (CTAs + proof are rendered natively by the page).
- *
- * No eyebrow: the display headline leads the fold, and the native proof line
- * under the CTAs ("On-premises · Read-only until you authorise · Clean exit, no
- * fees") carries real information rather than labelling the section. The reflex
- * section-grammar eyebrow is gone (DESIGN §9: an eyebrow on every block is the
- * AI tell). The page's single deliberate mono kicker lives over the composer
- * ("Try it · live, read-only"), where it earns its place — it tells you the
- * surface is interactive.
+ * The home hero copy — a BRIEF ease-in that hands straight to the composer (WS1a).
+ * The route hangs the appliance plate beside it and renders NO CTA here: the
+ * composer (the immediate next fold) is the top-fold action, so the intro is one
+ * display line plus a single hand-off sentence and nothing else. No eyebrow
+ * (DESIGN §9), no lede paragraph, no CTA row — the old multi-sentence preamble is
+ * exactly what buried the product, and stripping it is the point.
  */
 export function homeHero(): Node {
 	return {
@@ -223,7 +220,7 @@ export function homeHero(): Node {
 				emphasis: "strong",
 			}),
 			lede: t(
-				"Software waits for instructions. Sókrates looks for friction. It connects to the systems you already run, reads them as one map, and takes on the cross-system work that today routes through one overloaded person.",
+				"Tell Sókrates what actually runs your operation, and see what it can take on.",
 				"body",
 				{ emphasis: "muted" },
 			),
@@ -232,12 +229,14 @@ export function homeHero(): Node {
 }
 
 /**
- * The home body: the differentiators (a dominant feature row + a 2-up), the
- * pull quote, the sovereignty beat (typographic — the box plate stays unique to
- * the hero), and the asymmetric governance ladder. Vertical rhythm is varied by
- * design: `xl` spacers separate the movements (the native band layer lifts each
- * post-spacer block by a generous fluid gap) while children inside a movement
- * sit tight.
+ * The home body — the SUPPORT below the composer (WS1b), subordinate to it by
+ * width and surface (the composer runs the wide recessed work surface; this is the
+ * narrower editorial column on the base surface). Three movements: the
+ * differentiators (a dominant feature row + a 2-up), the governance ladder (the
+ * trust spine), then the typographic sovereignty beat. Vertical rhythm is varied
+ * by design: `xl` spacers separate the movements (the native band layer lifts each
+ * post-spacer block by a generous fluid gap) while children inside a movement sit
+ * tight.
  */
 export function homeBody(): Node {
 	return {
@@ -329,43 +328,25 @@ export function homeBody(): Node {
 				],
 			},
 
-			// --- Pull quote --------------------------------------------------
-			{
-				kind: "compound",
-				name: "SitePullquote",
-				args: {
-					quote: t(
-						"Your last AI consultant left you a PDF. We leave you a department.",
-						"display",
-						{
-							emphasis: "strong",
-						},
-					),
-					attribution: t(
-						"On the difference between a deck and a deployment",
-						"caption",
-						{
-							emphasis: "muted",
-						},
-					),
-				},
-			},
+			{ kind: "spacer", size: "xl" },
+
+			// --- Governance ladder -------------------------------------------
+			// The trust spine sits right after the proof and before sovereignty:
+			// read → propose → act is the posture the rest of the page rests on. The
+			// mid-body pull quote was dropped in WS1b — its line ("we leave you a
+			// department") already closes the page in the conversation band, so a
+			// second display-scale beat here only competed with the composer.
+			governanceLadder(),
 
 			{ kind: "spacer", size: "xl" },
 
 			// --- Sovereignty -------------------------------------------------
-			// NOT the box photo again: the hero already carries the appliance plate,
-			// and DESIGN §8 forbids the same plate twice. The sovereignty beat is a
-			// purely typographic editorial split here (a claim hung left of two short
-			// terms of ownership), and the route hangs the Sókrates seal beside it as
-			// the page's second committed artifact. The native band owns the imagery;
-			// the tree owns the words.
+			// NOT the box photo again: the intro fold carries the appliance plate, and
+			// DESIGN §8 forbids the same plate twice. The sovereignty beat is a purely
+			// typographic editorial split here (a claim hung left of two short terms of
+			// ownership); the route hangs the Sókrates seal beside it. The native band
+			// owns the imagery; the tree owns the words.
 			homeSovereignty(),
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- Governance ladder -------------------------------------------
-			governanceLadder(),
 		],
 	};
 }
@@ -442,20 +423,27 @@ function homeSovereignty(): Node {
 	};
 }
 
-/** Copy above the native contact form. */
-export function contactLead(): Node {
+/**
+ * The onboarding band (D1) — its own prominent near-close fold, distinct from the
+ * conversational "Talk to us" close. High-emphasis but NON-amber: prominence comes
+ * from the dedicated fold and the strong heading, never a second beacon chroma (the
+ * page keeps exactly two ambers — the composer's submit and the contact form). The
+ * route renders the native "Begin onboarding" link (secondary variant) beside it.
+ */
+export function onboardingBand(): Node {
 	return {
-		kind: "stack",
-		role: "section",
-		direction: "block",
-		children: [
-			t("Ready? Here is how to start.", "heading", { emphasis: "strong" }),
-			t(
-				"Tell us what runs your operation today. Hákon reads every one and replies by hand, usually within 48 hours. No deck, no slides.",
+		kind: "compound",
+		name: "SiteCtaBanner",
+		args: {
+			heading: t("Ready to map your operation?", "heading", {
+				emphasis: "strong",
+			}),
+			sub: t(
+				"Onboarding is the structured intake: name the systems you run and where the work piles up, and Sókrates scopes the first cross-system capabilities before we ever meet.",
 				"body",
 				{ emphasis: "muted" },
 			),
-		],
+		},
 	};
 }
 

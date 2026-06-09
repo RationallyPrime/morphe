@@ -24,12 +24,12 @@ export {
 	architectureBody,
 	architectureHero,
 	closingCta,
-	contactLead,
 	faqSection,
 	governanceLadder,
 	homeBody,
 	homeHero,
 	howItWorksBody,
 	howItWorksHero,
+	onboardingBand,
 	sovereigntySplit,
 } from "./present.js";

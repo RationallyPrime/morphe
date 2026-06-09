@@ -194,7 +194,7 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 	<header class="control">
 		<h2 class="control__title">What can Sókrates do for you?</h2>
 		<p class="control__lede">
-			Name the friction and the systems you run. Sókrates composes concrete
+			Name the friction and the systems you run. Sókrates surfaces concrete
 			cross-system automations, each one cited to real endpoints and the models it
 			compiled from your specs. This shows the map of what is possible. It is
 			read-only; it does not touch your systems.
@@ -244,10 +244,10 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 
 			<div class="actions">
 				<button type="submit" class="actions__submit" disabled={ranking}>
-					{ranking ? "Ranking…" : "Compose"}
+					{ranking ? "Ranking…" : "Show me what's possible"}
 				</button>
 				{#if stale}
-					<span class="actions__hint">Press Compose to update the results.</span>
+					<span class="actions__hint">Run it again to update the results.</span>
 				{/if}
 			</div>
 		</form>

@@ -28,7 +28,7 @@
 		<div class="s-hero__copy">
 			<MorpheRoot tree={heroTree} />
 			<div class="s-cta-row">
-				<CtaLink href="/" label="See it compose" variant="primary" />
+				<CtaLink href="/" label="See what it can do" variant="primary" />
 				<CtaLink href="/how-it-works" label="How it works" variant="secondary" />
 			</div>
 			<p class="s-proof">Read-side discovery always on. Write-side action only under a current envelope.</p>
@@ -49,7 +49,7 @@
 	<div class="s-wrap">
 		<MorpheRoot tree={ctaTree} />
 		<div class="s-cta-row">
-			<CtaLink href="/#contact" label="Start the conversation" variant="primary" />
+			<CtaLink href="/#contact" label="Talk to us" variant="primary" />
 			<CtaLink href="/onboarding" label="Begin onboarding" variant="secondary" />
 		</div>
 	</div>

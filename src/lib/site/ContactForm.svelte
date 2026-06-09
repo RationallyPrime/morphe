@@ -104,9 +104,9 @@ async function submit(): Promise<void> {
 
 		<div class="form__actions">
 			<button class="submit" type="submit" disabled={!canSubmit}>
-				{status === "submitting" ? "Sending…" : "Start the conversation"}
+				{status === "submitting" ? "Sending…" : "Talk to us"}
 			</button>
-			<span class="form__hint">One conversation is usually enough.</span>
+			<span class="form__hint">Hákon replies by hand, usually within 48 hours.</span>
 		</div>
 
 		{#if status === "error"}
