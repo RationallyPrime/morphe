@@ -468,7 +468,7 @@ export function composeAnswer(
 		kind: "compound",
 		name: "ComposePainPrompt",
 		args: {
-			heading: text("Here is what Sókrates can compose", "heading", {
+			heading: text("Here is what Sókrates can take on", "heading", {
 				emphasis: "strong",
 			}),
 			sub: text(
@@ -510,10 +510,10 @@ export function emptyState(
 	const typed = query.pain.trim().length > 0;
 	const heading = typed
 		? "No direct match yet"
-		: "What Sókrates can compose for you";
+		: "What Sókrates can do for you";
 	const sub = typed
-		? "Nothing lined up exactly with that. Here is the breadth Sókrates composes across these systems, each one grounded in real endpoints."
-		: "Describe the friction in your operation and Sókrates composes the automations that fit, each one grounded in your real systems. Here is the breadth to begin with.";
+		? "Nothing lined up exactly with that. Here is the breadth Sókrates works across these systems, each one grounded in real endpoints."
+		: "Describe the friction in your operation and Sókrates surfaces the automations that fit, each one grounded in your real systems. Here is the breadth to begin with.";
 	const note = typed
 		? "Try naming the pain point in different words, or browse the examples below."
 		: "Name a pain point and the systems you run to narrow this to your situation.";
