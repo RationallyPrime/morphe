@@ -51,7 +51,7 @@
 	style={childStyle}
 	style:--mo-ctx-stroke={emphasisToStrokeStep(emphasis)}
 >
-	{#each node.children as c, i (c)}
+	{#each node.children as c, i (i)}
 		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
 	{/each}
 </div>

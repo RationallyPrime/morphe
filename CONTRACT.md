@@ -515,7 +515,9 @@ expands `CompoundRef` via the registry then recurses; renders `Vary`'s default
 option; renders a bare `Slot`'s fallback; defensively renders a stray
 `ParamRef`; and for every primitive kind looks up the component in
 `render/registry.ts` and hands it `{ node, ctx }`. Layout primitives own their
-own descent and recurse into `<Node>` with the child ctx.
+own descent and recurse into `<Node>` with the child ctx. An unknown
+`CompoundRef` name renders nothing and emits a dev-mode warning; it never throws
+from the renderer.
 
 **`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
 own `children` and recurse into `<Node>` themselves (exactly as layout primitives
@@ -593,17 +595,7 @@ These are real holes between the implementation and the lemmas, found by
 review, owned by `docs/reconstruction-plan.md`. They are listed here so no
 agent rediscovers them as "bugs" or, worse, builds on the broken assumption.
 
-1. **Render is not total at an unknown compound.** `registry.expand()` throws
-   on an unregistered name and `Node.svelte` calls it unguarded — an
-   import-order accident can take down the whole tree. Until fixed: routes must
-   call their `register*Compounds()` before building trees (all current routes
-   do). Fix: a defensive branch in `Node.svelte` (render nothing + dev warning).
-2. **Children are keyed by object identity** (`{#each … as c (c)}`). Two
-   children that are the SAME object reference crash with a duplicate-key
-   error. Until fixed: never share a node instance between siblings — build
-   fresh nodes (a hoisted `SPACER` constant reused twice is the canonical
-   landmine).
-3. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
+1. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
    resolves to an unset CSS var and paints silently wrong. Until fixed: pass a
    `fallback` to `slot()` for dialect-extension intents, and copy intent names
    from `tokens/intents.ts` / the dialect files, never from memory. Fix: a

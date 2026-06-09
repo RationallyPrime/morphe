@@ -215,7 +215,7 @@
 	style:--mo-overlay-border={borderColor}
 	style:--mo-anchor={anchorName}
 >
-	{#each node.children as child (child)}
+	{#each node.children as child, i (i)}
 		<Node node={child} {ctx} />
 	{/each}
 </div>

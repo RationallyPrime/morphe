@@ -61,7 +61,7 @@
 		<span class="mo-disclosure__label">{node.summary}</span>
 	</summary>
 	<div class="mo-disclosure__body">
-		{#each node.children as child (child)}
+		{#each node.children as child, i (i)}
 			<Node node={child} {ctx} />
 		{/each}
 	</div>
