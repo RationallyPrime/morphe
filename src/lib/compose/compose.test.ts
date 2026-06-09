@@ -11,14 +11,20 @@
 
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { CompoundRegistry } from "$morphe";
 import type { CompoundRef, Node } from "$morphe";
-import { CAPABILITIES } from "./corpus.js";
-import { capabilityCard, composeAnswer } from "./present.js";
-import { featuredCapabilities, matchCapabilities } from "./match.js";
+import { CompoundRegistry } from "$morphe";
 import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
-import { CATEGORIES, CATEGORY_LABELS, categoriesOf, categoryOf, SYSTEMS } from "./taxonomy.js";
+import { CAPABILITIES } from "./corpus.js";
 import type { ComposeQuery } from "./input.js";
+import { featuredCapabilities, matchCapabilities } from "./match.js";
+import { capabilityCard, composeAnswer } from "./present.js";
+import {
+	CATEGORIES,
+	CATEGORY_LABELS,
+	categoriesOf,
+	categoryOf,
+	SYSTEMS,
+} from "./taxonomy.js";
 
 describe("compose compounds — registration through the factory gate", () => {
 	it("registers all five compose compounds cleanly on a fresh registry", () => {
@@ -88,11 +94,16 @@ describe("compose matching — subset eligibility across one, two and three syst
 		expect(matches.length).toBeGreaterThan(0);
 		// EVERY match must be runnable with only Twenty selected.
 		for (const cap of matches) {
-			expect(cap.systems, `${cap.id} leaked into a twenty-only selection`).toEqual(["twenty"]);
+			expect(
+				cap.systems,
+				`${cap.id} leaked into a twenty-only selection`,
+			).toEqual(["twenty"]);
 			expect(systemsSubsetOf(cap.systems, ["twenty"])).toBe(true);
 		}
 		// And it actually found a real Twenty-only capability.
-		expect(matches.some((c) => c.id === "twenty-stale-deal-detection")).toBe(true);
+		expect(matches.some((c) => c.id === "twenty-stale-deal-detection")).toBe(
+			true,
+		);
 	});
 
 	it("['twenty','dkplus'] includes a Twenty×dkPlus cap and excludes any needing Humanity", () => {
@@ -103,15 +114,18 @@ describe("compose matching — subset eligibility across one, two and three syst
 		const matches = matchCapabilities(query);
 		expect(matches.length).toBeGreaterThan(0);
 		// The CRM→ERP pair cap is eligible and present.
-		const pair = matches.find((c) => c.id === "won-opportunity-to-dkplus-customer-and-sales-order");
+		const pair = matches.find(
+			(c) => c.id === "won-opportunity-to-dkplus-customer-and-sales-order",
+		);
 		expect(pair, "Twenty×dkPlus cap not surfaced").toBeDefined();
 		expect(pair?.systems).toEqual(["twenty", "dkplus"]);
 		// Nothing requiring Humanity (a two-system pair we didn't select, or the
 		// three-way loop) may leak through.
 		for (const cap of matches) {
-			expect(cap.systems.includes("humanity"), `${cap.id} requires unselected humanity`).toBe(
-				false,
-			);
+			expect(
+				cap.systems.includes("humanity"),
+				`${cap.id} requires unselected humanity`,
+			).toBe(false);
 			expect(systemsSubsetOf(cap.systems, ["twenty", "dkplus"])).toBe(true);
 		}
 	});
@@ -126,16 +140,36 @@ describe("compose matching — subset eligibility across one, two and three syst
 		const threeWay = matches.find(
 			(c) => c.id === "deal-to-delivery-staff-project-and-advance-stage",
 		);
-		expect(threeWay, "three-way loop not surfaced with all systems selected").toBeDefined();
-		expect([...(threeWay?.systems ?? [])].sort()).toEqual(["dkplus", "humanity", "twenty"]);
+		expect(
+			threeWay,
+			"three-way loop not surfaced with all systems selected",
+		).toBeDefined();
+		expect([...(threeWay?.systems ?? [])].sort()).toEqual([
+			"dkplus",
+			"humanity",
+			"twenty",
+		]);
 		// A three-system cap can only ever surface when all three are selected.
-		expect(systemsSubsetOf(threeWay?.systems ?? [], ["twenty", "humanity", "dkplus"])).toBe(true);
+		expect(
+			systemsSubsetOf(threeWay?.systems ?? [], [
+				"twenty",
+				"humanity",
+				"dkplus",
+			]),
+		).toBe(true);
 	});
 
 	it("removing a required system drops its dependent caps (gate is hard, not soft)", () => {
-		const pain = "a won deal should staff the crew, open the project and advance the stage";
-		const withAll = matchCapabilities({ pain, systems: ["twenty", "humanity", "dkplus"] });
-		const withoutHumanity = matchCapabilities({ pain, systems: ["twenty", "dkplus"] });
+		const pain =
+			"a won deal should staff the crew, open the project and advance the stage";
+		const withAll = matchCapabilities({
+			pain,
+			systems: ["twenty", "humanity", "dkplus"],
+		});
+		const withoutHumanity = matchCapabilities({
+			pain,
+			systems: ["twenty", "dkplus"],
+		});
 		const id = "deal-to-delivery-staff-project-and-advance-stage";
 		expect(withAll.some((c) => c.id === id)).toBe(true);
 		// Drop Humanity and the three-way loop must disappear entirely.
@@ -188,31 +222,64 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		expect(JSON.stringify(tree)).not.toContain("Showing");
 	});
 
-	it("show-more cap: limit 9 yields at most 9 cards when matches exceed it; omitted shows all", () => {
+	it("show-more cap: the collapsed limit yields at most N cards when matches exceed it; Show all lifts it", () => {
 		// A broad, multi-tag pain across all three systems out-yields the collapsed
-		// cap so the "Show all" flow is exercised honestly (this is the page's
-		// COLLAPSED_LIMIT of 9).
+		// cap so the "Show all" flow is exercised honestly. The collapsed view is a
+		// tight RESULT (the page's COLLAPSED_LIMIT of 4), not a catalogue — the most
+		// relevant few, led by one dominant card.
 		const broad: ComposeQuery = {
 			pain: "scheduling, overtime, invoicing, margin, deals, master-data and reporting are all painful",
 			systems: ["humanity", "dkplus", "twenty"],
 		};
 		const matches = matchCapabilities(broad);
-		expect(matches.length).toBeGreaterThan(9);
+		expect(matches.length).toBeGreaterThan(4);
 
-		// Collapsed (limit 9): at most 9 cards render — the page's default view.
-		const collapsed = composeAnswer(matches, broad, 9);
-		expect(collectCompoundRefs(collapsed, "ComposeCapabilityCard").length).toBe(9);
-
-		// "Show all" passes Infinity; with omitted limit composeAnswer also renders
-		// every match. Both must yield one card per matched capability.
-		const expandedInfinity = composeAnswer(matches, broad, Number.POSITIVE_INFINITY);
-		expect(collectCompoundRefs(expandedInfinity, "ComposeCapabilityCard").length).toBe(
-			matches.length,
+		// Collapsed (limit 4): at most 4 cards render — the page's default view.
+		const collapsed = composeAnswer(matches, broad, 4);
+		expect(collectCompoundRefs(collapsed, "ComposeCapabilityCard").length).toBe(
+			4,
 		);
+
+		// "Show all" passes Infinity; it then renders every match. The card refs live
+		// across the dominant lead card AND the remainder grid, so the recursive
+		// count is structure-independent — it must equal one card per matched capability.
+		const expandedInfinity = composeAnswer(
+			matches,
+			broad,
+			Number.POSITIVE_INFINITY,
+		);
+		expect(
+			collectCompoundRefs(expandedInfinity, "ComposeCapabilityCard").length,
+		).toBe(matches.length);
 		const expandedOmitted = composeAnswer(matches, broad);
-		// Omitting the limit applies the DEFAULT_LIMIT (9), so it caps too — the
+		// Omitting the limit applies the DEFAULT_LIMIT (4), so it caps too — the
 		// route lifts that cap explicitly via Infinity. Assert the documented default.
-		expect(collectCompoundRefs(expandedOmitted, "ComposeCapabilityCard").length).toBe(9);
+		expect(
+			collectCompoundRefs(expandedOmitted, "ComposeCapabilityCard").length,
+		).toBe(4);
+	});
+
+	it("composeAnswer leads with one dominant card outside the remainder grid", () => {
+		const matches = matchCapabilities(query);
+		expect(matches.length).toBeGreaterThan(2);
+		const tree = composeAnswer(matches, query, 4);
+
+		// The page frame's direct children: masthead, spacer, the DOMINANT lead card
+		// (a CapabilityCard ref in block flow — full width), spacer, then the
+		// remainder Grid. The lead card is NOT inside the grid — that asymmetry is the
+		// fix for the identical-card-wall (DESIGN §5).
+		const frameKids = childrenOfNode(tree);
+		const leadCard = frameKids.find(
+			(n) => n.kind === "compound" && n.name === "ComposeCapabilityCard",
+		);
+		expect(leadCard).toBeDefined();
+		const grid = frameKids.find((n) => n.kind === "grid");
+		expect(grid).toBeDefined();
+		if (grid === undefined) return;
+		// Exactly one card leads outside the grid; the rest are inside it.
+		const inGrid = collectCompoundRefs(grid, "ComposeCapabilityCard").length;
+		const total = collectCompoundRefs(tree, "ComposeCapabilityCard").length;
+		expect(total - inGrid).toBe(1);
 	});
 });
 
@@ -236,9 +303,15 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		expect(json).toContain(cap.value);
 		const outcomeNode = findTextNode(
 			expanded,
-			(t) => t.value === cap.value && t.as === "subheading" && t.emphasis === "strong",
+			(t) =>
+				t.value === cap.value &&
+				t.as === "subheading" &&
+				t.emphasis === "strong",
 		);
-		expect(outcomeNode, "outcome value is not a strong subheading hero").toBeDefined();
+		expect(
+			outcomeNode,
+			"outcome value is not a strong subheading hero",
+		).toBeDefined();
 
 		// tier param is rendered (honest governance is trust, kept visible), not the
 		// old hardcoded chip. The value subheading is the outcome, never the tier.
@@ -254,7 +327,9 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		if (method) expect(json).toContain(method);
 		// the endpoint count caption survives the relocation (proof present, just quiet).
 		const count = cap.surfaces.length;
-		expect(json).toContain(`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`);
+		expect(json).toContain(
+			`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`,
+		);
 		// no empty-label badge survives expansion (the SurfaceEvidence method-badge fix).
 		expect(json).not.toContain('"label":""');
 	});
@@ -280,7 +355,9 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		// with both an endpoint and a model so both paths are exercised.
 		const reg = new CompoundRegistry();
 		registerComposeCompounds(reg);
-		const cap = CAPABILITIES.find((c) => c.surfaces.length > 0 && (c.models?.length ?? 0) > 0);
+		const cap = CAPABILITIES.find(
+			(c) => c.surfaces.length > 0 && (c.models?.length ?? 0) > 0,
+		);
 		expect(cap, "no capability with both a surface and a model").toBeDefined();
 		if (!cap) return;
 		const expanded = reg.expand(capabilityCard(cap));
@@ -291,7 +368,9 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		if (path) {
 			const pathNode = findTextNode(expanded, (t) => t.value === path);
 			expect(pathNode, "endpoint path is not in the tree").toBeDefined();
-			expect(pathNode?.as, "endpoint path is not caption register").toBe("caption");
+			expect(pathNode?.as, "endpoint path is not caption register").toBe(
+				"caption",
+			);
 		}
 
 		// The compiled-model name renders as a caption Text (the accession chip), not body.
@@ -300,7 +379,9 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		if (model) {
 			const modelNode = findTextNode(expanded, (t) => t.value === model);
 			expect(modelNode, "model name is not in the tree").toBeDefined();
-			expect(modelNode?.as, "model name is not caption register").toBe("caption");
+			expect(modelNode?.as, "model name is not caption register").toBe(
+				"caption",
+			);
 		}
 
 		// No proof leaf fell through to the bare register-less Text the factory would
@@ -310,7 +391,10 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 			expanded,
 			(t) => t.value === path && t.as === undefined,
 		);
-		expect(bareLeaf, "a proof path leaf has no explicit register (body fallthrough)").toBeUndefined();
+		expect(
+			bareLeaf,
+			"a proof path leaf has no explicit register (body fallthrough)",
+		).toBeUndefined();
 	});
 });
 
@@ -328,11 +412,20 @@ describe("compose grounding — every cited surface is a real endpoint", () => {
 		for (const cap of CAPABILITIES) {
 			for (const s of cap.surfaces) {
 				const sysIndex = index[s.system];
-				expect(sysIndex, `${cap.id}: unknown system "${s.system}"`).toBeDefined();
+				expect(
+					sysIndex,
+					`${cap.id}: unknown system "${s.system}"`,
+				).toBeDefined();
 				if (!sysIndex) continue;
-				expect(s.operationId, `${cap.id}: surface has no operationId`).toBeDefined();
+				expect(
+					s.operationId,
+					`${cap.id}: surface has no operationId`,
+				).toBeDefined();
 				const op = s.operationId ? sysIndex.get(s.operationId) : undefined;
-				expect(op, `${cap.id}: surface "${s.operationId}" not in ${s.system} evidence`).toBeDefined();
+				expect(
+					op,
+					`${cap.id}: surface "${s.operationId}" not in ${s.system} evidence`,
+				).toBeDefined();
 				if (!op) continue;
 				expect(op.method, `${cap.id}/${s.operationId} method`).toBe(s.method);
 				expect(op.path, `${cap.id}/${s.operationId} path`).toBe(s.path);
@@ -390,20 +483,25 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 		"TimeclockEvent",
 	]);
 
-	const assertModel = (
-		system: string,
-		model: string,
-		where: string,
-	): void => {
+	const assertModel = (system: string, model: string, where: string): void => {
 		if (system === "twenty") {
 			// Twenty has a complete, exactly-matching schema set (75) — exact membership.
-			expect(twentyModels.has(model), `${where}: twenty model "${model}" not in twenty.json.models`).toBe(true);
+			expect(
+				twentyModels.has(model),
+				`${where}: twenty model "${model}" not in twenty.json.models`,
+			).toBe(true);
 		} else if (system === "dkplus") {
 			// dkPlus uses readable leaf display-names that map to dotted evidence keys.
-			expect(dkplusLeafForms.has(model), `${where}: dkplus model "${model}" matches no dkplus.json.models leaf`).toBe(true);
+			expect(
+				dkplusLeafForms.has(model),
+				`${where}: dkplus model "${model}" matches no dkplus.json.models leaf`,
+			).toBe(true);
 		} else if (system === "humanity") {
 			// Humanity titles are unrecoverable; allow only the curated §2 labels.
-			expect(HUMANITY_ALLOWED_MODELS.has(model), `${where}: humanity model "${model}" is not a specs-scope.md §2 label (fabrication?)`).toBe(true);
+			expect(
+				HUMANITY_ALLOWED_MODELS.has(model),
+				`${where}: humanity model "${model}" is not a specs-scope.md §2 label (fabrication?)`,
+			).toBe(true);
 		} else {
 			throw new Error(`${where}: unknown system "${system}"`);
 		}
@@ -476,7 +574,10 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		for (const cap of CAPABILITIES) {
 			// A capability with no required systems would be vacuously subset-eligible
 			// and surface for an empty selection — the subset gate would be a no-op.
-			expect(cap.systems.length, `${cap.id}: empty systems`).toBeGreaterThanOrEqual(1);
+			expect(
+				cap.systems.length,
+				`${cap.id}: empty systems`,
+			).toBeGreaterThanOrEqual(1);
 			for (const id of cap.systems) {
 				expect(known.has(id), `${cap.id}: unknown system "${id}"`).toBe(true);
 			}
@@ -486,30 +587,44 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 	it("spans the whole lattice — single, every pair, and the three-way", () => {
 		// At least one capability at each subset cardinality, proving "one system,
 		// any two, all three" are all answerable.
-		const bySize = (n: number) => CAPABILITIES.some((c) => c.systems.length === n);
+		const bySize = (n: number) =>
+			CAPABILITIES.some((c) => c.systems.length === n);
 		expect(bySize(1), "no single-system capability").toBe(true);
 		expect(bySize(2), "no two-system capability").toBe(true);
 		expect(bySize(3), "no three-system capability").toBe(true);
 	});
 
 	it("has high-ROI examples for every non-empty exact system footprint", () => {
-		const keyOf = (systems: readonly string[]): string => [...systems].sort().join("|");
+		const keyOf = (systems: readonly string[]): string =>
+			[...systems].sort().join("|");
 		const countExact = (systems: readonly string[]): number => {
 			const key = keyOf(systems);
 			return CAPABILITIES.filter(
-				(cap) => cap.systems.length === systems.length && keyOf(cap.systems) === key,
+				(cap) =>
+					cap.systems.length === systems.length && keyOf(cap.systems) === key,
 			).length;
 		};
 
 		expect(countExact(["twenty"]), "Twenty-only").toBeGreaterThanOrEqual(8);
 		expect(countExact(["dkplus"]), "dkPlus-only").toBeGreaterThanOrEqual(8);
 		expect(countExact(["humanity"]), "Humanity-only").toBeGreaterThanOrEqual(8);
-		expect(countExact(["twenty", "dkplus"]), "Twenty×dkPlus").toBeGreaterThanOrEqual(12);
-		expect(countExact(["twenty", "humanity"]), "Twenty×Humanity").toBeGreaterThanOrEqual(12);
-		expect(countExact(["humanity", "dkplus"]), "Humanity×dkPlus").toBeGreaterThanOrEqual(53);
-		expect(countExact(["twenty", "humanity", "dkplus"]), "three-way").toBeGreaterThanOrEqual(12);
+		expect(
+			countExact(["twenty", "dkplus"]),
+			"Twenty×dkPlus",
+		).toBeGreaterThanOrEqual(12);
+		expect(
+			countExact(["twenty", "humanity"]),
+			"Twenty×Humanity",
+		).toBeGreaterThanOrEqual(12);
+		expect(
+			countExact(["humanity", "dkplus"]),
+			"Humanity×dkPlus",
+		).toBeGreaterThanOrEqual(53);
+		expect(
+			countExact(["twenty", "humanity", "dkplus"]),
+			"three-way",
+		).toBeGreaterThanOrEqual(12);
 	});
-
 });
 
 /* ---------------------------------------------------------------------------
@@ -544,7 +659,10 @@ type TextNode = { kind: "text"; value: string; as?: string; emphasis?: string };
  * assert a register (value + `as` + `emphasis`) on the right node WITHOUT relying
  * on brittle JSON key adjacency, so the assertion survives cosmetic field churn.
  */
-function findTextNode(node: Node, pred: (t: TextNode) => boolean): TextNode | undefined {
+function findTextNode(
+	node: Node,
+	pred: (t: TextNode) => boolean,
+): TextNode | undefined {
 	let found: TextNode | undefined;
 	const visit = (n: Node): void => {
 		if (found) return;
@@ -601,7 +719,8 @@ function leafForms(dotted: string): Set<string> {
 			const next: string[] = [];
 			const seg = segs[j];
 			if (seg === undefined) continue;
-			for (const c of combos) for (const v of segVariants(seg)) next.push(c + v);
+			for (const c of combos)
+				for (const v of segVariants(seg)) next.push(c + v);
 			combos = next;
 		}
 		for (const c of combos) out.add(c);
@@ -632,7 +751,11 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 	it("categoriesOf maps a system set to its deduped, canonically ordered categories", () => {
 		// Order follows CATEGORIES (crm, erp, wfm), not the input order.
 		expect(categoriesOf(["dkplus", "twenty"])).toEqual(["crm", "erp"]);
-		expect(categoriesOf(["twenty", "dkplus", "humanity"])).toEqual(["crm", "erp", "wfm"]);
+		expect(categoriesOf(["twenty", "dkplus", "humanity"])).toEqual([
+			"crm",
+			"erp",
+			"wfm",
+		]);
 		expect(categoriesOf([])).toEqual([]);
 		// Unknown ids contribute no category.
 		expect(categoriesOf(["hubspot"])).toEqual([]);
@@ -641,12 +764,16 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 	it("every capability's systems all classify — its category footprint is coherent", () => {
 		for (const cap of CAPABILITIES) {
 			for (const s of cap.systems) {
-				expect(categoryOf(s), `${cap.id}: system "${s}" has no category`).toBeDefined();
+				expect(
+					categoryOf(s),
+					`${cap.id}: system "${s}" has no category`,
+				).toBeDefined();
 			}
 			// One category per system today, so the footprint cardinality matches.
-			expect(categoriesOf(cap.systems).length, `${cap.id} category footprint`).toBe(
-				cap.systems.length,
-			);
+			expect(
+				categoriesOf(cap.systems).length,
+				`${cap.id} category footprint`,
+			).toBe(cap.systems.length);
 		}
 	});
 });

@@ -65,6 +65,12 @@ function eyebrow(value: string): Node {
  * The governance ladder: read -> propose -> act as three ordered steps. A REAL
  * sequence (the order carries the trust posture), so the numbers earn their
  * place. Reused on the home page and on /how-it-works.
+ *
+ * Composed ASYMMETRICALLY, not as an identical 3-up wall (DESIGN §5: no twin
+ * symmetric step grids). The shape mirrors the trust posture itself: "Read" is
+ * the always-on FOUNDATION, so it leads as one dominant full-width panel; then
+ * "Propose" and "Act" — the dial you turn — sit as a 2-up beneath it. One
+ * dominant item, varied panel weight, tight rhythm within the movement.
  */
 export function governanceLadder(): Node {
 	return {
@@ -85,24 +91,27 @@ export function governanceLadder(): Node {
 				{ emphasis: "muted" },
 			),
 			{ kind: "spacer", size: "sm" },
+			// DOMINANT — "Read", the standing default, owns a full-width step panel.
+			{
+				kind: "compound",
+				name: "SiteStep",
+				args: {
+					index: t("01", "subheading", { intent: "accession" }),
+					title: t("Read", "subheading", { emphasis: "strong" }),
+					body: t(
+						"The moment you connect it, Sókrates reads across your systems and answers cross-system questions with cited evidence. Read-side discovery needs nothing fresh from you; it is warranted the day you grant ingestion.",
+						"body",
+						{ emphasis: "muted" },
+					),
+				},
+			},
+			{ kind: "spacer", size: "sm" },
+			// THE DIAL — "Propose" and "Act" as a 2-up beneath the dominant default.
 			{
 				kind: "grid",
 				role: "list",
 				minTrack: "regular",
 				children: [
-					{
-						kind: "compound",
-						name: "SiteStep",
-						args: {
-							index: t("01", "subheading", { intent: "accession" }),
-							title: t("Read", "subheading", { emphasis: "strong" }),
-							body: t(
-								"The moment you connect it, Sókrates reads across your systems and answers cross-system questions with cited evidence. Read-side discovery needs nothing fresh from you; it is warranted the day you grant ingestion.",
-								"body",
-								{ emphasis: "muted" },
-							),
-						},
-					},
 					{
 						kind: "compound",
 						name: "SiteStep",
@@ -194,13 +203,22 @@ export function closingCta(): Node {
  * HOME.
  * ------------------------------------------------------------------------- */
 
-/** The home hero copy (CTAs + proof are rendered natively by the page). */
+/**
+ * The home hero copy (CTAs + proof are rendered natively by the page).
+ *
+ * No eyebrow: the display headline leads the fold, and the native proof line
+ * under the CTAs ("On-premises · Read-only until you authorise · Clean exit, no
+ * fees") carries real information rather than labelling the section. The reflex
+ * section-grammar eyebrow is gone (DESIGN §9: an eyebrow on every block is the
+ * AI tell). The page's single deliberate mono kicker lives over the composer
+ * ("Try it · live, read-only"), where it earns its place — it tells you the
+ * surface is interactive.
+ */
 export function homeHero(): Node {
 	return {
 		kind: "compound",
 		name: "SiteHero",
 		args: {
-			eyebrow: eyebrow("The AI Department · Reykjavík"),
 			title: t("You now have an AI department.", "display", {
 				emphasis: "strong",
 			}),
@@ -213,7 +231,14 @@ export function homeHero(): Node {
 	};
 }
 
-/** The home body: the differentiators, a pull quote, the box, the ladder. */
+/**
+ * The home body: the differentiators (a dominant feature row + a 2-up), the
+ * pull quote, the sovereignty beat (typographic — the box plate stays unique to
+ * the hero), and the asymmetric governance ladder. Vertical rhythm is varied by
+ * design: `xl` spacers separate the movements (the native band layer lifts each
+ * post-spacer block by a generous fluid gap) while children inside a movement
+ * sit tight.
+ */
 export function homeBody(): Node {
 	return {
 		kind: "frame",
@@ -221,16 +246,20 @@ export function homeBody(): Node {
 		surface: "base",
 		budget: 4,
 		children: [
-						// --- Differentiators: a dominant feature row + a 2-up of two minor panels,
+			// --- Differentiators: a dominant feature row + a 2-up of two minor panels,
 			// so the trio is no longer a uniform 3-up (the substrate claim leads).
 			{
 				kind: "stack",
 				role: "section",
 				direction: "block",
 				children: [
-					t("Not a chatbot. Not a consultant. A department that stays.", "heading", {
-						emphasis: "strong",
-					}),
+					t(
+						"Not a chatbot. Not a consultant. A department that stays.",
+						"heading",
+						{
+							emphasis: "strong",
+						},
+					),
 					{ kind: "spacer", size: "md" },
 					// DOMINANT — the substrate claim as a wide feature row: claim + proof side
 					// by side, raised, owning the section before the minor pair.
@@ -267,9 +296,13 @@ export function homeBody(): Node {
 								kind: "compound",
 								name: "SiteValueProp",
 								args: {
-									heading: t("It proposes. You authorise. It records.", "subheading", {
-										emphasis: "strong",
-									}),
+									heading: t(
+										"It proposes. You authorise. It records.",
+										"subheading",
+										{
+											emphasis: "strong",
+										},
+									),
 									body: t(
 										"Discovery is always on; action waits for your sign-off. Every act it takes carries a signed envelope you can audit as a single record. A Sókrates answer should never be accepted because the AI said so.",
 										"body",
@@ -285,13 +318,10 @@ export function homeBody(): Node {
 										emphasis: "strong",
 									}),
 									body: t(
-										"The appliance is yours from day one, behind your firewall. Nothing leaves the building by default. Cancel, and you keep the box, the data and the connectors.",
+										"The appliance is yours from day one, behind your firewall, not a tenant in someone else's cloud. Data residency is structural here, not a setting you trust someone to honour.",
 										"body",
 										{ emphasis: "muted" },
 									),
-								},
-								slots: {
-									foot: [link("/how-it-works", "How it works")],
 								},
 							},
 						],
@@ -323,13 +353,91 @@ export function homeBody(): Node {
 
 			{ kind: "spacer", size: "xl" },
 
-			// --- The box -----------------------------------------------------
-			sovereigntySplit(),
+			// --- Sovereignty -------------------------------------------------
+			// NOT the box photo again: the hero already carries the appliance plate,
+			// and DESIGN §8 forbids the same plate twice. The sovereignty beat is a
+			// purely typographic editorial split here (a claim hung left of two short
+			// terms of ownership), and the route hangs the Sókrates seal beside it as
+			// the page's second committed artifact. The native band owns the imagery;
+			// the tree owns the words.
+			homeSovereignty(),
 
 			{ kind: "spacer", size: "xl" },
 
 			// --- Governance ladder -------------------------------------------
 			governanceLadder(),
+		],
+	};
+}
+
+/**
+ * The home sovereignty beat — "your hardware, your data, your department" as a
+ * typographic editorial split (no image; the hero already carries the box, and
+ * the route hangs the seal beside this band). A dominant claim, then a tight
+ * 2-up of the two terms of ownership: what is yours, and what ends if you leave.
+ * Asymmetric panel weight, not another card wall.
+ */
+function homeSovereignty(): Node {
+	return {
+		kind: "stack",
+		role: "section",
+		direction: "block",
+		children: [
+			t("Your hardware. Your data. Your department.", "heading", {
+				emphasis: "strong",
+			}),
+			t(
+				"The appliance ships to your premises and is yours from day one, behind your firewall. Sókrates reads live truth from the systems on your network; there is no cached copy in someone else's datacentre to drift or to leak.",
+				"body",
+				{ emphasis: "muted" },
+			),
+			{ kind: "spacer", size: "sm" },
+			{
+				kind: "grid",
+				role: "list",
+				minTrack: "regular",
+				children: [
+					{
+						kind: "compound",
+						name: "SiteValueProp",
+						args: {
+							heading: t(
+								"Nothing leaves the building by default.",
+								"subheading",
+								{
+									emphasis: "strong",
+								},
+							),
+							body: t(
+								"Read-side discovery runs locally, against the systems already on your network. The map is computed from live rows, not from a snapshot shipped off-site to age.",
+								"body",
+								{ emphasis: "muted" },
+							),
+						},
+					},
+					{
+						kind: "compound",
+						name: "SiteValueProp",
+						args: {
+							heading: t(
+								"Cancel, and you keep everything that was yours.",
+								"subheading",
+								{
+									emphasis: "strong",
+								},
+							),
+							body: t(
+								"The box, the data and the connectors stay with you. What ends is the continuous intelligence layer, not your ownership.",
+								"body",
+								{ emphasis: "muted" },
+							),
+						},
+						slots: {
+							foot: [link("/how-it-works", "How it works")],
+						},
+					},
+				],
+			},
 		],
 	};
 }
