@@ -301,7 +301,7 @@ Vary     { kind:"vary";      id:string; options:Node[]; default?:number; objecti
 ### Compound reference
 
 ```ts
-CompoundRef { kind:"compound"; name:string; args:Record<string,unknown>; slots?:Record<string,Node[]> }
+CompoundRef { kind:"compound"; name:string; args:Record<string,unknown>; emphasis?:EmphasisClaim; slots?:Record<string,Node[]> }
 ```
 
 `type Node = Layout | Content | Input | Feedback | Action | Overlay | Meta | CompoundRef`,
@@ -392,7 +392,9 @@ childrenOf(node): readonly Node[]    // the single source of truth for a node's 
 2. type-check the expansion against the grammar (every leaf a known kind, no
    leaked `ParamRef`),
 3. acyclicity of compound references (DFS),
-4. depth bound (`MAX_EXPANSION_DEPTH = 16`).
+4. reject a template root that carries an emphasis claim (the call-site
+   `CompoundRef.emphasis` claims on behalf of the expansion root),
+5. depth bound (`MAX_EXPANSION_DEPTH = 16`).
 
 **Hygiene:** `ParamRef` resolves ONLY against the compound's own `args` (filled
 with defaults); `Slot` fills from the call site's `ref.slots[name]` (or its
@@ -591,24 +593,17 @@ These are real holes between the implementation and the lemmas, found by
 review, owned by `docs/reconstruction-plan.md`. They are listed here so no
 agent rediscovers them as "bugs" or, worse, builds on the broken assumption.
 
-1. **Budget law does not commute with compound expansion.** Renormalization
-   runs over a container's immediate children, but `CompoundRef` carries no
-   emphasis claim, so a claim at a compound's template root is silently dropped
-   (likewise a claim on a `Vary` option). Until fixed: do NOT put a top-level
-   emphasis claim on a compound template's root and expect the call-site parent
-   to budget it. Fix: an optional claim on `CompoundRef` + the commutation
-   property test (`VISION.md` open problem 8).
-2. **Render is not total at an unknown compound.** `registry.expand()` throws
+1. **Render is not total at an unknown compound.** `registry.expand()` throws
    on an unregistered name and `Node.svelte` calls it unguarded — an
    import-order accident can take down the whole tree. Until fixed: routes must
    call their `register*Compounds()` before building trees (all current routes
    do). Fix: a defensive branch in `Node.svelte` (render nothing + dev warning).
-3. **Children are keyed by object identity** (`{#each … as c (c)}`). Two
+2. **Children are keyed by object identity** (`{#each … as c (c)}`). Two
    children that are the SAME object reference crash with a duplicate-key
    error. Until fixed: never share a node instance between siblings — build
    fresh nodes (a hoisted `SPACER` constant reused twice is the canonical
    landmine).
-4. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
+3. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
    resolves to an unset CSS var and paints silently wrong. Until fixed: pass a
    `fallback` to `slot()` for dialect-extension intents, and copy intent names
    from `tokens/intents.ts` / the dialect files, never from memory. Fix: a

@@ -130,6 +130,11 @@ export class CompoundRegistry {
 		if (this.#defs.has(def.name)) {
 			errors.push(`Compound "${def.name}" is already registered.`);
 		}
+		if ("emphasis" in def.template && def.template.emphasis !== undefined) {
+			errors.push(
+				"Template root must not carry an emphasis claim; claim at the call site (CompoundRef.emphasis).",
+			);
+		}
 
 		// Acyclicity: the closure of compound references reachable from this
 		// template (including self) must not contain a cycle. We seed the graph

@@ -651,14 +651,12 @@ where available, agent-proposed compounds promoted into the curated set.
    that no local, stable, depth-monotone, budget-conserving downward
    accumulation can produce? If one exists, what is the minimal extension — a
    new context component, a fifth law — that restores it without breaking Calm?
-8. **Claim hygiene across compound boundaries** — the budget law runs over a
-   container's *immediate* children, but a `CompoundRef` carries no emphasis
-   claim, so a claim at a compound's template root is invisible to the parent's
-   renormalization (and `Vary` options likewise). Lemma 2's law 4 must commute
-   with Lemma 1's expansion. The candidate fix is hygienic: the call site claims
-   on behalf of the expansion (an optional claim on `CompoundRef`), with the
-   commutation property added to the test plan. Scheduled — see
-   `docs/reconstruction-plan.md`.
+8. **Claim hygiene across compound boundaries — resolved in Phase 0** — the
+   budget law runs over a container's *immediate* children, so Lemma 2's law 4
+   must commute with Lemma 1's expansion. The shipped fix is hygienic: the call
+   site claims on behalf of the expansion (`CompoundRef.emphasis`), template
+   roots are rejected if they carry their own claim, and `Vary` inherits the
+   clamped default option's claim until Lemma 6's live deltas land.
 
 ---
 
@@ -678,7 +676,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Candidate/promoted compound lifecycle | L1 | — | ✗ (Phase 1) |
 | Context algebra: four laws + property tests | L2 | `context/algebra.ts`, `lemmas.property.test.ts` | ✔ |
 | Emphasis renormalization wired into render path | L2 | layout primitives | ✔ |
-| Law-4 × expansion commutation (claim hygiene) | L1×L2 | — | ✗ (open problem 8) |
+| Law-4 × expansion commutation (claim hygiene) | L1×L2 | `grammar/types.ts`, `context/algebra.ts`, `lemmas.property.test.ts` | ✔ |
 | Three token strata, intents-only authoring | L3 | `tokens/` | ✔ |
 | Dialects: intent remap + bounded priors, global flip | L4 | `dialects/` | ✔ |
 | Intent-keyset fixed point across dialects (tested) | L4 | `dialects.test.ts` | ✔ |

@@ -265,6 +265,13 @@ export function densityToSpaceStep(density: Density): string {
  * deliberate `emphasis` field is a claim.
  */
 export function explicitClaim(node: Node): EmphasisClaim | undefined {
+	if (node.kind === "vary") {
+		const max = node.options.length - 1;
+		if (max < 0) return undefined;
+		const idx = Math.min(Math.max(node.default ?? 0, 0), max);
+		const choice = node.options[idx];
+		return choice ? explicitClaim(choice) : undefined;
+	}
 	return "emphasis" in node && node.emphasis ? node.emphasis : undefined;
 }
 
