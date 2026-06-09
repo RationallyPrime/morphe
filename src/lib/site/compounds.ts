@@ -39,10 +39,10 @@ import { registry } from "$morphe";
  *
  * The loud top of a page: a quiet mono eyebrow, the display headline (the call
  * site sets `as: "display"`), a supporting lede, then an honest proof line. The
- * Stack claims `strong` so the headline owns the fold; the dialect's beacon
- * budget keeps a single amber claim from multiplying. The conversion CTAs are
- * NOT in the tree — they are native token-styled anchors the page renders
- * beside this masthead (the same "controls live outside the tree" idiom the
+ * call-site CompoundRef claims `strong` so the headline owns the fold; the
+ * dialect's beacon budget keeps a single amber claim from multiplying. The
+ * conversion CTAs are NOT in the tree — they are native token-styled anchors
+ * the page renders beside this masthead (the same "controls live outside the tree" idiom the
  * composer uses), because a real amber primary button must navigate, and the
  * grammar's Button is declarative while its Link is an inline underlined anchor.
  * ========================================================================= */
@@ -80,7 +80,6 @@ export const SiteHero: CompoundDef = {
 		kind: "stack",
 		role: "section",
 		direction: "block",
-		emphasis: "strong",
 		children: [
 			{ kind: "param-ref", param: "eyebrow" },
 			{ kind: "param-ref", param: "title" },
@@ -340,7 +339,8 @@ export const SiteFeatureSplit: CompoundDef = {
  * params: eyebrow (node) · heading (node, required) · sub (node)
  * slots:  note — an optional quiet line under the heading
  *
- * The front-door copy: a strong heading and a supporting line. The page wraps
+ * The front-door copy: a strong heading and a supporting line. The call-site
+ * CompoundRef claims section emphasis, while the page wraps
  * this in a native raised band and renders the conversion CTAs (contact /
  * onboarding) as native token-styled anchors inside that band — same idiom as
  * SiteHero. Used to close every marketing page.
@@ -382,7 +382,6 @@ export const SiteCtaBanner: CompoundDef = {
 		kind: "stack",
 		role: "section",
 		direction: "block",
-		emphasis: "strong",
 		children: [
 			{ kind: "param-ref", param: "eyebrow" },
 			{ kind: "param-ref", param: "heading" },
