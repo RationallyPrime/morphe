@@ -37,7 +37,7 @@
 	import type { Action } from "svelte/action";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Popover } from "../../grammar/types.js";
-	import { boundBoolean, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
+	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 	import Node from "../../render/Node.svelte";
 
@@ -110,7 +110,7 @@
 	function setOpen(next: boolean): void {
 		if (open === next) return;
 		open = next;
-		commitBinding(store, node.bind, next);
+		commitTier1(store, node.bind, next ? "expand" : "collapse", next);
 	}
 
 	/* --------------------------------------------------------------------------

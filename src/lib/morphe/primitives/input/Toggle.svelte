@@ -31,7 +31,7 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Toggle } from "../../grammar/types.js";
-	import { boundBoolean, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
+	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Toggle> = $props();
@@ -81,7 +81,7 @@
 
 	function setOn(next: boolean): void {
 		on = next;
-		commitBinding(store, node.bind, next);
+		commitTier1(store, node.bind, "selection", next);
 	}
 
 	function onCheckboxChange(event: Event & { currentTarget: HTMLInputElement }): void {

@@ -35,7 +35,7 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Field } from "../../grammar/types.js";
-	import { boundString, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
+	import { boundString, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Field> = $props();
@@ -72,7 +72,7 @@
 	let value = $state(boundString(store, node.bind, ""));
 
 	function commitValue(): void {
-		commitBinding(store, node.bind, value);
+		commitTier1(store, node.bind, "filter-edit", value);
 	}
 </script>
 

@@ -14,6 +14,8 @@
 	import type { Dialect } from "../dialects/types.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
 	import type { MorpheStore } from "../state/store.svelte.js";
+	import type { EscalationHandler } from "../state/events.js";
+	import { provideEscalation } from "../state/escalation.js";
 	import { registry as defaultRegistry, restrictCompounds } from "../compounds/factory.js";
 	import { activeDialect } from "../dialects/active.svelte.js";
 	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
@@ -37,9 +39,22 @@
 		 * opt-in (preview/tooling surfaces). Promoted is the default visible set.
 		 */
 		showCandidates?: boolean;
+		/**
+		 * The tier-2 escalation boundary (Lemma 5): submit / task-transition /
+		 * view-not-working surface here as TYPED events — never a DOM event,
+		 * never a store write. Omit it and tier-2 affordances are simply inert.
+		 */
+		onEscalate?: EscalationHandler;
 	}
 
-	let { tree, dialect, registry = defaultRegistry, store, showCandidates = false }: Props = $props();
+	let {
+		tree,
+		dialect,
+		registry = defaultRegistry,
+		store,
+		showCandidates = false,
+		onEscalate,
+	}: Props = $props();
 
 	// An explicit `dialect` prop OVERRIDES (preserving the subtree-boundary swap);
 	// when OMITTED, follow the GLOBAL active dialect reactively, so flipping it
@@ -94,6 +109,16 @@
 	// svelte-ignore state_referenced_locally
 	const resolvedStore = resolveMorpheStore(store, inheritedStore, rootDefaultStore);
 	provideMorpheStore(resolvedStore);
+
+	// Tier-2 escalation boundary (Lemma 5): provided as a reactive ref so the
+	// host can swap/remove its handler without remounting. Deliberately a
+	// SEPARATE context from the store — input primitives consume the store and
+	// never this, so a tier-1 handler has no escalation capability in scope.
+	provideEscalation({
+		get current() {
+			return onEscalate;
+		},
+	});
 </script>
 
 <div class="mo-root" data-mo-dialect={applied.attr} style={dialectStyle(applied)}>

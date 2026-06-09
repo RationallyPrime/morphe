@@ -18,7 +18,7 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Range } from "../../grammar/types.js";
-	import { boundNumber, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
+	import { boundNumber, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Range> = $props();
@@ -46,7 +46,7 @@
 	function onRangeChange(event: Event & { currentTarget: HTMLInputElement }): void {
 		const next = Number(event.currentTarget.value);
 		value = Number.isFinite(next) ? next : node.min;
-		commitBinding(store, node.bind, value);
+		commitTier1(store, node.bind, "filter-edit", value);
 	}
 </script>
 
