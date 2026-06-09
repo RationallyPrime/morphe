@@ -14,6 +14,7 @@
 	const intro: Node = {
 		kind: "compound",
 		name: "SiteHero",
+		emphasis: "strong",
 		args: {
 			eyebrow: { kind: "text", value: "Onboarding", as: "caption", intent: "accession" },
 			title: { kind: "text", value: "Tell us what runs your operation.", as: "display", emphasis: "strong" },

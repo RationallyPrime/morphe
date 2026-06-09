@@ -524,6 +524,12 @@ own descent and recurse into `<Node>` with the child ctx. An unknown
 `CompoundRef` name renders nothing and emits a dev-mode warning; it never throws
 from the renderer.
 
+`MorpheRoot.svelte` is also the Lemma 5 store boundary. It resolves a
+`MorpheStore` by `store` prop > inherited context > per-root in-memory default,
+then provides that instance synchronously to children. Bound input/overlay
+primitives read initial state from their declared `.bind` path and commit
+tier-1 changes back to the store; unbound primitives remain purely local.
+
 **`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
 own `children` and recurse into `<Node>` themselves (exactly as layout primitives
 do), and because they render via the platform top layer (`<dialog showModal()>`,
@@ -573,7 +579,7 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 | Seam | Field(s) | Reserved for | Phase |
 |---|---|---|---|
 | Declarative actions | `Button.action` (an id, no live wire) | the later event loop binds a handler to the id; the grammar emits intent, not logic | 1 |
-| Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | 1 |
+| Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | wired to Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | ✔ |
 | Variation points | `Vary` (renders `options[default]` today), `Vary.objective` | Lemma 6: the mid loop selects among options within an epoch; `objective` is what it optimizes | 2 |
 | Dialect compound-gating | `Dialect.compounds[]` (typed, not render-gated) | Lemma 4's compound dialect: G\|D restricts the registry per dialect | 1 |
 | Dialect personas | `Dialect.persona` | τ_frame bootstrap (deployment/directory; cohort attribution on the site) | 2 |

@@ -76,6 +76,28 @@ export {
 	boundaryStyle,
 } from "./context/Context.svelte.js";
 
+// Client store (Lemma 5)
+export type {
+	JsonPrimitive,
+	JsonArray,
+	JsonObject,
+	JsonValue,
+	JsonRecord,
+	StoreSubscriber,
+	MorpheStore,
+} from "./state/store.svelte.js";
+export {
+	InMemoryMorpheStore,
+	createInMemoryMorpheStore,
+	provideMorpheStore,
+	useMorpheStore,
+	resolveMorpheStore,
+	boundString,
+	boundNumber,
+	boundBoolean,
+	commitBinding,
+} from "./state/store.svelte.js";
+
 // Compound factory (Lemma 1)
 export type {
 	CompoundDef,

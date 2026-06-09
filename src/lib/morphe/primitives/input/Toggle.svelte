@@ -31,9 +31,11 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Toggle } from "../../grammar/types.js";
+	import { boundBoolean, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Toggle> = $props();
+	const store = useMorpheStore();
 
 	const a11y = $derived(node.a11y);
 	// "switch" is the default mode so every pre-variant Toggle stays valid.
@@ -46,8 +48,10 @@
 	const ariaLabel = $derived(a11y.label.mode === "aria-label" ? a11y.label.text : undefined);
 	const ariaLabelledby = $derived(a11y.label.mode === "labelledby" ? a11y.label.id : undefined);
 
-	// tier-0 local state (Lemma 5): never leaves the component in Phase 0.
-	let on = $state(false);
+	// tier-0 local state (Lemma 5): seed from tier-1 when bound, then commit only
+	// when the control's boolean value changes.
+	// svelte-ignore state_referenced_locally
+	let on = $state(boundBoolean(store, node.bind, false));
 
 	// The bound DOM element for the checkbox mode — indeterminate is a DOM-only
 	// property (no HTML attribute), so it MUST be set imperatively on the element.
@@ -75,10 +79,15 @@
 	const ringWidth = $derived(SLOTS.focus.width());
 	const ringOffset = $derived(SLOTS.focus.offset());
 
-	function toggleCheckbox(): void {
+	function setOn(next: boolean): void {
+		on = next;
+		commitBinding(store, node.bind, next);
+	}
+
+	function onCheckboxChange(event: Event & { currentTarget: HTMLInputElement }): void {
 		// Activating an indeterminate checkbox resolves it to checked (native
 		// behaviour: the indeterminate flag clears and the box becomes checked).
-		on = indeterminate ? true : !on;
+		setOn(indeterminate ? true : event.currentTarget.checked);
 	}
 </script>
 
@@ -97,8 +106,8 @@
 				id={a11y.id}
 				type="checkbox"
 				class="mo-toggle__checkbox"
-				bind:checked={on}
-				onchange={(e) => (on = e.currentTarget.checked)}
+				checked={on}
+				onchange={onCheckboxChange}
 				aria-checked={ariaChecked}
 				aria-required={a11y.required}
 				aria-label={ariaLabel}
@@ -124,7 +133,7 @@
 			aria-describedby={describedBy}
 			data-bind={node.bind}
 			data-on={on}
-			onclick={() => (on = !on)}
+			onclick={() => setOn(!on)}
 		>
 			<span class="mo-toggle__track" aria-hidden="true">
 				<span class="mo-toggle__glyph mo-toggle__glyph--on material-symbols-outlined">check</span>

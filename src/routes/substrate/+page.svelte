@@ -19,6 +19,7 @@
 	const intro: Node = {
 		kind: "compound",
 		name: "SiteHero",
+		emphasis: "strong",
 		args: {
 			eyebrow: { kind: "text", value: "Built on Morphe", as: "caption", intent: "accession" },
 			title: { kind: "text", value: "The whole site is data.", as: "display", emphasis: "strong" },

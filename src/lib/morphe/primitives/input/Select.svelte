@@ -28,9 +28,11 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Select } from "../../grammar/types.js";
+	import { boundString, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Select> = $props();
+	const store = useMorpheStore();
 
 	const variant = $derived(node.variant ?? "dropdown");
 
@@ -54,9 +56,10 @@
 	// when valid, the caution register when invalid — color is one of TWO signals.
 	const markColor = $derived(invalid ? SLOTS.field.borderError() : SLOTS.action.surface());
 
-	// tier-0 local state (Lemma 5): seed once from the first option, never leaves.
+	// tier-0 local state (Lemma 5): seed from tier-1 when bound, then commit only
+	// when the selected option changes.
 	// svelte-ignore state_referenced_locally
-	let value = $state(node.options[0]?.value ?? "");
+	let value = $state(boundString(store, node.bind, node.options[0]?.value ?? ""));
 
 	/* ---- radiogroup roving model (one tab stop, arrows move selection) ---- */
 
@@ -80,7 +83,13 @@
 		const opt = node.options[index];
 		if (!opt || opt.disabled) return;
 		value = opt.value;
+		commitBinding(store, node.bind, value);
 		if (moveFocus) radioEls[index]?.focus();
+	}
+
+	function onDropdownChange(event: Event & { currentTarget: HTMLSelectElement }): void {
+		value = event.currentTarget.value;
+		commitBinding(store, node.bind, value);
 	}
 
 	// Arrow/Home/End roving across ENABLED options, wrapping at the ends. In a
@@ -221,6 +230,7 @@
 				aria-labelledby={ariaLabelledby}
 				aria-describedby={describedBy}
 				data-bind={node.bind}
+				onchange={onDropdownChange}
 			>
 				{#each node.options as opt (opt.value)}
 					<option value={opt.value} disabled={opt.disabled}>{opt.label}</option>

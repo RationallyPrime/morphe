@@ -16,10 +16,10 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (486 files) |
-| Tests | `bun run test` (`vitest run`) | **202/202 passing** across 9 files |
+| Tests | `bun run test` (`vitest run`) | **208/208 passing** across 10 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (202 total)
+### Test breakdown (208 total)
 
 - `src/lib/morphe/core.test.ts` — 21 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection).
@@ -31,9 +31,13 @@ Package manager is **bun** (never npm/pnpm/yarn).
 - `src/lib/morphe/lemmas.property.test.ts` — 21 (lemmas-as-property-tests,
   in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
   compound-wrapping commutation).
-- `src/lib/morphe/primitives.render.test.ts` — 45 (SSR render totality + a11y
+- `src/lib/morphe/primitives.render.test.ts` — 46 (SSR render totality + a11y
   for all 22 primitive kinds incl. Action/Overlay, input modes, unknown
-  compounds, shared node instances).
+  compounds, shared node instances, bound-primitive store seeding).
+- `src/lib/morphe/state/store.test.ts` — 5 (ADR-0003 client-store contract:
+  layered ownership, full JSON values, replace-on-write + notify-on-set,
+  dev-freeze, and the architecture scan keeping store reads inside
+  declared-bind primitives).
 - `src/lib/compose/compose.test.ts` — 37 (composer: corpus grounding
   invariants, presenters, ranking policy).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
@@ -52,7 +56,11 @@ Package manager is **bun** (never npm/pnpm/yarn).
   three token strata; the compound factory with its validation gate; three
   dialects (`icelandic-archive` default, `clinical`, `reykjavik-registry`)
   pulled apart at the beacon, all passing the intent-keyset fixed-point tests;
-  the global dialect flip (`activeDialect`, persisted, toggle on `/substrate`).
+  the global dialect flip (`activeDialect`, persisted, toggle on `/substrate`);
+  the Lemma 5 client store (`MorpheStore`, ADR-0003: prop > context > per-root
+  ownership at `MorpheRoot`, full JSON values, flat keys) with all six
+  bindable primitives reading initial tier-1 state from and committing back
+  to their declared `.bind` paths.
 - **The site (the dignity test, live):** composer-first home (`/`) with the
   two-amber beacon discipline, `/how-it-works`, `/architecture`, `/onboarding`,
   `/substrate`; the capability composer with two-stage retrieve→rerank ranking

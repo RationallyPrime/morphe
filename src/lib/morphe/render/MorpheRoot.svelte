@@ -13,19 +13,27 @@
 	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { Dialect } from "../dialects/types.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
+	import type { MorpheStore } from "../state/store.svelte.js";
 	import { registry as defaultRegistry } from "../compounds/factory.js";
 	import { activeDialect } from "../dialects/active.svelte.js";
 	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
 	import { provideMorpheContext } from "../context/Context.svelte.js";
+	import {
+		createInMemoryMorpheStore,
+		provideMorpheStore,
+		resolveMorpheStore,
+		useMorpheStore,
+	} from "../state/store.svelte.js";
 	import Node from "./Node.svelte";
 
 	interface Props {
 		tree: MorpheNode;
 		dialect?: Dialect;
 		registry?: CompoundRegistry;
+		store?: MorpheStore;
 	}
 
-	let { tree, dialect, registry = defaultRegistry }: Props = $props();
+	let { tree, dialect, registry = defaultRegistry, store }: Props = $props();
 
 	// An explicit `dialect` prop OVERRIDES (preserving the subtree-boundary swap);
 	// when OMITTED, follow the GLOBAL active dialect reactively, so flipping it
@@ -53,6 +61,16 @@
 	// ({#key activeDialect.id}), re-running this seed for the new dialect.
 	// svelte-ignore state_referenced_locally
 	provideMorpheContext(applied.rootContext);
+
+	// Lemma 5 client-store ownership: prop beats inherited context, inherited
+	// context beats the per-root in-memory default. The root provides the resolved
+	// instance synchronously so bound primitives can read their initial tier-1
+	// state during SSR and first client render.
+	const inheritedStore = useMorpheStore();
+	const rootDefaultStore = createInMemoryMorpheStore();
+	// svelte-ignore state_referenced_locally
+	const resolvedStore = resolveMorpheStore(store, inheritedStore, rootDefaultStore);
+	provideMorpheStore(resolvedStore);
 </script>
 
 <div class="mo-root" data-mo-dialect={applied.attr} style={dialectStyle(applied)}>

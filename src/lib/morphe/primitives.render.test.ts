@@ -29,10 +29,17 @@ import { icelandicArchive } from "./dialects/icelandic-archive.js";
 import { clinical } from "./dialects/clinical.js";
 import type { Dialect } from "./dialects/types.js";
 import type { Node } from "./grammar/types.js";
+import { createInMemoryMorpheStore, type MorpheStore } from "./state/store.svelte.js";
 
 /** Render an authored tree through the full core to its SSR HTML body string. */
-function ssr(tree: Node, dialect?: Dialect): string {
-	return render(MorpheRoot, { props: dialect ? { tree, dialect } : { tree } }).body;
+function ssr(
+	tree: Node,
+	options?: Dialect | { readonly dialect?: Dialect; readonly store?: MorpheStore },
+): string {
+	if (options && "id" in options) {
+		return render(MorpheRoot, { props: { tree, dialect: options } }).body;
+	}
+	return render(MorpheRoot, { props: { tree, ...options } }).body;
 }
 
 /* ===========================================================================
@@ -350,6 +357,42 @@ describe("Field — multiline mode extension (CONTRACT §3)", () => {
 		const html = ssr({ kind: "field", a11y: { id: "f3", label: { mode: "visible", text: "Name" }, required: true } });
 		expect(html).toContain('aria-required="true"');
 		expect(html).toContain("(required)");
+	});
+});
+
+describe("bindings — bound input primitives read initial tier-1 state", () => {
+	it("reads Field, Select, Toggle, and Range initial values from the provided store", () => {
+		const store = createInMemoryMorpheStore({
+			"title.path": "Stored title",
+			"lang.path": "en",
+			"published.path": true,
+			"year.path": 1440,
+		});
+		const tree: Node = {
+			kind: "stack",
+			role: "form",
+			children: [
+				{ kind: "field", a11y: baseA11y("bind-title"), bind: "title.path" },
+				{
+					kind: "select",
+					a11y: baseA11y("bind-lang"),
+					bind: "lang.path",
+					options: [
+						{ value: "is", label: "Icelandic" },
+						{ value: "en", label: "English" },
+					],
+				},
+				{ kind: "toggle", a11y: baseA11y("bind-published"), bind: "published.path" },
+				{ kind: "range", a11y: baseA11y("bind-year"), min: 1200, max: 1600, bind: "year.path" },
+			],
+		};
+
+		const html = ssr(tree, { store });
+
+		expect(html).toContain('value="Stored title"');
+		expect(html).toMatch(/<option[^>]*value="en"[^>]*selected/);
+		expect(html).toContain('data-on="true"');
+		expect(html).toContain(">1440</output>");
 	});
 });
 
