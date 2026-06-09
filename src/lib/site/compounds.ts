@@ -76,11 +76,14 @@ export const SiteHero: CompoundDef = {
 			},
 		},
 	},
+	// No emphasis claim on the template root — the factory gate rejects it
+	// (claims at the root are the CALL SITE's to make, via CompoundRef.emphasis,
+	// so wrapping in a compound commutes with the budget law). Every SiteHero
+	// call site in present.ts claims "strong" on the ref.
 	template: {
 		kind: "stack",
 		role: "section",
 		direction: "block",
-		emphasis: "strong",
 		children: [
 			{ kind: "param-ref", param: "eyebrow" },
 			{ kind: "param-ref", param: "title" },
@@ -377,12 +380,12 @@ export const SiteCtaBanner: CompoundDef = {
 	},
 	// A plain Stack (not a Frame): the PAGE wraps this in a native raised band so
 	// the copy and the native CTA buttons share one surface. A frame here would
-	// double-raise the band.
+	// double-raise the band. No emphasis claim on the root (gate-rejected) —
+	// call sites claim "strong" on the CompoundRef.
 	template: {
 		kind: "stack",
 		role: "section",
 		direction: "block",
-		emphasis: "strong",
 		children: [
 			{ kind: "param-ref", param: "eyebrow" },
 			{ kind: "param-ref", param: "heading" },
