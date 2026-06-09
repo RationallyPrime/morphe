@@ -1,0 +1,42 @@
+# Domain Docs
+
+How the engineering skills should consume this repo's domain documentation when exploring
+the codebase. **Layout: single-context** (one project, no `CONTEXT-MAP.md`).
+
+## Before exploring, read these
+
+- **`CONTEXT.md`** at the repo root — if it exists. (It does not yet; `/grill-with-docs`
+  creates it lazily when terms actually get resolved.)
+- **`docs/adr/`** — read ADRs that touch the area you're about to work in. (None yet.)
+- This repo also carries a **formal design corpus** that functions as domain doctrine —
+  read whichever is relevant before design/architecture work:
+  - **`CONTRACT.md`** — the formal substrate contract (the grammar, context algebra, the
+    three token strata, the dialect fixed point; §8 fixes the intent-keyset across dialects).
+  - **`PRODUCT.md`** — product strategy / positioning.
+  - **`DESIGN.md`** — the visual system (the Sókrates identity the default theme realizes).
+  - **`CLAUDE.md`** — the working contract for agents in this repo (overrides defaults).
+  - **`docs/redesign-plan.md`** — the live home-redesign design narrative.
+
+If `CONTEXT.md` / `docs/adr/` don't exist, **proceed silently.** Don't flag their absence or
+suggest creating them upfront — the producer skill (`/grill-with-docs`) creates them lazily
+when terms or decisions actually get resolved.
+
+## Use the established vocabulary
+
+When your output names a domain concept (an issue title, a refactor proposal, a hypothesis,
+a test name), use the term as defined in the corpus above — grammar lemmas, the context
+algebra, intents, dialects, compounds, the emphasis subalgebra, the native-control-surface
+idiom. Don't drift to synonyms the contract explicitly avoids (e.g. don't say "color/scale"
+where an **intent** is meant; don't call a clickable `<div>` a button — that's unrepresentable
+on purpose).
+
+If the concept you need isn't in the corpus yet, that's a signal — either you're inventing
+language the project doesn't use (reconsider) or there's a real gap (note it for
+`/grill-with-docs`).
+
+## Flag contract / ADR conflicts
+
+If your output contradicts `CONTRACT.md` or an existing ADR, surface it explicitly rather
+than silently overriding:
+
+> _Contradicts CONTRACT.md §8 (intent-keyset fixed point) — but worth reopening because…_

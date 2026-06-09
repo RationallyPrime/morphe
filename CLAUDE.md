@@ -61,3 +61,17 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 ## Deploy
 
 Vercel project `sokrates-spunagreind/morphe` (`adapter-vercel`, `nodejs22.x`). `VOYAGE_API_KEY` is set on Production (server-side only; never printed/committed; `.env` is gitignored). Pushing to the repo is the user's call — never `git push` without an explicit request.
+
+## Agent skills
+
+### Issue tracker
+
+Issues + PRDs live in **Linear** (team `Krates-ehf`, project `Morphe`, keys `KRA-###`) via the `linear` MCP — **not** GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical triage roles map onto existing Linear labels: `needs-triage`→`needs human review`, `needs-info`→`needs-grill`, `ready-for-agent`→`ready-for-agent`, `ready-for-human`→`ready-for-human`, `wontfix`→`deferred-post-v1`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context. No `CONTEXT.md`/`docs/adr/` yet (proceed silently); the formal corpus is `CONTRACT.md` + `PRODUCT.md` + `DESIGN.md`. See `docs/agents/domain.md`.
