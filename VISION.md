@@ -680,6 +680,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Three token strata, intents-only authoring | L3 | `tokens/` | ✔ |
 | Dialects: intent remap + bounded priors, global flip | L4 | `dialects/` | ✔ |
 | Intent-keyset fixed point across dialects (tested) | L4 | `dialects.test.ts` | ✔ |
+| Intent-ref apply-time validation + neutral dialect values | L4 | `MorpheRoot.svelte`, `dialects/provider.svelte.ts`, `dialects.test.ts` | ✔ |
 | Compound dialects (`dialect.compounds[]` render-gated) | L4 | typed, not gated | ○ (Phase 1) |
 | G\|D decoder masks (dialect-restricted emission) | L4 | — | ✗ (Phase 2) |
 | Cohort/attribution → dialect at `MorpheRoot` | L4 | direction in `DESIGN.md` §9 | ✗ (named next step) |

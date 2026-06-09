@@ -506,6 +506,11 @@ including `active`/`disabled`, plus the `--mo-intent-surface-overlay` /
 **When you add a channel, add it to EVERY dialect and to `intents.css`, or the
 fixed-point breaks.**
 
+`MorpheRoot` dev-builds walk the authored tree against the active dialect's
+intent record and warn for any unknown `intent` ref; dialect tests also require
+every shipped intent/surface value to be a `var(--mo-...)`, `color-mix(...)`, or
+`transparent` expression, never a raw color.
+
 ---
 
 ## 9. The renderer (Definition 1)
@@ -591,13 +596,4 @@ the lift stays mechanical.
 
 ## 12. Known gaps (acknowledged, scheduled — not licenses, not surprises)
 
-These are real holes between the implementation and the lemmas, found by
-review, owned by `docs/reconstruction-plan.md`. They are listed here so no
-agent rediscovers them as "bugs" or, worse, builds on the broken assumption.
-
-1. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
-   resolves to an unset CSS var and paints silently wrong. Until fixed: pass a
-   `fallback` to `slot()` for dialect-extension intents, and copy intent names
-   from `tokens/intents.ts` / the dialect files, never from memory. Fix: a
-   dev-mode tree walk against the active dialect's intent set + a dialect test
-   asserting every channel value matches the neutral-scale pattern.
+No known R0 substrate-integrity gaps remain.
