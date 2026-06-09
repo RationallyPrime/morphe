@@ -687,7 +687,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Cohort/attribution → dialect at `MorpheRoot` | L4 | `dialects/arrival.ts`, `+layout.svelte` | ✔ (`?cohort=` arrival wiring; per-cohort copy still open) |
 | `bind` store-paths on inputs/overlays | L5 | client store + bound primitives | ✔ |
 | Tier-0 local state in input primitives | L5 | input primitives | ✔ |
-| Tier-1/2 event escalation + ContextDigest | L5 | client store exists; event tiers/digest pending | ✗ (Phase 1) |
+| Tier-1/2 event escalation + ContextDigest | L5 | `state/events.ts`, store event window, `MorpheRoot.onEscalate` | ◐ (tiers wired; ContextDigest = R1.3) |
 | `Vary` nodes (render default option) | L6 | grammar + `Node.svelte` | ○ (Phase 2 wires deltas) |
 | `Within`, epochs, VaryId/delta typing | L6 | — | ✗ (Phase 2) |
 | Mid-loop model (appliance-resident, A4-constrained) | L7 | — | ✗ (Phase 2) |

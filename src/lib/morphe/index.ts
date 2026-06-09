@@ -76,7 +76,7 @@ export {
 	boundaryStyle,
 } from "./context/Context.svelte.js";
 
-// Client store (Lemma 5)
+// Client store + event tiers (Lemma 5)
 export type {
 	JsonPrimitive,
 	JsonArray,
@@ -84,6 +84,7 @@ export type {
 	JsonValue,
 	JsonRecord,
 	StoreSubscriber,
+	StoreOptions,
 	MorpheStore,
 } from "./state/store.svelte.js";
 export {
@@ -95,8 +96,21 @@ export {
 	boundString,
 	boundNumber,
 	boundBoolean,
-	commitBinding,
+	commitTier1,
+	TIER1_WINDOW_SIZE,
 } from "./state/store.svelte.js";
+export type {
+	Tier1Kind,
+	Tier1Event,
+	Tier1EventInput,
+	Tier2Event,
+	SubmitEvent,
+	TaskTransitionEvent,
+	ViewNotWorkingEvent,
+	EscalationHandler,
+} from "./state/events.js";
+export { provideEscalation, useEscalation } from "./state/escalation.js";
+export type { EscalationRef } from "./state/escalation.js";
 
 // Compound factory (Lemma 1)
 export type {

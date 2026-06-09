@@ -28,7 +28,7 @@
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Select } from "../../grammar/types.js";
-	import { boundString, commitBinding, useMorpheStore } from "../../state/store.svelte.js";
+	import { boundString, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Select> = $props();
@@ -83,13 +83,13 @@
 		const opt = node.options[index];
 		if (!opt || opt.disabled) return;
 		value = opt.value;
-		commitBinding(store, node.bind, value);
+		commitTier1(store, node.bind, "selection", value);
 		if (moveFocus) radioEls[index]?.focus();
 	}
 
 	function onDropdownChange(event: Event & { currentTarget: HTMLSelectElement }): void {
 		value = event.currentTarget.value;
-		commitBinding(store, node.bind, value);
+		commitTier1(store, node.bind, "selection", value);
 	}
 
 	// Arrow/Home/End roving across ENABLED options, wrapping at the ends. In a

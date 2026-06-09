@@ -16,28 +16,33 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (486 files) |
-| Tests | `bun run test` (`vitest run`) | **208/208 passing** across 10 files |
+| Tests | `bun run test` (`vitest run`) | **224/224 passing** across 10 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (208 total)
+### Test breakdown (224 total)
 
-- `src/lib/morphe/core.test.ts` — 21 (law + factory + dialect smoke, incl. the
-  compound-gate template-root-claim rejection).
-- `src/lib/morphe/dialects/dialects.test.ts` — 37 (Lemma-4 fixed-point parity
-  across all three dialects + no-raw-color channel guard).
+- `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
+  compound-gate template-root-claim rejection and the R1.5 lifecycle +
+  dialect-restriction suite).
+- `src/lib/morphe/dialects/dialects.test.ts` — 38 (Lemma-4 fixed-point parity
+  across all three dialects + no-raw-color channel guard + compound-subset
+  resolution).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
 - `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
 - `src/lib/morphe/lemmas.property.test.ts` — 21 (lemmas-as-property-tests,
   in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
   compound-wrapping commutation).
-- `src/lib/morphe/primitives.render.test.ts` — 46 (SSR render totality + a11y
+- `src/lib/morphe/primitives.render.test.ts` — 47 (SSR render totality + a11y
   for all 22 primitive kinds incl. Action/Overlay, input modes, unknown
-  compounds, shared node instances, bound-primitive store seeding).
-- `src/lib/morphe/state/store.test.ts` — 5 (ADR-0003 client-store contract:
+  compounds, shared node instances, bound-primitive store seeding, and
+  dialect compound-gating at render).
+- `src/lib/morphe/state/store.test.ts` — 12 (ADR-0003 client-store contract:
   layered ownership, full JSON values, replace-on-write + notify-on-set,
-  dev-freeze, and the architecture scan keeping store reads inside
-  declared-bind primitives).
+  dev-freeze; R1.2 event tiers: atomic commit+record, bounded FIFO window,
+  injected clock, tier unforgeability, and the architecture scans — store
+  reads stay inside declared-bind primitives, no primitive touches the
+  escalation context).
 - `src/lib/compose/compose.test.ts` — 37 (composer: corpus grounding
   invariants, presenters, ranking policy).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
@@ -60,7 +65,11 @@ Package manager is **bun** (never npm/pnpm/yarn).
   the Lemma 5 client store (`MorpheStore`, ADR-0003: prop > context > per-root
   ownership at `MorpheRoot`, full JSON values, flat keys) with all six
   bindable primitives reading initial tier-1 state from and committing back
-  to their declared `.bind` paths.
+  to their declared `.bind` paths; the R1.2 event tiers (atomic
+  `commitTier1` → bounded recent-event window, injected clock; typed tier-2
+  vocabulary + `MorpheRoot.onEscalate` boundary); the R1.5 compound lifecycle
+  (`candidate`/`promoted` through one gate) with `Dialect.compounds[]`
+  render-gating via the `restrictCompounds` view.
 - **The site (the dignity test, live):** composer-first home (`/`) with the
   two-amber beacon discipline, `/how-it-works`, `/architecture`, `/onboarding`,
   `/substrate`; the capability composer with two-stage retrieve→rerank ranking

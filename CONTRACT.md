@@ -549,6 +549,21 @@ then provides that instance synchronously to children. Bound input/overlay
 primitives read initial state from their declared `.bind` path and commit
 tier-1 changes back to the store; unbound primitives remain purely local.
 
+**Event tiers (Lemma 5's taxonomy, enforced structurally):** tier 0 (hover,
+focus, keystroke…) has NO wire type at all — it is unrepresentable outside its
+component. Tier 1 commits go through ONE helper, `commitTier1(store, path,
+kind, value)` — write + record in a single call, so every commit lands in the
+store's bounded recent-event window (`TIER1_WINDOW_SIZE`, FIFO, stamped by the
+store's INJECTED clock — pure code never reads `Date.now()`). Tier 2
+(`submit` / `task-transition` / `view-not-working`, `state/events.ts`)
+surfaces as a typed callback: `MorpheRoot` accepts `onEscalate?: (e:
+Tier2Event) => void` and provides it via a context DISJOINT from the store —
+input primitives never consume it, so a tier-1 handler has no escalation
+capability in scope (architecture-scanned in `store.test.ts`). No shipped
+primitive fires tier-2 yet: in-tree Buttons are inert until the R1.4 action
+wire, and the site's native chrome is out of scope by the
+native-control-surface idiom.
+
 **`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
 own `children` and recurse into `<Node>` themselves (exactly as layout primitives
 do), and because they render via the platform top layer (`<dialog showModal()>`,
