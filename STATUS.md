@@ -15,23 +15,31 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (484 files) |
-| Tests | `bun run test` (`vitest run`) | **166/166 passing** across 7 files |
+| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (486 files) |
+| Tests | `bun run test` (`vitest run`) | **202/202 passing** across 9 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (166 total)
+### Test breakdown (202 total)
 
-- `src/lib/morphe/core.test.ts` — 19 (law + factory + dialect smoke).
-- `src/lib/morphe/dialects/dialects.test.ts` — 33 (Lemma-4 fixed-point parity
-  across all three dialects).
+- `src/lib/morphe/core.test.ts` — 21 (law + factory + dialect smoke, incl. the
+  compound-gate template-root-claim rejection).
+- `src/lib/morphe/dialects/dialects.test.ts` — 37 (Lemma-4 fixed-point parity
+  across all three dialects + no-raw-color channel guard).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
-- `src/lib/morphe/lemmas.property.test.ts` — 20 (lemmas-as-property-tests,
-  in-repo seeded fuzzer, 200 cases/property).
-- `src/lib/morphe/primitives.render.test.ts` — 42 (SSR render totality + a11y
-  for all 22 primitive kinds incl. Action/Overlay and input modes).
+- `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
+  `?cohort=` precedence + arrival sequence against the real store).
+- `src/lib/morphe/lemmas.property.test.ts` — 21 (lemmas-as-property-tests,
+  in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
+  compound-wrapping commutation).
+- `src/lib/morphe/primitives.render.test.ts` — 45 (SSR render totality + a11y
+  for all 22 primitive kinds incl. Action/Overlay, input modes, unknown
+  compounds, shared node instances).
 - `src/lib/compose/compose.test.ts` — 37 (composer: corpus grounding
   invariants, presenters, ranking policy).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
+- `src/lib/site/site.test.ts` — 13 (site compounds pass the factory gate on a
+  fresh registry; every site presenter emits only resolvable compound refs —
+  the smoke layer that catches a gate-tightening breaking a shipped def).
 
 ---
 
@@ -49,7 +57,9 @@ Package manager is **bun** (never npm/pnpm/yarn).
   two-amber beacon discipline, `/how-it-works`, `/architecture`, `/onboarding`,
   `/substrate`; the capability composer with two-stage retrieve→rerank ranking
   (`/api/rerank`, Voyage server-side) and relevance thresholds; minimal nav;
-  contact + onboarding forwarding endpoints.
+  contact + onboarding forwarding endpoints; τ_frame arrival attribution
+  (`?cohort=` selects the dialect on landing — valid param > persisted choice,
+  explicit toggle always wins afterward).
 
 Deployed on Vercel (`sokrates-spunagreind/morphe`); `VOYAGE_API_KEY` set on
 Production, server-side only.
@@ -65,9 +75,9 @@ Two different categories — do not conflate them:
   `persona`. These are *typed seams for Phases 1–2*, not unfinished features.
   Do not wire them ad hoc; do not remove them.
 - **Known defects, scheduled** (`CONTRACT.md` §12 / `docs/reconstruction-plan.md`):
-  budget law not commuting with compound expansion; render not total at an
-  unknown compound name; object-identity child keying (no shared node
-  instances); unvalidated `IntentRef` at runtime.
+  **none** — the R0 substrate-integrity pass closed all four (budget×expansion
+  commutation, render totality at unknown compounds, index child keying,
+  apply-time intent validation). New defects land in CONTRACT §12 first.
 
 Other standing notes:
 

@@ -106,6 +106,7 @@ export {
 	DEFAULT_DIALECT_ID,
 } from "./dialects/registry.js";
 export { activeDialect } from "./dialects/active.svelte.js";
+export { resolveArrivalDialect } from "./dialects/arrival.js";
 
 // Render
 export { Node as RenderNode } from "./render/index.js";

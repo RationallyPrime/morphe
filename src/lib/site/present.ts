@@ -186,6 +186,7 @@ export function closingCta(): Node {
 	return {
 		kind: "compound",
 		name: "SiteCtaBanner",
+		emphasis: "strong",
 		args: {
 			heading: t("One conversation is usually enough.", "heading", {
 				emphasis: "strong",
@@ -215,6 +216,7 @@ export function homeHero(): Node {
 	return {
 		kind: "compound",
 		name: "SiteHero",
+		emphasis: "strong",
 		args: {
 			title: t("You now have an AI department.", "display", {
 				emphasis: "strong",
@@ -434,6 +436,7 @@ export function onboardingBand(): Node {
 	return {
 		kind: "compound",
 		name: "SiteCtaBanner",
+		emphasis: "strong",
 		args: {
 			heading: t("Ready to map your operation?", "heading", {
 				emphasis: "strong",
@@ -455,6 +458,7 @@ export function howItWorksHero(): Node {
 	return {
 		kind: "compound",
 		name: "SiteHero",
+		emphasis: "strong",
 		args: {
 			title: t("From your systems to governed work, in one map.", "display", {
 				emphasis: "strong",
@@ -584,6 +588,7 @@ export function architectureHero(): Node {
 	return {
 		kind: "compound",
 		name: "SiteHero",
+		emphasis: "strong",
 		args: {
 			title: t(
 				"Five primitives. One typed map. A signed envelope on every act.",
