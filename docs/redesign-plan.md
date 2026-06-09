@@ -93,17 +93,20 @@ A short scroll, one dominant idea, the product doing the talking:
   the same authored tree re-shapes for what the visitor needs next.
 - Open questions to resolve before building (see Open Decisions).
 
-### WS6 — Composer relevance (the 113-results bug)
-- Apply a relevance threshold so off-domain / weak-match queries return a small
-  set or none — never the full corpus.
-- Add a graceful low/zero-relevance state ("that's outside what Sókrates does" /
-  "tell us more about the systems you run"), honest and on-voice.
-- Cap the surfaced set to a tight, ranked few; drop the "show all 113" catalog
-  affordance from the primary flow.
-- Investigate: the ranking path in `src/lib/compose/*` and `/api/rerank` (Voyage).
-  Determine why every query returns the full set (no score cutoff? reranker not
-  gating? fallback returns all?). Fix at the ranking layer, not just the display
-  cap.
+### WS6 — Composer relevance (the 113-results bug) — root cause found
+> Root cause (grill): `/api/rerank` reranks the WHOLE corpus and returns all N with
+> no score cutoff; `Composer.svelte:113` maps the ranked list to ids and **discards
+> the `score`**; `localRankIds` **pads** the (correct, empty) deterministic match back
+> to the full corpus with `...rest`; `COLLAPSED_LIMIT=4` only caps the *display* while
+> "Show all {N}" re-exposes the wall. Both paths return all 113 by construction.
+- The relevance gate now lives at the **rerank output of the WS9 pipeline** (gate on
+  `relevance_score`): three branches per **D4** — strong / thin-match invite / off-domain
+  refusal — plus the **unlisted-system contact path**. No fake matches.
+- **D5 cap:** dominant-first **top-4**; **delete "Show all {N}" and any full-corpus
+  count** from the primary flow. Thin match may surface fewer than the cap.
+- Drop the `localRankIds` `...rest` padding; the deterministic matcher (already gated to
+  `matchedTags > 0`) is the correct graceful fallback when Voyage is unavailable.
+- Built on the **WS9** two-stage pipeline (below).
 
 ### WS7 — Content-catalog layer (the cohort/message idea)
 > Split for tracking: **WS7a** = DESIGN (an ADR/spec for the mechanism below —
@@ -129,21 +132,114 @@ A short scroll, one dominant idea, the product doing the talking:
 - This WS is design-first; sequence it after the home is fixed (it depends on the
   de-jargoned copy from WS4 as the default-catalog seed).
 
+### WS8 — Onboarding auth-gate + transactional email (NEW, spawned by D1)
+> The D1 resolution keeps onboarding prominent but moves it behind a lightweight
+> gate; "Talk to us" stays fully open. This is net-new scope (auth + an outbound
+> email dependency the ntfy-only setup can't satisfy). Architectural → **ADR-0001**.
+- **Magic-link gate on `/onboarding`:** a stateless **HMAC** token (server secret
+  over `email + exp`, short expiry) baked into an emailed link; the route validates
+  the signature. **No session store, no DB** — fits `adapter-vercel`. No valid token
+  → an email-capture gate screen that sends the link.
+- **Transactional email via Postmark** (new dependency): (a) the magic link to the
+  *visitor*; (b) lead notifications to **`hakon@sokrates.is`** for both contact
+  (`/api/contact`) and onboarding-started. Postmark becomes the canonical notifier;
+  ntfy-to-founder may remain as an optional instant push (it already degrades
+  gracefully).
+- **Prereqs:** verified Postmark sender / DKIM on `sokrates.is` (else visitor mail
+  spam-folders); env `POSTMARK_SERVER_TOKEN`, `MAGIC_LINK_SECRET`, `FROM` — set on
+  Vercel like `VOYAGE_API_KEY`, graceful when absent. The current ntfy-only endpoints
+  notify the founder; a magic link must email the *visitor* — hence the new provider.
+
+### WS9 — Two-stage ranking pipeline (retrieve → rerank), built NOW
+> Founder's call (2026-06-09): build both the seam AND the retriever now (not deferred),
+> trade-offs accepted. Architecture → **ADR-0002**. WS6 sits on top of this.
+- **Server-side pipeline:** `retrieve(pain, systems) → candidates → rerank → threshold → cap`.
+- **Retrieve (system-aware):** subset-eligibility gate (systems ⊆ selected) → in-memory
+  **cosine** over **precomputed capability embeddings** → top-K candidates. Cap embeddings
+  generated at **build time** (Voyage **voyage-4-large, 1024, input_type document**;
+  `bun run embed` → committed `src/lib/compose/embeddings.ts`); the **query** is
+  embedded per request (input_type query). **No vector DB** — cosine over ~1000 in-memory
+  vectors is trivial.
+- **Status (2026-06-09):** stages **1 + 2 done + green**. Stage 1: `document.ts`,
+  `scripts/embed-corpus.ts`, committed 113-vector artifact, `retrieve.ts` (cosine +
+  system-aware top-K), `retrieve.test.ts` (10 tests). Stage 2: `/api/rerank` rewritten as
+  `{pain, systems}` → embed query → `retrieve(K=50)` → rerank shortlist → `{id, score}`,
+  graceful at every stage, backward-compatible with the current client. check 0/0 (484),
+  suite 163, build clean. **Live smoke (real Voyage):** ops query "scheduling/overtime"
+  → top matches **0.50–0.62** (overtime-prevention, budget-guardrails, overtime-early-warning);
+  "cinnamon hot dogs" → top **~0.24** (semantic noise); both bounded to 50, never 113.
+  **Empirical threshold bands for D4/WS6:** off-domain ceiling ~0.24, strong ≥0.5 — a floor
+  ~0.30–0.40 cleanly rejects off-domain, with room to split thin (~0.35–0.45) from strong.
+- **Remaining (= WS6 / KRA-278, needs founder copy + threshold calls):** the client rewrite —
+  send `{pain, systems}`, consume `{id, score}`, drop client-side corpus filtering, debounce
+  toggle; apply the D4 score branches (off-domain refusal / thin invite) + D5 top-4; delete
+  "Show all" + the count; drop the `localRankIds` `...rest` padding.
+- **Rerank:** Voyage `rerank-2.5` over the **shortlist only** (not the whole corpus).
+- **Threshold + cap:** the D4 score branches + D5 top-4 (see WS6).
+- **Endpoint:** `POST {pain, systems}` → ranked + scored shortlist; the client renders and
+  no longer filters the corpus client-side. **System toggle re-runs the pipeline
+  (debounced)** — the accepted cost of system-aware recall (the old rank-once /
+  instant-toggle optimization is dropped on purpose).
+- **Fallback:** deterministic matcher when Voyage is absent (already gated; padding removed).
+- **Invariant test:** every capability id has a committed embedding (like the dialect
+  keyset fixed point); regenerate embeddings when corpus text changes.
+
 ## Open design decisions (need the user's call)
 
-- **D1 — What is the single primary CTA?** "Talk to us" / book a conversation,
-  vs. the composer itself being the primary engagement with "Talk to us" as the
-  conversion after results. (Likely: composer is the engagement, one "Talk to us"
-  is the conversion.)
-- **D2 — Navbar: remove entirely, or keep a minimal version?** If removed, how
-  does the technical buyer reach `/architecture` depth, and the champion reach
-  `/how-it-works`? Does a composer result *morph* into the relevant proof, or do
-  those stay as routes reachable some other way?
-- **D3 — "Morph the page" mechanics.** In-place section morphing on one route, vs.
-  keeping a few routes but dropping the persistent navbar chrome. What triggers a
-  morph — the composer result, a cohort param, an explicit "go deeper" affordance?
-- **D4 — Low-relevance composer response.** Exact behavior + copy when a query is
-  off-domain (hot dogs) vs. plausible-but-thin. Honest refusal vs. "tell us more."
+- **D1 — RESOLVED (2026-06-09 grill).** The beacon is a *per-fold* budget (CONTRACT:
+  the emphasis budget `B` is re-granted per `Frame`), so the real question is *which
+  action wears amber in each fold*, not "which one button." Resolution: **Compose**
+  owns the beacon in the composer fold; **"Talk to us"** → `/#contact` is the *sole
+  conversion beacon* — the label "Start the conversation" is retired (one verb). The
+  page holds exactly **two ambers**, in two non-co-visible folds. **Onboarding stays
+  and is prominent**, but as a *high-emphasis non-amber* path (NOT a third beacon —
+  prominence via size/placement/contrast, not chroma), **gated behind a magic link**
+  (stateless HMAC token, no session store) so it qualifies the lead without blocking
+  the open conversation. Contact + onboarding-started notifications go to
+  `hakon@sokrates.is` via **Postmark**. See **WS8** + **ADR-0001**. Onboarding
+  placement: **its own prominent near-close band** (its own `Frame`/fold), distinct
+  from the conversational "Talk to us" close. ntfy-to-founder is kept as a bonus push.
+- **D2 — RESOLVED (2026-06-09 grill).** Keep a **minimal** sticky bar: brand (home)
+  + one **quiet, non-amber** "Talk to us". Drop the 5-link row and the mobile burger
+  (the footer already duplicates every route, so the row was pure redundancy). **All
+  routes stay real and shareable** — `/architecture`, `/how-it-works`, `/substrate`,
+  `/onboarding` — because the Technical Influencer gates on a forwardable
+  `/architecture` URL (PRODUCT.md). Discovery: footer (already complete) + in-prose
+  Morphe `Link`s + a post-composer "go deeper" (→ D3). Beacon discipline: the nav CTA
+  is non-amber so it never collides with the composer's amber `Compose` when both are
+  on screen; amber stays exclusively on `Compose` (composer fold) and the close
+  conversion beacon. `/substrate` remains footer-only (craft proof, not buyer-routing).
+- **D3 — RESOLVED *for now* (2026-06-09 grill), reversible.** Morph is load-bearing
+  in exactly one place: the **composer** (query → re-rendered Node tree). Deeper
+  content is reached by **real navigation** (in-prose `Link`s + footer + a post-result
+  "go deeper" link), not in-place page-morphing — which would break the forwardable
+  `/architecture` URL and is over-built for a one-conversation sale. The other morph
+  axis is the **WS7 cohort re-theme/re-copy** (orthogonal to navigation). WS5 collapses
+  into the D2 minimal-chrome work; **no separate page-morph engine** is built.
+  **Parked, not killed:** in-place result→proof morphing on `/` is deferred — revisit
+  once the composer-led flow has proven itself.
+- **D4 — RESOLVED (2026-06-09 grill).** Low-relevance is **score-gated** (use the
+  Voyage `relevance_score` the client currently discards at `Composer.svelte:113`),
+  with **three branches** plus a cross-cutting escape hatch:
+  1. **Strong match** → the tight ranked set (count per D5).
+  2. **Thin match** (some clear a lower band, nothing strong) → the few that clear it
+     + a quiet "partial match — tell us more about the systems you run" invite.
+  3. **Off-domain** (nothing clears the floor — "cinnamon hot dogs") → an **honest
+     refusal that redirects**: name what Sókrates works across; **no cards**. On-voice
+     (PRODUCT.md: honesty as differentiation; refusing hot dogs *proves* domain grasp).
+  - **Unlisted-system path (cross-cutting, NOT score-gated) — the highest-intent
+    lead.** A persistent affordance by the system selector — "Run a system we don't
+    list? Tell us, we'll map it" — that **captures the named system as a string** and
+    routes to the Postmark→`hakon@sokrates.is` flow. Real cross-system pain blocked
+    only by corpus coverage; Hákon scopes it (Hyle) and replies personally, or it
+    becomes roadmap. Doubles as a **coverage-demand signal** (which systems prospects
+    ask for → what to process next). Mechanism = **explicit affordance + captured
+    string** (native control surface), not fragile prose system-name parsing.
+  - **Scaling note (from the grill):** the corpus will grow to **a dozen+ systems
+    across more than the current 3 categories** — `Category = crm|erp|wfm`
+    (`capability.ts:33`) expands, `SYSTEMS` grows, and the flat chip selector +
+    hand-curated `FEATURED_IDS` must scale (group by category / search). This makes a
+    **tight result cap matter more** (→ D5) and is follow-on scope for the selector UI.
 - **D5 — Composer result count.** Target N cards for a good match (3? 5?), and
   whether "see more" exists at all in the primary flow.
 
