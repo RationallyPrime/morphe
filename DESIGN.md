@@ -3,8 +3,9 @@
 > The design system is the **Morphe substrate**, not a stylesheet and not a theme.
 > This file documents the system, records the values the default theme currently
 > realizes, and sets the craft bar that dialect implementations must clear. The
-> formal, locked contract is `CONTRACT.md`; where this file and the substrate
-> source disagree, the source wins and this file is stale — fix it.
+> formal, locked contract is `CONTRACT.md`; the stratified-adaptive tower the
+> substrate is Phase 0 of is `VISION.md` (the why). Where this file and the
+> substrate source disagree, the source wins and this file is stale — fix it.
 
 ## 1. North star
 
@@ -66,6 +67,14 @@ factory (`compounds/factory.ts`) lifts components to data behind a validation ga
 The locked core (`grammar`, `render`, `context`, the `tokens` strata mechanism,
 `compounds/factory`) is the system — extend at the edges the contract names, never
 modify it.
+
+The substrate is **Phase 0 of a four-stratum adaptive tower** (`VISION.md`):
+τ_frame (dialects/personas) over τ_slow (an agent emitting trees) over τ_mid (a
+grammar-constrained small model choosing within `Vary` envelopes) over τ_fast
+(this algebra + component-owned state). The grammar fields that look idle —
+`Vary`, `Button.action` ids, `bind` store-paths — are reserved sockets for the
+upper strata (`CONTRACT.md` §11), not unfinished features. Design work that
+touches them should preserve their declarative shape.
 
 ## 3. Color
 

@@ -5,18 +5,22 @@ Every non-foundation agent READS THIS FIRST. The keystone (grammar, tokens,
 context algebra, compound factory, dialects, renderer) is locked. You extend it
 at the edges the contract names — you do not modify the core.
 
-The proposal (`morphe-design-system-proposal.md`, kept in the sokrates-website
-repo) is the *why*; this is the *what* and the *how*. Where they disagree, this
-file wins for Phase-0 implementation.
+**`VISION.md` (proposal v0.6, repo-canonical) is the *why*** — the stratified
+adaptive tower this substrate is Phase 0 of; this file is the *what* and the
+*how*. Where they disagree on implementation detail, this file wins; on what
+Morphe is ultimately for, `VISION.md` wins. **Lemma numbering here follows
+`VISION.md`** (L1 Generativity, L2 Calm, L3 Invariance, L4 Dialects, L5 Purity,
+L6 Bounded delegation, L7 Venue) — the same numbering the source comments use.
 
 Status: implemented + integrated. `bun run check` clean (0 errors, 0 warnings),
-88/88 tests passing, `bun run build` succeeds. The ACTION (`Button`, `Link`) and
-OVERLAY (`Dialog`, `Popover`, `Disclosure`) families and the input MODE
-extensions (`Field.multiline`, `Toggle.variant:"checkbox"`,
-`Select.variant:"radiogroup"`) are in the grammar, registry, tokens, and both
-dialects, and the component bodies are FILLED (no longer stubs) — see §11 and
-`STATUS.md`. No grammar signature drifted during implementation; the only
-integration fix was a Svelte-tokenizer caveat (see §1).
+166 tests passing, `bun run build` succeeds (adapter-vercel, `nodejs22.x`). The
+ACTION (`Button`, `Link`) and OVERLAY (`Dialog`, `Popover`, `Disclosure`)
+families and the input MODE extensions (`Field.multiline`,
+`Toggle.variant:"checkbox"`, `Select.variant:"radiogroup"`) are in the grammar,
+registry, tokens, and all shipped dialects, and the component bodies are FILLED
+(no longer stubs) — see §11–§12 and `STATUS.md`. No grammar signature drifted
+during implementation; the only integration fix was a Svelte-tokenizer caveat
+(see §1).
 
 ---
 
@@ -491,13 +495,14 @@ overrides as CSS vars, seeds the root context, and renders the tree via `<Node>`
 The default is `icelandic-archive`. Priors are clamped (budget 1..6, scaleTier
 2..4) so Lemma 2's laws survive any dialect.
 
-**The intent keyset is a FIXED POINT across dialects.** Both shipped dialects
-(`icelandic-archive`, `clinical`) define the SAME intent names AND, for the
-core intents, the SAME channel set — now all SEVEN channels including the new
-`active`/`disabled`, plus the `--mo-intent-surface-overlay` / `--mo-scrim`
-surface additions. The `dialects.test.ts` parity tests (`applyDialect().vars`
-keysets must be equal between dialects) enforce this. **When you add a channel,
-add it to BOTH dialects and to `intents.css`, or the fixed-point breaks.**
+**The intent keyset is a FIXED POINT across dialects.** All shipped dialects
+(`icelandic-archive`, `clinical`, `reykjavik-registry`) define the SAME intent
+names AND, for the core intents, the SAME channel set — all SEVEN channels
+including `active`/`disabled`, plus the `--mo-intent-surface-overlay` /
+`--mo-scrim` surface additions. The `dialects.test.ts` parity tests
+(`applyDialect().vars` keysets must be equal between dialects) enforce this.
+**When you add a channel, add it to EVERY dialect and to `intents.css`, or the
+fixed-point breaks.**
 
 ---
 
@@ -545,3 +550,67 @@ behaviour your work touches — the lemmas ARE the test plan. Primitive render
 tests use Svelte's server `render()` (no DOM/jsdom; node env) and assert on the
 SSR HTML string; remember open-state `$effect`s (Dialog/Popover) are client-only,
 so SSR emits the CLOSED markup — assert what SSR produces.
+
+---
+
+## 11. Strata seams — reserved sockets (READ THIS before "finishing" anything)
+
+Several grammar fields look unfinished if you don't have `VISION.md` in your
+head. They are not unfinished — they are **typed sockets reserved for the upper
+strata** (the mid loop, the purity contract, the live event wire). The wrong
+moves are: wiring them up naively, "completing" them ad hoc, or treating them
+as dead weight and proposing their removal. Each has a named owner-phase:
+
+| Seam | Field(s) | Reserved for | Phase |
+|---|---|---|---|
+| Declarative actions | `Button.action` (an id, no live wire) | the later event loop binds a handler to the id; the grammar emits intent, not logic | 1 |
+| Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | 1 |
+| Variation points | `Vary` (renders `options[default]` today), `Vary.objective` | Lemma 6: the mid loop selects among options within an epoch; `objective` is what it optimizes | 2 |
+| Dialect compound-gating | `Dialect.compounds[]` (typed, not render-gated) | Lemma 4's compound dialect: G\|D restricts the registry per dialect | 1 |
+| Dialect personas | `Dialect.persona` | τ_frame bootstrap (deployment/directory; cohort attribution on the site) | 2 |
+
+**Planned grammar extensions** (contract changes, owner-only, pre-announced so
+nobody re-invents them ad hoc): `Within` (the continuous analogue of `Vary`:
+bounded movement along `density`/`emphasis`/`collapse`), an **epoch** carried
+by each slow-loop emission, and `VaryId`/delta typing for mid-loop rejection
+semantics. See `VISION.md` §9 for their exact shapes.
+
+**One schema, three jobs** is the end-state, not the present: today the grammar
+is TS-first and has one consumer (svelte-check). The lift — Pydantic source of
+truth (Projection M of Eidos) → generated TS types → JSON-Schema decoder mask —
+is designed to be mechanical and is specified in `MIGRATION.md`. Nothing in
+`grammar/types.ts` may acquire runtime logic, defaults, or branded-type
+machinery in the meantime: the file stays a pure declarative union precisely so
+the lift stays mechanical.
+
+---
+
+## 12. Known gaps (acknowledged, scheduled — not licenses, not surprises)
+
+These are real holes between the implementation and the lemmas, found by
+review, owned by `docs/reconstruction-plan.md`. They are listed here so no
+agent rediscovers them as "bugs" or, worse, builds on the broken assumption.
+
+1. **Budget law does not commute with compound expansion.** Renormalization
+   runs over a container's immediate children, but `CompoundRef` carries no
+   emphasis claim, so a claim at a compound's template root is silently dropped
+   (likewise a claim on a `Vary` option). Until fixed: do NOT put a top-level
+   emphasis claim on a compound template's root and expect the call-site parent
+   to budget it. Fix: an optional claim on `CompoundRef` + the commutation
+   property test (`VISION.md` open problem 8).
+2. **Render is not total at an unknown compound.** `registry.expand()` throws
+   on an unregistered name and `Node.svelte` calls it unguarded — an
+   import-order accident can take down the whole tree. Until fixed: routes must
+   call their `register*Compounds()` before building trees (all current routes
+   do). Fix: a defensive branch in `Node.svelte` (render nothing + dev warning).
+3. **Children are keyed by object identity** (`{#each … as c (c)}`). Two
+   children that are the SAME object reference crash with a duplicate-key
+   error. Until fixed: never share a node instance between siblings — build
+   fresh nodes (a hoisted `SPACER` constant reused twice is the canonical
+   landmine).
+4. **`IntentRef` is open and unvalidated at runtime.** A typo'd intent
+   resolves to an unset CSS var and paints silently wrong. Until fixed: pass a
+   `fallback` to `slot()` for dialect-extension intents, and copy intent names
+   from `tokens/intents.ts` / the dialect files, never from memory. Fix: a
+   dev-mode tree walk against the active dialect's intent set + a dialect test
+   asserting every channel value matches the neutral-scale pattern.
