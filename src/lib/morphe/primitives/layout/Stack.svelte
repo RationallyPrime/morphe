@@ -101,14 +101,5 @@
 		}
 	}
 
-	/*
-	 * Emphasis is a CLAIM the algebra renormalizes against the budget; the rendered
-	 * weight reaches a Stack as a data attribute. A layout primitive never paints
-	 * functional color — it only adjusts neutral SEPARATION so an emphasized group
-	 * reads as a unit. This is shape/spacing, never color-as-the-only-signal.
-	 */
-	.mo-stack[data-emphasis="strong"],
-	.mo-stack[data-emphasis="critical"] {
-		gap: var(--mo-ctx-space, var(--mo-space-5));
-	}
+	/* Emphasis-to-separation is intentionally not wired until the algebra owns it. */
 </style>
