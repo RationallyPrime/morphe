@@ -8,38 +8,23 @@
 	 * are tabular (`tnum`) so columns of numbers align.
 	 *
 	 * Like Text, a leaf reads its size from the boundary `--mo-ctx-type` (which
-	 * encodes scale_tier) and clamps its emphasis CLAIM against the budget it sees
-	 * in `ctx` (Locality: a function of own ctx only). Emphasis rides weight, a
-	 * non-color channel, so functional color is never the sole signal.
+	 * encodes scale_tier) and renders the emphasis its Layout parent GRANTED it
+	 * (`ctx.renderedEmphasis`, the renormalized result), not a raw claim. Emphasis
+	 * rides weight, a non-color channel, so functional color is never the sole signal.
 	 *
 	 * Agent edits ONLY this file.
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
-	import type { EmphasisClaim, NumberNode } from "../../grammar/types.js";
+	import type { NumberNode } from "../../grammar/types.js";
 	import { slot } from "../../tokens/slots.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
 
 	let { node, ctx }: PrimitiveProps<NumberNode> = $props();
 
-	const WEIGHT: Record<EmphasisClaim, number> = {
-		muted: 0,
-		normal: 1,
-		strong: 2,
-		critical: 3,
-	};
-	const LADDER: readonly EmphasisClaim[] = ["critical", "strong", "normal", "muted"];
-
-	function clampEmphasis(claim: EmphasisClaim, budget: number): EmphasisClaim {
-		let rendered = claim;
-		while (WEIGHT[rendered] > Math.max(0, budget) && rendered !== "muted") {
-			const i = LADDER.indexOf(rendered);
-			rendered = LADDER[i + 1] ?? "muted";
-		}
-		return rendered;
-	}
-
-	const emphasis = $derived(clampEmphasis(node.emphasis ?? "normal", ctx.emphasisBudget));
+	// Render the emphasis the Layout parent GRANTED this leaf (the renormalized
+	// result), not a raw claim or a per-leaf self-clamp. Absent ⇒ normal baseline.
+	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const color = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
 
 	/** Locale-aware formatting. The default locale is the runtime's (host-driven). */

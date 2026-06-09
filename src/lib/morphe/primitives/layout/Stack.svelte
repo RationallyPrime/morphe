@@ -25,6 +25,7 @@
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Stack } from "../../grammar/types.js";
 	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
+	import { renderedChildEmphasis } from "../../context/algebra.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Stack> = $props();
@@ -36,17 +37,18 @@
 	// the first client render) and seeds the context channel as a fallback. Values
 	// consumed in the template stay $derived for reactivity.
 	// svelte-ignore state_referenced_locally
-	const child = descend(
-		node.role,
-		{
-			childCount: node.children.length,
-			claim: node.emphasis,
-		},
-		ctx,
-	);
+	const child = descend(node.role, { childCount: node.children.length }, ctx);
+
+	// Budget-Conservation, WIRED (Lemma 2, law 4): renormalize the children's
+	// claims against the budget B available to them and grant each child its
+	// rendered emphasis below. The parent is the only place the whole sibling set
+	// and B are both in scope, so the law runs HERE — not as a per-node self-claim.
+	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
 
 	const dir = $derived(node.direction ?? "auto");
-	const emphasis = $derived(node.emphasis ?? "normal");
+	// This Stack renders at the emphasis its OWN parent granted it (carried on the
+	// ctx prop), never its raw self-claim.
+	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const childStyle = $derived(boundaryStyle(child));
 </script>
 
@@ -57,8 +59,8 @@
 	data-emphasis={emphasis}
 	style={childStyle}
 >
-	{#each node.children as c (c)}
-		<Node node={c} ctx={child} />
+	{#each node.children as c, i (c)}
+		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
 	{/each}
 </div>
 

@@ -11,10 +11,10 @@
 	 *
 	 * Headings vs body are a Text concern (the `as` prop), not separate primitives.
 	 *
-	 * Emphasis is a CLAIM. A sibling set is renormalized against the budget by the
-	 * Layout parent; a leaf additionally clamps its OWN claim against the budget it
-	 * sees in `ctx` (Locality holds — the decision is a function of own ctx only),
-	 * so a leaf in a depleted context cannot shout past it.
+	 * Emphasis is a CLAIM the Layout parent renormalizes against the budget B (the
+	 * one place the whole sibling set + B are in scope); this leaf renders the
+	 * emphasis it was GRANTED, carried on `ctx.renderedEmphasis`, not its raw claim.
+	 * Locality holds — it reads only its own resolved ctx.
 	 *
 	 * Intent contributes color only; functional color is never the only signal, so
 	 * emphasis is also carried by weight (a non-color channel).
@@ -23,7 +23,7 @@
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
-	import type { EmphasisClaim, Text } from "../../grammar/types.js";
+	import type { Text } from "../../grammar/types.js";
 	import { slot } from "../../tokens/slots.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
 
@@ -31,29 +31,10 @@
 
 	const as = $derived(node.as ?? "body");
 
-	/**
-	 * Clamp the emphasis claim against the budget this leaf sees. A leaf cannot
-	 * unilaterally claim above the remaining budget; "muted" is always free.
-	 * Deterministic and local (depends on own ctx only — Locality preserved).
-	 */
-	const WEIGHT: Record<EmphasisClaim, number> = {
-		muted: 0,
-		normal: 1,
-		strong: 2,
-		critical: 3,
-	};
-	const LADDER: readonly EmphasisClaim[] = ["critical", "strong", "normal", "muted"];
-
-	function clampEmphasis(claim: EmphasisClaim, budget: number): EmphasisClaim {
-		let rendered = claim;
-		while (WEIGHT[rendered] > Math.max(0, budget) && rendered !== "muted") {
-			const i = LADDER.indexOf(rendered);
-			rendered = LADDER[i + 1] ?? "muted";
-		}
-		return rendered;
-	}
-
-	const emphasis = $derived(clampEmphasis(node.emphasis ?? "normal", ctx.emphasisBudget));
+	// Render the emphasis the Layout parent GRANTED this leaf (it renormalized the
+	// sibling set against B). No per-leaf self-clamp: that duplicated the law with
+	// less information. Absent grant (standalone render) ⇒ the normal baseline.
+	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 
 	/**
 	 * Color comes from the intent's `on` channel; with no intent we read the base

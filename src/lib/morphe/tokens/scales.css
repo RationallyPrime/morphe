@@ -77,10 +77,15 @@
 	--mo-layer-toast: 40;
 	--mo-layer-tooltip: 50;
 
-	/* --- Focus-ring geometry ------------------------------------------------ */
-	/* Ring COLOR is per-intent (the `ring` channel); only the geometry is neutral
-	   and lives here, so every interactive primitive draws a consistent ring
-	   (CONTRACT §7). */
+	/* --- Stroke & focus-ring geometry --------------------------------------- */
+	/* Border/ring COLOR is per-intent (the `border` / `ring` channels); only the
+	   WIDTH is vertical-neutral geometry and lives here, so every primitive draws
+	   consistent strokes and rings (CONTRACT §7). Authored trees never name these;
+	   primitives reference them, so a hairline is one decision, not twenty raw
+	   literals. A leading side-stripe is NOT a stroke step — tone is carried by the
+	   tonal surface + the shape glyph, never a colored edge rule (DESIGN §9 ban). */
+	--mo-border-width: 1px; /* default container / divider / control stroke */
+	--mo-border-width-strong: 2px; /* emphasis: active field, selected/focused control */
 	--mo-ring-width: 2px;
 	--mo-ring-offset: 2px;
 

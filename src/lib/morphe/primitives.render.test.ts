@@ -487,6 +487,55 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 	});
 });
 
+describe("emphasis subalgebra — renormalization reaches the SSR tree (Budget-conservation, WIRED)", () => {
+	// The PARENT grants each child its rendered emphasis, so the data-emphasis the
+	// children render reflects the LAW (budget + top-tier cap), not the raw
+	// self-claims. Before the wiring, each node echoed its own claim regardless of
+	// budget (the comment in Stack.svelte described a law the code never ran).
+	const leaf: Node = { kind: "text", value: "x", as: "body" };
+
+	/** The data-emphasis the mo-stack elements render, in document order. Scoped to
+	 *  the stacks so the leaf text's own (baseline) data-emphasis doesn't count. */
+	function stackEmphases(html: string): string[] {
+		return [...html.matchAll(/class="mo-stack[^"]*"[^>]*?data-emphasis="(\w+)"/g)].map(
+			(m) => m[1] as string,
+		);
+	}
+
+	it("two critical claims under B=2 render the renormalized [strong, muted], NOT [critical, critical]", () => {
+		const tree: Node = {
+			kind: "frame",
+			role: "page",
+			surface: "base",
+			budget: 2,
+			children: [
+				{ kind: "stack", role: "list", emphasis: "critical", children: [leaf] },
+				{ kind: "stack", role: "list", emphasis: "critical", children: [leaf] },
+			],
+		};
+		// renormalizeBudget(2, [critical, critical]) = [strong, muted]: the first
+		// claimant keeps as much as B allows; the second is demoted to fit.
+		expect(stackEmphases(ssr(tree))).toEqual(["strong", "muted"]);
+	});
+
+	it("an explicit strong claim flanked by unmarked siblings is NOT starved", () => {
+		const tree: Node = {
+			kind: "frame",
+			role: "page",
+			surface: "base",
+			budget: 2,
+			children: [
+				{ kind: "stack", role: "list", children: [leaf] }, // unmarked → normal baseline (free)
+				{ kind: "stack", role: "list", emphasis: "strong", children: [leaf] },
+				{ kind: "stack", role: "list", children: [leaf] }, // unmarked → normal baseline (free)
+			],
+		};
+		// Unmarked siblings don't compete for budget, so the strong claim survives B=2
+		// and the siblings render the normal baseline (never quieted to muted).
+		expect(stackEmphases(ssr(tree))).toEqual(["normal", "strong", "normal"]);
+	});
+});
+
 describe("SSR dialect-prior seeding — the root descends from the dialect's clamped priors", () => {
 	// REGRESSION (CONTRACT §8, the global-dialect seeding bug): the dialect's
 	// density prior must reach the root Frame on the SERVER render. The carrier is

@@ -30,6 +30,7 @@
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Frame } from "../../grammar/types.js";
 	import { descendFrame, boundaryStyle } from "../../context/Context.svelte.js";
+	import { renderedChildEmphasis } from "../../context/algebra.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Frame> = $props();
@@ -51,11 +52,16 @@
 
 	const surface = $derived(node.surface ?? "base");
 	const childStyle = $derived(boundaryStyle(child));
+
+	// A Frame RE-GRANTS the budget B, so it renormalizes its own children against
+	// that fresh budget (Budget-Conservation, WIRED) and grants each its rendered
+	// emphasis below — the reset point where a new emphasis economy begins.
+	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
 </script>
 
 <section class="mo-frame" data-surface={surface} data-role={node.role} style={childStyle}>
-	{#each node.children as c (c)}
-		<Node node={c} ctx={child} />
+	{#each node.children as c, i (c)}
+		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
 	{/each}
 </section>
 

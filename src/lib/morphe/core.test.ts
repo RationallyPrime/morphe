@@ -10,7 +10,10 @@ import {
 	THRESHOLDS,
 	TOP_TIER_CAP,
 	densityForCount,
+	emphasisToStrokeStep,
 	enterFrame,
+	explicitClaim,
+	renderedChildEmphasis,
 	renormalizeBudget,
 	transform,
 } from "./context/algebra.js";
@@ -63,6 +66,65 @@ describe("context algebra — the four laws", () => {
 		const a = transform(ROOT_CONTEXT, "panel", { childCount: 3 });
 		const b = transform(ROOT_CONTEXT, "panel", { childCount: 3 });
 		expect(a).toEqual(b);
+	});
+});
+
+describe("emphasis subalgebra — renormalization is WIRED to the children (Budget-conservation)", () => {
+	// Authored claims live on nodes; the PARENT renormalizes the whole sibling set
+	// against B and grants each child its rendered emphasis (the law, applied where
+	// the full set + budget are both known). These helpers are that wiring, made
+	// pure so the wiring itself is testable without the Svelte runtime.
+	const unmarked: Node = { kind: "stack", role: "list", children: [] };
+	const leaf: Node = { kind: "text", value: "x", as: "body" };
+	const strong: Node = { kind: "stack", role: "list", emphasis: "strong", children: [] };
+	const critical: Node = { kind: "stack", role: "list", emphasis: "critical", children: [] };
+
+	it("explicitClaim: an unmarked node has NO claim (it renders the free normal baseline)", () => {
+		// Absent is NOT "muted": muted is a quiet STYLE, and defaulting plain content
+		// to it would drop body text under the contrast floor. Only an `emphasis`
+		// field is a claim that competes for budget.
+		expect(explicitClaim(unmarked)).toBeUndefined();
+		expect(explicitClaim(leaf)).toBeUndefined();
+		expect(explicitClaim(strong)).toBe("strong");
+		expect(explicitClaim(critical)).toBe("critical");
+	});
+
+	it("renderedChildEmphasis: unmarked siblings stay the normal baseline and don't compete for budget", () => {
+		// The strong claim is the only competitor for B=2, so it renders strong; the
+		// flanking unmarked siblings render the normal baseline for free (NOT muted —
+		// they must never be quieted below the contrast floor).
+		expect(renderedChildEmphasis(2, [unmarked, strong, unmarked])).toEqual([
+			"normal",
+			"strong",
+			"normal",
+		]);
+	});
+
+	it("renderedChildEmphasis: a plain list of unmarked children all render the normal baseline", () => {
+		expect(renderedChildEmphasis(1, [unmarked, unmarked, unmarked, leaf])).toEqual([
+			"normal",
+			"normal",
+			"normal",
+			"normal",
+		]);
+	});
+
+	it("renderedChildEmphasis: explicit over-claim is capped by the law (it reaches real nodes)", () => {
+		// Three critical claims under B=3: the law caps top-tier to TOP_TIER_CAP and
+		// keeps total weight <= B — proving renormalizeBudget is actually on the path.
+		const rendered = renderedChildEmphasis(3, [critical, critical, critical]);
+		expect(rendered.filter((e) => e === "critical").length).toBeLessThanOrEqual(TOP_TIER_CAP);
+		const weight = { muted: 0, normal: 1, strong: 2, critical: 3 } as const;
+		expect(rendered.reduce((s, e) => s + weight[e], 0)).toBeLessThanOrEqual(3);
+	});
+
+	it("emphasisToStrokeStep: stroke is a loudness channel — louder emphasis, heavier edge", () => {
+		// muted/normal resolve to the hairline ramp step; strong/critical to the
+		// emphasis step. Both are SCALE steps (the orbit value), never a raw px.
+		expect(emphasisToStrokeStep("muted")).toBe("var(--mo-border-width)");
+		expect(emphasisToStrokeStep("normal")).toBe("var(--mo-border-width)");
+		expect(emphasisToStrokeStep("strong")).toBe("var(--mo-border-width-strong)");
+		expect(emphasisToStrokeStep("critical")).toBe("var(--mo-border-width-strong)");
 	});
 });
 

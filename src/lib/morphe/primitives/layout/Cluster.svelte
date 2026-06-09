@@ -19,6 +19,7 @@
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Cluster } from "../../grammar/types.js";
 	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
+	import { renderedChildEmphasis } from "../../context/algebra.js";
 	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Cluster> = $props();
@@ -28,18 +29,16 @@
 	// real carrier on SSR and first client render); seeds the context channel as a
 	// fallback. See Stack.svelte for the rule.
 	// svelte-ignore state_referenced_locally
-	const child = descend(
-		node.role,
-		{
-			childCount: node.children.length,
-			claim: node.emphasis,
-		},
-		ctx,
-	);
+	const child = descend(node.role, { childCount: node.children.length }, ctx);
+
+	// Budget-Conservation, WIRED: renormalize the children's claims against B and
+	// grant each its rendered emphasis below (see Stack for the full rationale).
+	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
 
 	const justify = $derived(node.justify ?? "start");
 	const align = $derived(node.align ?? "center");
-	const emphasis = $derived(node.emphasis ?? "normal");
+	// Rendered at the emphasis the parent granted this Cluster, never a self-claim.
+	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const childStyle = $derived(boundaryStyle(child));
 </script>
 
@@ -51,8 +50,8 @@
 	data-emphasis={emphasis}
 	style={childStyle}
 >
-	{#each node.children as c (c)}
-		<Node node={c} ctx={child} />
+	{#each node.children as c, i (c)}
+		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
 	{/each}
 </div>
 

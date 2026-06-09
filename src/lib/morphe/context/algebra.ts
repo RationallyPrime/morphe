@@ -34,7 +34,7 @@
  * browser-visible flex (a Stack with direction:auto), with no JS in that loop.
  */
 
-import type { ContainerRole, Density, EmphasisClaim } from "../grammar/types.js";
+import type { ContainerRole, Density, EmphasisClaim, Node } from "../grammar/types.js";
 
 /** Scale tier — a small discrete ladder; lower = smaller/quieter. */
 export type ScaleTier = 0 | 1 | 2 | 3 | 4;
@@ -51,6 +51,15 @@ export interface MorpheContext {
 	readonly emphasisBudget: number;
 	/** Current surface this subtree paints onto. */
 	readonly surface: "base" | "raised" | "sunken";
+	/**
+	 * The emphasis THIS node renders at, GRANTED by its parent (the parent is the
+	 * only place the whole sibling set + B are both known, so renormalization runs
+	 * there — see `renderedChildEmphasis`). Optional because a standalone-rendered
+	 * primitive (a test, a bare leaf) has no parent to grant it; absent ⇒ "normal"
+	 * baseline (Corollary 1, graceful degradation). Carries the Budget-conservation
+	 * law's RESULT down to the one node it applies to.
+	 */
+	readonly renderedEmphasis?: RenderedEmphasis;
 }
 
 /** The root context every tree starts from (a dialect may override via priors). */
@@ -60,6 +69,7 @@ export const ROOT_CONTEXT: MorpheContext = {
 	scaleTier: 4,
 	emphasisBudget: 3,
 	surface: "base",
+	renderedEmphasis: "normal",
 };
 
 /**
@@ -244,4 +254,55 @@ export function densityToSpaceStep(density: Density): string {
 		case "spacious":
 			return "var(--mo-space-7)";
 	}
+}
+
+/**
+ * A node's EXPLICIT emphasis claim, or `undefined` when the node carries none.
+ * Absent is NOT "muted": unmarked content renders the normal baseline (see
+ * `renderedChildEmphasis`). "muted" is overloaded — it is both the free budget
+ * tier AND a visually quiet style — so defaulting unmarked nodes to it would
+ * quiet every plain paragraph and drop it under the contrast floor. Only a
+ * deliberate `emphasis` field is a claim.
+ */
+export function explicitClaim(node: Node): EmphasisClaim | undefined {
+	return "emphasis" in node && node.emphasis ? node.emphasis : undefined;
+}
+
+/**
+ * Budget-Conservation, WIRED. Given the budget B available to a container's
+ * children and the children themselves, return the emphasis EACH child renders
+ * at, in order. The parent is the one place the law can run — it is where the
+ * full sibling set and B are both in scope — so a container calls this and grants
+ * each child its result via the child context's `renderedEmphasis`.
+ *
+ * Only EXPLICITLY-claimed children compete for B; unmarked children render the
+ * `normal` baseline for FREE. The law exists to cap LOUD claims (no wall of
+ * bold), never to quiet plain content — so unmarked content must not consume
+ * budget (or a long list would starve a real claim) and must not be demoted
+ * below baseline (or it would fall under the contrast floor). The claimed subset
+ * keeps its relative order, so earlier claimants still win under a tight B.
+ */
+export function renderedChildEmphasis(
+	budget: number,
+	children: readonly Node[],
+): RenderedEmphasis[] {
+	const claims = children.map(explicitClaim);
+	const claimed = claims.filter((c): c is EmphasisClaim => c !== undefined);
+	const rendered = renormalizeBudget(budget, claimed);
+	let k = 0;
+	return claims.map((c) => (c === undefined ? "normal" : (rendered[k++] as RenderedEmphasis)));
+}
+
+/**
+ * Resolve a rendered emphasis to a stroke-WIDTH scale step (the `--mo-ctx-stroke`
+ * orbit value). Stroke is a loudness channel: a louder node draws a heavier
+ * structural edge. muted/normal → the hairline step; strong/critical → the
+ * emphasis step. Both are SCALE vars, never a raw px — the value flows through
+ * the algebra, not a primitive's guess. The invariant focus ring stays on
+ * `--mo-ring-width` by design (CONTRACT §7); this governs structural/state stroke.
+ */
+export function emphasisToStrokeStep(e: RenderedEmphasis): string {
+	return e === "strong" || e === "critical"
+		? "var(--mo-border-width-strong)"
+		: "var(--mo-border-width)";
 }
