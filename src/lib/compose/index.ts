@@ -28,12 +28,19 @@ export type {
 	SystemRef,
 } from "./capability.js";
 
-// Matching — deterministic, pure, read-only ranking.
-export { featuredCapabilities, matchCapabilities, scoreCapabilities } from "./match.js";
+// Matching — deterministic, pure, read-only ranking (the local floor / fallback).
+export { featuredCapabilities, isSubsetSelected, matchCapabilities, scoreCapabilities } from "./match.js";
 export type { ScoredCapability } from "./match.js";
 
+// Retrieval — stage 1 of the ranking pipeline: in-memory cosine over committed embeddings.
+export { cosine, retrieve } from "./retrieve.js";
+export type { RetrievedCapability } from "./retrieve.js";
+
+// Document text — the shared embed/rerank representation of a capability (no drift).
+export { documentText } from "./document.js";
+
 // Presenters — typed Capability data turned into Morphe Node trees.
-export { capabilityCard, composeAnswer, emptyState } from "./present.js";
+export { capabilityCard, composeAnswer, emptyState, offDomainState, thinMatchState } from "./present.js";
 
 // Compounds — the five domain compounds + idempotent registration.
 export {

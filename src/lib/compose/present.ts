@@ -38,11 +38,11 @@ import type { Capability, SurfaceUse, SystemId } from "./capability.js";
 import type { ComposeQuery } from "./input.js";
 import { SYSTEMS, tagsFromText } from "./taxonomy.js";
 
-/** Default cap on rendered cards when the call site omits `limit`. Tight: the
- * composer is a DEMONSTRATION (it reasons over a real operation), not a catalogue
- * to browse, so the first reveal is the most-relevant few led by one dominant
- * result — the route's "Show all" lifts to the full corpus. Matches the route's
- * COLLAPSED_LIMIT. */
+/** Cap on rendered cards. Tight by design: the composer is a DEMONSTRATION (it
+ * reasons over a real operation), not a catalogue to browse, so the answer is the
+ * most-relevant few led by one dominant result. There is no "show all" and no
+ * full-corpus count (D5) — the surface never advertises a catalogue size. Matches
+ * the client's result cap. */
 const DEFAULT_LIMIT = 4;
 
 /** Display label for a system id, resolved from the canonical `SYSTEMS` table. */
@@ -365,38 +365,22 @@ export function capabilityCard(cap: Capability): CompoundRef {
  * ------------------------------------------------------------------------- */
 
 /**
- * The summary slot for the PainPrompt masthead: a result-count line, an OPTIONAL
- * "showing N of M" note when the answer was capped below the full match count,
- * then a Cluster of intent-"evidence" Badges, one per active pain tag matched from
- * the visitor's free text. With no tags matched, just the count line (and the cap
- * note, if any) shows.
+ * The summary slot for the PainPrompt masthead: a result-count line over a Cluster
+ * of intent-"evidence" Badges, one per active pain tag matched from the visitor's
+ * free text. With no tags matched, just the count line shows.
  *
- * `matchCount` is the FULL number of matched capabilities; `shownCount` is how many
- * cards were actually rendered. When `shownCount < matchCount` the answer was
- * limited, so an honest note tells the visitor exactly how many of the total they
- * are seeing and how to narrow — no silent truncation.
+ * `count` is how many cards the answer renders. The result IS the answer, so there is
+ * no "showing N of M" / full-corpus count (D5): the surface never advertises a
+ * catalogue size, and the client only ever passes the tight, thresholded set.
  */
-function summaryNodes(
-	matchCount: number,
-	shownCount: number,
-	query: ComposeQuery,
-): Node[] {
+function summaryNodes(count: number, query: ComposeQuery): Node[] {
 	const tags = tagsFromText(query.pain);
 	const countLine = text(
-		`${matchCount} ${matchCount === 1 ? "capability matches" : "capabilities match"} your operation`,
+		`${count} ${count === 1 ? "capability matches" : "capabilities match"} your operation`,
 		"body",
 		{ emphasis: "strong" },
 	);
 	const nodes: Node[] = [countLine];
-	if (shownCount < matchCount) {
-		nodes.push(
-			text(
-				`Showing ${shownCount} of ${matchCount}. Refine the friction or the systems you run to narrow this.`,
-				"caption",
-				{ emphasis: "muted" },
-			),
-		);
-	}
 	if (tags.length > 0) {
 		const badges: Node[] = tags.map((tag) => ({
 			kind: "badge",
@@ -460,13 +444,11 @@ function cardLayout(shown: readonly Capability[]): Node[] {
  * over a Grid(list) of capabilityCard(cap), one card per matched capability.
  * Empty match set delegates to `emptyState`.
  *
- * `limit` caps how many cards render. Omitted (or any value `>= caps.length`) it
- * renders ALL matches, the original behavior. When `caps.length > limit` only the
- * first `limit` (the highest-ranked, since `caps` arrives pre-sorted from the
- * matcher) render, and the masthead carries an honest "Showing N of M" note. The
- * default cap keeps the first view scannable; the route's "Show all" affordance
- * passes a larger `limit` to reveal the rest. Pure — `limit` only narrows what is
- * rendered, never reorders.
+ * `limit` caps how many cards render (default 4). Only the first `limit` (the
+ * highest-ranked, since `caps` arrives pre-sorted) render — there is no count note
+ * and no "show all" (D5); the client passes the already-thresholded, capped set, so
+ * the cap is a safety floor here, not a UX affordance. Pure — `limit` only narrows
+ * what is rendered, never reorders.
  */
 export function composeAnswer(
 	caps: readonly Capability[],
@@ -496,7 +478,7 @@ export function composeAnswer(
 			),
 		},
 		slots: {
-			summary: summaryNodes(caps.length, shown.length, query),
+			summary: summaryNodes(shown.length, query),
 		},
 	};
 
@@ -543,17 +525,6 @@ export function emptyState(
 	const shown = featured.slice(0, cap);
 
 	const summary: Node[] = [text(note, "caption", { emphasis: "muted" })];
-	if (shown.length < featured.length) {
-		summary.push(
-			text(
-				`Showing ${shown.length} of ${featured.length} examples.`,
-				"caption",
-				{
-					emphasis: "muted",
-				},
-			),
-		);
-	}
 
 	const masthead: CompoundRef = {
 		kind: "compound",
@@ -579,5 +550,91 @@ export function emptyState(
 		surface: "base",
 		budget: 4,
 		children,
+	};
+}
+
+/* ---------------------------------------------------------------------------
+ * thinMatchState — a loose semantic match: the few that cleared the relevance
+ * floor, shown honestly as "near, not on" with an invite to sharpen.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The THIN-match answer (D4): the query cleared the relevance floor but not the
+ * strong band, so a handful of capabilities sit plausibly NEAR the visitor's
+ * situation without being a confident fit. We show those few (already ranked +
+ * capped upstream) under a masthead that says so plainly and invites them to
+ * narrow — honest about the loose fit rather than dressing it as a direct answer.
+ */
+export function thinMatchState(caps: readonly Capability[], _query: ComposeQuery): Node {
+	const masthead: CompoundRef = {
+		kind: "compound",
+		name: "ComposePainPrompt",
+		args: {
+			heading: text("A loose match so far", "heading", { emphasis: "strong" }),
+			sub: text(
+				"These sit near your situation rather than squarely on it. Name the systems you run and where the work piles up, and the fit sharpens.",
+				"body",
+				{ emphasis: "muted" },
+			),
+		},
+		slots: {
+			summary: [
+				text(
+					"Showing the closest matches. Add the systems you run to narrow this to your operation.",
+					"caption",
+					{ emphasis: "muted" },
+				),
+			],
+		},
+	};
+	return {
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		budget: 4,
+		children: [masthead, { kind: "spacer", size: "md" }, ...cardLayout(caps)],
+	};
+}
+
+/* ---------------------------------------------------------------------------
+ * offDomainState — an honest refusal: nothing cleared the floor, so the query is
+ * outside the operational domain. No cards; redirect to what Sókrates works on.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The OFF-DOMAIN answer (D4): nothing cleared the relevance floor, so the query is
+ * outside what Sókrates does (the cinnamon-hot-dog case). We refuse honestly and
+ * redirect — naming the operational ground it covers — rather than dumping
+ * irrelevant cards. Refusing PROVES domain understanding (PRODUCT.md: honesty is the
+ * differentiation). No cards.
+ */
+export function offDomainState(): Node {
+	const masthead: CompoundRef = {
+		kind: "compound",
+		name: "ComposePainPrompt",
+		args: {
+			heading: text("That sits outside what Sókrates works on", "heading", {
+				emphasis: "strong",
+			}),
+			sub: text(
+				"It runs the operations between the systems you already use: finance, scheduling, CRM, and the spreadsheets in between. Name the systems you run and the friction between them, and it shows what it can take on.",
+				"body",
+				{ emphasis: "muted" },
+			),
+		},
+		slots: {
+			summary: [
+				text("No close match in the operational domain.", "caption", {
+					emphasis: "muted",
+				}),
+			],
+		},
+	};
+	return {
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		budget: 4,
+		children: [masthead],
 	};
 }

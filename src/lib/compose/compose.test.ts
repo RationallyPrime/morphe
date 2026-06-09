@@ -17,7 +17,7 @@ import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
 import { CAPABILITIES } from "./corpus.js";
 import type { ComposeQuery } from "./input.js";
 import { featuredCapabilities, matchCapabilities } from "./match.js";
-import { capabilityCard, composeAnswer } from "./present.js";
+import { capabilityCard, composeAnswer, offDomainState, thinMatchState } from "./present.js";
 import {
 	CATEGORIES,
 	CATEGORY_LABELS,
@@ -201,7 +201,7 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		expect(cards.length).toBe(matches.length);
 	});
 
-	it("composeAnswer honors `limit` — caps the cards and notes the full count", () => {
+	it("composeAnswer honors `limit` — caps the cards, with no count note (D5)", () => {
 		const matches = matchCapabilities(query);
 		// This query out-yields a small cap, so the limit is exercised honestly.
 		expect(matches.length).toBeGreaterThan(3);
@@ -211,9 +211,8 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		// At most `limit` cards render.
 		expect(cards.length).toBe(3);
 
-		// The masthead carries an honest "Showing N of M" count note (no silent cut).
-		const json = JSON.stringify(tree);
-		expect(json).toContain(`Showing 3 of ${matches.length}`);
+		// D5: the answer IS the result — no "Showing N of M" / full-corpus count.
+		expect(JSON.stringify(tree)).not.toContain("Showing");
 	});
 
 	it("composeAnswer omits the count note when nothing was capped", () => {
@@ -222,11 +221,11 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		expect(JSON.stringify(tree)).not.toContain("Showing");
 	});
 
-	it("show-more cap: the collapsed limit yields at most N cards when matches exceed it; Show all lifts it", () => {
-		// A broad, multi-tag pain across all three systems out-yields the collapsed
-		// cap so the "Show all" flow is exercised honestly. The collapsed view is a
-		// tight RESULT (the page's COLLAPSED_LIMIT of 4), not a catalogue — the most
-		// relevant few, led by one dominant card.
+	it("composeAnswer caps to `limit` (a safety floor, not a 'show all'); default is 4", () => {
+		// A broad, multi-tag pain across all three systems out-yields the cap. The
+		// answer is a tight RESULT (the most relevant few led by one dominant card),
+		// never a catalogue — there is no "show all" in the flow (D5); `limit` is just
+		// a safety cap on the pure presenter, and the client passes the thresholded set.
 		const broad: ComposeQuery = {
 			pain: "scheduling, overtime, invoicing, margin, deals, master-data and reporting are all painful",
 			systems: ["humanity", "dkplus", "twenty"],
@@ -234,29 +233,19 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		const matches = matchCapabilities(broad);
 		expect(matches.length).toBeGreaterThan(4);
 
-		// Collapsed (limit 4): at most 4 cards render — the page's default view.
-		const collapsed = composeAnswer(matches, broad, 4);
-		expect(collectCompoundRefs(collapsed, "ComposeCapabilityCard").length).toBe(
-			4,
-		);
+		// limit 4: at most 4 cards render.
+		const capped = composeAnswer(matches, broad, 4);
+		expect(collectCompoundRefs(capped, "ComposeCapabilityCard").length).toBe(4);
 
-		// "Show all" passes Infinity; it then renders every match. The card refs live
-		// across the dominant lead card AND the remainder grid, so the recursive
-		// count is structure-independent — it must equal one card per matched capability.
-		const expandedInfinity = composeAnswer(
-			matches,
-			broad,
-			Number.POSITIVE_INFINITY,
-		);
-		expect(
-			collectCompoundRefs(expandedInfinity, "ComposeCapabilityCard").length,
-		).toBe(matches.length);
-		const expandedOmitted = composeAnswer(matches, broad);
-		// Omitting the limit applies the DEFAULT_LIMIT (4), so it caps too — the
-		// route lifts that cap explicitly via Infinity. Assert the documented default.
-		expect(
-			collectCompoundRefs(expandedOmitted, "ComposeCapabilityCard").length,
-		).toBe(4);
+		// A limit at/above the match count renders every match (the card refs span the
+		// dominant lead card AND the remainder grid, so the recursive count is
+		// structure-independent — one card per matched capability).
+		const all = composeAnswer(matches, broad, matches.length);
+		expect(collectCompoundRefs(all, "ComposeCapabilityCard").length).toBe(matches.length);
+
+		// Omitting the limit applies the DEFAULT_LIMIT (4).
+		const omitted = composeAnswer(matches, broad);
+		expect(collectCompoundRefs(omitted, "ComposeCapabilityCard").length).toBe(4);
 	});
 
 	it("composeAnswer leads with one dominant card outside the remainder grid", () => {
@@ -280,6 +269,38 @@ describe("compose presenting — the answer is a well-formed Frame of cards", ()
 		const inGrid = collectCompoundRefs(grid, "ComposeCapabilityCard").length;
 		const total = collectCompoundRefs(tree, "ComposeCapabilityCard").length;
 		expect(total - inGrid).toBe(1);
+	});
+});
+
+describe("compose presenting — relevance states (D4)", () => {
+	const query: ComposeQuery = {
+		pain: "cinnamon hot dogs",
+		systems: ["humanity", "dkplus", "twenty"],
+	};
+
+	it("offDomainState is a card-less, honest refusal that redirects", () => {
+		const tree = offDomainState();
+		expect(tree.kind).toBe("frame");
+		// No capability cards — an off-domain query shows none.
+		expect(collectCompoundRefs(tree, "ComposeCapabilityCard").length).toBe(0);
+		// Still carries the masthead and names what Sókrates does (a redirect, not a dead end).
+		const json = JSON.stringify(tree);
+		expect(json).toContain("ComposePainPrompt");
+		expect(json).toContain("outside what Sókrates works on");
+	});
+
+	it("thinMatchState shows the few cards under a 'loose match' masthead", () => {
+		const caps = CAPABILITIES.slice(0, 3);
+		const tree = thinMatchState(caps, query);
+		expect(tree.kind).toBe("frame");
+		expect(collectCompoundRefs(tree, "ComposeCapabilityCard").length).toBe(caps.length);
+		expect(JSON.stringify(tree)).toContain("loose match");
+	});
+
+	it("the off-domain refusal copy carries no em dash (DESIGN §9 bans them in copy)", () => {
+		// offDomainState is card-less, so its whole tree is authored state copy (no
+		// corpus card text) — a clean guard against the em-dash ban regressing.
+		expect(JSON.stringify(offDomainState())).not.toContain("—");
 	});
 });
 

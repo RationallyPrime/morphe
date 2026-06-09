@@ -58,7 +58,10 @@ const W_SYS = 1;
  * needs is one the visitor selected. The empty required set is vacuously a subset,
  * but no capability carries an empty `systems`, so this only ever gates real caps.
  */
-function isSubsetSelected(required: readonly SystemId[], selected: ReadonlySet<SystemId>): boolean {
+export function isSubsetSelected(
+	required: readonly SystemId[],
+	selected: ReadonlySet<SystemId>,
+): boolean {
 	for (const id of required) {
 		if (!selected.has(id)) return false;
 	}

@@ -3,20 +3,23 @@
  * Composer — "What can Sókrates do for you?" as an EMBEDDABLE section.
  *
  * The interactive centerpiece of the marketing site. A visitor states a pain
- * point and names the systems they run; we compose concrete cross-system
- * automations, each cited to real endpoints and real compiled model names.
+ * point and names the systems they run; we rank concrete cross-system automations,
+ * each cited to real endpoints and real compiled model names.
  *
- * READ-ONLY by construction: the surface shows the MAP of what Sókrates can
- * compose; it does not touch the visitor's systems. The appliance is what acts,
- * under governance — never here.
+ * READ-ONLY by construction: the surface shows the MAP of what Sókrates can do; it
+ * does not touch the visitor's systems. The appliance is what acts, under governance.
  *
- * Structure follows the Morphe idiom: the control surface (the question + the
- * field + system selection + submit) is NATIVE and sits OUTSIDE the rendered
- * Morphe tree (it is the τ_frame control). The control's $state drives a pure
- * pipeline — parse -> match/rerank -> present -> render — and MorpheRoot renders
- * the resulting Node tree under the active dialect. Nothing here reads
- * window/document at module scope, so it is SSR-safe. Lives in $lib/compose so
- * any route can embed it; the home page renders it as its hero artifact.
+ * RANKING (ADR-0002, WS9): on submit we POST { pain, systems } to /api/rerank, which
+ * runs the two-stage pipeline server-side (embed query -> system-aware cosine retrieve
+ * -> rerank the shortlist) and returns { id, score } in relevance order. The client
+ * applies the RELEVANCE POLICY (D4/D5) on those scores — off-domain refusal / thin
+ * invite / strong, capped at the top few — where the on-voice copy lives. Voyage
+ * unavailable falls back to the deterministic tag matcher (already relevance-gated).
+ *
+ * Structure follows the Morphe idiom: the control surface (the question + field +
+ * system selection + submit) is NATIVE and sits OUTSIDE the rendered Morphe tree; the
+ * pure pipeline (parse -> rank -> present) drives a Node tree that MorpheRoot renders
+ * under the active dialect. Nothing reads window/document at module scope (SSR-safe).
  */
 
 import type { Capability } from "$lib/compose";
@@ -27,71 +30,84 @@ import {
 	emptyState,
 	featuredCapabilities,
 	matchCapabilities,
+	offDomainState,
 	parseQuery,
 	registerComposeCompounds,
 	SYSTEMS,
+	thinMatchState,
 } from "$lib/compose";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 
-// Register the compose compounds through the factory gate. Idempotent — safe
-// under HMR and repeated imports. Done at module-eval so the registry is ready
-// before the tree renders.
+// Register the compose compounds through the factory gate. Idempotent — safe under
+// HMR and repeated imports. Done at module-eval so the registry is ready to render.
 registerComposeCompounds();
 
-// How many capability cards the answer shows before "Show all". The pitch is
-// JUDGMENT, not breadth: the composer is a DEMONSTRATION that Sókrates reasons
-// over a real operation, not a catalogue to browse. So the first reveal is a
-// tight, scannable RESULT — the most relevant few — with the rest a deliberate
-// click away ("Show all"), framed as progressive disclosure rather than a wall
-// of options. A 26-card wall reads as "a wall of choices with no start here";
-// four sharp cards read as "here is what fits your operation." The first card
-// is given dominant weight in present.ts so the result leads with one thing.
-const COLLAPSED_LIMIT = 4;
+// How many cards a strong/thin answer shows. The pitch is JUDGMENT, not breadth: the
+// answer IS the result, the most-relevant few led by one dominant card — there is no
+// "show all" and no corpus count (D5).
+const RESULT_LIMIT = 4;
 
-// Control-surface state. `pain` + `selected` are what the visitor edits; the
-// RANKING is computed on SUBMIT (the Voyage reranker runs server-side), not live
-// as you type. `showAll` is a pure chrome affordance.
+// Relevance thresholds on the reranker's score (D4). Tuned from the live smoke
+// (ADR-0002 / redesign-plan WS9): real ops matches land 0.50–0.62, off-domain
+// ("cinnamon hot dogs") tops out ~0.24. A floor of 0.35 cleanly rejects off-domain;
+// 0.45 splits a confident "strong" answer from a "thin / near-but-not-on" one. These
+// are tunable constants, not a model property — refine against real queries.
+const SCORE_FLOOR = 0.35;
+const SCORE_STRONG = 0.45;
+
+/** A capability id with its reranker score, or null for the deterministic fallback. */
+interface Scored {
+	id: string;
+	score: number | null;
+}
+
+// Control-surface state. `pain` + `selected` are what the visitor edits; the RANKING
+// is computed on SUBMIT (the pipeline runs server-side), not live as you type.
 let pain = $state("");
 let selected = $state<string[]>(SYSTEMS.map((s) => s.id));
-let showAll = $state(false);
 
-// The last submitted ranking: capability ids over the WHOLE corpus in relevance
-// order. The server ranks everything once; we filter by the current selection
-// below, so toggling a system is instant and needs no re-rank. null = nothing
-// submitted yet (the surface shows the featured breadth).
-let rankedIds = $state<string[] | null>(null);
-let ranking = $state(false); // a rerank request is in flight
-let rankedBy = $state<"voyage" | "local" | null>(null);
-// The pain that produced `rankedIds` — lets us flag when the field has drifted.
-let submittedPain = $state("");
+// The last submitted ranking, or null before anything is submitted (the surface then
+// shows the featured breadth). `source` distinguishes the scored Voyage path (which the
+// relevance policy gates) from the deterministic fallback (already tag-gated, no scores).
+let result = $state<{ source: "voyage" | "local"; scored: Scored[] } | null>(null);
+let ranking = $state(false); // a rank request is in flight
+let submittedPain = $state(""); // the pain that produced `result` (drives the stale hint)
+
+const byId = new Map<string, Capability>(CAPABILITIES.map((c) => [c.id, c]));
+
+// Debounced re-rank when the system selection changes after a submit: retrieval is
+// SYSTEM-AWARE now (ADR-0002), so a different selection is a different query — the old
+// "rank once, filter client-side" instant toggle is intentionally gone.
+let toggleTimer: ReturnType<typeof setTimeout> | undefined;
+function scheduleRerank(): void {
+	if (result === null || submittedPain.length === 0) return;
+	clearTimeout(toggleTimer);
+	toggleTimer = setTimeout(() => void compose(), 300);
+}
 
 function toggleSystem(id: string): void {
-	selected = selected.includes(id)
-		? selected.filter((s) => s !== id)
-		: [...selected, id];
+	selected = selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id];
+	scheduleRerank();
 }
 
 const query = $derived(parseQuery({ pain, systems: selected }));
+const featured = $derived(featuredCapabilities(query.systems));
 
-// Deterministic full-corpus ranking — the local floor and the fallback when the
-// reranker is unavailable.
-function localRankIds(painText: string): string[] {
-	const q = parseQuery({ pain: painText, systems: SYSTEMS.map((s) => s.id) });
-	const matched = matchCapabilities(q).map((c) => c.id);
-	const seen = new Set(matched);
-	const rest = CAPABILITIES.filter((c) => !seen.has(c.id)).map((c) => c.id);
-	return [...matched, ...rest];
+// Deterministic fallback: the tag matcher is already relevance-gated (it returns []
+// for an unrecognized pain — no padding to the full corpus), so its matches are the
+// honest fallback when Voyage is unavailable.
+function localMatches(painText: string): Scored[] {
+	const q = parseQuery({ pain: painText, systems: selected });
+	return matchCapabilities(q).map((c) => ({ id: c.id, score: null }));
 }
 
-// Submit: rank the corpus against the stated pain. Voyage when available, the
-// deterministic matcher as a silent fallback — the surface never shows an error.
+// Submit: rank the corpus against the stated pain via the pipeline. Voyage when
+// available, the deterministic matcher as a silent fallback — the surface never errors.
 async function compose(): Promise<void> {
-	showAll = false;
 	const painText = pain.trim();
 	submittedPain = painText;
 	if (painText.length === 0) {
-		rankedIds = null;
-		rankedBy = null;
+		result = null;
 		return;
 	}
 	ranking = true;
@@ -99,26 +115,18 @@ async function compose(): Promise<void> {
 		const res = await fetch("/api/rerank", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ pain: painText }),
+			body: JSON.stringify({ pain: painText, systems: selected }),
 		});
 		const data = (await res.json()) as {
 			source?: string;
 			ranked?: { id: string; score: number }[];
 		};
-		if (
-			data.source === "voyage" &&
-			Array.isArray(data.ranked) &&
-			data.ranked.length > 0
-		) {
-			rankedIds = data.ranked.map((r) => r.id);
-			rankedBy = "voyage";
-		} else {
-			rankedIds = localRankIds(painText);
-			rankedBy = "local";
-		}
+		result =
+			data.source === "voyage" && Array.isArray(data.ranked)
+				? { source: "voyage", scored: data.ranked }
+				: { source: "local", scored: localMatches(painText) };
 	} catch {
-		rankedIds = localRankIds(painText);
-		rankedBy = "local";
+		result = { source: "local", scored: localMatches(painText) };
 	} finally {
 		ranking = false;
 	}
@@ -132,53 +140,56 @@ function onPainKeydown(e: KeyboardEvent): void {
 	}
 }
 
-// The ranked caps to show: the submitted ranking resolved to caps and filtered
-// to the current selection (so a toggle re-filters instantly). null before submit.
-const ranked = $derived.by<Capability[] | null>(() => {
-	if (rankedIds === null) return null;
-	const byId = new Map(CAPABILITIES.map((c) => [c.id, c]));
+// Resolve scored ids to capabilities, preserving rank order and re-filtering by the
+// CURRENT selection (defensive against the brief stale window between a toggle and its
+// debounced re-rank). Drops any id not in the corpus or no longer system-eligible.
+function resolveCaps(scored: Scored[]): { cap: Capability; score: number | null }[] {
 	const sel = new Set(selected);
-	const out: Capability[] = [];
-	for (const id of rankedIds) {
-		const cap = byId.get(id);
-		if (cap && cap.systems.every((s) => sel.has(s))) out.push(cap);
+	const out: { cap: Capability; score: number | null }[] = [];
+	for (const s of scored) {
+		const cap = byId.get(s.id);
+		if (cap && cap.systems.every((id) => sel.has(id))) out.push({ cap, score: s.score });
 	}
 	return out;
-});
+}
 
-// Cards on screen: the reranked answer after submit, else the featured breadth so
-// the surface is never blank. Both obey the same collapse + "Show all" affordance.
-const limit = $derived(showAll ? Number.POSITIVE_INFINITY : COLLAPSED_LIMIT);
-const results = $derived.by<readonly Capability[]>(() =>
-	ranked !== null && ranked.length > 0
-		? ranked
-		: featuredCapabilities(query.systems),
-);
-const tree = $derived.by(() =>
-	ranked !== null && ranked.length > 0
-		? composeAnswer(ranked, query, limit)
-		: emptyState(query, results, limit),
-);
-const hiddenCount = $derived(
-	showAll ? 0 : Math.max(0, results.length - COLLAPSED_LIMIT),
-);
+// The answer tree: the relevance policy (D4/D5) over the submitted ranking.
+const tree = $derived.by(() => {
+	if (result === null) return emptyState(query, featured);
+
+	const resolved = resolveCaps(result.scored);
+	// No eligible capability for this selection (e.g. nothing selected) — or a transient
+	// stale-filter window after a toggle: show the breadth, never the off-domain refusal.
+	if (resolved.length === 0) return emptyState(query, featured);
+
+	// Deterministic fallback: the matcher is the gate; no score threshold to apply.
+	if (result.source === "local") {
+		return composeAnswer(
+			resolved.slice(0, RESULT_LIMIT).map((r) => r.cap),
+			query,
+			RESULT_LIMIT,
+		);
+	}
+
+	// Voyage path: gate on the reranker score (D4).
+	const aboveFloor = resolved.filter((r) => (r.score ?? 0) >= SCORE_FLOOR);
+	if (aboveFloor.length === 0) return offDomainState(); // off-domain: honest refusal, no cards
+	const shown = aboveFloor.slice(0, RESULT_LIMIT).map((r) => r.cap);
+	const top = aboveFloor[0]?.score ?? 0;
+	return top >= SCORE_STRONG
+		? composeAnswer(shown, query, RESULT_LIMIT) // strong match
+		: thinMatchState(shown, query); // thin / near-but-not-on
+});
 
 // The field has drifted from the submitted ranking — invite a re-compose.
-const stale = $derived(rankedIds !== null && pain.trim() !== submittedPain);
-
-// Re-collapse "Show all" when the selection changes (a different subset is a new
-// view). Effects skip SSR, so the server renders the collapsed default.
-$effect(() => {
-	void selected.join(",");
-	showAll = false;
-});
+const stale = $derived(result !== null && pain.trim() !== submittedPain);
 </script>
 
 <div class="composer">
 	<!--
 	  The control surface is OUTSIDE the rendered tree — it is the τ_frame control,
-	  not part of the composed answer. Editing the field or toggling a system swaps
-	  the query handed to the pure pipeline; MorpheRoot below re-renders the answer.
+	  not part of the composed answer. Editing the field or toggling a system swaps the
+	  query handed to the pipeline; MorpheRoot below re-renders the answer.
 	-->
 	<header class="control">
 		<h2 class="control__title">What can Sókrates do for you?</h2>
@@ -225,6 +236,10 @@ $effect(() => {
 						</label>
 					{/each}
 				</div>
+				<p class="systems__unlisted">
+					Run a system we don't list?
+					<a class="systems__unlisted-link" href="/#contact">Tell us, we'll map it.</a>
+				</p>
 			</fieldset>
 
 			<div class="actions">
@@ -238,35 +253,22 @@ $effect(() => {
 		</form>
 
 		<p class="control__note">
-			Composed live as you type. Nothing is sent and nothing is changed. The
-			appliance is what acts, under governance.
+			Ranked on submit. It reads nothing from your systems and changes nothing.
+			The appliance is what acts, under governance.
 		</p>
 	</header>
 
 	<main class="surface">
 		<MorpheRoot {tree} />
 	</main>
-
-	<!--
-	  "Show all" is page CHROME, not part of the composed answer; it lives OUTSIDE
-	  the Morphe tree, mirroring the system checkboxes above.
-	-->
-	{#if hiddenCount > 0}
-		<div class="more">
-			<button type="button" class="more__button" onclick={() => (showAll = true)}>
-				<span class="more__glyph material-symbols-outlined" aria-hidden="true">expand_more</span>
-				Show all {results.length}
-			</button>
-		</div>
-	{/if}
 </div>
 
 <style>
 	/*
 	 * Page chrome only. The composed answer below gets ALL its styling from the
-	 * core's tokens via MorpheRoot; this shell reads from the same --mo-* vars so
-	 * the frame around the answer stays consistent with the active dialect. The
-	 * component fills its container — the page section owns width + outer padding.
+	 * core's tokens via MorpheRoot; this shell reads from the same --mo-* vars so the
+	 * frame around the answer stays consistent with the active dialect. The component
+	 * fills its container — the page section owns width + outer padding.
 	 */
 	.composer {
 		display: flex;
@@ -363,6 +365,30 @@ $effect(() => {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--mo-space-3);
+	}
+	/*
+	 * The unlisted-system path (D4): the HIGHEST-intent lead — real cross-system pain
+	 * blocked only by corpus coverage. A quiet line, not a beacon. Today it routes to
+	 * the contact section; it upgrades to capture-the-system + Postmark with WS8.
+	 */
+	.systems__unlisted {
+		margin: var(--mo-space-2) 0 0;
+		font-family: var(--mo-font-body);
+		font-size: var(--mo-type-3);
+		color: var(--mo-intent-on-surface-muted);
+	}
+	.systems__unlisted-link {
+		color: var(--mo-intent-on-surface);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+	.systems__unlisted-link:hover {
+		color: var(--mo-intent-accession-on);
+	}
+	.systems__unlisted-link:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
+		border-radius: var(--mo-radius-1);
 	}
 
 	.chip {
@@ -477,43 +503,5 @@ $effect(() => {
 		overflow: clip;
 		outline: 1px solid var(--mo-intent-outline);
 		outline-offset: -1px;
-	}
-
-	.more {
-		display: flex;
-		justify-content: center;
-		margin-block-start: var(--mo-space-2);
-	}
-	.more__button {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--mo-space-2);
-		padding: var(--mo-space-3) var(--mo-space-5);
-		border: 0;
-		border-radius: var(--mo-radius-3);
-		background: var(--mo-intent-surface-raised);
-		color: var(--mo-intent-on-surface-muted);
-		font-family: var(--mo-font-mono);
-		font-size: var(--mo-type-3);
-		letter-spacing: 0.02em;
-		cursor: pointer;
-		outline: 1px solid var(--mo-intent-outline);
-		outline-offset: -1px;
-		transition:
-			color 160ms ease,
-			outline-color 160ms ease;
-	}
-	.more__button:hover {
-		color: var(--mo-intent-on-surface);
-		outline-color: var(--mo-intent-accession-on);
-	}
-	.more__button:focus-visible {
-		outline: 2px solid var(--mo-intent-primary-action-ring);
-		outline-offset: 1px;
-		color: var(--mo-intent-on-surface);
-	}
-	.more__glyph {
-		font-size: var(--mo-type-4);
-		line-height: 1;
 	}
 </style>
