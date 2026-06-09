@@ -552,6 +552,36 @@ describe("emphasis subalgebra — renormalization reaches the SSR tree (Budget-c
 	});
 });
 
+describe("Content leaves — inline color resolves to a CSS value in SSR, not a Svelte signal", () => {
+	// REGRESSION: `style:color` (the shorthand) on Text/Number serialized the
+	// $derived SIGNAL (a getter function) into the SSR style attribute instead of
+	// its value, so server-rendered intent-colored text shipped `style="color:
+	// function (...){...}"` — invalid CSS, wrong color until hydration. The explicit
+	// `style:color={color}` form resolves the value. These pin the resolved var.
+	it("Text emits its intent color as a var(), never a serialized function", () => {
+		const html = ssr({ kind: "text", value: "x", as: "body", intent: "provenance" });
+		expect(html).not.toContain("color: function");
+		expect(html).toMatch(/color:\s*var\(--mo-intent-provenance-on\)/);
+	});
+
+	it("Number emits its intent color as a var(), never a serialized function", () => {
+		const html = ssr({ kind: "number", value: 42, format: "integer", intent: "evidence" });
+		expect(html).not.toContain("color: function");
+		expect(html).toMatch(/color:\s*var\(--mo-intent-evidence-on\)/);
+	});
+
+	it("Icon emits its intent color as a var(), never a serialized function", () => {
+		const html = ssr({
+			kind: "icon",
+			name: "circle",
+			a11y: { role: "img", label: "marker" },
+			intent: "caution",
+		});
+		expect(html).not.toContain("color: function");
+		expect(html).toMatch(/color:\s*var\(--mo-intent-caution-on\)/);
+	});
+});
+
 describe("SSR dialect-prior seeding — the root descends from the dialect's clamped priors", () => {
 	// REGRESSION (CONTRACT §8, the global-dialect seeding bug): the dialect's
 	// density prior must reach the root Frame on the SERVER render. The carrier is

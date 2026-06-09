@@ -48,23 +48,23 @@
 </script>
 
 {#if as === "display"}
-	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} style:color style:--mo-text-clamp={clampLines}>
+	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h1>
 {:else if as === "heading"}
-	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} style:color style:--mo-text-clamp={clampLines}>
+	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h2>
 {:else if as === "subheading"}
-	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} style:color style:--mo-text-clamp={clampLines}>
+	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h3>
 {:else if as === "caption"}
-	<small class="mo-text" data-as={as} data-emphasis={emphasis} style:color style:--mo-text-clamp={clampLines}>
+	<small class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</small>
 {:else}
-	<p class="mo-text" data-as={as} data-emphasis={emphasis} style:color style:--mo-text-clamp={clampLines}>
+	<p class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</p>
 {/if}

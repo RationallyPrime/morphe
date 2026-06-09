@@ -58,7 +58,7 @@
 	const sign = $derived(node.value < 0 ? "negative" : node.value > 0 ? "positive" : "zero");
 </script>
 
-<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color>{formatted}</span>
+<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color={color}>{formatted}</span>
 
 <style>
 	.mo-number {

@@ -27,9 +27,9 @@
 </script>
 
 {#if decorative}
-	<span class="mo-icon material-symbols-outlined" aria-hidden="true" style:color>{node.name}</span>
+	<span class="mo-icon material-symbols-outlined" aria-hidden="true" style:color={color}>{node.name}</span>
 {:else}
-	<span class="mo-icon material-symbols-outlined" role="img" aria-label={label} style:color
+	<span class="mo-icon material-symbols-outlined" role="img" aria-label={label} style:color={color}
 		>{node.name}</span
 	>
 {/if}
