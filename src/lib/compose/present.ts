@@ -38,10 +38,12 @@ import type { Capability, SurfaceUse, SystemId } from "./capability.js";
 import type { ComposeQuery } from "./input.js";
 import { SYSTEMS, tagsFromText } from "./taxonomy.js";
 
-/** Default cap on rendered cards when the call site omits `limit`. Generous: the
- * cards are light (outcome + tier, with mechanism/endpoints behind a disclosure),
- * so breadth is the point — the route's "Show all" lifts to the full corpus. */
-const DEFAULT_LIMIT = 9;
+/** Default cap on rendered cards when the call site omits `limit`. Tight: the
+ * composer is a DEMONSTRATION (it reasons over a real operation), not a catalogue
+ * to browse, so the first reveal is the most-relevant few led by one dominant
+ * result — the route's "Show all" lifts to the full corpus. Matches the route's
+ * COLLAPSED_LIMIT. */
+const DEFAULT_LIMIT = 4;
 
 /** Display label for a system id, resolved from the canonical `SYSTEMS` table. */
 function systemLabel(id: SystemId): string {
@@ -57,7 +59,10 @@ function systemLabel(id: SystemId): string {
 function text(
 	value: string,
 	as: NonNullable<import("$morphe").Text["as"]>,
-	extra?: { emphasis?: import("$morphe").EmphasisClaim; intent?: import("$morphe").IntentRef },
+	extra?: {
+		emphasis?: import("$morphe").EmphasisClaim;
+		intent?: import("$morphe").IntentRef;
+	},
 ): Node {
 	return { kind: "text", value, as, ...extra };
 }
@@ -155,7 +160,12 @@ function viaSegment(viaId: SystemId): Node {
 		align: "center",
 		children: [
 			text(systemLabel(viaId), "caption", { emphasis: "muted" }),
-			{ kind: "icon", name: "arrow_forward", a11y: { role: "decorative" }, intent: "provenance" },
+			{
+				kind: "icon",
+				name: "arrow_forward",
+				a11y: { role: "decorative" },
+				intent: "provenance",
+			},
 		],
 	};
 }
@@ -225,8 +235,12 @@ function surfaceEvidence(surface: SurfaceUse): CompoundRef {
 			// The human label lifted from the spec — a muted caption.
 			summary: text(surface.summary ?? "", "caption", { emphasis: "muted" }),
 			// Provenance trail: which system + which access direction, both muted captions.
-			system: text(systemLabel(surface.system), "caption", { emphasis: "muted" }),
-			direction: text(directionLabel(surface.direction), "caption", { emphasis: "muted" }),
+			system: text(systemLabel(surface.system), "caption", {
+				emphasis: "muted",
+			}),
+			direction: text(directionLabel(surface.direction), "caption", {
+				emphasis: "muted",
+			}),
 		},
 	};
 }
@@ -264,9 +278,13 @@ function evidenceRows(cap: Capability): Node {
 		direction: "block",
 		emphasis: "muted",
 		children: [
-			text(`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`, "caption", {
-				emphasis: "muted",
-			}),
+			text(
+				`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`,
+				"caption",
+				{
+					emphasis: "muted",
+				},
+			),
 			...rows,
 		],
 	};
@@ -358,7 +376,11 @@ export function capabilityCard(cap: Capability): CompoundRef {
  * limited, so an honest note tells the visitor exactly how many of the total they
  * are seeing and how to narrow — no silent truncation.
  */
-function summaryNodes(matchCount: number, shownCount: number, query: ComposeQuery): Node[] {
+function summaryNodes(
+	matchCount: number,
+	shownCount: number,
+	query: ComposeQuery,
+): Node[] {
 	const tags = tagsFromText(query.pain);
 	const countLine = text(
 		`${matchCount} ${matchCount === 1 ? "capability matches" : "capabilities match"} your operation`,
@@ -393,7 +415,43 @@ function summaryNodes(matchCount: number, shownCount: number, query: ComposeQuer
 }
 
 /* ---------------------------------------------------------------------------
- * composeAnswer — the full answer tree (masthead + grid of cards).
+ * cardLayout — the asymmetric result body (a dominant lead, then a grid).
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Lay the shown capabilities out as an ASYMMETRIC result, never an identical
+ * card wall (DESIGN §5 bans twin symmetric grids). The single most-relevant
+ * capability (the first, since `caps` arrives pre-ranked) leads as one DOMINANT
+ * full-width card — the "one thing" the result is about — and the remainder, if
+ * any, sit beneath it in a grid. The lead card sits directly in the page frame's
+ * block flow so it spans the full work-surface width, while the rest pack into a
+ * `regular` grid. One card → just the lead, no grid. Pure: order is preserved,
+ * nothing is reordered, the cap was already applied upstream.
+ *
+ * Tagging the lead card's outcome with `emphasis: "strong"` is already true of
+ * every card's value line; the dominance here is COMPOSITIONAL (full width vs.
+ * a track), which is what makes a 4-result answer read as "here is the one that
+ * fits, and three more" rather than a flat four-up.
+ */
+function cardLayout(shown: readonly Capability[]): Node[] {
+	const lead = shown[0];
+	if (lead === undefined) return [];
+	const rest = shown.slice(1);
+	const nodes: Node[] = [capabilityCard(lead)];
+	if (rest.length > 0) {
+		nodes.push({ kind: "spacer", size: "sm" });
+		nodes.push({
+			kind: "grid",
+			role: "list",
+			minTrack: "regular",
+			children: rest.map((c) => capabilityCard(c)),
+		});
+	}
+	return nodes;
+}
+
+/* ---------------------------------------------------------------------------
+ * composeAnswer — the full answer tree (masthead + asymmetric card body).
  * ------------------------------------------------------------------------- */
 
 /**
@@ -428,7 +486,9 @@ export function composeAnswer(
 		kind: "compound",
 		name: "ComposePainPrompt",
 		args: {
-			heading: text("Here is what Sókrates can compose", "heading", { emphasis: "strong" }),
+			heading: text("Here is what Sókrates can compose", "heading", {
+				emphasis: "strong",
+			}),
 			sub: text(
 				"Each capability below is a map across your systems, grounded in real endpoints and compiled model names. The appliance is what acts, under governance.",
 				"body",
@@ -440,23 +500,12 @@ export function composeAnswer(
 		},
 	};
 
-	const cards: Node[] = shown.map((c) => capabilityCard(c));
-
 	return {
 		kind: "frame",
 		role: "page",
 		surface: "base",
 		budget: 4,
-		children: [
-			masthead,
-			{ kind: "spacer", size: "md" },
-			{
-				kind: "grid",
-				role: "list",
-				minTrack: "regular",
-				children: cards,
-			},
-		],
+		children: [masthead, { kind: "spacer", size: "md" }, ...cardLayout(shown)],
 	};
 }
 
@@ -477,7 +526,9 @@ export function emptyState(
 	limit: number = DEFAULT_LIMIT,
 ): Node {
 	const typed = query.pain.trim().length > 0;
-	const heading = typed ? "No direct match yet" : "What Sókrates can compose for you";
+	const heading = typed
+		? "No direct match yet"
+		: "What Sókrates can compose for you";
 	const sub = typed
 		? "Nothing lined up exactly with that. Here is the breadth Sókrates composes across these systems, each one grounded in real endpoints."
 		: "Describe the friction in your operation and Sókrates composes the automations that fit, each one grounded in your real systems. Here is the breadth to begin with.";
@@ -494,9 +545,13 @@ export function emptyState(
 	const summary: Node[] = [text(note, "caption", { emphasis: "muted" })];
 	if (shown.length < featured.length) {
 		summary.push(
-			text(`Showing ${shown.length} of ${featured.length} examples.`, "caption", {
-				emphasis: "muted",
-			}),
+			text(
+				`Showing ${shown.length} of ${featured.length} examples.`,
+				"caption",
+				{
+					emphasis: "muted",
+				},
+			),
 		);
 	}
 
@@ -512,17 +567,11 @@ export function emptyState(
 		},
 	};
 
-	const cards: Node[] = shown.map((c) => capabilityCard(c));
-
-	const children: Node[] = [masthead, { kind: "spacer", size: "md" }];
-	if (cards.length > 0) {
-		children.push({
-			kind: "grid",
-			role: "list",
-			minTrack: "regular",
-			children: cards,
-		});
-	}
+	const children: Node[] = [
+		masthead,
+		{ kind: "spacer", size: "md" },
+		...cardLayout(shown),
+	];
 
 	return {
 		kind: "frame",

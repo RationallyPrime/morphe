@@ -38,13 +38,15 @@ import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 // before the tree renders.
 registerComposeCompounds();
 
-// How many capability cards the answer shows before "Show all". BREADTH is the
-// product — Sókrates composes across the visitor's systems — so the answer is not
-// short-sold to a few. The cards are deliberately light (each rests on its outcome
-// + tier, with the mechanism and the verifiable endpoints behind an on-demand
-// "How Sókrates wires this" disclosure), so a wall of them reads as reach, not
-// clutter. "Show all" lifts to the full corpus. Matches composeAnswer's DEFAULT_LIMIT.
-const COLLAPSED_LIMIT = 9;
+// How many capability cards the answer shows before "Show all". The pitch is
+// JUDGMENT, not breadth: the composer is a DEMONSTRATION that Sókrates reasons
+// over a real operation, not a catalogue to browse. So the first reveal is a
+// tight, scannable RESULT — the most relevant few — with the rest a deliberate
+// click away ("Show all"), framed as progressive disclosure rather than a wall
+// of options. A 26-card wall reads as "a wall of choices with no start here";
+// four sharp cards read as "here is what fits your operation." The first card
+// is given dominant weight in present.ts so the result leads with one thing.
+const COLLAPSED_LIMIT = 4;
 
 // Control-surface state. `pain` + `selected` are what the visitor edits; the
 // RANKING is computed on SUBMIT (the Voyage reranker runs server-side), not live
