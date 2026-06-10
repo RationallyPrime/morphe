@@ -6,10 +6,11 @@
  * change (types.ts) plus an entry here, both owned by the contract holder; an
  * agent only fills in the body of its assigned `primitives/<family>/<Name>.svelte`.
  *
- * META kinds (slot, param-ref, vary, compound) are NOT in this map: they are
- * structural and handled directly by Node.svelte (Slots/ParamRefs are resolved
- * during compound expansion; Vary renders its default; CompoundRef expands via
- * the factory). Mapping them here would be a category error.
+ * META kinds (slot, param-ref, vary, within, compound) are NOT in this map: they
+ * are structural and handled directly by Node.svelte (Slots/ParamRefs are
+ * resolved during compound expansion; Vary/Within render through delegation
+ * semantics; CompoundRef expands via the factory). Mapping them here would be a
+ * category error.
  *
  * The map is typed `Record<PrimitiveKind, Component>` so a missing entry is a
  * compile error — render stays total.
@@ -48,7 +49,7 @@ import Popover from "../primitives/overlay/Popover.svelte";
 import Disclosure from "../primitives/overlay/Disclosure.svelte";
 
 /** The kinds that map to a shipped primitive component (everything but Meta). */
-export type PrimitiveKind = Exclude<NodeKind, "slot" | "param-ref" | "vary" | "compound">;
+export type PrimitiveKind = Exclude<NodeKind, "slot" | "param-ref" | "vary" | "within" | "compound">;
 
 /**
  * The registry. Every PrimitiveKind MUST have an entry — the exhaustive Record

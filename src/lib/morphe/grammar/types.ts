@@ -74,6 +74,13 @@ export type CoreIntent =
  */
 export type IntentRef = CoreIntent | (string & {});
 
+/**
+ * Opaque variation-point id shared by Vary/Within and delegation deltas.
+ * Assignment-compatible with existing string ids while still giving the contract
+ * a named type to thread through the delegation surface.
+ */
+export type VaryId = string & { readonly __morpheVaryId?: never };
+
 /* ---------------------------------------------------------------------------
  * Accessibility — REQUIRED FIELDS (Lemma 1 closing paragraph)
  *
@@ -523,11 +530,23 @@ export interface ParamRef {
  */
 export interface Vary {
 	readonly kind: "vary";
-	readonly id: string;
+	readonly id: VaryId;
 	readonly options: readonly Node[];
 	readonly default?: number;
 	/** What a future mid loop optimizes; inert in Phase 0. */
 	readonly objective?: "salience" | "density" | "compactness";
+}
+
+/**
+ * A bounded continuous variation point (Lemma 6). R2.1 introduces the typed
+ * socket; R2.3 resolves choices into the existing algebra inputs.
+ */
+export interface Within {
+	readonly kind: "within";
+	readonly id: VaryId;
+	readonly dimension: "density" | "emphasis" | "collapse";
+	readonly range: readonly [number, number];
+	readonly default: number;
 }
 
 /* ---------------------------------------------------------------------------
@@ -560,7 +579,7 @@ export type FeedbackNode = Progress | Status | InlineAlert;
 export type ActionNode = Button | Link;
 /** Overlay family — native <dialog> / Popover API / <details> (platform top layer). */
 export type OverlayNode = Dialog | Popover | Disclosure;
-export type MetaNode = Slot | ParamRef | Vary;
+export type MetaNode = Slot | ParamRef | Vary | Within;
 
 export type Node =
 	| LayoutNode

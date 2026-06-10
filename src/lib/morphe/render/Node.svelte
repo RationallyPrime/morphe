@@ -79,6 +79,8 @@
 	{#if varyChoice}
 		<Self node={varyChoice} {ctx} {registry} />
 	{/if}
+{:else if node.kind === "within"}
+	<!-- R2.1 typed socket: inert until choices are wired in R2.3. -->
 {:else if node.kind === "slot"}
 	<!-- A bare Slot outside a compound expansion renders its fallback. -->
 	{#each node.fallback ?? [] as child, i (i)}

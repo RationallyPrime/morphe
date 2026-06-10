@@ -440,6 +440,7 @@ const KNOWN_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	"slot",
 	"param-ref",
 	"vary",
+	"within",
 	"compound",
 ]);
 
@@ -458,6 +459,8 @@ export function childrenOf(node: Node): readonly Node[] {
 			return node.options;
 		case "slot":
 			return node.fallback ?? [];
+		case "within":
+			return [];
 		default:
 			return [];
 	}

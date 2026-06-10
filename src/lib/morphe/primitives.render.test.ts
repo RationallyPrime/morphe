@@ -152,6 +152,31 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(html).toContain("after");
 	});
 
+	it("renders known siblings around a Within variation point without throwing", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{
+					kind: "within",
+					id: "density-panel",
+					dimension: "density",
+					range: [0, 2],
+					default: 1,
+				},
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+		expect(html).not.toContain("density-panel");
+	});
+
 	it("a dialect's compound allowlist hides an out-of-dialect compound at render (G|D)", () => {
 		// Registered and valid — but the rendering dialect restricts to a
 		// different subset, so the ref reads as unknown: nothing renders, the

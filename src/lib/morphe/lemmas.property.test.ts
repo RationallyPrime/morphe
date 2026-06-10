@@ -99,10 +99,11 @@ const CONTAINER_ROLES: readonly ContainerRole[] = [
 ];
 const DENSITIES: readonly Density[] = ["compact", "regular", "spacious"];
 const CLAIMS: readonly EmphasisClaim[] = ["muted", "normal", "strong", "critical"];
+const VARY_IDS = ["density-panel", "emphasis-panel", "collapse-notes"] as const;
 
 /** Leaf primitives that are always schema-valid with no required composition. */
 function genLeaf(rng: () => number): Node {
-	const which = intIn(rng, 0, 6);
+	const which = intIn(rng, 0, 7);
 	switch (which) {
 		case 0:
 			return { kind: "text", value: `t${intIn(rng, 0, 999)}`, as: pick(rng, ["body", "heading", "caption"] as const) };
@@ -116,6 +117,14 @@ function genLeaf(rng: () => number): Node {
 			return { kind: "status", tone: pick(rng, ["success", "caution", "info", "neutral"] as const), signal: { text: "ok" } };
 		case 5:
 			return { kind: "progress", value: rng(), label: "loading" };
+		case 6:
+			return {
+				kind: "within",
+				id: pick(rng, VARY_IDS),
+				dimension: pick(rng, ["density", "emphasis", "collapse"] as const),
+				range: [0, 3],
+				default: intIn(rng, 0, 3),
+			};
 		default:
 			return {
 				kind: "field",
@@ -195,7 +204,7 @@ const RENDERABLE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	"field", "select", "toggle", "range",
 	"progress", "status", "inline-alert",
 	// meta the renderer handles directly (slot fallback / vary default)
-	"slot", "vary",
+	"slot", "vary", "within",
 ]);
 
 /* ===========================================================================
@@ -274,6 +283,31 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 				expect(RENDERABLE_KINDS.has(n.kind)).toBe(true);
 			});
 		});
+	});
+
+	it("Within leaves pass the compound registration gate", () => {
+		const reg = new CompoundRegistry();
+		const def: CompoundDef = {
+			name: "within-gate-probe",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [
+					{
+						kind: "within",
+						id: "density-panel",
+						dimension: "density",
+						range: [0, 2],
+						default: 1,
+					},
+				],
+			},
+		};
+
+		expect(reg.register(def).ok).toBe(true);
 	});
 
 	it("compounds reference compounds — vocabulary is OPEN under composition", () => {
