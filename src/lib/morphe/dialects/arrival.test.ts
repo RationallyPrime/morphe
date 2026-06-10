@@ -23,7 +23,7 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import { activeDialect } from "./active.svelte.js";
-import { resolveArrivalDialect } from "./arrival.js";
+import { persistableDialect, resolveArrivalDialect } from "./arrival.js";
 import { clinical } from "./clinical.js";
 import { DEFAULT_DIALECT, DIALECT_IDS } from "./registry.js";
 
@@ -115,5 +115,35 @@ describe("C5 — arrival-sequence sanity against the real store", () => {
 		// makes it a no-op rather than a reset — the two guards compose.
 		arrive("https://sokrates.example/?cohort=banana", "long-retired-dialect");
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
+	});
+});
+
+describe("persistableDialect — the untouched default is not a choice", () => {
+	const DEFAULT = "gallery";
+
+	it("never persists the untouched default (nothing stored, id is the default)", () => {
+		expect(persistableDialect(DEFAULT, null, DEFAULT)).toBeNull();
+	});
+
+	it("persists an explicit move away from the default", () => {
+		expect(persistableDialect("night", null, DEFAULT)).toBe("night");
+	});
+
+	it("persists an explicit return TO the default over a prior choice", () => {
+		expect(persistableDialect(DEFAULT, "night", DEFAULT)).toBe(DEFAULT);
+	});
+
+	it("is idempotent: re-affirming the stored value writes nothing", () => {
+		expect(persistableDialect("night", "night", DEFAULT)).toBeNull();
+		expect(persistableDialect(DEFAULT, DEFAULT, DEFAULT)).toBeNull();
+	});
+
+	it("REGRESSION: a default flip reaches a visitor who never chose", () => {
+		// Pre-flip sessions under the v1 scheme wrote the then-default back as
+		// if chosen. Under this rule the visitor's storage stays empty, so when
+		// the shipped default changes, nothing stale outranks it.
+		const beforeFlip = persistableDialect("icelandic-archive", null, "icelandic-archive");
+		expect(beforeFlip).toBeNull();
+		// ...and on the next visit there is no persisted value to restore.
 	});
 });
