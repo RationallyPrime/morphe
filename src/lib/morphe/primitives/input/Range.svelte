@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Range — a bounded numeric slider (native type="range", so the platform owns
 	 * keyboard support and exposes aria-valuemin/max/now automatically). A stateful
@@ -16,8 +17,8 @@
 	 * SLOTS -> intents -> scales; no raw scale or hex is named here.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Range } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundNumber, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 

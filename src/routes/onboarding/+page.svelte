@@ -1,13 +1,13 @@
 <script lang="ts">
+	import { registerSiteCompounds } from "$lib/site";
+	import Onboarding from "$lib/site/Onboarding.svelte";
+	import type { Node } from "$morphe";
 	/*
 	 * /onboarding — the guided intake flow. A Morphe intro tree frames it; the flow
 	 * itself is a native control surface ($lib/site/Onboarding). Reachable from the
 	 * marketing CTAs and the nav.
 	 */
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { registerSiteCompounds } from "$lib/site";
-	import type { Node } from "$morphe";
-	import Onboarding from "$lib/site/Onboarding.svelte";
 
 	registerSiteCompounds();
 

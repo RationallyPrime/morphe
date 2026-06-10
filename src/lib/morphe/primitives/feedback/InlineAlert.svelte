@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * InlineAlert — a banner-style message attached to the flow it concerns.
 	 *
@@ -18,8 +19,8 @@
 	 * `slot(tone, channel)` — tone names ARE core intents (success/caution/info).
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { InlineAlert } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<InlineAlert> = $props();

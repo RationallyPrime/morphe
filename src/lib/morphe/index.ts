@@ -4,147 +4,13 @@
  * The Phase-0 keystone surface. Authored/agent code imports from here.
  */
 
-// Grammar (the declarative discriminated union — single source of truth)
-export type {
-	Node,
-	NodeKind,
-	LayoutNode,
-	ContentNode,
-	InputNode,
-	FeedbackNode,
-	ActionNode,
-	OverlayNode,
-	MetaNode,
-	CompoundRef,
-	ContainerRole,
-	Density,
-	EmphasisClaim,
-	CoreIntent,
-	IntentRef,
-	VaryId,
-	InputA11y,
-	LabelRelation,
-	StatusSignal,
-	Stack,
-	Grid,
-	Cluster,
-	Frame,
-	Spacer,
-	Text,
-	NumberNode,
-	Badge,
-	Icon,
-	Media,
-	Field,
-	Select,
-	SelectOption,
-	Toggle,
-	Range,
-	Progress,
-	Status,
-	InlineAlert,
-	Button,
-	ControlLabel,
-	Link,
-	Dialog,
-	Popover,
-	Disclosure,
-	Slot,
-	ParamRef,
-	Vary,
-	Within,
-} from "./grammar/types.js";
-export { assertNever } from "./grammar/types.js";
-
-// Delegation envelope (Lemma 6 / ADR-0004)
-export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
-export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
-export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
-export type { MidLoopDelegate, DevStaticChoiceMidLoopOptions } from "./delegation/midLoop.js";
-export { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
-export type { ResolvedWithin } from "./delegation/resolveChoice.js";
-export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js";
-
-// Context algebra (Lemma 2)
-export type { MorpheContext, ScaleTier } from "./context/algebra.js";
-export {
-	ROOT_CONTEXT,
-	THRESHOLDS,
-	TOP_TIER_CAP,
-	transform,
-	enterFrame,
-	densityForCount,
-	renormalizeBudget,
-	tierToTypeStep,
-	densityToSpaceStep,
-} from "./context/algebra.js";
-export {
-	useMorpheContext,
-	provideMorpheContext,
-	descend,
-	descendFrame,
-	boundaryVars,
-	boundaryStyle,
-} from "./context/Context.svelte.js";
-
-// Client store + event tiers (Lemma 5)
-export type {
-	JsonPrimitive,
-	JsonArray,
-	JsonObject,
-	JsonValue,
-	JsonRecord,
-	StoreSubscriber,
-	StoreOptions,
-	MorpheStore,
-} from "./state/store.svelte.js";
-export {
-	InMemoryMorpheStore,
-	createInMemoryMorpheStore,
-	provideMorpheStore,
-	useMorpheStore,
-	resolveMorpheStore,
-	boundString,
-	boundNumber,
-	boundBoolean,
-	commitTier1,
-	TIER1_WINDOW_SIZE,
-} from "./state/store.svelte.js";
-export type {
-	Tier1Kind,
-	Tier1Event,
-	Tier1EventInput,
-	Tier2Event,
-	Tier2Escalation,
-	SubmitEvent,
-	TaskTransitionEvent,
-	ViewNotWorkingEvent,
-	EscalationEmitter,
-	EscalationHandler,
-} from "./state/events.js";
-export type {
-	ActionHandler,
-	ActionMap,
-	ActionsRef,
-	InvokeActionOptions,
-} from "./state/actions.js";
-export { provideActions, useActions, invokeAction } from "./state/actions.js";
-export type { ContextDigest, ContextDigestVersion } from "./state/digest.js";
-export {
-	CONTEXT_DIGEST_VERSION,
-	digestOf,
-	escalationWithDigest,
-} from "./state/digest.js";
-export { provideEscalation, useEscalation } from "./state/escalation.js";
-export type { EscalationRef } from "./state/escalation.js";
-
 // Compound factory (Lemma 1)
 export type {
 	CompoundDef,
 	CompoundLifecycle,
 	CompoundResolver,
-	ParamsSchema,
 	ParamSpec,
+	ParamsSchema,
 	ParamType,
 	RegisterOptions,
 	RegistrationResult,
@@ -152,36 +18,163 @@ export type {
 } from "./compounds/factory.js";
 export {
 	CompoundRegistry,
+	childrenOf,
 	registry,
 	restrictCompounds,
-	childrenOf,
 } from "./compounds/factory.js";
-
-// Tokens
-export { CORE_INTENTS, intentVar, SURFACE_VARS } from "./tokens/intents.js";
-export type { IntentChannel } from "./tokens/intents.js";
-export { slot, SLOTS, toneIntent } from "./tokens/slots.js";
-
-// Dialects (Lemma 4)
-export type { Dialect, IntentDialect, IntentDefinition, AlgebraPriors } from "./dialects/types.js";
-export { icelandicArchive, DEFAULT_DIALECT } from "./dialects/icelandic-archive.js";
-export { clinical } from "./dialects/clinical.js";
-export { reykjavikRegistry } from "./dialects/reykjavik-registry.js";
-export { applyDialect, dialectStyle } from "./dialects/provider.svelte.js";
-export type { AppliedDialect } from "./dialects/provider.svelte.js";
+// Context algebra (Lemma 2)
+export type { MorpheContext, ScaleTier } from "./context/algebra.js";
 export {
-	getDialect,
-	hasDialect,
-	DIALECTS,
-	DIALECT_IDS,
-	DEFAULT_DIALECT_ID,
-} from "./dialects/registry.js";
+	densityForCount,
+	densityToSpaceStep,
+	enterFrame,
+	ROOT_CONTEXT,
+	renormalizeBudget,
+	THRESHOLDS,
+	TOP_TIER_CAP,
+	tierToTypeStep,
+	transform,
+} from "./context/algebra.js";
+export {
+	boundaryStyle,
+	boundaryVars,
+	descend,
+	descendFrame,
+	provideMorpheContext,
+	useMorpheContext,
+} from "./context/Context.svelte.js";
+export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
+export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+// Delegation envelope (Lemma 6 / ADR-0004)
+export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
+export type { DevStaticChoiceMidLoopOptions, MidLoopDelegate } from "./delegation/midLoop.js";
+export { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+export type { ResolvedWithin } from "./delegation/resolveChoice.js";
+export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js";
 export { activeDialect } from "./dialects/active.svelte.js";
 export { resolveArrivalDialect } from "./dialects/arrival.js";
-
+export { clinical } from "./dialects/clinical.js";
+export { DEFAULT_DIALECT, icelandicArchive } from "./dialects/icelandic-archive.js";
+export type { AppliedDialect } from "./dialects/provider.svelte.js";
+export { applyDialect, dialectStyle } from "./dialects/provider.svelte.js";
+export {
+	DEFAULT_DIALECT_ID,
+	DIALECT_IDS,
+	DIALECTS,
+	getDialect,
+	hasDialect,
+} from "./dialects/registry.js";
+export { reykjavikRegistry } from "./dialects/reykjavik-registry.js";
+// Dialects (Lemma 4)
+export type { AlgebraPriors, Dialect, IntentDefinition, IntentDialect } from "./dialects/types.js";
+// Grammar (the declarative discriminated union — single source of truth)
+export type {
+	ActionNode,
+	Badge,
+	Button,
+	Cluster,
+	CompoundRef,
+	ContainerRole,
+	ContentNode,
+	ControlLabel,
+	CoreIntent,
+	Density,
+	Dialog,
+	Disclosure,
+	EmphasisClaim,
+	FeedbackNode,
+	Field,
+	Frame,
+	Grid,
+	Icon,
+	InlineAlert,
+	InputA11y,
+	InputNode,
+	IntentRef,
+	LabelRelation,
+	LayoutNode,
+	Link,
+	Media,
+	MetaNode,
+	Node,
+	NodeKind,
+	NumberNode,
+	OverlayNode,
+	ParamRef,
+	Popover,
+	Progress,
+	Range,
+	Select,
+	SelectOption,
+	Slot,
+	Spacer,
+	Stack,
+	Status,
+	StatusSignal,
+	Text,
+	Toggle,
+	Vary,
+	VaryId,
+	Within,
+} from "./grammar/types.js";
+export { assertNever } from "./grammar/types.js";
 // Render
 export { Node as RenderNode } from "./render/index.js";
 export { default as MorpheRoot } from "./render/MorpheRoot.svelte";
-export { PRIMITIVES, primitiveFor } from "./render/registry.js";
-export type { PrimitiveKind } from "./render/registry.js";
 export type { PrimitiveProps } from "./render/props.js";
+export type { PrimitiveKind } from "./render/registry.js";
+export { PRIMITIVES, primitiveFor } from "./render/registry.js";
+export type {
+	ActionHandler,
+	ActionMap,
+	ActionsRef,
+	InvokeActionOptions,
+} from "./state/actions.js";
+export { invokeAction, provideActions, useActions } from "./state/actions.js";
+export type { ContextDigest, ContextDigestVersion } from "./state/digest.js";
+export {
+	CONTEXT_DIGEST_VERSION,
+	digestOf,
+	escalationWithDigest,
+} from "./state/digest.js";
+export type { EscalationRef } from "./state/escalation.js";
+export { provideEscalation, useEscalation } from "./state/escalation.js";
+export type {
+	EscalationEmitter,
+	EscalationHandler,
+	SubmitEvent,
+	TaskTransitionEvent,
+	Tier1Event,
+	Tier1EventInput,
+	Tier1Kind,
+	Tier2Escalation,
+	Tier2Event,
+	ViewNotWorkingEvent,
+} from "./state/events.js";
+// Client store + event tiers (Lemma 5)
+export type {
+	JsonArray,
+	JsonObject,
+	JsonPrimitive,
+	JsonRecord,
+	JsonValue,
+	MorpheStore,
+	StoreOptions,
+	StoreSubscriber,
+} from "./state/store.svelte.js";
+export {
+	boundBoolean,
+	boundNumber,
+	boundString,
+	commitTier1,
+	createInMemoryMorpheStore,
+	InMemoryMorpheStore,
+	provideMorpheStore,
+	resolveMorpheStore,
+	TIER1_WINDOW_SIZE,
+	useMorpheStore,
+} from "./state/store.svelte.js";
+export type { IntentChannel } from "./tokens/intents.js";
+// Tokens
+export { CORE_INTENTS, intentVar, SURFACE_VARS } from "./tokens/intents.js";
+export { SLOTS, slot, toneIntent } from "./tokens/slots.js";

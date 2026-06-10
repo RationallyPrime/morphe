@@ -148,7 +148,7 @@ function resolveCaps(scored: Scored[]): { cap: Capability; score: number | null 
 	const out: { cap: Capability; score: number | null }[] = [];
 	for (const s of scored) {
 		const cap = byId.get(s.id);
-		if (cap && cap.systems.every((id) => sel.has(id))) out.push({ cap, score: s.score });
+		if (cap?.systems.every((id) => sel.has(id))) out.push({ cap, score: s.score });
 	}
 	return out;
 }

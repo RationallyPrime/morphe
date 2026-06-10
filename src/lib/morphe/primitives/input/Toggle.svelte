@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Toggle — a boolean control in ONE of two semantic MODES of the SAME
 	 * primitive (CONTRACT §3, grammar `Toggle.variant`). The mode is a capability,
@@ -29,8 +30,8 @@
 	 * neutral scale vars. No raw px or hex is named here.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Toggle } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 

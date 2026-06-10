@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Spacer — explicit, intentional space. A LEAF Layout primitive: no children,
 	 * no context descent (it positions nothing, it only occupies space), so it does
@@ -21,8 +22,8 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Spacer } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node }: PrimitiveProps<Spacer> = $props();
 	const size = $derived(node.size ?? "md");

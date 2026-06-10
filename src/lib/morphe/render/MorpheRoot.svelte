@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * MorpheRoot — the dialect-providing entry point for a rendered tree.
 	 *
@@ -10,29 +11,29 @@
 	 * primitive agents do not edit it.
 	 */
 
-	import type { Node as MorpheNode } from "../grammar/types.js";
-	import type { Dialect } from "../dialects/types.js";
-	import type { ChoiceMap } from "../delegation/envelope.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
+	import { registry as defaultRegistry, restrictCompounds } from "../compounds/factory.js";
+	import { provideMorpheContext } from "../context/Context.svelte.js";
+	import type { ChoiceMap } from "../delegation/envelope.js";
+	import { activeDialect } from "../dialects/active.svelte.js";
+	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
+	import type { Dialect } from "../dialects/types.js";
+	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { ActionMap } from "../state/actions.js";
-	import type { MorpheStore } from "../state/store.svelte.js";
-	import type { EscalationHandler } from "../state/events.js";
 	import { provideActions } from "../state/actions.js";
 	import { escalationWithDigest } from "../state/digest.js";
 	import { provideEscalation } from "../state/escalation.js";
-	import { registry as defaultRegistry, restrictCompounds } from "../compounds/factory.js";
-	import { activeDialect } from "../dialects/active.svelte.js";
-	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
-	import { provideMorpheContext } from "../context/Context.svelte.js";
-	import { provideCompoundResolver } from "./resolver.svelte.js";
-	import { provideChoices } from "./choices.svelte.js";
+	import type { EscalationHandler } from "../state/events.js";
+	import type { MorpheStore } from "../state/store.svelte.js";
 	import {
 		createInMemoryMorpheStore,
 		provideMorpheStore,
 		resolveMorpheStore,
 		useMorpheStore,
 	} from "../state/store.svelte.js";
+	import { provideChoices } from "./choices.svelte.js";
 	import Node from "./Node.svelte";
+	import { provideCompoundResolver } from "./resolver.svelte.js";
 
 	interface Props {
 		tree: MorpheNode;

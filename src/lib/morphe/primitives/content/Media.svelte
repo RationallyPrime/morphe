@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Media — an image (Content family leaf).
 	 *
@@ -15,8 +16,8 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Media } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node }: PrimitiveProps<Media> = $props();
 

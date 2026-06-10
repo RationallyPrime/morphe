@@ -1,5 +1,5 @@
-import type { ContextDigest } from "../state/digest.js";
 import type { VaryId } from "../grammar/types.js";
+import type { ContextDigest } from "../state/digest.js";
 import type { Delta } from "./envelope.js";
 
 export interface MidLoopDelegate {

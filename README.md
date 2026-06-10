@@ -1,0 +1,66 @@
+# Morphe
+
+**UI as data.** A user interface here is not a pile of components — it is a
+typed tree, authored the way you would author a document, rendered through a
+fixed grammar, and re-themed by swapping a single layer without touching a
+node. Morphe is the substrate that makes that sentence true, and the Sókrates
+marketing site (`src/routes/`) is the first thing standing on it.
+
+## The idea in one breath
+
+Authored trees emit **roles, priorities, and intents** — never geometry. No
+pixel values, no scale names, no hex. The renderer is a total function from
+tree to DOM; the context algebra decides what "a heading inside a panel inside
+a section" means; the token strata decide what `primary-action` looks like
+*today, in this dialect, for this visitor*. Swap the dialect and every surface
+re-themes; the tree never knew.
+
+Four lemmas carry the weight, all enforced in code rather than convention:
+
+| Lemma | Claim | Where it lives |
+|---|---|---|
+| **1 — Grammar** | UI is a discriminated `Node` union; an unlabelled input or a clickable `<div>` is *unrepresentable* | `src/lib/morphe/grammar/types.ts` |
+| **2 — Context algebra** | A child's rendering context is a pure function of (parent context, role); `Frame` is the only reset | `src/lib/morphe/context/` |
+| **3 — Fixed point** | The same authored tree is byte-identical under every dialect | `dialects.test.ts` |
+| **4 — Dialects** | A dialect remaps the intent layer and bounded priors — and nothing else | `src/lib/morphe/dialects/` |
+
+On top of those, the substrate already carries the **Lemma 5/6 seams**: a
+client store with typed event tiers and a replayable `ContextDigest`, and
+bounded delegation — variation points (`Vary`/`Within`) that a future mid-loop
+model may move *within slow-loop-authorized ranges*, validated by a pure
+`applyDelta` that rejects stale epochs before anything renders. The renderer
+never sees an epoch. That is the point.
+
+The grammar is mirrored in Pydantic (`py/morphe_grammar`) with a committed,
+byte-stable JSON Schema artifact — the seed of one schema driving three jobs:
+TypeScript types, Python validation, and decoder masking for model-emitted UI.
+
+## Quick start
+
+```bash
+bun install
+just gates     # every gate CI runs, both stacks — green here means CI goes green
+just dev       # http://localhost:5173/
+just hooks     # install the prek git hooks (once per checkout)
+```
+
+Stack: SvelteKit + Svelte 5 (runes) · TypeScript strict · bun · Biome ·
+Vitest · uv + ruff + ty on the Python side · prek hooks · GitHub Actions.
+
+## Reading order
+
+| Document | What it answers |
+|---|---|
+| [`VISION.md`](VISION.md) | *Why* — the stratified adaptive tower this is Phase 0 of |
+| [`CONTRACT.md`](CONTRACT.md) | *What, precisely* — the substrate contract, gates, reserved seams |
+| [`PRODUCT.md`](PRODUCT.md) / [`DESIGN.md`](DESIGN.md) | The Sókrates strategy and the visual canon |
+| [`STATUS.md`](STATUS.md) | The rolling verified snapshot |
+| [`docs/adr/`](docs/adr/) | The decisions, with their reasons attached |
+
+## The site
+
+`/` is the composer-first landing; `/substrate` is the dignity demo where the
+dialect toggle lives; `/how-it-works`, `/architecture`, and `/onboarding` are
+authored as Morphe trees. Deployed on Vercel. Interactive controls are native
+elements styled by the same tokens — the tree carries content and intent, the
+page owns the wires.

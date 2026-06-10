@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Number — a formatted numeric value (Content family leaf).
 	 *
@@ -15,10 +16,10 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { NumberNode } from "../../grammar/types.js";
-	import { slot } from "../../tokens/slots.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
+	import { slot } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<NumberNode> = $props();
 
@@ -74,6 +75,7 @@
 
 	/* Emphasis as weight (non-color channel). */
 	.mo-number[data-emphasis="muted"] {
+		/* biome-ignore lint/complexity/noImportantStyles: muted must beat the inline intent color — same contract as Text. */
 		color: var(--mo-intent-on-surface-muted) !important;
 	}
 	.mo-number[data-emphasis="strong"] {

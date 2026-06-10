@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { closingCta, howItWorksBody, howItWorksHero, registerSiteCompounds } from "$lib/site";
+	import CtaLink from "$lib/site/CtaLink.svelte";
 	/*
 	 * /how-it-works — the grounding + governance explainer. Editorial copy authored
 	 * as Morphe trees; the conversion CTAs are native.
 	 */
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { registerSiteCompounds, howItWorksHero, howItWorksBody, closingCta } from "$lib/site";
-	import CtaLink from "$lib/site/CtaLink.svelte";
 
 	registerSiteCompounds();
 

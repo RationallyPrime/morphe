@@ -32,9 +32,7 @@ export interface DeliveryResult {
 	readonly reason?: string;
 }
 
-export async function sendFounderAlert(
-	alert: FounderAlert,
-): Promise<DeliveryResult> {
+export async function sendFounderAlert(alert: FounderAlert): Promise<DeliveryResult> {
 	const topic = env.SOKRATES_ALERT_NTFY_TOPIC;
 	if (!topic) return { delivered: false, reason: "not-configured" };
 

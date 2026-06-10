@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Frame — the context RESET (Layout role). The analogue of a new stacking
 	 * context, and the ONLY primitive permitted to:
@@ -27,11 +28,11 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
-	import type { Frame } from "../../grammar/types.js";
-	import { descendFrame, boundaryStyle } from "../../context/Context.svelte.js";
 	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
+	import { boundaryStyle, descendFrame } from "../../context/Context.svelte.js";
+	import type { Frame } from "../../grammar/types.js";
 	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Frame> = $props();
 

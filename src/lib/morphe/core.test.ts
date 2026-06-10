@@ -5,20 +5,20 @@
  */
 
 import { describe, expect, it } from "vitest";
+import type { CompoundDef } from "./compounds/factory.js";
+import { CompoundRegistry, restrictCompounds } from "./compounds/factory.js";
 import {
-	ROOT_CONTEXT,
-	THRESHOLDS,
-	TOP_TIER_CAP,
 	densityForCount,
 	emphasisToStrokeStep,
 	enterFrame,
 	explicitClaim,
+	ROOT_CONTEXT,
 	renderedChildEmphasis,
 	renormalizeBudget,
+	THRESHOLDS,
+	TOP_TIER_CAP,
 	transform,
 } from "./context/algebra.js";
-import { CompoundRegistry, restrictCompounds } from "./compounds/factory.js";
-import type { CompoundDef } from "./compounds/factory.js";
 import type { Node } from "./grammar/types.js";
 
 describe("context algebra — the four laws", () => {
@@ -310,7 +310,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		if (expanded.kind !== "frame") throw new Error("expected a frame root");
 		const disclosure = expanded.children.find((c) => c.kind === "disclosure");
 		expect(disclosure).toBeDefined();
-		if (!disclosure || disclosure.kind !== "disclosure") {
+		if (disclosure?.kind !== "disclosure") {
 			throw new Error("expected a disclosure child");
 		}
 		const filledText = disclosure.children

@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Field — a text input. The simplest stateful provider (Lemma 5): its value is
 	 * tier-0, component-owned $state that never leaves the component; the wire
@@ -33,8 +34,8 @@
 	 * report (the surface comes from the dialect, not a className matrix).
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Field } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundString, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 

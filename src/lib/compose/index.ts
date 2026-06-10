@@ -13,9 +13,6 @@
  * with `.js` extensions, type-only re-exports through `export type`.
  */
 
-// Corpus — the 45 grounded capabilities + the corpus envelope.
-export { CAPABILITIES, COMPOSE_CORPUS } from "./corpus.js";
-
 // Capability domain types (the shape the corpus + matcher + presenters share).
 export type {
 	Capability,
@@ -27,21 +24,6 @@ export type {
 	SystemId,
 	SystemRef,
 } from "./capability.js";
-
-// Matching — deterministic, pure, read-only ranking (the local floor / fallback).
-export { featuredCapabilities, isSubsetSelected, matchCapabilities, scoreCapabilities } from "./match.js";
-export type { ScoredCapability } from "./match.js";
-
-// Retrieval — stage 1 of the ranking pipeline: in-memory cosine over committed embeddings.
-export { cosine, retrieve } from "./retrieve.js";
-export type { RetrievedCapability } from "./retrieve.js";
-
-// Document text — the shared embed/rerank representation of a capability (no drift).
-export { documentText } from "./document.js";
-
-// Presenters — typed Capability data turned into Morphe Node trees.
-export { capabilityCard, composeAnswer, emptyState, offDomainState, thinMatchState } from "./present.js";
-
 // Compounds — the five domain compounds + idempotent registration.
 export {
 	CapabilityCard,
@@ -52,7 +34,33 @@ export {
 	registerComposeCompounds,
 	SurfaceEvidence,
 } from "./compounds.js";
-
+// Corpus — the 45 grounded capabilities + the corpus envelope.
+export { CAPABILITIES, COMPOSE_CORPUS } from "./corpus.js";
+// Document text — the shared embed/rerank representation of a capability (no drift).
+export { documentText } from "./document.js";
+export type { ComposeQuery } from "./input.js";
+// Input — visitor-input validation (hand-written, not orval zod).
+export { composeQuerySchema, parseQuery } from "./input.js";
+export type { ScoredCapability } from "./match.js";
+// Matching — deterministic, pure, read-only ranking (the local floor / fallback).
+export {
+	featuredCapabilities,
+	isSubsetSelected,
+	matchCapabilities,
+	scoreCapabilities,
+} from "./match.js";
+// Presenters — typed Capability data turned into Morphe Node trees.
+export {
+	capabilityCard,
+	composeAnswer,
+	emptyState,
+	offDomainState,
+	thinMatchState,
+} from "./present.js";
+export type { RetrievedCapability } from "./retrieve.js";
+// Retrieval — stage 1 of the ranking pipeline: in-memory cosine over committed embeddings.
+export { cosine, retrieve } from "./retrieve.js";
+export type { PainTag, System } from "./taxonomy.js";
 // Taxonomy — the closed pain vocabulary, the systems we answer for, and the
 // system-agnostic category classification (the seam for a second product later).
 export {
@@ -65,8 +73,3 @@ export {
 	SYSTEMS,
 	tagsFromText,
 } from "./taxonomy.js";
-export type { PainTag, System } from "./taxonomy.js";
-
-// Input — visitor-input validation (hand-written, not orval zod).
-export { composeQuerySchema, parseQuery } from "./input.js";
-export type { ComposeQuery } from "./input.js";

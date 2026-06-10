@@ -394,9 +394,7 @@ function renderCatalogSection(index: EvidenceIndex): string {
 		for (const op of ops) {
 			const model = op.model ? ` → \`${op.model}\`` : "";
 			const summary = op.summary || "(no summary)";
-			lines.push(
-				`- \`${op.method} ${op.path}\` — ${summary} (${op.operationId})${model}`,
-			);
+			lines.push(`- \`${op.method} ${op.path}\` — ${summary} (${op.operationId})${model}`);
 		}
 		lines.push("");
 	}
@@ -471,9 +469,7 @@ function main(): void {
 
 	for (const index of [humanity, dkplus, twenty]) {
 		// biome-ignore lint/suspicious/noConsole: build script progress output.
-		console.log(
-			`${index.system}: ${index.operationCount} operations, ${index.modelCount} models`,
-		);
+		console.log(`${index.system}: ${index.operationCount} operations, ${index.modelCount} models`);
 	}
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${humanityPath}`);

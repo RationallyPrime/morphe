@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Progress — a determinate (value 0..1) or indeterminate task indicator.
 	 *
@@ -21,8 +22,8 @@
 	 * Motion: the indeterminate sweep is gated behind prefers-reduced-motion.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Progress } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Progress> = $props();

@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Select — a single, mutually-exclusive choice from a small option set. ONE
 	 * primitive, TWO presentation MODES (the grammar's `variant`, not a new kind):
@@ -26,8 +27,8 @@
 	 * is honoured for the radio-dot/transition via a media query in the styles.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Select } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundString, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
@@ -418,6 +419,7 @@
 	.mo-select--radiogroup .mo-select__error {
 		margin-block-start: var(--mo-space-2);
 	}
+	/* biome-ignore lint/style/noDescendingSpecificity: the radiogroup margin override above wins on specificity by design; the base rule reads better beside its siblings. */
 	.mo-select__error {
 		display: flex;
 		align-items: center;

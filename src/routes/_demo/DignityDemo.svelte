@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * The DIGNITY TEST (Corollary 1).
 	 *
@@ -14,9 +15,9 @@
 	 * allows. It is mounted by both `/` and `/dignity`.
 	 */
 
-	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { activeDialect, DIALECTS, DIALECT_IDS } from "$morphe";
 	import type { Dialect } from "$morphe";
+	import { activeDialect, DIALECT_IDS, DIALECTS } from "$morphe";
+	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 	import { dignityTree, registerDemoCompounds } from "./tree.js";
 
 	// Register the CatalogueEntry compound through the factory gate. Idempotent —

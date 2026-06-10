@@ -278,13 +278,9 @@ function evidenceRows(cap: Capability): Node {
 		direction: "block",
 		emphasis: "muted",
 		children: [
-			text(
-				`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`,
-				"caption",
-				{
-					emphasis: "muted",
-				},
-			),
+			text(`Grounded in ${count} real ${count === 1 ? "endpoint" : "endpoints"}`, "caption", {
+				emphasis: "muted",
+			}),
 			...rows,
 		],
 	};
@@ -509,9 +505,7 @@ export function emptyState(
 	limit: number = DEFAULT_LIMIT,
 ): Node {
 	const typed = query.pain.trim().length > 0;
-	const heading = typed
-		? "No direct match yet"
-		: "What Sókrates can do for you";
+	const heading = typed ? "No direct match yet" : "What Sókrates can do for you";
 	const sub = typed
 		? "Nothing lined up exactly with that. Here is the breadth Sókrates works across these systems, each one grounded in real endpoints."
 		: "Describe the friction in your operation and Sókrates surfaces the automations that fit, each one grounded in your real systems. Here is the breadth to begin with.";
@@ -540,11 +534,7 @@ export function emptyState(
 		},
 	};
 
-	const children: Node[] = [
-		masthead,
-		{ kind: "spacer", size: "md" },
-		...cardLayout(shown),
-	];
+	const children: Node[] = [masthead, { kind: "spacer", size: "md" }, ...cardLayout(shown)];
 
 	return {
 		kind: "frame",

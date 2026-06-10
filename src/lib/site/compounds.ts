@@ -121,8 +121,7 @@ export const SiteValueProp: CompoundDef = {
 					as: "caption",
 					intent: "accession",
 				},
-				description:
-					"Optional quiet marker (a Text node) — a shelfmark, not a step number.",
+				description: "Optional quiet marker (a Text node) — a shelfmark, not a step number.",
 			},
 			heading: {
 				type: "node",
@@ -422,9 +421,7 @@ export function registerSiteCompounds(reg: CompoundRegistry = registry): void {
 		if (reg.has(def.name)) continue;
 		const result = reg.register(def);
 		if (!result.ok) {
-			throw new Error(
-				`${def.name} failed registration: ${result.errors.join("; ")}`,
-			);
+			throw new Error(`${def.name} failed registration: ${result.errors.join("; ")}`);
 		}
 	}
 }

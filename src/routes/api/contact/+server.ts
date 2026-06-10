@@ -36,17 +36,13 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	// Honeypot: a filled hidden field is a bot. Accept and drop silently.
-	if (
-		typeof body.company_url === "string" &&
-		body.company_url.trim().length > 0
-	) {
+	if (typeof body.company_url === "string" && body.company_url.trim().length > 0) {
 		return json({ ok: true });
 	}
 
 	const name = typeof body.name === "string" ? body.name.trim() : "";
 	const email = typeof body.email === "string" ? body.email.trim() : "";
-	const operation =
-		typeof body.operation === "string" ? body.operation.trim() : "";
+	const operation = typeof body.operation === "string" ? body.operation.trim() : "";
 
 	if (!EMAIL_RE.test(email)) {
 		return json({ ok: false, error: "invalid-email" }, { status: 422 });

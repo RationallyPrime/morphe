@@ -78,13 +78,9 @@ export function governanceLadder(): Node {
 		role: "section",
 		direction: "block",
 		children: [
-			t(
-				"Read by default. Propose with evidence. Act under a signed envelope.",
-				"heading",
-				{
-					emphasis: "strong",
-				},
-			),
+			t("Read by default. Propose with evidence. Act under a signed envelope.", "heading", {
+				emphasis: "strong",
+			}),
 			t(
 				"Discovery is always on; action is the dial you turn as the track record accrues. Sókrates never confuses the two.",
 				"body",
@@ -254,13 +250,9 @@ export function homeBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					t(
-						"Not a chatbot. Not a consultant. A department that stays.",
-						"heading",
-						{
-							emphasis: "strong",
-						},
-					),
+					t("Not a chatbot. Not a consultant. A department that stays.", "heading", {
+						emphasis: "strong",
+					}),
 					{ kind: "spacer", size: "md" },
 					// DOMINANT — the substrate claim as a wide feature row: claim + proof side
 					// by side, raised, owning the section before the minor pair.
@@ -297,13 +289,9 @@ export function homeBody(): Node {
 								kind: "compound",
 								name: "SiteValueProp",
 								args: {
-									heading: t(
-										"It proposes. You authorise. It records.",
-										"subheading",
-										{
-											emphasis: "strong",
-										},
-									),
+									heading: t("It proposes. You authorise. It records.", "subheading", {
+										emphasis: "strong",
+									}),
 									body: t(
 										"Discovery is always on; action waits for your sign-off. Every act it takes carries a signed envelope you can audit as a single record. A Sókrates answer should never be accepted because the AI said so.",
 										"body",
@@ -384,13 +372,9 @@ function homeSovereignty(): Node {
 						kind: "compound",
 						name: "SiteValueProp",
 						args: {
-							heading: t(
-								"Nothing leaves the building by default.",
-								"subheading",
-								{
-									emphasis: "strong",
-								},
-							),
+							heading: t("Nothing leaves the building by default.", "subheading", {
+								emphasis: "strong",
+							}),
 							body: t(
 								"Read-side discovery runs locally, against the systems already on your network. The map is computed from live rows, not from a snapshot shipped off-site to age.",
 								"body",
@@ -402,13 +386,9 @@ function homeSovereignty(): Node {
 						kind: "compound",
 						name: "SiteValueProp",
 						args: {
-							heading: t(
-								"Cancel, and you keep everything that was yours.",
-								"subheading",
-								{
-									emphasis: "strong",
-								},
-							),
+							heading: t("Cancel, and you keep everything that was yours.", "subheading", {
+								emphasis: "strong",
+							}),
 							body: t(
 								"The box, the data and the connectors stay with you. What ends is the continuous intelligence layer, not your ownership.",
 								"body",
@@ -590,13 +570,9 @@ export function architectureHero(): Node {
 		name: "SiteHero",
 		emphasis: "strong",
 		args: {
-			title: t(
-				"Five primitives. One typed map. A signed envelope on every act.",
-				"display",
-				{
-					emphasis: "strong",
-				},
-			),
+			title: t("Five primitives. One typed map. A signed envelope on every act.", "display", {
+				emphasis: "strong",
+			}),
 			lede: t(
 				"The deep cut, for the people who gate on architecture. Sókrates compiles source systems into a typed hypergraph and runs governed work over it. None of this is required reading to buy; it is here because it holds up to scrutiny.",
 				"body",
@@ -682,13 +658,9 @@ export function architectureBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					t(
-						"One sovereign router. Three vassals, each with one job.",
-						"heading",
-						{
-							emphasis: "strong",
-						},
-					),
+					t("One sovereign router. Three vassals, each with one job.", "heading", {
+						emphasis: "strong",
+					}),
 					t(
 						"Vassals never call each other laterally; the orchestrator is the only router. The brand is Sókrates; the dialogue vassal is also Sókrates. The overload is intentional.",
 						"body",

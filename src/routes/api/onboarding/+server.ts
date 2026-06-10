@@ -69,12 +69,9 @@ export const POST: RequestHandler = async ({ request }) => {
 	for (const s of systems) {
 		const name = str(s.name);
 		if (!name) continue;
-		const bits = [
-			str(s.vendor),
-			str(s.deployment),
-			str(s.role),
-			str(s.criticality),
-		].filter(Boolean);
+		const bits = [str(s.vendor), str(s.deployment), str(s.role), str(s.criticality)].filter(
+			Boolean,
+		);
 		lines.push(`  • ${name}${bits.length ? ` — ${bits.join(" · ")}` : ""}`);
 	}
 

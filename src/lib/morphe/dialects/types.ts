@@ -10,8 +10,8 @@
  * Declarative only. The apply mechanism lives in provider.svelte.ts.
  */
 
-import type { Density } from "../grammar/types.js";
 import type { ScaleTier } from "../context/algebra.js";
+import type { Density } from "../grammar/types.js";
 import type { IntentChannel } from "../tokens/intents.js";
 
 /**

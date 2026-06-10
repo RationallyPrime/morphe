@@ -48,7 +48,12 @@ export const CatalogueEntry: CompoundDef = {
 			title: { type: "node", required: true, description: "Record title (a Text node)." },
 			provenance: {
 				type: "node",
-				default: { kind: "text", value: "Provenance unrecorded.", as: "caption", emphasis: "muted" },
+				default: {
+					kind: "text",
+					value: "Provenance unrecorded.",
+					as: "caption",
+					emphasis: "muted",
+				},
 				description: "Provenance / date caption (a Text node).",
 			},
 		},
@@ -101,7 +106,9 @@ export const CatalogueEntry: CompoundDef = {
 					{
 						kind: "slot",
 						name: "body",
-						fallback: [{ kind: "text", value: "No notes on file.", as: "caption", emphasis: "muted" }],
+						fallback: [
+							{ kind: "text", value: "No notes on file.", as: "caption", emphasis: "muted" },
+						],
 					},
 				],
 			},
@@ -204,7 +211,12 @@ export const dignityTree: Node = {
 							name: "CatalogueEntry",
 							args: {
 								folio: "AM 132 fol.",
-								title: { kind: "text", value: "Möðruvallabók", as: "subheading", intent: "accession" },
+								title: {
+									kind: "text",
+									value: "Möðruvallabók",
+									as: "subheading",
+									intent: "accession",
+								},
 								provenance: {
 									kind: "text",
 									value: "Provenance: Möðruvellir, Hörgárdalur · c. 1330–1370",
@@ -237,7 +249,12 @@ export const dignityTree: Node = {
 							name: "CatalogueEntry",
 							args: {
 								folio: "GKS 2365 4to",
-								title: { kind: "text", value: "Codex Regius", as: "subheading", intent: "accession" },
+								title: {
+									kind: "text",
+									value: "Codex Regius",
+									as: "subheading",
+									intent: "accession",
+								},
 								provenance: {
 									kind: "text",
 									value: "Provenance: acquired 1662 · Brynjólfur Sveinsson",

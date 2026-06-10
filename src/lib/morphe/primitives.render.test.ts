@@ -21,17 +21,17 @@
  * renders (the grammar fixed-point: pre-mode trees stay valid).
  */
 
-import { describe, expect, it } from "vitest";
 import { render } from "svelte/server";
+import { describe, expect, it } from "vitest";
+import { registry } from "./compounds/factory.js";
+import type { ChoiceMap } from "./delegation/envelope.js";
+import { clinical } from "./dialects/clinical.js";
+import { icelandicArchive } from "./dialects/icelandic-archive.js";
+import type { Dialect } from "./dialects/types.js";
+import type { Node } from "./grammar/types.js";
 import MorpheRoot from "./render/MorpheRoot.svelte";
 import { PRIMITIVES } from "./render/registry.js";
-import { icelandicArchive } from "./dialects/icelandic-archive.js";
-import { clinical } from "./dialects/clinical.js";
-import type { Dialect } from "./dialects/types.js";
-import type { ChoiceMap } from "./delegation/envelope.js";
-import type { Node } from "./grammar/types.js";
 import { createInMemoryMorpheStore, type MorpheStore } from "./state/store.svelte.js";
-import { registry } from "./compounds/factory.js";
 
 /** Render an authored tree through the full core to its SSR HTML body string. */
 function ssr(
@@ -120,14 +120,20 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 			kind: "stack",
 			role: "section",
 			children: [
-				{ kind: "cluster", role: "toolbar", children: [
-					{ kind: "button", label: "Primary", variant: "solid" },
-					{ kind: "button", label: "Secondary", variant: "outline" },
-					{ kind: "link", href: "https://example.org", label: "Source", external: "force" },
-				] },
-				{ kind: "disclosure", summary: "Notes", children: [
-					{ kind: "text", value: "Marginalia", as: "caption" },
-				] },
+				{
+					kind: "cluster",
+					role: "toolbar",
+					children: [
+						{ kind: "button", label: "Primary", variant: "solid" },
+						{ kind: "button", label: "Secondary", variant: "outline" },
+						{ kind: "link", href: "https://example.org", label: "Source", external: "force" },
+					],
+				},
+				{
+					kind: "disclosure",
+					summary: "Notes",
+					children: [{ kind: "text", value: "Marginalia", as: "caption" }],
+				},
 			],
 		};
 		const html = ssr(tree);
@@ -276,7 +282,12 @@ describe("a11y — Action family accessible names (CONTRACT §7)", () => {
 	});
 
 	it("a forced-external Link carries the full new-tab affordance", () => {
-		const html = ssr({ kind: "link", href: "https://elsewhere.test", label: "External", external: "force" });
+		const html = ssr({
+			kind: "link",
+			href: "https://elsewhere.test",
+			label: "External",
+			external: "force",
+		});
 		expect(html).toContain('target="_blank"');
 		expect(html).toContain('rel="noopener noreferrer"');
 		// Visible shape cue + SR-only completeness (WCAG 2.4.4).
@@ -341,7 +352,11 @@ describe("a11y — Overlay labelling (CONTRACT §7)", () => {
 	});
 
 	it("a closed Disclosure exposes collapsed state and the chevron SHAPE cue", () => {
-		const html = ssr({ kind: "disclosure", summary: "More", children: [{ kind: "text", value: "y", as: "body" }] });
+		const html = ssr({
+			kind: "disclosure",
+			summary: "More",
+			children: [{ kind: "text", value: "y", as: "body" }],
+		});
 		// Native <details>: the absence of the `open` attribute IS the collapsed
 		// (aria-expanded=false equivalent) state the platform exposes to AT.
 		expect(html).toContain("<details");
@@ -351,7 +366,12 @@ describe("a11y — Overlay labelling (CONTRACT §7)", () => {
 	});
 
 	it("an open Disclosure exposes expanded state via native <details open>", () => {
-		const html = ssr({ kind: "disclosure", summary: "More", open: true, children: [{ kind: "text", value: "y", as: "body" }] });
+		const html = ssr({
+			kind: "disclosure",
+			summary: "More",
+			open: true,
+			children: [{ kind: "text", value: "y", as: "body" }],
+		});
 		expect(html).toMatch(/<details[^>]*\sopen/);
 	});
 
@@ -360,8 +380,18 @@ describe("a11y — Overlay labelling (CONTRACT §7)", () => {
 			kind: "stack",
 			role: "list",
 			children: [
-				{ kind: "disclosure", summary: "A", group: "faq", children: [{ kind: "text", value: "a", as: "body" }] },
-				{ kind: "disclosure", summary: "B", group: "faq", children: [{ kind: "text", value: "b", as: "body" }] },
+				{
+					kind: "disclosure",
+					summary: "A",
+					group: "faq",
+					children: [{ kind: "text", value: "a", as: "body" }],
+				},
+				{
+					kind: "disclosure",
+					summary: "B",
+					group: "faq",
+					children: [{ kind: "text", value: "b", as: "body" }],
+				},
 			],
 		});
 		// `name=` makes the <details> mutually exclusive natively (no JS).
@@ -369,11 +399,23 @@ describe("a11y — Overlay labelling (CONTRACT §7)", () => {
 	});
 
 	it("a menu/listbox Popover is labelled by its anchor; a tooltip describes it", () => {
-		const menu = ssr({ kind: "popover", anchor: "btn", id: "m1", role: "menu", children: [{ kind: "text", value: "i", as: "body" }] });
+		const menu = ssr({
+			kind: "popover",
+			anchor: "btn",
+			id: "m1",
+			role: "menu",
+			children: [{ kind: "text", value: "i", as: "body" }],
+		});
 		expect(menu).toContain('role="menu"');
 		expect(menu).toContain('aria-labelledby="btn"');
 
-		const tip = ssr({ kind: "popover", anchor: "btn", id: "t1", role: "tooltip", children: [{ kind: "text", value: "i", as: "body" }] });
+		const tip = ssr({
+			kind: "popover",
+			anchor: "btn",
+			id: "t1",
+			role: "tooltip",
+			children: [{ kind: "text", value: "i", as: "body" }],
+		});
 		expect(tip).toContain('role="tooltip"');
 		// A tooltip is non-interactive chrome: it is NOT labelledby its anchor.
 		expect(tip).not.toContain('aria-labelledby="btn"');
@@ -422,7 +464,10 @@ describe("Field — multiline mode extension (CONTRACT §3)", () => {
 	});
 
 	it("a required Field wires aria-required and the (required) SR signal", () => {
-		const html = ssr({ kind: "field", a11y: { id: "f3", label: { mode: "visible", text: "Name" }, required: true } });
+		const html = ssr({
+			kind: "field",
+			a11y: { id: "f3", label: { mode: "visible", text: "Name" }, required: true },
+		});
 		expect(html).toContain('aria-required="true"');
 		expect(html).toContain("(required)");
 	});
@@ -480,7 +525,12 @@ describe("Toggle — checkbox mode extension (CONTRACT §3)", () => {
 	});
 
 	it("an indeterminate checkbox surfaces aria-checked=mixed and the dash SHAPE", () => {
-		const html = ssr({ kind: "toggle", a11y: baseA11y("t3"), variant: "checkbox", indeterminate: true });
+		const html = ssr({
+			kind: "toggle",
+			a11y: baseA11y("t3"),
+			variant: "checkbox",
+			indeterminate: true,
+		});
 		expect(html).toContain('aria-checked="mixed"');
 		// The mixed state has a distinct mark SHAPE (the dash), not color alone.
 		expect(html).toContain('data-state="mixed"');
@@ -509,7 +559,12 @@ describe("Select — radiogroup mode extension (CONTRACT §3)", () => {
 	});
 
 	it("radiogroup mode renders a fieldset/radiogroup with role=radio options", () => {
-		const html = ssr({ kind: "select", a11y: baseA11y("s2"), options: opts, variant: "radiogroup" });
+		const html = ssr({
+			kind: "select",
+			a11y: baseA11y("s2"),
+			options: opts,
+			variant: "radiogroup",
+		});
 		expect(html).toContain("<fieldset");
 		expect(html).toContain('role="radiogroup"');
 		expect(html).toContain('role="radio"');
@@ -518,7 +573,12 @@ describe("Select — radiogroup mode extension (CONTRACT §3)", () => {
 	});
 
 	it("the radiogroup has exactly ONE tab stop (roving tabindex, ARIA APG)", () => {
-		const html = ssr({ kind: "select", a11y: baseA11y("s3"), options: opts, variant: "radiogroup" });
+		const html = ssr({
+			kind: "select",
+			a11y: baseA11y("s3"),
+			options: opts,
+			variant: "radiogroup",
+		});
 		const tabZero = (html.match(/tabindex="0"/g) ?? []).length;
 		const tabNeg = (html.match(/tabindex="-1"/g) ?? []).length;
 		expect(tabZero).toBe(1);
@@ -564,7 +624,11 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 				kind: "stack",
 				role: "form",
 				children: [
-					{ kind: "field", a11y: { id: "title", label: { mode: "visible", text: "Title" } }, inputType: "text" },
+					{
+						kind: "field",
+						a11y: { id: "title", label: { mode: "visible", text: "Title" } },
+						inputType: "text",
+					},
 					{
 						kind: "select",
 						a11y: { id: "cat", label: { mode: "visible", text: "Category" } },
@@ -574,7 +638,12 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 						],
 					},
 					{ kind: "toggle", a11y: { id: "pub", label: { mode: "visible", text: "Public" } } },
-					{ kind: "range", a11y: { id: "yr", label: { mode: "visible", text: "Year" } }, min: 1000, max: 1500 },
+					{
+						kind: "range",
+						a11y: { id: "yr", label: { mode: "visible", text: "Year" } },
+						min: 1000,
+						max: 1500,
+					},
 				],
 			},
 			{ kind: "status", tone: "info", signal: { text: "Awaiting sign-off", icon: "schedule" } },

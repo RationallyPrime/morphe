@@ -35,11 +35,11 @@
 	 */
 
 	import type { Action } from "svelte/action";
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Popover } from "../../grammar/types.js";
+	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
-	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Popover> = $props();
 	const store = useMorpheStore();
@@ -206,6 +206,7 @@
 	};
 </script>
 
+<!-- biome-ignore lint/a11y/useValidAriaRole: `role` is grammar-typed to "tooltip" | "menu" | "listbox" — all valid ARIA roles; the linter cannot evaluate the derived. -->
 <div
 	bind:this={el}
 	id={node.id}

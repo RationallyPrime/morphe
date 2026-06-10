@@ -242,8 +242,7 @@ export const SurfaceEvidence: CompoundDef = {
 			direction: {
 				type: "node",
 				default: { kind: "text", value: "read" },
-				description:
-					"read | write | event — the access posture, as a Text node (muted caption).",
+				description: "read | write | event — the access posture, as a Text node (muted caption).",
 			},
 		},
 	},

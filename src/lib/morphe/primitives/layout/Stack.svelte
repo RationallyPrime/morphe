@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Stack — the block/inline/auto flow container (Layout role).
 	 *
@@ -22,11 +23,11 @@
 	 * Agent edits ONLY this file. grammar/types.ts, registry, tokens, context: locked.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
-	import type { Stack } from "../../grammar/types.js";
-	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
 	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
+	import { boundaryStyle, descend } from "../../context/Context.svelte.js";
+	import type { Stack } from "../../grammar/types.js";
 	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Stack> = $props();
 

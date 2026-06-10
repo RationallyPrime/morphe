@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Button — the ACTION affordance (genuine browser capability). A real button
 	 * element: native Space/Enter activation, focus, and disabled semantics for
@@ -24,8 +25,8 @@
 	 * motion via a media query in the style block, never a JS hook.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Button } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { invokeAction, useActions } from "../../state/actions.js";
 	import { SLOTS } from "../../tokens/slots.js";
 

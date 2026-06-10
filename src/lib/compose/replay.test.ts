@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Node } from "$morphe";
-import type { ContextDigest } from "$morphe";
+import type { ContextDigest, Node } from "$morphe";
 import { CAPABILITIES } from "./corpus.js";
 import type { ComposeQuery } from "./input.js";
 import { offDomainState, thinMatchState } from "./present.js";

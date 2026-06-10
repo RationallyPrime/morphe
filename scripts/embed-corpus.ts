@@ -75,10 +75,7 @@ async function main(): Promise<void> {
 
 	for (let i = 0; i < caps.length; i += BATCH) {
 		const slice = caps.slice(i, i + BATCH);
-		const vectors = await embedBatch(
-			slice.map(documentText),
-			key,
-		);
+		const vectors = await embedBatch(slice.map(documentText), key);
 		slice.forEach((cap, j) => {
 			const vec = vectors[j];
 			if (!vec || vec.length !== DIMENSION) {
@@ -111,7 +108,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-	// biome-ignore lint/suspicious/noConsole: build script error output.
 	console.error(err);
 	process.exit(1);
 });

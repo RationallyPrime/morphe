@@ -43,7 +43,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read approved Humanity timeclocks, normalize them by employee, position, overtime and breaks, then post the hours into dkPlus employee work journals and cost entries.",
-		value: "Time approval becomes accounting and project labor capture without manual payroll prep.",
+		value:
+			"Time approval becomes accounting and project labor capture without manual payroll prep.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -456,7 +457,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Keep Humanity positions aligned with dkPlus project tasks, phases, dimensions and service categories so labor maps to the right accounting code.",
-		value: "Downstream payroll, invoicing and reporting stay clean because the mapping is explicit.",
+		value:
+			"Downstream payroll, invoicing and reporting stay clean because the mapping is explicit.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -756,7 +758,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"When Humanity shows extra staffing at one location and a shortage at another, create dkPlus inventory transfers to stage products and materials at the right warehouse.",
-		value: "Stock follows the labor, so the busy site is stocked and the quiet site is not over-stocked.",
+		value:
+			"Stock follows the labor, so the busy site is stocked and the quiet site is not over-stocked.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -1522,7 +1525,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Keep Humanity locations and remote sites aligned with dkPlus warehouses, departments, dimensions and project sites.",
-		value: "Location-level labor, inventory and sales profitability all line up on the same places.",
+		value:
+			"Location-level labor, inventory and sales profitability all line up on the same places.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -1650,7 +1654,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: HUMANITY,
 		transform:
 			"For dkPlus recurring subscriptions or recurring customer work, pre-build recurring Humanity coverage and adjust for holidays, availability and projected overtime.",
-		value: "Recurring service plans get standing coverage instead of being re-scheduled each cycle.",
+		value:
+			"Recurring service plans get standing coverage instead of being re-scheduled each cycle.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -1907,7 +1912,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: HUMANITY,
 		transform:
 			"A manager states an intent in plain language; the tool inspects dkPlus project, customer and task data and Humanity availability, skills and overtime, then proposes shifts and a request update.",
-		value: "Plain-language intent like 'staff the install with the cheapest qualified crew under 40 hours' becomes a concrete plan.",
+		value:
+			"Plain-language intent like 'staff the install with the cheapest qualified crew under 40 hours' becomes a concrete plan.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -2424,7 +2430,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"When a Twenty opportunity reaches the proposal stage, read the deal and its company and draft a dkPlus sales quote with the right customer, amount and references.",
-		value: "A deal in the proposal stage gets a real quote drafted instead of a manual spreadsheet.",
+		value:
+			"A deal in the proposal stage gets a real quote drafted instead of a manual spreadsheet.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -2593,7 +2600,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: HUMANITY,
 		transform:
 			"Read Twenty tasks that carry an owner and a due date, check that person's Humanity availability, and draft a shift block so the committed work has time on the calendar.",
-		value: "CRM commitments get real time reserved against them instead of sitting as wishful to-dos.",
+		value:
+			"CRM commitments get real time reserved against them instead of sitting as wishful to-dos.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -2643,7 +2651,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: HUMANITY,
 		transform:
 			"When a Twenty opportunity is won, draft the Humanity shifts to staff it, open the matching dkPlus project, and advance the deal's stage so all three systems reflect the win.",
-		value: "A single won deal lands as a staffed, costed, tracked job across CRM, scheduling and ERP at once.",
+		value:
+			"A single won deal lands as a staffed, costed, tracked job across CRM, scheduling and ERP at once.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -2738,7 +2747,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: HUMANITY,
 		transform:
 			"Read the weighted Twenty pipeline, the dkPlus projects already committed and current Humanity availability to project where deals about to close will outstrip the crew.",
-		value: "Sales momentum and delivery capacity are compared before a won deal has nobody to staff it.",
+		value:
+			"Sales momentum and delivery capacity are compared before a won deal has nobody to staff it.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -2910,7 +2920,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read each dkPlus customer's ledger transactions, bucket the open balance by how long it has been outstanding, and rank the accounts carrying the most overdue cash.",
-		value: "You know which customers owe you the most and for how long, without waiting on a manual aging run.",
+		value:
+			"You know which customers owe you the most and for how long, without waiting on a manual aging run.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -2944,7 +2955,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read the dkPlus chart of accounts and the recent ledger transactions to flag postings that look out of place: duplicates, round-number outliers, entries to dormant accounts and unusual swings.",
-		value: "Odd journal entries get caught while they are still easy to correct, not at year-end close.",
+		value:
+			"Odd journal entries get caught while they are still easy to correct, not at year-end close.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -3055,7 +3067,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: TWENTY,
 		transform:
 			"Read each customer's dkPlus payment and ledger history, spot accounts that have slowed down, gone quiet or fallen behind, and post a renewal-risk note onto the matching Twenty company.",
-		value: "The sales team hears that an account is going cold from the money, not from a lost renewal.",
+		value:
+			"The sales team hears that an account is going cold from the money, not from a lost renewal.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -3098,7 +3111,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Pull the Twenty company and its people, the dkPlus invoices and ledger balance for that customer, and the Humanity hours worked on their jobs into one read-only customer profile.",
-		value: "Anyone touching an account sees the relationship, the money and the work delivered in a single view.",
+		value:
+			"Anyone touching an account sees the relationship, the money and the work delivered in a single view.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -3141,7 +3155,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: TWENTY,
 		transform:
 			"Read Twenty companies, people and message threads to find accounts with no recent human touch or no named contact owner.",
-		value: "Accounts stop going quiet unnoticed because every stale relationship has a next touchpoint.",
+		value:
+			"Accounts stop going quiet unnoticed because every stale relationship has a next touchpoint.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -3355,7 +3370,8 @@ export const CAPABILITIES: readonly Capability[] = [
 				method: "GET",
 				path: "/api/v1/Product/page/{page}/{count}",
 				operationId: "Product_GetProductsPage",
-				summary: "Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
+				summary:
+					"Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
 				model: "ProductModel",
 			},
 			{
@@ -3680,7 +3696,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read Twenty people and dkPlus customer receivers, then draft receiver creation or update actions when delivery contacts drift.",
-		value: "Delivery contacts stay aligned between the CRM relationship and ERP fulfilment records.",
+		value:
+			"Delivery contacts stay aligned between the CRM relationship and ERP fulfilment records.",
 		surfaces: [
 			{
 				system: "twenty",
@@ -3766,7 +3783,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: TWENTY,
 		transform:
 			"Read dkPlus product and invoice history to find customers not buying high-margin products, then create Twenty follow-up tasks for expansion.",
-		value: "ERP revenue evidence turns into targeted CRM expansion work instead of generic cross-sell campaigns.",
+		value:
+			"ERP revenue evidence turns into targeted CRM expansion work instead of generic cross-sell campaigns.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -3774,7 +3792,8 @@ export const CAPABILITIES: readonly Capability[] = [
 				method: "GET",
 				path: "/api/v1/Product/page/{page}/{count}",
 				operationId: "Product_GetProductsPage",
-				summary: "Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
+				summary:
+					"Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
 				model: "ProductModel",
 			},
 			{
@@ -3809,7 +3828,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: TWENTY,
 		transform:
 			"Read overdue customer transactions and create Twenty tasks for the account owner to follow up with the right context.",
-		value: "Collections follow-up becomes part of account management instead of a separate spreadsheet.",
+		value:
+			"Collections follow-up becomes part of account management instead of a separate spreadsheet.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -4160,7 +4180,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read Humanity training progress and skills against dkPlus project tasks to flag workers scheduled for jobs they are not certified to perform.",
-		value: "Certified work is staffed by certified people, with revenue bottlenecks visible by task.",
+		value:
+			"Certified work is staffed by certified people, with revenue bottlenecks visible by task.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -4202,7 +4223,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read approved Humanity leave and employee data, then draft dkPlus GL accrual journals for expected leave liability.",
-		value: "Month-end leave liability is posted from approved workforce reality instead of manual estimates.",
+		value:
+			"Month-end leave liability is posted from approved workforce reality instead of manual estimates.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -4381,7 +4403,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read Humanity forecast data and dkPlus product/purchase evidence to propose purchasing before labor-driven demand hits.",
-		value: "Staffing forecasts become concrete purchase preparation instead of a separate planning meeting.",
+		value:
+			"Staffing forecasts become concrete purchase preparation instead of a separate planning meeting.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -4397,7 +4420,8 @@ export const CAPABILITIES: readonly Capability[] = [
 				method: "GET",
 				path: "/api/v1/Product/page/{page}/{count}",
 				operationId: "Product_GetProductsPage",
-				summary: "Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
+				summary:
+					"Get Products Paged\r\nNOTE: you can supply * in string search to do a wildcard search.",
 				model: "ProductModel",
 			},
 			{
@@ -4586,7 +4610,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: TWENTY,
 		transform:
 			"Read dkPlus project requests and Humanity shifts, then post delivery timeline notes onto the related Twenty opportunity.",
-		value: "Sales sees delivery progress from the project and schedule systems without chasing operations.",
+		value:
+			"Sales sees delivery progress from the project and schedule systems without chasing operations.",
 		surfaces: [
 			{
 				system: "dkplus",
@@ -4800,7 +4825,8 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Read Twenty company duplicates, Humanity employee records and dkPlus customer status to show where integration identity drift is accumulating.",
-		value: "The operator sees cross-system drift before it breaks payroll, billing or customer service.",
+		value:
+			"The operator sees cross-system drift before it breaks payroll, billing or customer service.",
 		surfaces: [
 			{
 				system: "twenty",

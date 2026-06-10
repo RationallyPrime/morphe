@@ -12,7 +12,12 @@ const EMPHASIS_VALUES: readonly EmphasisClaim[] = ["muted", "normal", "strong", 
 /** Resolve a Vary node to the selected option, falling back to its authored default. */
 export function resolveVaryOption(node: Vary, choices: ChoiceMap | undefined): Node | undefined {
 	if (node.options.length === 0) return undefined;
-	const index = clampedIntegerChoice(node.id, node.default ?? 0, [0, node.options.length - 1], choices);
+	const index = clampedIntegerChoice(
+		node.id,
+		node.default ?? 0,
+		[0, node.options.length - 1],
+		choices,
+	);
 	return node.options[index];
 }
 
@@ -26,7 +31,11 @@ export function resolveWithin(node: Within, choices: ChoiceMap | undefined): Res
 		case "density":
 			return { dimension: "density", choice, value: quantized(choice, node.range, DENSITY_VALUES) };
 		case "emphasis":
-			return { dimension: "emphasis", choice, value: quantized(choice, node.range, EMPHASIS_VALUES) };
+			return {
+				dimension: "emphasis",
+				choice,
+				value: quantized(choice, node.range, EMPHASIS_VALUES),
+			};
 		case "collapse":
 			return { dimension: "collapse", choice, value: choice >= midpoint(node.range) };
 	}

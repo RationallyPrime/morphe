@@ -11,8 +11,8 @@
  * at the map boundary), but each .svelte file declares the precise type.
  */
 
-import type { Node } from "../grammar/types.js";
 import type { MorpheContext } from "../context/algebra.js";
+import type { Node } from "../grammar/types.js";
 
 export interface PrimitiveProps<N extends Node = Node> {
 	/** The grammar node this component renders, narrowed to its kind. */

@@ -20,10 +20,10 @@
  *     untouched. No authored Node changed; only the intent layer moved.
  */
 
-import type { Dialect } from "./types.js";
-import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
 import { clinical } from "./clinical.js";
+import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
+import type { Dialect } from "./types.js";
 
 /**
  * The shipped dialects, keyed by their stable `id` (also the `data-mo-dialect`

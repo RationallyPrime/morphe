@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Icon — a Material Symbol (Content family leaf).
 	 *
@@ -15,8 +16,8 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Icon } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Icon> = $props();

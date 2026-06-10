@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { registerSiteCompounds } from "$lib/site";
+	import CtaLink from "$lib/site/CtaLink.svelte";
+	import type { Node } from "$morphe";
 	/*
 	 * /substrate — the engine, demoted from /. The whole marketing site is rendered
 	 * through Morphe; this page exposes the substrate itself: one hand-authored Node
@@ -7,9 +10,6 @@
 	 * demo carries the proof.
 	 */
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { registerSiteCompounds } from "$lib/site";
-	import type { Node } from "$morphe";
-	import CtaLink from "$lib/site/CtaLink.svelte";
 	import DignityDemo from "../_demo/DignityDemo.svelte";
 
 	// Registers SiteHero (and the rest) through the factory gate, so the intro tree's

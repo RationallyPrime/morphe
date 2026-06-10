@@ -24,8 +24,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { activeDialect } from "./active.svelte.js";
 import { resolveArrivalDialect } from "./arrival.js";
-import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { clinical } from "./clinical.js";
+import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { DIALECT_IDS } from "./registry.js";
 
 afterEach(() => {

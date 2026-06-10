@@ -23,13 +23,7 @@
  * Schema so the later lift to Pydantic-generated schemas is mechanical.
  */
 
-import {
-	type CompoundRef,
-	type NodeKind,
-	type Node,
-	type ParamRef,
-	type Slot,
-} from "../grammar/types.js";
+import type { CompoundRef, Node, NodeKind, ParamRef, Slot } from "../grammar/types.js";
 
 /* ---------------------------------------------------------------------------
  * Params schema — a minimal, structural JSON-Schema subset.

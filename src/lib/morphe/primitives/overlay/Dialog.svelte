@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Dialog — a MODAL overlay on the PLATFORM TOP LAYER. The native dialog element
 	 * + showModal(): the top layer (above everything, no z-index wars, no portal,
@@ -27,11 +28,11 @@
 	 * through SLOTS -> intents -> scales; no raw scale or hex is named here.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Dialog } from "../../grammar/types.js";
+	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
 	import { SLOTS } from "../../tokens/slots.js";
-	import Node from "../../render/Node.svelte";
 
 	let { node, ctx }: PrimitiveProps<Dialog> = $props();
 	const store = useMorpheStore();
