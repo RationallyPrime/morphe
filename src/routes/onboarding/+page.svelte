@@ -1,17 +1,27 @@
 <script lang="ts">
 	import { registerSiteCompounds } from "$lib/site";
 	import Onboarding from "$lib/site/Onboarding.svelte";
+	import OnboardingGate from "$lib/site/OnboardingGate.svelte";
 	import type { Node } from "$morphe";
 	/*
-	 * /onboarding — the guided intake flow. A Morphe intro tree frames it; the flow
-	 * itself is a native control surface ($lib/site/Onboarding). Reachable from the
-	 * marketing CTAs and the nav.
+	 * /onboarding — the guided intake flow, behind the stateless magic-link gate
+	 * (ADR-0001; +page.server.ts decides open/granted/locked per request). A
+	 * Morphe intro tree frames it; the flow and the gate screen are native
+	 * control surfaces ($lib/site/Onboarding, $lib/site/OnboardingGate).
+	 * Reachable from the marketing CTAs and the nav.
 	 */
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+	import type { PageProps } from "./$types";
+
+	const { data }: PageProps = $props();
 
 	registerSiteCompounds();
 
-	const intro: Node = {
+	const gateLede =
+		"Onboarding starts with your work email: we send a link, the link opens the intake. One click, no password — it keeps the conversation anchored to a real inbox.";
+
+	// $derived: data updates in place when navigating locked → token-granted.
+	const intro: Node = $derived({
 		kind: "compound",
 		name: "SiteHero",
 		emphasis: "strong",
@@ -21,12 +31,14 @@
 			lede: {
 				kind: "text",
 				value:
-					"A few minutes now sharpens the first conversation. The more you tell us about your systems and where the cross-system work hurts, the more concrete Sókrates can be. Your draft saves as you go, so you can stop and come back.",
+					data.gate === "locked"
+						? gateLede
+						: "A few minutes now sharpens the first conversation. The more you tell us about your systems and where the cross-system work hurts, the more concrete Sókrates can be. Your draft saves as you go, so you can stop and come back.",
 				as: "body",
 				emphasis: "muted",
 			},
 		},
-	};
+	});
 </script>
 
 <svelte:head>
@@ -45,7 +57,11 @@
 
 <section class="s-section recessed">
 	<div class="s-wrap--wide">
-		<Onboarding />
+		{#if data.gate === "locked"}
+			<OnboardingGate tokenError={data.tokenError} />
+		{:else}
+			<Onboarding token={data.token} prefillEmail={data.email} />
+		{/if}
 	</div>
 </section>
 

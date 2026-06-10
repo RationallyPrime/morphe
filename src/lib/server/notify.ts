@@ -13,10 +13,8 @@
  * so the UI can offer a mailto fallback rather than silently swallow a lead. No
  * customer auto-reply is ever sent from here — the founder replies by hand.
  *
- * Env (all optional):
- *   POSTMARK_SERVER_TOKEN         — Postmark server API token; without it, no email
- *   SOKRATES_EMAIL_FROM           — sender, defaults to no-reply@sokrates.is
- *                                   (must be on the Postmark-verified domain)
+ * Env (all optional; the email channel's POSTMARK_SERVER_TOKEN / SOKRATES_EMAIL_FROM
+ * live in $lib/server/email):
  *   SOKRATES_EMAIL_TO             — recipient, defaults to hakon@sokrates.is
  *   SOKRATES_ALERT_NTFY_TOPIC     — the ntfy topic; without it, no push
  *   SOKRATES_ALERT_NTFY_TOKEN     — bearer token for a protected topic
@@ -25,6 +23,7 @@
  */
 
 import { env } from "$env/dynamic/private";
+import { sendTransactionalEmail } from "./email.js";
 
 export interface FounderAlert {
 	/** Email subject / ntfy notification title. */
@@ -45,36 +44,17 @@ export interface DeliveryResult {
 /** Per-channel outcome; null means the channel is not configured. */
 type ChannelResult = { delivered: true } | { delivered: false; reason: string } | null;
 
-const POSTMARK_API = "https://api.postmarkapp.com/email";
-const DEFAULT_FROM = "no-reply@sokrates.is";
 const DEFAULT_TO = "hakon@sokrates.is";
 
 async function sendPostmarkEmail(alert: FounderAlert): Promise<ChannelResult> {
-	const token = env.POSTMARK_SERVER_TOKEN;
-	if (!token) return null;
-
-	try {
-		const res = await fetch(POSTMARK_API, {
-			method: "POST",
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				"X-Postmark-Server-Token": token,
-			},
-			body: JSON.stringify({
-				From: env.SOKRATES_EMAIL_FROM ?? DEFAULT_FROM,
-				To: env.SOKRATES_EMAIL_TO ?? DEFAULT_TO,
-				Subject: alert.title,
-				TextBody: alert.body,
-				...(alert.email ? { ReplyTo: alert.email } : {}),
-				MessageStream: "outbound",
-			}),
-		});
-		if (!res.ok) return { delivered: false, reason: `postmark-${res.status}` };
-		return { delivered: true };
-	} catch {
-		return { delivered: false, reason: "postmark-network" };
-	}
+	const result = await sendTransactionalEmail({
+		to: env.SOKRATES_EMAIL_TO ?? DEFAULT_TO,
+		subject: alert.title,
+		textBody: alert.body,
+		...(alert.email ? { replyTo: alert.email } : {}),
+	});
+	if (result === null) return null;
+	return result.sent ? { delivered: true } : { delivered: false, reason: result.reason };
 }
 
 async function sendNtfyPush(alert: FounderAlert): Promise<ChannelResult> {

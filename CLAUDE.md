@@ -46,10 +46,10 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 
 - `/` — home: the marketing landing with the **composer as the interactive centerpiece**.
 - `/how-it-works`, `/architecture` — marketing pages, authored as Morphe trees (`$lib/site` presenters).
-- `/onboarding` — the multi-step intake flow (native control surface + Morphe progress/confirmation trees).
+- `/onboarding` — the multi-step intake flow (native control surface + Morphe progress/confirmation trees), behind the stateless magic-link gate (ADR-0001; fail-open when `MAGIC_LINK_SECRET` is absent).
 - `/substrate` — the dignity demo (the substrate itself; the dialect toggle lives here).
 - Redirects: `/compose` → `/`, `/dignity` → `/substrate`.
-- Endpoints: `/api/rerank` (Voyage reranker, server-side key), `/api/contact` + `/api/onboarding` (ntfy-to-founder forward, graceful when env is absent).
+- Endpoints: `/api/rerank` (Voyage reranker, server-side key), `/api/contact` + `/api/onboarding` (founder alerts: Postmark email + ntfy push via `$lib/server/notify`, graceful when env is absent), `/api/onboarding/request-link` (magic-link email to the visitor via `$lib/server/email`). Server env: `POSTMARK_SERVER_TOKEN`, `MAGIC_LINK_SECRET`, optional `SOKRATES_EMAIL_FROM`/`SOKRATES_EMAIL_TO`.
 - Real brand assets in `static/images/` (`sokrates-mark.svg`, `the-box.png`, `reykjavik-arch.png`). Marketing copy is canonical in **`/home/rationallyprime/projects/sokrates-website/marketing-context.md`** (voice = "Quiet Confidence"); copy is centralised in `$lib/site/present.ts` (EN; localise there later — the user owns the Icelandic copy).
 
 ## Adding things (the right way)

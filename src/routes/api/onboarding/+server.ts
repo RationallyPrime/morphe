@@ -1,12 +1,14 @@
 /*
- * POST /api/onboarding — an onboarding intake submission. Formats the intake into
- * a readable brief and alerts the founder (Postmark email + ntfy push; see
- * $lib/server/notify). No customer auto-reply; the founder follows up by hand.
- * Returns 503 when delivery is not configured / fails, so the client can offer a
- * mailto fallback and never lose an intake.
+ * POST /api/onboarding — an onboarding intake submission. When the magic-link
+ * gate is configured (ADR-0001) the intake must carry a signature-valid token.
+ * Formats the intake into a readable brief and alerts the founder (Postmark
+ * email + ntfy push; see $lib/server/notify). No customer auto-reply; the
+ * founder follows up by hand. Returns 503 when delivery is not configured /
+ * fails, so the client can offer a mailto fallback and never lose an intake.
  */
 
 import { json } from "@sveltejs/kit";
+import { magicLinkConfigured, verifyMagicToken } from "$lib/server/magic-link";
 import { sendFounderAlert } from "$lib/server/notify";
 import type { RequestHandler } from "./$types";
 
@@ -32,6 +34,7 @@ interface OnbBody {
 	systems?: OnbSystem[];
 	priorities?: { workflow?: unknown }[];
 	outcomes?: unknown;
+	token?: unknown;
 }
 
 function str(v: unknown): string {
@@ -44,6 +47,18 @@ export const POST: RequestHandler = async ({ request }) => {
 		body = (await request.json()) as OnbBody;
 	} catch {
 		return json({ ok: false, error: "invalid-body" }, { status: 400 });
+	}
+
+	// When the gate is configured, an intake must carry a token whose SIGNATURE
+	// checks out. Expiry is deliberately ignored here (ADR-0001): filling the
+	// form can outlast the TTL, and the signature already proves the email was
+	// verified at the gate. Unconfigured gate → open, same as the page.
+	if (magicLinkConfigured()) {
+		const token = typeof body.token === "string" ? body.token : "";
+		const verdict = verifyMagicToken(token, { ignoreExpiry: true });
+		if (!verdict?.valid) {
+			return json({ ok: false, error: "gate" }, { status: 403 });
+		}
 	}
 
 	const contact = body.contact ?? {};

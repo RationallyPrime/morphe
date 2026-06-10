@@ -5,10 +5,17 @@
  * Systems -> Priorities -> Outcomes) with a clickable stepper, debounced
  * localStorage draft persistence (so a reload or a phone interruption never
  * loses progress), and a submit that posts to /api/onboarding (founder alert via
- * ntfy). On a delivery failure it offers a mailto fallback so an intake is never
- * lost. No auth gate: this is the marketing intake, not the gated portal.
+ * Postmark email + ntfy). On a delivery failure it offers a mailto fallback so an
+ * intake is never lost. The magic-link gate (ADR-0001) lives in the route, not
+ * here: the page passes the verified token (sent along on submit) and the
+ * gate-verified email as a prefill.
  */
 import { onMount } from "svelte";
+
+let {
+	token = null,
+	prefillEmail = null,
+}: { token?: string | null; prefillEmail?: string | null } = $props();
 
 const FOUNDER_EMAIL = "hakon@sokrates.is";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,6 +165,8 @@ onMount(() => {
 	} catch {
 		// A corrupt draft is discarded silently — start fresh.
 	}
+	// A draft with no email must not clobber the gate-verified prefill.
+	if (!contact.email.trim() && prefillEmail) contact.email = prefillEmail;
 });
 
 // Debounced autosave. $effect skips SSR, so the draft is client-only.
@@ -224,6 +233,7 @@ async function submit(): Promise<void> {
 					.filter((p) => p.workflow.trim().length > 0)
 					.map((p) => $state.snapshot(p)),
 				outcomes: outcomes.trim(),
+				...(token ? { token } : {}),
 			}),
 		});
 		const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
