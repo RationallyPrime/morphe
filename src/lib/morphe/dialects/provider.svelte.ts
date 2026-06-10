@@ -43,6 +43,14 @@ function clamp(n: number, lo: number, hi: number): number {
 /**
  * Collect authored intent refs not present in the active dialect's intent set.
  * Only `intent` is inspected; feedback `tone` is a closed grammar union.
+ *
+ * CompoundRefs are walked through their AUTHORED surface — slot fills and
+ * node-valued args — not their expansion: `childrenOf` returns [] for a
+ * compound (a ref has no structural children until the registry expands it),
+ * but the nodes the CALL SITE wrote ride `slots`/`args` and carry authored
+ * intents the dev warning must see. Template-internal intents are the
+ * compound author's concern and are covered by the registration gate's
+ * default-args expansion, not this walk.
  */
 export function unknownIntentsIn(
 	tree: Node,
@@ -50,9 +58,19 @@ export function unknownIntentsIn(
 ): string[] {
 	const known = new Set(Object.keys(intents));
 	const unknown: string[] = [];
+	const isNode = (v: unknown): v is Node =>
+		v !== null && typeof v === "object" && "kind" in (v as object);
 	const walk = (node: Node): void => {
 		if ("intent" in node && typeof node.intent === "string" && !known.has(node.intent)) {
 			unknown.push(node.intent);
+		}
+		if (node.kind === "compound") {
+			for (const fills of Object.values(node.slots ?? {})) {
+				for (const fill of fills) walk(fill);
+			}
+			for (const arg of Object.values(node.args)) {
+				if (isNode(arg)) walk(arg);
+			}
 		}
 		for (const child of childrenOf(node)) walk(child);
 	};

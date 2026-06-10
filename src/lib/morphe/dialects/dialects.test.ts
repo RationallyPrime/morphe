@@ -210,6 +210,36 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 			unknownIntentsIn({ kind: "text", value: "valid", intent: "provenance" }, DEFAULT_DIALECT.intents),
 		).toEqual([]);
 	});
+
+	it("unknownIntentsIn walks a CompoundRef's authored surface: slot fills and node args", () => {
+		// childrenOf returns [] for a compound, so without the explicit walk the
+		// CALL SITE's authored intents would escape the dev warning entirely.
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "compound",
+					name: "whatever",
+					args: {
+						title: { kind: "text", value: "via arg", intent: "provenance" },
+						sub: { kind: "text", value: "typo'd via arg", intent: "evidense" },
+						plain: "a non-node arg is skipped",
+					},
+					slots: {
+						foot: [
+							{ kind: "badge", label: "typo'd via slot", intent: "acession" },
+							{ kind: "text", value: "valid via slot", intent: "accession" },
+						],
+					},
+				},
+			],
+		};
+		expect(unknownIntentsIn(tree, DEFAULT_DIALECT.intents).sort()).toEqual([
+			"acession",
+			"evidense",
+		]);
+	});
 });
 
 describe("FP4 — the swap is a clean subtree-boundary injection", () => {
