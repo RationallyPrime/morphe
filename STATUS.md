@@ -16,17 +16,17 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (486 files) |
-| Tests | `bun run test` (`vitest run`) | **224/224 passing** across 10 files |
+| Tests | `bun run test` (`vitest run`) | **233/233 passing** across 13 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (224 total)
+### Test breakdown (233 total)
 
 - `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
   dialect-restriction suite).
-- `src/lib/morphe/dialects/dialects.test.ts` — 38 (Lemma-4 fixed-point parity
+- `src/lib/morphe/dialects/dialects.test.ts` — 39 (Lemma-4 fixed-point parity
   across all three dialects + no-raw-color channel guard + compound-subset
-  resolution).
+  resolution + CompoundRef authored-surface intent walk).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
 - `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
@@ -43,8 +43,16 @@ Package manager is **bun** (never npm/pnpm/yarn).
   injected clock, tier unforgeability, and the architecture scans — store
   reads stay inside declared-bind primitives, no primitive touches the
   escalation context).
+- `src/lib/morphe/state/actions.test.ts` — 3 (R1.4 action lookup: mapped id
+  fires, unmapped id dev-warns and no-ops, missing id never looks up).
+- `src/lib/morphe/state/digest.test.ts` — 3 (R1.3 ContextDigest: versioned
+  JSON-round-trippable snapshot, escalation wrapping captures the
+  point-in-time digest).
 - `src/lib/compose/compose.test.ts` — 37 (composer: corpus grounding
   invariants, presenters, ranking policy).
+- `src/lib/compose/replay.test.ts` — 2 (Corollary 2 replay harness:
+  recorded digest/input pairs replay deterministically through real compose
+  presenters).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
 - `src/lib/site/site.test.ts` — 13 (site compounds pass the factory gate on a
   fresh registry; every site presenter emits only resolvable compound refs —
@@ -110,7 +118,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 166/166 passing
+bun run test       # vitest run                      → 233/233 passing
 bun run build      # vite build                      → client + SSR bundles
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```
