@@ -130,7 +130,7 @@
 		color: var(--mo-intent-on-surface);
 	}
 	.palette::backdrop {
-		background: var(--mo-scrim, rgb(0 0 0 / 60%));
+		background: var(--mo-scrim);
 	}
 
 	.palette__field {

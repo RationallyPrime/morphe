@@ -54,10 +54,13 @@ export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js"
 export { activeDialect } from "./dialects/active.svelte.js";
 export { resolveArrivalDialect } from "./dialects/arrival.js";
 export { clinical } from "./dialects/clinical.js";
-export { DEFAULT_DIALECT, icelandicArchive } from "./dialects/icelandic-archive.js";
+export { gallery } from "./dialects/gallery.js";
+export { icelandicArchive } from "./dialects/icelandic-archive.js";
+export { night } from "./dialects/night.js";
 export type { AppliedDialect } from "./dialects/provider.svelte.js";
 export { applyDialect, dialectStyle } from "./dialects/provider.svelte.js";
 export {
+	DEFAULT_DIALECT,
 	DEFAULT_DIALECT_ID,
 	DIALECT_IDS,
 	DIALECTS,

@@ -135,19 +135,21 @@ describe("I2 — palette matching over the registered vocabulary", () => {
 });
 
 describe("I3 — the flip-the-lights tracer morph (one engine path)", () => {
-	it("toggles gallery -> night -> gallery, announcing each ground", () => {
-		// From the shipped default (NOT in the pair) the first flip turns the
-		// lights ON — deterministic from any starting ground.
-		expect(activeDialect.id).toBe("icelandic-archive");
-
-		expect(intentEngine.execute(flipIntent)).toEqual({ kind: "morphed" });
+	it("toggles night -> gallery -> night, announcing each ground", () => {
+		// The shipped default IS the light half (KRA-354), so the first flip
+		// turns the lights off; from any ground OUTSIDE the pair a flip turns
+		// them on — deterministic either way.
 		expect(activeDialect.id).toBe("gallery");
-		expect(intentEngine.announcement).toContain("Gallery");
 
 		expect(intentEngine.execute(flipIntent)).toEqual({ kind: "morphed" });
 		expect(activeDialect.id).toBe("night");
 		expect(intentEngine.announcement).toContain("Night");
 
+		expect(intentEngine.execute(flipIntent)).toEqual({ kind: "morphed" });
+		expect(activeDialect.id).toBe("gallery");
+		expect(intentEngine.announcement).toContain("Gallery");
+
+		activeDialect.setById("icelandic-archive");
 		expect(intentEngine.execute(flipIntent)).toEqual({ kind: "morphed" });
 		expect(activeDialect.id).toBe("gallery");
 	});
@@ -156,7 +158,7 @@ describe("I3 — the flip-the-lights tracer morph (one engine path)", () => {
 		const nav = SITE_INTENTS.find((i) => i.id === "technical-version") as SiteIntent;
 		expect(intentEngine.execute(nav)).toEqual({ kind: "navigate", href: "/architecture" });
 		// No side effects: dialect untouched, no announcement.
-		expect(activeDialect.id).toBe("icelandic-archive");
+		expect(activeDialect.id).toBe("gallery");
 	});
 });
 

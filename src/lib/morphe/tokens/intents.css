@@ -1,44 +1,151 @@
 /*
  * Morphe INTENTS — default dialect mapping (Lemma 3 + Lemma 4).
  *
- * These are the CORE intents mapped onto the neutral scales for the DEFAULT
- * 'icelandic-archive' dialect. Re-dialecting / re-theming is exactly a remap of
- * THIS block (scoped under a `[data-mo-dialect="…"]` selector by the provider),
- * under which nothing authored changes (Lemma 3 fixed-point).
+ * Two static blocks:
+ *
+ *   1. `:root` (+ the explicit `[data-mo-dialect="gallery"]` scope) — the
+ *      DEFAULT dialect's mapping. ADR-0005 §2 (D6): the gallery light ground
+ *      is the shipped default, so this is what paints before any JS and what
+ *      native chrome OUTSIDE a MorpheRoot stands on. It must agree, value for
+ *      value, with `dialects/gallery.ts` — pinned by the data ⇄ CSS agreement
+ *      suite in dialects.test.ts.
+ *   2. `[data-mo-dialect="icelandic-archive"]` — the retired-as-default
+ *      Archive mapping, kept registered (the substrate demo's fixed point).
+ *      It must agree with `dialects/icelandic-archive.ts`, same suite.
+ *
+ * Every other dialect paints exclusively through the provider's inline var
+ * spread at the MorpheRoot boundary (applyDialect), so no further static
+ * blocks exist. Dialect-agnostic globals (disabled opacity, the font handles)
+ * live in `:root` only and inherit through every scope.
  *
  * Naming convention (see tokens/intents.ts -> intentVar):
- *   --mo-intent-<name>-<channel>   channel ∈ {surface,on,hover,border,ring}
+ *   --mo-intent-<name>-<channel>
+ *   channel ∈ {surface,on,hover,border,ring,active,disabled}
  *
- * The Archive reading of the core intents:
- *   primary-action = the amber beacon (#f2ca50) — a beacon, used sparingly
- *   neutral        = quiet surface-tone controls
- *   provenance     = blue (citation/lineage) — "where this came from"
- *   evidence       = on-surface forward, the document body register
- *   accession      = amber-dim (the archival catalog accent)
- *   caution        = red family
- *   success        = green family
- *   info           = blue family
+ * The GALLERY reading of the core intents (the museum wall):
+ *   primary-action = electric cobalt on paper — a beacon, used sparingly
+ *   neutral        = quiet plaster chrome, ink text
+ *   provenance     = the wall label (solid ink-navy panel, ice text)
+ *   evidence       = near-paper, ink forward, the document register
+ *   accession      = the faintest cobalt wash (a shelfmark in blue pencil)
+ *   caution        = pale red wash, deep red text
+ *   success        = pale green wash, deep green text
+ *   info           = a present cobalt wash, louder than accession
  */
 
 :root,
+[data-mo-dialect="gallery"] {
+	/* --- Base surfaces (paper tonal layering; no shadows) ------------------- */
+	--mo-intent-surface-base: var(--mo-bone-4);
+	--mo-intent-surface-raised: var(--mo-bone-5);
+	--mo-intent-surface-sunken: var(--mo-bone-2);
+	--mo-intent-surface-overlay: var(--mo-bone-6);
+	--mo-intent-on-surface: var(--mo-cobalt-800);
+	--mo-intent-on-surface-muted: color-mix(in srgb, var(--mo-cobalt-800) 72%, transparent);
+	--mo-intent-outline: color-mix(in srgb, var(--mo-cobalt-800) 24%, transparent);
+	/* Modal backdrop — dims the wall toward the vitrine darkness. */
+	--mo-scrim: color-mix(in srgb, var(--mo-cobalt-950) 46%, transparent);
+	/* Global disabled opacity (dialect-agnostic; lives in :root only). */
+	--mo-disabled-opacity: 0.5;
+
+	/* --- primary-action (the cobalt beacon on paper) ------------------------ */
+	--mo-intent-primary-action-surface: var(--mo-cobalt-600);
+	--mo-intent-primary-action-on: var(--mo-cobalt-100);
+	--mo-intent-primary-action-hover: var(--mo-cobalt-500);
+	--mo-intent-primary-action-border: var(--mo-cobalt-700);
+	--mo-intent-primary-action-ring: var(--mo-cobalt-600);
+	--mo-intent-primary-action-active: var(--mo-cobalt-700);
+	--mo-intent-primary-action-disabled: color-mix(
+		in srgb,
+		var(--mo-cobalt-600) 38%,
+		var(--mo-bone-2)
+	);
+
+	/* --- neutral ------------------------------------------------------------ */
+	--mo-intent-neutral-surface: var(--mo-bone-2);
+	--mo-intent-neutral-on: var(--mo-cobalt-800);
+	--mo-intent-neutral-hover: var(--mo-bone-1);
+	--mo-intent-neutral-border: color-mix(in srgb, var(--mo-cobalt-800) 30%, var(--mo-bone-1));
+	--mo-intent-neutral-ring: var(--mo-cobalt-600);
+	--mo-intent-neutral-active: var(--mo-bone-0);
+	--mo-intent-neutral-disabled: color-mix(in srgb, var(--mo-bone-2) 60%, var(--mo-bone-4));
+
+	/* --- provenance (the wall label) ----------------------------------------- */
+	--mo-intent-provenance-surface: var(--mo-cobalt-800);
+	--mo-intent-provenance-on: var(--mo-cobalt-100);
+	--mo-intent-provenance-hover: color-mix(in srgb, var(--mo-cobalt-800) 86%, var(--mo-cobalt-600));
+	--mo-intent-provenance-border: var(--mo-cobalt-700);
+	--mo-intent-provenance-ring: var(--mo-cobalt-600);
+	--mo-intent-provenance-active: color-mix(in srgb, var(--mo-cobalt-800) 76%, var(--mo-cobalt-600));
+	--mo-intent-provenance-disabled: color-mix(in srgb, var(--mo-cobalt-800) 40%, var(--mo-bone-2));
+
+	/* --- evidence (the record register; near-paper) --------------------------- */
+	--mo-intent-evidence-surface: var(--mo-bone-3);
+	--mo-intent-evidence-on: var(--mo-cobalt-800);
+	--mo-intent-evidence-hover: var(--mo-bone-2);
+	--mo-intent-evidence-border: color-mix(in srgb, var(--mo-cobalt-800) 22%, var(--mo-bone-1));
+	--mo-intent-evidence-ring: var(--mo-cobalt-600);
+	--mo-intent-evidence-active: var(--mo-bone-1);
+	--mo-intent-evidence-disabled: color-mix(in srgb, var(--mo-bone-3) 60%, var(--mo-bone-4));
+
+	/* --- accession (the shelfmark in blue pencil) ----------------------------- */
+	--mo-intent-accession-surface: color-mix(in srgb, var(--mo-cobalt-500) 14%, var(--mo-bone-4));
+	--mo-intent-accession-on: var(--mo-cobalt-700);
+	--mo-intent-accession-hover: color-mix(in srgb, var(--mo-cobalt-500) 20%, var(--mo-bone-4));
+	--mo-intent-accession-border: color-mix(in srgb, var(--mo-cobalt-600) 45%, var(--mo-bone-1));
+	--mo-intent-accession-ring: var(--mo-cobalt-600);
+	--mo-intent-accession-active: color-mix(in srgb, var(--mo-cobalt-500) 26%, var(--mo-bone-4));
+	--mo-intent-accession-disabled: color-mix(in srgb, var(--mo-cobalt-500) 6%, var(--mo-bone-3));
+
+	/* --- caution (pale red wash, deep red text) -------------------------------- */
+	--mo-intent-caution-surface: color-mix(in srgb, var(--mo-red-500) 16%, var(--mo-bone-5));
+	--mo-intent-caution-on: var(--mo-red-700);
+	--mo-intent-caution-hover: color-mix(in srgb, var(--mo-red-500) 22%, var(--mo-bone-5));
+	--mo-intent-caution-border: color-mix(in srgb, var(--mo-red-500) 55%, var(--mo-bone-1));
+	--mo-intent-caution-ring: var(--mo-red-500);
+	--mo-intent-caution-active: color-mix(in srgb, var(--mo-red-500) 28%, var(--mo-bone-5));
+	--mo-intent-caution-disabled: color-mix(in srgb, var(--mo-red-500) 8%, var(--mo-bone-3));
+
+	/* --- success (pale green wash, deep green text) ----------------------------- */
+	--mo-intent-success-surface: color-mix(in srgb, var(--mo-green-500) 18%, var(--mo-bone-5));
+	--mo-intent-success-on: var(--mo-green-on);
+	--mo-intent-success-hover: color-mix(in srgb, var(--mo-green-500) 24%, var(--mo-bone-5));
+	--mo-intent-success-border: color-mix(in srgb, var(--mo-green-500) 60%, var(--mo-bone-1));
+	--mo-intent-success-ring: var(--mo-green-500);
+	--mo-intent-success-active: color-mix(in srgb, var(--mo-green-500) 30%, var(--mo-bone-5));
+	--mo-intent-success-disabled: color-mix(in srgb, var(--mo-green-500) 8%, var(--mo-bone-3));
+
+	/* --- info (a present cobalt wash) ------------------------------------------ */
+	--mo-intent-info-surface: color-mix(in srgb, var(--mo-cobalt-500) 24%, var(--mo-bone-5));
+	--mo-intent-info-on: var(--mo-cobalt-700);
+	--mo-intent-info-hover: color-mix(in srgb, var(--mo-cobalt-500) 30%, var(--mo-bone-5));
+	--mo-intent-info-border: color-mix(in srgb, var(--mo-cobalt-500) 60%, var(--mo-bone-1));
+	--mo-intent-info-ring: var(--mo-cobalt-500);
+	--mo-intent-info-active: color-mix(in srgb, var(--mo-cobalt-500) 36%, var(--mo-bone-5));
+	--mo-intent-info-disabled: color-mix(in srgb, var(--mo-cobalt-500) 10%, var(--mo-bone-3));
+
+	/* --- Font family handles surfaced at the intent layer ------------------- */
+	--mo-font-headline: var(--mo-font-display);
+	--mo-font-label: var(--mo-font-mono);
+}
+
+/*
+ * The Archive reading — retired as the default (ADR-0005), registered still.
+ * Selecting it on /substrate re-themes through this block + the provider's
+ * boundary spread; the values agree with dialects/icelandic-archive.ts.
+ */
 [data-mo-dialect="icelandic-archive"] {
 	/* --- Base surfaces (tonal layering; no shadows) ------------------------- */
 	--mo-intent-surface-base: var(--mo-neutral-1);
 	--mo-intent-surface-raised: var(--mo-neutral-4);
 	--mo-intent-surface-sunken: var(--mo-neutral-0);
-	/* Overlay panel surface — the highest tonal tier (Dialog/Popover body); depth
-	   via tone, not the seed's shadow-lg. */
 	--mo-intent-surface-overlay: var(--mo-neutral-6);
 	--mo-intent-on-surface: var(--mo-neutral-11);
 	--mo-intent-on-surface-muted: color-mix(in srgb, var(--mo-neutral-11) 74%, transparent);
 	--mo-intent-outline: color-mix(in srgb, var(--mo-neutral-7) 70%, transparent);
-	/* Modal backdrop — the one overlay token expressed purely as a translucent
-	   fill (no tonal-layering substitute exists for a scrim). */
 	--mo-scrim: color-mix(in srgb, var(--mo-neutral-0) 62%, transparent);
-	/* Global disabled opacity (opacity-based disabling, matching the seed). */
-	--mo-disabled-opacity: 0.5;
 
-	/* --- primary-action (the beacon) --------------------------------------- */
+	/* --- primary-action (the amber beacon) ---------------------------------- */
 	--mo-intent-primary-action-surface: var(--mo-amber-500);
 	--mo-intent-primary-action-on: var(--mo-amber-on);
 	--mo-intent-primary-action-hover: var(--mo-amber-400);
@@ -51,7 +158,7 @@
 		var(--mo-neutral-3)
 	);
 
-	/* --- neutral ----------------------------------------------------------- */
+	/* --- neutral ------------------------------------------------------------ */
 	--mo-intent-neutral-surface: var(--mo-neutral-4);
 	--mo-intent-neutral-on: var(--mo-neutral-11);
 	--mo-intent-neutral-hover: var(--mo-neutral-5);
@@ -113,8 +220,4 @@
 	--mo-intent-info-ring: var(--mo-blue-500);
 	--mo-intent-info-active: color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-neutral-3));
 	--mo-intent-info-disabled: color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3));
-
-	/* --- Font family handles surfaced at the intent layer ------------------- */
-	--mo-font-headline: var(--mo-font-display);
-	--mo-font-label: var(--mo-font-mono);
 }

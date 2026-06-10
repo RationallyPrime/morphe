@@ -22,7 +22,7 @@
 
 import { clinical } from "./clinical.js";
 import { gallery } from "./gallery.js";
-import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
+import { icelandicArchive } from "./icelandic-archive.js";
 import { night } from "./night.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
 import { timaeus } from "./timaeus.js";
@@ -40,6 +40,17 @@ export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[gallery.id]: gallery,
 	[night.id]: night,
 });
+
+/**
+ * The dialect used when nothing more specific is selected — owned HERE, by the
+ * registry (the single source of dialect truth), not by any dialect module.
+ * ADR-0005 §2 (D6): the gallery light ground is the shipped default; the
+ * amber-on-charcoal Archive identity is retired as the default but remains a
+ * registered dialect (the substrate demo's fixed point). The static `:root`
+ * fallback in tokens/intents.css MUST agree with this choice — pinned by the
+ * data ⇄ CSS agreement suite in dialects.test.ts.
+ */
+export const DEFAULT_DIALECT: Dialect = gallery;
 
 /** The id of the dialect used when nothing more specific is selected. */
 export const DEFAULT_DIALECT_ID: string = DEFAULT_DIALECT.id;

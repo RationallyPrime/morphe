@@ -211,6 +211,3 @@ export const icelandicArchive: Dialect = {
 	},
 	compounds: [],
 };
-
-/** The default dialect handle used when no persona-specialized dialect applies. */
-export const DEFAULT_DIALECT: Dialect = icelandicArchive;
