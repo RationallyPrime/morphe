@@ -632,9 +632,12 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 
 `src/lib/morphe/delegation/envelope.ts` owns the emission envelope
 `{ epoch, tree, choices }` and `Delta { id, choice, epoch }`. The epoch is
-host-side and pre-render only: `applyDelta` (R2.2) checks it, rejects stale work,
-and records accepted choices in the envelope. Epochs never enter `grammar/` and
-never reach `MorpheRoot`; the renderer sees only choices after R2.3.
+host-side and pre-render only: `applyDelta(envelope, delta)` checks it first,
+rejects stale work, rejects unknown ids and out-of-range choices, and records
+accepted choices in the envelope. Rejections return the exact same envelope
+object; accepted deltas clone the envelope and choice map without mutating the
+tree. Epochs never enter `grammar/` and never reach `MorpheRoot`; the renderer
+sees only choices after R2.3.
 
 **One schema, three jobs** is the end-state, not the present: today the grammar
 is TS-first and has one consumer (svelte-check). The lift — Pydantic source of

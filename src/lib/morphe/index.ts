@@ -58,6 +58,8 @@ export { assertNever } from "./grammar/types.js";
 
 // Delegation envelope (Lemma 6 / ADR-0004)
 export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
+export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
+export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
 
 // Context algebra (Lemma 2)
 export type { MorpheContext, ScaleTier } from "./context/algebra.js";
