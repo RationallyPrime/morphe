@@ -125,21 +125,37 @@ one; tuning improves only quality").
 
 ## R3 — The Eidos lift (one schema, three jobs — `MIGRATION.md`)
 
-Sequenced after R2 so the lifted schema includes the full Lemma-6 grammar and
-the lift happens once.
+> **Re-sequenced 2026-06-10 (founder + review):** the monorepo landing moves
+> FORWARD — after R2, before the codegen/mask jobs. Rationale: R2.1 is the
+> last planned grammar mutation, so migrating after R2 means the grammar
+> arrives complete and the mirror is lifted once; and R3.2/R3.3 are exactly
+> the steps that want Eidos adjacency (the Pydantic provenance, capability
+> cards, the monorepo's robust CI) — building their pipeline in the sandbox
+> and then moving it is double work. Morphe also becomes the control-plane
+> UI substrate there, so the landing is a when, not an if. The sandbox repo
+> carries a thin interim CI (`.github/workflows/ci.yml`) for the remaining
+> window.
 
-- **R3.1 (L) Projection M source.** Pydantic v2 models mirroring
-  `grammar/types.ts` exactly (the file was kept logic-free for precisely this);
-  JSON Schema emission with the discriminator layout TS codegen needs.
-- **R3.2 (M) Codegen + parity gate.** Generate TS types from the schema;
-  CI gate: generated output is *type-compatible* with the current hand-written
-  `types.ts` (compile both against the whole codebase) before the swap; then
-  `types.ts` becomes generated, and the hand-written file retires.
-- **R3.3 (M) The third job.** The constrained-decoding mask artifact (full
-  grammar + per-dialect G|D restrictions); a pydantic-ai structured-output
-  demo emitting a valid tree end-to-end — the slow loop's first real breath.
-- **R3.4 (L) Monorepo landing.** Per `MIGRATION.md`: `src/lib/morphe/` moves;
-  routes stay behind. Layer guards enforce downward-only deps on arrival.
+- **R3.1 (L, ✔ shipped in-sandbox) Projection M source.** Pydantic v2 models
+  mirroring `grammar/types.ts` exactly (the file was kept logic-free for
+  precisely this); JSON Schema emission with the discriminator layout TS
+  codegen needs. Lives under `py/` until the landing; must be re-synced when
+  R2.1 extends the grammar.
+- **R3.2 (L, was R3.4) Monorepo landing.** Per `MIGRATION.md`: `src/lib/morphe/`
+  and `py/morphe_grammar` move next to Hyle/Eidos; TS/bun jobs grafted onto
+  the monorepo CI. Layer guards enforce downward-only deps on arrival.
+  **Owner decision needed first (grill-sized):** does the Sókrates site move
+  too, or stay behind consuming Morphe as a published package (bun workspaces
+  don't span repos)?
+- **R3.3 (M, was R3.2) Codegen + parity gate** — in the monorepo. Generate TS
+  types from the schema; CI gate: generated output is *type-compatible* with
+  the current hand-written `types.ts` (compile both against the whole
+  codebase) before the swap; then `types.ts` becomes generated, and the
+  hand-written file retires.
+- **R3.4 (M, was R3.3) The third job** — in the monorepo. The
+  constrained-decoding mask artifact (full grammar + per-dialect G|D
+  restrictions); a pydantic-ai structured-output demo emitting a valid tree
+  end-to-end — the slow loop's first real breath.
 
 **Exit:** "One schema, three jobs" is real; A1 stops being hypothetical.
 

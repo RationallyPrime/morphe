@@ -1,0 +1,101 @@
+# Morphe CI — the mechanical gate behind the two-agent assembly line.
+#
+# Two parallel jobs mirror the two stacks; every command here is exactly what
+# the repo runs locally (CONTRACT §1 gates + the py/ Astral gates), so a green
+# check means "the gates a human would have run by hand all passed".
+#
+# The SSR route smoke exists because of a real incident: a factory-gate
+# tightening landed green on types+tests while every marketing page 500'd at
+# SSR (compound registration happens at route-render time). Tests can miss
+# that class; curling the routes cannot.
+#
+# The schema byte-stability step is the seed of the R3.2 parity gate: the
+# committed schema/morphe-grammar.schema.json artifact must always equal a
+# fresh emission, or codegen consumers drift from the Pydantic source.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: web (svelte-check · vitest · build · SSR smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Types (svelte-check, 0 errors / 0 warnings)
+        run: bun run check
+
+      - name: Tests (vitest)
+        run: bun run test
+
+      - name: Build (vite, adapter-vercel)
+        run: bun run build
+
+      - name: SSR route smoke (every page renders, no 500s)
+        run: |
+          bun run dev --port 4173 &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:4173/ && break
+            sleep 1
+          done
+          fail=0
+          for route in / /substrate /how-it-works /architecture /onboarding; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4173$route")
+            echo "$route -> $code"
+            [ "$code" = "200" ] || fail=1
+          done
+          # Content markers: an error page can still be a 200 shell; assert the
+          # real SSR'd copy is present.
+          curl -s http://localhost:4173/substrate | grep -q "The whole site is data" || fail=1
+          curl -s http://localhost:4173/ | grep -q "AI department" || fail=1
+          exit $fail
+
+  python:
+    name: python (pytest · ruff · ty · schema stability)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --dev
+
+      - name: Tests (pytest)
+        run: uv run pytest
+
+      - name: Lint (ruff)
+        run: uv run ruff check
+
+      - name: Types (ty)
+        run: uv run ty check
+
+      - name: Schema artifact is byte-stable (proto parity gate, R3.2 seed)
+        run: |
+          uv run python -m morphe_grammar.schema > /tmp/morphe-grammar.schema.json
+          diff /tmp/morphe-grammar.schema.json schema/morphe-grammar.schema.json
