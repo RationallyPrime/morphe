@@ -110,7 +110,7 @@ async function submit(): Promise<void> {
 			<button class="submit" type="submit" disabled={!canSubmit}>
 				{status === "submitting" ? "Sending…" : "Send me the link"}
 			</button>
-			<span class="form__hint">One click, no password. The link is good for 30 minutes.</span>
+			<span class="form__hint">The link is good for 30 minutes.</span>
 		</div>
 
 		{#if status === "error"}

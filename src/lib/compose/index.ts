@@ -44,7 +44,6 @@ export { composeQuerySchema, parseQuery } from "./input.js";
 export type { ScoredCapability } from "./match.js";
 // Matching — deterministic, pure, read-only ranking (the local floor / fallback).
 export {
-	featuredCapabilities,
 	isSubsetSelected,
 	matchCapabilities,
 	scoreCapabilities,

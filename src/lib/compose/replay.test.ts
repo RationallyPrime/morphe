@@ -134,7 +134,7 @@ describe("ContextDigest replay harness — compose presenters", () => {
 			          "kind": "status",
 			          "tone": "info",
 			          "signal": {
-			            "text": "Read-only",
+			            "text": "Answers only",
 			            "icon": "visibility"
 			          }
 			        },

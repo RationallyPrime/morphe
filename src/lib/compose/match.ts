@@ -118,9 +118,8 @@ export function scoreCapabilities(
  * stated pain resolves to at least one of its pain tags: the pain is the question,
  * and the named systems gate eligibility and only boost the ranking among tag
  * matches (they do not, on their own, constitute a query). So an empty or
- * unrecognized pain yields `[]`, and the caller shows the honest breadth via
- * `featuredCapabilities` rather than dumping the whole catalogue when nothing was
- * actually asked.
+ * unrecognized pain yields `[]`, and the caller can invite a sharper question
+ * rather than dumping the whole catalogue when nothing was actually asked.
  */
 export function matchCapabilities(
 	query: ComposeQuery,
@@ -129,72 +128,4 @@ export function matchCapabilities(
 	return scoreCapabilities(query, corpus)
 		.filter((s) => s.matchedTags.length > 0)
 		.map((s) => s.capability);
-}
-
-/**
- * The default / empty-state set: a fixed, curated cross-section of high-leverage
- * capabilities spanning distinct pain tags AND distinct system families
- * (single-system for each of the three, the three cross-system pairs, and the
- * three-way "deal to delivery" loop) to show the breadth of what the appliance
- * maps.
- *
- * SUBSET-AWARE: the curated list is filtered to the capabilities whose required
- * systems are a subset of the visitor's selected systems, in this fixed
- * declaration order. So selecting only Twenty surfaces the Twenty-only featured
- * caps (never blank), adding dkPlus unlocks the dkPlus-only and Twenty×dkPlus
- * featured caps, and selecting all three shows the full curated spread.
- *
- * Fully deterministic — a hard-coded id allowlist resolved against the corpus in
- * declaration order, gated by subset, with any missing ids skipped.
- */
-const FEATURED_IDS: readonly string[] = [
-	// Single-system — so any single selection is never empty, one strong cap per
-	// distinct pain per system.
-	"twenty-stale-deal-detection", // [twenty] sales-pipeline
-	"twenty-duplicate-company-person-cleanup", // [twenty] master-data/contacts
-	"twenty-task-sla-and-activity-capture", // [twenty] approvals/crm
-	"humanity-open-shift-coverage-gaps", // [humanity] scheduling
-	"humanity-overtime-early-warning", // [humanity] overtime
-	"dkplus-customer-profitability-report", // [dkplus] margin/reporting
-	"dkplus-unbilled-customer-detector", // [dkplus] invoicing
-	// Humanity × dkPlus — the original two-system flagships, distinct tags.
-	"schedule-to-labor-cost-forecast", // labor-cost/forecasting
-	"auto-invoice-billable-labor", // invoicing
-	"real-time-margin-dashboard-by-location-project-customer", // margin/reporting
-	"payroll-exception-copilot", // payroll
-	"manager-daily-operating-brief", // reporting/scheduling
-	"auto-create-and-update-employees-across-both-systems", // master-data
-	// Twenty × dkPlus — CRM to ERP.
-	"won-opportunity-to-dkplus-customer-and-sales-order", // deals/invoicing
-	"quote-from-opportunity", // quoting/deals
-	"company-customer-sync", // master-data/contacts/crm
-	// Twenty × Humanity — CRM to scheduling.
-	"won-deal-to-staffing", // deals/scheduling
-	"contact-to-employee", // contacts/hiring
-	// Twenty × Humanity × dkPlus — the three-way loop.
-	"deal-to-delivery-staff-project-and-advance-stage", // deals/scheduling/invoicing
-	"deal-to-delivery-pipeline-to-capacity-forecast", // forecasting/sales-pipeline
-];
-
-/**
- * The curated featured set for a given selection of systems.
- *
- * Resolves `FEATURED_IDS` against the corpus in declaration order, keeping only
- * the capabilities whose required systems are a subset of `selected`. Pass the
- * visitor's `query.systems`; with all three systems selected the full curated
- * spread is returned, and the empty selection returns `[]` (no capability has an
- * empty required set, so nothing is universally featured).
- */
-export function featuredCapabilities(
-	selected: readonly SystemId[],
-	corpus: readonly Capability[] = CAPABILITIES,
-): readonly Capability[] {
-	const selectedSet = new Set<SystemId>(selected);
-	const byId = new Map<string, Capability>(corpus.map((c) => [c.id, c]));
-	const out: Capability[] = [];
-	for (const id of FEATURED_IDS) {
-		const cap = byId.get(id);
-		if (cap !== undefined && isSubsetSelected(cap.systems, selectedSet)) out.push(cap);
-	}
-	return out;
 }

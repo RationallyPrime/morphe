@@ -43,15 +43,6 @@ function link(
 	return { kind: "link", href, label, intent };
 }
 
-/** A required-alt image node. */
-function media(
-	src: string,
-	alt: string,
-	aspect: NonNullable<import("$morphe").Media["aspect"]> = "square",
-): Node {
-	return { kind: "media", src, alt, aspect };
-}
-
 /** A quiet mono eyebrow caption in the accession register. */
 function eyebrow(value: string): Node {
 	return t(value, "caption", { intent: "accession" });
@@ -71,121 +62,6 @@ function plateSrcset(slug: string, format: "avif" | "webp"): string {
  * ------------------------------------------------------------------------- */
 
 /**
- * The governance ladder: read -> propose -> act as three ordered steps. A REAL
- * sequence (the order carries the trust posture), so the numbers earn their
- * place. Reused on the home page and on /how-it-works.
- *
- * Composed ASYMMETRICALLY, not as an identical 3-up wall (DESIGN §5: no twin
- * symmetric step grids). The shape mirrors the trust posture itself: "Read" is
- * the always-on FOUNDATION, so it leads as one dominant full-width panel; then
- * "Propose" and "Act" — the dial you turn — sit as a 2-up beneath it. One
- * dominant item, varied panel weight, tight rhythm within the movement.
- */
-export function governanceLadder(): Node {
-	return {
-		kind: "stack",
-		role: "section",
-		direction: "block",
-		children: [
-			t("Read by default. Propose with evidence. Act under a signed envelope.", "heading", {
-				emphasis: "strong",
-			}),
-			t(
-				"Discovery is always on; action is the dial you turn as the track record accrues. Sókrates never confuses the two.",
-				"body",
-				{ emphasis: "muted" },
-			),
-			{ kind: "spacer", size: "sm" },
-			// DOMINANT — "Read", the standing default, owns a full-width step panel.
-			{
-				kind: "compound",
-				name: "SiteStep",
-				args: {
-					index: t("01", "subheading", { intent: "accession" }),
-					title: t("Read", "subheading", { emphasis: "strong" }),
-					body: t(
-						"The moment you connect it, Sókrates reads across your systems and answers cross-system questions with cited evidence. Read-side discovery needs nothing fresh from you; it is warranted the day you grant ingestion.",
-						"body",
-						{ emphasis: "muted" },
-					),
-				},
-			},
-			{ kind: "spacer", size: "sm" },
-			// THE DIAL — "Propose" and "Act" as quiet catalog entries beneath the
-			// dominant default (KRA-328: one raised moment per movement; the standing
-			// foundation keeps the exhibit case, the dial reads as its consequents).
-			{
-				kind: "grid",
-				role: "list",
-				minTrack: "regular",
-				children: [
-					{
-						kind: "compound",
-						name: "SiteEntry",
-						args: {
-							marker: t("02", "subheading", { intent: "accession" }),
-							heading: t("Propose", "subheading", { emphasis: "strong" }),
-							body: t(
-								"It drafts the fix and shows its work: the action, the rows it relied on, the envelope it would carry. Nothing has touched your systems. You read a proposal, not a fait accompli.",
-								"body",
-								{ emphasis: "muted" },
-							),
-						},
-					},
-					{
-						kind: "compound",
-						name: "SiteEntry",
-						args: {
-							marker: t("03", "subheading", { intent: "accession" }),
-							heading: t("Act", "subheading", { emphasis: "strong" }),
-							body: t(
-								"When you authorise a class of work, it executes and records each act under a signed envelope you can audit as one record. You turn the dial; you can turn it back.",
-								"body",
-								{ emphasis: "muted" },
-							),
-						},
-					},
-				],
-			},
-		],
-	};
-}
-
-/**
- * The sovereignty split: the on-prem appliance photographed, beside the
- * "your hardware, your data" copy. Reused on the home page and /how-it-works.
- */
-export function sovereigntySplit(): Node {
-	return {
-		kind: "compound",
-		name: "SiteFeatureSplit",
-		args: {
-			media: media(
-				"/images/the-box.png",
-				"The Sókrates appliance: a matte-black on-premises box with the amber mark etched into the lid, on a wooden desk.",
-			),
-			heading: t("Your hardware. Your data. Your department.", "heading", {
-				emphasis: "strong",
-			}),
-			body: t(
-				"The appliance ships to your premises and is yours from day one, behind your firewall. Sókrates reads live truth from the systems on your network; there is no cached copy in someone else's datacentre to drift or to leak.",
-				"body",
-				{ emphasis: "muted" },
-			),
-		},
-		slots: {
-			aside: [
-				t(
-					"Cancel, and the box, the data and the connectors stay with you. What ends is the continuous intelligence layer, not your ownership.",
-					"body",
-					{ emphasis: "muted" },
-				),
-			],
-		},
-	};
-}
-
-/**
  * A reusable closing CTA copy band (SiteCtaBanner). The page wraps it in a
  * native section and renders the contact / onboarding buttons beside it.
  */
@@ -199,7 +75,7 @@ export function closingCta(): Node {
 				emphasis: "strong",
 			}),
 			sub: t(
-				"No deck, no slides. Thirty minutes about the work, on or off the record. Your last AI consultant left you a PDF; we leave you a department.",
+				"Bring one workflow that keeps crossing systems. Thirty minutes is usually enough to find the first useful question.",
 				"body",
 				{ emphasis: "muted" },
 			),
@@ -234,132 +110,6 @@ export function homeHero(): Node {
 				{ emphasis: "muted" },
 			),
 		},
-	};
-}
-
-/**
- * The home body — the SUPPORT below the composer (WS1b), subordinate to it by
- * width and surface (the composer runs the wide recessed work surface; this is the
- * narrower editorial column on the base surface). Three movements: the
- * differentiators (a dominant feature row + a 2-up), the governance ladder (the
- * trust spine), then the typographic sovereignty beat. Vertical rhythm is varied
- * by design: `xl` spacers separate the movements (the native band layer lifts each
- * post-spacer block by a generous fluid gap) while children inside a movement sit
- * tight.
- */
-export function homeBody(): Node {
-	return {
-		kind: "frame",
-		role: "page",
-		surface: "base",
-		budget: 4,
-		children: [
-			// --- Differentiators: a dominant feature row + a 2-up of two minor panels,
-			// so the trio is no longer a uniform 3-up (the substrate claim leads).
-			{
-				kind: "stack",
-				role: "section",
-				direction: "block",
-				children: [
-					t("Not a chatbot. Not a consultant. A department that stays.", "heading", {
-						emphasis: "strong",
-					}),
-					{ kind: "spacer", size: "md" },
-					// DOMINANT — the substrate claim as a wide feature row: claim + proof side
-					// by side, raised, owning the section before the minor pair.
-					{
-						kind: "frame",
-						role: "panel",
-						surface: "raised",
-						children: [
-							{
-								kind: "grid",
-								role: "list",
-								minTrack: "wide",
-								children: [
-									t("It reads your systems. It doesn't guess.", "subheading", {
-										emphasis: "strong",
-									}),
-									t(
-										"Sókrates compiles your ERP, your finance stack and the spreadsheets that actually run the place into one typed map. Every answer carries a citation to the row that proves it. The model is never the source of truth; the map is.",
-										"body",
-										{ emphasis: "muted" },
-									),
-								],
-							},
-						],
-					},
-					{ kind: "spacer", size: "md" },
-					// The two minor differentiators as QUIET catalog entries (KRA-328):
-					// the substrate claim above keeps the movement's one raised moment;
-					// these support it from the base surface, apparatus beside the case.
-					{
-						kind: "grid",
-						role: "list",
-						minTrack: "regular",
-						children: [
-							{
-								kind: "compound",
-								name: "SiteEntry",
-								args: {
-									heading: t("It proposes. You authorise. It records.", "subheading", {
-										emphasis: "strong",
-									}),
-									body: t(
-										"Discovery is always on; action waits for your sign-off. Every act it takes carries a signed envelope you can audit as a single record. A Sókrates answer should never be accepted because the AI said so.",
-										"body",
-										{ emphasis: "muted" },
-									),
-								},
-							},
-							{
-								kind: "compound",
-								name: "SiteEntry",
-								args: {
-									heading: t("The box sits on your premises.", "subheading", {
-										emphasis: "strong",
-									}),
-									body: t(
-										"The appliance is yours from day one, behind your firewall, not a tenant in someone else's cloud. Data residency is structural here, not a setting you trust someone to honour.",
-										"body",
-										{ emphasis: "muted" },
-									),
-								},
-							},
-						],
-					},
-				],
-			},
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- Governance ladder -------------------------------------------
-			// The trust spine sits right after the proof and before sovereignty:
-			// read → propose → act is the posture the rest of the page rests on. The
-			// mid-body pull quote was dropped in WS1b — its line ("we leave you a
-			// department") already closes the page in the conversation band, so a
-			// second display-scale beat here only competed with the composer.
-			governanceLadder(),
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- Sovereignty -------------------------------------------------
-			// NOT the box photo again: the intro fold carries the appliance plate, and
-			// DESIGN §8 forbids the same plate twice. The sovereignty beat is a purely
-			// typographic editorial split here (a claim hung left of two short terms of
-			// ownership); the route hangs the Sókrates seal beside it. The native band
-			// owns the imagery; the tree owns the words.
-			homeSovereignty(),
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- The Timaeus tease (KRA-328) ----------------------------------
-			// ONE editorial moment, not a card-wall entry: the index plate as the
-			// support's single artifact, pointing at the story page. The plate is a
-			// fixed point — it carries its own constellation world into the Archive
-			// amber as a found object; home itself stays in the active dialect.
-			timaeusTease(),
-		],
 	};
 }
 
@@ -403,96 +153,6 @@ export function timaeusTease(): Node {
 	};
 }
 
-/**
- * The home sovereignty beat — "your hardware, your data, your department" as a
- * typographic editorial split (no image; the hero already carries the box, and
- * the route hangs the seal beside this band). A dominant claim, then a tight
- * 2-up of the two terms of ownership: what is yours, and what ends if you leave.
- * Asymmetric panel weight, not another card wall.
- */
-function homeSovereignty(): Node {
-	return {
-		kind: "stack",
-		role: "section",
-		direction: "block",
-		children: [
-			t("Your hardware. Your data. Your department.", "heading", {
-				emphasis: "strong",
-			}),
-			t(
-				"The appliance ships to your premises and is yours from day one, behind your firewall. Sókrates reads live truth from the systems on your network; there is no cached copy in someone else's datacentre to drift or to leak.",
-				"body",
-				{ emphasis: "muted" },
-			),
-			{ kind: "spacer", size: "sm" },
-			// The two terms of ownership as quiet catalog entries (KRA-328) — the
-			// movement's claim is typographic; no exhibit case here at all. The old
-			// foot link to /how-it-works moved to the Timaeus tease below, which now
-			// owns that doorway with the story's own artifact.
-			{
-				kind: "grid",
-				role: "list",
-				minTrack: "regular",
-				children: [
-					{
-						kind: "compound",
-						name: "SiteEntry",
-						args: {
-							heading: t("Nothing leaves the building by default.", "subheading", {
-								emphasis: "strong",
-							}),
-							body: t(
-								"Read-side discovery runs locally, against the systems already on your network. The map is computed from live rows, not from a snapshot shipped off-site to age.",
-								"body",
-								{ emphasis: "muted" },
-							),
-						},
-					},
-					{
-						kind: "compound",
-						name: "SiteEntry",
-						args: {
-							heading: t("Cancel, and you keep everything that was yours.", "subheading", {
-								emphasis: "strong",
-							}),
-							body: t(
-								"The box, the data and the connectors stay with you. What ends is the continuous intelligence layer, not your ownership.",
-								"body",
-								{ emphasis: "muted" },
-							),
-						},
-					},
-				],
-			},
-		],
-	};
-}
-
-/**
- * The onboarding band (D1) — its own prominent near-close fold, distinct from the
- * conversational "Talk to us" close. High-emphasis but NON-amber: prominence comes
- * from the dedicated fold and the strong heading, never a second beacon chroma (the
- * page keeps exactly two ambers — the composer's submit and the contact form). The
- * route renders the native "Begin onboarding" link (secondary variant) beside it.
- */
-export function onboardingBand(): Node {
-	return {
-		kind: "compound",
-		name: "SiteCtaBanner",
-		emphasis: "strong",
-		args: {
-			heading: t("Ready to map your operation?", "heading", {
-				emphasis: "strong",
-			}),
-			sub: t(
-				"Onboarding is the structured intake: name the systems you run and where the work piles up, and Sókrates scopes the first cross-system capabilities before we ever meet.",
-				"body",
-				{ emphasis: "muted" },
-			),
-		},
-	};
-}
-
 /* ---------------------------------------------------------------------------
  * HOW IT WORKS — the Timaeus narrative (KRA-327): the operating lifecycle in
  * nine plates, two acts around one perpetual loop. The route renders this page
@@ -511,7 +171,7 @@ export function howItWorksHero(): Node {
 				emphasis: "strong",
 			}),
 			lede: t(
-				"The life of a Sókrates appliance, told in nine plates: from the moment it powers up behind your firewall to the moment finished work lands on the record. Two acts — first the system orders itself around your operation, then your work flows through it.",
+				"The life of a Sókrates appliance, told in nine plates: from the moment it powers up at your site to the moment finished work lands on the record. Two acts: first the system orders itself around your operation, then your work flows through it.",
 				"body",
 				{ emphasis: "muted" },
 			),
@@ -607,7 +267,7 @@ export function howItWorksBody(): Node {
 				"b1-boot-on-premises",
 				"Plate I — a wireframe constellation engraving: the appliance standing inside the outline of a building, its lattice lit at boot.",
 				"Boot on-premises",
-				"The appliance arrives, plugs in behind your firewall, and brings itself up — every service declared, not assembled by hand. The record is alive before the first act: from the moment it boots, everything the system does is captured, with nothing to switch on. You choose the posture at install — governed egress, or fully air-gapped with zero outbound.",
+				"The appliance arrives, plugs in at your site, and brings itself up: every service declared, not assembled by hand. The record is alive before the first act. From boot, each system event is captured without a second setup ritual.",
 				true,
 			),
 			{ kind: "spacer", size: "md" },
@@ -616,7 +276,7 @@ export function howItWorksBody(): Node {
 				"b2-bind-the-sources",
 				"Plate II — the appliance bound by lattice lines to the constellation of the company's systems around it.",
 				"Bind the sources",
-				"An operator connects the systems your company actually runs — the ERP, the finance stack, the databases. Each connection is bound under explicit, scoped authorization: what the system may touch is governed from the first handshake, and your credentials never leave the box.",
+				"An operator connects the systems your company actually runs: the ERP, the finance stack, the databases. Each connection enters with a named scope, so the map starts with what the source system is allowed to show.",
 			),
 
 			{ kind: "spacer", size: "xl" },
@@ -657,7 +317,7 @@ export function howItWorksBody(): Node {
 								"b4-aristotle-authors",
 								"Plate IV — Aristotle as a draughtsman figure, writing laws into the lattice of the map.",
 								"Aristotle authors",
-								"Aristotle reads the matter and the answers, and writes the rules — the laws that govern how your operation's pieces fit together and what counts as correct. Laws compose: larger governance is built from smaller laws, not bolted on.",
+								"Aristotle reads the matter and the answers, then writes the rules that say how your operation's pieces fit together and what counts as correct. Larger rules are composed from smaller ones, not bolted on.",
 							),
 							{ kind: "spacer", size: "md" },
 							beat(
@@ -711,14 +371,14 @@ export function howItWorksBody(): Node {
 				"b7-philosopher-king-reasons",
 				"Plate VII — the Philosopher-King at the centre of the lattice, weighing a plan and sealing its authority.",
 				"The Philosopher-King reasons",
-				"The orchestrator plans what must happen and under whose authority. If a standing grant already covers this class of work, it proceeds; if not, it drafts the act and waits for a human signature. Either way the act carries a signed envelope — authority is never implicit.",
+				"The orchestrator plans what must happen and under whose authority. If a standing grant already covers this class of work, it proceeds; if not, it drafts the act and waits for a human signature. Either way the authority record is explicit.",
 			),
 			{ kind: "spacer", size: "md" },
 			beat(
 				"B8",
 				"b8-governed-workflow",
 				"Plate VIII — a governed workflow drawn as a constellation path, checkpoint by checkpoint, gate by gate.",
-				"The governed workflow runs to done",
+				"The authorized workflow runs to done",
 				"The plan compiles into a durable workflow that survives restarts and pauses at the gates you have set — most visibly, the approval gate. Every step is stamped onto the record as it happens. The work runs to done.",
 			),
 			{ kind: "spacer", size: "md" },
@@ -753,19 +413,19 @@ interface FaqEntry {
 const FAQ: readonly FaqEntry[] = [
 	{
 		q: "How is this different from just using ChatGPT?",
-		a: "A substrate, not a chatbot. Sókrates reasons over a verified, typed map of your systems and cites the rows behind every answer. It does not ask a model to guess; it asks it to operate over what is true, and every action carries a signed envelope you can audit.",
+		a: "A substrate, not a chatbot. Sókrates reasons over a verified, typed map of your systems and cites the rows behind every answer. It asks the model to operate over what is true, and every action carries an authority record you can inspect.",
 	},
 	{
 		q: "What happens if it gets something wrong?",
-		a: "Human approval is the default trust posture. Every action is a typed process with a named owner and a signed envelope, reverse-engineerable and auditable as a single record. You authorise classes of work; you can revoke them.",
+		a: "Human approval is the default trust posture. Every action is a typed process with a named owner and an authority record, auditable as a single record. You authorise classes of work; you can revoke them.",
 	},
 	{
 		q: "Our data can't leave the country, or our network.",
-		a: "It doesn't. The appliance is on your premises, behind your firewall, and read-side discovery runs locally. The Sovereign configuration makes no outbound inference calls at all.",
+		a: "The appliance is installed on your premises. The Sovereign configuration uses local inference only.",
 	},
 	{
 		q: "What if we want to leave?",
-		a: "Clean exit, no hostage-taking. The hardware is yours; your operational data is yours. We deliver a portable custody export of your extracts, operating map, rule contracts, evidence and governance history. What ends is the managed department, not your ownership.",
+		a: "Clean exit, no hostage-taking. The hardware is yours; your operational data is yours. We deliver a portable custody export of your extracts, operating map, rule contracts, evidence and approval history. What ends is the managed department, not your ownership.",
 	},
 	{
 		q: "We're mid-migration. We can't take on another project.",
@@ -801,7 +461,7 @@ export function architectureHero(): Node {
 		name: "SiteHero",
 		emphasis: "strong",
 		args: {
-			title: t("Five primitives. One typed map. A signed envelope on every act.", "display", {
+			title: t("Five primitives. One typed map. One authority record per act.", "display", {
 				emphasis: "strong",
 			}),
 			lede: t(
@@ -936,11 +596,11 @@ export function architectureBody(): Node {
 				role: "section",
 				direction: "block",
 				children: [
-					t("Read by default. Write under a current envelope.", "heading", {
+					t("Read by default. Write with current authority.", "heading", {
 						emphasis: "strong",
 					}),
 					t(
-						"Read-side discovery against your systems is always on, warranted by the standing ingestion grant. Write-side action requires a current AUTHORIZES envelope from a data-owner: either a standing grant you have issued for that class of work, or a one-time approval the operator just clicked. The capability layer compounds across the fleet, so onboarding stays finite.",
+						"Discovery answers from the standing data grant. Action requires current authority from a data owner: either a standing grant for that class of work, or a one-time approval the operator just clicked. The capability layer compounds across the fleet, so onboarding stays finite.",
 						"body",
 						{ emphasis: "muted" },
 					),

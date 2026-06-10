@@ -1,12 +1,9 @@
 <script lang="ts">
 /*
- * / — the Sókrates home. A composer-first marketing landing: a brief intro hands
- * straight to the capability composer (the interactive centerpiece), and the
- * supporting editorial — proof, governance, sovereignty — sits below it as support,
- * not competition. Conversion is one path: the contact "conversation" at the close.
- * Editorial copy is authored as Morphe Node trees (rendered through MorpheRoot under
- * the active dialect); the composer, the onboarding link and the contact form are
- * native control surfaces sitting beside those trees.
+ * / — the Sókrates home as a stage: a brief statement hands straight to the
+ * capability composer, then the page offers only the few paths a visitor naturally
+ * needs next. Editorial copy is authored as Morphe Node trees; the composer,
+ * links and contact form are native control surfaces sitting beside those trees.
  *
  * Beacon discipline (D1): exactly TWO ambers, in two non-co-visible folds — the
  * composer's submit (the composer fold) and the contact form's submit (the close).
@@ -15,23 +12,15 @@
  */
 
 import Composer from "$lib/compose/Composer.svelte";
-import {
-	closingCta,
-	homeBody,
-	homeHero,
-	onboardingBand,
-	registerSiteCompounds,
-} from "$lib/site";
+import { closingCta, homeHero, registerSiteCompounds, timaeusTease } from "$lib/site";
 import ContactForm from "$lib/site/ContactForm.svelte";
-import CtaLink from "$lib/site/CtaLink.svelte";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 
 // Register the site compounds through the factory gate. Idempotent.
 registerSiteCompounds();
 
 const heroTree = homeHero();
-const bodyTree = homeBody();
-const onboardingTree = onboardingBand();
+const teaseTree = timaeusTease();
 const ctaTree = closingCta();
 </script>
 
@@ -39,7 +28,7 @@ const ctaTree = closingCta();
 	<title>Sókrates — Your AI Department</title>
 	<meta
 		name="description"
-		content="Software waits for instructions. Sókrates looks for friction. An on-premises AI department that runs the cross-system operational work, under governance you control."
+		content="Software waits for instructions. Sókrates looks for friction. An on-premises AI department for the cross-system work that keeps landing on one senior person."
 	/>
 </svelte:head>
 
@@ -62,7 +51,7 @@ const ctaTree = closingCta();
 				fetchpriority="high"
 				decoding="async"
 			/>
-			<figcaption class="s-plate__cap">The department, in a box. On your premises, behind your firewall.</figcaption>
+			<figcaption class="s-plate__cap">The department, in a box. A physical appliance for the work between systems.</figcaption>
 		</figure>
 	</div>
 </section>
@@ -80,25 +69,17 @@ const ctaTree = closingCta();
 	</div>
 </section>
 
-<!-- The support — proof, the governance ladder, the sovereignty beat. Subordinate to
-     the composer by width (the editorial 80rem cap) and surface (base, not the
-     composer's recessed work surface). WS1b. -->
-<section class="s-section">
-	<div class="s-wrap">
-		<MorpheRoot tree={bodyTree} />
+<section class="s-section s-section--tight">
+	<div class="s-wrap stage-whisper" aria-label="Next paths">
+		<a href="/onboarding">Begin onboarding</a>
+		<a href="/how-it-works">Read the nine-plate story</a>
+		<a href="/architecture">See the architecture</a>
 	</div>
 </section>
 
-<!-- Onboarding — its own prominent near-close fold (D1), high-emphasis but NON-amber:
-     the structured-intake path, kept distinct from the conversational close. The CTA
-     is the quiet (secondary) variant on purpose, so amber stays exclusive to the
-     composer and the contact conversation. -->
 <section class="s-section">
 	<div class="s-wrap">
-		<MorpheRoot tree={onboardingTree} />
-		<div class="s-cta-row">
-			<CtaLink href="/onboarding" label="Begin onboarding" variant="secondary" />
-		</div>
+		<MorpheRoot tree={teaseTree} />
 	</div>
 </section>
 
@@ -117,7 +98,11 @@ const ctaTree = closingCta();
 			<div class="contact__form">
 				<ContactForm />
 			</div>
-			<p class="s-proof">On-premises · Read-only until you authorise · Clean exit, no fees</p>
+			<p class="s-whisper">
+				<a href="mailto:hakon@sokrates.is">hakon@sokrates.is</a>
+				<span>Krates ehf., Reykjavík</span>
+				<span>© 2026</span>
+			</p>
 		</div>
 		<div class="s-close__seal" aria-hidden="true">
 			<img class="s-close__seal-img" src="/images/sokrates-mark.svg" alt="" width="320" height="320" decoding="async" />
@@ -139,6 +124,41 @@ const ctaTree = closingCta();
 	}
 	.contact__form {
 		margin-block-start: var(--mo-space-6);
+	}
+	.stage-whisper {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-3) var(--mo-space-5);
+		align-items: center;
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-2);
+		color: var(--mo-intent-on-surface-muted);
+	}
+	.stage-whisper a,
+	.s-whisper a {
+		color: var(--mo-intent-on-surface);
+		text-decoration: underline;
+		text-underline-offset: 0.22em;
+	}
+	.stage-whisper a:hover,
+	.s-whisper a:hover {
+		color: var(--mo-intent-accession-on);
+	}
+	.stage-whisper a:focus-visible,
+	.s-whisper a:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
+		border-radius: var(--mo-radius-1);
+	}
+	.s-whisper {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-2) var(--mo-space-4);
+		margin: var(--mo-space-5) 0 0;
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-2);
+		letter-spacing: 0.01em;
+		color: var(--mo-intent-on-surface-muted);
 	}
 
 	/*

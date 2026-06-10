@@ -12,9 +12,9 @@
  * variable-length children ride through SLOTS, and NODE args let the call site
  * own the register.
  *
- * Read-only by construction. The surface shows the MAP of what is possible; the
- * appliance is what acts, under governance. `tier` is rendered honestly so a
- * capability never presents itself as more than it is on the front door.
+ * The surface answers a stated operational pain with grounded capabilities.
+ * `tier` is rendered honestly so a capability never presents itself as more than
+ * it is on the front door.
  *
  * Composition shape:
  *   capabilityCard(cap)            -> an OUTCOME-LED ComposeCapabilityCard
@@ -29,8 +29,10 @@
  *   composeAnswer(caps, query)     -> a Frame(page) with a PainPrompt masthead
  *                                     (summary slot = result line + active-tag
  *                                     badges) over a Grid(list) of capabilityCard.
- *   emptyState(query, featured)    -> an honest "no direct match yet" answer that
- *                                     still shows the breadth via a few cards.
+ *   emptyState(query)              -> a quiet invitation before the visitor asks,
+ *                                     or after a system selection filters all
+ *                                     current matches away. No cards appear until
+ *                                     the visitor has submitted a pain.
  */
 
 import type { CompoundRef, Node } from "$morphe";
@@ -71,21 +73,21 @@ function text(
 function tierLabel(tier: Capability["tier"]): string {
 	switch (tier) {
 		case "read-only":
-			return "Read-only";
+			return "Answers only";
 		case "proposes":
-			return "Proposes, never acts";
+			return "Drafts for approval";
 		default:
 			// "acts" is never presented on this surface; degrade to the safe label.
-			return "Read-only";
+			return "Answers only";
 	}
 }
 
 /**
  * The honest governance Status NODE for a card header. The tone + signal text +
  * icon are driven by the real tier so a `proposes` capability reads "Proposes,
- * never acts" (caution / draw glyph) and a `read-only` one reads "Read-only"
- * (info / visibility glyph) — never the hardcoded chip the whole surface is
- * built to avoid. The text channel carries the non-color signal (WCAG 1.4.1).
+ * (caution / draw glyph) and an answer-only one reads as an evidence answer
+ * (info / visibility glyph). The text channel carries the non-color signal
+ * (WCAG 1.4.1).
  */
 function tierStatus(tier: Capability["tier"]): Node {
 	const proposes = tier === "proposes";
@@ -436,7 +438,7 @@ function cardLayout(shown: readonly Capability[]): Node[] {
 
 /**
  * The composed answer: a Frame(page) with a PainPrompt masthead (heading + a
- * read-only-honest sub line; summary slot = result line + active-tag badges)
+ * honest sub line; summary slot = result line + active-tag badges)
  * over a Grid(list) of capabilityCard(cap), one card per matched capability.
  * Empty match set delegates to `emptyState`.
  *
@@ -452,7 +454,7 @@ export function composeAnswer(
 	limit: number = DEFAULT_LIMIT,
 ): Node {
 	if (caps.length === 0) {
-		return emptyState(query, []);
+		return emptyState(query);
 	}
 
 	// A non-positive limit would render nothing and read as a bug; clamp to the
@@ -469,7 +471,7 @@ export function composeAnswer(
 				emphasis: "strong",
 			}),
 			sub: text(
-				"Each capability below is a map across your systems, grounded in real endpoints and compiled model names. The appliance is what acts, under governance.",
+				"Each capability below is grounded in concrete endpoints and compiled model names. Treat it as a fit check for the systems you named.",
 				"body",
 				{ emphasis: "muted" },
 			),
@@ -489,35 +491,24 @@ export function composeAnswer(
 }
 
 /* ---------------------------------------------------------------------------
- * emptyState — honest "no direct match" answer that still shows the breadth.
+ * emptyState — invitation before the answer.
  * ------------------------------------------------------------------------- */
 
 /**
- * The default / no-match state: when the visitor has not asked yet, or named a
- * friction nothing resolved to, show the breadth Sókrates composes across these
- * systems via a few featured cards. The copy adapts: an inviting opener before
- * they type, an honest "nothing matched that" once they have. No false count, no
- * tag badges — the masthead owns the framing and the cards show the breadth.
+ * The default / no-eligible-match state: when the visitor has not asked yet, or a
+ * system selection filters the submitted ranking down to nothing, invite a sharper
+ * question. Capability cards are answers only; the examples live as native buttons
+ * in the composer control surface.
  */
-export function emptyState(
-	query: ComposeQuery,
-	featured: readonly Capability[],
-	limit: number = DEFAULT_LIMIT,
-): Node {
+export function emptyState(query: ComposeQuery): Node {
 	const typed = query.pain.trim().length > 0;
-	const heading = typed ? "No direct match yet" : "What Sókrates can do for you";
+	const heading = typed ? "No direct match yet" : "Start with one piece of friction";
 	const sub = typed
-		? "Nothing lined up exactly with that. Here is the breadth Sókrates works across these systems, each one grounded in real endpoints."
-		: "Describe the friction in your operation and Sókrates surfaces the automations that fit, each one grounded in your real systems. Here is the breadth to begin with.";
+		? "That combination did not produce a clean fit. Adjust the systems above, or try one of the example pains."
+		: "Describe a recurring operational drag. The answer will be narrow by design: the few cross-system moves that match what you named.";
 	const note = typed
-		? "Try naming the pain point in different words, or browse the examples below."
-		: "Name a pain point and the systems you run to narrow this to your situation.";
-
-	// The featured breadth obeys the same cap as a real answer so the default view
-	// stays scannable instead of dumping every example; the route's "Show all"
-	// affordance lifts it. A non-positive limit degrades to "show everything".
-	const cap = limit > 0 ? Math.min(limit, featured.length) : featured.length;
-	const shown = featured.slice(0, cap);
+		? "The examples above submit in one tap."
+		: "Pick an example above, or write your own.";
 
 	const summary: Node[] = [text(note, "caption", { emphasis: "muted" })];
 
@@ -534,14 +525,12 @@ export function emptyState(
 		},
 	};
 
-	const children: Node[] = [masthead, { kind: "spacer", size: "md" }, ...cardLayout(shown)];
-
 	return {
 		kind: "frame",
 		role: "page",
 		surface: "base",
 		budget: 4,
-		children,
+		children: [masthead],
 	};
 }
 

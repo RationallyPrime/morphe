@@ -3,7 +3,6 @@ import { untrack } from "svelte";
 import { page } from "$app/state";
 import "../app.css";
 import "$lib/site/site.css";
-import Footer from "$lib/site/Footer.svelte";
 import Nav from "$lib/site/Nav.svelte";
 import {
 	activeDialect,
@@ -51,7 +50,6 @@ $effect(() => {
 	<main id="main" class="shell__main">
 		{@render children?.()}
 	</main>
-	<Footer />
 </div>
 
 <style>

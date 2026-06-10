@@ -30,7 +30,7 @@
 	<title>How it works — Sókrates</title>
 	<meta
 		name="description"
-		content="The Sókrates operating lifecycle in nine plates: boot on-premises, bind the sources, the authoring loop that never stops sharpening, and governed work that runs to done — on the record."
+		content="The Sókrates operating lifecycle in nine plates: boot on-premises, bind the sources, the authoring loop that never stops sharpening, and authorized work that runs to done."
 	/>
 </svelte:head>
 

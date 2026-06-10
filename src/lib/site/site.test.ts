@@ -25,29 +25,33 @@ import {
 	architectureHero,
 	closingCta,
 	faqSection,
-	governanceLadder,
-	homeBody,
 	homeHero,
 	howItWorksBody,
 	howItWorksHero,
-	onboardingBand,
-	sovereigntySplit,
 	timaeusTease,
 } from "./present.js";
 
 const PRESENTERS: ReadonlyArray<readonly [string, () => Node]> = [
-	["governanceLadder", governanceLadder],
-	["sovereigntySplit", sovereigntySplit],
 	["closingCta", closingCta],
 	["homeHero", homeHero],
-	["homeBody", homeBody],
-	["onboardingBand", onboardingBand],
+	["timaeusTease", timaeusTease],
 	["howItWorksHero", howItWorksHero],
 	["howItWorksBody", howItWorksBody],
 	["faqSection", faqSection],
 	["architectureHero", architectureHero],
 	["architectureBody", architectureBody],
-	["timaeusTease", timaeusTease],
+];
+
+const BANNED_UI_PHRASES = [
+	"under governance",
+	"the appliance is what acts",
+	"read-only",
+	"Read-only",
+	"map of what is possible",
+	"by construction",
+	"Read-side",
+	"Write-side",
+	"AUTHORIZES",
 ];
 
 describe("S1 — every site compound passes the factory gate", () => {
@@ -86,6 +90,17 @@ describe("S2 — every site presenter emits only resolvable compound refs", () =
 	for (const [name, present] of PRESENTERS) {
 		it(`${name}() is renderable against the site registry`, () => {
 			assertResolvable(present(), name);
+		});
+	}
+});
+
+describe("S3 — site presenter copy stays out of doctrine register", () => {
+	for (const [name, present] of PRESENTERS) {
+		it(`${name}() has no banned UI phrase`, () => {
+			const json = JSON.stringify(present());
+			for (const phrase of BANNED_UI_PHRASES) {
+				expect(json, `${name}: ${phrase}`).not.toContain(phrase);
+			}
 		});
 	}
 });

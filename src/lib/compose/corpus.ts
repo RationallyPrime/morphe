@@ -17,9 +17,9 @@
  * dkPlus-only), the three pairs (Twenty×dkPlus, Twenty×Humanity, Humanity×dkPlus)
  * and the three-way "deal to delivery" loop.
  *
- * Read-only by construction: `tier` is "read-only" for pure read/analyze/forecast/
- * detect/report capabilities and "proposes" for ones that draft/recommend/route
- * for approval. Never "acts" on this surface.
+ * `tier` is "read-only" for pure read/analyze/forecast/detect/report capabilities
+ * and "proposes" for ones that draft/recommend/route for approval. Never "acts"
+ * on this surface.
  *
  * Source of truth for the original 45: `data/capability-seed.md` (in order).
  * Grounding source: `data/evidence/{humanity,dkplus,twenty}.json`.
@@ -1270,7 +1270,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		target: DKPLUS,
 		transform:
 			"Every morning, assemble today's shifts, open project requests, employees at risk of overtime, customer work due, unapproved time and invoices ready to send.",
-		value: "Low-risk, high-value: the day's whole operating picture in one read-only brief.",
+		value: "Low-risk, high-value: the day's whole operating picture in one evidence brief.",
 		surfaces: [
 			{
 				system: "humanity",
@@ -3110,7 +3110,7 @@ export const CAPABILITIES: readonly Capability[] = [
 		source: TWENTY,
 		target: DKPLUS,
 		transform:
-			"Pull the Twenty company and its people, the dkPlus invoices and ledger balance for that customer, and the Humanity hours worked on their jobs into one read-only customer profile.",
+			"Pull the Twenty company and its people, the dkPlus invoices and ledger balance for that customer, and the Humanity hours worked on their jobs into one customer profile.",
 		value:
 			"Anyone touching an account sees the relationship, the money and the work delivered in a single view.",
 		surfaces: [

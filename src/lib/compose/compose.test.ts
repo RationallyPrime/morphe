@@ -16,9 +16,27 @@ import { CompoundRegistry } from "$morphe";
 import { COMPOSE_COMPOUNDS, registerComposeCompounds } from "./compounds.js";
 import { CAPABILITIES } from "./corpus.js";
 import type { ComposeQuery } from "./input.js";
-import { featuredCapabilities, matchCapabilities } from "./match.js";
-import { capabilityCard, composeAnswer, offDomainState, thinMatchState } from "./present.js";
+import { matchCapabilities } from "./match.js";
+import {
+	capabilityCard,
+	composeAnswer,
+	emptyState,
+	offDomainState,
+	thinMatchState,
+} from "./present.js";
 import { CATEGORIES, CATEGORY_LABELS, categoriesOf, categoryOf, SYSTEMS } from "./taxonomy.js";
+
+const BANNED_UI_PHRASES = [
+	"under governance",
+	"the appliance is what acts",
+	"read-only",
+	"Read-only",
+	"map of what is possible",
+	"by construction",
+	"Read-side",
+	"Write-side",
+	"AUTHORIZES",
+];
 
 describe("compose compounds — registration through the factory gate", () => {
 	it("registers all five compose compounds cleanly on a fresh registry", () => {
@@ -247,6 +265,14 @@ describe("compose presenting — relevance states (D4)", () => {
 		systems: ["humanity", "dkplus", "twenty"],
 	};
 
+	it("emptyState is an invitation, not a pre-submit capability browser", () => {
+		const tree = emptyState({ pain: "", systems: ["humanity", "dkplus", "twenty"] });
+		expect(tree.kind).toBe("frame");
+		expect(JSON.stringify(tree)).toContain("Start with one piece of friction");
+		expect(collectCompoundRefs(tree, "ComposePainPrompt").length).toBe(1);
+		expect(collectCompoundRefs(tree, "ComposeCapabilityCard").length).toBe(0);
+	});
+
 	it("offDomainState is a card-less, honest refusal that redirects", () => {
 		const tree = offDomainState();
 		expect(tree.kind).toBe("frame");
@@ -270,6 +296,29 @@ describe("compose presenting — relevance states (D4)", () => {
 		// offDomainState is card-less, so its whole tree is authored state copy (no
 		// corpus card text) — a clean guard against the em-dash ban regressing.
 		expect(JSON.stringify(offDomainState())).not.toContain("—");
+	});
+});
+
+describe("compose presenting — UI copy stays out of doctrine register", () => {
+	it("does not render the banned phrases in answer states", () => {
+		const query: ComposeQuery = {
+			pain: "shift planning is slow and error prone",
+			systems: ["humanity", "dkplus"],
+		};
+		const matches = matchCapabilities(query);
+		const trees = [
+			emptyState({ pain: "", systems: query.systems }),
+			emptyState(query),
+			composeAnswer(matches, query, 4),
+			thinMatchState(matches.slice(0, 2), query),
+			offDomainState(),
+		];
+		for (const tree of trees) {
+			const json = JSON.stringify(tree);
+			for (const phrase of BANNED_UI_PHRASES) {
+				expect(json, phrase).not.toContain(phrase);
+			}
+		}
 	});
 });
 
@@ -299,8 +348,8 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 
 		// tier param is rendered (honest governance is trust, kept visible), not the
 		// old hardcoded chip. The value subheading is the outcome, never the tier.
-		expect(json).toContain("Proposes, never acts");
-		expect(json).not.toContain('"Read-only"');
+		expect(json).toContain("Drafts for approval");
+		expect(json).not.toContain('"Answers only"');
 
 		// THE PROOF IS DEMOTED, NOT DELETED: the single quiet wiring disclosure owns it.
 		expect(json).toContain("How Sókrates wires this");
@@ -316,15 +365,15 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		expect(json).not.toContain('"label":""');
 	});
 
-	it("a read-only card expands to the read-only tier label", () => {
+	it("an answer-only card expands to the answer-only tier label", () => {
 		const reg = new CompoundRegistry();
 		registerComposeCompounds(reg);
 		const cap = CAPABILITIES.find((c) => c.tier === "read-only");
 		expect(cap).toBeDefined();
 		if (!cap) return;
 		const json = JSON.stringify(reg.expand(capabilityCard(cap)));
-		expect(json).toContain("Read-only");
-		expect(json).not.toContain("Proposes, never acts");
+		expect(json).toContain("Answers only");
+		expect(json).not.toContain("Drafts for approval");
 	});
 
 	it("the demoted proof rows carry the CAPTION register, not body (quiet lives in the data)", () => {
@@ -516,13 +565,12 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		expect(CAPABILITIES.length).toBeGreaterThan(45);
 	});
 
-	it("adds a large new high-ROI surface without changing empty featured behavior", () => {
+	it("adds a large new high-ROI surface without changing eligibility behavior", () => {
 		// 73 was the pre-expansion corpus: the original 45 Humanity×dkPlus caps plus
 		// single-system, pair, and three-way seed coverage. This pass should surface
-		// roughly forty more evidence-grounded examples without making the no-system
-		// default behave like an all-systems browser.
+		// roughly forty more evidence-grounded examples without weakening the subset
+		// gate.
 		expect(CAPABILITIES.length).toBeGreaterThanOrEqual(113);
-		expect(featuredCapabilities([])).toEqual([]);
 	});
 
 	it("every capability carries at least one real endpoint surface", () => {

@@ -258,7 +258,7 @@ async function submit(): Promise<void> {
 			<p class="ack__title">Received. We have your intake.</p>
 			<p class="ack__body">
 				Hákon reviews each one by hand and replies within a couple of working days, usually with the
-				first questions Sókrates would ask about your systems. No deck, no slides.
+				first questions Sókrates would ask about your systems.
 			</p>
 			<button class="ghost" type="button" onclick={startOver}>Submit another</button>
 		</div>
@@ -286,7 +286,7 @@ async function submit(): Promise<void> {
 		<div class="panel">
 			{#if current?.id === "contact"}
 				<h2 class="panel__title">Who are we talking to?</h2>
-				<p class="panel__lede">The basics, so we can reach you. We never share these.</p>
+				<p class="panel__lede">The basics, so we can reach you.</p>
 				<div class="grid2">
 					<div class="field">
 						<label class="field__label" for="onb-name">Your name</label>

@@ -25,11 +25,8 @@ export {
 	architectureHero,
 	closingCta,
 	faqSection,
-	governanceLadder,
-	homeBody,
 	homeHero,
 	howItWorksBody,
 	howItWorksHero,
-	onboardingBand,
-	sovereigntySplit,
+	timaeusTease,
 } from "./present.js";
