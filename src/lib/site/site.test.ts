@@ -32,6 +32,7 @@ import {
 	howItWorksHero,
 	onboardingBand,
 	sovereigntySplit,
+	timaeusTease,
 } from "./present.js";
 
 const PRESENTERS: ReadonlyArray<readonly [string, () => Node]> = [
@@ -46,6 +47,7 @@ const PRESENTERS: ReadonlyArray<readonly [string, () => Node]> = [
 	["faqSection", faqSection],
 	["architectureHero", architectureHero],
 	["architectureBody", architectureBody],
+	["timaeusTease", timaeusTease],
 ];
 
 describe("S1 — every site compound passes the factory gate", () => {

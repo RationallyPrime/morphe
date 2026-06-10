@@ -16,10 +16,10 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (506 files) |
-| Tests | `bun run test` (`vitest run`) | **287/287 passing** across 16 files |
+| Tests | `bun run test` (`vitest run`) | **289/289 passing** across 16 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (287 total)
+### Test breakdown (289 total)
 
 - `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
@@ -61,10 +61,10 @@ Package manager is **bun** (never npm/pnpm/yarn).
   recorded digest/input pairs replay deterministically through real compose
   presenters).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
-- `src/lib/site/site.test.ts` — 24 (site compounds incl. `TimaeusPlate` pass
-  the factory gate on a fresh registry; every site presenter emits only
-  resolvable compound refs; S3: the Trajectory-exclusion grep gate as a test —
-  no excluded token in any presenter's emitted tree).
+- `src/lib/site/site.test.ts` — 26 (site compounds incl. `TimaeusPlate` and
+  `SiteEntry` pass the factory gate on a fresh registry; every site presenter
+  emits only resolvable compound refs; S3: the Trajectory-exclusion grep gate
+  as a test — no excluded token in any presenter's emitted tree).
 - `src/lib/morphe/media.render.test.ts` — 6 (the responsive `<picture>` Media
   extension: the no-sources fixed point renders the bare `<img>` unchanged;
   sources/width/height/eager render the candidate sets with pinned dimensions).
@@ -145,7 +145,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 287/287 passing
+bun run test       # vitest run                      → 289/289 passing
 bun run build      # vite build                      → client + SSR bundles
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```

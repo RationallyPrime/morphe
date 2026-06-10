@@ -46,9 +46,12 @@ describe("plateManifest — the planned output file set", () => {
 		expect(FALLBACK_WIDTH).toBe(960);
 	});
 
-	it("plans all eleven public-story plates in stable slug-sorted order", () => {
+	it("plans all nine public-story plates in stable slug-sorted order", () => {
+		// KRA-328 correction: the two index-* exports turned out to be INTERNAL
+		// architecture diagrams (module names, ports, vendor stacks) on visual
+		// inspection — not public-story matter. The public plate set is the nine
+		// narrative beats, exactly.
 		const sources = [
-			"index-1.png",
 			"b9-on-the-record.png",
 			"b1-boot-on-premises.png",
 			"b2-bind-the-sources.png",
@@ -58,11 +61,10 @@ describe("plateManifest — the planned output file set", () => {
 			"b6-a-trigger.png",
 			"b7-philosopher-king-reasons.png",
 			"b8-governed-workflow.png",
-			"index-0.png",
 		];
 		const entries = plateManifest(sources);
-		expect(entries).toHaveLength(11);
-		expect(entries.flatMap((e) => e.derivatives)).toHaveLength(77);
+		expect(entries).toHaveLength(9);
+		expect(entries.flatMap((e) => e.derivatives)).toHaveLength(63);
 		// Stable order regardless of directory-listing order.
 		expect(entries.map((e) => e.slug)).toEqual([...entries.map((e) => e.slug)].sort());
 	});
@@ -98,7 +100,9 @@ describe("exclusion law — private working files THROW, never skip", () => {
 
 	it("accepts the public-story plates", () => {
 		expect(isPrivatePlate("b1-boot-on-premises.png")).toBe(false);
-		expect(isPrivatePlate("index-0.png")).toBe(false);
-		expect(() => assertPublicPlates(["b1-boot-on-premises.png", "index-0.png"])).not.toThrow();
+		expect(isPrivatePlate("b9-on-the-record.png")).toBe(false);
+		expect(() =>
+			assertPublicPlates(["b1-boot-on-premises.png", "b9-on-the-record.png"]),
+		).not.toThrow();
 	});
 });

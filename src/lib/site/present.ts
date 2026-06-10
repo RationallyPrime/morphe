@@ -111,7 +111,9 @@ export function governanceLadder(): Node {
 				},
 			},
 			{ kind: "spacer", size: "sm" },
-			// THE DIAL — "Propose" and "Act" as a 2-up beneath the dominant default.
+			// THE DIAL — "Propose" and "Act" as quiet catalog entries beneath the
+			// dominant default (KRA-328: one raised moment per movement; the standing
+			// foundation keeps the exhibit case, the dial reads as its consequents).
 			{
 				kind: "grid",
 				role: "list",
@@ -119,10 +121,10 @@ export function governanceLadder(): Node {
 				children: [
 					{
 						kind: "compound",
-						name: "SiteStep",
+						name: "SiteEntry",
 						args: {
-							index: t("02", "subheading", { intent: "accession" }),
-							title: t("Propose", "subheading", { emphasis: "strong" }),
+							marker: t("02", "subheading", { intent: "accession" }),
+							heading: t("Propose", "subheading", { emphasis: "strong" }),
 							body: t(
 								"It drafts the fix and shows its work: the action, the rows it relied on, the envelope it would carry. Nothing has touched your systems. You read a proposal, not a fait accompli.",
 								"body",
@@ -132,10 +134,10 @@ export function governanceLadder(): Node {
 					},
 					{
 						kind: "compound",
-						name: "SiteStep",
+						name: "SiteEntry",
 						args: {
-							index: t("03", "subheading", { intent: "accession" }),
-							title: t("Act", "subheading", { emphasis: "strong" }),
+							marker: t("03", "subheading", { intent: "accession" }),
+							heading: t("Act", "subheading", { emphasis: "strong" }),
 							body: t(
 								"When you authorise a class of work, it executes and records each act under a signed envelope you can audit as one record. You turn the dial; you can turn it back.",
 								"body",
@@ -288,7 +290,9 @@ export function homeBody(): Node {
 						],
 					},
 					{ kind: "spacer", size: "md" },
-					// The two minor differentiators, a 2-up beneath the dominant.
+					// The two minor differentiators as QUIET catalog entries (KRA-328):
+					// the substrate claim above keeps the movement's one raised moment;
+					// these support it from the base surface, apparatus beside the case.
 					{
 						kind: "grid",
 						role: "list",
@@ -296,7 +300,7 @@ export function homeBody(): Node {
 						children: [
 							{
 								kind: "compound",
-								name: "SiteValueProp",
+								name: "SiteEntry",
 								args: {
 									heading: t("It proposes. You authorise. It records.", "subheading", {
 										emphasis: "strong",
@@ -310,7 +314,7 @@ export function homeBody(): Node {
 							},
 							{
 								kind: "compound",
-								name: "SiteValueProp",
+								name: "SiteEntry",
 								args: {
 									heading: t("The box sits on your premises.", "subheading", {
 										emphasis: "strong",
@@ -346,7 +350,56 @@ export function homeBody(): Node {
 			// ownership); the route hangs the Sókrates seal beside it. The native band
 			// owns the imagery; the tree owns the words.
 			homeSovereignty(),
+
+			{ kind: "spacer", size: "xl" },
+
+			// --- The Timaeus tease (KRA-328) ----------------------------------
+			// ONE editorial moment, not a card-wall entry: the index plate as the
+			// support's single artifact, pointing at the story page. The plate is a
+			// fixed point — it carries its own constellation world into the Archive
+			// amber as a found object; home itself stays in the active dialect.
+			timaeusTease(),
 		],
+	};
+}
+
+/**
+ * The Timaeus tease — the doorway to /how-it-works, carried by the story's
+ * closing plate (B9, the record tree; cross-page reuse is fine — the per-page
+ * "never the same plate twice" law holds on both pages). In-prose navigation
+ * rides the Morphe Link primitive (in-algebra); no native CTA, no beacon claim
+ * — the composer and the close keep the page's two ambers.
+ */
+export function timaeusTease(): Node {
+	const slug = "b9-on-the-record";
+	return {
+		kind: "compound",
+		name: "SiteFeatureSplit",
+		args: {
+			media: {
+				kind: "media",
+				src: `/images/plates/${slug}-960.png`,
+				alt: "Plate IX of the Timaeus narrative: a luminous tree of records rising in the constellation dark, a robed figure standing before it.",
+				aspect: "portrait",
+				width: 960,
+				height: 1280,
+				sizes: "(min-width: 64rem) 40rem, 100vw",
+				sources: [
+					{ type: "image/avif", srcset: plateSrcset(slug, "avif") },
+					{ type: "image/webp", srcset: plateSrcset(slug, "webp") },
+				],
+			},
+			eyebrow: eyebrow("The operating lifecycle"),
+			heading: t("Nine plates. One loop.", "heading", { emphasis: "strong" }),
+			body: t(
+				"From the moment the appliance powers up to the moment finished work lands on the record: the whole operating lifecycle, drawn as nine plates — and the authoring loop at its core that never stops sharpening.",
+				"body",
+				{ emphasis: "muted" },
+			),
+		},
+		slots: {
+			foot: [link("/how-it-works", "Read the story in nine plates")],
+		},
 	};
 }
 
@@ -372,6 +425,10 @@ function homeSovereignty(): Node {
 				{ emphasis: "muted" },
 			),
 			{ kind: "spacer", size: "sm" },
+			// The two terms of ownership as quiet catalog entries (KRA-328) — the
+			// movement's claim is typographic; no exhibit case here at all. The old
+			// foot link to /how-it-works moved to the Timaeus tease below, which now
+			// owns that doorway with the story's own artifact.
 			{
 				kind: "grid",
 				role: "list",
@@ -379,7 +436,7 @@ function homeSovereignty(): Node {
 				children: [
 					{
 						kind: "compound",
-						name: "SiteValueProp",
+						name: "SiteEntry",
 						args: {
 							heading: t("Nothing leaves the building by default.", "subheading", {
 								emphasis: "strong",
@@ -393,7 +450,7 @@ function homeSovereignty(): Node {
 					},
 					{
 						kind: "compound",
-						name: "SiteValueProp",
+						name: "SiteEntry",
 						args: {
 							heading: t("Cancel, and you keep everything that was yours.", "subheading", {
 								emphasis: "strong",
@@ -403,9 +460,6 @@ function homeSovereignty(): Node {
 								"body",
 								{ emphasis: "muted" },
 							),
-						},
-						slots: {
-							foot: [link("/how-it-works", "How it works")],
 						},
 					},
 				],

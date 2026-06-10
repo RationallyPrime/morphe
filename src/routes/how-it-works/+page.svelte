@@ -24,14 +24,6 @@
 	const heroTree = howItWorksHero();
 	const bodyTree = howItWorksBody();
 	const ctaTree = closingCta();
-
-	/** The index plate's responsive candidates (the hero is the LCP; keep it eager). */
-	function indexSrcset(format: "avif" | "webp"): string {
-		return [640, 960, 1440]
-			.map((w) => `/images/plates/index-0-${w}.${format} ${w}w`)
-			.join(", ");
-	}
-	const indexSizes = "(min-width: 64rem) 34rem, 100vw";
 </script>
 
 <svelte:head>
@@ -43,8 +35,11 @@
 </svelte:head>
 
 <div class="timaeus-scope" data-mo-dialect="timaeus" style={timaeusStyle}>
+	<!-- A copy-only overture: the plates themselves start one scroll below (B1 is
+	     the eager LCP image), so the hero carries no figure — the constellation
+	     ground and the cobalt register already say which world this page is. -->
 	<section class="s-section s-hero">
-		<div class="s-wrap s-hero__grid s-hero__grid--flip">
+		<div class="s-wrap">
 			<div class="s-hero__copy">
 				<MorpheRoot tree={heroTree} dialect={timaeus} />
 				<div class="s-cta-row">
@@ -53,22 +48,6 @@
 				</div>
 				<p class="s-proof">Two acts. Nine plates. The whole lifecycle on the record.</p>
 			</div>
-			<figure class="s-plate s-hero__plate">
-				<picture>
-					<source type="image/avif" srcset={indexSrcset("avif")} sizes={indexSizes} />
-					<source type="image/webp" srcset={indexSrcset("webp")} sizes={indexSizes} />
-					<img
-						class="s-plate__img"
-						src="/images/plates/index-0-960.png"
-						alt="The index plate of the Timaeus narrative: nine numbered scenes arranged as one wireframe constellation — the operating lifecycle at a glance."
-						width="960"
-						height="1200"
-						decoding="async"
-						fetchpriority="high"
-					/>
-				</picture>
-				<figcaption class="s-plate__cap">The index plate: nine beats, one loop.</figcaption>
-			</figure>
 		</div>
 	</section>
 
