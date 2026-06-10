@@ -141,6 +141,20 @@
 	--mo-violet-600: #9b73ec;
 	--mo-violet-700: #34245f;
 	--mo-violet-on: #241046; /* on-violet (dark text on the beacon) */
+	/* Cobalt — a FOURTH chromatic family: the saturated electric-blue band (the
+	   #3b82f6–#60a5fa lattice light of the Timaeus plates), which the existing
+	   periwinkle `--mo-blue-*` ramp (an Archive tertiary, pale and desaturated)
+	   cannot reach. Like every ramp here it is vertical-NEUTRAL: a raw electric
+	   blue progression the intent layer assigns meaning to (the Timaeus dialect
+	   reads it as its lattice beacon and constellation grounds). 500 is the
+	   on-dark beacon tone; 700 the deep lattice-navy surface tone; `on` the
+	   near-black navy text that rides the bright 500 fill. */
+	--mo-cobalt-300: #bfdbfe; /* white-blue highlight (the lattice hot edge) */
+	--mo-cobalt-400: #60a5fa;
+	--mo-cobalt-500: #3b82f6; /* the lattice beacon */
+	--mo-cobalt-600: #2563eb;
+	--mo-cobalt-700: #1e3a8a; /* deep lattice navy */
+	--mo-cobalt-on: #051633; /* on-cobalt (dark text on the beacon) */
 
 	/* --- Font families (pulled through from the Archive; the three families) - */
 	/* The host app wires the actual @font-face / next-font variables into these
