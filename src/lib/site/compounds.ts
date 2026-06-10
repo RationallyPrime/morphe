@@ -396,6 +396,71 @@ export const SiteCtaBanner: CompoundDef = {
 };
 
 /* ===========================================================================
+ * SiteEntry — a QUIET catalog entry (KRA-328): the support register.
+ *
+ * params: marker (node) · heading (node, required) · body (node, required)
+ * slots:  foot — an optional trailing node (a Link, a Status)
+ *
+ * The step DOWN from SiteValueProp: a plain stack on the BASE surface — no
+ * frame, no raised paint. The home redesign's card law is "one raised moment
+ * per movement": the dominant claim keeps its exhibit case (SiteValueProp /
+ * SiteStep / the feature row), and the supporting pair reads as catalog
+ * entries beside it — archive apparatus, not more exhibit cases. Visual
+ * separation comes from the grid gap and the type hierarchy, never another
+ * panel. The optional marker rides the baseline cluster (a step number, a
+ * shelfmark) in the quiet accession register.
+ * ========================================================================= */
+
+export const SiteEntry: CompoundDef = {
+	name: "SiteEntry",
+	version: "1.0.0",
+	grammarVersion: "0.1.0",
+	params: {
+		type: "object",
+		properties: {
+			marker: {
+				type: "node",
+				default: {
+					kind: "text",
+					value: "",
+					as: "caption",
+					intent: "accession",
+				},
+				description: "Optional quiet marker beside the heading (a Text node).",
+			},
+			heading: {
+				type: "node",
+				required: true,
+				description: "The entry heading (a Text node).",
+			},
+			body: {
+				type: "node",
+				required: true,
+				description: "The entry body (a Text node).",
+			},
+		},
+	},
+	template: {
+		kind: "stack",
+		role: "section",
+		direction: "block",
+		children: [
+			{
+				kind: "cluster",
+				role: "inline",
+				align: "baseline",
+				children: [
+					{ kind: "param-ref", param: "marker" },
+					{ kind: "param-ref", param: "heading" },
+				],
+			},
+			{ kind: "param-ref", param: "body" },
+			{ kind: "slot", name: "foot", fallback: [] },
+		],
+	},
+};
+
+/* ===========================================================================
  * TimaeusPlate — one beat of the Timaeus narrative (KRA-327).
  *
  * params: plate (node, required) · marker (node, required) · title (node, required)
@@ -483,6 +548,7 @@ export const SITE_COMPOUNDS: readonly CompoundDef[] = [
 	SiteStep,
 	SiteFeatureSplit,
 	SiteCtaBanner,
+	SiteEntry,
 	TimaeusPlate,
 ];
 
