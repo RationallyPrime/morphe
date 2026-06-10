@@ -204,7 +204,12 @@ export const SITE_INTENTS: readonly SiteIntent[] = [
 		label: "Show me the technical version",
 		keywords: ["technical", "architecture", "engineering", "stack", "how it works", "cto"],
 		href: "/architecture",
-		action: { kind: "navigate" },
+		action: {
+			kind: "stage-delta",
+			id: HOME_INTENT_STAGE_ID,
+			choice: HOME_STAGE_CHOICES.technical,
+		},
+		announce: "The architecture — shown below.",
 	},
 	{
 		id: "engagement-path",
@@ -235,7 +240,12 @@ export const SITE_INTENTS: readonly SiteIntent[] = [
 		label: "Tell me the story",
 		keywords: ["story", "plates", "narrative", "tale", "nine"],
 		href: "/how-it-works",
-		action: { kind: "navigate" },
+		action: {
+			kind: "stage-delta",
+			id: HOME_INTENT_STAGE_ID,
+			choice: HOME_STAGE_CHOICES.plates,
+		},
+		announce: "The story in nine plates — shown below.",
 	},
 	{
 		id: "flip-the-lights",

@@ -160,8 +160,9 @@ describe("I3 — the flip-the-lights tracer morph (one engine path)", () => {
 	});
 
 	it("a navigate intent is returned to the caller, never executed in-engine", () => {
-		const nav = SITE_INTENTS.find((i) => i.id === "technical-version") as SiteIntent;
-		expect(intentEngine.execute(nav)).toEqual({ kind: "navigate", href: "/architecture" });
+		// Every REGISTERED intent now morphs (KRA-356–359); the navigate path
+		// remains the engine's contract for future vocabulary, proven here.
+		expect(intentEngine.execute(VALID)).toEqual({ kind: "navigate", href: "/somewhere" });
 		// No side effects: dialect untouched, no announcement.
 		expect(activeDialect.id).toBe("gallery");
 	});
@@ -231,9 +232,11 @@ describe("I5 — content morphs consume the shared stage-delta path", () => {
 		["governance-story", HOME_STAGE_CHOICES.governance],
 		["engagement-path", HOME_STAGE_CHOICES.engagement],
 		["founder-identity", HOME_STAGE_CHOICES.identity],
+		["technical-version", HOME_STAGE_CHOICES.technical],
+		["plates-story", HOME_STAGE_CHOICES.plates],
 	];
 
-	it("registers KRA-356/358 content intents as stage deltas, not navigate fallbacks", () => {
+	it("registers KRA-356/357/358/359 content intents as stage deltas, not navigate fallbacks", () => {
 		for (const [id, choice] of expected) {
 			const intent = SITE_INTENTS.find((i) => i.id === id);
 			expect(intent?.action, id).toEqual({
@@ -244,7 +247,7 @@ describe("I5 — content morphs consume the shared stage-delta path", () => {
 		}
 	});
 
-	it("ships a home stage envelope with a default branch plus the three authored branches", () => {
+	it("ships a home stage envelope with a default branch plus the five authored branches", () => {
 		const envelope = homeIntentStageEnvelope();
 		expect(envelope.epoch).toBe(1);
 		expect(envelope.choices).toEqual({});
@@ -252,7 +255,7 @@ describe("I5 — content morphs consume the shared stage-delta path", () => {
 		if (envelope.tree.kind !== "vary") return;
 		expect(envelope.tree.id).toBe(HOME_INTENT_STAGE_ID);
 		expect(envelope.tree.default).toBe(HOME_STAGE_CHOICES.default);
-		expect(envelope.tree.options).toHaveLength(4);
+		expect(envelope.tree.options).toHaveLength(6);
 	});
 
 	it("executes each authored content morph through the same engine gate", () => {
@@ -281,6 +284,8 @@ describe("I5 — content morphs consume the shared stage-delta path", () => {
 			["governance-story", "/how-it-works"],
 			["engagement-path", "/onboarding"],
 			["founder-identity", "#contact"],
+			["technical-version", "/architecture"],
+			["plates-story", "/how-it-works"],
 		]);
 
 		for (const [id, href] of expectedHrefs) {
