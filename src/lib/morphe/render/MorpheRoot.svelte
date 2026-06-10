@@ -12,6 +12,7 @@
 
 	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { Dialect } from "../dialects/types.js";
+	import type { ChoiceMap } from "../delegation/envelope.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
 	import type { ActionMap } from "../state/actions.js";
 	import type { MorpheStore } from "../state/store.svelte.js";
@@ -24,6 +25,7 @@
 	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
 	import { provideMorpheContext } from "../context/Context.svelte.js";
 	import { provideCompoundResolver } from "./resolver.svelte.js";
+	import { provideChoices } from "./choices.svelte.js";
 	import {
 		createInMemoryMorpheStore,
 		provideMorpheStore,
@@ -45,6 +47,11 @@
 		 */
 		showCandidates?: boolean;
 		/**
+		 * Current mid-loop choices, already epoch-checked by applyDelta host-side.
+		 * ADR-0004: epochs never cross into the renderer.
+		 */
+		choices?: ChoiceMap;
+		/**
 		 * The tier-2 escalation boundary (Lemma 5): submit / task-transition /
 		 * view-not-working surface here as TYPED events — never a DOM event,
 		 * never a store write. Omit it and tier-2 affordances are simply inert.
@@ -59,6 +66,7 @@
 		store,
 		actions,
 		showCandidates = false,
+		choices,
 		onEscalate,
 	}: Props = $props();
 
@@ -103,6 +111,14 @@
 	provideCompoundResolver({
 		get current() {
 			return resolver;
+		},
+	});
+
+	// R2.3 bounded-delegation render seam: the renderer gets choices only. Epochs
+	// are consumed by applyDelta before render and never enter this component.
+	provideChoices({
+		get current() {
+			return choices;
 		},
 	});
 

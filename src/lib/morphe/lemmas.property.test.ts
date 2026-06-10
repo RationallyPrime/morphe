@@ -24,6 +24,8 @@
 
 import { describe, expect, it } from "vitest";
 import { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+import { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+import { resolveWithin } from "./delegation/resolveChoice.js";
 import {
 	ROOT_CONTEXT,
 	THRESHOLDS,
@@ -50,6 +52,8 @@ import type {
 	Node,
 	NodeKind,
 } from "./grammar/types.js";
+import { CONTEXT_DIGEST_VERSION } from "./state/digest.js";
+import type { ContextDigest } from "./state/digest.js";
 
 /* ===========================================================================
  * 0. Seeded PRNG + schema-valid generators (the in-repo fuzz harness)
@@ -760,6 +764,54 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 			expect(result.result).toBe("stale-epoch");
 			expect(result.envelope).toBe(reemitted);
 		}
+	});
+
+	it("the dev mid-loop seam proposes deltas that the host applies before render", () => {
+		const tree: Node = {
+			kind: "vary",
+			id: "copy-choice",
+			options: [
+				{ kind: "text", value: "A", as: "body" },
+				{ kind: "text", value: "B", as: "body" },
+			],
+			default: 0,
+		};
+		let envelope = envelopeFor(tree, 3);
+		const loop = createDevStaticChoiceMidLoop({ epoch: envelope.epoch, choice: 1, enabled: true });
+		const digest: ContextDigest = {
+			digestVersion: CONTEXT_DIGEST_VERSION,
+			state: {},
+			recentEvents: [],
+		};
+
+		for (const delta of loop.propose(digest, liveVaryIds(tree))) {
+			const result = applyDelta(envelope, delta);
+			expect(result.result).toBe("applied");
+			envelope = result.envelope;
+		}
+
+		expect(envelope.choices["copy-choice"]).toBe(1);
+	});
+
+	it("Within choices resolve into existing algebra inputs, never raw CSS", () => {
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "density-choice", dimension: "density", range: [0, 2], default: 1 },
+				{ "density-choice": 0 },
+			),
+		).toEqual({ dimension: "density", choice: 0, value: "compact" });
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "emphasis-choice", dimension: "emphasis", range: [0, 3], default: 1 },
+				{ "emphasis-choice": 3 },
+			),
+		).toEqual({ dimension: "emphasis", choice: 3, value: "critical" });
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "collapse-choice", dimension: "collapse", range: [0, 2], default: 0 },
+				{ "collapse-choice": 2 },
+			),
+		).toEqual({ dimension: "collapse", choice: 2, value: true });
 	});
 });
 

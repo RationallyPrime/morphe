@@ -24,6 +24,8 @@
 	import type { MorpheContext } from "../context/algebra.js";
 	import { ROOT_CONTEXT } from "../context/algebra.js";
 	import { registry as defaultRegistry, type CompoundResolver } from "../compounds/factory.js";
+	import { resolveVaryOption, resolveWithin } from "../delegation/resolveChoice.js";
+	import { useChoices } from "./choices.svelte.js";
 	import { useCompoundResolver } from "./resolver.svelte.js";
 	import { primitiveFor, type PrimitiveKind } from "./registry.js";
 	import Self from "./Node.svelte";
@@ -49,16 +51,15 @@
 	// `current` getter is reactive, so a dialect change re-derives the view here.
 	const provided = useCompoundResolver();
 	const resolver = $derived(registry ?? provided?.current ?? defaultRegistry);
+	const providedChoices = useChoices();
+	const choiceMap = $derived(providedChoices?.current);
 
 	/**
-	 * For Vary, pick the default option index, clamped into range. Phase 0 has no
-	 * mid loop, so this is the rendered choice.
+	 * For Vary, pick the root-provided choice when present, else the authored
+	 * default. The choice map is already epoch-checked host-side by applyDelta.
 	 */
-	const varyChoice = $derived(
-		node.kind === "vary"
-			? node.options[Math.min(Math.max(node.default ?? 0, 0), node.options.length - 1)]
-			: undefined,
-	);
+	const varyChoice = $derived(node.kind === "vary" ? resolveVaryOption(node, choiceMap) : undefined);
+	const withinChoice = $derived(node.kind === "within" ? resolveWithin(node, choiceMap) : undefined);
 
 	/** Expand a CompoundRef once, reactively. */
 	const expanded = $derived.by(() => {
@@ -80,7 +81,7 @@
 		<Self node={varyChoice} {ctx} {registry} />
 	{/if}
 {:else if node.kind === "within"}
-	<!-- R2.1 typed socket: inert until choices are wired in R2.3. -->
+	{#if withinChoice}{/if}
 {:else if node.kind === "slot"}
 	<!-- A bare Slot outside a compound expansion renders its fallback. -->
 	{#each node.fallback ?? [] as child, i (i)}

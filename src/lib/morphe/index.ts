@@ -60,6 +60,10 @@ export { assertNever } from "./grammar/types.js";
 export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
 export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
 export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+export type { MidLoopDelegate, DevStaticChoiceMidLoopOptions } from "./delegation/midLoop.js";
+export { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+export type { ResolvedWithin } from "./delegation/resolveChoice.js";
+export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js";
 
 // Context algebra (Lemma 2)
 export type { MorpheContext, ScaleTier } from "./context/algebra.js";
