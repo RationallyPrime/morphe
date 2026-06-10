@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Badge — a compact labelled chip carrying an intent (Content family leaf).
 	 *
@@ -15,8 +16,8 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Badge } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Badge> = $props();

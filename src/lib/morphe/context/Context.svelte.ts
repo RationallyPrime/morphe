@@ -14,11 +14,11 @@
 import { getContext, hasContext, setContext } from "svelte";
 import type { ContainerRole, Density, EmphasisClaim } from "../grammar/types.js";
 import {
+	densityToSpaceStep,
+	enterFrame,
 	type MorpheContext,
 	ROOT_CONTEXT,
 	type ScaleTier,
-	densityToSpaceStep,
-	enterFrame,
 	tierToTypeStep,
 	transform,
 } from "./algebra.js";

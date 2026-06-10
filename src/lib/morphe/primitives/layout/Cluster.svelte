@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Cluster — a wrapping inline run (Layout role); the default carrier for inline
 	 * content (badges, chips, a toolbar of controls, tag rows).
@@ -16,11 +17,11 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
-	import type { Cluster } from "../../grammar/types.js";
-	import { descend, boundaryStyle } from "../../context/Context.svelte.js";
 	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
+	import { boundaryStyle, descend } from "../../context/Context.svelte.js";
+	import type { Cluster } from "../../grammar/types.js";
 	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Cluster> = $props();
 

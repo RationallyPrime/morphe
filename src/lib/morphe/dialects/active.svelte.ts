@@ -22,9 +22,9 @@
  * pure runes.
  */
 
-import type { Dialect } from "./types.js";
 import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { getDialect, hasDialect } from "./registry.js";
+import type { Dialect } from "./types.js";
 
 /** The app-wide active dialect. Module-level rune: one source of truth per app. */
 let active = $state<Dialect>(DEFAULT_DIALECT);

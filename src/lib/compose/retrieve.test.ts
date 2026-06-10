@@ -94,11 +94,11 @@ describe("retrieval — retrieve (synthetic, deterministic)", () => {
 describe("retrieval — retrieve (real corpus, self-retrieval)", () => {
 	it("ranks a capability first when queried with its own embedding", () => {
 		const target = CAPABILITIES[0];
-		expect(target).toBeDefined();
-		const query = CAPABILITY_EMBEDDINGS[target!.id];
-		expect(query).toBeDefined();
-		const out = retrieve(query!, ALL_SYSTEMS, 5, CAPABILITIES);
-		expect(out[0]?.capability.id).toBe(target!.id);
+		if (!target) throw new Error("expected a non-empty capability corpus");
+		const query = CAPABILITY_EMBEDDINGS[target.id];
+		if (!query) throw new Error("expected an embedding for the first capability");
+		const out = retrieve(query, ALL_SYSTEMS, 5, CAPABILITIES);
+		expect(out[0]?.capability.id).toBe(target.id);
 		expect(out[0]?.similarity).toBeCloseTo(1, 4);
 		expect(out.length).toBeLessThanOrEqual(5);
 	});

@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Status — a compact tone chip reporting the state of a thing.
 	 *
@@ -19,8 +20,8 @@
 	 * Tokens (Lemma 3): scales -> intents -> slots only, via `toneIntent` + `slot`.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Status } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot, toneIntent } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Status> = $props();

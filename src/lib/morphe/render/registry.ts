@@ -18,38 +18,40 @@
 
 import type { Component } from "svelte";
 import type { NodeKind } from "../grammar/types.js";
-
-// Layout
-import Stack from "../primitives/layout/Stack.svelte";
-import Grid from "../primitives/layout/Grid.svelte";
-import Cluster from "../primitives/layout/Cluster.svelte";
-import Frame from "../primitives/layout/Frame.svelte";
-import Spacer from "../primitives/layout/Spacer.svelte";
-// Content
-import Text from "../primitives/content/Text.svelte";
-import NumberView from "../primitives/content/Number.svelte";
-import Badge from "../primitives/content/Badge.svelte";
-import Icon from "../primitives/content/Icon.svelte";
-import Media from "../primitives/content/Media.svelte";
-// Input
-import Field from "../primitives/input/Field.svelte";
-import Select from "../primitives/input/Select.svelte";
-import Toggle from "../primitives/input/Toggle.svelte";
-import Range from "../primitives/input/Range.svelte";
-// Feedback
-import Progress from "../primitives/feedback/Progress.svelte";
-import Status from "../primitives/feedback/Status.svelte";
-import InlineAlert from "../primitives/feedback/InlineAlert.svelte";
 // Action (real <button>/<a> affordances)
 import Button from "../primitives/action/Button.svelte";
 import Link from "../primitives/action/Link.svelte";
+import Badge from "../primitives/content/Badge.svelte";
+import Icon from "../primitives/content/Icon.svelte";
+import Media from "../primitives/content/Media.svelte";
+import NumberView from "../primitives/content/Number.svelte";
+// Content
+import Text from "../primitives/content/Text.svelte";
+import InlineAlert from "../primitives/feedback/InlineAlert.svelte";
+// Feedback
+import Progress from "../primitives/feedback/Progress.svelte";
+import Status from "../primitives/feedback/Status.svelte";
+// Input
+import Field from "../primitives/input/Field.svelte";
+import Range from "../primitives/input/Range.svelte";
+import Select from "../primitives/input/Select.svelte";
+import Toggle from "../primitives/input/Toggle.svelte";
+import Cluster from "../primitives/layout/Cluster.svelte";
+import Frame from "../primitives/layout/Frame.svelte";
+import Grid from "../primitives/layout/Grid.svelte";
+import Spacer from "../primitives/layout/Spacer.svelte";
+// Layout
+import Stack from "../primitives/layout/Stack.svelte";
 // Overlay (native <dialog> / Popover API / <details>)
 import Dialog from "../primitives/overlay/Dialog.svelte";
-import Popover from "../primitives/overlay/Popover.svelte";
 import Disclosure from "../primitives/overlay/Disclosure.svelte";
+import Popover from "../primitives/overlay/Popover.svelte";
 
 /** The kinds that map to a shipped primitive component (everything but Meta). */
-export type PrimitiveKind = Exclude<NodeKind, "slot" | "param-ref" | "vary" | "within" | "compound">;
+export type PrimitiveKind = Exclude<
+	NodeKind,
+	"slot" | "param-ref" | "vary" | "within" | "compound"
+>;
 
 /**
  * The registry. Every PrimitiveKind MUST have an entry — the exhaustive Record
@@ -57,6 +59,7 @@ export type PrimitiveKind = Exclude<NodeKind, "slot" | "param-ref" | "vary" | "w
  * props (see Node.svelte); the `Component` type here is intentionally loose on
  * props because each primitive narrows its own `node` by kind internally.
  */
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous registry — each primitive narrows its own `node` by kind; no common prop type exists.
 export const PRIMITIVES: Record<PrimitiveKind, Component<any>> = {
 	stack: Stack,
 	grid: Grid,
@@ -83,6 +86,7 @@ export const PRIMITIVES: Record<PrimitiveKind, Component<any>> = {
 };
 
 /** Look up the component for a primitive kind. */
+// biome-ignore lint/suspicious/noExplicitAny: same heterogeneous-registry escape as PRIMITIVES above.
 export function primitiveFor(kind: PrimitiveKind): Component<any> {
 	return PRIMITIVES[kind];
 }

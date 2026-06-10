@@ -23,37 +23,31 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
-import { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
-import { resolveWithin } from "./delegation/resolveChoice.js";
+import type { CompoundDef } from "./compounds/factory.js";
+import { CompoundRegistry, childrenOf } from "./compounds/factory.js";
 import {
-	ROOT_CONTEXT,
-	THRESHOLDS,
-	TOP_TIER_CAP,
-	type MorpheContext,
-	type ScaleTier,
 	densityForCount,
 	enterFrame,
+	type MorpheContext,
+	ROOT_CONTEXT,
 	renderedChildEmphasis,
 	renormalizeBudget,
+	type ScaleTier,
+	THRESHOLDS,
+	TOP_TIER_CAP,
 	transform,
 } from "./context/algebra.js";
-import { CompoundRegistry, childrenOf } from "./compounds/factory.js";
-import type { CompoundDef } from "./compounds/factory.js";
+import { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
 import type { Delta, EmissionEnvelope } from "./delegation/envelope.js";
-import { applyDialect } from "./dialects/provider.svelte.js";
-import { DEFAULT_DIALECT } from "./dialects/icelandic-archive.js";
+import { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+import { resolveWithin } from "./delegation/resolveChoice.js";
 import { clinical } from "./dialects/clinical.js";
+import { DEFAULT_DIALECT } from "./dialects/icelandic-archive.js";
+import { applyDialect } from "./dialects/provider.svelte.js";
 import type { Dialect } from "./dialects/types.js";
-import type {
-	ContainerRole,
-	Density,
-	EmphasisClaim,
-	Node,
-	NodeKind,
-} from "./grammar/types.js";
-import { CONTEXT_DIGEST_VERSION } from "./state/digest.js";
+import type { ContainerRole, Density, EmphasisClaim, Node, NodeKind } from "./grammar/types.js";
 import type { ContextDigest } from "./state/digest.js";
+import { CONTEXT_DIGEST_VERSION } from "./state/digest.js";
 
 /* ===========================================================================
  * 0. Seeded PRNG + schema-valid generators (the in-repo fuzz harness)
@@ -112,15 +106,35 @@ function genLeaf(rng: () => number): Node {
 	const which = intIn(rng, 0, 8);
 	switch (which) {
 		case 0:
-			return { kind: "text", value: `t${intIn(rng, 0, 999)}`, as: pick(rng, ["body", "heading", "caption"] as const) };
+			return {
+				kind: "text",
+				value: `t${intIn(rng, 0, 999)}`,
+				as: pick(rng, ["body", "heading", "caption"] as const),
+			};
 		case 1:
-			return { kind: "number", value: intIn(rng, 0, 1_000_000), format: pick(rng, ["plain", "integer", "currency", "percent", "compact"] as const) };
+			return {
+				kind: "number",
+				value: intIn(rng, 0, 1_000_000),
+				format: pick(rng, ["plain", "integer", "currency", "percent", "compact"] as const),
+			};
 		case 2:
-			return { kind: "badge", label: `b${intIn(rng, 0, 99)}`, intent: pick(rng, ["neutral", "success", "caution", "info"] as const) };
+			return {
+				kind: "badge",
+				label: `b${intIn(rng, 0, 99)}`,
+				intent: pick(rng, ["neutral", "success", "caution", "info"] as const),
+			};
 		case 3:
-			return { kind: "icon", name: "circle", a11y: rng() < 0.5 ? { role: "decorative" } : { role: "img", label: "marker" } };
+			return {
+				kind: "icon",
+				name: "circle",
+				a11y: rng() < 0.5 ? { role: "decorative" } : { role: "img", label: "marker" },
+			};
 		case 4:
-			return { kind: "status", tone: pick(rng, ["success", "caution", "info", "neutral"] as const), signal: { text: "ok" } };
+			return {
+				kind: "status",
+				tone: pick(rng, ["success", "caution", "info", "neutral"] as const),
+				signal: { text: "ok" },
+			};
 		case 5:
 			return { kind: "progress", value: rng(), label: "loading" };
 		case 6:
@@ -157,13 +171,33 @@ function wrapContainer(rng: () => number, role: ContainerRole, children: Node[])
 	const which = intIn(rng, 0, 3);
 	switch (which) {
 		case 0:
-			return { kind: "stack", role, direction: pick(rng, ["block", "inline", "auto"] as const), children };
+			return {
+				kind: "stack",
+				role,
+				direction: pick(rng, ["block", "inline", "auto"] as const),
+				children,
+			};
 		case 1:
-			return { kind: "grid", role, minTrack: pick(rng, ["narrow", "regular", "wide"] as const), children };
+			return {
+				kind: "grid",
+				role,
+				minTrack: pick(rng, ["narrow", "regular", "wide"] as const),
+				children,
+			};
 		case 2:
-			return { kind: "cluster", role, justify: pick(rng, ["start", "between", "end"] as const), children };
+			return {
+				kind: "cluster",
+				role,
+				justify: pick(rng, ["start", "between", "end"] as const),
+				children,
+			};
 		default:
-			return { kind: "frame", role, surface: pick(rng, ["base", "raised", "sunken"] as const), children };
+			return {
+				kind: "frame",
+				role,
+				surface: pick(rng, ["base", "raised", "sunken"] as const),
+				children,
+			};
 	}
 }
 
@@ -217,12 +251,27 @@ function withoutRootClaim(node: Node): Node {
 /** The kinds the renderer can resolve at the leaf after compound expansion. */
 const RENDERABLE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	// registry primitives
-	"stack", "grid", "cluster", "frame", "spacer",
-	"text", "number", "badge", "icon", "media",
-	"field", "select", "toggle", "range",
-	"progress", "status", "inline-alert",
+	"stack",
+	"grid",
+	"cluster",
+	"frame",
+	"spacer",
+	"text",
+	"number",
+	"badge",
+	"icon",
+	"media",
+	"field",
+	"select",
+	"toggle",
+	"range",
+	"progress",
+	"status",
+	"inline-alert",
 	// meta the renderer handles directly (slot fallback / vary default)
-	"slot", "vary", "within",
+	"slot",
+	"vary",
+	"within",
 ]);
 
 /* ===========================================================================
@@ -338,7 +387,11 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 					version: "1.0.0",
 					grammarVersion: "0.1.0",
 					params: { type: "object", properties: { v: { type: "string", default: "L" } } },
-					template: { kind: "stack", role: "inline", children: [{ kind: "param-ref", param: "v" }] },
+					template: {
+						kind: "stack",
+						role: "inline",
+						children: [{ kind: "param-ref", param: "v" }],
+					},
 				}).ok,
 			).toBe(true);
 			expect(
@@ -383,7 +436,11 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 			version: "1.0.0",
 			grammarVersion: "0.1.0",
 			params: { type: "object", properties: {} },
-			template: { kind: "stack", role: "panel", children: [{ kind: "compound", name: "loop", args: {} }] },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [{ kind: "compound", name: "loop", args: {} }],
+			},
 		};
 		expect(reg1.register(selfRef).ok).toBe(false);
 		expect(reg1.has("loop")).toBe(false);
@@ -397,7 +454,11 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 			version: "1.0.0",
 			grammarVersion: "0.1.0",
 			params: { type: "object", properties: {} },
-			template: { kind: "stack", role: "panel", children: [{ kind: "compound", name: "b", args: {} }] },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [{ kind: "compound", name: "b", args: {} }],
+			},
 		};
 		const aRes = reg2.register(a);
 		const b: CompoundDef = {
@@ -405,7 +466,11 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 			version: "1.0.0",
 			grammarVersion: "0.1.0",
 			params: { type: "object", properties: {} },
-			template: { kind: "stack", role: "panel", children: [{ kind: "compound", name: "a", args: {} }] },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [{ kind: "compound", name: "a", args: {} }],
+			},
 		};
 		const bRes = reg2.register(b);
 		// At least one of the two closing the cycle must be rejected; the registry
@@ -431,7 +496,11 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 				template:
 					i === 0
 						? { kind: "text", value: "base" }
-						: { kind: "stack", role: "panel", children: [{ kind: "compound", name: `c${i - 1}`, args: {} }] },
+						: {
+								kind: "stack",
+								role: "panel",
+								children: [{ kind: "compound", name: `c${i - 1}`, args: {} }],
+							},
 			};
 			const res = reg.register(def);
 			lastOk = res.ok;
@@ -455,7 +524,10 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 			const len = intIn(rng, 1, 12);
 			for (let i = 0; i < len; i++) {
 				const role = pick(rng, CONTAINER_ROLES);
-				const next = transform(ctx, role, { childCount: intIn(rng, 0, 20), claim: pick(rng, CLAIMS) });
+				const next = transform(ctx, role, {
+					childCount: intIn(rng, 0, 20),
+					claim: pick(rng, CLAIMS),
+				});
 				// scaleTier never RISES through a non-Frame transform.
 				expect(next.scaleTier).toBeLessThanOrEqual(ctx.scaleTier);
 				// ...and stays a valid tier.
@@ -473,7 +545,8 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 			let ctx: MorpheContext = ROOT_CONTEXT;
 			// Descend a few non-Frame transforms to pull the tier down.
 			const len = intIn(rng, 2, 8);
-			for (let i = 0; i < len; i++) ctx = transform(ctx, pick(rng, ["toolbar", "section", "panel"] as const));
+			for (let i = 0; i < len; i++)
+				ctx = transform(ctx, pick(rng, ["toolbar", "section", "panel"] as const));
 			const lowered = ctx.scaleTier;
 			const reset = enterFrame(ctx, {
 				surface: pick(rng, ["base", "raised", "sunken"] as const),
@@ -510,7 +583,9 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 			// MONOTONE RENDER: no child is rendered LOUDER than it claimed (the
 			// algebra only ever demotes; it never invents emphasis).
 			for (let i = 0; i < claims.length; i++) {
-				expect(weight[rendered[i] as EmphasisClaim]).toBeLessThanOrEqual(weight[claims[i] as EmphasisClaim]);
+				expect(weight[rendered[i] as EmphasisClaim]).toBeLessThanOrEqual(
+					weight[claims[i] as EmphasisClaim],
+				);
 			}
 		});
 	});
@@ -530,7 +605,9 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 		// later equal claimant — the documented demote-later-first policy.
 		const rendered = renormalizeBudget(2, ["critical", "critical"]);
 		const weight: Record<EmphasisClaim, number> = { muted: 0, normal: 1, strong: 2, critical: 3 };
-		expect(weight[rendered[0] as EmphasisClaim]).toBeGreaterThanOrEqual(weight[rendered[1] as EmphasisClaim]);
+		expect(weight[rendered[0] as EmphasisClaim]).toBeGreaterThanOrEqual(
+			weight[rendered[1] as EmphasisClaim],
+		);
 	});
 
 	it("STABILITY: density only steps at the enumerated thresholds; sub-threshold inserts change nothing", () => {
@@ -914,12 +991,19 @@ describe("Lemma 4 (DIALECT TOTALITY): laws survive every dialect; authored trees
 				let ctx = root;
 				const len = intIn(rng, 1, 10);
 				for (let i = 0; i < len; i++) {
-					const next = transform(ctx, pick(rng, CONTAINER_ROLES), { childCount: intIn(rng, 0, 20) });
+					const next = transform(ctx, pick(rng, CONTAINER_ROLES), {
+						childCount: intIn(rng, 0, 20),
+					});
 					expect(next.scaleTier).toBeLessThanOrEqual(ctx.scaleTier);
 					ctx = next;
 				}
 				// Budget-conservation under the dialect's (clamped) budget.
-				const weight: Record<EmphasisClaim, number> = { muted: 0, normal: 1, strong: 2, critical: 3 };
+				const weight: Record<EmphasisClaim, number> = {
+					muted: 0,
+					normal: 1,
+					strong: 2,
+					critical: 3,
+				};
 				const claims: EmphasisClaim[] = [];
 				const n = intIn(rng, 0, 12);
 				for (let i = 0; i < n; i++) claims.push(pick(rng, CLAIMS));

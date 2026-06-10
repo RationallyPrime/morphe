@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Morphe NODE RENDERER — the recursive heart of `render` (Definition 1).
 	 *
@@ -20,15 +21,15 @@
 	 * from (parent ctx, own role) only.
 	 */
 
-	import type { Node as MorpheNode } from "../grammar/types.js";
+	import { type CompoundResolver, registry as defaultRegistry } from "../compounds/factory.js";
 	import type { MorpheContext } from "../context/algebra.js";
 	import { ROOT_CONTEXT } from "../context/algebra.js";
-	import { registry as defaultRegistry, type CompoundResolver } from "../compounds/factory.js";
 	import { resolveVaryOption, resolveWithin } from "../delegation/resolveChoice.js";
+	import type { Node as MorpheNode } from "../grammar/types.js";
 	import { useChoices } from "./choices.svelte.js";
-	import { useCompoundResolver } from "./resolver.svelte.js";
-	import { primitiveFor, type PrimitiveKind } from "./registry.js";
 	import Self from "./Node.svelte";
+	import { type PrimitiveKind, primitiveFor } from "./registry.js";
+	import { useCompoundResolver } from "./resolver.svelte.js";
 
 	interface Props {
 		node: MorpheNode;

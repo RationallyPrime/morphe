@@ -18,7 +18,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { Node } from "$morphe";
-import { childrenOf, CompoundRegistry } from "$morphe";
+import { CompoundRegistry, childrenOf } from "$morphe";
 import { registerSiteCompounds, SITE_COMPOUNDS } from "./compounds.js";
 import {
 	architectureBody,

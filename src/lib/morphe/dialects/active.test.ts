@@ -17,10 +17,10 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import { activeDialect } from "./active.svelte.js";
-import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { clinical } from "./clinical.js";
+import { DEFAULT_DIALECT } from "./icelandic-archive.js";
+import { DIALECT_IDS, DIALECTS } from "./registry.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
-import { DIALECTS, DIALECT_IDS } from "./registry.js";
 
 afterEach(() => {
 	activeDialect.set(DEFAULT_DIALECT);
@@ -59,13 +59,9 @@ describe("A3 — setById with an unknown id is a no-op (not a reset)", () => {
 
 describe("A4 — the registry contains all three global dialects", () => {
 	it("ships icelandic-archive, clinical and reykjavik-registry", () => {
-		expect(DIALECT_IDS).toEqual([
-			"icelandic-archive",
-			"clinical",
-			"reykjavik-registry",
-		]);
+		expect(DIALECT_IDS).toEqual(["icelandic-archive", "clinical", "reykjavik-registry"]);
 		expect(DIALECTS["icelandic-archive"]).toBe(DEFAULT_DIALECT);
-		expect(DIALECTS["clinical"]).toBe(clinical);
+		expect(DIALECTS.clinical).toBe(clinical);
 		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
 	});
 });

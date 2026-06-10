@@ -45,6 +45,9 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      - name: Lint + format (Biome)
+        run: bunx biome ci .
+
       - name: Types (svelte-check, 0 errors / 0 warnings)
         run: bun run check
 

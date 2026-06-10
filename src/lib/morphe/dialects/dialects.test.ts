@@ -22,15 +22,15 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
-import { icelandicArchive, DEFAULT_DIALECT, ARCHIVE_SURFACES } from "./icelandic-archive.js";
-import { clinical, CLINICAL_SURFACES } from "./clinical.js";
-import { reykjavikRegistry, REYKJAVIK_SURFACES } from "./reykjavik-registry.js";
-import { DIALECTS, DIALECT_IDS, getDialect, hasDialect, DEFAULT_DIALECT_ID } from "./registry.js";
-import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
 import { registry as compoundRegistry } from "../compounds/factory.js";
-import type { Dialect } from "./types.js";
 import type { Node } from "../grammar/types.js";
+import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
+import { CLINICAL_SURFACES, clinical } from "./clinical.js";
+import { ARCHIVE_SURFACES, DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
+import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
+import { DEFAULT_DIALECT_ID, DIALECT_IDS, DIALECTS, getDialect, hasDialect } from "./registry.js";
+import { REYKJAVIK_SURFACES, reykjavikRegistry } from "./reykjavik-registry.js";
+import type { Dialect } from "./types.js";
 
 /** Shared register-extension names every shipped dialect re-reads (FP3). */
 const REGISTER_EXTENSIONS = ["folio", "marginalia", "seal"] as const;
@@ -207,7 +207,10 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 		};
 		expect(unknownIntentsIn(tree, DEFAULT_DIALECT.intents)).toEqual(["provenence"]);
 		expect(
-			unknownIntentsIn({ kind: "text", value: "valid", intent: "provenance" }, DEFAULT_DIALECT.intents),
+			unknownIntentsIn(
+				{ kind: "text", value: "valid", intent: "provenance" },
+				DEFAULT_DIALECT.intents,
+			),
 		).toEqual([]);
 	});
 
@@ -368,7 +371,7 @@ describe("dialect registry — named lookup for the subtree-boundary swap", () =
 		expect(DIALECT_IDS).toContain("icelandic-archive");
 		expect(DIALECT_IDS).toContain("clinical");
 		expect(DIALECT_IDS).toContain("reykjavik-registry");
-		expect(DIALECTS["clinical"]).toBe(clinical);
+		expect(DIALECTS.clinical).toBe(clinical);
 		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
 	});
 
@@ -400,9 +403,7 @@ describe("FP6 — every shipped dialect's compound subset resolves against the r
 	it("each declared compound name is registered", () => {
 		for (const d of Object.values(DIALECTS)) {
 			for (const name of d.compounds) {
-				expect(compoundRegistry.has(name), `${d.id}: unregistered compound "${name}"`).toBe(
-					true,
-				);
+				expect(compoundRegistry.has(name), `${d.id}: unregistered compound "${name}"`).toBe(true);
 			}
 		}
 	});

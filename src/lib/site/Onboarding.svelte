@@ -561,6 +561,7 @@ async function submit(): Promise<void> {
 		text-transform: uppercase;
 		color: var(--mo-intent-on-surface-muted);
 	}
+	/* biome-ignore lint/style/noDescendingSpecificity: `.row__inline .field__input` above only sets flex and wins on specificity by design; the base rule lives with the .field block. */
 	.field__input {
 		width: 100%;
 		padding: var(--mo-space-3) var(--mo-space-4);

@@ -1,11 +1,11 @@
 # Git hooks, run by prek (house standard — never the Python pre-commit framework).
 #
-# These mirror the CI `python` job exactly (CI is the arbiter; see
-# .github/workflows/ci.yml): ruff is pinned to the uv.lock version so the hook
-# and `uv run ruff` can never disagree, ty runs through `uv run` (the pinned
-# one), and the schema byte-stability hook is the same parity gate CI runs.
-# The web gates (svelte-check / vitest / build / SSR smoke) stay CI-only —
-# too slow for a commit hook.
+# These mirror the CI gates (CI is the arbiter; see .github/workflows/ci.yml):
+# Biome runs via bunx (the package.json-pinned version), ruff is pinned to the
+# uv.lock version so the hook and `uv run ruff` can never disagree, ty runs
+# through `uv run` (the pinned one), and the schema byte-stability hook is the
+# same parity gate CI runs. The slow web gates (svelte-check / vitest / build /
+# SSR smoke) stay CI-only — too slow for a commit hook.
 #
 # `env -u PYTHONPATH` guards against an inherited leading-colon PYTHONPATH
 # (= CWD on sys.path), which gives ty phantom unresolved-import errors.
@@ -21,6 +21,11 @@ repos:
       - id: uv-lock
   - repo: local
     hooks:
+      - id: biome-check
+        name: biome check (pinned, via bunx)
+        language: system
+        entry: bunx biome check --no-errors-on-unmatched
+        files: \.(ts|js|svelte|css|json|jsonc)$
       - id: ty-check
         name: ty check (pinned, via uv run)
         language: system

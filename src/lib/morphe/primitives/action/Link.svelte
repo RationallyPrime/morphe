@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Link — the NAVIGATION affordance (genuine browser capability). A real
 	 * `<a href>`: native navigation, middle-click, context menu, Cmd/Ctrl-click for
@@ -33,8 +34,8 @@
 	 * `--mo-link-*` CSS vars (the C9 carrier).
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Link } from "../../grammar/types.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Link> = $props();

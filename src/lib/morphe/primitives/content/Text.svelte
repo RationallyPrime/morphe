@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Text — semantic text content (Content family leaf).
 	 *
@@ -22,10 +23,10 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Text } from "../../grammar/types.js";
-	import { slot } from "../../tokens/slots.js";
+	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
+	import { slot } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Text> = $props();
 
@@ -139,6 +140,7 @@
 	 * inline still wins because only `muted` forces the override.
 	 */
 	.mo-text[data-emphasis="muted"] {
+		/* biome-ignore lint/complexity/noImportantStyles: muted must beat the inline intent color (see comment above) — the override is the contract. */
 		color: var(--mo-intent-on-surface-muted) !important;
 		font-weight: 400;
 	}

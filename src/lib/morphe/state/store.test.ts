@@ -1,13 +1,13 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
 	commitTier1,
 	createInMemoryMorpheStore,
+	type JsonValue,
 	resolveMorpheStore,
 	TIER1_WINDOW_SIZE,
-	type JsonValue,
 } from "./store.svelte.js";
 
 describe("Morphe client store — ADR-0003 contract", () => {
@@ -61,11 +61,7 @@ describe("Morphe client store — ADR-0003 contract", () => {
 		unsubscribe();
 		store.set("filters", { status: "ignored" });
 
-		expect(seen).toEqual([
-			{ status: "open" },
-			{ status: "open" },
-			{ status: "closed" },
-		]);
+		expect(seen).toEqual([{ status: "open" }, { status: "open" }, { status: "closed" }]);
 		expect(store.get("filters")).toEqual({ status: "ignored" });
 	});
 

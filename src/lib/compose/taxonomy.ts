@@ -155,7 +155,7 @@ export const PAIN_KEYWORDS: Readonly<Record<string, PainTag>> = {
 	certification: "compliance",
 	certified: "compliance",
 	training: "compliance",
-	"sla": "compliance",
+	sla: "compliance",
 	regulated: "compliance",
 	"break rules": "compliance",
 	"labor law": "compliance",
@@ -224,12 +224,12 @@ export const PAIN_KEYWORDS: Readonly<Record<string, PainTag>> = {
 	leakage: "anomaly",
 	leak: "anomaly",
 	"buddy punching": "anomaly",
-	"unusual": "anomaly",
+	unusual: "anomaly",
 
 	// utilization
 	utilization: "utilization",
 	utilisation: "utilization",
-	"bench": "utilization",
+	bench: "utilization",
 	idle: "utilization",
 	"idle time": "utilization",
 	billability: "utilization",

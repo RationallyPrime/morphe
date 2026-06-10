@@ -8,8 +8,8 @@
  */
 
 import { getContext, hasContext, setContext } from "svelte";
-import type { JsonRecord, JsonValue } from "./json.js";
 import type { Tier1Event, Tier1EventInput, Tier1Kind } from "./events.js";
+import type { JsonRecord, JsonValue } from "./json.js";
 
 // Re-exported for the existing import surface (the canonical home is json.ts —
 // a leaf module the store and the event vocabulary share without coupling).

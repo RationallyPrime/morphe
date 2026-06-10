@@ -13,10 +13,10 @@
  * trivially testable; the Renderer's root component spreads the result.
  */
 
-import { type MorpheContext, ROOT_CONTEXT, type ScaleTier } from "../context/algebra.js";
 import { childrenOf } from "../compounds/factory.js";
-import { intentVar } from "../tokens/intents.js";
+import { type MorpheContext, ROOT_CONTEXT, type ScaleTier } from "../context/algebra.js";
 import type { Node } from "../grammar/types.js";
+import { intentVar } from "../tokens/intents.js";
 import type { Dialect } from "./types.js";
 
 /** Bounds within which a dialect's priors are clamped (the "bounded" in L4). */
@@ -52,10 +52,7 @@ function clamp(n: number, lo: number, hi: number): number {
  * compound author's concern and are covered by the registration gate's
  * default-args expansion, not this walk.
  */
-export function unknownIntentsIn(
-	tree: Node,
-	intents: Readonly<Record<string, unknown>>,
-): string[] {
+export function unknownIntentsIn(tree: Node, intents: Readonly<Record<string, unknown>>): string[] {
 	const known = new Set(Object.keys(intents));
 	const unknown: string[] = [];
 	const isNode = (v: unknown): v is Node =>

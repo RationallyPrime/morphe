@@ -45,7 +45,11 @@
 	--mo-intent-primary-action-border: var(--mo-amber-600);
 	--mo-intent-primary-action-ring: var(--mo-amber-500);
 	--mo-intent-primary-action-active: var(--mo-amber-600);
-	--mo-intent-primary-action-disabled: color-mix(in srgb, var(--mo-amber-500) 38%, var(--mo-neutral-3));
+	--mo-intent-primary-action-disabled: color-mix(
+		in srgb,
+		var(--mo-amber-500) 38%,
+		var(--mo-neutral-3)
+	);
 
 	/* --- neutral ----------------------------------------------------------- */
 	--mo-intent-neutral-surface: var(--mo-neutral-4);

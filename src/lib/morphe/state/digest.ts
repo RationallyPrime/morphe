@@ -5,12 +5,7 @@
  * recent-event window, cloned into a JSON-round-trippable envelope.
  */
 
-import type {
-	EscalationEmitter,
-	EscalationHandler,
-	Tier1Event,
-	Tier2Event,
-} from "./events.js";
+import type { EscalationEmitter, EscalationHandler, Tier1Event, Tier2Event } from "./events.js";
 import type { JsonRecord } from "./json.js";
 import type { MorpheStore } from "./store.svelte.js";
 

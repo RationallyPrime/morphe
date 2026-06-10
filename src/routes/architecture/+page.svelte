@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { architectureBody, architectureHero, closingCta, registerSiteCompounds } from "$lib/site";
+	import CtaLink from "$lib/site/CtaLink.svelte";
 	/*
 	 * /architecture — the deep cut. Third-person structural voice, the Greek lexicon
 	 * (Hyle / Eidos / Demiurge / Aition) and the four-agent core. For the technical
 	 * influencer who gates on architecture.
 	 */
 	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
-	import { registerSiteCompounds, architectureHero, architectureBody, closingCta } from "$lib/site";
-	import CtaLink from "$lib/site/CtaLink.svelte";
 
 	registerSiteCompounds();
 

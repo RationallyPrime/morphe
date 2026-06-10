@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { digestOf, escalationWithDigest } from "./digest.js";
-import { commitTier1, createInMemoryMorpheStore } from "./store.svelte.js";
 import type { Tier2Event } from "./events.js";
+import { commitTier1, createInMemoryMorpheStore } from "./store.svelte.js";
 
 describe("ContextDigest — typed snapshot and escalation recorder (R1.3)", () => {
 	it("is a JSON-round-trippable snapshot of tier-1 state plus recent events", () => {
@@ -46,9 +46,7 @@ describe("ContextDigest — typed snapshot and escalation recorder (R1.3)", () =
 			digest: {
 				digestVersion: 1,
 				state: { "form.name": "Ada" },
-				recentEvents: [
-					{ tier: 1, kind: "filter-edit", path: "form.name", value: "Ada", at: 500 },
-				],
+				recentEvents: [{ tier: 1, kind: "filter-edit", path: "form.name", value: "Ada", at: 500 }],
 			},
 		});
 	});

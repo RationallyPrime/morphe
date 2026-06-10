@@ -1,4 +1,5 @@
 <script lang="ts">
+
 	/*
 	 * Disclosure — a collapsible region. The genuine browser capability lives in
 	 * native details / summary: open/close state, the keyboard toggle
@@ -25,10 +26,10 @@
 	 * current ctx.
 	 */
 
-	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Disclosure } from "../../grammar/types.js";
-	import { SLOTS } from "../../tokens/slots.js";
 	import Node from "../../render/Node.svelte";
+	import type { PrimitiveProps } from "../../render/props.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Disclosure> = $props();
 

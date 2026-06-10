@@ -7,5 +7,5 @@
  */
 
 export { default as Node } from "./Node.svelte";
-export { PRIMITIVES, primitiveFor, type PrimitiveKind } from "./registry.js";
 export type { PrimitiveProps } from "./props.js";
+export { PRIMITIVES, type PrimitiveKind, primitiveFor } from "./registry.js";

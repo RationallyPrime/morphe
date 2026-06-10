@@ -46,7 +46,8 @@ export const REYKJAVIK_SURFACES: Readonly<Record<string, string>> = {
 	"--mo-intent-surface-raised": "color-mix(in srgb, var(--mo-neutral-4) 88%, var(--mo-violet-700))",
 	"--mo-intent-surface-sunken": "var(--mo-neutral-0)",
 	// Overlay panel — top tonal tier, cooled toward the amethyst registrar accent.
-	"--mo-intent-surface-overlay": "color-mix(in srgb, var(--mo-neutral-6) 88%, var(--mo-violet-700))",
+	"--mo-intent-surface-overlay":
+		"color-mix(in srgb, var(--mo-neutral-6) 88%, var(--mo-violet-700))",
 	"--mo-intent-on-surface": "var(--mo-neutral-11)",
 	// Muted on-surface raised to 74% (matching the Archive's AA fix): at 62% it dipped
 	// under 4.5:1 on the highest raised tier. 74% clears AA on every tier while staying
