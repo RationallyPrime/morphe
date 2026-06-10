@@ -57,6 +57,15 @@ function eyebrow(value: string): Node {
 	return t(value, "caption", { intent: "accession" });
 }
 
+/**
+ * A width-descriptor srcset over the standard plate rungs. The rungs and the
+ * file naming are the committed output of `scripts/derive-plates.ts` (see
+ * `scripts/plate-manifest.ts` for the plan, pinned by its unit tests).
+ */
+function plateSrcset(slug: string, format: "avif" | "webp"): string {
+	return [640, 960, 1440].map((w) => `/images/plates/${slug}-${w}.${format} ${w}w`).join(", ");
+}
+
 /* ---------------------------------------------------------------------------
  * Shared sections — reused across pages.
  * ------------------------------------------------------------------------- */
@@ -505,6 +514,52 @@ export function howItWorksBody(): Node {
 			// this page and by the exit FAQ below, so the mid-page box split is dropped
 			// — one appliance photograph per page, never the same plate twice.)
 			faqSection(),
+
+			{ kind: "spacer", size: "xl" },
+
+			// --- Plate I (TEMPORARY: the KRA-325 srcset-pipeline demo; KRA-327
+			// gives the narrative its own page and replaces this block.) -------
+			timaeusPlateFigure(),
+		],
+	};
+}
+
+/**
+ * Plate I of the Timaeus narrative, rendered through the responsive Media
+ * extension: AVIF/WebP candidate sets from the committed derivative pipeline
+ * (`bun run plates`) with the 960 PNG as the universal fallback. Intrinsic
+ * dimensions are pinned so the box never shifts (CLS); the plate sits mid-page,
+ * so it stays on the lazy default. String fields (`src`, `alt`) are authored
+ * directly — they cannot ride compound params.
+ */
+function timaeusPlateFigure(): Node {
+	const slug = "b1-boot-on-premises";
+	return {
+		kind: "stack",
+		role: "section",
+		direction: "block",
+		children: [
+			t("It begins on your premises.", "heading", { emphasis: "strong" }),
+			t(
+				"One appliance arrives, is racked behind your firewall, and boots. Nothing leaves the building; the map is compiled where the territory lives.",
+				"body",
+				{ emphasis: "muted" },
+			),
+			{ kind: "spacer", size: "sm" },
+			{
+				kind: "media",
+				src: `/images/plates/${slug}-960.png`,
+				alt: "Plate I — a dark engraving of the appliance booting on premises: the machine standing in the customer's own rack, its beacon lit, the building's outline drawn around it.",
+				aspect: "portrait",
+				width: 960,
+				height: 1280,
+				sizes: "(min-width: 84rem) 80rem, 100vw",
+				sources: [
+					{ type: "image/avif", srcset: plateSrcset(slug, "avif") },
+					{ type: "image/webp", srcset: plateSrcset(slug, "webp") },
+				],
+			},
+			t("Plate I — the appliance boots on premises.", "caption", { intent: "provenance" }),
 		],
 	};
 }

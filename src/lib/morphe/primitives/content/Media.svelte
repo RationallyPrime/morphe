@@ -11,7 +11,13 @@
 	 * Aspect is author intent, not pixels — it compiles to an `aspect-ratio` with
 	 * `object-fit: cover` so the frame is stable before the bitmap loads. Depth is
 	 * tonal (a sunken placeholder surface), never a drop shadow, and the corner is
-	 * the radius scale. Images load lazily and decode off the main thread.
+	 * the radius scale. Images load lazily and decode off the main thread; `eager`
+	 * is the explicit above-the-fold opt-out.
+	 *
+	 * When `sources` is present the node renders a `<picture>`: one `<source>` per
+	 * candidate set (modern formats first) with the `<img>` as universal fallback,
+	 * and the intrinsic `width`/`height` pinned so the box never shifts (CLS).
+	 * Without `sources` the output is the bare `<img>`, unchanged.
 	 *
 	 * Agent edits ONLY this file.
 	 */
@@ -24,18 +30,34 @@
 	const aspect = $derived(node.aspect ?? "auto");
 	/* An empty alt is the explicit decorative opt-out; hide it from AT entirely. */
 	const decorative = $derived(node.alt === "");
+	const loading = $derived(node.eager ? "eager" : "lazy");
 </script>
 
-<img
-	class="mo-media"
-	data-aspect={aspect}
-	src={node.src}
-	alt={node.alt}
-	aria-hidden={decorative ? "true" : undefined}
-	loading="lazy"
-	decoding="async"
-	draggable="false"
-/>
+{#snippet img()}
+	<img
+		class="mo-media"
+		data-aspect={aspect}
+		src={node.src}
+		alt={node.alt}
+		width={node.width}
+		height={node.height}
+		aria-hidden={decorative ? "true" : undefined}
+		{loading}
+		decoding="async"
+		draggable="false"
+	/>
+{/snippet}
+
+{#if node.sources && node.sources.length > 0}
+	<picture class="mo-media-picture">
+		{#each node.sources as source (source.type)}
+			<source type={source.type} srcset={source.srcset} sizes={node.sizes} />
+		{/each}
+		{@render img()}
+	</picture>
+{:else}
+	{@render img()}
+{/if}
 
 <style>
 	.mo-media {
@@ -61,5 +83,10 @@
 	/* aspect:auto — intrinsic ratio, height tracks the bitmap. */
 	.mo-media[data-aspect="auto"] {
 		block-size: auto;
+	}
+	/* The <picture> wrapper is layout-transparent; the <img> owns the box. */
+	.mo-media-picture {
+		display: block;
+		inline-size: 100%;
 	}
 </style>

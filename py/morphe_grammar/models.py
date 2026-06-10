@@ -184,11 +184,21 @@ class Icon(GrammarModel):
     intent: IntentRef | None = None
 
 
+class MediaSource(GrammarModel):
+    type: StrictStr
+    srcset: StrictStr
+
+
 class Media(GrammarModel):
     kind: Literal["media"]
     src: StrictStr
     alt: StrictStr
     aspect: Literal["square", "video", "portrait", "auto"] | None = None
+    sources: tuple[MediaSource, ...] | None = None
+    sizes: StrictStr | None = None
+    width: NumberValue | None = None
+    height: NumberValue | None = None
+    eager: StrictBool | None = None
 
 
 class Field(GrammarModel):

@@ -95,6 +95,7 @@ export type {
 	LayoutNode,
 	Link,
 	Media,
+	MediaSource,
 	MetaNode,
 	Node,
 	NodeKind,

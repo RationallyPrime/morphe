@@ -797,14 +797,35 @@
           "title": "Aspect",
           "type": "string"
         },
+        "eager": {
+          "title": "Eager",
+          "type": "boolean"
+        },
+        "height": {
+          "$ref": "#/$defs/NumberValue"
+        },
         "kind": {
           "const": "media",
           "title": "Kind",
           "type": "string"
         },
+        "sizes": {
+          "title": "Sizes",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/MediaSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
         "src": {
           "title": "Src",
           "type": "string"
+        },
+        "width": {
+          "$ref": "#/$defs/NumberValue"
         }
       },
       "required": [
@@ -813,6 +834,25 @@
         "alt"
       ],
       "title": "Media",
+      "type": "object"
+    },
+    "MediaSource": {
+      "additionalProperties": false,
+      "properties": {
+        "srcset": {
+          "title": "Srcset",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "srcset"
+      ],
+      "title": "MediaSource",
       "type": "object"
     },
     "Node": {
