@@ -432,3 +432,36 @@ describe("FP6 — every shipped dialect's compound subset resolves against the r
 		}
 	});
 });
+
+describe("FP7 — surface stacks ride applyDialect (the grounds actually paint)", () => {
+	// Before this law, *_SURFACES were test-enforced data only: applyDialect
+	// flattened `intents` exclusively, intents.css defines the surface vars only
+	// under the `:root`/archive block, and so every non-default dialect kept the
+	// Archive's warm grounds at runtime — a PARTIAL re-theme. A dialect's surface
+	// stack must (a) be wired on the Dialect object itself and (b) be emitted by
+	// applyDialect, so a boundary swap repaints the ground it stands on.
+	it("every shipped dialect wires its exported surface stack as `surfaces`", () => {
+		for (const [id, stack] of Object.entries(SURFACE_STACKS)) {
+			expect(DIALECTS[id]?.surfaces, `${id}: Dialect.surfaces`).toBe(stack);
+		}
+	});
+
+	it("applyDialect emits every surface var of the dialect's stack, verbatim", () => {
+		for (const [id, stack] of Object.entries(SURFACE_STACKS)) {
+			const dialect = DIALECTS[id];
+			if (dialect === undefined) throw new Error(`unregistered id in SURFACE_STACKS: ${id}`);
+			const vars = applyDialect(dialect).vars;
+			for (const [name, value] of Object.entries(stack)) {
+				expect(vars[name], `${id}: ${name}`).toBe(value);
+			}
+		}
+	});
+
+	it("intent channel vars always win a (hypothetical) key collision with surfaces", () => {
+		// Surface keys (`--mo-intent-surface-*`, `--mo-scrim`) and intent channel
+		// keys (`--mo-intent-<name>-<channel>`) are disjoint namespaces today;
+		// this pins the merge ORDER so a future collision resolves toward intents.
+		const vars = applyDialect(timaeus).vars;
+		expect(vars[intentVar("primary-action", "surface")]).toBe("var(--mo-cobalt-500)");
+	});
+});

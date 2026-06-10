@@ -97,8 +97,10 @@ export function applyDialect(dialect: Dialect): AppliedDialect {
 		emphasisBudget: rootBudget,
 	};
 
-	// Flatten the intent dialect into concrete CSS var overrides.
-	const vars: Record<string, string> = {};
+	// Flatten the dialect into concrete CSS var overrides: the surface stack
+	// first (the grounds the subtree stands on), then the intent channels —
+	// declaration order pins intents as the winner of any future key collision.
+	const vars: Record<string, string> = { ...dialect.surfaces };
 	for (const [intent, def] of Object.entries(dialect.intents)) {
 		for (const [channel, value] of Object.entries(def)) {
 			if (value !== undefined) {

@@ -15,18 +15,20 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (504 files) |
-| Tests | `bun run test` (`vitest run`) | **246/246 passing** across 14 files |
+| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (506 files) |
+| Tests | `bun run test` (`vitest run`) | **287/287 passing** across 16 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (246 total)
+### Test breakdown (287 total)
 
 - `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
   dialect-restriction suite).
-- `src/lib/morphe/dialects/dialects.test.ts` — 39 (Lemma-4 fixed-point parity
-  across all three dialects + no-raw-color channel guard + compound-subset
-  resolution + CompoundRef authored-surface intent walk).
+- `src/lib/morphe/dialects/dialects.test.ts` — 51 (Lemma-4 fixed-point parity
+  across all four dialects + no-raw-color channel guard + compound-subset
+  resolution + CompoundRef authored-surface intent walk + the timaeus
+  beacon/grounds suite + FP7: surface stacks ride `applyDialect`, so a
+  boundary swap repaints the ground it stands on).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
 - `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
@@ -59,9 +61,16 @@ Package manager is **bun** (never npm/pnpm/yarn).
   recorded digest/input pairs replay deterministically through real compose
   presenters).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
-- `src/lib/site/site.test.ts` — 13 (site compounds pass the factory gate on a
-  fresh registry; every site presenter emits only resolvable compound refs —
-  the smoke layer that catches a gate-tightening breaking a shipped def).
+- `src/lib/site/site.test.ts` — 24 (site compounds incl. `TimaeusPlate` pass
+  the factory gate on a fresh registry; every site presenter emits only
+  resolvable compound refs; S3: the Trajectory-exclusion grep gate as a test —
+  no excluded token in any presenter's emitted tree).
+- `src/lib/morphe/media.render.test.ts` — 6 (the responsive `<picture>` Media
+  extension: the no-sources fixed point renders the bare `<img>` unchanged;
+  sources/width/height/eager render the candidate sets with pinned dimensions).
+- `scripts/plate-manifest.test.ts` — 12 (the plate derivative plan: rungs ×
+  formats + PNG fallback per source, stable order, and the exclusion law —
+  a private `t1-*`/raw input throws, never a silent skip).
 
 ---
 
@@ -71,10 +80,12 @@ Package manager is **bun** (never npm/pnpm/yarn).
   (Layout / Content / Input / Feedback / Action / Overlay) + 3 meta kinds +
   `compound`; the context algebra with the four laws wired into the render path
   (including the emphasis renormalization subalgebra and the stroke orbit);
-  three token strata; the compound factory with its validation gate; three
-  dialects (`icelandic-archive` default, `clinical`, `reykjavik-registry`)
-  pulled apart at the beacon, all passing the intent-keyset fixed-point tests;
-  the global dialect flip (`activeDialect`, persisted, toggle on `/substrate`);
+  three token strata; the compound factory with its validation gate; four
+  dialects (`icelandic-archive` default, `clinical`, `reykjavik-registry`,
+  `timaeus` — the plates' blue-constellation world on the minted cobalt scale)
+  pulled apart at the beacon, all passing the intent-keyset fixed-point tests,
+  each shipping a surface stack that `applyDialect` now emits (FP7) so a
+  dialect swap repaints its grounds; the global dialect flip (`activeDialect`, persisted, toggle on `/substrate`);
   the Lemma 5 client store (`MorpheStore`, ADR-0003: prop > context > per-root
   ownership at `MorpheRoot`, full JSON values, flat keys) with all six
   bindable primitives reading initial tier-1 state from and committing back
@@ -90,8 +101,14 @@ Package manager is **bun** (never npm/pnpm/yarn).
   renderer contract change — epochs never reach the renderer), with the `py/`
   Pydantic mirror and committed schema re-synced to the now-complete grammar.
 - **The site (the dignity test, live):** composer-first home (`/`) with the
-  two-amber beacon discipline, `/how-it-works`, `/architecture`, `/onboarding`,
-  `/substrate`; the capability composer with two-stage retrieve→rerank ranking
+  two-amber beacon discipline; `/how-it-works` retold as the Timaeus narrative
+  (B1–B9, nine plates in two acts around the authoring loop, rendered
+  per-surface under the `timaeus` dialect; public story ends at B9 — the
+  Trajectory exclusion is enforced by the S3 test and the CI grep gate);
+  `/architecture`, `/onboarding`, `/substrate`; the plate derivative pipeline
+  (`bun run plates`: committed `assets/plates/` originals → byte-deterministic
+  AVIF/WebP/PNG rungs in `static/images/plates/`, ≤ 300 KB each) feeding the
+  responsive `Media.sources` grammar extension; the capability composer with two-stage retrieve→rerank ranking
   (`/api/rerank`, Voyage server-side) and relevance thresholds; minimal nav;
   contact + onboarding forwarding endpoints; τ_frame arrival attribution
   (`?cohort=` selects the dialect on landing — valid param > persisted choice,
@@ -128,7 +145,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 246/246 passing
+bun run test       # vitest run                      → 287/287 passing
 bun run build      # vite build                      → client + SSR bundles
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```

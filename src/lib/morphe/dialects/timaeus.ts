@@ -225,6 +225,7 @@ export const timaeus: Dialect = {
 		...CORE,
 		...TIMAEUS_REGISTER,
 	},
+	surfaces: TIMAEUS_SURFACES,
 	priors: {
 		// Plate pages are contemplative: regular density, the top of the tree
 		// allowed display drama (the plates carry display headlines), and a TIGHT
