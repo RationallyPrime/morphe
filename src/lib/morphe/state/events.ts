@@ -16,20 +16,22 @@
  *   primitive: pure code carries no `Date.now()`.
  *
  *   TIER 2 — submit, task transition, an explicit "this view isn't working".
- *   Surfaces as a TYPED CALLBACK at the `MorpheRoot` boundary
- *   (`onEscalate?: (e: Tier2Event) => void`) — not a DOM event, not a store
- *   write. A tier-2 event's payload is `JsonValue`-typed by construction, so
- *   it cannot carry live tier-0 state (no element refs, no handlers, no class
- *   instances are representable).
+ *   Surfaces as a TYPED CALLBACK at the `MorpheRoot` boundary as a recorded
+ *   `Tier2Escalation` (`event` + `ContextDigest`) — not a DOM event, not a
+ *   store write. A tier-2 event's payload is `JsonValue`-typed by construction,
+ *   so it cannot carry live tier-0 state (no element refs, no handlers, no
+ *   class instances are representable).
  *
  * Cross-tier smuggling is type-impossible in both directions: the store's
  * recorder accepts only the tier-1 input shape (it mints `tier: 1` itself),
- * and `onEscalate` accepts only `Tier2Event`. A tier-1 handler has no
- * escalation capability to reach for — input primitives consume the store
- * context, never the escalation context (asserted by the architecture scan in
- * `store.test.ts`).
+ * and the root-internal escalation emitter accepts only `Tier2Event`.
+ * MorpheRoot records the `ContextDigest` at that boundary before the host
+ * callback runs. A tier-1 handler has no escalation capability to reach for —
+ * input primitives consume the store context, never the escalation context
+ * (asserted by the architecture scan in `store.test.ts`).
  */
 
+import type { ContextDigest } from "./digest.js";
 import type { JsonRecord, JsonValue } from "./json.js";
 
 /* ---------------------------------------------------------------------------
@@ -93,5 +95,14 @@ export interface ViewNotWorkingEvent {
 
 export type Tier2Event = SubmitEvent | TaskTransitionEvent | ViewNotWorkingEvent;
 
-/** The `MorpheRoot` escalation callback — the tier-2 boundary surface. */
-export type EscalationHandler = (event: Tier2Event) => void;
+/** The root-internal emitter: primitives fire the event; MorpheRoot records the digest. */
+export type EscalationEmitter = (event: Tier2Event) => void;
+
+/** A recorded tier-2 escalation: the event plus the point-in-time digest. */
+export interface Tier2Escalation {
+	readonly event: Tier2Event;
+	readonly digest: ContextDigest;
+}
+
+/** The host-facing `MorpheRoot` escalation callback — the replay record surface. */
+export type EscalationHandler = (record: Tier2Escalation) => void;

@@ -13,8 +13,11 @@
 	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { Dialect } from "../dialects/types.js";
 	import type { CompoundRegistry } from "../compounds/factory.js";
+	import type { ActionMap } from "../state/actions.js";
 	import type { MorpheStore } from "../state/store.svelte.js";
 	import type { EscalationHandler } from "../state/events.js";
+	import { provideActions } from "../state/actions.js";
+	import { escalationWithDigest } from "../state/digest.js";
 	import { provideEscalation } from "../state/escalation.js";
 	import { registry as defaultRegistry, restrictCompounds } from "../compounds/factory.js";
 	import { activeDialect } from "../dialects/active.svelte.js";
@@ -34,6 +37,8 @@
 		dialect?: Dialect;
 		registry?: CompoundRegistry;
 		store?: MorpheStore;
+		/** Declared action ids (`Button.action`) resolve against this host map. */
+		actions?: ActionMap;
 		/**
 		 * Dev flag: render `candidate`-lifecycle compounds without a dialect
 		 * opt-in (preview/tooling surfaces). Promoted is the default visible set.
@@ -52,6 +57,7 @@
 		dialect,
 		registry = defaultRegistry,
 		store,
+		actions,
 		showCandidates = false,
 		onEscalate,
 	}: Props = $props();
@@ -110,13 +116,24 @@
 	const resolvedStore = resolveMorpheStore(store, inheritedStore, rootDefaultStore);
 	provideMorpheStore(resolvedStore);
 
+	// R1.4 declarative action binding: a Button carries only an opaque action id.
+	// The live handler map is provided by the host at this root boundary, so the
+	// authored tree stays data and page chrome/native controls remain unchanged.
+	provideActions({
+		get current() {
+			return actions;
+		},
+	});
+
 	// Tier-2 escalation boundary (Lemma 5): provided as a reactive ref so the
 	// host can swap/remove its handler without remounting. Deliberately a
 	// SEPARATE context from the store — input primitives consume the store and
-	// never this, so a tier-1 handler has no escalation capability in scope.
+	// never this, so a tier-1 handler has no escalation capability in scope. The
+	// root wraps the host callback so every tier-2 event is recorded with the
+	// point-in-time ContextDigest (R1.3), never a live store reference.
 	provideEscalation({
 		get current() {
-			return onEscalate;
+			return escalationWithDigest(resolvedStore, onEscalate);
 		},
 	});
 </script>

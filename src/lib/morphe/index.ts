@@ -104,11 +104,26 @@ export type {
 	Tier1Event,
 	Tier1EventInput,
 	Tier2Event,
+	Tier2Escalation,
 	SubmitEvent,
 	TaskTransitionEvent,
 	ViewNotWorkingEvent,
+	EscalationEmitter,
 	EscalationHandler,
 } from "./state/events.js";
+export type {
+	ActionHandler,
+	ActionMap,
+	ActionsRef,
+	InvokeActionOptions,
+} from "./state/actions.js";
+export { provideActions, useActions, invokeAction } from "./state/actions.js";
+export type { ContextDigest, ContextDigestVersion } from "./state/digest.js";
+export {
+	CONTEXT_DIGEST_VERSION,
+	digestOf,
+	escalationWithDigest,
+} from "./state/digest.js";
 export { provideEscalation, useEscalation } from "./state/escalation.js";
 export type { EscalationRef } from "./state/escalation.js";
 
