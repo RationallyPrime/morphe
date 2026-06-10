@@ -33,6 +33,11 @@ import {
 	SITE_INTENTS,
 	type SiteIntent,
 } from "./intents.js";
+import {
+	HOME_INTENT_STAGE_ID,
+	HOME_STAGE_CHOICES,
+	homeIntentStageEnvelope,
+} from "./morph-stage.js";
 
 const flipIntent = SITE_INTENTS.find((i) => i.id === "flip-the-lights") as SiteIntent;
 
@@ -219,7 +224,72 @@ describe("I4 — stage deltas ride the R2 gate (render totality at the morph sea
 	});
 });
 
-describe("I5 — voice (D12): intent strings stay out of doctrine register", () => {
+describe("I5 — content morphs consume the shared stage-delta path", () => {
+	const expected: ReadonlyArray<readonly [string, number]> = [
+		["governance-story", HOME_STAGE_CHOICES.governance],
+		["engagement-path", HOME_STAGE_CHOICES.engagement],
+		["founder-identity", HOME_STAGE_CHOICES.identity],
+	];
+
+	it("registers KRA-356/358 content intents as stage deltas, not navigate fallbacks", () => {
+		for (const [id, choice] of expected) {
+			const intent = SITE_INTENTS.find((i) => i.id === id);
+			expect(intent?.action, id).toEqual({
+				kind: "stage-delta",
+				id: HOME_INTENT_STAGE_ID,
+				choice,
+			});
+		}
+	});
+
+	it("ships a home stage envelope with a default branch plus the three authored branches", () => {
+		const envelope = homeIntentStageEnvelope();
+		expect(envelope.epoch).toBe(1);
+		expect(envelope.choices).toEqual({});
+		expect(envelope.tree.kind).toBe("vary");
+		if (envelope.tree.kind !== "vary") return;
+		expect(envelope.tree.id).toBe(HOME_INTENT_STAGE_ID);
+		expect(envelope.tree.default).toBe(HOME_STAGE_CHOICES.default);
+		expect(envelope.tree.options).toHaveLength(4);
+	});
+
+	it("executes each authored content morph through the same engine gate", () => {
+		intentEngine.setStage(homeIntentStageEnvelope());
+		for (const [id, choice] of expected) {
+			const intent = SITE_INTENTS.find((i) => i.id === id) as SiteIntent;
+			expect(intentEngine.execute(intent), id).toEqual({ kind: "morphed" });
+			expect(intentEngine.choices?.[HOME_INTENT_STAGE_ID], id).toBe(choice);
+		}
+	});
+
+	it("a later content morph cleanly replaces the previous branch", () => {
+		intentEngine.setStage(homeIntentStageEnvelope());
+		const governance = SITE_INTENTS.find((i) => i.id === "governance-story") as SiteIntent;
+		const engagement = SITE_INTENTS.find((i) => i.id === "engagement-path") as SiteIntent;
+
+		expect(intentEngine.execute(governance)).toEqual({ kind: "morphed" });
+		expect(intentEngine.choices?.[HOME_INTENT_STAGE_ID]).toBe(HOME_STAGE_CHOICES.governance);
+
+		expect(intentEngine.execute(engagement)).toEqual({ kind: "morphed" });
+		expect(intentEngine.choices?.[HOME_INTENT_STAGE_ID]).toBe(HOME_STAGE_CHOICES.engagement);
+	});
+
+	it("keeps no-JS fallbacks on canonical routes while JS execution morphs in place", () => {
+		const expectedHrefs = new Map([
+			["governance-story", "/how-it-works"],
+			["engagement-path", "/onboarding"],
+			["founder-identity", "#contact"],
+		]);
+
+		for (const [id, href] of expectedHrefs) {
+			const intent = SITE_INTENTS.find((i) => i.id === id);
+			expect(intent?.href, id).toBe(href);
+			expect(intent?.action.kind, id).toBe("stage-delta");
+		}
+	});
+});
+
+describe("I6 — voice (D12): intent strings stay out of doctrine register", () => {
 	const BANNED_UI_PHRASES = [
 		"under governance",
 		"the appliance is what acts",

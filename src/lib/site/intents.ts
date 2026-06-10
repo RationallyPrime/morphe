@@ -32,6 +32,7 @@
  */
 
 import { hasDialect } from "$morphe";
+import { HOME_INTENT_STAGE_ID, HOME_STAGE_CHOICES } from "./morph-stage.js";
 
 /* ------------------------------------------------------------------------- *
  * Types
@@ -191,7 +192,12 @@ export const SITE_INTENTS: readonly SiteIntent[] = [
 		label: "How is it governed?",
 		keywords: ["governance", "governed", "control", "oversight", "approval", "trust"],
 		href: "/how-it-works",
-		action: { kind: "navigate" },
+		action: {
+			kind: "stage-delta",
+			id: HOME_INTENT_STAGE_ID,
+			choice: HOME_STAGE_CHOICES.governance,
+		},
+		announce: "How it is held — shown below.",
 	},
 	{
 		id: "technical-version",
@@ -203,16 +209,26 @@ export const SITE_INTENTS: readonly SiteIntent[] = [
 	{
 		id: "engagement-path",
 		label: "How do we start?",
-		keywords: ["start", "begin", "onboarding", "engage", "pricing", "journey"],
+		keywords: ["start", "begin", "onboarding", "engage", "journey", "workflow"],
 		href: "/onboarding",
-		action: { kind: "navigate" },
+		action: {
+			kind: "stage-delta",
+			id: HOME_INTENT_STAGE_ID,
+			choice: HOME_STAGE_CHOICES.engagement,
+		},
+		announce: "The first workflow — shown below.",
 	},
 	{
 		id: "founder-identity",
 		label: "Who's behind this?",
 		keywords: ["who", "founder", "team", "company", "krates", "contact"],
 		href: "#contact",
-		action: { kind: "navigate" },
+		action: {
+			kind: "stage-delta",
+			id: HOME_INTENT_STAGE_ID,
+			choice: HOME_STAGE_CHOICES.identity,
+		},
+		announce: "Krates ehf. — shown below.",
 	},
 	{
 		id: "plates-story",

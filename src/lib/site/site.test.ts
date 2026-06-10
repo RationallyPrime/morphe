@@ -20,6 +20,7 @@ import { describe, expect, it } from "vitest";
 import type { Node } from "$morphe";
 import { CompoundRegistry, childrenOf } from "$morphe";
 import { registerSiteCompounds, SITE_COMPOUNDS } from "./compounds.js";
+import { homeIntentStage } from "./morph-stage.js";
 import {
 	architectureBody,
 	architectureHero,
@@ -34,6 +35,7 @@ import {
 const PRESENTERS: ReadonlyArray<readonly [string, () => Node]> = [
 	["closingCta", closingCta],
 	["homeHero", homeHero],
+	["homeIntentStage", homeIntentStage],
 	["timaeusTease", timaeusTease],
 	["howItWorksHero", howItWorksHero],
 	["howItWorksBody", howItWorksBody],
@@ -105,7 +107,13 @@ describe("S3 — site presenter copy stays out of doctrine register", () => {
 	}
 });
 
-describe("S3 — the public copy respects the Trajectory exclusion (KRA-324)", () => {
+describe("S4 — engagement and identity morphs stay inside their promised scope", () => {
+	it("homeIntentStage() contains no pricing content", () => {
+		expect(JSON.stringify(homeIntentStage()).toLowerCase()).not.toContain("pricing");
+	});
+});
+
+describe("S5 — the public copy respects the Trajectory exclusion (KRA-324)", () => {
 	// The investor-private panel must never reach the public site — not as a
 	// word, not as an asset reference, not as an internal invariant citation.
 	// This is the merge-time grep gate, run as a test over every presenter's
