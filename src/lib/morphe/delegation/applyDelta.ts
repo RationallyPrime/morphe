@@ -50,6 +50,8 @@ function choiceBoundsFor(tree: Node): ReadonlyMap<VaryId, readonly ChoiceBounds[
 	const push = (id: VaryId, next: ChoiceBounds): void => {
 		bounds.set(id, [...(bounds.get(id) ?? []), next]);
 	};
+	const isNode = (v: unknown): v is Node =>
+		v !== null && typeof v === "object" && "kind" in (v as object);
 	const walk = (node: Node): void => {
 		switch (node.kind) {
 			case "vary":
@@ -57,6 +59,18 @@ function choiceBoundsFor(tree: Node): ReadonlyMap<VaryId, readonly ChoiceBounds[
 				break;
 			case "within":
 				push(node.id, node.range);
+				break;
+			// CompoundRef slot fills and node args are authored data the renderer
+			// expands and honors choices inside — they are live (same walk contract
+			// as unknownIntentsIn). Template internals need the registry and stay
+			// out: applyDelta is pure and registry-free.
+			case "compound":
+				for (const fills of Object.values(node.slots ?? {})) {
+					for (const fill of fills) walk(fill);
+				}
+				for (const arg of Object.values(node.args)) {
+					if (isNode(arg)) walk(arg);
+				}
 				break;
 		}
 		for (const child of childrenOf(node)) walk(child);

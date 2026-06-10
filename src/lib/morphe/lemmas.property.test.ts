@@ -679,6 +679,49 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 		});
 	});
 
+	it("liveVaryIds sees Vary/Within inside CompoundRef slot fills and args (the renderer honors them after expansion)", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "compound",
+					name: "anything",
+					args: {
+						aside: {
+							kind: "within",
+							id: "arg-within",
+							dimension: "density",
+							range: [0, 2],
+							default: 1,
+						},
+					},
+					slots: {
+						body: [
+							{
+								kind: "vary",
+								id: "slot-vary",
+								options: [
+									{ kind: "text", value: "a", as: "body" },
+									{ kind: "text", value: "b", as: "body" },
+								],
+								default: 0,
+							},
+						],
+					},
+				},
+			],
+		};
+
+		const live = liveVaryIds(tree);
+		expect(live.has("slot-vary")).toBe(true);
+		expect(live.has("arg-within")).toBe(true);
+
+		const applied = applyDelta(envelopeFor(tree), { id: "slot-vary", choice: 1, epoch: 1 });
+		expect(applied.result).toBe("applied");
+		expect(applied.envelope.choices["slot-vary"]).toBe(1);
+	});
+
 	it("adversarial deltas apply only for live ids, matching epoch, and in-range choices", () => {
 		forEachSeed("L6.adversarial-deltas", (rng) => {
 			const tree = genTree(rng, 4);
