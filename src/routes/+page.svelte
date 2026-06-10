@@ -5,10 +5,10 @@
  * needs next. Editorial copy is authored as Morphe Node trees; the composer,
  * links and contact form are native control surfaces sitting beside those trees.
  *
- * Beacon discipline (D1): exactly TWO ambers, in two non-co-visible folds — the
- * composer's submit (the composer fold) and the contact form's submit (the close).
- * The nav "Talk to us" and the onboarding link are deliberately NON-amber so nothing
- * else competes for the eye's one warm signal.
+ * Beacon discipline (D1): exactly TWO primary-action beacons, in two non-co-visible
+ * folds — the composer's submit (the composer fold) and the contact form's submit
+ * (the close). The nav "Talk to us" and the onboarding link are deliberately
+ * non-beacon so nothing else competes for the eye's one strong signal.
  */
 
 import Composer from "$lib/compose/Composer.svelte";
@@ -16,6 +16,7 @@ import { closingCta, homeHero, registerSiteCompounds, timaeusTease } from "$lib/
 import ContactForm from "$lib/site/ContactForm.svelte";
 import IntentChips from "$lib/site/IntentChips.svelte";
 import IntentPalette from "$lib/site/IntentPalette.svelte";
+import { getDialect } from "$morphe";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 
 // Register the site compounds through the factory gate. Idempotent.
@@ -61,7 +62,7 @@ const ctaTree = closingCta();
 <!--
   The composer — the interactive CENTERPIECE, the immediate second fold. It runs on
   the wide (105rem) application cap and a recessed work surface so it reads as a
-  place you DO something, not one more editorial band. Its submit is amber beacon #1
+  place you DO something, not one more editorial band. Its submit is beacon #1
   (D1). No kicker (DESIGN §9): the recess and the composer's own heading carry the
   "this is interactive" signal without a label.
 -->
@@ -86,9 +87,14 @@ const ctaTree = closingCta();
 
 <IntentPalette />
 
+<!--
+  The plate tease rides a NIGHT-pinned subtree (the vitrine idiom, ADR-0005):
+  the plates keep their own ground under every dialect, so this band stays the
+  constellation dark while the wall around it follows the active dialect.
+-->
 <section class="s-section">
-	<div class="s-wrap">
-		<MorpheRoot tree={teaseTree} />
+	<div class="s-wrap tease-vitrine">
+		<MorpheRoot tree={teaseTree} dialect={getDialect("night")} />
 	</div>
 </section>
 
@@ -96,7 +102,7 @@ const ctaTree = closingCta();
   The close — the one conversion path (#contact). An asymmetric band: the closing
   copy + the contact form hung off the left axis, the Sókrates mark beside them as a
   faint archival SEAL (the "signed seal" motif belongs at the close, where you sign).
-  The contact form's own submit is amber beacon #2 — the sole conversion beacon,
+  The contact form's own submit is beacon #2 — the sole conversion beacon,
   "Talk to us" (the retired "Start the conversation" label is gone). The recessed
   band lets the form's raised inputs read as lifted off the surface.
 -->
@@ -133,6 +139,15 @@ const ctaTree = closingCta();
 	}
 	.contact__form {
 		margin-block-start: var(--mo-space-6);
+	}
+	/* The vitrine chrome: clip and outline the night-pinned band; the dark
+	   ground itself is painted by the pinned subtree, never by this wrapper. */
+	.tease-vitrine :global(.mo-root) {
+		border-radius: var(--mo-radius-3);
+		overflow: clip;
+		outline: 1px solid var(--mo-intent-outline);
+		outline-offset: -1px;
+		padding: clamp(var(--mo-space-5), 3vw, var(--mo-space-7));
 	}
 	.s-whisper a {
 		color: var(--mo-intent-on-surface);

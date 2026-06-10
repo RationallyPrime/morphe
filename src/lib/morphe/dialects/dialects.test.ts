@@ -27,10 +27,17 @@ import type { Node } from "../grammar/types.js";
 import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
 import { CLINICAL_SURFACES, clinical } from "./clinical.js";
 import { GALLERY_SURFACES, gallery } from "./gallery.js";
-import { ARCHIVE_SURFACES, DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
+import { ARCHIVE_SURFACES, icelandicArchive } from "./icelandic-archive.js";
 import { NIGHT_SURFACES, night } from "./night.js";
 import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
-import { DEFAULT_DIALECT_ID, DIALECT_IDS, DIALECTS, getDialect, hasDialect } from "./registry.js";
+import {
+	DEFAULT_DIALECT,
+	DEFAULT_DIALECT_ID,
+	DIALECT_IDS,
+	DIALECTS,
+	getDialect,
+	hasDialect,
+} from "./registry.js";
 import { REYKJAVIK_SURFACES, reykjavikRegistry } from "./reykjavik-registry.js";
 import { TIMAEUS_SURFACES, timaeus } from "./timaeus.js";
 import type { Dialect } from "./types.js";
@@ -315,11 +322,11 @@ describe("FP4 — the swap is a clean subtree-boundary injection", () => {
 });
 
 describe("FP5 — priors are clamped so Lemma 2's laws survive any dialect", () => {
-	it("the default (archive) priors apply unchanged (in-range)", () => {
+	it("the default (gallery) priors apply unchanged (in-range)", () => {
 		const applied = applyDialect(DEFAULT_DIALECT);
 		expect(applied.rootContext.density).toBe("regular");
 		expect(applied.rootContext.scaleTier).toBe(4);
-		expect(applied.rootContext.emphasisBudget).toBe(3);
+		expect(applied.rootContext.emphasisBudget).toBe(2);
 	});
 
 	it("the clinical (denser) priors apply, still inside the clamp range", () => {
@@ -335,41 +342,75 @@ describe("FP5 — priors are clamped so Lemma 2's laws survive any dialect", () 
 	});
 });
 
-describe("data ⇄ CSS agreement — the default dialect equals its static fallback", () => {
+describe("data ⇄ CSS agreement — each static block equals its dialect's data", () => {
 	/**
-	 * The default dialect's intent map (data) and the
-	 * `[data-mo-dialect="icelandic-archive"]` block in tokens/intents.css (the
-	 * static fallback that paints before JS) MUST agree by construction. This
-	 * test pins that: if either drifts, the colour a user sees would depend on
-	 * whether the cascade resolved the static block or a boundary override.
+	 * tokens/intents.css carries TWO static blocks: `:root` (+ the explicit
+	 * gallery scope) — the DEFAULT dialect, what paints before JS and what
+	 * native chrome outside a MorpheRoot stands on — and the retired-as-default
+	 * Archive's own scope. Each MUST agree, value for value, with its dialect's
+	 * data: if either drifts, the colour a user sees would depend on whether
+	 * the cascade resolved the static block or a boundary override.
 	 */
-	function cssVars(): Record<string, string> {
+	const ALL_CHANNELS = [...CHANNELS, "active", "disabled"] as const;
+
+	/** Whitespace-insensitive value form (the CSS wraps long color-mix calls). */
+	function normalize(v: string): string {
+		return v.replace(/\s+/g, " ").replace(/\(\s+/g, "(").replace(/\s+\)/g, ")").trim();
+	}
+
+	/** Parse intents.css into selector -> { var -> value }. */
+	function cssBlocks(): Record<string, Record<string, string>> {
 		const cssPath = fileURLToPath(new URL("../tokens/intents.css", import.meta.url));
-		const css = readFileSync(cssPath, "utf8");
-		const out: Record<string, string> = {};
-		for (const m of css.matchAll(/(--mo-[a-z0-9-]+):\s*([^;]+);/g)) {
-			out[m[1] as string] = (m[2] as string).trim();
+		const css = readFileSync(cssPath, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+		const out: Record<string, Record<string, string>> = {};
+		for (const m of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+			const selector = normalize(m[1] as string);
+			const vars: Record<string, string> = {};
+			for (const v of (m[2] as string).matchAll(/(--mo-[a-z0-9-]+):\s*([^;]+);/g)) {
+				vars[v[1] as string] = normalize(v[2] as string);
+			}
+			out[selector] = vars;
 		}
 		return out;
 	}
 
-	it("every core intent channel in the data matches the static CSS block", () => {
-		const vars = cssVars();
-		for (const core of CORE_INTENTS) {
-			for (const channel of CHANNELS) {
-				const key = intentVar(core, channel);
-				const dataVal = icelandicArchive.intents[core]?.[channel];
-				expect(dataVal, `data ${key}`).toBe(vars[key]);
-			}
-		}
+	const CASES = [
+		{
+			selector: ':root, [data-mo-dialect="gallery"]',
+			dialect: gallery,
+			surfaces: GALLERY_SURFACES,
+		},
+		{
+			selector: '[data-mo-dialect="icelandic-archive"]',
+			dialect: icelandicArchive,
+			surfaces: ARCHIVE_SURFACES,
+		},
+	] as const;
+
+	it("the DEFAULT dialect owns the :root block (the pre-JS ground is the default)", () => {
+		expect(CASES[0].dialect.id).toBe(DEFAULT_DIALECT.id);
 	});
 
-	it("the surface stack in the data matches the static CSS block", () => {
-		const vars = cssVars();
-		for (const [key, value] of Object.entries(ARCHIVE_SURFACES)) {
-			expect(value, `surface ${key}`).toBe(vars[key]);
-		}
-	});
+	for (const { selector, dialect, surfaces } of CASES) {
+		it(`${dialect.id}: every core intent channel in the data matches its static block`, () => {
+			const block = cssBlocks()[selector];
+			expect(block, `missing static block ${selector}`).toBeDefined();
+			for (const core of CORE_INTENTS) {
+				for (const channel of ALL_CHANNELS) {
+					const key = intentVar(core, channel);
+					const dataVal = dialect.intents[core]?.[channel];
+					expect(dataVal && normalize(dataVal), `${dialect.id} ${key}`).toBe(block?.[key]);
+				}
+			}
+		});
+
+		it(`${dialect.id}: the surface stack in the data matches its static block`, () => {
+			const block = cssBlocks()[selector];
+			for (const [key, value] of Object.entries(surfaces)) {
+				expect(normalize(value), `${dialect.id} surface ${key}`).toBe(block?.[key]);
+			}
+		});
+	}
 });
 
 describe("dialect registry — named lookup for the subtree-boundary swap", () => {
@@ -487,9 +528,12 @@ describe("gallery + night — the plate-derived pair (KRA-349, ADR-0005)", () =>
 		}
 	});
 
-	it("the default dialect is UNCHANGED by this slice (the flip is KRA-354)", () => {
-		expect(DEFAULT_DIALECT_ID).toBe("icelandic-archive");
-		expect(DEFAULT_DIALECT.id).toBe("icelandic-archive");
+	it("gallery IS the shipped default (the KRA-354 flip; ADR-0005 §2)", () => {
+		expect(DEFAULT_DIALECT_ID).toBe("gallery");
+		expect(DEFAULT_DIALECT.id).toBe("gallery");
+		// The Archive is retired as the default but stays registered — the
+		// substrate demo's fixed point, selectable on /substrate.
+		expect(hasDialect("icelandic-archive")).toBe(true);
 	});
 });
 

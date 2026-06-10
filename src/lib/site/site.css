@@ -87,8 +87,13 @@
 	inline-size: 100%;
 	block-size: auto;
 	border-radius: var(--mo-radius-3);
-	/* Tonal, not saturated: amber stays the page's only colour (the Archive rule). */
+	/* Tonal, not saturated: the accent stays the page's only colour. */
 	filter: grayscale(0.4) contrast(1.04) brightness(0.98);
+	/* The vitrine mat (ADR-0005): dark renders sit in a dark well and glow
+	   against the calm ground. The well is the plates' own base stratum — on
+	   the night ground it simply merges with the page. */
+	background: var(--mo-cobalt-950);
+	padding: var(--mo-space-5);
 }
 .s-plate__cap {
 	margin-block-start: var(--mo-space-4);

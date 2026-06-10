@@ -454,9 +454,9 @@ describe("dialect application (Lemma 4)", () => {
 
 	it("default dialect produces the archive root context", async () => {
 		const { applyDialect } = await import("./dialects/provider.svelte.js");
-		const { DEFAULT_DIALECT } = await import("./dialects/icelandic-archive.js");
+		const { DEFAULT_DIALECT } = await import("./dialects/registry.js");
 		const applied = applyDialect(DEFAULT_DIALECT);
-		expect(applied.attr).toBe("icelandic-archive");
+		expect(applied.attr).toBe("gallery");
 		expect(applied.rootContext.density).toBe("regular");
 	});
 });

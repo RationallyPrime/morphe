@@ -19,9 +19,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { activeDialect } from "./active.svelte.js";
 import { clinical } from "./clinical.js";
 import { gallery } from "./gallery.js";
-import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { night } from "./night.js";
-import { DIALECT_IDS, DIALECTS } from "./registry.js";
+import { DEFAULT_DIALECT, DIALECT_IDS, DIALECTS } from "./registry.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
 import { timaeus } from "./timaeus.js";
 
@@ -70,7 +69,7 @@ describe("A4 — the registry contains every global dialect", () => {
 			"gallery",
 			"night",
 		]);
-		expect(DIALECTS["icelandic-archive"]).toBe(DEFAULT_DIALECT);
+		expect(DIALECTS.gallery).toBe(DEFAULT_DIALECT);
 		expect(DIALECTS.clinical).toBe(clinical);
 		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
 		expect(DIALECTS.timaeus).toBe(timaeus);
