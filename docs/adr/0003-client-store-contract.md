@@ -21,7 +21,7 @@ would leak one visitor's tier-1 state into another's render.
 
 ## Decision
 
-1. **Ownership is layered: context > prop > per-root.** The store rides Svelte
+1. **Ownership is layered: prop > context > per-root.** The store rides Svelte
    context from any ancestor (the app provides one per page/layout — created
    per request, so SSR-safe); a `MorpheRoot` prop overrides it for isolation
    (tests, demos); absent both, each root creates its own fresh in-memory
