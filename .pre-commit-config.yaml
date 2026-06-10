@@ -1,0 +1,35 @@
+# Git hooks, run by prek (house standard — never the Python pre-commit framework).
+#
+# These mirror the CI `python` job exactly (CI is the arbiter; see
+# .github/workflows/ci.yml): ruff is pinned to the uv.lock version so the hook
+# and `uv run ruff` can never disagree, ty runs through `uv run` (the pinned
+# one), and the schema byte-stability hook is the same parity gate CI runs.
+# The web gates (svelte-check / vitest / build / SSR smoke) stay CI-only —
+# too slow for a commit hook.
+#
+# `env -u PYTHONPATH` guards against an inherited leading-colon PYTHONPATH
+# (= CWD on sys.path), which gives ty phantom unresolved-import errors.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.16 # keep in lockstep with ruff in uv.lock
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.19 # keep in lockstep with the local uv
+    hooks:
+      - id: uv-lock
+  - repo: local
+    hooks:
+      - id: ty-check
+        name: ty check (pinned, via uv run)
+        language: system
+        entry: env -u PYTHONPATH uv run ty check
+        pass_filenames: false
+        files: ^(py/.*\.py|pyproject\.toml|uv\.lock)$
+      - id: schema-byte-stability
+        name: schema artifact byte-stable (R3.2 parity-gate seed)
+        language: system
+        entry: bash -c 'env -u PYTHONPATH uv run python -m morphe_grammar.schema | diff - schema/morphe-grammar.schema.json'
+        pass_filenames: false
+        files: ^(py/.*\.py|schema/morphe-grammar\.schema\.json)$
