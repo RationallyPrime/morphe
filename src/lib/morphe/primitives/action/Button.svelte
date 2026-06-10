@@ -18,17 +18,19 @@
 	 * vars; the discrete variant rides a `data-variant` attribute selected in the
 	 * style block. No className synthesis, no per-intent lookup tables.
 	 *
-	 * Phase 0 has no live wire: the declarative `action` id is carried on
-	 * data-action for a later loop to bind (exactly as Vary carries an id it cannot
-	 * yet resolve, CONTRACT §3). The busy spinner honours prefers-reduced-motion via
-	 * a media query in the style block, never a JS hook.
+	 * R1.4 action binding: the declarative `action` id resolves through the
+	 * MorpheRoot-provided action map at click time. The tree still emits intent
+	 * (an opaque id), never a handler. The busy spinner honours prefers-reduced-
+	 * motion via a media query in the style block, never a JS hook.
 	 */
 
 	import type { PrimitiveProps } from "../../render/props.js";
 	import type { Button } from "../../grammar/types.js";
+	import { invokeAction, useActions } from "../../state/actions.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Button> = $props();
+	const actions = useActions();
 
 	const intent = $derived(node.intent ?? "primary-action");
 	const variant = $derived(node.variant ?? "solid");
@@ -52,6 +54,10 @@
 	const activeColor = $derived(SLOTS.action.active(intent));
 	const borderColor = $derived(SLOTS.action.border(intent));
 	const ringColor = $derived(SLOTS.focus.ring(intent));
+
+	function handleClick(): void {
+		invokeAction(actions?.current, node.action);
+	}
 </script>
 
 <button
@@ -64,6 +70,7 @@
 	aria-label={ariaLabel}
 	aria-labelledby={ariaLabelledby}
 	data-action={node.action}
+	onclick={handleClick}
 	style:--mo-action-surface={surface}
 	style:--mo-action-on={onColor}
 	style:--mo-action-hover={hoverColor}

@@ -65,9 +65,11 @@ Package manager is **bun** (never npm/pnpm/yarn).
   the Lemma 5 client store (`MorpheStore`, ADR-0003: prop > context > per-root
   ownership at `MorpheRoot`, full JSON values, flat keys) with all six
   bindable primitives reading initial tier-1 state from and committing back
-  to their declared `.bind` paths; the R1.2 event tiers (atomic
-  `commitTier1` → bounded recent-event window, injected clock; typed tier-2
-  vocabulary + `MorpheRoot.onEscalate` boundary); the R1.5 compound lifecycle
+  to their declared `.bind` paths; the R1.2/R1.3 event tiers and digest
+  recorder (atomic `commitTier1` → bounded recent-event window, injected clock;
+  versioned `ContextDigest`; typed tier-2 vocabulary + `MorpheRoot.onEscalate`
+  records); the R1.4 declarative action wire (`MorpheRoot.actions` binds
+  in-tree `Button.action` ids without putting handlers in the tree); the R1.5 compound lifecycle
   (`candidate`/`promoted` through one gate) with `Dialect.compounds[]`
   render-gating via the `restrictCompounds` view.
 - **The site (the dignity test, live):** composer-first home (`/`) with the
@@ -87,9 +89,8 @@ Production, server-side only.
 
 Two different categories — do not conflate them:
 
-- **Reserved strata sockets** (`CONTRACT.md` §11): declarative `action` ids,
-  `bind` store-paths, inert `Vary`/`objective`, ungated `dialect.compounds[]`,
-  `persona`. These are *typed seams for Phases 1–2*, not unfinished features.
+- **Reserved strata sockets** (`CONTRACT.md` §11): `bind` store-paths, inert
+  `Vary`/`objective`, `persona`. These are *typed seams for Phases 1–2*, not unfinished features.
   Do not wire them ad hoc; do not remove them.
 - **Known defects, scheduled** (`CONTRACT.md` §12 / `docs/reconstruction-plan.md`):
   **none** — the R0 substrate-integrity pass closed all four (budget×expansion

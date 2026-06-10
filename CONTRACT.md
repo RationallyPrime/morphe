@@ -554,15 +554,24 @@ focus, keystroke…) has NO wire type at all — it is unrepresentable outside i
 component. Tier 1 commits go through ONE helper, `commitTier1(store, path,
 kind, value)` — write + record in a single call, so every commit lands in the
 store's bounded recent-event window (`TIER1_WINDOW_SIZE`, FIFO, stamped by the
-store's INJECTED clock — pure code never reads `Date.now()`). Tier 2
+store's INJECTED clock — pure code never reads `Date.now()`). The
+`ContextDigest` (`state/digest.ts`) is the versioned, JSON-round-trippable
+snapshot of that tier-1 state plus the bounded recent-event window. Tier 2
 (`submit` / `task-transition` / `view-not-working`, `state/events.ts`)
-surfaces as a typed callback: `MorpheRoot` accepts `onEscalate?: (e:
-Tier2Event) => void` and provides it via a context DISJOINT from the store —
-input primitives never consume it, so a tier-1 handler has no escalation
-capability in scope (architecture-scanned in `store.test.ts`). No shipped
-primitive fires tier-2 yet: in-tree Buttons are inert until the R1.4 action
-wire, and the site's native chrome is out of scope by the
-native-control-surface idiom.
+surfaces as a typed callback: `MorpheRoot` accepts `onEscalate?: (record:
+Tier2Escalation) => void`, where `record = { event: Tier2Event, digest:
+ContextDigest }`, and provides a root-internal event emitter via a context
+DISJOINT from the store — input primitives never consume it, so a tier-1 handler
+has no escalation capability in scope (architecture-scanned in `store.test.ts`).
+The site's native chrome remains out of scope by the native-control-surface
+idiom.
+
+`MorpheRoot.svelte` is also the R1.4 declarative-action boundary. It accepts
+`actions?: Readonly<Record<string, () => void>>`, provides that map via an
+action context, and `Button.svelte` resolves `node.action` at click time:
+mapped id → invoke; unmapped id → dev warning and no-op; absent id → native
+button behavior only. The authored tree still carries only an opaque action id,
+never a handler.
 
 **`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
 own `children` and recurse into `<Node>` themselves (exactly as layout primitives
@@ -612,7 +621,7 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 
 | Seam | Field(s) | Reserved for | Phase |
 |---|---|---|---|
-| Declarative actions | `Button.action` (an id, no live wire) | the later event loop binds a handler to the id; the grammar emits intent, not logic | 1 |
+| Declarative actions | `Button.action` (an id, no live wire in the grammar) | wired at `MorpheRoot.actions`; the grammar emits intent, not logic | ✔ |
 | Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | wired to Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | ✔ |
 | Variation points | `Vary` (renders `options[default]` today), `Vary.objective` | Lemma 6: the mid loop selects among options within an epoch; `objective` is what it optimizes | 2 |
 | Dialect compound-gating | `Dialect.compounds[]` (render-gated via `restrictCompounds`) | wired to Lemma 4's compound dialect: a non-empty list restricts expansion; empty = unrestricted | ✔ |
