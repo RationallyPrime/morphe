@@ -688,8 +688,8 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | `bind` store-paths on inputs/overlays | L5 | client store + bound primitives | ✔ |
 | Tier-0 local state in input primitives | L5 | input primitives | ✔ |
 | Tier-1/2 event escalation + ContextDigest | L5 | `state/events.ts`, `state/digest.ts`, store event window, `MorpheRoot.onEscalate`, replay snapshots | ✔ |
-| `Vary` nodes (render default option) | L6 | grammar + `Node.svelte` | ○ (Phase 2 wires deltas) |
-| `Within`, epochs, VaryId/delta typing | L6 | — | ✗ (Phase 2) |
+| `Vary` nodes (render default option) | L6 | grammar + `Node.svelte`, `MorpheRoot.choices` | ✔ |
+| `Within`, epochs, VaryId/delta typing | L6 | `grammar/types.ts`, `delegation/`, `MorpheRoot.choices` | ✔ |
 | Mid-loop model (appliance-resident, A4-constrained) | L7 | — | ✗ (Phase 2) |
 | One schema, three jobs (Pydantic source + TS codegen + mask) | L1 | TS-first today | ✗ (the Eidos lift, `MIGRATION.md`) |
 | Slow loop (agent emitting trees) | A1 | hand-authored presenters today | ✗ (post-lift) |

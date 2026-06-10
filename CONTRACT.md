@@ -293,9 +293,11 @@ Disclosure { kind:"disclosure"; summary:string; open?:boolean; group?:string; ch
 ### Meta (no .svelte files — structural)
 
 ```ts
+VaryId  string (opaque, assignment-compatible branded id for variation points)
 Slot     { kind:"slot";      name:string; fallback?:Node[] }
 ParamRef { kind:"param-ref"; param:string }
-Vary     { kind:"vary";      id:string; options:Node[]; default?:number; objective?:"salience"|"density"|"compactness" }
+Vary     { kind:"vary";      id:VaryId; options:Node[]; default?:number; objective?:"salience"|"density"|"compactness" }
+Within   { kind:"within";    id:VaryId; dimension:"density"|"emphasis"|"collapse"; range:readonly [number,number]; default:number }
 ```
 
 ### Compound reference
@@ -535,8 +537,10 @@ every shipped intent/surface value to be a `var(--mo-...)`, `color-mix(...)`, or
 ## 9. The renderer (Definition 1)
 
 `render/Node.svelte` is the recursive total function. It: switches on `kind`;
-expands `CompoundRef` via the registry then recurses; renders `Vary`'s default
-option; renders a bare `Slot`'s fallback; defensively renders a stray
+expands `CompoundRef` via the registry then recurses; renders `Vary` from the
+root-provided choice map, falling back to its authored default; resolves
+`Within` choices into existing algebra inputs (`Density`, `EmphasisClaim`, or a
+`Disclosure.open` boolean) without emitting raw CSS; renders a bare `Slot`'s fallback; defensively renders a stray
 `ParamRef`; and for every primitive kind looks up the component in
 `render/registry.ts` and hands it `{ node, ctx }`. Layout primitives own their
 own descent and recurse into `<Node>` with the child ctx. An unknown
@@ -572,6 +576,13 @@ action context, and `Button.svelte` resolves `node.action` at click time:
 mapped id → invoke; unmapped id → dev warning and no-op; absent id → native
 button behavior only. The authored tree still carries only an opaque action id,
 never a handler.
+
+`MorpheRoot.svelte` is also the R2.3 choice boundary. It accepts exactly
+`choices?: Readonly<Record<VaryId, number>>` and provides that map via render
+context. It does NOT accept an envelope and never sees an epoch; epoch rejection
+is already complete before render. With no choices, rendering is byte-identical
+to the old `options[default]` path (Corollary 1). Out-of-range choices are
+clamped defensively, but should have been rejected by `applyDelta`.
 
 **`Node.svelte` was NOT changed for the overlay family.** Overlays carry their
 own `children` and recurse into `<Node>` themselves (exactly as layout primitives
@@ -623,15 +634,21 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 |---|---|---|---|
 | Declarative actions | `Button.action` (an id, no live wire in the grammar) | wired at `MorpheRoot.actions`; the grammar emits intent, not logic | ✔ |
 | Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | wired to Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | ✔ |
-| Variation points | `Vary` (renders `options[default]` today), `Vary.objective` | Lemma 6: the mid loop selects among options within an epoch; `objective` is what it optimizes | 2 |
+| Variation points | `Vary` / `Within`, keyed by `VaryId`; `Vary.objective` | Lemma 6: the mid loop selects among options or bounded dimensions within an epoch; `objective` is what it optimizes | 2 |
 | Dialect compound-gating | `Dialect.compounds[]` (render-gated via `restrictCompounds`) | wired to Lemma 4's compound dialect: a non-empty list restricts expansion; empty = unrestricted | ✔ |
 | Dialect personas | `Dialect.persona` | τ_frame bootstrap (deployment/directory; cohort attribution on the site) | 2 |
 
-**Planned grammar extensions** (contract changes, owner-only, pre-announced so
-nobody re-invents them ad hoc): `Within` (the continuous analogue of `Vary`:
-bounded movement along `density`/`emphasis`/`collapse`), an **epoch** carried
-by each slow-loop emission, and `VaryId`/delta typing for mid-loop rejection
-semantics. See `VISION.md` §9 for their exact shapes.
+`src/lib/morphe/delegation/envelope.ts` owns the emission envelope
+`{ epoch, tree, choices }` and `Delta { id, choice, epoch }`. The epoch is
+host-side and pre-render only: `applyDelta(envelope, delta)` checks it first,
+rejects stale work, rejects unknown ids and out-of-range choices, and records
+accepted choices in the envelope. Rejections return the exact same envelope
+object; accepted deltas clone the envelope and choice map without mutating the
+tree. Epochs never enter `grammar/` and never reach `MorpheRoot`; the renderer
+sees only choices. The mid-loop seam is `MidLoopDelegate.propose(digest,
+liveVaryIds): Delta[]`; hosts run those proposals through `applyDelta` and then
+re-render with the returned choice map. The substrate ships a dev-only static
+choice delegate only to prove the plug-in path; the renderer never imports it.
 
 **One schema, three jobs** is the end-state, not the present: today the grammar
 is TS-first and has one consumer (svelte-check). The lift — Pydantic source of

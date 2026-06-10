@@ -39,6 +39,7 @@ from .models import (
     Text,
     Toggle,
     Vary,
+    Within,
     validate_node,
 )
 
@@ -81,5 +82,6 @@ __all__ = [
     "Text",
     "Toggle",
     "Vary",
+    "Within",
     "validate_node",
 ]

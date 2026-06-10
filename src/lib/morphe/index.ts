@@ -21,6 +21,7 @@ export type {
 	EmphasisClaim,
 	CoreIntent,
 	IntentRef,
+	VaryId,
 	InputA11y,
 	LabelRelation,
 	StatusSignal,
@@ -51,8 +52,18 @@ export type {
 	Slot,
 	ParamRef,
 	Vary,
+	Within,
 } from "./grammar/types.js";
 export { assertNever } from "./grammar/types.js";
+
+// Delegation envelope (Lemma 6 / ADR-0004)
+export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
+export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
+export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+export type { MidLoopDelegate, DevStaticChoiceMidLoopOptions } from "./delegation/midLoop.js";
+export { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+export type { ResolvedWithin } from "./delegation/resolveChoice.js";
+export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js";
 
 // Context algebra (Lemma 2)
 export type { MorpheContext, ScaleTier } from "./context/algebra.js";

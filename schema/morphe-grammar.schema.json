@@ -843,7 +843,8 @@
           "status": "#/$defs/Status",
           "text": "#/$defs/Text",
           "toggle": "#/$defs/Toggle",
-          "vary": "#/$defs/Vary"
+          "vary": "#/$defs/Vary",
+          "within": "#/$defs/Within"
         },
         "propertyName": "kind"
       },
@@ -922,6 +923,9 @@
         },
         {
           "$ref": "#/$defs/Vary"
+        },
+        {
+          "$ref": "#/$defs/Within"
         },
         {
           "$ref": "#/$defs/CompoundRef"
@@ -1470,6 +1474,55 @@
       ],
       "title": "VisibleLabelRelation",
       "type": "object"
+    },
+    "Within": {
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "dimension": {
+          "enum": [
+            "density",
+            "emphasis",
+            "collapse"
+          ],
+          "title": "Dimension",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "within",
+          "title": "Kind",
+          "type": "string"
+        },
+        "range": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/NumberValue"
+            },
+            {
+              "$ref": "#/$defs/NumberValue"
+            }
+          ],
+          "title": "Range",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "dimension",
+        "range",
+        "default"
+      ],
+      "title": "Within",
+      "type": "object"
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1500,7 +1553,8 @@
       "status": "#/$defs/Status",
       "text": "#/$defs/Text",
       "toggle": "#/$defs/Toggle",
-      "vary": "#/$defs/Vary"
+      "vary": "#/$defs/Vary",
+      "within": "#/$defs/Within"
     },
     "propertyName": "kind"
   },
@@ -1579,6 +1633,9 @@
     },
     {
       "$ref": "#/$defs/Vary"
+    },
+    {
+      "$ref": "#/$defs/Within"
     },
     {
       "$ref": "#/$defs/CompoundRef"

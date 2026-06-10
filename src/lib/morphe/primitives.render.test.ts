@@ -28,6 +28,7 @@ import { PRIMITIVES } from "./render/registry.js";
 import { icelandicArchive } from "./dialects/icelandic-archive.js";
 import { clinical } from "./dialects/clinical.js";
 import type { Dialect } from "./dialects/types.js";
+import type { ChoiceMap } from "./delegation/envelope.js";
 import type { Node } from "./grammar/types.js";
 import { createInMemoryMorpheStore, type MorpheStore } from "./state/store.svelte.js";
 import { registry } from "./compounds/factory.js";
@@ -35,7 +36,9 @@ import { registry } from "./compounds/factory.js";
 /** Render an authored tree through the full core to its SSR HTML body string. */
 function ssr(
 	tree: Node,
-	options?: Dialect | { readonly dialect?: Dialect; readonly store?: MorpheStore },
+	options?:
+		| Dialect
+		| { readonly dialect?: Dialect; readonly store?: MorpheStore; readonly choices?: ChoiceMap },
 ): string {
 	if (options && "id" in options) {
 		return render(MorpheRoot, { props: { tree, dialect: options } }).body;
@@ -150,6 +153,31 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		}).not.toThrow();
 		expect(html).toContain("before");
 		expect(html).toContain("after");
+	});
+
+	it("renders known siblings around a Within variation point without throwing", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{
+					kind: "within",
+					id: "density-panel",
+					dimension: "density",
+					range: [0, 2],
+					default: 1,
+				},
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+		expect(html).not.toContain("density-panel");
 	});
 
 	it("a dialect's compound allowlist hides an out-of-dialect compound at render (G|D)", () => {
@@ -616,6 +644,40 @@ describe("grammar fixed point — pre-mode authored tree is invariant across dia
 		expect(html).not.toContain("<textarea");
 		expect(html).not.toContain('role="radiogroup"');
 		expect(html).not.toContain('type="checkbox"');
+	});
+});
+
+describe("variation choices — MorpheRoot passes choices only, never epochs", () => {
+	const varyingCopy: Node = {
+		kind: "vary",
+		id: "copy-choice",
+		options: [
+			{ kind: "text", value: "First option", as: "body" },
+			{ kind: "text", value: "Second option", as: "body" },
+			{ kind: "text", value: "Third option", as: "body" },
+		],
+		default: 2,
+	};
+
+	it("renders the Vary option selected by the root choice map", () => {
+		const html = ssr(varyingCopy, { choices: { "copy-choice": 1 } });
+		expect(html).toContain("Second option");
+		expect(html).not.toContain("First option");
+		expect(html).not.toContain("Third option");
+	});
+
+	it("falls back byte-identically to the authored default when choices are absent or empty", () => {
+		const absent = ssr(varyingCopy);
+		const empty = ssr(varyingCopy, { choices: {} });
+		expect(absent).toBe(empty);
+		expect(absent).toContain("Third option");
+	});
+
+	it("defensively clamps an out-of-range choice map entry into the Vary options", () => {
+		const high = ssr(varyingCopy, { choices: { "copy-choice": 99 } });
+		const low = ssr(varyingCopy, { choices: { "copy-choice": -99 } });
+		expect(high).toContain("Third option");
+		expect(low).toContain("First option");
 	});
 });
 

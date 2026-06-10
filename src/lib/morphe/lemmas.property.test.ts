@@ -23,6 +23,9 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+import { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+import { resolveWithin } from "./delegation/resolveChoice.js";
 import {
 	ROOT_CONTEXT,
 	THRESHOLDS,
@@ -37,6 +40,7 @@ import {
 } from "./context/algebra.js";
 import { CompoundRegistry, childrenOf } from "./compounds/factory.js";
 import type { CompoundDef } from "./compounds/factory.js";
+import type { Delta, EmissionEnvelope } from "./delegation/envelope.js";
 import { applyDialect } from "./dialects/provider.svelte.js";
 import { DEFAULT_DIALECT } from "./dialects/icelandic-archive.js";
 import { clinical } from "./dialects/clinical.js";
@@ -48,6 +52,8 @@ import type {
 	Node,
 	NodeKind,
 } from "./grammar/types.js";
+import { CONTEXT_DIGEST_VERSION } from "./state/digest.js";
+import type { ContextDigest } from "./state/digest.js";
 
 /* ===========================================================================
  * 0. Seeded PRNG + schema-valid generators (the in-repo fuzz harness)
@@ -99,10 +105,11 @@ const CONTAINER_ROLES: readonly ContainerRole[] = [
 ];
 const DENSITIES: readonly Density[] = ["compact", "regular", "spacious"];
 const CLAIMS: readonly EmphasisClaim[] = ["muted", "normal", "strong", "critical"];
+const VARY_IDS = ["density-panel", "emphasis-panel", "collapse-notes"] as const;
 
 /** Leaf primitives that are always schema-valid with no required composition. */
 function genLeaf(rng: () => number): Node {
-	const which = intIn(rng, 0, 6);
+	const which = intIn(rng, 0, 8);
 	switch (which) {
 		case 0:
 			return { kind: "text", value: `t${intIn(rng, 0, 999)}`, as: pick(rng, ["body", "heading", "caption"] as const) };
@@ -116,6 +123,26 @@ function genLeaf(rng: () => number): Node {
 			return { kind: "status", tone: pick(rng, ["success", "caution", "info", "neutral"] as const), signal: { text: "ok" } };
 		case 5:
 			return { kind: "progress", value: rng(), label: "loading" };
+		case 6:
+			return {
+				kind: "within",
+				id: pick(rng, VARY_IDS),
+				dimension: pick(rng, ["density", "emphasis", "collapse"] as const),
+				range: [0, 3],
+				default: intIn(rng, 0, 3),
+			};
+		case 7:
+			return {
+				kind: "vary",
+				id: pick(rng, VARY_IDS),
+				options: [
+					{ kind: "text", value: "option-0", as: "body" },
+					{ kind: "text", value: "option-1", as: "body" },
+					{ kind: "text", value: "option-2", as: "body" },
+				],
+				default: intIn(rng, 0, 2),
+				objective: pick(rng, ["salience", "density", "compactness"] as const),
+			};
 		default:
 			return {
 				kind: "field",
@@ -195,7 +222,7 @@ const RENDERABLE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	"field", "select", "toggle", "range",
 	"progress", "status", "inline-alert",
 	// meta the renderer handles directly (slot fallback / vary default)
-	"slot", "vary",
+	"slot", "vary", "within",
 ]);
 
 /* ===========================================================================
@@ -274,6 +301,31 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 				expect(RENDERABLE_KINDS.has(n.kind)).toBe(true);
 			});
 		});
+	});
+
+	it("Within leaves pass the compound registration gate", () => {
+		const reg = new CompoundRegistry();
+		const def: CompoundDef = {
+			name: "within-gate-probe",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [
+					{
+						kind: "within",
+						id: "density-panel",
+						dimension: "density",
+						range: [0, 2],
+						default: 1,
+					},
+				],
+			},
+		};
+
+		expect(reg.register(def).ok).toBe(true);
 	});
 
 	it("compounds reference compounds — vocabulary is OPEN under composition", () => {
@@ -569,6 +621,240 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 				renderedChildEmphasis(budget, children),
 			);
 		});
+	});
+});
+
+/* ===========================================================================
+ * Lemma 6 (Bounded delegation): deltas stay inside the authorized variation space
+ * ========================================================================= */
+
+type Bounds = readonly [number, number];
+
+function variationBounds(tree: Node): ReadonlyMap<string, readonly Bounds[]> {
+	const out = new Map<string, Bounds[]>();
+	walk(tree, (node) => {
+		if (node.kind === "vary") {
+			const bounds: Bounds = [0, node.options.length - 1];
+			out.set(node.id, [...(out.get(node.id) ?? []), bounds]);
+		}
+		if (node.kind === "within") {
+			out.set(node.id, [...(out.get(node.id) ?? []), node.range]);
+		}
+	});
+	return out;
+}
+
+function validChoiceForAll(bounds: readonly Bounds[], choice: number): boolean {
+	return Number.isInteger(choice) && bounds.every(([lo, hi]) => choice >= lo && choice <= hi);
+}
+
+function validChoiceFor(bounds: readonly Bounds[]): number {
+	const lo = Math.max(...bounds.map(([min]) => min));
+	const hi = Math.min(...bounds.map(([, max]) => max));
+	return lo <= hi ? lo : Number.NaN;
+}
+
+function envelopeFor(tree: Node, epoch = 1): EmissionEnvelope {
+	return { epoch, tree, choices: {} };
+}
+
+function expectedDeltaResult(
+	envelope: EmissionEnvelope,
+	delta: Delta,
+	bounds: ReadonlyMap<string, readonly Bounds[]>,
+): "applied" | "stale-epoch" | "unknown-id" | "out-of-range" {
+	if (delta.epoch !== envelope.epoch) return "stale-epoch";
+	const liveBounds = bounds.get(delta.id);
+	if (!liveBounds) return "unknown-id";
+	if (!validChoiceForAll(liveBounds, delta.choice)) return "out-of-range";
+	return "applied";
+}
+
+describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gated", () => {
+	it("liveVaryIds walks Vary and Within ids through the existing grammar children", () => {
+		forEachSeed("L6.live-ids", (rng) => {
+			const tree = genTree(rng, 4);
+			const expected = new Set(variationBounds(tree).keys());
+			expect(liveVaryIds(tree)).toEqual(expected);
+		});
+	});
+
+	it("liveVaryIds sees Vary/Within inside CompoundRef slot fills and args (the renderer honors them after expansion)", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "compound",
+					name: "anything",
+					args: {
+						aside: {
+							kind: "within",
+							id: "arg-within",
+							dimension: "density",
+							range: [0, 2],
+							default: 1,
+						},
+					},
+					slots: {
+						body: [
+							{
+								kind: "vary",
+								id: "slot-vary",
+								options: [
+									{ kind: "text", value: "a", as: "body" },
+									{ kind: "text", value: "b", as: "body" },
+								],
+								default: 0,
+							},
+						],
+					},
+				},
+			],
+		};
+
+		const live = liveVaryIds(tree);
+		expect(live.has("slot-vary")).toBe(true);
+		expect(live.has("arg-within")).toBe(true);
+
+		const applied = applyDelta(envelopeFor(tree), { id: "slot-vary", choice: 1, epoch: 1 });
+		expect(applied.result).toBe("applied");
+		expect(applied.envelope.choices["slot-vary"]).toBe(1);
+	});
+
+	it("adversarial deltas apply only for live ids, matching epoch, and in-range choices", () => {
+		forEachSeed("L6.adversarial-deltas", (rng) => {
+			const tree = genTree(rng, 4);
+			const envelope = envelopeFor(tree, intIn(rng, 1, 5));
+			const bounds = variationBounds(tree);
+			const live = [...bounds.keys()];
+			const id = rng() < 0.7 && live.length > 0 ? pick(rng, live) : `unknown-${intIn(rng, 0, 99)}`;
+			const delta: Delta = {
+				id,
+				epoch: rng() < 0.75 ? envelope.epoch : envelope.epoch + intIn(rng, 1, 3),
+				choice: intIn(rng, -2, 5),
+			};
+
+			let result: ReturnType<typeof applyDelta> | undefined;
+			expect(() => {
+				result = applyDelta(envelope, delta);
+			}).not.toThrow();
+			expect(result?.result).toBe(expectedDeltaResult(envelope, delta, bounds));
+
+			if (result?.result === "applied") {
+				expect(result.envelope).not.toBe(envelope);
+				expect(result.envelope.tree).toBe(envelope.tree);
+				expect(result.envelope.choices[delta.id]).toBe(delta.choice);
+			} else {
+				expect(result?.envelope).toBe(envelope);
+			}
+		});
+	});
+
+	it("accepted delta sequences keep every effective choice inside its authored bounds", () => {
+		forEachSeed("L6.applied-sequence-valid", (rng) => {
+			const tree = genTree(rng, 4);
+			const bounds = variationBounds(tree);
+			let envelope = envelopeFor(tree, intIn(rng, 1, 5));
+			for (const [id, liveBounds] of bounds) {
+				const choice = validChoiceFor(liveBounds);
+				if (!Number.isFinite(choice)) continue;
+				const result = applyDelta(envelope, { id, choice, epoch: envelope.epoch });
+				expect(result.result).toBe("applied");
+				envelope = result.envelope;
+			}
+
+			for (const [id, choice] of Object.entries(envelope.choices)) {
+				const liveBounds = bounds.get(id);
+				expect(liveBounds).toBeDefined();
+				expect(validChoiceForAll(liveBounds as readonly Bounds[], choice)).toBe(true);
+			}
+		});
+	});
+
+	it("a re-emitted epoch invalidates all previously minted deltas", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "vary",
+					id: "copy-choice",
+					options: [
+						{ kind: "text", value: "A", as: "body" },
+						{ kind: "text", value: "B", as: "body" },
+					],
+					default: 0,
+				},
+				{
+					kind: "within",
+					id: "density-choice",
+					dimension: "density",
+					range: [0, 2],
+					default: 1,
+				},
+			],
+		};
+		const envelope = envelopeFor(tree, 7);
+		const oldDeltas: Delta[] = [
+			{ id: "copy-choice", choice: 1, epoch: envelope.epoch },
+			{ id: "density-choice", choice: 2, epoch: envelope.epoch },
+		];
+		const reemitted: EmissionEnvelope = { ...envelope, epoch: envelope.epoch + 1 };
+
+		for (const delta of oldDeltas) {
+			const result = applyDelta(reemitted, delta);
+			expect(result.result).toBe("stale-epoch");
+			expect(result.envelope).toBe(reemitted);
+		}
+	});
+
+	it("the dev mid-loop seam proposes deltas that the host applies before render", () => {
+		const tree: Node = {
+			kind: "vary",
+			id: "copy-choice",
+			options: [
+				{ kind: "text", value: "A", as: "body" },
+				{ kind: "text", value: "B", as: "body" },
+			],
+			default: 0,
+		};
+		let envelope = envelopeFor(tree, 3);
+		const loop = createDevStaticChoiceMidLoop({ epoch: envelope.epoch, choice: 1, enabled: true });
+		const digest: ContextDigest = {
+			digestVersion: CONTEXT_DIGEST_VERSION,
+			state: {},
+			recentEvents: [],
+		};
+
+		for (const delta of loop.propose(digest, liveVaryIds(tree))) {
+			const result = applyDelta(envelope, delta);
+			expect(result.result).toBe("applied");
+			envelope = result.envelope;
+		}
+
+		expect(envelope.choices["copy-choice"]).toBe(1);
+	});
+
+	it("Within choices resolve into existing algebra inputs, never raw CSS", () => {
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "density-choice", dimension: "density", range: [0, 2], default: 1 },
+				{ "density-choice": 0 },
+			),
+		).toEqual({ dimension: "density", choice: 0, value: "compact" });
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "emphasis-choice", dimension: "emphasis", range: [0, 3], default: 1 },
+				{ "emphasis-choice": 3 },
+			),
+		).toEqual({ dimension: "emphasis", choice: 3, value: "critical" });
+		expect(
+			resolveWithin(
+				{ kind: "within", id: "collapse-choice", dimension: "collapse", range: [0, 2], default: 0 },
+				{ "collapse-choice": 2 },
+			),
+		).toEqual({ dimension: "collapse", choice: 2, value: true });
 	});
 });
 
