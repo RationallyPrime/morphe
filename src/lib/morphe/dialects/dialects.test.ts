@@ -30,6 +30,7 @@ import { ARCHIVE_SURFACES, DEFAULT_DIALECT, icelandicArchive } from "./icelandic
 import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
 import { DEFAULT_DIALECT_ID, DIALECT_IDS, DIALECTS, getDialect, hasDialect } from "./registry.js";
 import { REYKJAVIK_SURFACES, reykjavikRegistry } from "./reykjavik-registry.js";
+import { TIMAEUS_SURFACES, timaeus } from "./timaeus.js";
 import type { Dialect } from "./types.js";
 
 /** Shared register-extension names every shipped dialect re-reads (FP3). */
@@ -52,6 +53,7 @@ const SURFACE_STACKS: Readonly<Record<string, Readonly<Record<string, string>>>>
 	"icelandic-archive": ARCHIVE_SURFACES,
 	clinical: CLINICAL_SURFACES,
 	"reykjavik-registry": REYKJAVIK_SURFACES,
+	timaeus: TIMAEUS_SURFACES,
 };
 
 /**
@@ -391,6 +393,28 @@ describe("dialect registry — named lookup for the subtree-boundary swap", () =
 
 	it("the registry is frozen (read-only data, not a mutable global)", () => {
 		expect(Object.isFrozen(DIALECTS)).toBe(true);
+	});
+});
+
+describe("timaeus — the plates' blue-constellation world (KRA-326)", () => {
+	// What is UNIQUE to this dialect: the plates are FIXED POINTS the substrate
+	// re-poses around, so its beacon must be the plates' own lattice light (the
+	// cobalt ramp minted for it), never the Archive amber — and its grounds must
+	// carry the blue cast so a Timaeus page and its figures read as one object.
+	it("the beacon rides the cobalt scale (the plates' lattice light, not the amber)", () => {
+		const beacon = applyDialect(timaeus).vars[intentVar("primary-action", "surface")];
+		expect(beacon).toBe("var(--mo-cobalt-500)");
+		for (const channel of CHANNELS) {
+			const v = applyDialect(timaeus).vars[intentVar("primary-action", channel)];
+			expect(v, `timaeus.primary-action.${channel}`).toContain("--mo-cobalt-");
+		}
+	});
+
+	it("every ground in the surface stack is cooled toward the lattice navy", () => {
+		for (const key of ["base", "raised", "sunken", "overlay"] as const) {
+			const v = TIMAEUS_SURFACES[`--mo-intent-surface-${key}`];
+			expect(v, `timaeus surface ${key}`).toContain("--mo-cobalt-700");
+		}
 	});
 });
 

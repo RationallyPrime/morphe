@@ -23,6 +23,7 @@
 import { clinical } from "./clinical.js";
 import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
+import { timaeus } from "./timaeus.js";
 import type { Dialect } from "./types.js";
 
 /**
@@ -33,6 +34,7 @@ export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[icelandicArchive.id]: icelandicArchive,
 	[clinical.id]: clinical,
 	[reykjavikRegistry.id]: reykjavikRegistry,
+	[timaeus.id]: timaeus,
 });
 
 /** The id of the dialect used when nothing more specific is selected. */

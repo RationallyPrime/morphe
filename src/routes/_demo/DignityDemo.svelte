@@ -193,6 +193,9 @@
 	.toggle__swatch[data-dialect="reykjavik-registry"] {
 		background: var(--mo-blue-500);
 	}
+	.toggle__swatch[data-dialect="timaeus"] {
+		background: var(--mo-cobalt-500);
+	}
 
 	.proof {
 		margin: 0 0 var(--mo-space-5);

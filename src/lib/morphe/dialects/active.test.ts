@@ -8,7 +8,7 @@
  *   A2  `set` and `setById` move the selection; `id`/`current` reflect it.
  *   A3  `setById` with an UNKNOWN id is a NO-OP — never a silent reset to the
  *       default (a stale persisted id must leave the current selection intact).
- *   A4  The registry ships all THREE global dialects, so the toggle's list and
+ *   A4  The registry ships all FOUR global dialects, so the toggle's list and
  *       the persisted-id guard agree with what is selectable.
  *
  * Each test restores the default afterward so module-level state does not leak
@@ -21,6 +21,7 @@ import { clinical } from "./clinical.js";
 import { DEFAULT_DIALECT } from "./icelandic-archive.js";
 import { DIALECT_IDS, DIALECTS } from "./registry.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
+import { timaeus } from "./timaeus.js";
 
 afterEach(() => {
 	activeDialect.set(DEFAULT_DIALECT);
@@ -57,11 +58,12 @@ describe("A3 — setById with an unknown id is a no-op (not a reset)", () => {
 	});
 });
 
-describe("A4 — the registry contains all three global dialects", () => {
-	it("ships icelandic-archive, clinical and reykjavik-registry", () => {
-		expect(DIALECT_IDS).toEqual(["icelandic-archive", "clinical", "reykjavik-registry"]);
+describe("A4 — the registry contains all four global dialects", () => {
+	it("ships icelandic-archive, clinical, reykjavik-registry and timaeus", () => {
+		expect(DIALECT_IDS).toEqual(["icelandic-archive", "clinical", "reykjavik-registry", "timaeus"]);
 		expect(DIALECTS["icelandic-archive"]).toBe(DEFAULT_DIALECT);
 		expect(DIALECTS.clinical).toBe(clinical);
 		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
+		expect(DIALECTS.timaeus).toBe(timaeus);
 	});
 });
