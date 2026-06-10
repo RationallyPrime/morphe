@@ -16,16 +16,17 @@ def test_valid_fixture_tree_validates(tree: NodeFixture) -> None:
 @pytest.mark.parametrize(
     "tree",
     [
-        ({"kind": "field", "inputType": "text"},),
-        (
-            {
-                "kind": "select",
-                "a11y": {"id": "missing-label"},
-                "options": [{"value": "one", "label": "One"}],
-            },
-        ),
-        ({"kind": "toggle", "a11y": {"id": "missing-label"}},),
-        ({"kind": "range", "a11y": {"id": "missing-label"}, "min": 0, "max": 10},),
+        # Bare dicts, not 1-tuples: with a single argname pytest passes each
+        # item through unchanged, and a tuple would fail validation for the
+        # wrong reason (not-a-node), making the a11y assertion vacuous.
+        {"kind": "field", "inputType": "text"},
+        {
+            "kind": "select",
+            "a11y": {"id": "missing-label"},
+            "options": [{"value": "one", "label": "One"}],
+        },
+        {"kind": "toggle", "a11y": {"id": "missing-label"}},
+        {"kind": "range", "a11y": {"id": "missing-label"}, "min": 0, "max": 10},
     ],
 )
 def test_unlabelled_input_fails_validation(tree: NodeFixture) -> None:
