@@ -352,6 +352,14 @@ class Vary(GrammarModel):
     objective: Literal["salience", "density", "compactness"] | None = None
 
 
+class Within(GrammarModel):
+    kind: Literal["within"]
+    id: StrictStr
+    dimension: Literal["density", "emphasis", "collapse"]
+    range: tuple[NumberValue, NumberValue]
+    default: NumberValue
+
+
 class CompoundRef(GrammarModel):
     kind: Literal["compound"]
     name: StrictStr
@@ -387,6 +395,7 @@ type Node = Annotated[
         Slot,
         ParamRef,
         Vary,
+        Within,
         CompoundRef,
     ],
     PydanticField(discriminator="kind"),
@@ -428,6 +437,7 @@ MODEL_TYPES: tuple[type[GrammarModel], ...] = (
     Slot,
     ParamRef,
     Vary,
+    Within,
     CompoundRef,
 )
 

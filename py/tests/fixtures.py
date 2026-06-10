@@ -184,6 +184,13 @@ VALID_TREES: tuple[NodeFixture, ...] = (
                 "default": 0,
                 "objective": "density",
             },
+            {
+                "kind": "within",
+                "id": "proof-emphasis",
+                "dimension": "emphasis",
+                "range": [0, 3],
+                "default": 1,
+            },
         ],
     },
     {
