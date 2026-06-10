@@ -1,17 +1,12 @@
 /*
  * POST /api/contact — a marketing lead. Validates server-side, drops bots via a
- * honeypot, and notifies the founder over ntfy. There is NO customer auto-reply:
- * Hákon replies by hand. The payload never leaves for anywhere but the founder's
- * ntfy topic.
+ * honeypot, and notifies the founder (Postmark email + ntfy push; see
+ * $lib/server/notify for the channel env). There is NO customer auto-reply:
+ * Hákon replies by hand. The payload never leaves for anywhere but the
+ * founder's inbox/topic.
  *
- * Env (all optional; absence is handled honestly, not silently):
- *   SOKRATES_ALERT_NTFY_TOPIC     — the ntfy topic (required to deliver)
- *   SOKRATES_ALERT_NTFY_TOKEN     — bearer token for a protected topic
- *   SOKRATES_ALERT_NTFY_BASE_URL  — defaults to https://ntfy.sh
- *   SOKRATES_ALERT_NTFY_EMAIL     — optional email bridge address
- *
- * When the topic is not configured the route returns 503 so the form can show a
- * mailto fallback — a lead is never silently dropped.
+ * When no channel is configured (or all fail) the route returns 503 so the form
+ * can show a mailto fallback — a lead is never silently dropped.
  */
 
 import { json } from "@sveltejs/kit";

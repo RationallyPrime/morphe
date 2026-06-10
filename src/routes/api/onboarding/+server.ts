@@ -1,9 +1,9 @@
 /*
  * POST /api/onboarding — an onboarding intake submission. Formats the intake into
- * a readable brief and alerts the founder over ntfy (see $lib/server/notify). No
- * customer auto-reply; the founder follows up by hand. Returns 503 when delivery
- * is not configured / fails, so the client can offer a mailto fallback and never
- * lose an intake.
+ * a readable brief and alerts the founder (Postmark email + ntfy push; see
+ * $lib/server/notify). No customer auto-reply; the founder follows up by hand.
+ * Returns 503 when delivery is not configured / fails, so the client can offer a
+ * mailto fallback and never lose an intake.
  */
 
 import { json } from "@sveltejs/kit";
