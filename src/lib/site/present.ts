@@ -234,6 +234,96 @@ function beat(
 	};
 }
 
+/**
+ * The nine-beat canon — ONE authored copy of the public Timaeus sequence
+ * (id, slug, alt, title, body). `/how-it-works` renders it as the canonical
+ * page; the home's plates morph (KRA-359) grows the same nine inline. Only
+ * the public b1–b9 plates exist here — the quarantined internal diagrams are
+ * never referenced (test-gated, KRA-324/KRA-359).
+ */
+export interface PlateBeat {
+	readonly id: string;
+	readonly slug: string;
+	readonly alt: string;
+	readonly title: string;
+	readonly body: string;
+}
+
+export const PLATE_BEATS: readonly PlateBeat[] = [
+	{
+		id: "B1",
+		slug: "b1-boot-on-premises",
+		alt: "Plate I — a wireframe constellation engraving: the appliance standing inside the outline of a building, its lattice lit at boot.",
+		title: "Boot on-premises",
+		body: "The appliance arrives, plugs in at your site, and brings itself up: every service declared, not assembled by hand. The record is alive before the first act. From boot, each system event is captured without a second setup ritual.",
+	},
+	{
+		id: "B2",
+		slug: "b2-bind-the-sources",
+		alt: "Plate II — the appliance bound by lattice lines to the constellation of the company's systems around it.",
+		title: "Bind the sources",
+		body: "An operator connects the systems your company actually runs: the ERP, the finance stack, the databases. Each connection enters with a named scope, so the map starts with what the source system is allowed to show.",
+	},
+	{
+		id: "B3",
+		slug: "b3-information-flows-in",
+		alt: "Plate III — streams of source records flowing as lattice light into the appliance's growing map.",
+		title: "Information flows in",
+		body: "The bound sources are read and their structure is lifted into one typed map. And Sókrates doesn't just ingest — where the documentation is silent, it puts questions to your people, and the answers become part of what it knows.",
+	},
+	{
+		id: "B4",
+		slug: "b4-aristotle-authors",
+		alt: "Plate IV — Aristotle as a draughtsman figure, writing laws into the lattice of the map.",
+		title: "Aristotle authors",
+		body: "Aristotle reads the matter and the answers, then writes the rules that say how your operation's pieces fit together and what counts as correct. Larger rules are composed from smaller ones, not bolted on.",
+	},
+	{
+		id: "B5",
+		slug: "b5-plato-smiths",
+		alt: "Plate V — Plato at a forge of lattice light, smithing new capabilities for the constellation.",
+		title: "Plato smiths",
+		body: "Plato works the capability gaps: where the system cannot yet do something, it forges the missing piece — a tool, a check, a bespoke agent fitted to your domain — and registers it, ready to be dispatched.",
+	},
+	{
+		id: "B6",
+		slug: "b6-a-trigger",
+		alt: "Plate VI — a single signal entering the constellation from outside: a request arriving as a point of light.",
+		title: "A trigger",
+		body: "Work begins with a trigger: a person asks for something over Slack, Teams or email — or the system opens a turn on its own, from a schedule or a condition it was watching. Either way, the request is on the record from its first moment.",
+	},
+	{
+		id: "B7",
+		slug: "b7-philosopher-king-reasons",
+		alt: "Plate VII — the Philosopher-King at the centre of the lattice, weighing a plan and sealing its authority.",
+		title: "The Philosopher-King reasons",
+		body: "The orchestrator plans what must happen and under whose authority. If a standing grant already covers this class of work, it proceeds; if not, it drafts the act and waits for a human signature. Either way the authority record is explicit.",
+	},
+	{
+		id: "B8",
+		slug: "b8-governed-workflow",
+		alt: "Plate VIII — a governed workflow drawn as a constellation path, checkpoint by checkpoint, gate by gate.",
+		title: "The authorized workflow runs to done",
+		body: "The plan compiles into a durable workflow that survives restarts and pauses at the gates you have set — most visibly, the approval gate. Every step is stamped onto the record as it happens. The work runs to done.",
+	},
+	{
+		id: "B9",
+		slug: "b9-on-the-record",
+		alt: "Plate IX — the finished work laid into the record: the full causal tree of the act, preserved in the lattice.",
+		title: "On the record",
+		body: "The finished work lands in the system's history: every act, its cause and its authorization, auditable as one record. What the run revealed — a capability it lacked, a question it raised — feeds back into the loop. The cycle closes; the next ordering is sharper.",
+	},
+];
+
+const PLATE_BEAT_BY_ID: ReadonlyMap<string, PlateBeat> = new Map(PLATE_BEATS.map((b) => [b.id, b]));
+
+/** A canonical beat by id. A typo'd id throws — caught by the S2 render test. */
+function beatFrom(id: string, eager = false): Node {
+	const b = PLATE_BEAT_BY_ID.get(id);
+	if (b === undefined) throw new Error(`unknown plate beat: ${id}`);
+	return beat(b.id, b.slug, b.alt, b.title, b.body, eager);
+}
+
 /** An act break: a quiet accession eyebrow, the act title, one framing line. */
 function actBreak(act: string, title: string, sub: string): Node {
 	return {
@@ -262,22 +352,9 @@ export function howItWorksBody(): Node {
 				"A loop, not a line: the system is assembled once, and then never stops being assembled.",
 			),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B1",
-				"b1-boot-on-premises",
-				"Plate I — a wireframe constellation engraving: the appliance standing inside the outline of a building, its lattice lit at boot.",
-				"Boot on-premises",
-				"The appliance arrives, plugs in at your site, and brings itself up: every service declared, not assembled by hand. The record is alive before the first act. From boot, each system event is captured without a second setup ritual.",
-				true,
-			),
+			beatFrom("B1", true),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B2",
-				"b2-bind-the-sources",
-				"Plate II — the appliance bound by lattice lines to the constellation of the company's systems around it.",
-				"Bind the sources",
-				"An operator connects the systems your company actually runs: the ERP, the finance stack, the databases. Each connection enters with a named scope, so the map starts with what the source system is allowed to show.",
-			),
+			beatFrom("B2"),
 
 			{ kind: "spacer", size: "xl" },
 
@@ -304,29 +381,11 @@ export function howItWorksBody(): Node {
 								{ emphasis: "muted" },
 							),
 							{ kind: "spacer", size: "md" },
-							beat(
-								"B3",
-								"b3-information-flows-in",
-								"Plate III — streams of source records flowing as lattice light into the appliance's growing map.",
-								"Information flows in",
-								"The bound sources are read and their structure is lifted into one typed map. And Sókrates doesn't just ingest — where the documentation is silent, it puts questions to your people, and the answers become part of what it knows.",
-							),
+							beatFrom("B3"),
 							{ kind: "spacer", size: "md" },
-							beat(
-								"B4",
-								"b4-aristotle-authors",
-								"Plate IV — Aristotle as a draughtsman figure, writing laws into the lattice of the map.",
-								"Aristotle authors",
-								"Aristotle reads the matter and the answers, then writes the rules that say how your operation's pieces fit together and what counts as correct. Larger rules are composed from smaller ones, not bolted on.",
-							),
+							beatFrom("B4"),
 							{ kind: "spacer", size: "md" },
-							beat(
-								"B5",
-								"b5-plato-smiths",
-								"Plate V — Plato at a forge of lattice light, smithing new capabilities for the constellation.",
-								"Plato smiths",
-								"Plato works the capability gaps: where the system cannot yet do something, it forges the missing piece — a tool, a check, a bespoke agent fitted to your domain — and registers it, ready to be dispatched.",
-							),
+							beatFrom("B5"),
 						],
 					},
 				],
@@ -358,37 +417,13 @@ export function howItWorksBody(): Node {
 				"The ordered system at work: a request arrives, authority is established, and the work runs to done — on the record.",
 			),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B6",
-				"b6-a-trigger",
-				"Plate VI — a single signal entering the constellation from outside: a request arriving as a point of light.",
-				"A trigger",
-				"Work begins with a trigger: a person asks for something over Slack, Teams or email — or the system opens a turn on its own, from a schedule or a condition it was watching. Either way, the request is on the record from its first moment.",
-			),
+			beatFrom("B6"),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B7",
-				"b7-philosopher-king-reasons",
-				"Plate VII — the Philosopher-King at the centre of the lattice, weighing a plan and sealing its authority.",
-				"The Philosopher-King reasons",
-				"The orchestrator plans what must happen and under whose authority. If a standing grant already covers this class of work, it proceeds; if not, it drafts the act and waits for a human signature. Either way the authority record is explicit.",
-			),
+			beatFrom("B7"),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B8",
-				"b8-governed-workflow",
-				"Plate VIII — a governed workflow drawn as a constellation path, checkpoint by checkpoint, gate by gate.",
-				"The authorized workflow runs to done",
-				"The plan compiles into a durable workflow that survives restarts and pauses at the gates you have set — most visibly, the approval gate. Every step is stamped onto the record as it happens. The work runs to done.",
-			),
+			beatFrom("B8"),
 			{ kind: "spacer", size: "md" },
-			beat(
-				"B9",
-				"b9-on-the-record",
-				"Plate IX — the finished work laid into the record: the full causal tree of the act, preserved in the lattice.",
-				"On the record",
-				"The finished work lands in the system's history: every act, its cause and its authorization, auditable as one record. What the run revealed — a capability it lacked, a question it raised — feeds back into the loop. The cycle closes; the next ordering is sharper.",
-			),
+			beatFrom("B9"),
 
 			{ kind: "spacer", size: "xl" },
 

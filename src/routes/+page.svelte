@@ -194,6 +194,14 @@ $effect(() => {
 	.intent-stage :global(.mo-root) {
 		background: transparent;
 	}
+	/* The vitrine mat for stage plates (ADR-0005, KRA-359): dark artwork sits
+	   in a dark well and glows against whatever ground is active — the same
+	   treatment as the hero's box render. On night the well merges. */
+	.intent-stage :global(.mo-media) {
+		background: var(--mo-cobalt-950);
+		padding: var(--mo-space-4);
+		border-radius: var(--mo-radius-3);
+	}
 
 	/*
 	 * The CLOSING band — an asymmetric split: the copy + form own the dominant left

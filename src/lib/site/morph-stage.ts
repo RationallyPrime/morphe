@@ -1,5 +1,5 @@
 /**
- * Home intent stage (KRA-356, KRA-358).
+ * Home intent stage (KRA-356, KRA-358; KRA-357 technical + KRA-359 plates).
  *
  * The intent engine owns execution; this module owns the authored stage tree it
  * can move through. One Vary point keeps the content morphs mutually exclusive:
@@ -8,6 +8,7 @@
  */
 
 import type { EmissionEnvelope, IntentRef, Node, Text, VaryId } from "$morphe";
+import { PLATE_BEATS, type PlateBeat } from "./present.js";
 
 type TextAs = NonNullable<Text["as"]>;
 type TextExtra = {
@@ -22,6 +23,8 @@ export const HOME_STAGE_CHOICES = {
 	governance: 1,
 	engagement: 2,
 	identity: 3,
+	technical: 4,
+	plates: 5,
 } as const;
 
 function t(value: string, as: TextAs, extra?: TextExtra): Node {
@@ -133,6 +136,111 @@ function identityMorph(): Node {
 	]);
 }
 
+/**
+ * The technical version (KRA-357) — the CTO chip. Architecture substance from
+ * the /architecture canon, condensed and register-shifted toward evidence:
+ * the four substrate names as provenance-marked record entries, the queue as
+ * the honest closing fact. The full page stays canonical.
+ */
+function technicalMorph(): Node {
+	const piece = (name: string, line: string): Node => ({
+		kind: "cluster",
+		role: "inline",
+		children: [
+			{ kind: "badge", label: name, intent: "provenance" },
+			t(line, "body", { emphasis: "muted" }),
+		],
+	});
+	return morphPanel([
+		eyebrow("The architecture"),
+		t("Matter, form, actor, cause.", "heading", { emphasis: "strong" }),
+		t(
+			"Sókrates is built on a typed map of your operation. Four named pieces carry the whole machine, and every governed act crosses the same gate.",
+			"body",
+			{ emphasis: "muted" },
+		),
+		piece("Hyle", "Matter — reads the source systems and lifts their structure into the map."),
+		piece(
+			"Eidos",
+			"Form — the canonical typed hypergraph. The lakehouse and the runtime are projections of it.",
+		),
+		piece(
+			"Demiurge",
+			"Actor — a person, an agent, a process: each one named, each acting under authority.",
+		),
+		piece(
+			"Aition",
+			"Cause — the authority envelope every governed act carries, verified before anything is written.",
+		),
+		piece(
+			"traversable",
+			"The queue — every edge carries a flag, and the false-flagged set is the work the system knows it cannot yet do.",
+		),
+		{
+			kind: "cluster",
+			role: "inline",
+			children: [link("/architecture", "Read the full architecture")],
+		},
+	]);
+}
+
+/* ------------------------------------------------------------------------- *
+ * The plates morph (KRA-359) — "Tell me the story" grows the nine-beat canon
+ * inline. The beats come from the SAME authored data /how-it-works renders
+ * (`PLATE_BEATS` in present.ts) — one canon, two surfaces — through the same
+ * TimaeusPlate compound and srcset derivatives. Public b1–b9 only, lazy by
+ * construction (the Media primitive defaults to lazy; nothing here is eager,
+ * and an unchosen Vary branch renders nothing at all).
+ * ------------------------------------------------------------------------- */
+
+function plateSrcset(slug: string, format: "avif" | "webp"): string {
+	return [640, 960, 1440].map((w) => `/images/plates/${slug}-${w}.${format} ${w}w`).join(", ");
+}
+
+function plateBeat(b: PlateBeat): Node {
+	return {
+		kind: "compound",
+		name: "TimaeusPlate",
+		args: {
+			plate: {
+				kind: "media",
+				src: `/images/plates/${b.slug}-960.png`,
+				alt: b.alt,
+				aspect: "portrait",
+				width: 960,
+				height: 1280,
+				sizes: "(min-width: 64rem) 40rem, 100vw",
+				sources: [
+					{ type: "image/avif", srcset: plateSrcset(b.slug, "avif") },
+					{ type: "image/webp", srcset: plateSrcset(b.slug, "webp") },
+				],
+			},
+			marker: { kind: "badge", label: b.id, intent: "folio" },
+			title: t(b.title, "subheading", { emphasis: "strong" }),
+			body: t(b.body, "body", { emphasis: "muted" }),
+		},
+	};
+}
+
+function platesMorph(): Node {
+	return morphPanel([
+		eyebrow("The operating lifecycle"),
+		t("From boot to the record.", "heading", { emphasis: "strong" }),
+		t(
+			"The life of the appliance in nine plates: first the system orders itself around your operation, then your work flows through it.",
+			"body",
+			{ emphasis: "muted" },
+		),
+		...PLATE_BEATS.flatMap((b): readonly Node[] => [{ kind: "spacer", size: "md" }, plateBeat(b)]),
+		{ kind: "spacer", size: "md" },
+		{
+			kind: "cluster",
+			role: "inline",
+			children: [link("/how-it-works", "Read the story as its own page")],
+		},
+	]);
+}
+
 /** The pure authored stage tree. The default branch renders no visible content. */
 export function homeIntentStage(): Node {
 	return {
@@ -144,6 +252,8 @@ export function homeIntentStage(): Node {
 			governanceMorph(),
 			engagementMorph(),
 			identityMorph(),
+			technicalMorph(),
+			platesMorph(),
 		],
 	};
 }

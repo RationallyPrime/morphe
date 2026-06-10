@@ -113,6 +113,27 @@ describe("S4 — engagement and identity morphs stay inside their promised scope
 	});
 });
 
+describe("S6 — the plates morph references only the public nine (KRA-359 grep-gate)", () => {
+	it("every image reference in the stage is a b1–b9 plate asset", () => {
+		const json = JSON.stringify(homeIntentStage());
+		const refs = json.match(/\/images\/[a-z0-9/._-]+/gi) ?? [];
+		expect(refs.length).toBeGreaterThan(0);
+		for (const ref of refs) {
+			expect(ref, ref).toMatch(/^\/images\/plates\/b[1-9]-/);
+		}
+	});
+
+	it("the quarantined internal diagrams never reach the stage or the presenters", () => {
+		const surfaces = [
+			JSON.stringify(homeIntentStage()),
+			...PRESENTERS.map(([, p]) => JSON.stringify(p())),
+		];
+		for (const json of surfaces) {
+			expect(json).not.toMatch(/index-[01]/);
+		}
+	});
+});
+
 describe("S5 — the public copy respects the Trajectory exclusion (KRA-324)", () => {
 	// The investor-private panel must never reach the public site — not as a
 	// word, not as an asset reference, not as an internal invariant citation.
