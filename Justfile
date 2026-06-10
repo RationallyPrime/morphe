@@ -35,6 +35,10 @@ lint:
 format:
 	bunx biome check --write .
 
+# regenerate the committed plate derivatives (assets/plates -> static/images/plates)
+plates:
+	bun run plates
+
 # --- python (uv) -------------------------------------------------------
 
 # pytest over py/

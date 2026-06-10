@@ -219,12 +219,30 @@ export interface Icon {
 	readonly intent?: IntentRef;
 }
 
+/** One responsive candidate set for a Media node (a `<source type srcset>`). */
+export interface MediaSource {
+	/** Image MIME type of the set, e.g. "image/avif". */
+	readonly type: string;
+	/** Comma-separated URL + width-descriptor candidates, e.g. "/a-640.avif 640w, …". */
+	readonly srcset: string;
+}
+
 export interface Media {
 	readonly kind: "media";
 	readonly src: string;
 	/** Alt text is required; an empty string is the explicit "decorative" opt-out. */
 	readonly alt: string;
 	readonly aspect?: "square" | "video" | "portrait" | "auto";
+	/** Responsive candidate sets; when present, render `<picture>` with `src` as fallback. */
+	readonly sources?: ReadonlyArray<MediaSource>;
+	/** Slot-width hint for the candidate sets (the `sizes` attribute). */
+	readonly sizes?: string;
+	/** Intrinsic pixel width of the fallback bitmap (CLS prevention; metadata, not layout). */
+	readonly width?: number;
+	/** Intrinsic pixel height of the fallback bitmap (CLS prevention; metadata, not layout). */
+	readonly height?: number;
+	/** Above-the-fold opt-out of lazy loading; absent means lazy. */
+	readonly eager?: boolean;
 }
 
 /* ---------------------------------------------------------------------------
