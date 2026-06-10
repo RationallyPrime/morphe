@@ -1,0 +1,3563 @@
+{
+	"system": "businesscentral",
+	"label": "Microsoft Dynamics 365 Business Central",
+	"specVersion": "3.0.0",
+	"source": "/home/rationallyprime/projects/morphe/data/specs/microsoft-business-central-v1-openapi.yaml",
+	"operationCount": 324,
+	"modelCount": 57,
+	"operations": [
+		{
+			"operationId": "listAccounts",
+			"method": "GET",
+			"path": "/companies({company_id})/accounts",
+			"summary": "Returns a list of accounts",
+			"tags": [
+				"account"
+			],
+			"direction": "read",
+			"model": "account"
+		},
+		{
+			"operationId": "getAccount",
+			"method": "GET",
+			"path": "/companies({company_id})/accounts({account_id})",
+			"summary": "Retrieve the properties and relationships of an object of type account for Dynamics 365 Business Central.",
+			"tags": [
+				"account"
+			],
+			"direction": "read",
+			"model": "account"
+		},
+		{
+			"operationId": "listAgedAccountsPayable",
+			"method": "GET",
+			"path": "/companies({company_id})/agedAccountsPayable",
+			"summary": "Returns a list of agedAccountsPayable",
+			"tags": [
+				"agedAccountsPayable"
+			],
+			"direction": "read",
+			"model": "agedAccountsPayable"
+		},
+		{
+			"operationId": "getAgedAccountsPayable",
+			"method": "GET",
+			"path": "/companies({company_id})/agedAccountsPayable({agedAccountsPayable_vendorId})",
+			"summary": "Retrieve the properties and relationships of an object of type agedAccountsPayable for Dynamics 365 Business Central.",
+			"tags": [
+				"agedAccountsPayable"
+			],
+			"direction": "read",
+			"model": "agedAccountsPayable"
+		},
+		{
+			"operationId": "listAgedAccountsReceivable",
+			"method": "GET",
+			"path": "/companies({company_id})/agedAccountsReceivable",
+			"summary": "Returns a list of agedAccountsReceivable",
+			"tags": [
+				"agedAccountsReceivable"
+			],
+			"direction": "read",
+			"model": "agedAccountsReceivable"
+		},
+		{
+			"operationId": "getAgedAccountsReceivable",
+			"method": "GET",
+			"path": "/companies({company_id})/agedAccountsReceivable({agedAccountsReceivable_customerId})",
+			"summary": "Retrieve the properties and relationships of an object of type agedAccountsReceivable for Dynamics 365 Business Central.",
+			"tags": [
+				"agedAccountsReceivable"
+			],
+			"direction": "read",
+			"model": "agedAccountsReceivable"
+		},
+		{
+			"operationId": "listAttachments",
+			"method": "GET",
+			"path": "/companies({company_id})/attachments",
+			"summary": "Returns a list of attachments",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "postAttachments",
+			"method": "POST",
+			"path": "/companies({company_id})/attachments",
+			"summary": "Creates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "deleteAttachments",
+			"method": "DELETE",
+			"path": "/companies({company_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Deletes an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAttachments",
+			"method": "GET",
+			"path": "/companies({company_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central.",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "patchAttachments",
+			"method": "PATCH",
+			"path": "/companies({company_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Updates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "listAttachmentsForJournalLine",
+			"method": "GET",
+			"path": "/companies({company_id})/journalLines({journalLine_id})/attachments",
+			"summary": "Returns a list of attachments",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "postAttachmentsForJournalLine",
+			"method": "POST",
+			"path": "/companies({company_id})/journalLines({journalLine_id})/attachments",
+			"summary": "Creates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "deleteAttachmentsForJournalLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Deletes an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAttachmentsForJournalLine",
+			"method": "GET",
+			"path": "/companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central.",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "patchAttachmentsForJournalLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Updates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "listAttachmentsForJournalLineForJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments",
+			"summary": "Returns a list of attachments",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "postAttachmentsForJournalLineForJournal",
+			"method": "POST",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments",
+			"summary": "Creates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "deleteAttachmentsForJournalLineForJournal",
+			"method": "DELETE",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Deletes an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAttachmentsForJournalLineForJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central.",
+			"tags": [
+				"attachments"
+			],
+			"direction": "read",
+			"model": "attachments"
+		},
+		{
+			"operationId": "patchAttachmentsForJournalLineForJournal",
+			"method": "PATCH",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})",
+			"summary": "Updates an object of type attachments in Dynamics 365 Business Central",
+			"tags": [
+				"attachments"
+			],
+			"direction": "write",
+			"model": "attachments"
+		},
+		{
+			"operationId": "listBalanceSheet",
+			"method": "GET",
+			"path": "/companies({company_id})/balanceSheet",
+			"summary": "Returns a list of balanceSheet",
+			"tags": [
+				"balanceSheet"
+			],
+			"direction": "read",
+			"model": "balanceSheet"
+		},
+		{
+			"operationId": "getBalanceSheet",
+			"method": "GET",
+			"path": "/companies({company_id})/balanceSheet({balanceSheet_lineNumber})",
+			"summary": "Retrieve the properties and relationships of an object of type balanceSheet for Dynamics 365 Business Central.",
+			"tags": [
+				"balanceSheet"
+			],
+			"direction": "read",
+			"model": "balanceSheet"
+		},
+		{
+			"operationId": "listBankAccounts",
+			"method": "GET",
+			"path": "/companies({company_id})/bankAccounts",
+			"summary": "Returns a list of bankAccounts",
+			"tags": [
+				"bankAccount"
+			],
+			"direction": "read",
+			"model": "bankAccount"
+		},
+		{
+			"operationId": "postBankAccount",
+			"method": "POST",
+			"path": "/companies({company_id})/bankAccounts",
+			"summary": "Creates an object of type bankAccount in Dynamics 365 Business Central",
+			"tags": [
+				"bankAccount"
+			],
+			"direction": "write",
+			"model": "bankAccount"
+		},
+		{
+			"operationId": "deleteBankAccount",
+			"method": "DELETE",
+			"path": "/companies({company_id})/bankAccounts({bankAccount_id})",
+			"summary": "Deletes an object of type bankAccount in Dynamics 365 Business Central",
+			"tags": [
+				"bankAccount"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getBankAccount",
+			"method": "GET",
+			"path": "/companies({company_id})/bankAccounts({bankAccount_id})",
+			"summary": "Retrieve the properties and relationships of an object of type bankAccount for Dynamics 365 Business Central.",
+			"tags": [
+				"bankAccount"
+			],
+			"direction": "read",
+			"model": "bankAccount"
+		},
+		{
+			"operationId": "patchBankAccount",
+			"method": "PATCH",
+			"path": "/companies({company_id})/bankAccounts({bankAccount_id})",
+			"summary": "Updates an object of type bankAccount in Dynamics 365 Business Central",
+			"tags": [
+				"bankAccount"
+			],
+			"direction": "write",
+			"model": "bankAccount"
+		},
+		{
+			"operationId": "listCashFlowStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/cashFlowStatement",
+			"summary": "Returns a list of cashFlowStatement",
+			"tags": [
+				"cashFlowStatement"
+			],
+			"direction": "read",
+			"model": "cashFlowStatement"
+		},
+		{
+			"operationId": "getCashFlowStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/cashFlowStatement({cashFlowStatement_lineNumber})",
+			"summary": "Retrieve the properties and relationships of an object of type cashFlowStatement for Dynamics 365 Business Central.",
+			"tags": [
+				"cashFlowStatement"
+			],
+			"direction": "read",
+			"model": "cashFlowStatement"
+		},
+		{
+			"operationId": "listCompanies",
+			"method": "GET",
+			"path": "/companies",
+			"summary": "Returns a list of companies",
+			"tags": [
+				"company"
+			],
+			"direction": "read",
+			"model": "company"
+		},
+		{
+			"operationId": "getCompany",
+			"method": "GET",
+			"path": "/companies({company_id})",
+			"summary": "Retrieve the properties and relationships of an object of type company for Dynamics 365 Business Central.",
+			"tags": [
+				"company"
+			],
+			"direction": "read",
+			"model": "company"
+		},
+		{
+			"operationId": "listCompanyInformation",
+			"method": "GET",
+			"path": "/companies({company_id})/companyInformation",
+			"summary": "Returns a list of companyInformation",
+			"tags": [
+				"companyInformation"
+			],
+			"direction": "read",
+			"model": "companyInformation"
+		},
+		{
+			"operationId": "getCompanyInformation",
+			"method": "GET",
+			"path": "/companies({company_id})/companyInformation({companyInformation_id})",
+			"summary": "Retrieve the properties and relationships of an object of type companyInformation for Dynamics 365 Business Central.",
+			"tags": [
+				"companyInformation"
+			],
+			"direction": "read",
+			"model": "companyInformation"
+		},
+		{
+			"operationId": "patchCompanyInformation",
+			"method": "PATCH",
+			"path": "/companies({company_id})/companyInformation({companyInformation_id})",
+			"summary": "Updates an object of type companyInformation in Dynamics 365 Business Central",
+			"tags": [
+				"companyInformation"
+			],
+			"direction": "write",
+			"model": "companyInformation"
+		},
+		{
+			"operationId": "listCountriesRegions",
+			"method": "GET",
+			"path": "/companies({company_id})/countriesRegions",
+			"summary": "Returns a list of countriesRegions",
+			"tags": [
+				"countryRegion"
+			],
+			"direction": "read",
+			"model": "countryRegion"
+		},
+		{
+			"operationId": "postCountryRegion",
+			"method": "POST",
+			"path": "/companies({company_id})/countriesRegions",
+			"summary": "Creates an object of type countryRegion in Dynamics 365 Business Central",
+			"tags": [
+				"countryRegion"
+			],
+			"direction": "write",
+			"model": "countryRegion"
+		},
+		{
+			"operationId": "deleteCountryRegion",
+			"method": "DELETE",
+			"path": "/companies({company_id})/countriesRegions({countryRegion_id})",
+			"summary": "Deletes an object of type countryRegion in Dynamics 365 Business Central",
+			"tags": [
+				"countryRegion"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCountryRegion",
+			"method": "GET",
+			"path": "/companies({company_id})/countriesRegions({countryRegion_id})",
+			"summary": "Retrieve the properties and relationships of an object of type countryRegion for Dynamics 365 Business Central.",
+			"tags": [
+				"countryRegion"
+			],
+			"direction": "read",
+			"model": "countryRegion"
+		},
+		{
+			"operationId": "patchCountryRegion",
+			"method": "PATCH",
+			"path": "/companies({company_id})/countriesRegions({countryRegion_id})",
+			"summary": "Updates an object of type countryRegion in Dynamics 365 Business Central",
+			"tags": [
+				"countryRegion"
+			],
+			"direction": "write",
+			"model": "countryRegion"
+		},
+		{
+			"operationId": "listCurrencies",
+			"method": "GET",
+			"path": "/companies({company_id})/currencies",
+			"summary": "Returns a list of currencies",
+			"tags": [
+				"currency"
+			],
+			"direction": "read",
+			"model": "currency"
+		},
+		{
+			"operationId": "postCurrency",
+			"method": "POST",
+			"path": "/companies({company_id})/currencies",
+			"summary": "Creates an object of type currency in Dynamics 365 Business Central",
+			"tags": [
+				"currency"
+			],
+			"direction": "write",
+			"model": "currency"
+		},
+		{
+			"operationId": "deleteCurrency",
+			"method": "DELETE",
+			"path": "/companies({company_id})/currencies({currency_id})",
+			"summary": "Deletes an object of type currency in Dynamics 365 Business Central",
+			"tags": [
+				"currency"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCurrency",
+			"method": "GET",
+			"path": "/companies({company_id})/currencies({currency_id})",
+			"summary": "Retrieve the properties and relationships of an object of type currency for Dynamics 365 Business Central.",
+			"tags": [
+				"currency"
+			],
+			"direction": "read",
+			"model": "currency"
+		},
+		{
+			"operationId": "patchCurrency",
+			"method": "PATCH",
+			"path": "/companies({company_id})/currencies({currency_id})",
+			"summary": "Updates an object of type currency in Dynamics 365 Business Central",
+			"tags": [
+				"currency"
+			],
+			"direction": "write",
+			"model": "currency"
+		},
+		{
+			"operationId": "listCustomers",
+			"method": "GET",
+			"path": "/companies({company_id})/customers",
+			"summary": "Returns a list of customers",
+			"tags": [
+				"customer"
+			],
+			"direction": "read",
+			"model": "customer"
+		},
+		{
+			"operationId": "postCustomer",
+			"method": "POST",
+			"path": "/companies({company_id})/customers",
+			"summary": "Creates an object of type customer in Dynamics 365 Business Central",
+			"tags": [
+				"customer"
+			],
+			"direction": "write",
+			"model": "customer"
+		},
+		{
+			"operationId": "deleteCustomer",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customers({customer_id})",
+			"summary": "Deletes an object of type customer in Dynamics 365 Business Central",
+			"tags": [
+				"customer"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customer for Dynamics 365 Business Central.",
+			"tags": [
+				"customer"
+			],
+			"direction": "read",
+			"model": "customer"
+		},
+		{
+			"operationId": "patchCustomer",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customers({customer_id})",
+			"summary": "Updates an object of type customer in Dynamics 365 Business Central",
+			"tags": [
+				"customer"
+			],
+			"direction": "write",
+			"model": "customer"
+		},
+		{
+			"operationId": "listCustomerFinancialDetails",
+			"method": "GET",
+			"path": "/companies({company_id})/customerFinancialDetails",
+			"summary": "Returns a list of customerFinancialDetails",
+			"tags": [
+				"customerFinancialDetail"
+			],
+			"direction": "read",
+			"model": "customerFinancialDetail"
+		},
+		{
+			"operationId": "getCustomerFinancialDetail",
+			"method": "GET",
+			"path": "/companies({company_id})/customerFinancialDetails({customerFinancialDetail_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customerFinancialDetail for Dynamics 365 Business Central.",
+			"tags": [
+				"customerFinancialDetail"
+			],
+			"direction": "read",
+			"model": "customerFinancialDetail"
+		},
+		{
+			"operationId": "listCustomerFinancialDetailsForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/customerFinancialDetails",
+			"summary": "Returns a list of customerFinancialDetails",
+			"tags": [
+				"customerFinancialDetail"
+			],
+			"direction": "read",
+			"model": "customerFinancialDetail"
+		},
+		{
+			"operationId": "getCustomerFinancialDetailForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/customerFinancialDetails({customerFinancialDetail_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customerFinancialDetail for Dynamics 365 Business Central.",
+			"tags": [
+				"customerFinancialDetail"
+			],
+			"direction": "read",
+			"model": "customerFinancialDetail"
+		},
+		{
+			"operationId": "listCustomerPaymentsForCustomerPaymentJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments",
+			"summary": "Returns a list of customerPayments",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "read",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "postCustomerPaymentForCustomerPaymentJournal",
+			"method": "POST",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments",
+			"summary": "Creates an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "deleteCustomerPaymentForCustomerPaymentJournal",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})",
+			"summary": "Deletes an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCustomerPaymentForCustomerPaymentJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customerPayment for Dynamics 365 Business Central.",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "read",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "patchCustomerPaymentForCustomerPaymentJournal",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})",
+			"summary": "Updates an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "listCustomerPayments",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPayments",
+			"summary": "Returns a list of customerPayments",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "read",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "postCustomerPayment",
+			"method": "POST",
+			"path": "/companies({company_id})/customerPayments",
+			"summary": "Creates an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "deleteCustomerPayment",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customerPayments({customerPayment_id})",
+			"summary": "Deletes an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCustomerPayment",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPayments({customerPayment_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customerPayment for Dynamics 365 Business Central.",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "read",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "patchCustomerPayment",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customerPayments({customerPayment_id})",
+			"summary": "Updates an object of type customerPayment in Dynamics 365 Business Central",
+			"tags": [
+				"customerPayment"
+			],
+			"direction": "write",
+			"model": "customerPayment"
+		},
+		{
+			"operationId": "listCustomerPaymentJournals",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPaymentJournals",
+			"summary": "Returns a list of customerPaymentJournals",
+			"tags": [
+				"customerPaymentJournal"
+			],
+			"direction": "read",
+			"model": "customerPaymentJournal"
+		},
+		{
+			"operationId": "postCustomerPaymentJournal",
+			"method": "POST",
+			"path": "/companies({company_id})/customerPaymentJournals",
+			"summary": "Creates an object of type customerPaymentJournal in Dynamics 365 Business Central",
+			"tags": [
+				"customerPaymentJournal"
+			],
+			"direction": "write",
+			"model": "customerPaymentJournal"
+		},
+		{
+			"operationId": "deleteCustomerPaymentJournal",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})",
+			"summary": "Deletes an object of type customerPaymentJournal in Dynamics 365 Business Central",
+			"tags": [
+				"customerPaymentJournal"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCustomerPaymentJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})",
+			"summary": "Retrieve the properties and relationships of an object of type customerPaymentJournal for Dynamics 365 Business Central.",
+			"tags": [
+				"customerPaymentJournal"
+			],
+			"direction": "read",
+			"model": "customerPaymentJournal"
+		},
+		{
+			"operationId": "patchCustomerPaymentJournal",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})",
+			"summary": "Updates an object of type customerPaymentJournal in Dynamics 365 Business Central",
+			"tags": [
+				"customerPaymentJournal"
+			],
+			"direction": "write",
+			"model": "customerPaymentJournal"
+		},
+		{
+			"operationId": "listCustomerSales",
+			"method": "GET",
+			"path": "/companies({company_id})/customerSales",
+			"summary": "Returns a list of customerSales",
+			"tags": [
+				"customerSale"
+			],
+			"direction": "read",
+			"model": "customerSale"
+		},
+		{
+			"operationId": "getCustomerSale",
+			"method": "GET",
+			"path": "/companies({company_id})/customerSales({customerSale_customerId},'{customerSale_customerNumber}','{customerSale_name}')",
+			"summary": "Retrieve the properties and relationships of an object of type customerSale for Dynamics 365 Business Central.",
+			"tags": [
+				"customerSale"
+			],
+			"direction": "read",
+			"model": "customerSale"
+		},
+		{
+			"operationId": "listDefaultDimensionsForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/defaultDimensions",
+			"summary": "Returns a list of defaultDimensions",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "postDefaultDimensionsForCustomer",
+			"method": "POST",
+			"path": "/companies({company_id})/customers({customer_id})/defaultDimensions",
+			"summary": "Creates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "deleteDefaultDimensionsForCustomer",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Deletes an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultDimensionsForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central.",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "patchDefaultDimensionsForCustomer",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Updates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "listDefaultDimensions",
+			"method": "GET",
+			"path": "/companies({company_id})/defaultDimensions",
+			"summary": "Returns a list of defaultDimensions",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "postDefaultDimensions",
+			"method": "POST",
+			"path": "/companies({company_id})/defaultDimensions",
+			"summary": "Creates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "deleteDefaultDimensions",
+			"method": "DELETE",
+			"path": "/companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Deletes an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultDimensions",
+			"method": "GET",
+			"path": "/companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central.",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "patchDefaultDimensions",
+			"method": "PATCH",
+			"path": "/companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Updates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "listDefaultDimensionsForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/defaultDimensions",
+			"summary": "Returns a list of defaultDimensions",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "postDefaultDimensionsForEmployee",
+			"method": "POST",
+			"path": "/companies({company_id})/employees({employee_id})/defaultDimensions",
+			"summary": "Creates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "deleteDefaultDimensionsForEmployee",
+			"method": "DELETE",
+			"path": "/companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Deletes an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultDimensionsForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central.",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "patchDefaultDimensionsForEmployee",
+			"method": "PATCH",
+			"path": "/companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Updates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "listDefaultDimensionsForItem",
+			"method": "GET",
+			"path": "/companies({company_id})/items({item_id})/defaultDimensions",
+			"summary": "Returns a list of defaultDimensions",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "postDefaultDimensionsForItem",
+			"method": "POST",
+			"path": "/companies({company_id})/items({item_id})/defaultDimensions",
+			"summary": "Creates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "deleteDefaultDimensionsForItem",
+			"method": "DELETE",
+			"path": "/companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Deletes an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultDimensionsForItem",
+			"method": "GET",
+			"path": "/companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central.",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "patchDefaultDimensionsForItem",
+			"method": "PATCH",
+			"path": "/companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Updates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "listDefaultDimensionsForVendor",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors({vendor_id})/defaultDimensions",
+			"summary": "Returns a list of defaultDimensions",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "postDefaultDimensionsForVendor",
+			"method": "POST",
+			"path": "/companies({company_id})/vendors({vendor_id})/defaultDimensions",
+			"summary": "Creates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "deleteDefaultDimensionsForVendor",
+			"method": "DELETE",
+			"path": "/companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Deletes an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultDimensionsForVendor",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central.",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "read",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "patchDefaultDimensionsForVendor",
+			"method": "PATCH",
+			"path": "/companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})",
+			"summary": "Updates an object of type defaultDimensions in Dynamics 365 Business Central",
+			"tags": [
+				"defaultDimensions"
+			],
+			"direction": "write",
+			"model": "defaultDimensions"
+		},
+		{
+			"operationId": "listDimensions",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensions",
+			"summary": "Returns a list of dimensions",
+			"tags": [
+				"dimension"
+			],
+			"direction": "read",
+			"model": "dimension"
+		},
+		{
+			"operationId": "getDimension",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensions({dimension_id})",
+			"summary": "Retrieve the properties and relationships of an object of type dimension for Dynamics 365 Business Central.",
+			"tags": [
+				"dimension"
+			],
+			"direction": "read",
+			"model": "dimension"
+		},
+		{
+			"operationId": "listDimensionLines",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensionLines",
+			"summary": "Returns a list of dimensionLines",
+			"tags": [
+				"dimensionLine"
+			],
+			"direction": "read",
+			"model": "dimensionLine"
+		},
+		{
+			"operationId": "postDimensionLine",
+			"method": "POST",
+			"path": "/companies({company_id})/dimensionLines",
+			"summary": "Creates an object of type dimensionLine in Dynamics 365 Business Central",
+			"tags": [
+				"dimensionLine"
+			],
+			"direction": "write",
+			"model": "dimensionLine"
+		},
+		{
+			"operationId": "deleteDimensionLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})",
+			"summary": "Deletes an object of type dimensionLine in Dynamics 365 Business Central",
+			"tags": [
+				"dimensionLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDimensionLine",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})",
+			"summary": "Retrieve the properties and relationships of an object of type dimensionLine for Dynamics 365 Business Central.",
+			"tags": [
+				"dimensionLine"
+			],
+			"direction": "read",
+			"model": "dimensionLine"
+		},
+		{
+			"operationId": "patchDimensionLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})",
+			"summary": "Updates an object of type dimensionLine in Dynamics 365 Business Central",
+			"tags": [
+				"dimensionLine"
+			],
+			"direction": "write",
+			"model": "dimensionLine"
+		},
+		{
+			"operationId": "listDimensionValuesForDimension",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensions({dimension_id})/dimensionValues",
+			"summary": "Returns a list of dimensionValues",
+			"tags": [
+				"dimensionValue"
+			],
+			"direction": "read",
+			"model": "dimensionValue"
+		},
+		{
+			"operationId": "getDimensionValueForDimension",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensions({dimension_id})/dimensionValues({dimensionValue_id})",
+			"summary": "Retrieve the properties and relationships of an object of type dimensionValue for Dynamics 365 Business Central.",
+			"tags": [
+				"dimensionValue"
+			],
+			"direction": "read",
+			"model": "dimensionValue"
+		},
+		{
+			"operationId": "listDimensionValues",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensionValues",
+			"summary": "Returns a list of dimensionValues",
+			"tags": [
+				"dimensionValue"
+			],
+			"direction": "read",
+			"model": "dimensionValue"
+		},
+		{
+			"operationId": "getDimensionValue",
+			"method": "GET",
+			"path": "/companies({company_id})/dimensionValues({dimensionValue_id})",
+			"summary": "Retrieve the properties and relationships of an object of type dimensionValue for Dynamics 365 Business Central.",
+			"tags": [
+				"dimensionValue"
+			],
+			"direction": "read",
+			"model": "dimensionValue"
+		},
+		{
+			"operationId": "listEmployees",
+			"method": "GET",
+			"path": "/companies({company_id})/employees",
+			"summary": "Returns a list of employees",
+			"tags": [
+				"employee"
+			],
+			"direction": "read",
+			"model": "employee"
+		},
+		{
+			"operationId": "postEmployee",
+			"method": "POST",
+			"path": "/companies({company_id})/employees",
+			"summary": "Creates an object of type employee in Dynamics 365 Business Central",
+			"tags": [
+				"employee"
+			],
+			"direction": "write",
+			"model": "employee"
+		},
+		{
+			"operationId": "deleteEmployee",
+			"method": "DELETE",
+			"path": "/companies({company_id})/employees({employee_id})",
+			"summary": "Deletes an object of type employee in Dynamics 365 Business Central",
+			"tags": [
+				"employee"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})",
+			"summary": "Retrieve the properties and relationships of an object of type employee for Dynamics 365 Business Central.",
+			"tags": [
+				"employee"
+			],
+			"direction": "read",
+			"model": "employee"
+		},
+		{
+			"operationId": "patchEmployee",
+			"method": "PATCH",
+			"path": "/companies({company_id})/employees({employee_id})",
+			"summary": "Updates an object of type employee in Dynamics 365 Business Central",
+			"tags": [
+				"employee"
+			],
+			"direction": "write",
+			"model": "employee"
+		},
+		{
+			"operationId": "listGeneralLedgerEntries",
+			"method": "GET",
+			"path": "/companies({company_id})/generalLedgerEntries",
+			"summary": "Returns a list of generalLedgerEntries",
+			"tags": [
+				"generalLedgerEntry"
+			],
+			"direction": "read",
+			"model": "generalLedgerEntry"
+		},
+		{
+			"operationId": "getGeneralLedgerEntry",
+			"method": "GET",
+			"path": "/companies({company_id})/generalLedgerEntries({generalLedgerEntry_id})",
+			"summary": "Retrieve the properties and relationships of an object of type generalLedgerEntry for Dynamics 365 Business Central.",
+			"tags": [
+				"generalLedgerEntry"
+			],
+			"direction": "read",
+			"model": "generalLedgerEntry"
+		},
+		{
+			"operationId": "listGeneralLedgerEntryAttachments",
+			"method": "GET",
+			"path": "/companies({company_id})/generalLedgerEntryAttachments",
+			"summary": "Returns a list of generalLedgerEntryAttachments",
+			"tags": [
+				"generalLedgerEntryAttachments"
+			],
+			"direction": "read",
+			"model": "generalLedgerEntryAttachments"
+		},
+		{
+			"operationId": "postGeneralLedgerEntryAttachments",
+			"method": "POST",
+			"path": "/companies({company_id})/generalLedgerEntryAttachments",
+			"summary": "Creates an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central",
+			"tags": [
+				"generalLedgerEntryAttachments"
+			],
+			"direction": "write",
+			"model": "generalLedgerEntryAttachments"
+		},
+		{
+			"operationId": "deleteGeneralLedgerEntryAttachments",
+			"method": "DELETE",
+			"path": "/companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})",
+			"summary": "Deletes an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central",
+			"tags": [
+				"generalLedgerEntryAttachments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getGeneralLedgerEntryAttachments",
+			"method": "GET",
+			"path": "/companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})",
+			"summary": "Retrieve the properties and relationships of an object of type generalLedgerEntryAttachments for Dynamics 365 Business Central.",
+			"tags": [
+				"generalLedgerEntryAttachments"
+			],
+			"direction": "read",
+			"model": "generalLedgerEntryAttachments"
+		},
+		{
+			"operationId": "patchGeneralLedgerEntryAttachments",
+			"method": "PATCH",
+			"path": "/companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})",
+			"summary": "Updates an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central",
+			"tags": [
+				"generalLedgerEntryAttachments"
+			],
+			"direction": "write",
+			"model": "generalLedgerEntryAttachments"
+		},
+		{
+			"operationId": "listIncomeStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/incomeStatement",
+			"summary": "Returns a list of incomeStatement",
+			"tags": [
+				"incomeStatement"
+			],
+			"direction": "read",
+			"model": "incomeStatement"
+		},
+		{
+			"operationId": "getIncomeStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/incomeStatement({incomeStatement_lineNumber})",
+			"summary": "Retrieve the properties and relationships of an object of type incomeStatement for Dynamics 365 Business Central.",
+			"tags": [
+				"incomeStatement"
+			],
+			"direction": "read",
+			"model": "incomeStatement"
+		},
+		{
+			"operationId": "listItems",
+			"method": "GET",
+			"path": "/companies({company_id})/items",
+			"summary": "Returns a list of items",
+			"tags": [
+				"item"
+			],
+			"direction": "read",
+			"model": "item"
+		},
+		{
+			"operationId": "postItem",
+			"method": "POST",
+			"path": "/companies({company_id})/items",
+			"summary": "Creates an object of type item in Dynamics 365 Business Central",
+			"tags": [
+				"item"
+			],
+			"direction": "write",
+			"model": "item"
+		},
+		{
+			"operationId": "deleteItem",
+			"method": "DELETE",
+			"path": "/companies({company_id})/items({item_id})",
+			"summary": "Deletes an object of type item in Dynamics 365 Business Central",
+			"tags": [
+				"item"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getItem",
+			"method": "GET",
+			"path": "/companies({company_id})/items({item_id})",
+			"summary": "Retrieve the properties and relationships of an object of type item for Dynamics 365 Business Central.",
+			"tags": [
+				"item"
+			],
+			"direction": "read",
+			"model": "item"
+		},
+		{
+			"operationId": "patchItem",
+			"method": "PATCH",
+			"path": "/companies({company_id})/items({item_id})",
+			"summary": "Updates an object of type item in Dynamics 365 Business Central",
+			"tags": [
+				"item"
+			],
+			"direction": "write",
+			"model": "item"
+		},
+		{
+			"operationId": "listItemCategories",
+			"method": "GET",
+			"path": "/companies({company_id})/itemCategories",
+			"summary": "Returns a list of itemCategories",
+			"tags": [
+				"itemCategory"
+			],
+			"direction": "read",
+			"model": "itemCategory"
+		},
+		{
+			"operationId": "postItemCategory",
+			"method": "POST",
+			"path": "/companies({company_id})/itemCategories",
+			"summary": "Creates an object of type itemCategory in Dynamics 365 Business Central",
+			"tags": [
+				"itemCategory"
+			],
+			"direction": "write",
+			"model": "itemCategory"
+		},
+		{
+			"operationId": "deleteItemCategory",
+			"method": "DELETE",
+			"path": "/companies({company_id})/itemCategories({itemCategory_id})",
+			"summary": "Deletes an object of type itemCategory in Dynamics 365 Business Central",
+			"tags": [
+				"itemCategory"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getItemCategory",
+			"method": "GET",
+			"path": "/companies({company_id})/itemCategories({itemCategory_id})",
+			"summary": "Retrieve the properties and relationships of an object of type itemCategory for Dynamics 365 Business Central.",
+			"tags": [
+				"itemCategory"
+			],
+			"direction": "read",
+			"model": "itemCategory"
+		},
+		{
+			"operationId": "patchItemCategory",
+			"method": "PATCH",
+			"path": "/companies({company_id})/itemCategories({itemCategory_id})",
+			"summary": "Updates an object of type itemCategory in Dynamics 365 Business Central",
+			"tags": [
+				"itemCategory"
+			],
+			"direction": "write",
+			"model": "itemCategory"
+		},
+		{
+			"operationId": "listJournals",
+			"method": "GET",
+			"path": "/companies({company_id})/journals",
+			"summary": "Returns a list of journals",
+			"tags": [
+				"journal"
+			],
+			"direction": "read",
+			"model": "journal"
+		},
+		{
+			"operationId": "postJournal",
+			"method": "POST",
+			"path": "/companies({company_id})/journals",
+			"summary": "Creates an object of type journal in Dynamics 365 Business Central",
+			"tags": [
+				"journal"
+			],
+			"direction": "write",
+			"model": "journal"
+		},
+		{
+			"operationId": "deleteJournal",
+			"method": "DELETE",
+			"path": "/companies({company_id})/journals({journal_id})",
+			"summary": "Deletes an object of type journal in Dynamics 365 Business Central",
+			"tags": [
+				"journal"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/journals({journal_id})",
+			"summary": "Retrieve the properties and relationships of an object of type journal for Dynamics 365 Business Central.",
+			"tags": [
+				"journal"
+			],
+			"direction": "read",
+			"model": "journal"
+		},
+		{
+			"operationId": "patchJournal",
+			"method": "PATCH",
+			"path": "/companies({company_id})/journals({journal_id})",
+			"summary": "Updates an object of type journal in Dynamics 365 Business Central",
+			"tags": [
+				"journal"
+			],
+			"direction": "write",
+			"model": "journal"
+		},
+		{
+			"operationId": "postActionJournals",
+			"method": "POST",
+			"path": "/companies({company_id})/journals({journal_id})/Microsoft.NAV.post",
+			"summary": "Performs the post action for journals entity",
+			"tags": [
+				"journal"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listJournalLines",
+			"method": "GET",
+			"path": "/companies({company_id})/journalLines",
+			"summary": "Returns a list of journalLines",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "read",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "postJournalLine",
+			"method": "POST",
+			"path": "/companies({company_id})/journalLines",
+			"summary": "Creates an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "deleteJournalLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/journalLines({journalLine_id})",
+			"summary": "Deletes an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getJournalLine",
+			"method": "GET",
+			"path": "/companies({company_id})/journalLines({journalLine_id})",
+			"summary": "Retrieve the properties and relationships of an object of type journalLine for Dynamics 365 Business Central.",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "read",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "patchJournalLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/journalLines({journalLine_id})",
+			"summary": "Updates an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "listJournalLinesForJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines",
+			"summary": "Returns a list of journalLines",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "read",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "postJournalLineForJournal",
+			"method": "POST",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines",
+			"summary": "Creates an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "deleteJournalLineForJournal",
+			"method": "DELETE",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})",
+			"summary": "Deletes an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getJournalLineForJournal",
+			"method": "GET",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})",
+			"summary": "Retrieve the properties and relationships of an object of type journalLine for Dynamics 365 Business Central.",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "read",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "patchJournalLineForJournal",
+			"method": "PATCH",
+			"path": "/companies({company_id})/journals({journal_id})/journalLines({journalLine_id})",
+			"summary": "Updates an object of type journalLine in Dynamics 365 Business Central",
+			"tags": [
+				"journalLine"
+			],
+			"direction": "write",
+			"model": "journalLine"
+		},
+		{
+			"operationId": "listPaymentMethods",
+			"method": "GET",
+			"path": "/companies({company_id})/paymentMethods",
+			"summary": "Returns a list of paymentMethods",
+			"tags": [
+				"paymentMethod"
+			],
+			"direction": "read",
+			"model": "paymentMethod"
+		},
+		{
+			"operationId": "postPaymentMethod",
+			"method": "POST",
+			"path": "/companies({company_id})/paymentMethods",
+			"summary": "Creates an object of type paymentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"paymentMethod"
+			],
+			"direction": "write",
+			"model": "paymentMethod"
+		},
+		{
+			"operationId": "deletePaymentMethod",
+			"method": "DELETE",
+			"path": "/companies({company_id})/paymentMethods({paymentMethod_id})",
+			"summary": "Deletes an object of type paymentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"paymentMethod"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPaymentMethod",
+			"method": "GET",
+			"path": "/companies({company_id})/paymentMethods({paymentMethod_id})",
+			"summary": "Retrieve the properties and relationships of an object of type paymentMethod for Dynamics 365 Business Central.",
+			"tags": [
+				"paymentMethod"
+			],
+			"direction": "read",
+			"model": "paymentMethod"
+		},
+		{
+			"operationId": "patchPaymentMethod",
+			"method": "PATCH",
+			"path": "/companies({company_id})/paymentMethods({paymentMethod_id})",
+			"summary": "Updates an object of type paymentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"paymentMethod"
+			],
+			"direction": "write",
+			"model": "paymentMethod"
+		},
+		{
+			"operationId": "listPaymentTerms",
+			"method": "GET",
+			"path": "/companies({company_id})/paymentTerms",
+			"summary": "Returns a list of paymentTerms",
+			"tags": [
+				"paymentTerm"
+			],
+			"direction": "read",
+			"model": "paymentTerm"
+		},
+		{
+			"operationId": "postPaymentTerm",
+			"method": "POST",
+			"path": "/companies({company_id})/paymentTerms",
+			"summary": "Creates an object of type paymentTerm in Dynamics 365 Business Central",
+			"tags": [
+				"paymentTerm"
+			],
+			"direction": "write",
+			"model": "paymentTerm"
+		},
+		{
+			"operationId": "deletePaymentTerm",
+			"method": "DELETE",
+			"path": "/companies({company_id})/paymentTerms({paymentTerm_id})",
+			"summary": "Deletes an object of type paymentTerm in Dynamics 365 Business Central",
+			"tags": [
+				"paymentTerm"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPaymentTerm",
+			"method": "GET",
+			"path": "/companies({company_id})/paymentTerms({paymentTerm_id})",
+			"summary": "Retrieve the properties and relationships of an object of type paymentTerm for Dynamics 365 Business Central.",
+			"tags": [
+				"paymentTerm"
+			],
+			"direction": "read",
+			"model": "paymentTerm"
+		},
+		{
+			"operationId": "patchPaymentTerm",
+			"method": "PATCH",
+			"path": "/companies({company_id})/paymentTerms({paymentTerm_id})",
+			"summary": "Updates an object of type paymentTerm in Dynamics 365 Business Central",
+			"tags": [
+				"paymentTerm"
+			],
+			"direction": "write",
+			"model": "paymentTerm"
+		},
+		{
+			"operationId": "listPdfDocument",
+			"method": "GET",
+			"path": "/companies({company_id})/pdfDocument",
+			"summary": "Returns a list of pdfDocument",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "getPdfDocument",
+			"method": "GET",
+			"path": "/companies({company_id})/pdfDocument({pdfDocument_id})",
+			"summary": "Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central.",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "listPdfDocumentForPurchaseInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/pdfDocument",
+			"summary": "Returns a list of pdfDocument",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "getPdfDocumentForPurchaseInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/pdfDocument({pdfDocument_id})",
+			"summary": "Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central.",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "listPdfDocumentForSalesCreditMemo",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/pdfDocument",
+			"summary": "Returns a list of pdfDocument",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "getPdfDocumentForSalesCreditMemo",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/pdfDocument({pdfDocument_id})",
+			"summary": "Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central.",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "listPdfDocumentForSalesInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/pdfDocument",
+			"summary": "Returns a list of pdfDocument",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "getPdfDocumentForSalesInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/pdfDocument({pdfDocument_id})",
+			"summary": "Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central.",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "listPdfDocumentForSalesQuote",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/pdfDocument",
+			"summary": "Returns a list of pdfDocument",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "getPdfDocumentForSalesQuote",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/pdfDocument({pdfDocument_id})",
+			"summary": "Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central.",
+			"tags": [
+				"pdfDocument"
+			],
+			"direction": "read",
+			"model": "pdfDocument"
+		},
+		{
+			"operationId": "listPictureForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/picture",
+			"summary": "Returns a list of picture",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "deletePictureForCustomer",
+			"method": "DELETE",
+			"path": "/companies({company_id})/customers({customer_id})/picture({picture_id})",
+			"summary": "Deletes an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPictureForCustomer",
+			"method": "GET",
+			"path": "/companies({company_id})/customers({customer_id})/picture({picture_id})",
+			"summary": "Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central.",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "patchPictureForCustomer",
+			"method": "PATCH",
+			"path": "/companies({company_id})/customers({customer_id})/picture({picture_id})",
+			"summary": "Updates an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write",
+			"model": "picture"
+		},
+		{
+			"operationId": "listPictureForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/picture",
+			"summary": "Returns a list of picture",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "deletePictureForEmployee",
+			"method": "DELETE",
+			"path": "/companies({company_id})/employees({employee_id})/picture({picture_id})",
+			"summary": "Deletes an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPictureForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/picture({picture_id})",
+			"summary": "Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central.",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "patchPictureForEmployee",
+			"method": "PATCH",
+			"path": "/companies({company_id})/employees({employee_id})/picture({picture_id})",
+			"summary": "Updates an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write",
+			"model": "picture"
+		},
+		{
+			"operationId": "listPictureForItem",
+			"method": "GET",
+			"path": "/companies({company_id})/items({item_id})/picture",
+			"summary": "Returns a list of picture",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "deletePictureForItem",
+			"method": "DELETE",
+			"path": "/companies({company_id})/items({item_id})/picture({picture_id})",
+			"summary": "Deletes an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPictureForItem",
+			"method": "GET",
+			"path": "/companies({company_id})/items({item_id})/picture({picture_id})",
+			"summary": "Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central.",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "patchPictureForItem",
+			"method": "PATCH",
+			"path": "/companies({company_id})/items({item_id})/picture({picture_id})",
+			"summary": "Updates an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write",
+			"model": "picture"
+		},
+		{
+			"operationId": "listPicture",
+			"method": "GET",
+			"path": "/companies({company_id})/picture",
+			"summary": "Returns a list of picture",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "deletePicture",
+			"method": "DELETE",
+			"path": "/companies({company_id})/picture({picture_id})",
+			"summary": "Deletes an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPicture",
+			"method": "GET",
+			"path": "/companies({company_id})/picture({picture_id})",
+			"summary": "Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central.",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "patchPicture",
+			"method": "PATCH",
+			"path": "/companies({company_id})/picture({picture_id})",
+			"summary": "Updates an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write",
+			"model": "picture"
+		},
+		{
+			"operationId": "listPictureForVendor",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors({vendor_id})/picture",
+			"summary": "Returns a list of picture",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "deletePictureForVendor",
+			"method": "DELETE",
+			"path": "/companies({company_id})/vendors({vendor_id})/picture({picture_id})",
+			"summary": "Deletes an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPictureForVendor",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors({vendor_id})/picture({picture_id})",
+			"summary": "Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central.",
+			"tags": [
+				"picture"
+			],
+			"direction": "read",
+			"model": "picture"
+		},
+		{
+			"operationId": "patchPictureForVendor",
+			"method": "PATCH",
+			"path": "/companies({company_id})/vendors({vendor_id})/picture({picture_id})",
+			"summary": "Updates an object of type picture in Dynamics 365 Business Central",
+			"tags": [
+				"picture"
+			],
+			"direction": "write",
+			"model": "picture"
+		},
+		{
+			"operationId": "listProjects",
+			"method": "GET",
+			"path": "/companies({company_id})/projects",
+			"summary": "Returns a list of projects",
+			"tags": [
+				"project"
+			],
+			"direction": "read",
+			"model": "project"
+		},
+		{
+			"operationId": "postProject",
+			"method": "POST",
+			"path": "/companies({company_id})/projects",
+			"summary": "Creates an object of type project in Dynamics 365 Business Central",
+			"tags": [
+				"project"
+			],
+			"direction": "write",
+			"model": "project"
+		},
+		{
+			"operationId": "deleteProject",
+			"method": "DELETE",
+			"path": "/companies({company_id})/projects({project_id})",
+			"summary": "Deletes an object of type project in Dynamics 365 Business Central",
+			"tags": [
+				"project"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getProject",
+			"method": "GET",
+			"path": "/companies({company_id})/projects({project_id})",
+			"summary": "Retrieve the properties and relationships of an object of type project for Dynamics 365 Business Central.",
+			"tags": [
+				"project"
+			],
+			"direction": "read",
+			"model": "project"
+		},
+		{
+			"operationId": "patchProject",
+			"method": "PATCH",
+			"path": "/companies({company_id})/projects({project_id})",
+			"summary": "Updates an object of type project in Dynamics 365 Business Central",
+			"tags": [
+				"project"
+			],
+			"direction": "write",
+			"model": "project"
+		},
+		{
+			"operationId": "listPurchaseInvoices",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices",
+			"summary": "Returns a list of purchaseInvoices",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "read",
+			"model": "purchaseInvoice"
+		},
+		{
+			"operationId": "postPurchaseInvoice",
+			"method": "POST",
+			"path": "/companies({company_id})/purchaseInvoices",
+			"summary": "Creates an object of type purchaseInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "write",
+			"model": "purchaseInvoice"
+		},
+		{
+			"operationId": "deletePurchaseInvoice",
+			"method": "DELETE",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})",
+			"summary": "Deletes an object of type purchaseInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPurchaseInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})",
+			"summary": "Retrieve the properties and relationships of an object of type purchaseInvoice for Dynamics 365 Business Central.",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "read",
+			"model": "purchaseInvoice"
+		},
+		{
+			"operationId": "patchPurchaseInvoice",
+			"method": "PATCH",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})",
+			"summary": "Updates an object of type purchaseInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "write",
+			"model": "purchaseInvoice"
+		},
+		{
+			"operationId": "postActionPurchaseInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/Microsoft.NAV.post",
+			"summary": "Performs the post action for purchaseInvoices entity",
+			"tags": [
+				"purchaseInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listPurchaseInvoiceLines",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoiceLines",
+			"summary": "Returns a list of purchaseInvoiceLines",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "read",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "postPurchaseInvoiceLine",
+			"method": "POST",
+			"path": "/companies({company_id})/purchaseInvoiceLines",
+			"summary": "Creates an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "deletePurchaseInvoiceLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Deletes an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPurchaseInvoiceLine",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type purchaseInvoiceLine for Dynamics 365 Business Central.",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "read",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "patchPurchaseInvoiceLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Updates an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "listPurchaseInvoiceLinesForPurchaseInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines",
+			"summary": "Returns a list of purchaseInvoiceLines",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "read",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "postPurchaseInvoiceLineForPurchaseInvoice",
+			"method": "POST",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines",
+			"summary": "Creates an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "deletePurchaseInvoiceLineForPurchaseInvoice",
+			"method": "DELETE",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Deletes an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPurchaseInvoiceLineForPurchaseInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type purchaseInvoiceLine for Dynamics 365 Business Central.",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "read",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "patchPurchaseInvoiceLineForPurchaseInvoice",
+			"method": "PATCH",
+			"path": "/companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')",
+			"summary": "Updates an object of type purchaseInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"purchaseInvoiceLine"
+			],
+			"direction": "write",
+			"model": "purchaseInvoiceLine"
+		},
+		{
+			"operationId": "listRetainedEarningsStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/retainedEarningsStatement",
+			"summary": "Returns a list of retainedEarningsStatement",
+			"tags": [
+				"retainedEarningsStatement"
+			],
+			"direction": "read",
+			"model": "retainedEarningsStatement"
+		},
+		{
+			"operationId": "getRetainedEarningsStatement",
+			"method": "GET",
+			"path": "/companies({company_id})/retainedEarningsStatement({retainedEarningsStatement_lineNumber})",
+			"summary": "Retrieve the properties and relationships of an object of type retainedEarningsStatement for Dynamics 365 Business Central.",
+			"tags": [
+				"retainedEarningsStatement"
+			],
+			"direction": "read",
+			"model": "retainedEarningsStatement"
+		},
+		{
+			"operationId": "listSalesCreditMemos",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos",
+			"summary": "Returns a list of salesCreditMemos",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "read",
+			"model": "salesCreditMemo"
+		},
+		{
+			"operationId": "postSalesCreditMemo",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos",
+			"summary": "Creates an object of type salesCreditMemo in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write",
+			"model": "salesCreditMemo"
+		},
+		{
+			"operationId": "deleteSalesCreditMemo",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})",
+			"summary": "Deletes an object of type salesCreditMemo in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesCreditMemo",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})",
+			"summary": "Retrieve the properties and relationships of an object of type salesCreditMemo for Dynamics 365 Business Central.",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "read",
+			"model": "salesCreditMemo"
+		},
+		{
+			"operationId": "patchSalesCreditMemo",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})",
+			"summary": "Updates an object of type salesCreditMemo in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write",
+			"model": "salesCreditMemo"
+		},
+		{
+			"operationId": "cancelActionSalesCreditMemos",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.cancel",
+			"summary": "Performs the cancel action for salesCreditMemos entity",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "cancelAndSendActionSalesCreditMemos",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.cancelAndSend",
+			"summary": "Performs the cancelAndSend action for salesCreditMemos entity",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "postActionSalesCreditMemos",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.post",
+			"summary": "Performs the post action for salesCreditMemos entity",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "postAndSendActionSalesCreditMemos",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.postAndSend",
+			"summary": "Performs the postAndSend action for salesCreditMemos entity",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "sendActionSalesCreditMemos",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.send",
+			"summary": "Performs the send action for salesCreditMemos entity",
+			"tags": [
+				"salesCreditMemo"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listSalesCreditMemoLines",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemoLines",
+			"summary": "Returns a list of salesCreditMemoLines",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "read",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "postSalesCreditMemoLine",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemoLines",
+			"summary": "Creates an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "deleteSalesCreditMemoLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Deletes an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesCreditMemoLine",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesCreditMemoLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "read",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "patchSalesCreditMemoLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Updates an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "listSalesCreditMemoLinesForSalesCreditMemo",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines",
+			"summary": "Returns a list of salesCreditMemoLines",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "read",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "postSalesCreditMemoLineForSalesCreditMemo",
+			"method": "POST",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines",
+			"summary": "Creates an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "deleteSalesCreditMemoLineForSalesCreditMemo",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Deletes an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesCreditMemoLineForSalesCreditMemo",
+			"method": "GET",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesCreditMemoLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "read",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "patchSalesCreditMemoLineForSalesCreditMemo",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')",
+			"summary": "Updates an object of type salesCreditMemoLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesCreditMemoLine"
+			],
+			"direction": "write",
+			"model": "salesCreditMemoLine"
+		},
+		{
+			"operationId": "listSalesInvoices",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices",
+			"summary": "Returns a list of salesInvoices",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "read",
+			"model": "salesInvoice"
+		},
+		{
+			"operationId": "postSalesInvoice",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices",
+			"summary": "Creates an object of type salesInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write",
+			"model": "salesInvoice"
+		},
+		{
+			"operationId": "deleteSalesInvoice",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})",
+			"summary": "Deletes an object of type salesInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})",
+			"summary": "Retrieve the properties and relationships of an object of type salesInvoice for Dynamics 365 Business Central.",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "read",
+			"model": "salesInvoice"
+		},
+		{
+			"operationId": "patchSalesInvoice",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})",
+			"summary": "Updates an object of type salesInvoice in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write",
+			"model": "salesInvoice"
+		},
+		{
+			"operationId": "cancelActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.cancel",
+			"summary": "Performs the cancel action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "cancelAndSendActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.cancelAndSend",
+			"summary": "Performs the cancelAndSend action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "makeCorrectiveCreditMemoActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.makeCorrectiveCreditMemo",
+			"summary": "Performs the makeCorrectiveCreditMemo action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "postActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.post",
+			"summary": "Performs the post action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "postAndSendActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.postAndSend",
+			"summary": "Performs the postAndSend action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "sendActionSalesInvoices",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.send",
+			"summary": "Performs the send action for salesInvoices entity",
+			"tags": [
+				"salesInvoice"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listSalesInvoiceLines",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoiceLines",
+			"summary": "Returns a list of salesInvoiceLines",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "read",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "postSalesInvoiceLine",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoiceLines",
+			"summary": "Creates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "deleteSalesInvoiceLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Deletes an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesInvoiceLine",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesInvoiceLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "read",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "patchSalesInvoiceLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Updates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "listSalesInvoiceLinesForSalesInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines",
+			"summary": "Returns a list of salesInvoiceLines",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "read",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "postSalesInvoiceLineForSalesInvoice",
+			"method": "POST",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines",
+			"summary": "Creates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "deleteSalesInvoiceLineForSalesInvoice",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Deletes an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesInvoiceLineForSalesInvoice",
+			"method": "GET",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesInvoiceLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "read",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "patchSalesInvoiceLineForSalesInvoice",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')",
+			"summary": "Updates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesInvoiceLine"
+			],
+			"direction": "write",
+			"model": "salesInvoiceLine"
+		},
+		{
+			"operationId": "listSalesOrders",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrders",
+			"summary": "Returns a list of salesOrders",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "read",
+			"model": "salesOrder"
+		},
+		{
+			"operationId": "postSalesOrder",
+			"method": "POST",
+			"path": "/companies({company_id})/salesOrders",
+			"summary": "Creates an object of type salesOrder in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "write",
+			"model": "salesOrder"
+		},
+		{
+			"operationId": "deleteSalesOrder",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})",
+			"summary": "Deletes an object of type salesOrder in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesOrder",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})",
+			"summary": "Retrieve the properties and relationships of an object of type salesOrder for Dynamics 365 Business Central.",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "read",
+			"model": "salesOrder"
+		},
+		{
+			"operationId": "patchSalesOrder",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})",
+			"summary": "Updates an object of type salesOrder in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "write",
+			"model": "salesOrder"
+		},
+		{
+			"operationId": "shipAndInvoiceActionSalesOrders",
+			"method": "POST",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/Microsoft.NAV.shipAndInvoice",
+			"summary": "Performs the shipAndInvoice action for salesOrders entity",
+			"tags": [
+				"salesOrder"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listSalesOrderLines",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrderLines",
+			"summary": "Returns a list of salesOrderLines",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "read",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "postSalesOrderLine",
+			"method": "POST",
+			"path": "/companies({company_id})/salesOrderLines",
+			"summary": "Creates an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "deleteSalesOrderLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Deletes an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesOrderLine",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesOrderLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "read",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "patchSalesOrderLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Updates an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "listSalesOrderLinesForSalesOrder",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines",
+			"summary": "Returns a list of salesOrderLines",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "read",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "postSalesOrderLineForSalesOrder",
+			"method": "POST",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines",
+			"summary": "Creates an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "deleteSalesOrderLineForSalesOrder",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Deletes an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesOrderLineForSalesOrder",
+			"method": "GET",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesOrderLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "read",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "patchSalesOrderLineForSalesOrder",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')",
+			"summary": "Updates an object of type salesOrderLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesOrderLine"
+			],
+			"direction": "write",
+			"model": "salesOrderLine"
+		},
+		{
+			"operationId": "listSalesQuotes",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes",
+			"summary": "Returns a list of salesQuotes",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "read",
+			"model": "salesQuote"
+		},
+		{
+			"operationId": "postSalesQuote",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuotes",
+			"summary": "Creates an object of type salesQuote in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write",
+			"model": "salesQuote"
+		},
+		{
+			"operationId": "deleteSalesQuote",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})",
+			"summary": "Deletes an object of type salesQuote in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesQuote",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})",
+			"summary": "Retrieve the properties and relationships of an object of type salesQuote for Dynamics 365 Business Central.",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "read",
+			"model": "salesQuote"
+		},
+		{
+			"operationId": "patchSalesQuote",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})",
+			"summary": "Updates an object of type salesQuote in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write",
+			"model": "salesQuote"
+		},
+		{
+			"operationId": "makeInvoiceActionSalesQuotes",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.makeInvoice",
+			"summary": "Performs the makeInvoice action for salesQuotes entity",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "makeOrderActionSalesQuotes",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.makeOrder",
+			"summary": "Performs the makeOrder action for salesQuotes entity",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "sendActionSalesQuotes",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.send",
+			"summary": "Performs the send action for salesQuotes entity",
+			"tags": [
+				"salesQuote"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "listSalesQuoteLines",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuoteLines",
+			"summary": "Returns a list of salesQuoteLines",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "read",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "postSalesQuoteLine",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuoteLines",
+			"summary": "Creates an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "deleteSalesQuoteLine",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Deletes an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesQuoteLine",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesQuoteLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "read",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "patchSalesQuoteLine",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Updates an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "listSalesQuoteLinesForSalesQuote",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines",
+			"summary": "Returns a list of salesQuoteLines",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "read",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "postSalesQuoteLineForSalesQuote",
+			"method": "POST",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines",
+			"summary": "Creates an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "deleteSalesQuoteLineForSalesQuote",
+			"method": "DELETE",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Deletes an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSalesQuoteLineForSalesQuote",
+			"method": "GET",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Retrieve the properties and relationships of an object of type salesQuoteLine for Dynamics 365 Business Central.",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "read",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "patchSalesQuoteLineForSalesQuote",
+			"method": "PATCH",
+			"path": "/companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')",
+			"summary": "Updates an object of type salesQuoteLine in Dynamics 365 Business Central",
+			"tags": [
+				"salesQuoteLine"
+			],
+			"direction": "write",
+			"model": "salesQuoteLine"
+		},
+		{
+			"operationId": "listShipmentMethods",
+			"method": "GET",
+			"path": "/companies({company_id})/shipmentMethods",
+			"summary": "Returns a list of shipmentMethods",
+			"tags": [
+				"shipmentMethod"
+			],
+			"direction": "read",
+			"model": "shipmentMethod"
+		},
+		{
+			"operationId": "postShipmentMethod",
+			"method": "POST",
+			"path": "/companies({company_id})/shipmentMethods",
+			"summary": "Creates an object of type shipmentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"shipmentMethod"
+			],
+			"direction": "write",
+			"model": "shipmentMethod"
+		},
+		{
+			"operationId": "deleteShipmentMethod",
+			"method": "DELETE",
+			"path": "/companies({company_id})/shipmentMethods({shipmentMethod_id})",
+			"summary": "Deletes an object of type shipmentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"shipmentMethod"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getShipmentMethod",
+			"method": "GET",
+			"path": "/companies({company_id})/shipmentMethods({shipmentMethod_id})",
+			"summary": "Retrieve the properties and relationships of an object of type shipmentMethod for Dynamics 365 Business Central.",
+			"tags": [
+				"shipmentMethod"
+			],
+			"direction": "read",
+			"model": "shipmentMethod"
+		},
+		{
+			"operationId": "patchShipmentMethod",
+			"method": "PATCH",
+			"path": "/companies({company_id})/shipmentMethods({shipmentMethod_id})",
+			"summary": "Updates an object of type shipmentMethod in Dynamics 365 Business Central",
+			"tags": [
+				"shipmentMethod"
+			],
+			"direction": "write",
+			"model": "shipmentMethod"
+		},
+		{
+			"operationId": "listTaxAreas",
+			"method": "GET",
+			"path": "/companies({company_id})/taxAreas",
+			"summary": "Returns a list of taxAreas",
+			"tags": [
+				"taxArea"
+			],
+			"direction": "read",
+			"model": "taxArea"
+		},
+		{
+			"operationId": "postTaxArea",
+			"method": "POST",
+			"path": "/companies({company_id})/taxAreas",
+			"summary": "Creates an object of type taxArea in Dynamics 365 Business Central",
+			"tags": [
+				"taxArea"
+			],
+			"direction": "write",
+			"model": "taxArea"
+		},
+		{
+			"operationId": "deleteTaxArea",
+			"method": "DELETE",
+			"path": "/companies({company_id})/taxAreas({taxArea_id})",
+			"summary": "Deletes an object of type taxArea in Dynamics 365 Business Central",
+			"tags": [
+				"taxArea"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getTaxArea",
+			"method": "GET",
+			"path": "/companies({company_id})/taxAreas({taxArea_id})",
+			"summary": "Retrieve the properties and relationships of an object of type taxArea for Dynamics 365 Business Central.",
+			"tags": [
+				"taxArea"
+			],
+			"direction": "read",
+			"model": "taxArea"
+		},
+		{
+			"operationId": "patchTaxArea",
+			"method": "PATCH",
+			"path": "/companies({company_id})/taxAreas({taxArea_id})",
+			"summary": "Updates an object of type taxArea in Dynamics 365 Business Central",
+			"tags": [
+				"taxArea"
+			],
+			"direction": "write",
+			"model": "taxArea"
+		},
+		{
+			"operationId": "listTaxGroups",
+			"method": "GET",
+			"path": "/companies({company_id})/taxGroups",
+			"summary": "Returns a list of taxGroups",
+			"tags": [
+				"taxGroup"
+			],
+			"direction": "read",
+			"model": "taxGroup"
+		},
+		{
+			"operationId": "postTaxGroup",
+			"method": "POST",
+			"path": "/companies({company_id})/taxGroups",
+			"summary": "Creates an object of type taxGroup in Dynamics 365 Business Central",
+			"tags": [
+				"taxGroup"
+			],
+			"direction": "write",
+			"model": "taxGroup"
+		},
+		{
+			"operationId": "deleteTaxGroup",
+			"method": "DELETE",
+			"path": "/companies({company_id})/taxGroups({taxGroup_id})",
+			"summary": "Deletes an object of type taxGroup in Dynamics 365 Business Central",
+			"tags": [
+				"taxGroup"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getTaxGroup",
+			"method": "GET",
+			"path": "/companies({company_id})/taxGroups({taxGroup_id})",
+			"summary": "Retrieve the properties and relationships of an object of type taxGroup for Dynamics 365 Business Central.",
+			"tags": [
+				"taxGroup"
+			],
+			"direction": "read",
+			"model": "taxGroup"
+		},
+		{
+			"operationId": "patchTaxGroup",
+			"method": "PATCH",
+			"path": "/companies({company_id})/taxGroups({taxGroup_id})",
+			"summary": "Updates an object of type taxGroup in Dynamics 365 Business Central",
+			"tags": [
+				"taxGroup"
+			],
+			"direction": "write",
+			"model": "taxGroup"
+		},
+		{
+			"operationId": "listTimeRegistrationEntriesForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/timeRegistrationEntries",
+			"summary": "Returns a list of timeRegistrationEntries",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "read",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "postTimeRegistrationEntryForEmployee",
+			"method": "POST",
+			"path": "/companies({company_id})/employees({employee_id})/timeRegistrationEntries",
+			"summary": "Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "deleteTimeRegistrationEntryForEmployee",
+			"method": "DELETE",
+			"path": "/companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Deletes an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getTimeRegistrationEntryForEmployee",
+			"method": "GET",
+			"path": "/companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Retrieve the properties and relationships of an object of type timeRegistrationEntry for Dynamics 365 Business Central.",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "read",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "patchTimeRegistrationEntryForEmployee",
+			"method": "PATCH",
+			"path": "/companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Updates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "listTimeRegistrationEntries",
+			"method": "GET",
+			"path": "/companies({company_id})/timeRegistrationEntries",
+			"summary": "Returns a list of timeRegistrationEntries",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "read",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "postTimeRegistrationEntry",
+			"method": "POST",
+			"path": "/companies({company_id})/timeRegistrationEntries",
+			"summary": "Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "deleteTimeRegistrationEntry",
+			"method": "DELETE",
+			"path": "/companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Deletes an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getTimeRegistrationEntry",
+			"method": "GET",
+			"path": "/companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Retrieve the properties and relationships of an object of type timeRegistrationEntry for Dynamics 365 Business Central.",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "read",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "patchTimeRegistrationEntry",
+			"method": "PATCH",
+			"path": "/companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})",
+			"summary": "Updates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+			"tags": [
+				"timeRegistrationEntry"
+			],
+			"direction": "write",
+			"model": "timeRegistrationEntry"
+		},
+		{
+			"operationId": "listTrialBalance",
+			"method": "GET",
+			"path": "/companies({company_id})/trialBalance",
+			"summary": "Returns a list of trialBalance",
+			"tags": [
+				"trialBalance"
+			],
+			"direction": "read",
+			"model": "trialBalance"
+		},
+		{
+			"operationId": "getTrialBalance",
+			"method": "GET",
+			"path": "/companies({company_id})/trialBalance('{trialBalance_number}')",
+			"summary": "Retrieve the properties and relationships of an object of type trialBalance for Dynamics 365 Business Central.",
+			"tags": [
+				"trialBalance"
+			],
+			"direction": "read",
+			"model": "trialBalance"
+		},
+		{
+			"operationId": "listUnitsOfMeasure",
+			"method": "GET",
+			"path": "/companies({company_id})/unitsOfMeasure",
+			"summary": "Returns a list of unitsOfMeasure",
+			"tags": [
+				"unitOfMeasure"
+			],
+			"direction": "read",
+			"model": "unitOfMeasure"
+		},
+		{
+			"operationId": "postUnitOfMeasure",
+			"method": "POST",
+			"path": "/companies({company_id})/unitsOfMeasure",
+			"summary": "Creates an object of type unitOfMeasure in Dynamics 365 Business Central",
+			"tags": [
+				"unitOfMeasure"
+			],
+			"direction": "write",
+			"model": "unitOfMeasure"
+		},
+		{
+			"operationId": "deleteUnitOfMeasure",
+			"method": "DELETE",
+			"path": "/companies({company_id})/unitsOfMeasure({unitOfMeasure_id})",
+			"summary": "Deletes an object of type unitOfMeasure in Dynamics 365 Business Central",
+			"tags": [
+				"unitOfMeasure"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getUnitOfMeasure",
+			"method": "GET",
+			"path": "/companies({company_id})/unitsOfMeasure({unitOfMeasure_id})",
+			"summary": "Retrieve the properties and relationships of an object of type unitOfMeasure for Dynamics 365 Business Central.",
+			"tags": [
+				"unitOfMeasure"
+			],
+			"direction": "read",
+			"model": "unitOfMeasure"
+		},
+		{
+			"operationId": "patchUnitOfMeasure",
+			"method": "PATCH",
+			"path": "/companies({company_id})/unitsOfMeasure({unitOfMeasure_id})",
+			"summary": "Updates an object of type unitOfMeasure in Dynamics 365 Business Central",
+			"tags": [
+				"unitOfMeasure"
+			],
+			"direction": "write",
+			"model": "unitOfMeasure"
+		},
+		{
+			"operationId": "listVendors",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors",
+			"summary": "Returns a list of vendors",
+			"tags": [
+				"vendor"
+			],
+			"direction": "read",
+			"model": "vendor"
+		},
+		{
+			"operationId": "postVendor",
+			"method": "POST",
+			"path": "/companies({company_id})/vendors",
+			"summary": "Creates an object of type vendor in Dynamics 365 Business Central",
+			"tags": [
+				"vendor"
+			],
+			"direction": "write",
+			"model": "vendor"
+		},
+		{
+			"operationId": "deleteVendor",
+			"method": "DELETE",
+			"path": "/companies({company_id})/vendors({vendor_id})",
+			"summary": "Deletes an object of type vendor in Dynamics 365 Business Central",
+			"tags": [
+				"vendor"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getVendor",
+			"method": "GET",
+			"path": "/companies({company_id})/vendors({vendor_id})",
+			"summary": "Retrieve the properties and relationships of an object of type vendor for Dynamics 365 Business Central.",
+			"tags": [
+				"vendor"
+			],
+			"direction": "read",
+			"model": "vendor"
+		},
+		{
+			"operationId": "patchVendor",
+			"method": "PATCH",
+			"path": "/companies({company_id})/vendors({vendor_id})",
+			"summary": "Updates an object of type vendor in Dynamics 365 Business Central",
+			"tags": [
+				"vendor"
+			],
+			"direction": "write",
+			"model": "vendor"
+		},
+		{
+			"operationId": "listVendorPurchases",
+			"method": "GET",
+			"path": "/companies({company_id})/vendorPurchases",
+			"summary": "Returns a list of vendorPurchases",
+			"tags": [
+				"vendorPurchase"
+			],
+			"direction": "read",
+			"model": "vendorPurchase"
+		},
+		{
+			"operationId": "getVendorPurchase",
+			"method": "GET",
+			"path": "/companies({company_id})/vendorPurchases({vendorPurchase_vendorId},'{vendorPurchase_vendorNumber}','{vendorPurchase_name}')",
+			"summary": "Retrieve the properties and relationships of an object of type vendorPurchase for Dynamics 365 Business Central.",
+			"tags": [
+				"vendorPurchase"
+			],
+			"direction": "read",
+			"model": "vendorPurchase"
+		}
+	],
+	"models": [
+		"account",
+		"agedAccountsPayable",
+		"agedAccountsReceivable",
+		"attachments",
+		"balanceSheet",
+		"bankAccount",
+		"cashFlowStatement",
+		"company",
+		"companyInformation",
+		"countryRegion",
+		"currency",
+		"customer",
+		"customerFinancialDetail",
+		"customerPayment",
+		"customerPaymentJournal",
+		"customerSale",
+		"defaultDimensions",
+		"dimension",
+		"dimensionLine",
+		"dimensiontype",
+		"dimensionValue",
+		"documentlineobjectdetailstype",
+		"employee",
+		"generalLedgerEntry",
+		"generalLedgerEntryAttachments",
+		"incomeStatement",
+		"item",
+		"itemCategory",
+		"itemunitofmeasureconversiontype",
+		"journal",
+		"journalLine",
+		"paymentMethod",
+		"paymentTerm",
+		"pdfDocument",
+		"picture",
+		"postaladdresstype",
+		"project",
+		"purchaseInvoice",
+		"purchaseInvoiceLine",
+		"retainedEarningsStatement",
+		"salesCreditMemo",
+		"salesCreditMemoLine",
+		"salesInvoice",
+		"salesInvoiceLine",
+		"salesOrder",
+		"salesOrderLine",
+		"salesQuote",
+		"salesQuoteLine",
+		"shipmentMethod",
+		"taxArea",
+		"taxGroup",
+		"timeRegistrationEntry",
+		"trialBalance",
+		"unitOfMeasure",
+		"unitofmeasuretype",
+		"vendor",
+		"vendorPurchase"
+	]
+}

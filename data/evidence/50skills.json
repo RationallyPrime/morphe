@@ -1,0 +1,801 @@
+{
+	"system": "50skills",
+	"label": "50skills Journeys",
+	"specVersion": "3.0.3",
+	"source": "/home/rationallyprime/projects/morphe/data/specs/50skills-journeys-api.yaml",
+	"operationCount": 66,
+	"modelCount": 81,
+	"operations": [
+		{
+			"operationId": "company_retrieve",
+			"method": "GET",
+			"path": "/v1/company",
+			"summary": "Retrieve current company",
+			"tags": [
+				"company"
+			],
+			"direction": "read",
+			"model": "Company"
+		},
+		{
+			"operationId": "company_partial_update",
+			"method": "PATCH",
+			"path": "/v1/company",
+			"summary": "Edit company",
+			"tags": [
+				"company"
+			],
+			"direction": "write",
+			"model": "Company"
+		},
+		{
+			"operationId": "document_templates_list",
+			"method": "GET",
+			"path": "/v1/document-templates",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "read",
+			"model": "DocumentTemplate"
+		},
+		{
+			"operationId": "document_templates_create",
+			"method": "POST",
+			"path": "/v1/document-templates",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "write",
+			"model": "DocumentTemplate"
+		},
+		{
+			"operationId": "document_templates_destroy",
+			"method": "DELETE",
+			"path": "/v1/document-templates/{short_id}",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "document_templates_retrieve",
+			"method": "GET",
+			"path": "/v1/document-templates/{short_id}",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "read",
+			"model": "DocumentTemplate"
+		},
+		{
+			"operationId": "document_templates_partial_update",
+			"method": "PATCH",
+			"path": "/v1/document-templates/{short_id}",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "write",
+			"model": "DocumentTemplate"
+		},
+		{
+			"operationId": "document_templates_update",
+			"method": "PUT",
+			"path": "/v1/document-templates/{short_id}",
+			"summary": "",
+			"tags": [
+				"document-templates"
+			],
+			"direction": "write",
+			"model": "DocumentTemplate"
+		},
+		{
+			"operationId": "documents_converted_retrieve",
+			"method": "GET",
+			"path": "/v1/documents/{short_id}/converted",
+			"summary": "",
+			"tags": [
+				"documents"
+			],
+			"direction": "read",
+			"model": "ConvertedDocument"
+		},
+		{
+			"operationId": "documents_document_retrieve",
+			"method": "GET",
+			"path": "/v1/documents/{short_id}/document",
+			"summary": "",
+			"tags": [
+				"documents"
+			],
+			"direction": "read",
+			"model": "Document"
+		},
+		{
+			"operationId": "email_templates_list",
+			"method": "GET",
+			"path": "/v1/email-templates",
+			"summary": "List",
+			"tags": [
+				"email-templates"
+			],
+			"direction": "read",
+			"model": "EmailTemplate"
+		},
+		{
+			"operationId": "email_templates_create",
+			"method": "POST",
+			"path": "/v1/email-templates",
+			"summary": "Create",
+			"tags": [
+				"email-templates"
+			],
+			"direction": "write",
+			"model": "EmailTemplate"
+		},
+		{
+			"operationId": "email_templates_destroy",
+			"method": "DELETE",
+			"path": "/v1/email-templates/{short_id}",
+			"summary": "Delete",
+			"tags": [
+				"email-templates"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "email_templates_partial_update",
+			"method": "PATCH",
+			"path": "/v1/email-templates/{short_id}",
+			"summary": "Edit",
+			"tags": [
+				"email-templates"
+			],
+			"direction": "write",
+			"model": "EmailTemplate"
+		},
+		{
+			"operationId": "form_templates_list",
+			"method": "GET",
+			"path": "/v1/form-templates",
+			"summary": "List",
+			"tags": [
+				"form-templates"
+			],
+			"direction": "read",
+			"model": "FormTemplate"
+		},
+		{
+			"operationId": "form_templates_create",
+			"method": "POST",
+			"path": "/v1/form-templates",
+			"summary": "Create",
+			"tags": [
+				"form-templates"
+			],
+			"direction": "write",
+			"model": "FormTemplate"
+		},
+		{
+			"operationId": "form_templates_destroy",
+			"method": "DELETE",
+			"path": "/v1/form-templates/{short_id}",
+			"summary": "Delete",
+			"tags": [
+				"form-templates"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "form_templates_partial_update",
+			"method": "PATCH",
+			"path": "/v1/form-templates/{short_id}",
+			"summary": "Edit",
+			"tags": [
+				"form-templates"
+			],
+			"direction": "write",
+			"model": "FormTemplate"
+		},
+		{
+			"operationId": "forms_form_retrieve",
+			"method": "GET",
+			"path": "/v1/forms/{short_id}/form",
+			"summary": "",
+			"tags": [
+				"forms"
+			],
+			"direction": "read",
+			"model": "Form"
+		},
+		{
+			"operationId": "forms_public_retrieve",
+			"method": "GET",
+			"path": "/v1/forms/public/{uuid}",
+			"summary": "Retrieve form",
+			"tags": [
+				"forms"
+			],
+			"direction": "read",
+			"model": "Form"
+		},
+		{
+			"operationId": "forms_public_partial_update",
+			"method": "PATCH",
+			"path": "/v1/forms/public/{uuid}",
+			"summary": "",
+			"tags": [
+				"forms"
+			],
+			"direction": "write",
+			"model": "FormPublic"
+		},
+		{
+			"operationId": "journey_actions_list",
+			"method": "GET",
+			"path": "/v1/journey-actions",
+			"summary": "List journey actions",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "read",
+			"model": "JourneyActionDetail"
+		},
+		{
+			"operationId": "journey_actions_create",
+			"method": "POST",
+			"path": "/v1/journey-actions",
+			"summary": "Create journey action",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write",
+			"model": "JourneyActionDetail"
+		},
+		{
+			"operationId": "journey_actions_destroy",
+			"method": "DELETE",
+			"path": "/v1/journey-actions/{id}",
+			"summary": "Delete journey action",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journey_actions_retrieve",
+			"method": "GET",
+			"path": "/v1/journey-actions/{id}",
+			"summary": "Retrieve journey action",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "read",
+			"model": "JourneyActionDetail"
+		},
+		{
+			"operationId": "journey_actions_partial_update",
+			"method": "PATCH",
+			"path": "/v1/journey-actions/{id}",
+			"summary": "Edit journey action",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write",
+			"model": "JourneyActionDetail"
+		},
+		{
+			"operationId": "journey_actions_initialize_create",
+			"method": "POST",
+			"path": "/v1/journey-actions/initialize",
+			"summary": "",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journey_actions_relationships_retrieve",
+			"method": "GET",
+			"path": "/v1/journey-actions/relationships",
+			"summary": "",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "journey_actions_relationships_create",
+			"method": "POST",
+			"path": "/v1/journey-actions/relationships",
+			"summary": "",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journey_actions_relationships_destroy",
+			"method": "DELETE",
+			"path": "/v1/journey-actions/relationships/{short_id}",
+			"summary": "",
+			"tags": [
+				"journey-actions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journeys_list",
+			"method": "GET",
+			"path": "/v1/journeys",
+			"summary": "List journeys",
+			"tags": [
+				"journeys"
+			],
+			"direction": "read",
+			"model": "Journeys"
+		},
+		{
+			"operationId": "journeys_create",
+			"method": "POST",
+			"path": "/v1/journeys",
+			"summary": "Create journey",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write",
+			"model": "Journeys"
+		},
+		{
+			"operationId": "journeys_destroy",
+			"method": "DELETE",
+			"path": "/v1/journeys/{short_id}",
+			"summary": "Delete journey",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journeys_retrieve",
+			"method": "GET",
+			"path": "/v1/journeys/{short_id}",
+			"summary": "Retrieve journey",
+			"tags": [
+				"journeys"
+			],
+			"direction": "read",
+			"model": "Journeys"
+		},
+		{
+			"operationId": "journeys_partial_update",
+			"method": "PATCH",
+			"path": "/v1/journeys/{short_id}",
+			"summary": "Edit journey",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write",
+			"model": "Journeys"
+		},
+		{
+			"operationId": "journeys_cancel_changes_create",
+			"method": "POST",
+			"path": "/v1/journeys/{short_id}/cancel-changes",
+			"summary": "",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journeys_duplicate_create",
+			"method": "POST",
+			"path": "/v1/journeys/{short_id}/duplicate",
+			"summary": "",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journeys_publish_create",
+			"method": "POST",
+			"path": "/v1/journeys/{short_id}/publish",
+			"summary": "",
+			"tags": [
+				"journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "journeys_statistics_list",
+			"method": "GET",
+			"path": "/v1/journeys/statistics",
+			"summary": "",
+			"tags": [
+				"journeys"
+			],
+			"direction": "read",
+			"model": "Statistics"
+		},
+		{
+			"operationId": "traveller_actions_list",
+			"method": "GET",
+			"path": "/v1/traveller-actions",
+			"summary": "List traveller actions",
+			"tags": [
+				"traveller-actions"
+			],
+			"direction": "read",
+			"model": "TravellerActionDetail"
+		},
+		{
+			"operationId": "traveller_actions_retrieve",
+			"method": "GET",
+			"path": "/v1/traveller-actions/{id}",
+			"summary": "Retrieve traveller action",
+			"tags": [
+				"traveller-actions"
+			],
+			"direction": "read",
+			"model": "TravellerActionDetail"
+		},
+		{
+			"operationId": "traveller_actions_partial_update",
+			"method": "PATCH",
+			"path": "/v1/traveller-actions/{id}",
+			"summary": "Edit traveller action",
+			"tags": [
+				"traveller-actions"
+			],
+			"direction": "write",
+			"model": "TravellerActionDetail"
+		},
+		{
+			"operationId": "traveller_actions_run_create",
+			"method": "POST",
+			"path": "/v1/traveller-actions/{id}/run",
+			"summary": "Run traveller action",
+			"tags": [
+				"traveller-actions"
+			],
+			"direction": "write",
+			"model": "RunTravellerActionData"
+		},
+		{
+			"operationId": "traveller_journeys_list",
+			"method": "GET",
+			"path": "/v1/traveller-journeys",
+			"summary": "List traveller journeys",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "read",
+			"model": "TravellerJourney"
+		},
+		{
+			"operationId": "traveller_journeys_create",
+			"method": "POST",
+			"path": "/v1/traveller-journeys",
+			"summary": "Create traveller journey",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write",
+			"model": "TravellerJourney"
+		},
+		{
+			"operationId": "traveller_journeys_destroy",
+			"method": "DELETE",
+			"path": "/v1/traveller-journeys/{short_id}",
+			"summary": "Delete traveller journey",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "traveller_journeys_retrieve",
+			"method": "GET",
+			"path": "/v1/traveller-journeys/{short_id}",
+			"summary": "Retrieve traveller journey",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "read",
+			"model": "TravellerJourneyDetail"
+		},
+		{
+			"operationId": "traveller_journeys_partial_update",
+			"method": "PATCH",
+			"path": "/v1/traveller-journeys/{short_id}",
+			"summary": "Edit traveller journey",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write",
+			"model": "TravellerJourneyDetail"
+		},
+		{
+			"operationId": "traveller_journeys_bulk_create_create",
+			"method": "POST",
+			"path": "/v1/traveller-journeys/{short_id}/bulk-create",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write",
+			"model": "TravellerJourneyBulkCreate"
+		},
+		{
+			"operationId": "traveller_journeys_bulk_create_template_retrieve",
+			"method": "GET",
+			"path": "/v1/traveller-journeys/{short_id}/bulk-create-template",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "traveller_journeys_start_create",
+			"method": "POST",
+			"path": "/v1/traveller-journeys/{short_id}/start",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "traveller_journeys_actions_list",
+			"method": "GET",
+			"path": "/v1/traveller-journeys/actions",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "read",
+			"model": "TravellerJourneyActions"
+		},
+		{
+			"operationId": "traveller_journeys_modified_list",
+			"method": "GET",
+			"path": "/v1/traveller-journeys/modified",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "read",
+			"model": "ModifiedTravellerJourneys"
+		},
+		{
+			"operationId": "traveller_journeys_modified_create",
+			"method": "POST",
+			"path": "/v1/traveller-journeys/modified",
+			"summary": "",
+			"tags": [
+				"traveller-journeys"
+			],
+			"direction": "write",
+			"model": "ModifiedTravellerJourneys"
+		},
+		{
+			"operationId": "users_list",
+			"method": "GET",
+			"path": "/v1/users",
+			"summary": "List users",
+			"tags": [
+				"users"
+			],
+			"direction": "read",
+			"model": "CompanyUser"
+		},
+		{
+			"operationId": "users_create",
+			"method": "POST",
+			"path": "/v1/users",
+			"summary": "Create user",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "CompanyUser"
+		},
+		{
+			"operationId": "users_destroy",
+			"method": "DELETE",
+			"path": "/v1/users/{short_id}",
+			"summary": "Delete user",
+			"tags": [
+				"users"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "users_retrieve",
+			"method": "GET",
+			"path": "/v1/users/{short_id}",
+			"summary": "Retrieve user",
+			"tags": [
+				"users"
+			],
+			"direction": "read",
+			"model": "CompanyUser"
+		},
+		{
+			"operationId": "users_partial_update",
+			"method": "PATCH",
+			"path": "/v1/users/{short_id}",
+			"summary": "Edit user",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "CompanyUser"
+		},
+		{
+			"operationId": "users_invite_create",
+			"method": "POST",
+			"path": "/v1/users/{short_id}/invite",
+			"summary": "Invite user",
+			"tags": [
+				"users"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "users_me_retrieve",
+			"method": "GET",
+			"path": "/v1/users/me",
+			"summary": "Retrieve details",
+			"tags": [
+				"users"
+			],
+			"direction": "read",
+			"model": "MyUserDetails"
+		},
+		{
+			"operationId": "users_me_partial_update",
+			"method": "PATCH",
+			"path": "/v1/users/me",
+			"summary": "Edit details",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "MyUserDetails"
+		},
+		{
+			"operationId": "users_password_reset_create",
+			"method": "POST",
+			"path": "/v1/users/password/reset",
+			"summary": "Reset email",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "ResetPassword"
+		},
+		{
+			"operationId": "users_password_set_retrieve",
+			"method": "GET",
+			"path": "/v1/users/password/set",
+			"summary": "Can set password",
+			"tags": [
+				"users"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "users_password_set_partial_update",
+			"method": "PATCH",
+			"path": "/v1/users/password/set",
+			"summary": "Set password",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "PatchedPassword"
+		},
+		{
+			"operationId": "users_password_update_partial_update",
+			"method": "PATCH",
+			"path": "/v1/users/password/update",
+			"summary": "Update password",
+			"tags": [
+				"users"
+			],
+			"direction": "write",
+			"model": "PatchedUpdatePassword"
+		}
+	],
+	"models": [
+		"ActionResult",
+		"ActionResultStatusEnum",
+		"Company",
+		"CompanyUser",
+		"ConvertedDocument",
+		"CreateFieldError",
+		"CreateJourneyActionData",
+		"Document",
+		"DocumentTemplate",
+		"EmailTemplate",
+		"FixedDateJourneyValues",
+		"Form",
+		"FormPublic",
+		"FormTemplate",
+		"FormTemplateStatusEnum",
+		"JourneyActionDetail",
+		"JourneyActionValidationError",
+		"JourneyActionValue",
+		"JourneyGroupAction",
+		"JourneyMinimal",
+		"Journeys",
+		"JourneyStartData",
+		"JourneyTravellerActionList",
+		"JourneyValidationError",
+		"JourneyValuesErrors",
+		"ModifiedTravellerJourneys",
+		"MyUserDetails",
+		"ParentAction",
+		"PatchedCompany",
+		"PatchedCompanyUser",
+		"PatchedDocumentTemplate",
+		"PatchedEditJourneyActionData",
+		"PatchedEmailTemplate",
+		"PatchedFormPublic",
+		"PatchedFormTemplate",
+		"PatchedJourneys",
+		"PatchedJourneyStartData",
+		"PatchedMyUserDetails",
+		"PatchedPassword",
+		"PatchedPatchTravellerAction",
+		"PatchedSendEmailJourneyData",
+		"PatchedSendEmailTravellerData",
+		"PatchedSendSMSJourneyData",
+		"PatchedSendSMSTravellerData",
+		"PatchedTravellerJourneyDetail",
+		"PatchedUpdatePassword",
+		"PatchedWaitForTimeJourneyData",
+		"PatchedWaitUntilFixedDateJourneyData",
+		"PatchedWaitUntilRelativeDateJourneyData",
+		"RelativeDateValues",
+		"ResetPassword",
+		"ResetPasswordError",
+		"RoleEnum",
+		"RunTravellerActionData",
+		"SendEmailJourneyData",
+		"SendEmailJourneyValues",
+		"SendEmailTravellerData",
+		"SendEmailTravellerValues",
+		"SendSMSJourneyData",
+		"SendSMSJourneyValues",
+		"SendSMSTravellerData",
+		"SendSMSTravellerValues",
+		"Statistics",
+		"TemplateTypeEnum",
+		"TravellerActionDetail",
+		"TravellerActionList",
+		"TravellerActionValue",
+		"TravellerBulkCreate",
+		"TravellerGroupAction",
+		"TravellerJourney",
+		"TravellerJourneyActions",
+		"TravellerJourneyBulkCreate",
+		"TravellerJourneyDetail",
+		"TravellerJourneyValidationError",
+		"UpdatePasswordError",
+		"UserValidationError",
+		"ValuesErrors",
+		"WaitForTimeJourneyData",
+		"WaitForTimeJourneyValues",
+		"WaitUntilFixedDateJourneyData",
+		"WaitUntilRelativeDateJourneyData"
+	]
+}

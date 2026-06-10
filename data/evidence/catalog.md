@@ -1457,3 +1457,734 @@ Spec: 3.1.1 · 327 operations · 75 models · `/home/rationallyprime/projects/mo
 - `WorkspaceMember`
 - `WorkspaceMemberForResponse`
 - `WorkspaceMemberForUpdate`
+
+## Microsoft Dynamics 365 Business Central
+
+Spec: 3.0.0 · 324 operations · 57 models · `/home/rationallyprime/projects/morphe/data/specs/microsoft-business-central-v1-openapi.yaml`
+
+### account
+
+- `GET /companies({company_id})/accounts` — Returns a list of accounts (listAccounts) → `account`
+- `GET /companies({company_id})/accounts({account_id})` — Retrieve the properties and relationships of an object of type account for Dynamics 365 Business Central. (getAccount) → `account`
+
+### agedAccountsPayable
+
+- `GET /companies({company_id})/agedAccountsPayable` — Returns a list of agedAccountsPayable (listAgedAccountsPayable) → `agedAccountsPayable`
+- `GET /companies({company_id})/agedAccountsPayable({agedAccountsPayable_vendorId})` — Retrieve the properties and relationships of an object of type agedAccountsPayable for Dynamics 365 Business Central. (getAgedAccountsPayable) → `agedAccountsPayable`
+
+### agedAccountsReceivable
+
+- `GET /companies({company_id})/agedAccountsReceivable` — Returns a list of agedAccountsReceivable (listAgedAccountsReceivable) → `agedAccountsReceivable`
+- `GET /companies({company_id})/agedAccountsReceivable({agedAccountsReceivable_customerId})` — Retrieve the properties and relationships of an object of type agedAccountsReceivable for Dynamics 365 Business Central. (getAgedAccountsReceivable) → `agedAccountsReceivable`
+
+### attachments
+
+- `GET /companies({company_id})/attachments` — Returns a list of attachments (listAttachments) → `attachments`
+- `POST /companies({company_id})/attachments` — Creates an object of type attachments in Dynamics 365 Business Central (postAttachments) → `attachments`
+- `DELETE /companies({company_id})/attachments({attachments_parentId},{attachments_id})` — Deletes an object of type attachments in Dynamics 365 Business Central (deleteAttachments)
+- `GET /companies({company_id})/attachments({attachments_parentId},{attachments_id})` — Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central. (getAttachments) → `attachments`
+- `PATCH /companies({company_id})/attachments({attachments_parentId},{attachments_id})` — Updates an object of type attachments in Dynamics 365 Business Central (patchAttachments) → `attachments`
+- `GET /companies({company_id})/journalLines({journalLine_id})/attachments` — Returns a list of attachments (listAttachmentsForJournalLine) → `attachments`
+- `POST /companies({company_id})/journalLines({journalLine_id})/attachments` — Creates an object of type attachments in Dynamics 365 Business Central (postAttachmentsForJournalLine) → `attachments`
+- `DELETE /companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Deletes an object of type attachments in Dynamics 365 Business Central (deleteAttachmentsForJournalLine)
+- `GET /companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central. (getAttachmentsForJournalLine) → `attachments`
+- `PATCH /companies({company_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Updates an object of type attachments in Dynamics 365 Business Central (patchAttachmentsForJournalLine) → `attachments`
+- `GET /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments` — Returns a list of attachments (listAttachmentsForJournalLineForJournal) → `attachments`
+- `POST /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments` — Creates an object of type attachments in Dynamics 365 Business Central (postAttachmentsForJournalLineForJournal) → `attachments`
+- `DELETE /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Deletes an object of type attachments in Dynamics 365 Business Central (deleteAttachmentsForJournalLineForJournal)
+- `GET /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Retrieve the properties and relationships of an object of type attachments for Dynamics 365 Business Central. (getAttachmentsForJournalLineForJournal) → `attachments`
+- `PATCH /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})/attachments({attachments_parentId},{attachments_id})` — Updates an object of type attachments in Dynamics 365 Business Central (patchAttachmentsForJournalLineForJournal) → `attachments`
+
+### balanceSheet
+
+- `GET /companies({company_id})/balanceSheet` — Returns a list of balanceSheet (listBalanceSheet) → `balanceSheet`
+- `GET /companies({company_id})/balanceSheet({balanceSheet_lineNumber})` — Retrieve the properties and relationships of an object of type balanceSheet for Dynamics 365 Business Central. (getBalanceSheet) → `balanceSheet`
+
+### bankAccount
+
+- `GET /companies({company_id})/bankAccounts` — Returns a list of bankAccounts (listBankAccounts) → `bankAccount`
+- `POST /companies({company_id})/bankAccounts` — Creates an object of type bankAccount in Dynamics 365 Business Central (postBankAccount) → `bankAccount`
+- `DELETE /companies({company_id})/bankAccounts({bankAccount_id})` — Deletes an object of type bankAccount in Dynamics 365 Business Central (deleteBankAccount)
+- `GET /companies({company_id})/bankAccounts({bankAccount_id})` — Retrieve the properties and relationships of an object of type bankAccount for Dynamics 365 Business Central. (getBankAccount) → `bankAccount`
+- `PATCH /companies({company_id})/bankAccounts({bankAccount_id})` — Updates an object of type bankAccount in Dynamics 365 Business Central (patchBankAccount) → `bankAccount`
+
+### cashFlowStatement
+
+- `GET /companies({company_id})/cashFlowStatement` — Returns a list of cashFlowStatement (listCashFlowStatement) → `cashFlowStatement`
+- `GET /companies({company_id})/cashFlowStatement({cashFlowStatement_lineNumber})` — Retrieve the properties and relationships of an object of type cashFlowStatement for Dynamics 365 Business Central. (getCashFlowStatement) → `cashFlowStatement`
+
+### company
+
+- `GET /companies` — Returns a list of companies (listCompanies) → `company`
+- `GET /companies({company_id})` — Retrieve the properties and relationships of an object of type company for Dynamics 365 Business Central. (getCompany) → `company`
+
+### companyInformation
+
+- `GET /companies({company_id})/companyInformation` — Returns a list of companyInformation (listCompanyInformation) → `companyInformation`
+- `GET /companies({company_id})/companyInformation({companyInformation_id})` — Retrieve the properties and relationships of an object of type companyInformation for Dynamics 365 Business Central. (getCompanyInformation) → `companyInformation`
+- `PATCH /companies({company_id})/companyInformation({companyInformation_id})` — Updates an object of type companyInformation in Dynamics 365 Business Central (patchCompanyInformation) → `companyInformation`
+
+### countryRegion
+
+- `GET /companies({company_id})/countriesRegions` — Returns a list of countriesRegions (listCountriesRegions) → `countryRegion`
+- `POST /companies({company_id})/countriesRegions` — Creates an object of type countryRegion in Dynamics 365 Business Central (postCountryRegion) → `countryRegion`
+- `DELETE /companies({company_id})/countriesRegions({countryRegion_id})` — Deletes an object of type countryRegion in Dynamics 365 Business Central (deleteCountryRegion)
+- `GET /companies({company_id})/countriesRegions({countryRegion_id})` — Retrieve the properties and relationships of an object of type countryRegion for Dynamics 365 Business Central. (getCountryRegion) → `countryRegion`
+- `PATCH /companies({company_id})/countriesRegions({countryRegion_id})` — Updates an object of type countryRegion in Dynamics 365 Business Central (patchCountryRegion) → `countryRegion`
+
+### currency
+
+- `GET /companies({company_id})/currencies` — Returns a list of currencies (listCurrencies) → `currency`
+- `POST /companies({company_id})/currencies` — Creates an object of type currency in Dynamics 365 Business Central (postCurrency) → `currency`
+- `DELETE /companies({company_id})/currencies({currency_id})` — Deletes an object of type currency in Dynamics 365 Business Central (deleteCurrency)
+- `GET /companies({company_id})/currencies({currency_id})` — Retrieve the properties and relationships of an object of type currency for Dynamics 365 Business Central. (getCurrency) → `currency`
+- `PATCH /companies({company_id})/currencies({currency_id})` — Updates an object of type currency in Dynamics 365 Business Central (patchCurrency) → `currency`
+
+### customer
+
+- `GET /companies({company_id})/customers` — Returns a list of customers (listCustomers) → `customer`
+- `POST /companies({company_id})/customers` — Creates an object of type customer in Dynamics 365 Business Central (postCustomer) → `customer`
+- `DELETE /companies({company_id})/customers({customer_id})` — Deletes an object of type customer in Dynamics 365 Business Central (deleteCustomer)
+- `GET /companies({company_id})/customers({customer_id})` — Retrieve the properties and relationships of an object of type customer for Dynamics 365 Business Central. (getCustomer) → `customer`
+- `PATCH /companies({company_id})/customers({customer_id})` — Updates an object of type customer in Dynamics 365 Business Central (patchCustomer) → `customer`
+
+### customerFinancialDetail
+
+- `GET /companies({company_id})/customerFinancialDetails` — Returns a list of customerFinancialDetails (listCustomerFinancialDetails) → `customerFinancialDetail`
+- `GET /companies({company_id})/customerFinancialDetails({customerFinancialDetail_id})` — Retrieve the properties and relationships of an object of type customerFinancialDetail for Dynamics 365 Business Central. (getCustomerFinancialDetail) → `customerFinancialDetail`
+- `GET /companies({company_id})/customers({customer_id})/customerFinancialDetails` — Returns a list of customerFinancialDetails (listCustomerFinancialDetailsForCustomer) → `customerFinancialDetail`
+- `GET /companies({company_id})/customers({customer_id})/customerFinancialDetails({customerFinancialDetail_id})` — Retrieve the properties and relationships of an object of type customerFinancialDetail for Dynamics 365 Business Central. (getCustomerFinancialDetailForCustomer) → `customerFinancialDetail`
+
+### customerPayment
+
+- `GET /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments` — Returns a list of customerPayments (listCustomerPaymentsForCustomerPaymentJournal) → `customerPayment`
+- `POST /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments` — Creates an object of type customerPayment in Dynamics 365 Business Central (postCustomerPaymentForCustomerPaymentJournal) → `customerPayment`
+- `DELETE /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})` — Deletes an object of type customerPayment in Dynamics 365 Business Central (deleteCustomerPaymentForCustomerPaymentJournal)
+- `GET /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})` — Retrieve the properties and relationships of an object of type customerPayment for Dynamics 365 Business Central. (getCustomerPaymentForCustomerPaymentJournal) → `customerPayment`
+- `PATCH /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})/customerPayments({customerPayment_id})` — Updates an object of type customerPayment in Dynamics 365 Business Central (patchCustomerPaymentForCustomerPaymentJournal) → `customerPayment`
+- `GET /companies({company_id})/customerPayments` — Returns a list of customerPayments (listCustomerPayments) → `customerPayment`
+- `POST /companies({company_id})/customerPayments` — Creates an object of type customerPayment in Dynamics 365 Business Central (postCustomerPayment) → `customerPayment`
+- `DELETE /companies({company_id})/customerPayments({customerPayment_id})` — Deletes an object of type customerPayment in Dynamics 365 Business Central (deleteCustomerPayment)
+- `GET /companies({company_id})/customerPayments({customerPayment_id})` — Retrieve the properties and relationships of an object of type customerPayment for Dynamics 365 Business Central. (getCustomerPayment) → `customerPayment`
+- `PATCH /companies({company_id})/customerPayments({customerPayment_id})` — Updates an object of type customerPayment in Dynamics 365 Business Central (patchCustomerPayment) → `customerPayment`
+
+### customerPaymentJournal
+
+- `GET /companies({company_id})/customerPaymentJournals` — Returns a list of customerPaymentJournals (listCustomerPaymentJournals) → `customerPaymentJournal`
+- `POST /companies({company_id})/customerPaymentJournals` — Creates an object of type customerPaymentJournal in Dynamics 365 Business Central (postCustomerPaymentJournal) → `customerPaymentJournal`
+- `DELETE /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})` — Deletes an object of type customerPaymentJournal in Dynamics 365 Business Central (deleteCustomerPaymentJournal)
+- `GET /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})` — Retrieve the properties and relationships of an object of type customerPaymentJournal for Dynamics 365 Business Central. (getCustomerPaymentJournal) → `customerPaymentJournal`
+- `PATCH /companies({company_id})/customerPaymentJournals({customerPaymentJournal_id})` — Updates an object of type customerPaymentJournal in Dynamics 365 Business Central (patchCustomerPaymentJournal) → `customerPaymentJournal`
+
+### customerSale
+
+- `GET /companies({company_id})/customerSales` — Returns a list of customerSales (listCustomerSales) → `customerSale`
+- `GET /companies({company_id})/customerSales({customerSale_customerId},'{customerSale_customerNumber}','{customerSale_name}')` — Retrieve the properties and relationships of an object of type customerSale for Dynamics 365 Business Central. (getCustomerSale) → `customerSale`
+
+### defaultDimensions
+
+- `GET /companies({company_id})/customers({customer_id})/defaultDimensions` — Returns a list of defaultDimensions (listDefaultDimensionsForCustomer) → `defaultDimensions`
+- `POST /companies({company_id})/customers({customer_id})/defaultDimensions` — Creates an object of type defaultDimensions in Dynamics 365 Business Central (postDefaultDimensionsForCustomer) → `defaultDimensions`
+- `DELETE /companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Deletes an object of type defaultDimensions in Dynamics 365 Business Central (deleteDefaultDimensionsForCustomer)
+- `GET /companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central. (getDefaultDimensionsForCustomer) → `defaultDimensions`
+- `PATCH /companies({company_id})/customers({customer_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Updates an object of type defaultDimensions in Dynamics 365 Business Central (patchDefaultDimensionsForCustomer) → `defaultDimensions`
+- `GET /companies({company_id})/defaultDimensions` — Returns a list of defaultDimensions (listDefaultDimensions) → `defaultDimensions`
+- `POST /companies({company_id})/defaultDimensions` — Creates an object of type defaultDimensions in Dynamics 365 Business Central (postDefaultDimensions) → `defaultDimensions`
+- `DELETE /companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Deletes an object of type defaultDimensions in Dynamics 365 Business Central (deleteDefaultDimensions)
+- `GET /companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central. (getDefaultDimensions) → `defaultDimensions`
+- `PATCH /companies({company_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Updates an object of type defaultDimensions in Dynamics 365 Business Central (patchDefaultDimensions) → `defaultDimensions`
+- `GET /companies({company_id})/employees({employee_id})/defaultDimensions` — Returns a list of defaultDimensions (listDefaultDimensionsForEmployee) → `defaultDimensions`
+- `POST /companies({company_id})/employees({employee_id})/defaultDimensions` — Creates an object of type defaultDimensions in Dynamics 365 Business Central (postDefaultDimensionsForEmployee) → `defaultDimensions`
+- `DELETE /companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Deletes an object of type defaultDimensions in Dynamics 365 Business Central (deleteDefaultDimensionsForEmployee)
+- `GET /companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central. (getDefaultDimensionsForEmployee) → `defaultDimensions`
+- `PATCH /companies({company_id})/employees({employee_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Updates an object of type defaultDimensions in Dynamics 365 Business Central (patchDefaultDimensionsForEmployee) → `defaultDimensions`
+- `GET /companies({company_id})/items({item_id})/defaultDimensions` — Returns a list of defaultDimensions (listDefaultDimensionsForItem) → `defaultDimensions`
+- `POST /companies({company_id})/items({item_id})/defaultDimensions` — Creates an object of type defaultDimensions in Dynamics 365 Business Central (postDefaultDimensionsForItem) → `defaultDimensions`
+- `DELETE /companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Deletes an object of type defaultDimensions in Dynamics 365 Business Central (deleteDefaultDimensionsForItem)
+- `GET /companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central. (getDefaultDimensionsForItem) → `defaultDimensions`
+- `PATCH /companies({company_id})/items({item_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Updates an object of type defaultDimensions in Dynamics 365 Business Central (patchDefaultDimensionsForItem) → `defaultDimensions`
+- `GET /companies({company_id})/vendors({vendor_id})/defaultDimensions` — Returns a list of defaultDimensions (listDefaultDimensionsForVendor) → `defaultDimensions`
+- `POST /companies({company_id})/vendors({vendor_id})/defaultDimensions` — Creates an object of type defaultDimensions in Dynamics 365 Business Central (postDefaultDimensionsForVendor) → `defaultDimensions`
+- `DELETE /companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Deletes an object of type defaultDimensions in Dynamics 365 Business Central (deleteDefaultDimensionsForVendor)
+- `GET /companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Retrieve the properties and relationships of an object of type defaultDimensions for Dynamics 365 Business Central. (getDefaultDimensionsForVendor) → `defaultDimensions`
+- `PATCH /companies({company_id})/vendors({vendor_id})/defaultDimensions({defaultDimensions_parentId},{defaultDimensions_dimensionId})` — Updates an object of type defaultDimensions in Dynamics 365 Business Central (patchDefaultDimensionsForVendor) → `defaultDimensions`
+
+### dimension
+
+- `GET /companies({company_id})/dimensions` — Returns a list of dimensions (listDimensions) → `dimension`
+- `GET /companies({company_id})/dimensions({dimension_id})` — Retrieve the properties and relationships of an object of type dimension for Dynamics 365 Business Central. (getDimension) → `dimension`
+
+### dimensionLine
+
+- `GET /companies({company_id})/dimensionLines` — Returns a list of dimensionLines (listDimensionLines) → `dimensionLine`
+- `POST /companies({company_id})/dimensionLines` — Creates an object of type dimensionLine in Dynamics 365 Business Central (postDimensionLine) → `dimensionLine`
+- `DELETE /companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})` — Deletes an object of type dimensionLine in Dynamics 365 Business Central (deleteDimensionLine)
+- `GET /companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})` — Retrieve the properties and relationships of an object of type dimensionLine for Dynamics 365 Business Central. (getDimensionLine) → `dimensionLine`
+- `PATCH /companies({company_id})/dimensionLines({dimensionLine_parentId},{dimensionLine_id})` — Updates an object of type dimensionLine in Dynamics 365 Business Central (patchDimensionLine) → `dimensionLine`
+
+### dimensionValue
+
+- `GET /companies({company_id})/dimensions({dimension_id})/dimensionValues` — Returns a list of dimensionValues (listDimensionValuesForDimension) → `dimensionValue`
+- `GET /companies({company_id})/dimensions({dimension_id})/dimensionValues({dimensionValue_id})` — Retrieve the properties and relationships of an object of type dimensionValue for Dynamics 365 Business Central. (getDimensionValueForDimension) → `dimensionValue`
+- `GET /companies({company_id})/dimensionValues` — Returns a list of dimensionValues (listDimensionValues) → `dimensionValue`
+- `GET /companies({company_id})/dimensionValues({dimensionValue_id})` — Retrieve the properties and relationships of an object of type dimensionValue for Dynamics 365 Business Central. (getDimensionValue) → `dimensionValue`
+
+### employee
+
+- `GET /companies({company_id})/employees` — Returns a list of employees (listEmployees) → `employee`
+- `POST /companies({company_id})/employees` — Creates an object of type employee in Dynamics 365 Business Central (postEmployee) → `employee`
+- `DELETE /companies({company_id})/employees({employee_id})` — Deletes an object of type employee in Dynamics 365 Business Central (deleteEmployee)
+- `GET /companies({company_id})/employees({employee_id})` — Retrieve the properties and relationships of an object of type employee for Dynamics 365 Business Central. (getEmployee) → `employee`
+- `PATCH /companies({company_id})/employees({employee_id})` — Updates an object of type employee in Dynamics 365 Business Central (patchEmployee) → `employee`
+
+### generalLedgerEntry
+
+- `GET /companies({company_id})/generalLedgerEntries` — Returns a list of generalLedgerEntries (listGeneralLedgerEntries) → `generalLedgerEntry`
+- `GET /companies({company_id})/generalLedgerEntries({generalLedgerEntry_id})` — Retrieve the properties and relationships of an object of type generalLedgerEntry for Dynamics 365 Business Central. (getGeneralLedgerEntry) → `generalLedgerEntry`
+
+### generalLedgerEntryAttachments
+
+- `GET /companies({company_id})/generalLedgerEntryAttachments` — Returns a list of generalLedgerEntryAttachments (listGeneralLedgerEntryAttachments) → `generalLedgerEntryAttachments`
+- `POST /companies({company_id})/generalLedgerEntryAttachments` — Creates an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central (postGeneralLedgerEntryAttachments) → `generalLedgerEntryAttachments`
+- `DELETE /companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})` — Deletes an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central (deleteGeneralLedgerEntryAttachments)
+- `GET /companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})` — Retrieve the properties and relationships of an object of type generalLedgerEntryAttachments for Dynamics 365 Business Central. (getGeneralLedgerEntryAttachments) → `generalLedgerEntryAttachments`
+- `PATCH /companies({company_id})/generalLedgerEntryAttachments({generalLedgerEntryAttachments_generalLedgerEntryNumber},{generalLedgerEntryAttachments_id})` — Updates an object of type generalLedgerEntryAttachments in Dynamics 365 Business Central (patchGeneralLedgerEntryAttachments) → `generalLedgerEntryAttachments`
+
+### incomeStatement
+
+- `GET /companies({company_id})/incomeStatement` — Returns a list of incomeStatement (listIncomeStatement) → `incomeStatement`
+- `GET /companies({company_id})/incomeStatement({incomeStatement_lineNumber})` — Retrieve the properties and relationships of an object of type incomeStatement for Dynamics 365 Business Central. (getIncomeStatement) → `incomeStatement`
+
+### item
+
+- `GET /companies({company_id})/items` — Returns a list of items (listItems) → `item`
+- `POST /companies({company_id})/items` — Creates an object of type item in Dynamics 365 Business Central (postItem) → `item`
+- `DELETE /companies({company_id})/items({item_id})` — Deletes an object of type item in Dynamics 365 Business Central (deleteItem)
+- `GET /companies({company_id})/items({item_id})` — Retrieve the properties and relationships of an object of type item for Dynamics 365 Business Central. (getItem) → `item`
+- `PATCH /companies({company_id})/items({item_id})` — Updates an object of type item in Dynamics 365 Business Central (patchItem) → `item`
+
+### itemCategory
+
+- `GET /companies({company_id})/itemCategories` — Returns a list of itemCategories (listItemCategories) → `itemCategory`
+- `POST /companies({company_id})/itemCategories` — Creates an object of type itemCategory in Dynamics 365 Business Central (postItemCategory) → `itemCategory`
+- `DELETE /companies({company_id})/itemCategories({itemCategory_id})` — Deletes an object of type itemCategory in Dynamics 365 Business Central (deleteItemCategory)
+- `GET /companies({company_id})/itemCategories({itemCategory_id})` — Retrieve the properties and relationships of an object of type itemCategory for Dynamics 365 Business Central. (getItemCategory) → `itemCategory`
+- `PATCH /companies({company_id})/itemCategories({itemCategory_id})` — Updates an object of type itemCategory in Dynamics 365 Business Central (patchItemCategory) → `itemCategory`
+
+### journal
+
+- `GET /companies({company_id})/journals` — Returns a list of journals (listJournals) → `journal`
+- `POST /companies({company_id})/journals` — Creates an object of type journal in Dynamics 365 Business Central (postJournal) → `journal`
+- `DELETE /companies({company_id})/journals({journal_id})` — Deletes an object of type journal in Dynamics 365 Business Central (deleteJournal)
+- `GET /companies({company_id})/journals({journal_id})` — Retrieve the properties and relationships of an object of type journal for Dynamics 365 Business Central. (getJournal) → `journal`
+- `PATCH /companies({company_id})/journals({journal_id})` — Updates an object of type journal in Dynamics 365 Business Central (patchJournal) → `journal`
+- `POST /companies({company_id})/journals({journal_id})/Microsoft.NAV.post` — Performs the post action for journals entity (postActionJournals)
+
+### journalLine
+
+- `GET /companies({company_id})/journalLines` — Returns a list of journalLines (listJournalLines) → `journalLine`
+- `POST /companies({company_id})/journalLines` — Creates an object of type journalLine in Dynamics 365 Business Central (postJournalLine) → `journalLine`
+- `DELETE /companies({company_id})/journalLines({journalLine_id})` — Deletes an object of type journalLine in Dynamics 365 Business Central (deleteJournalLine)
+- `GET /companies({company_id})/journalLines({journalLine_id})` — Retrieve the properties and relationships of an object of type journalLine for Dynamics 365 Business Central. (getJournalLine) → `journalLine`
+- `PATCH /companies({company_id})/journalLines({journalLine_id})` — Updates an object of type journalLine in Dynamics 365 Business Central (patchJournalLine) → `journalLine`
+- `GET /companies({company_id})/journals({journal_id})/journalLines` — Returns a list of journalLines (listJournalLinesForJournal) → `journalLine`
+- `POST /companies({company_id})/journals({journal_id})/journalLines` — Creates an object of type journalLine in Dynamics 365 Business Central (postJournalLineForJournal) → `journalLine`
+- `DELETE /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})` — Deletes an object of type journalLine in Dynamics 365 Business Central (deleteJournalLineForJournal)
+- `GET /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})` — Retrieve the properties and relationships of an object of type journalLine for Dynamics 365 Business Central. (getJournalLineForJournal) → `journalLine`
+- `PATCH /companies({company_id})/journals({journal_id})/journalLines({journalLine_id})` — Updates an object of type journalLine in Dynamics 365 Business Central (patchJournalLineForJournal) → `journalLine`
+
+### paymentMethod
+
+- `GET /companies({company_id})/paymentMethods` — Returns a list of paymentMethods (listPaymentMethods) → `paymentMethod`
+- `POST /companies({company_id})/paymentMethods` — Creates an object of type paymentMethod in Dynamics 365 Business Central (postPaymentMethod) → `paymentMethod`
+- `DELETE /companies({company_id})/paymentMethods({paymentMethod_id})` — Deletes an object of type paymentMethod in Dynamics 365 Business Central (deletePaymentMethod)
+- `GET /companies({company_id})/paymentMethods({paymentMethod_id})` — Retrieve the properties and relationships of an object of type paymentMethod for Dynamics 365 Business Central. (getPaymentMethod) → `paymentMethod`
+- `PATCH /companies({company_id})/paymentMethods({paymentMethod_id})` — Updates an object of type paymentMethod in Dynamics 365 Business Central (patchPaymentMethod) → `paymentMethod`
+
+### paymentTerm
+
+- `GET /companies({company_id})/paymentTerms` — Returns a list of paymentTerms (listPaymentTerms) → `paymentTerm`
+- `POST /companies({company_id})/paymentTerms` — Creates an object of type paymentTerm in Dynamics 365 Business Central (postPaymentTerm) → `paymentTerm`
+- `DELETE /companies({company_id})/paymentTerms({paymentTerm_id})` — Deletes an object of type paymentTerm in Dynamics 365 Business Central (deletePaymentTerm)
+- `GET /companies({company_id})/paymentTerms({paymentTerm_id})` — Retrieve the properties and relationships of an object of type paymentTerm for Dynamics 365 Business Central. (getPaymentTerm) → `paymentTerm`
+- `PATCH /companies({company_id})/paymentTerms({paymentTerm_id})` — Updates an object of type paymentTerm in Dynamics 365 Business Central (patchPaymentTerm) → `paymentTerm`
+
+### pdfDocument
+
+- `GET /companies({company_id})/pdfDocument` — Returns a list of pdfDocument (listPdfDocument) → `pdfDocument`
+- `GET /companies({company_id})/pdfDocument({pdfDocument_id})` — Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central. (getPdfDocument) → `pdfDocument`
+- `GET /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/pdfDocument` — Returns a list of pdfDocument (listPdfDocumentForPurchaseInvoice) → `pdfDocument`
+- `GET /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/pdfDocument({pdfDocument_id})` — Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central. (getPdfDocumentForPurchaseInvoice) → `pdfDocument`
+- `GET /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/pdfDocument` — Returns a list of pdfDocument (listPdfDocumentForSalesCreditMemo) → `pdfDocument`
+- `GET /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/pdfDocument({pdfDocument_id})` — Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central. (getPdfDocumentForSalesCreditMemo) → `pdfDocument`
+- `GET /companies({company_id})/salesInvoices({salesInvoice_id})/pdfDocument` — Returns a list of pdfDocument (listPdfDocumentForSalesInvoice) → `pdfDocument`
+- `GET /companies({company_id})/salesInvoices({salesInvoice_id})/pdfDocument({pdfDocument_id})` — Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central. (getPdfDocumentForSalesInvoice) → `pdfDocument`
+- `GET /companies({company_id})/salesQuotes({salesQuote_id})/pdfDocument` — Returns a list of pdfDocument (listPdfDocumentForSalesQuote) → `pdfDocument`
+- `GET /companies({company_id})/salesQuotes({salesQuote_id})/pdfDocument({pdfDocument_id})` — Retrieve the properties and relationships of an object of type pdfDocument for Dynamics 365 Business Central. (getPdfDocumentForSalesQuote) → `pdfDocument`
+
+### picture
+
+- `GET /companies({company_id})/customers({customer_id})/picture` — Returns a list of picture (listPictureForCustomer) → `picture`
+- `DELETE /companies({company_id})/customers({customer_id})/picture({picture_id})` — Deletes an object of type picture in Dynamics 365 Business Central (deletePictureForCustomer)
+- `GET /companies({company_id})/customers({customer_id})/picture({picture_id})` — Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central. (getPictureForCustomer) → `picture`
+- `PATCH /companies({company_id})/customers({customer_id})/picture({picture_id})` — Updates an object of type picture in Dynamics 365 Business Central (patchPictureForCustomer) → `picture`
+- `GET /companies({company_id})/employees({employee_id})/picture` — Returns a list of picture (listPictureForEmployee) → `picture`
+- `DELETE /companies({company_id})/employees({employee_id})/picture({picture_id})` — Deletes an object of type picture in Dynamics 365 Business Central (deletePictureForEmployee)
+- `GET /companies({company_id})/employees({employee_id})/picture({picture_id})` — Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central. (getPictureForEmployee) → `picture`
+- `PATCH /companies({company_id})/employees({employee_id})/picture({picture_id})` — Updates an object of type picture in Dynamics 365 Business Central (patchPictureForEmployee) → `picture`
+- `GET /companies({company_id})/items({item_id})/picture` — Returns a list of picture (listPictureForItem) → `picture`
+- `DELETE /companies({company_id})/items({item_id})/picture({picture_id})` — Deletes an object of type picture in Dynamics 365 Business Central (deletePictureForItem)
+- `GET /companies({company_id})/items({item_id})/picture({picture_id})` — Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central. (getPictureForItem) → `picture`
+- `PATCH /companies({company_id})/items({item_id})/picture({picture_id})` — Updates an object of type picture in Dynamics 365 Business Central (patchPictureForItem) → `picture`
+- `GET /companies({company_id})/picture` — Returns a list of picture (listPicture) → `picture`
+- `DELETE /companies({company_id})/picture({picture_id})` — Deletes an object of type picture in Dynamics 365 Business Central (deletePicture)
+- `GET /companies({company_id})/picture({picture_id})` — Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central. (getPicture) → `picture`
+- `PATCH /companies({company_id})/picture({picture_id})` — Updates an object of type picture in Dynamics 365 Business Central (patchPicture) → `picture`
+- `GET /companies({company_id})/vendors({vendor_id})/picture` — Returns a list of picture (listPictureForVendor) → `picture`
+- `DELETE /companies({company_id})/vendors({vendor_id})/picture({picture_id})` — Deletes an object of type picture in Dynamics 365 Business Central (deletePictureForVendor)
+- `GET /companies({company_id})/vendors({vendor_id})/picture({picture_id})` — Retrieve the properties and relationships of an object of type picture for Dynamics 365 Business Central. (getPictureForVendor) → `picture`
+- `PATCH /companies({company_id})/vendors({vendor_id})/picture({picture_id})` — Updates an object of type picture in Dynamics 365 Business Central (patchPictureForVendor) → `picture`
+
+### project
+
+- `GET /companies({company_id})/projects` — Returns a list of projects (listProjects) → `project`
+- `POST /companies({company_id})/projects` — Creates an object of type project in Dynamics 365 Business Central (postProject) → `project`
+- `DELETE /companies({company_id})/projects({project_id})` — Deletes an object of type project in Dynamics 365 Business Central (deleteProject)
+- `GET /companies({company_id})/projects({project_id})` — Retrieve the properties and relationships of an object of type project for Dynamics 365 Business Central. (getProject) → `project`
+- `PATCH /companies({company_id})/projects({project_id})` — Updates an object of type project in Dynamics 365 Business Central (patchProject) → `project`
+
+### purchaseInvoice
+
+- `GET /companies({company_id})/purchaseInvoices` — Returns a list of purchaseInvoices (listPurchaseInvoices) → `purchaseInvoice`
+- `POST /companies({company_id})/purchaseInvoices` — Creates an object of type purchaseInvoice in Dynamics 365 Business Central (postPurchaseInvoice) → `purchaseInvoice`
+- `DELETE /companies({company_id})/purchaseInvoices({purchaseInvoice_id})` — Deletes an object of type purchaseInvoice in Dynamics 365 Business Central (deletePurchaseInvoice)
+- `GET /companies({company_id})/purchaseInvoices({purchaseInvoice_id})` — Retrieve the properties and relationships of an object of type purchaseInvoice for Dynamics 365 Business Central. (getPurchaseInvoice) → `purchaseInvoice`
+- `PATCH /companies({company_id})/purchaseInvoices({purchaseInvoice_id})` — Updates an object of type purchaseInvoice in Dynamics 365 Business Central (patchPurchaseInvoice) → `purchaseInvoice`
+- `POST /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/Microsoft.NAV.post` — Performs the post action for purchaseInvoices entity (postActionPurchaseInvoices)
+
+### purchaseInvoiceLine
+
+- `GET /companies({company_id})/purchaseInvoiceLines` — Returns a list of purchaseInvoiceLines (listPurchaseInvoiceLines) → `purchaseInvoiceLine`
+- `POST /companies({company_id})/purchaseInvoiceLines` — Creates an object of type purchaseInvoiceLine in Dynamics 365 Business Central (postPurchaseInvoiceLine) → `purchaseInvoiceLine`
+- `DELETE /companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Deletes an object of type purchaseInvoiceLine in Dynamics 365 Business Central (deletePurchaseInvoiceLine)
+- `GET /companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Retrieve the properties and relationships of an object of type purchaseInvoiceLine for Dynamics 365 Business Central. (getPurchaseInvoiceLine) → `purchaseInvoiceLine`
+- `PATCH /companies({company_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Updates an object of type purchaseInvoiceLine in Dynamics 365 Business Central (patchPurchaseInvoiceLine) → `purchaseInvoiceLine`
+- `GET /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines` — Returns a list of purchaseInvoiceLines (listPurchaseInvoiceLinesForPurchaseInvoice) → `purchaseInvoiceLine`
+- `POST /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines` — Creates an object of type purchaseInvoiceLine in Dynamics 365 Business Central (postPurchaseInvoiceLineForPurchaseInvoice) → `purchaseInvoiceLine`
+- `DELETE /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Deletes an object of type purchaseInvoiceLine in Dynamics 365 Business Central (deletePurchaseInvoiceLineForPurchaseInvoice)
+- `GET /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Retrieve the properties and relationships of an object of type purchaseInvoiceLine for Dynamics 365 Business Central. (getPurchaseInvoiceLineForPurchaseInvoice) → `purchaseInvoiceLine`
+- `PATCH /companies({company_id})/purchaseInvoices({purchaseInvoice_id})/purchaseInvoiceLines('{purchaseInvoiceLine_id}')` — Updates an object of type purchaseInvoiceLine in Dynamics 365 Business Central (patchPurchaseInvoiceLineForPurchaseInvoice) → `purchaseInvoiceLine`
+
+### retainedEarningsStatement
+
+- `GET /companies({company_id})/retainedEarningsStatement` — Returns a list of retainedEarningsStatement (listRetainedEarningsStatement) → `retainedEarningsStatement`
+- `GET /companies({company_id})/retainedEarningsStatement({retainedEarningsStatement_lineNumber})` — Retrieve the properties and relationships of an object of type retainedEarningsStatement for Dynamics 365 Business Central. (getRetainedEarningsStatement) → `retainedEarningsStatement`
+
+### salesCreditMemo
+
+- `GET /companies({company_id})/salesCreditMemos` — Returns a list of salesCreditMemos (listSalesCreditMemos) → `salesCreditMemo`
+- `POST /companies({company_id})/salesCreditMemos` — Creates an object of type salesCreditMemo in Dynamics 365 Business Central (postSalesCreditMemo) → `salesCreditMemo`
+- `DELETE /companies({company_id})/salesCreditMemos({salesCreditMemo_id})` — Deletes an object of type salesCreditMemo in Dynamics 365 Business Central (deleteSalesCreditMemo)
+- `GET /companies({company_id})/salesCreditMemos({salesCreditMemo_id})` — Retrieve the properties and relationships of an object of type salesCreditMemo for Dynamics 365 Business Central. (getSalesCreditMemo) → `salesCreditMemo`
+- `PATCH /companies({company_id})/salesCreditMemos({salesCreditMemo_id})` — Updates an object of type salesCreditMemo in Dynamics 365 Business Central (patchSalesCreditMemo) → `salesCreditMemo`
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.cancel` — Performs the cancel action for salesCreditMemos entity (cancelActionSalesCreditMemos)
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.cancelAndSend` — Performs the cancelAndSend action for salesCreditMemos entity (cancelAndSendActionSalesCreditMemos)
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.post` — Performs the post action for salesCreditMemos entity (postActionSalesCreditMemos)
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.postAndSend` — Performs the postAndSend action for salesCreditMemos entity (postAndSendActionSalesCreditMemos)
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/Microsoft.NAV.send` — Performs the send action for salesCreditMemos entity (sendActionSalesCreditMemos)
+
+### salesCreditMemoLine
+
+- `GET /companies({company_id})/salesCreditMemoLines` — Returns a list of salesCreditMemoLines (listSalesCreditMemoLines) → `salesCreditMemoLine`
+- `POST /companies({company_id})/salesCreditMemoLines` — Creates an object of type salesCreditMemoLine in Dynamics 365 Business Central (postSalesCreditMemoLine) → `salesCreditMemoLine`
+- `DELETE /companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Deletes an object of type salesCreditMemoLine in Dynamics 365 Business Central (deleteSalesCreditMemoLine)
+- `GET /companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Retrieve the properties and relationships of an object of type salesCreditMemoLine for Dynamics 365 Business Central. (getSalesCreditMemoLine) → `salesCreditMemoLine`
+- `PATCH /companies({company_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Updates an object of type salesCreditMemoLine in Dynamics 365 Business Central (patchSalesCreditMemoLine) → `salesCreditMemoLine`
+- `GET /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines` — Returns a list of salesCreditMemoLines (listSalesCreditMemoLinesForSalesCreditMemo) → `salesCreditMemoLine`
+- `POST /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines` — Creates an object of type salesCreditMemoLine in Dynamics 365 Business Central (postSalesCreditMemoLineForSalesCreditMemo) → `salesCreditMemoLine`
+- `DELETE /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Deletes an object of type salesCreditMemoLine in Dynamics 365 Business Central (deleteSalesCreditMemoLineForSalesCreditMemo)
+- `GET /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Retrieve the properties and relationships of an object of type salesCreditMemoLine for Dynamics 365 Business Central. (getSalesCreditMemoLineForSalesCreditMemo) → `salesCreditMemoLine`
+- `PATCH /companies({company_id})/salesCreditMemos({salesCreditMemo_id})/salesCreditMemoLines('{salesCreditMemoLine_id}')` — Updates an object of type salesCreditMemoLine in Dynamics 365 Business Central (patchSalesCreditMemoLineForSalesCreditMemo) → `salesCreditMemoLine`
+
+### salesInvoice
+
+- `GET /companies({company_id})/salesInvoices` — Returns a list of salesInvoices (listSalesInvoices) → `salesInvoice`
+- `POST /companies({company_id})/salesInvoices` — Creates an object of type salesInvoice in Dynamics 365 Business Central (postSalesInvoice) → `salesInvoice`
+- `DELETE /companies({company_id})/salesInvoices({salesInvoice_id})` — Deletes an object of type salesInvoice in Dynamics 365 Business Central (deleteSalesInvoice)
+- `GET /companies({company_id})/salesInvoices({salesInvoice_id})` — Retrieve the properties and relationships of an object of type salesInvoice for Dynamics 365 Business Central. (getSalesInvoice) → `salesInvoice`
+- `PATCH /companies({company_id})/salesInvoices({salesInvoice_id})` — Updates an object of type salesInvoice in Dynamics 365 Business Central (patchSalesInvoice) → `salesInvoice`
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.cancel` — Performs the cancel action for salesInvoices entity (cancelActionSalesInvoices)
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.cancelAndSend` — Performs the cancelAndSend action for salesInvoices entity (cancelAndSendActionSalesInvoices)
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.makeCorrectiveCreditMemo` — Performs the makeCorrectiveCreditMemo action for salesInvoices entity (makeCorrectiveCreditMemoActionSalesInvoices)
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.post` — Performs the post action for salesInvoices entity (postActionSalesInvoices)
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.postAndSend` — Performs the postAndSend action for salesInvoices entity (postAndSendActionSalesInvoices)
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/Microsoft.NAV.send` — Performs the send action for salesInvoices entity (sendActionSalesInvoices)
+
+### salesInvoiceLine
+
+- `GET /companies({company_id})/salesInvoiceLines` — Returns a list of salesInvoiceLines (listSalesInvoiceLines) → `salesInvoiceLine`
+- `POST /companies({company_id})/salesInvoiceLines` — Creates an object of type salesInvoiceLine in Dynamics 365 Business Central (postSalesInvoiceLine) → `salesInvoiceLine`
+- `DELETE /companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Deletes an object of type salesInvoiceLine in Dynamics 365 Business Central (deleteSalesInvoiceLine)
+- `GET /companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Retrieve the properties and relationships of an object of type salesInvoiceLine for Dynamics 365 Business Central. (getSalesInvoiceLine) → `salesInvoiceLine`
+- `PATCH /companies({company_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Updates an object of type salesInvoiceLine in Dynamics 365 Business Central (patchSalesInvoiceLine) → `salesInvoiceLine`
+- `GET /companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines` — Returns a list of salesInvoiceLines (listSalesInvoiceLinesForSalesInvoice) → `salesInvoiceLine`
+- `POST /companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines` — Creates an object of type salesInvoiceLine in Dynamics 365 Business Central (postSalesInvoiceLineForSalesInvoice) → `salesInvoiceLine`
+- `DELETE /companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Deletes an object of type salesInvoiceLine in Dynamics 365 Business Central (deleteSalesInvoiceLineForSalesInvoice)
+- `GET /companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Retrieve the properties and relationships of an object of type salesInvoiceLine for Dynamics 365 Business Central. (getSalesInvoiceLineForSalesInvoice) → `salesInvoiceLine`
+- `PATCH /companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines('{salesInvoiceLine_id}')` — Updates an object of type salesInvoiceLine in Dynamics 365 Business Central (patchSalesInvoiceLineForSalesInvoice) → `salesInvoiceLine`
+
+### salesOrder
+
+- `GET /companies({company_id})/salesOrders` — Returns a list of salesOrders (listSalesOrders) → `salesOrder`
+- `POST /companies({company_id})/salesOrders` — Creates an object of type salesOrder in Dynamics 365 Business Central (postSalesOrder) → `salesOrder`
+- `DELETE /companies({company_id})/salesOrders({salesOrder_id})` — Deletes an object of type salesOrder in Dynamics 365 Business Central (deleteSalesOrder)
+- `GET /companies({company_id})/salesOrders({salesOrder_id})` — Retrieve the properties and relationships of an object of type salesOrder for Dynamics 365 Business Central. (getSalesOrder) → `salesOrder`
+- `PATCH /companies({company_id})/salesOrders({salesOrder_id})` — Updates an object of type salesOrder in Dynamics 365 Business Central (patchSalesOrder) → `salesOrder`
+- `POST /companies({company_id})/salesOrders({salesOrder_id})/Microsoft.NAV.shipAndInvoice` — Performs the shipAndInvoice action for salesOrders entity (shipAndInvoiceActionSalesOrders)
+
+### salesOrderLine
+
+- `GET /companies({company_id})/salesOrderLines` — Returns a list of salesOrderLines (listSalesOrderLines) → `salesOrderLine`
+- `POST /companies({company_id})/salesOrderLines` — Creates an object of type salesOrderLine in Dynamics 365 Business Central (postSalesOrderLine) → `salesOrderLine`
+- `DELETE /companies({company_id})/salesOrderLines('{salesOrderLine_id}')` — Deletes an object of type salesOrderLine in Dynamics 365 Business Central (deleteSalesOrderLine)
+- `GET /companies({company_id})/salesOrderLines('{salesOrderLine_id}')` — Retrieve the properties and relationships of an object of type salesOrderLine for Dynamics 365 Business Central. (getSalesOrderLine) → `salesOrderLine`
+- `PATCH /companies({company_id})/salesOrderLines('{salesOrderLine_id}')` — Updates an object of type salesOrderLine in Dynamics 365 Business Central (patchSalesOrderLine) → `salesOrderLine`
+- `GET /companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines` — Returns a list of salesOrderLines (listSalesOrderLinesForSalesOrder) → `salesOrderLine`
+- `POST /companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines` — Creates an object of type salesOrderLine in Dynamics 365 Business Central (postSalesOrderLineForSalesOrder) → `salesOrderLine`
+- `DELETE /companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')` — Deletes an object of type salesOrderLine in Dynamics 365 Business Central (deleteSalesOrderLineForSalesOrder)
+- `GET /companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')` — Retrieve the properties and relationships of an object of type salesOrderLine for Dynamics 365 Business Central. (getSalesOrderLineForSalesOrder) → `salesOrderLine`
+- `PATCH /companies({company_id})/salesOrders({salesOrder_id})/salesOrderLines('{salesOrderLine_id}')` — Updates an object of type salesOrderLine in Dynamics 365 Business Central (patchSalesOrderLineForSalesOrder) → `salesOrderLine`
+
+### salesQuote
+
+- `GET /companies({company_id})/salesQuotes` — Returns a list of salesQuotes (listSalesQuotes) → `salesQuote`
+- `POST /companies({company_id})/salesQuotes` — Creates an object of type salesQuote in Dynamics 365 Business Central (postSalesQuote) → `salesQuote`
+- `DELETE /companies({company_id})/salesQuotes({salesQuote_id})` — Deletes an object of type salesQuote in Dynamics 365 Business Central (deleteSalesQuote)
+- `GET /companies({company_id})/salesQuotes({salesQuote_id})` — Retrieve the properties and relationships of an object of type salesQuote for Dynamics 365 Business Central. (getSalesQuote) → `salesQuote`
+- `PATCH /companies({company_id})/salesQuotes({salesQuote_id})` — Updates an object of type salesQuote in Dynamics 365 Business Central (patchSalesQuote) → `salesQuote`
+- `POST /companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.makeInvoice` — Performs the makeInvoice action for salesQuotes entity (makeInvoiceActionSalesQuotes)
+- `POST /companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.makeOrder` — Performs the makeOrder action for salesQuotes entity (makeOrderActionSalesQuotes)
+- `POST /companies({company_id})/salesQuotes({salesQuote_id})/Microsoft.NAV.send` — Performs the send action for salesQuotes entity (sendActionSalesQuotes)
+
+### salesQuoteLine
+
+- `GET /companies({company_id})/salesQuoteLines` — Returns a list of salesQuoteLines (listSalesQuoteLines) → `salesQuoteLine`
+- `POST /companies({company_id})/salesQuoteLines` — Creates an object of type salesQuoteLine in Dynamics 365 Business Central (postSalesQuoteLine) → `salesQuoteLine`
+- `DELETE /companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')` — Deletes an object of type salesQuoteLine in Dynamics 365 Business Central (deleteSalesQuoteLine)
+- `GET /companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')` — Retrieve the properties and relationships of an object of type salesQuoteLine for Dynamics 365 Business Central. (getSalesQuoteLine) → `salesQuoteLine`
+- `PATCH /companies({company_id})/salesQuoteLines('{salesQuoteLine_id}')` — Updates an object of type salesQuoteLine in Dynamics 365 Business Central (patchSalesQuoteLine) → `salesQuoteLine`
+- `GET /companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines` — Returns a list of salesQuoteLines (listSalesQuoteLinesForSalesQuote) → `salesQuoteLine`
+- `POST /companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines` — Creates an object of type salesQuoteLine in Dynamics 365 Business Central (postSalesQuoteLineForSalesQuote) → `salesQuoteLine`
+- `DELETE /companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')` — Deletes an object of type salesQuoteLine in Dynamics 365 Business Central (deleteSalesQuoteLineForSalesQuote)
+- `GET /companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')` — Retrieve the properties and relationships of an object of type salesQuoteLine for Dynamics 365 Business Central. (getSalesQuoteLineForSalesQuote) → `salesQuoteLine`
+- `PATCH /companies({company_id})/salesQuotes({salesQuote_id})/salesQuoteLines('{salesQuoteLine_id}')` — Updates an object of type salesQuoteLine in Dynamics 365 Business Central (patchSalesQuoteLineForSalesQuote) → `salesQuoteLine`
+
+### shipmentMethod
+
+- `GET /companies({company_id})/shipmentMethods` — Returns a list of shipmentMethods (listShipmentMethods) → `shipmentMethod`
+- `POST /companies({company_id})/shipmentMethods` — Creates an object of type shipmentMethod in Dynamics 365 Business Central (postShipmentMethod) → `shipmentMethod`
+- `DELETE /companies({company_id})/shipmentMethods({shipmentMethod_id})` — Deletes an object of type shipmentMethod in Dynamics 365 Business Central (deleteShipmentMethod)
+- `GET /companies({company_id})/shipmentMethods({shipmentMethod_id})` — Retrieve the properties and relationships of an object of type shipmentMethod for Dynamics 365 Business Central. (getShipmentMethod) → `shipmentMethod`
+- `PATCH /companies({company_id})/shipmentMethods({shipmentMethod_id})` — Updates an object of type shipmentMethod in Dynamics 365 Business Central (patchShipmentMethod) → `shipmentMethod`
+
+### taxArea
+
+- `GET /companies({company_id})/taxAreas` — Returns a list of taxAreas (listTaxAreas) → `taxArea`
+- `POST /companies({company_id})/taxAreas` — Creates an object of type taxArea in Dynamics 365 Business Central (postTaxArea) → `taxArea`
+- `DELETE /companies({company_id})/taxAreas({taxArea_id})` — Deletes an object of type taxArea in Dynamics 365 Business Central (deleteTaxArea)
+- `GET /companies({company_id})/taxAreas({taxArea_id})` — Retrieve the properties and relationships of an object of type taxArea for Dynamics 365 Business Central. (getTaxArea) → `taxArea`
+- `PATCH /companies({company_id})/taxAreas({taxArea_id})` — Updates an object of type taxArea in Dynamics 365 Business Central (patchTaxArea) → `taxArea`
+
+### taxGroup
+
+- `GET /companies({company_id})/taxGroups` — Returns a list of taxGroups (listTaxGroups) → `taxGroup`
+- `POST /companies({company_id})/taxGroups` — Creates an object of type taxGroup in Dynamics 365 Business Central (postTaxGroup) → `taxGroup`
+- `DELETE /companies({company_id})/taxGroups({taxGroup_id})` — Deletes an object of type taxGroup in Dynamics 365 Business Central (deleteTaxGroup)
+- `GET /companies({company_id})/taxGroups({taxGroup_id})` — Retrieve the properties and relationships of an object of type taxGroup for Dynamics 365 Business Central. (getTaxGroup) → `taxGroup`
+- `PATCH /companies({company_id})/taxGroups({taxGroup_id})` — Updates an object of type taxGroup in Dynamics 365 Business Central (patchTaxGroup) → `taxGroup`
+
+### timeRegistrationEntry
+
+- `GET /companies({company_id})/employees({employee_id})/timeRegistrationEntries` — Returns a list of timeRegistrationEntries (listTimeRegistrationEntriesForEmployee) → `timeRegistrationEntry`
+- `POST /companies({company_id})/employees({employee_id})/timeRegistrationEntries` — Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central (postTimeRegistrationEntryForEmployee) → `timeRegistrationEntry`
+- `DELETE /companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Deletes an object of type timeRegistrationEntry in Dynamics 365 Business Central (deleteTimeRegistrationEntryForEmployee)
+- `GET /companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Retrieve the properties and relationships of an object of type timeRegistrationEntry for Dynamics 365 Business Central. (getTimeRegistrationEntryForEmployee) → `timeRegistrationEntry`
+- `PATCH /companies({company_id})/employees({employee_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Updates an object of type timeRegistrationEntry in Dynamics 365 Business Central (patchTimeRegistrationEntryForEmployee) → `timeRegistrationEntry`
+- `GET /companies({company_id})/timeRegistrationEntries` — Returns a list of timeRegistrationEntries (listTimeRegistrationEntries) → `timeRegistrationEntry`
+- `POST /companies({company_id})/timeRegistrationEntries` — Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central (postTimeRegistrationEntry) → `timeRegistrationEntry`
+- `DELETE /companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Deletes an object of type timeRegistrationEntry in Dynamics 365 Business Central (deleteTimeRegistrationEntry)
+- `GET /companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Retrieve the properties and relationships of an object of type timeRegistrationEntry for Dynamics 365 Business Central. (getTimeRegistrationEntry) → `timeRegistrationEntry`
+- `PATCH /companies({company_id})/timeRegistrationEntries({timeRegistrationEntry_id})` — Updates an object of type timeRegistrationEntry in Dynamics 365 Business Central (patchTimeRegistrationEntry) → `timeRegistrationEntry`
+
+### trialBalance
+
+- `GET /companies({company_id})/trialBalance` — Returns a list of trialBalance (listTrialBalance) → `trialBalance`
+- `GET /companies({company_id})/trialBalance('{trialBalance_number}')` — Retrieve the properties and relationships of an object of type trialBalance for Dynamics 365 Business Central. (getTrialBalance) → `trialBalance`
+
+### unitOfMeasure
+
+- `GET /companies({company_id})/unitsOfMeasure` — Returns a list of unitsOfMeasure (listUnitsOfMeasure) → `unitOfMeasure`
+- `POST /companies({company_id})/unitsOfMeasure` — Creates an object of type unitOfMeasure in Dynamics 365 Business Central (postUnitOfMeasure) → `unitOfMeasure`
+- `DELETE /companies({company_id})/unitsOfMeasure({unitOfMeasure_id})` — Deletes an object of type unitOfMeasure in Dynamics 365 Business Central (deleteUnitOfMeasure)
+- `GET /companies({company_id})/unitsOfMeasure({unitOfMeasure_id})` — Retrieve the properties and relationships of an object of type unitOfMeasure for Dynamics 365 Business Central. (getUnitOfMeasure) → `unitOfMeasure`
+- `PATCH /companies({company_id})/unitsOfMeasure({unitOfMeasure_id})` — Updates an object of type unitOfMeasure in Dynamics 365 Business Central (patchUnitOfMeasure) → `unitOfMeasure`
+
+### vendor
+
+- `GET /companies({company_id})/vendors` — Returns a list of vendors (listVendors) → `vendor`
+- `POST /companies({company_id})/vendors` — Creates an object of type vendor in Dynamics 365 Business Central (postVendor) → `vendor`
+- `DELETE /companies({company_id})/vendors({vendor_id})` — Deletes an object of type vendor in Dynamics 365 Business Central (deleteVendor)
+- `GET /companies({company_id})/vendors({vendor_id})` — Retrieve the properties and relationships of an object of type vendor for Dynamics 365 Business Central. (getVendor) → `vendor`
+- `PATCH /companies({company_id})/vendors({vendor_id})` — Updates an object of type vendor in Dynamics 365 Business Central (patchVendor) → `vendor`
+
+### vendorPurchase
+
+- `GET /companies({company_id})/vendorPurchases` — Returns a list of vendorPurchases (listVendorPurchases) → `vendorPurchase`
+- `GET /companies({company_id})/vendorPurchases({vendorPurchase_vendorId},'{vendorPurchase_vendorNumber}','{vendorPurchase_name}')` — Retrieve the properties and relationships of an object of type vendorPurchase for Dynamics 365 Business Central. (getVendorPurchase) → `vendorPurchase`
+
+### Models (57)
+
+- `account`
+- `agedAccountsPayable`
+- `agedAccountsReceivable`
+- `attachments`
+- `balanceSheet`
+- `bankAccount`
+- `cashFlowStatement`
+- `company`
+- `companyInformation`
+- `countryRegion`
+- `currency`
+- `customer`
+- `customerFinancialDetail`
+- `customerPayment`
+- `customerPaymentJournal`
+- `customerSale`
+- `defaultDimensions`
+- `dimension`
+- `dimensionLine`
+- `dimensiontype`
+- `dimensionValue`
+- `documentlineobjectdetailstype`
+- `employee`
+- `generalLedgerEntry`
+- `generalLedgerEntryAttachments`
+- `incomeStatement`
+- `item`
+- `itemCategory`
+- `itemunitofmeasureconversiontype`
+- `journal`
+- `journalLine`
+- `paymentMethod`
+- `paymentTerm`
+- `pdfDocument`
+- `picture`
+- `postaladdresstype`
+- `project`
+- `purchaseInvoice`
+- `purchaseInvoiceLine`
+- `retainedEarningsStatement`
+- `salesCreditMemo`
+- `salesCreditMemoLine`
+- `salesInvoice`
+- `salesInvoiceLine`
+- `salesOrder`
+- `salesOrderLine`
+- `salesQuote`
+- `salesQuoteLine`
+- `shipmentMethod`
+- `taxArea`
+- `taxGroup`
+- `timeRegistrationEntry`
+- `trialBalance`
+- `unitOfMeasure`
+- `unitofmeasuretype`
+- `vendor`
+- `vendorPurchase`
+
+## 50skills Journeys
+
+Spec: 3.0.3 · 66 operations · 81 models · `/home/rationallyprime/projects/morphe/data/specs/50skills-journeys-api.yaml`
+
+### company
+
+- `GET /v1/company` — Retrieve current company (company_retrieve) → `Company`
+- `PATCH /v1/company` — Edit company (company_partial_update) → `Company`
+
+### document-templates
+
+- `GET /v1/document-templates` — (no summary) (document_templates_list) → `DocumentTemplate`
+- `POST /v1/document-templates` — (no summary) (document_templates_create) → `DocumentTemplate`
+- `DELETE /v1/document-templates/{short_id}` — (no summary) (document_templates_destroy)
+- `GET /v1/document-templates/{short_id}` — (no summary) (document_templates_retrieve) → `DocumentTemplate`
+- `PATCH /v1/document-templates/{short_id}` — (no summary) (document_templates_partial_update) → `DocumentTemplate`
+- `PUT /v1/document-templates/{short_id}` — (no summary) (document_templates_update) → `DocumentTemplate`
+
+### documents
+
+- `GET /v1/documents/{short_id}/converted` — (no summary) (documents_converted_retrieve) → `ConvertedDocument`
+- `GET /v1/documents/{short_id}/document` — (no summary) (documents_document_retrieve) → `Document`
+
+### email-templates
+
+- `GET /v1/email-templates` — List (email_templates_list) → `EmailTemplate`
+- `POST /v1/email-templates` — Create (email_templates_create) → `EmailTemplate`
+- `DELETE /v1/email-templates/{short_id}` — Delete (email_templates_destroy)
+- `PATCH /v1/email-templates/{short_id}` — Edit (email_templates_partial_update) → `EmailTemplate`
+
+### form-templates
+
+- `GET /v1/form-templates` — List (form_templates_list) → `FormTemplate`
+- `POST /v1/form-templates` — Create (form_templates_create) → `FormTemplate`
+- `DELETE /v1/form-templates/{short_id}` — Delete (form_templates_destroy)
+- `PATCH /v1/form-templates/{short_id}` — Edit (form_templates_partial_update) → `FormTemplate`
+
+### forms
+
+- `GET /v1/forms/{short_id}/form` — (no summary) (forms_form_retrieve) → `Form`
+- `GET /v1/forms/public/{uuid}` — Retrieve form (forms_public_retrieve) → `Form`
+- `PATCH /v1/forms/public/{uuid}` — (no summary) (forms_public_partial_update) → `FormPublic`
+
+### journey-actions
+
+- `GET /v1/journey-actions` — List journey actions (journey_actions_list) → `JourneyActionDetail`
+- `POST /v1/journey-actions` — Create journey action (journey_actions_create) → `JourneyActionDetail`
+- `DELETE /v1/journey-actions/{id}` — Delete journey action (journey_actions_destroy)
+- `GET /v1/journey-actions/{id}` — Retrieve journey action (journey_actions_retrieve) → `JourneyActionDetail`
+- `PATCH /v1/journey-actions/{id}` — Edit journey action (journey_actions_partial_update) → `JourneyActionDetail`
+- `POST /v1/journey-actions/initialize` — (no summary) (journey_actions_initialize_create)
+- `GET /v1/journey-actions/relationships` — (no summary) (journey_actions_relationships_retrieve)
+- `POST /v1/journey-actions/relationships` — (no summary) (journey_actions_relationships_create)
+- `DELETE /v1/journey-actions/relationships/{short_id}` — (no summary) (journey_actions_relationships_destroy)
+
+### journeys
+
+- `GET /v1/journeys` — List journeys (journeys_list) → `Journeys`
+- `POST /v1/journeys` — Create journey (journeys_create) → `Journeys`
+- `DELETE /v1/journeys/{short_id}` — Delete journey (journeys_destroy)
+- `GET /v1/journeys/{short_id}` — Retrieve journey (journeys_retrieve) → `Journeys`
+- `PATCH /v1/journeys/{short_id}` — Edit journey (journeys_partial_update) → `Journeys`
+- `POST /v1/journeys/{short_id}/cancel-changes` — (no summary) (journeys_cancel_changes_create)
+- `POST /v1/journeys/{short_id}/duplicate` — (no summary) (journeys_duplicate_create)
+- `POST /v1/journeys/{short_id}/publish` — (no summary) (journeys_publish_create)
+- `GET /v1/journeys/statistics` — (no summary) (journeys_statistics_list) → `Statistics`
+
+### traveller-actions
+
+- `GET /v1/traveller-actions` — List traveller actions (traveller_actions_list) → `TravellerActionDetail`
+- `GET /v1/traveller-actions/{id}` — Retrieve traveller action (traveller_actions_retrieve) → `TravellerActionDetail`
+- `PATCH /v1/traveller-actions/{id}` — Edit traveller action (traveller_actions_partial_update) → `TravellerActionDetail`
+- `POST /v1/traveller-actions/{id}/run` — Run traveller action (traveller_actions_run_create) → `RunTravellerActionData`
+
+### traveller-journeys
+
+- `GET /v1/traveller-journeys` — List traveller journeys (traveller_journeys_list) → `TravellerJourney`
+- `POST /v1/traveller-journeys` — Create traveller journey (traveller_journeys_create) → `TravellerJourney`
+- `DELETE /v1/traveller-journeys/{short_id}` — Delete traveller journey (traveller_journeys_destroy)
+- `GET /v1/traveller-journeys/{short_id}` — Retrieve traveller journey (traveller_journeys_retrieve) → `TravellerJourneyDetail`
+- `PATCH /v1/traveller-journeys/{short_id}` — Edit traveller journey (traveller_journeys_partial_update) → `TravellerJourneyDetail`
+- `POST /v1/traveller-journeys/{short_id}/bulk-create` — (no summary) (traveller_journeys_bulk_create_create) → `TravellerJourneyBulkCreate`
+- `GET /v1/traveller-journeys/{short_id}/bulk-create-template` — (no summary) (traveller_journeys_bulk_create_template_retrieve)
+- `POST /v1/traveller-journeys/{short_id}/start` — (no summary) (traveller_journeys_start_create)
+- `GET /v1/traveller-journeys/actions` — (no summary) (traveller_journeys_actions_list) → `TravellerJourneyActions`
+- `GET /v1/traveller-journeys/modified` — (no summary) (traveller_journeys_modified_list) → `ModifiedTravellerJourneys`
+- `POST /v1/traveller-journeys/modified` — (no summary) (traveller_journeys_modified_create) → `ModifiedTravellerJourneys`
+
+### users
+
+- `GET /v1/users` — List users (users_list) → `CompanyUser`
+- `POST /v1/users` — Create user (users_create) → `CompanyUser`
+- `DELETE /v1/users/{short_id}` — Delete user (users_destroy)
+- `GET /v1/users/{short_id}` — Retrieve user (users_retrieve) → `CompanyUser`
+- `PATCH /v1/users/{short_id}` — Edit user (users_partial_update) → `CompanyUser`
+- `POST /v1/users/{short_id}/invite` — Invite user (users_invite_create)
+- `GET /v1/users/me` — Retrieve details (users_me_retrieve) → `MyUserDetails`
+- `PATCH /v1/users/me` — Edit details (users_me_partial_update) → `MyUserDetails`
+- `POST /v1/users/password/reset` — Reset email (users_password_reset_create) → `ResetPassword`
+- `GET /v1/users/password/set` — Can set password (users_password_set_retrieve)
+- `PATCH /v1/users/password/set` — Set password (users_password_set_partial_update) → `PatchedPassword`
+- `PATCH /v1/users/password/update` — Update password (users_password_update_partial_update) → `PatchedUpdatePassword`
+
+### Models (81)
+
+- `ActionResult`
+- `ActionResultStatusEnum`
+- `Company`
+- `CompanyUser`
+- `ConvertedDocument`
+- `CreateFieldError`
+- `CreateJourneyActionData`
+- `Document`
+- `DocumentTemplate`
+- `EmailTemplate`
+- `FixedDateJourneyValues`
+- `Form`
+- `FormPublic`
+- `FormTemplate`
+- `FormTemplateStatusEnum`
+- `JourneyActionDetail`
+- `JourneyActionValidationError`
+- `JourneyActionValue`
+- `JourneyGroupAction`
+- `JourneyMinimal`
+- `Journeys`
+- `JourneyStartData`
+- `JourneyTravellerActionList`
+- `JourneyValidationError`
+- `JourneyValuesErrors`
+- `ModifiedTravellerJourneys`
+- `MyUserDetails`
+- `ParentAction`
+- `PatchedCompany`
+- `PatchedCompanyUser`
+- `PatchedDocumentTemplate`
+- `PatchedEditJourneyActionData`
+- `PatchedEmailTemplate`
+- `PatchedFormPublic`
+- `PatchedFormTemplate`
+- `PatchedJourneys`
+- `PatchedJourneyStartData`
+- `PatchedMyUserDetails`
+- `PatchedPassword`
+- `PatchedPatchTravellerAction`
+- `PatchedSendEmailJourneyData`
+- `PatchedSendEmailTravellerData`
+- `PatchedSendSMSJourneyData`
+- `PatchedSendSMSTravellerData`
+- `PatchedTravellerJourneyDetail`
+- `PatchedUpdatePassword`
+- `PatchedWaitForTimeJourneyData`
+- `PatchedWaitUntilFixedDateJourneyData`
+- `PatchedWaitUntilRelativeDateJourneyData`
+- `RelativeDateValues`
+- `ResetPassword`
+- `ResetPasswordError`
+- `RoleEnum`
+- `RunTravellerActionData`
+- `SendEmailJourneyData`
+- `SendEmailJourneyValues`
+- `SendEmailTravellerData`
+- `SendEmailTravellerValues`
+- `SendSMSJourneyData`
+- `SendSMSJourneyValues`
+- `SendSMSTravellerData`
+- `SendSMSTravellerValues`
+- `Statistics`
+- `TemplateTypeEnum`
+- `TravellerActionDetail`
+- `TravellerActionList`
+- `TravellerActionValue`
+- `TravellerBulkCreate`
+- `TravellerGroupAction`
+- `TravellerJourney`
+- `TravellerJourneyActions`
+- `TravellerJourneyBulkCreate`
+- `TravellerJourneyDetail`
+- `TravellerJourneyValidationError`
+- `UpdatePasswordError`
+- `UserValidationError`
+- `ValuesErrors`
+- `WaitForTimeJourneyData`
+- `WaitForTimeJourneyValues`
+- `WaitUntilFixedDateJourneyData`
+- `WaitUntilRelativeDateJourneyData`

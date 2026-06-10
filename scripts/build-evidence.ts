@@ -15,11 +15,14 @@
  *   data/evidence/humanity.json
  *   data/evidence/dkplus.json
  *   data/evidence/twenty.json
+ *   data/evidence/businesscentral.json
+ *   data/evidence/50skills.json
  *   data/evidence/catalog.md
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { parse as parseYaml } from "yaml";
 
 type Direction = "read" | "write";
 
@@ -50,10 +53,24 @@ const HUMANITY_SPEC = "/home/rationallyprime/projects/humanity-schedule-v2.opena
 const DKPLUS_SPEC =
 	"/home/rationallyprime/projects/mcp-registry/dk-mcp/openapi/dkplus_swagger_2_0.json";
 const TWENTY_SPEC = resolve(import.meta.dirname, "..", "generated", "twenty_openapi_core.json");
+const BUSINESS_CENTRAL_SPEC = resolve(
+	import.meta.dirname,
+	"..",
+	"data",
+	"specs",
+	"microsoft-business-central-v1-openapi.yaml",
+);
+const FIFTY_SKILLS_SPEC = resolve(
+	import.meta.dirname,
+	"..",
+	"data",
+	"specs",
+	"50skills-journeys-api.yaml",
+);
 
 const EVIDENCE_DIR = resolve(import.meta.dirname, "..", "data", "evidence");
 
-/** Lenient JSON spec — we never trust its shape, we walk it defensively. */
+/** Lenient JSON/YAML spec — we never trust its shape, we walk it defensively. */
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 type JsonObject = { [key: string]: JsonValue };
 
@@ -66,7 +83,9 @@ function asString(value: JsonValue | undefined): string | undefined {
 }
 
 function readSpec(path: string): JsonObject {
-	const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+	const text = readFileSync(path, "utf8");
+	const parsed: unknown =
+		path.endsWith(".yaml") || path.endsWith(".yml") ? parseYaml(text) : JSON.parse(text);
 	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
 		throw new Error(`Spec at ${path} did not parse to an object`);
 	}
@@ -228,6 +247,11 @@ function deepRefName(node: JsonValue | undefined, depth: number): string | undef
  * response (peeling the `data.<entity>` envelope), else by the request body.
  */
 function twentyModel(op: JsonObject): string | undefined {
+	return openApiModel(op);
+}
+
+/** Generic OpenAPI 3.x model binding: first response `$ref`, else request body `$ref`. */
+function openApiModel(op: JsonObject): string | undefined {
 	const responses = op.responses;
 	if (isObject(responses)) {
 		for (const code of twoXxCodes(responses)) {
@@ -257,6 +281,12 @@ function twentyModel(op: JsonObject): string | undefined {
 		}
 	}
 	return undefined;
+}
+
+function componentSchemaNames(spec: JsonObject): string[] {
+	const components = spec.components;
+	const schemas = isObject(components) ? components.schemas : undefined;
+	return isObject(schemas) ? Object.keys(schemas) : [];
 }
 
 interface SpecConfig {
@@ -437,21 +467,39 @@ function main(): void {
 		source: TWENTY_SPEC,
 		specVersionKey: "openapi",
 		modelFor: twentyModel,
-		modelsFor: (spec) => {
-			const components = spec.components;
-			const schemas = isObject(components) ? components.schemas : undefined;
-			return isObject(schemas) ? Object.keys(schemas) : [];
-		},
+		modelsFor: componentSchemaNames,
+	});
+
+	const businessCentral = buildIndex(readSpec(BUSINESS_CENTRAL_SPEC), {
+		system: "businesscentral",
+		label: "Microsoft Dynamics 365 Business Central",
+		source: BUSINESS_CENTRAL_SPEC,
+		specVersionKey: "openapi",
+		modelFor: openApiModel,
+		modelsFor: componentSchemaNames,
+	});
+
+	const fiftySkills = buildIndex(readSpec(FIFTY_SKILLS_SPEC), {
+		system: "50skills",
+		label: "50skills Journeys",
+		source: FIFTY_SKILLS_SPEC,
+		specVersionKey: "openapi",
+		modelFor: openApiModel,
+		modelsFor: componentSchemaNames,
 	});
 
 	const humanityPath = resolve(EVIDENCE_DIR, "humanity.json");
 	const dkplusPath = resolve(EVIDENCE_DIR, "dkplus.json");
 	const twentyPath = resolve(EVIDENCE_DIR, "twenty.json");
+	const businessCentralPath = resolve(EVIDENCE_DIR, "businesscentral.json");
+	const fiftySkillsPath = resolve(EVIDENCE_DIR, "50skills.json");
 	const catalogPath = resolve(EVIDENCE_DIR, "catalog.md");
 
 	writeJson(humanityPath, humanity);
 	writeJson(dkplusPath, dkplus);
 	writeJson(twentyPath, twenty);
+	writeJson(businessCentralPath, businessCentral);
+	writeJson(fiftySkillsPath, fiftySkills);
 
 	const catalog = [
 		"# Grounding-Evidence Catalog",
@@ -463,11 +511,13 @@ function main(): void {
 		renderCatalogSection(humanity),
 		renderCatalogSection(dkplus),
 		renderCatalogSection(twenty),
+		renderCatalogSection(businessCentral),
+		renderCatalogSection(fiftySkills),
 	].join("\n");
 	mkdirSync(dirname(catalogPath), { recursive: true });
 	writeFileSync(catalogPath, `${catalog}`, "utf8");
 
-	for (const index of [humanity, dkplus, twenty]) {
+	for (const index of [humanity, dkplus, twenty, businessCentral, fiftySkills]) {
 		// biome-ignore lint/suspicious/noConsole: build script progress output.
 		console.log(`${index.system}: ${index.operationCount} operations, ${index.modelCount} models`);
 	}
@@ -477,6 +527,10 @@ function main(): void {
 	console.log(`wrote ${dkplusPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${twentyPath}`);
+	// biome-ignore lint/suspicious/noConsole: build script progress output.
+	console.log(`wrote ${businessCentralPath}`);
+	// biome-ignore lint/suspicious/noConsole: build script progress output.
+	console.log(`wrote ${fiftySkillsPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${catalogPath}`);
 }
