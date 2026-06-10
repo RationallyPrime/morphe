@@ -32,6 +32,12 @@ export {
 	registerSiteIntents,
 	SITE_INTENTS,
 } from "./intents.js";
+export {
+	HOME_INTENT_STAGE_ID,
+	HOME_STAGE_CHOICES,
+	homeIntentStage,
+	homeIntentStageEnvelope,
+} from "./morph-stage.js";
 // Presenters — copy turned into Morphe Node trees, one set per page.
 export {
 	architectureBody,

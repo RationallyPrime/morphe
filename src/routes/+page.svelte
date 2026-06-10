@@ -12,7 +12,14 @@
  */
 
 import Composer from "$lib/compose/Composer.svelte";
-import { closingCta, homeHero, registerSiteCompounds, timaeusTease } from "$lib/site";
+import {
+	closingCta,
+	homeHero,
+	homeIntentStageEnvelope,
+	intentEngine,
+	registerSiteCompounds,
+	timaeusTease,
+} from "$lib/site";
 import ContactForm from "$lib/site/ContactForm.svelte";
 import IntentChips from "$lib/site/IntentChips.svelte";
 import IntentPalette from "$lib/site/IntentPalette.svelte";
@@ -25,6 +32,12 @@ registerSiteCompounds();
 const heroTree = homeHero();
 const teaseTree = timaeusTease();
 const ctaTree = closingCta();
+const stageEnvelope = homeIntentStageEnvelope();
+
+$effect(() => {
+	intentEngine.setStage(stageEnvelope);
+	return () => intentEngine.setStage(null);
+});
 </script>
 
 <svelte:head>
@@ -82,6 +95,9 @@ const ctaTree = closingCta();
 <section class="s-section s-section--tight">
 	<div class="s-wrap">
 		<IntentChips />
+		<div class="intent-stage">
+			<MorpheRoot tree={stageEnvelope.tree} choices={intentEngine.choices ?? stageEnvelope.choices} />
+		</div>
 	</div>
 </section>
 
@@ -171,6 +187,12 @@ const ctaTree = closingCta();
 		font-size: var(--mo-type-2);
 		letter-spacing: 0.01em;
 		color: var(--mo-intent-on-surface-muted);
+	}
+	.intent-stage {
+		margin-block-start: var(--mo-space-5);
+	}
+	.intent-stage :global(.mo-root) {
+		background: transparent;
 	}
 
 	/*
