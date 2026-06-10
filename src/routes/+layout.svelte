@@ -7,12 +7,29 @@ import Nav from "$lib/site/Nav.svelte";
 import {
 	activeDialect,
 	applyDialect,
+	DEFAULT_DIALECT_ID,
 	DIALECT_IDS,
 	dialectStyle,
+	persistableDialect,
 	resolveArrivalDialect,
 } from "$morphe";
 
 let { children } = $props();
+
+/*
+ * Dialect persistence, v2. The v1 key ("mo-dialect") was written back
+ * UNCONDITIONALLY on boot, so the then-default (icelandic-archive) was stored
+ * for every visitor as if they had chosen it — and the ADR-0005 gallery flip
+ * could never reach a returning visitor. v2 persists only EXPLICIT moves
+ * (persistableDialect); the key bump is the one-time amnesty for the polluted
+ * v1 values, which are removed on sight.
+ */
+const DIALECT_STORAGE_KEY = "mo-dialect.v2";
+const LEGACY_DIALECT_STORAGE_KEY = "mo-dialect";
+
+// Guards the write-back from racing the restore on mount: until arrival
+// resolution has run, nothing is persisted.
+let arrivalResolved = false;
 
 // Apply the active dialect's intent vars at the SHELL boundary so the WHOLE site
 // re-themes as one — the native chrome (nav, footer, CTAs, forms) and every
@@ -33,14 +50,19 @@ const shellStyle = $derived(dialectStyle(applyDialect(activeDialect.current)));
 // stale persisted value can never clobber the selection.
 $effect(() => {
 	if (typeof localStorage === "undefined") return;
+	// One-time amnesty: drop the v1 key entirely (default-polluted, see above).
+	localStorage.removeItem(LEGACY_DIALECT_STORAGE_KEY);
 	const cohort = untrack(() => page.url.searchParams.get("cohort"));
-	const persisted = localStorage.getItem("mo-dialect");
+	const persisted = localStorage.getItem(DIALECT_STORAGE_KEY);
 	const resolved = resolveArrivalDialect(cohort, persisted, DIALECT_IDS);
 	if (resolved !== null) activeDialect.setById(resolved);
+	arrivalResolved = true;
 });
 $effect(() => {
-	if (typeof localStorage === "undefined") return;
-	localStorage.setItem("mo-dialect", activeDialect.id);
+	const id = activeDialect.id; // reactive read first: subscribe on every run
+	if (!arrivalResolved || typeof localStorage === "undefined") return;
+	const value = persistableDialect(id, localStorage.getItem(DIALECT_STORAGE_KEY), DEFAULT_DIALECT_ID);
+	if (value !== null) localStorage.setItem(DIALECT_STORAGE_KEY, value);
 });
 </script>
 

@@ -53,3 +53,34 @@ export function resolveArrivalDialect(
 	}
 	return persisted ?? null;
 }
+
+/**
+ * Decide whether (and what) to persist after a dialect change — the pure half
+ * of the layout's write-back effect.
+ *
+ * THE RULE: the untouched default is not a choice. Persisting it would freeze
+ * the shipped default into every visitor's storage, and a later default flip
+ * (ADR-0005's gallery flip was the lesson) would never reach any returning
+ * visitor — the old default would masquerade as their preference forever.
+ * So:
+ *
+ *   - nothing stored + the id IS the default  → null (don't write; the
+ *     visitor has expressed nothing)
+ *   - the id equals what is already stored    → null (idempotent; no churn)
+ *   - anything else                           → the id (an EXPLICIT move:
+ *     away from the default, or an explicit return to it over a prior choice)
+ *
+ * @param id        the active dialect id after the change
+ * @param stored    the currently persisted id (null if none)
+ * @param defaultId the shipped default dialect id
+ * @returns the value to persist, or null to leave storage untouched
+ */
+export function persistableDialect(
+	id: string,
+	stored: string | null,
+	defaultId: string,
+): string | null {
+	if (stored === null && id === defaultId) return null;
+	if (stored === id) return null;
+	return id;
+}
