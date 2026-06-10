@@ -25,7 +25,9 @@ def test_committed_schema_artifact_is_byte_stable() -> None:
 
 
 def test_schema_cli_emits_the_same_bytes_as_the_artifact() -> None:
-    result = subprocess.run(  # noqa: S603 - fixed interpreter/module, no user input.
+    # Fixed interpreter/module, no user input — the pinned ruff no longer
+    # flags S603 here, so no suppression (RUF100 rejects a stale one).
+    result = subprocess.run(
         [sys.executable, "-m", "morphe_grammar.schema"],
         check=True,
         capture_output=True,
