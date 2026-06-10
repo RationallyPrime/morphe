@@ -149,12 +149,34 @@
 	   reads it as its lattice beacon and constellation grounds). 500 is the
 	   on-dark beacon tone; 700 the deep lattice-navy surface tone; `on` the
 	   near-black navy text that rides the bright 500 fill. */
+	--mo-cobalt-100: #e9f0fa; /* ice — the white-hot core tint (light end) */
 	--mo-cobalt-300: #bfdbfe; /* white-blue highlight (the lattice hot edge) */
 	--mo-cobalt-400: #60a5fa;
 	--mo-cobalt-500: #3b82f6; /* the lattice beacon */
 	--mo-cobalt-600: #2563eb;
 	--mo-cobalt-700: #1e3a8a; /* deep lattice navy */
+	/* The ramp's DARK extremes, minted for the plate-derived gallery/night pair
+	   (ADR-0005): the plates' grounds and shadows ARE the cobalt band's far end —
+	   ink-navy plate shadow, then the two blue-black strata the lattice glows on.
+	   Raw vertical-neutral steps; gallery/night assign meaning one layer up. */
+	--mo-cobalt-800: #101826; /* plate-shadow ink */
+	--mo-cobalt-900: #0c1322; /* upper stratum */
+	--mo-cobalt-950: #070b14; /* base stratum (the plates' night ground) */
 	--mo-cobalt-on: #051633; /* on-cobalt (dark text on the beacon) */
+
+	/* Bone — a FIFTH chromatic family: the warm paper/plaster lights of a museum
+	   ground (the gallery dialect's bone walls), which the dark-rooted neutral
+	   ramp cannot reach (its lightest step is the cool #e2e2e5). Like every ramp
+	   here it is vertical-NEUTRAL: a raw warm-light progression the intent layer
+	   assigns meaning to (ADR-0005 reads it as the gallery's bone/plaster
+	   ground). Ordered like the neutral surface stack: low = deep. */
+	--mo-bone-0: #cdc6b6; /* deepest paper shade / strong outline */
+	--mo-bone-1: #dcd6c8; /* outline-variant */
+	--mo-bone-2: #e4dfd4; /* plaster — secondary / sunken ground */
+	--mo-bone-3: #eae5da; /* hover step */
+	--mo-bone-4: #efebe3; /* bone — base ground */
+	--mo-bone-5: #f5f2ec; /* raised card */
+	--mo-bone-6: #fbf9f5; /* overlay / brightest panel */
 
 	/* --- Font families (pulled through from the Archive; the three families) - */
 	/* The host app wires the actual @font-face / next-font variables into these

@@ -21,7 +21,9 @@
  */
 
 import { clinical } from "./clinical.js";
+import { gallery } from "./gallery.js";
 import { DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
+import { night } from "./night.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
 import { timaeus } from "./timaeus.js";
 import type { Dialect } from "./types.js";
@@ -35,6 +37,8 @@ export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[clinical.id]: clinical,
 	[reykjavikRegistry.id]: reykjavikRegistry,
 	[timaeus.id]: timaeus,
+	[gallery.id]: gallery,
+	[night.id]: night,
 });
 
 /** The id of the dialect used when nothing more specific is selected. */
