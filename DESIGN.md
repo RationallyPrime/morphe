@@ -19,18 +19,24 @@ real objects. **Take the mood; reject its component recipes** — that doc recom
 glassmorphism nav, 1px ghost-border inputs, and ambient drop shadows, all of which
 are banned here (§9). It is a floor to beat.
 
-**Identity, held loosely — kept on merit, never because it's holy.** Amber
-`#f2ca50` beacon on a `#121416` tonal charcoal stack; **Spectral** (display, a
-humanist old-style serif in the Garamond/Plantin lineage) + **Hanken Grotesk**
-(body) + **Fragment Mono** (folio / plate / label apparatus). No token is sacred.
-The amber-on-charcoal palette is a real, distinctive, non-default dark identity —
-kept because it is good. The display face WAS the one questionable cow and it was
-killed: the prior **Newsreader** is a reflex-reject SaaS-editorial serif that put
-the site squarely in the saturated editorial-typographic lane, so it was swapped
-for Spectral (sturdy, scholarly, off the reject list), and the prior **IBM Plex
-Mono** (also reflex-reject) for Fragment Mono. The escape from the lane is mostly
-execution — asymmetry, real artifact imagery, one deliberate kicker instead of an
-eyebrow on every section — which holds whatever the display face.
+**Identity, held loosely — kept on merit, never because it's holy.** The visual
+canon is the nine **Timaeus plates** (luminous cobalt wireframes on blue-black,
+`static/images/plates/`), and the default ground stages them: the **gallery**
+dialect (ADR-0005) — warm bone/plaster paper surfaces, ink-navy text drawn from
+the plates' own shadows, and ONE accent, electric cobalt, the plates' own light.
+Type: **Spectral** (display, a humanist old-style serif in the Garamond/Plantin
+lineage) + **Hanken Grotesk** (body) + **Fragment Mono** (folio / plate / label
+apparatus). No token is sacred, and this file has already recorded two
+retirements to prove it. The amber-on-charcoal identity (`#f2ca50` beacon on
+`#121416` warm charcoal) was a real, distinctive dark identity — and it was
+still retired as the default when the plates became canon: amber against the
+plates' cobalt read as two brands, and dark plates on a dark page lose their
+glow. It survives as the registered `icelandic-archive` dialect. The display
+face was the same lesson earlier: the prior **Newsreader** (a reflex-reject
+SaaS-editorial serif) was swapped for Spectral, and **IBM Plex Mono** for
+Fragment Mono. The escape from the saturated editorial-typographic lane is
+mostly execution — asymmetry, real artifact imagery, one deliberate kicker
+instead of an eyebrow on every section — which holds whatever the ground.
 
 ## 2. The system: the Morphe substrate
 
@@ -72,16 +78,38 @@ The substrate is **Phase 0 of a four-stratum adaptive tower** (`VISION.md`):
 τ_frame (dialects/personas) over τ_slow (an agent emitting trees) over τ_mid (a
 grammar-constrained small model choosing within `Vary` envelopes) over τ_fast
 (this algebra + component-owned state). The grammar fields that look idle —
-`Vary`, `Button.action` ids, `bind` store-paths — are reserved sockets for the
-upper strata (`CONTRACT.md` §11), not unfinished features. Design work that
-touches them should preserve their declarative shape.
+`Vary`, `Button.action` ids, `bind` store-paths — are typed sockets for the
+upper strata (`CONTRACT.md` §11), not unfinished features, and they are coming
+online: `action` ids wire at `MorpheRoot.actions`, `bind` paths wire to the
+Lemma 5 client store, and `Vary` + the Delta/envelope machinery has its first
+production consumer in the home page's intent stage (ADR-0006). Design work
+that touches them must preserve their declarative shape.
 
 ## 3. Color
 
-Single dark theme. **Depth is tonal surface layering — no drop shadows, no 1px
-sectioning borders, no gradients.** Boundaries are background-tone shifts only.
+The default ground is **light**: the gallery dialect's bone/plaster paper
+(ADR-0005), with the dark grounds one flip away (`night`, `icelandic-archive`,
+`timaeus`). On every ground: **depth is tonal surface layering — no drop
+shadows, no 1px sectioning borders, no gradients.** Boundaries are
+background-tone shifts only.
 
-### Neutral scale (the `#121416`-rooted Archive stack) — `tokens/scales.css`
+### The default (gallery) palette — paper, ink, one cobalt accent
+
+| Role | Token | Hex | Reading |
+|---|---|---|---|
+| Surface / base | `--mo-bone-4` | `#efebe3` | the museum wall (bone) |
+| Raised / sunken / overlay | `--mo-bone-5` / `-2` / `-6` | `#f5f2ec` / `#e4dfd4` / `#fbf9f5` | paper tonal steps |
+| On-surface (ink) | `--mo-cobalt-800` | `#101826` | plate-shadow ink-navy |
+| Muted ink | ink @ 72% | — | ≈6.5:1 on the brightest paper |
+| Beacon (`primary-action`) | `--mo-cobalt-600` | `#2563eb` | electric cobalt (the 500 goes thin on bone) |
+
+One accent, ever: a warm metal next to the cobalt would reintroduce the
+two-master problem the amber retirement solved (ADR-0005). The dark registers
+*invert* on paper — provenance and seal become solid ink-navy panels (museum
+wall labels and stamps) — and the functional pair flips to light-theme form
+(pale red/green washes with deep functional text).
+
+### Neutral scale (the `#121416`-rooted charcoal stack; the dark dialects' ground) — `tokens/scales.css`
 
 | Token | Hex | Role |
 |---|---|---|
@@ -98,25 +126,43 @@ sectioning borders, no gradients.** Boundaries are background-tone shifts only.
 | `--mo-neutral-10` | `#d0c5af` | on-surface-variant (warm) |
 | `--mo-neutral-11` | `#e2e2e5` | on-surface / on-background |
 
-Amber beacon ramp: `--mo-amber-300 #ffe088` · `-400 #e9c349` · **`-500 #f2ca50`
-(the beacon)** · `-600 #d4af37` · `-700 #735c00` · on-amber `#3c2f00`. Chromatic
-ramps (blue/green/red) carry **neutral names**; a dialect injects meaning. The
-beacon is rare — primary actions and critical status only. *If the screen looks
-yellow, the discipline is broken.*
+Five chromatic ramps beyond blue/green/red, all carrying **neutral names** (a
+dialect injects meaning):
+
+- **Cobalt** (the plates' lattice band; gallery/night/timaeus): `-100 #e9f0fa`
+  (ice) · `-300 #bfdbfe` · `-400 #60a5fa` · `-500 #3b82f6` (the lattice beacon)
+  · `-600 #2563eb` · `-700 #1e3a8a` · `-800 #101826` (plate-shadow ink) · `-900
+  #0c1322` · `-950 #070b14` (the night ground) · on-cobalt `#051633`. The dark
+  extremes were minted for the plate-derived pair (ADR-0005).
+- **Bone** (the gallery paper — warm lights the dark-rooted neutral ramp cannot
+  reach): `-0 #cdc6b6` (deepest shade / strong outline) … `-4 #efebe3` (base) …
+  `-6 #fbf9f5` (brightest panel).
+- **Amber** (the Archive beacon): `-300 #ffe088` · `-400 #e9c349` · `-500
+  #f2ca50` · `-600 #d4af37` · `-700 #735c00` · on-amber `#3c2f00`.
+- **Violet** (the Registry amethyst): `-500 #b794f6` the beacon · `-700
+  #34245f` the deep surface tone.
+
+The beacon — whichever hue the active dialect assigns — is rare: primary
+actions and critical status only. *If the screen looks like its accent, the
+discipline is broken.*
 
 ### Intent vocabulary (the layer authored trees touch)
 
-Core eight (vertical-neutral, never renamed/dropped): `primary-action` (the amber
-beacon), `neutral`, `provenance` (citation blue), `evidence` (document register),
-`accession` (catalog accent, amber-dim), `caution`, `success`, `info`. The Archive
-dialect **extends** with `folio` (quietest mono label), `marginalia` (annotation
-aside), `seal` (the beacon's grave amber sibling). Channels per intent: `surface ·
-on · hover · border · ring · active · disabled`.
+Core eight (vertical-neutral, never renamed/dropped): `primary-action` (the
+beacon — electric cobalt under gallery, amber under the Archive), `neutral`,
+`provenance` (the lineage register — a wall label on paper, citation blue in
+the dark dialects), `evidence` (document register), `accession` (catalog accent
+— the faintest wash of the dialect's own hue), `caution`, `success`, `info`.
+Every shipped dialect also carries the **register extensions** `folio`
+(quietest mono label), `marginalia` (annotation aside), `seal` (the authority
+stamp — the beacon's grave sibling). Channels per intent: `surface · on · hover
+· border · ring · active · disabled`.
 
-**Contrast floor (verify, don't assume):** body ≥ 4.5:1, large text ≥ 3:1 on the
-charcoal stack. The warm muted on-surface (`color-mix(neutral-11 60%)`) is the
-common risk — confirm it clears 4.5:1 at body size; bump toward `neutral-11` if
-close. "Quiet" never means low-contrast.
+**Contrast floor (verify, don't assume):** body ≥ 4.5:1, large text ≥ 3:1 on
+every ground. The muted on-surface channel is the common risk: gallery's muted
+ink (`cobalt-800` @ 72%) composites to ≈6.5:1 on the brightest paper tier and
+night's muted ice (`cobalt-100` @ 72%) to ≈8.5:1 on its raised stratum — keep
+those margins when retuning. "Quiet" never means low-contrast.
 
 ## 4. Typography
 
@@ -154,7 +200,7 @@ Craft constraints:
 - **Band system:** `.s-section` (fluid block padding `clamp(2.5rem,7vw,5.5rem)`),
   `.s-section--sunken` (the one tonal step used for sectioning). Recessed bands
   drop the inner `.mo-root` paint so the sunken surface shows through.
-- **The craft mandate (this is the gap the current build has):**
+- **The craft mandate (the stage redesign executed the worst of this; hold the line):**
   - **Intentional asymmetry.** Lean into off-center alignment and generous
     one-sided whitespace. A paragraph left, a single artifact photograph right.
     Centered-everything is the tell to escape.
@@ -170,11 +216,24 @@ Craft constraints:
 ## 6. Components & idioms
 
 - **Site compounds** (`src/lib/site/compounds.ts`): editorial building blocks
-  (hero, value-prop, pullquote, step, feature-split, cta-banner). Variability rides
+  (`SiteHero`, `SiteValueProp`, `SitePullquote`, `SiteStep`, `SiteFeatureSplit`,
+  `SiteCtaBanner`, `SiteEntry`, `TimaeusPlate`). Variability rides
   as **node params + slots** only — the factory does not interpolate string fields
   (no parameterised `Disclosure.summary`, `Badge.label`, `Link.label`, etc.); those
   are authored directly in the presenter. These are revisable; rebuild them for
   craft.
+- **The vitrine idiom (ADR-0005).** The plates are self-luminous dark artwork:
+  they keep their own ground under every dialect by pinning `night` at a subtree
+  boundary (`<MorpheRoot tree={...} dialect={getDialect("night")} />`) — a dark
+  well the artwork glows in while the wall around it follows the active dialect.
+  The native wrapper owns only clip/outline/margin chrome; the well's paint
+  comes from the pinned dialect's surface stack, never from the wrapper.
+- **The intent engine (ADR-0006).** The home is a stage: a chip row +
+  Cmd/Ctrl+K palette ride one execution path (`$lib/site/intent-engine`), and a
+  morph is a hand-authored Delta against the stage's `Vary` envelope, validated
+  by the same gates as everything else (a malformed morph is rejected, never
+  rendered). Chips are real anchors (the no-JS ground truth); morphs are
+  progressive enhancement.
 - **Native-control-surface idiom.** Morphe `Button` is declarative (no live wire)
   and `Link` is an inline underlined `<a>`. So conversion CTAs and interactive
   controls (the composer, the contact + onboarding forms) live **outside** the
@@ -195,6 +254,9 @@ Craft constraints:
   — one identical entrance on every section — is the tell; staggering items *within*
   one list is legitimate. Reveals must enhance an already-visible default (never
   gate content visibility on a class-triggered transition).
+- A page **morph** (ADR-0006) announces itself through a polite live region and
+  honors `prefers-reduced-motion` on its transition. A reshaping page is
+  progressive enhancement, never a motion requirement.
 
 ## 8. Imagery
 
@@ -202,11 +264,16 @@ Brand register **requires** committed imagery; a near-text-only page reads as
 incomplete, not restrained. The aesthetic is the *physical artifact*: high-res
 stone, paper, brushed metal, architectural detail, the appliance itself — grayscale
 + contrast bumps allowed, treated as part of the interface. Real assets live in
-`static/images/` (`the-box.png`, `sokrates-mark.svg`, `reykjavik-arch.png`). Alt
-text is part of the voice ("the matte-black appliance on a wooden desk, amber mark
-etched into the lid", not "product photo"). **Never:** stock illustration, glowing
-circuits, diverse-team-in-office. One decisive photo beats five mediocre ones. The
-current build under-uses imagery (one mid-page box photo) — commit more.
+`static/images/` (`the-box.png`, `sokrates-mark.svg`, `reykjavik-arch.png`),
+and the committed imagery is the nine **Timaeus plate** derivatives in
+`static/images/plates/` (byte-deterministic AVIF/WebP/PNG rungs via `bun run
+plates`; the public canon is the nine beats B1–B9 — `t1-*`/raw inputs are
+excluded by test and CI gate, never shipped). Alt text is part of the voice
+("the matte-black appliance on a wooden desk", "a luminous cobalt wireframe
+figure weighing a governed decision", not "product photo"). **Never:** stock
+illustration, glowing circuits, diverse-team-in-office. One decisive photo
+beats five mediocre ones. Stage the plates in vitrines (§6); never silkscreen
+them into background decoration.
 
 ## 9. Dialects are the craft surface — and none is holy
 
@@ -225,26 +292,35 @@ which are the *system* (not cows to kill):
 - Priors are clamped (budget 1..6, scaleTier 2..4) so Lemma 2's laws survive any
   dialect.
 
-### The three shipped dialects are pulled apart at the loudest signals
+### The six shipped dialects are pulled apart at the loudest signals
 
 A dialect swap must be legible at a glance, and the place a viewer reads first is
-the **beacon (the one amber primary action) and the surface temperature** — not the
-secondary citation/record hues. So the three shipped dialects are deliberately
+the **beacon (the one primary action) and the surface temperature** — not the
+secondary citation/record hues. So the shipped dialects are deliberately
 separated *there*:
 
 | Dialect | Beacon (`primary-action`) | Surface | Authority mark (`seal`) |
 |---|---|---|---|
-| `icelandic-archive` (default) | **amber** `--mo-amber-500` | warm graphite | grave amber |
+| `gallery` (**default**, ADR-0005) | **electric cobalt** `--mo-cobalt-600` | bone/plaster paper (the one light ground) | ink-navy stamp |
+| `night` | **lattice cobalt** `--mo-cobalt-500` | the plates' own blue-black strata (`cobalt-900/950`) | deep lattice navy |
+| `icelandic-archive` | **amber** `--mo-amber-500` | warm graphite | grave amber |
 | `clinical` | **steel-blue** `--mo-blue-500` | cool slate (neutral × blue-700) | green sign-off |
 | `reykjavik-registry` | **amethyst** `--mo-violet-500` | violet-cooled (neutral × violet-700) | amethyst stamp |
+| `timaeus` | **lattice cobalt** `--mo-cobalt-500` | cobalt-cooled graphite | dim lattice |
 
-`violet` is a *third* neutral scale ramp added to `tokens/scales.css` for exactly
-this — green/red are reserved for success/caution, and amber/blue were already
-spent, so a genuinely distinct third beacon needs its own vertical-neutral ramp.
-The functional/lineage intents (`provenance`, `info`, `caution`, `success`) stay
-near-constant across dialects on purpose: a citation is blue, a deviation is red,
-in every reading. All three dialects clear WCAG AA on muted on-surface text
-(`on-surface-muted` at 74%).
+The ramp lineage: `violet` was minted as a third chromatic family (green/red
+are reserved for success/caution; amber/blue were spent), `cobalt` as a fourth
+(the plates' saturated electric band, beyond the pale periwinkle `--mo-blue-*`),
+and `bone` as a fifth (the gallery's warm paper lights, beyond the dark-rooted
+neutral stack). Night vs. timaeus, both dark: timaeus *cools the neutral ramp*
+toward lattice navy (a graphite room with blue cast); night abandons the
+neutral grounds entirely and stands on the cobalt ramp's own dark extremes (the
+plates' actual ground). The functional/lineage intents (`provenance`, `info`,
+`caution`, `success`) stay near-constant across dialects on purpose: a citation
+is blue, a deviation is red, in every reading — gallery flips them to
+light-theme form (pale washes, deep text) without leaving their families. All
+six dialects clear WCAG AA on muted on-surface text at their tuned mute levels
+(72–74%).
 
 ### Cohorts: dialects as ad-profile-targeted pitches (direction)
 
@@ -266,8 +342,10 @@ than being invented here.
 ### Project bans (reject on sight; these are the AI/old-sketch tells)
 
 - **Eyebrow above every section.** Tiny uppercase tracked mono label on every
-  heading is AI section-grammar. One deliberate kicker *system* is voice; the
-  current build puts an `eyebrow()` on nearly every section — kill it.
+  heading is AI section-grammar. One deliberate kicker *system* is voice — the
+  build keeps exactly that: the accession-register caption heading each
+  intent-stage panel (plus the lifecycle marker on `/how-it-works`). Don't let
+  it creep back onto ordinary sections.
 - **Identical 3-up card grids.** Twin symmetric value-prop / step walls. Banned.
 - **Centered-everything single-column.** Escape via intentional asymmetry.
 - **Glassmorphism nav** (`surface @ 80% + backdrop-blur`) — the old sketch
@@ -282,5 +360,6 @@ than being invented here.
 `bun run check` (svelte-check, 0 errors / 0 warnings) · `bun run test` (vitest,
 law/factory/dialect + render suites) · `bun run build` (vite, client + SSR) · `bun
 run dev` (smoke at `/`). Before claiming a design change done: check clean, tests
-green, browser-verified at desktop + mobile, and every dialect still re-themes the
-same authored tree (the fixed point).
+green, browser-verified at desktop + mobile, every dialect still re-themes the
+same authored tree (the fixed point), and every home-stage morph honest under
+both `gallery` and `night`.

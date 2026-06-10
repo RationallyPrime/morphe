@@ -29,7 +29,9 @@ client store with typed event tiers and a replayable `ContextDigest`, and
 bounded delegation — variation points (`Vary`/`Within`) that a future mid-loop
 model may move *within slow-loop-authorized ranges*, validated by a pure
 `applyDelta` that rejects stale epochs before anything renders. The renderer
-never sees an epoch. That is the point.
+never sees an epoch. That is the point. The home page's intent engine is the
+first production consumer of that machinery: a visitor-stated interest becomes
+a hand-authored Delta through the same gate.
 
 The grammar is mirrored in Pydantic (`py/morphe_grammar`) with a committed,
 byte-stable JSON Schema artifact — the seed of one schema driving three jobs:
@@ -59,8 +61,12 @@ Vitest · uv + ruff + ty on the Python side · prek hooks · GitHub Actions.
 
 ## The site
 
-`/` is the composer-first landing; `/substrate` is the dignity demo where the
+`/` is the stage home: the composer, then an intent engine (a chip row and a
+Cmd/Ctrl+K palette) whose morphs reshape the page in place through the
+substrate's own gates; `/substrate` is the dignity demo where the six-way
 dialect toggle lives; `/how-it-works`, `/architecture`, and `/onboarding` are
-authored as Morphe trees. Deployed on Vercel. Interactive controls are native
-elements styled by the same tokens — the tree carries content and intent, the
-page owns the wires.
+authored as Morphe trees. The default ground is the plate-derived `gallery`
+dialect (light paper, ink-navy, one cobalt beacon); "Flip the lights" swaps it
+for `night`. Deployed on Vercel. Interactive controls are native elements
+styled by the same tokens — the tree carries content and intent, the page owns
+the wires.

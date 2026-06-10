@@ -15,20 +15,22 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (506 files) |
-| Tests | `bun run test` (`vitest run`) | **289/289 passing** across 16 files |
+| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (522 files) |
+| Tests | `bun run test` (`vitest run`) | **360/360 passing** across 19 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (289 total)
+### Test breakdown (360 total)
 
 - `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
   dialect-restriction suite).
-- `src/lib/morphe/dialects/dialects.test.ts` — 51 (Lemma-4 fixed-point parity
-  across all four dialects + no-raw-color channel guard + compound-subset
+- `src/lib/morphe/dialects/dialects.test.ts` — 75 (Lemma-4 fixed-point parity
+  across all six dialects + no-raw-color channel guard + compound-subset
   resolution + CompoundRef authored-surface intent walk + the timaeus
-  beacon/grounds suite + FP7: surface stacks ride `applyDialect`, so a
-  boundary swap repaints the ground it stands on).
+  beacon/grounds suite + the gallery/night plate-derived-pair suite (KRA-349,
+  ADR-0005) + the data ⇄ CSS agreement suite (each static `intents.css` block
+  equals its dialect's data, selector-aware — KRA-354) + FP7: surface stacks
+  ride `applyDialect`, so a boundary swap repaints the ground it stands on).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
 - `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
@@ -55,16 +57,28 @@ Package manager is **bun** (never npm/pnpm/yarn).
 - `src/lib/morphe/state/digest.test.ts` — 3 (R1.3 ContextDigest: versioned
   JSON-round-trippable snapshot, escalation wrapping captures the
   point-in-time digest).
-- `src/lib/compose/compose.test.ts` — 37 (composer: corpus grounding
+- `src/lib/compose/compose.test.ts` — 39 (composer: corpus grounding
   invariants, presenters, ranking policy).
 - `src/lib/compose/replay.test.ts` — 2 (Corollary 2 replay harness:
   recorded digest/input pairs replay deterministically through real compose
   presenters).
 - `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
-- `src/lib/site/site.test.ts` — 26 (site compounds incl. `TimaeusPlate` and
+- `src/lib/site/site.test.ts` — 32 (site compounds incl. `TimaeusPlate` and
   `SiteEntry` pass the factory gate on a fresh registry; every site presenter
-  emits only resolvable compound refs; S3: the Trajectory-exclusion grep gate
-  as a test — no excluded token in any presenter's emitted tree).
+  emits only resolvable compound refs; presenter copy stays out of doctrine
+  register (D12); the engagement/identity/plates morphs stay inside their
+  promised scope and the plates morph references only the public nine; the
+  Trajectory-exclusion grep gate as a test — no excluded token in any
+  presenter's emitted tree).
+- `src/lib/site/intents.test.ts` — 19 (the intent engine, ADR-0006/KRA-355:
+  the registration gate, palette matching over the registered vocabulary, the
+  flip-the-lights tracer morph riding one engine path, stage deltas through
+  the R2 `applyDelta` gate — render totality at the morph seam — and the D12
+  voice scan on intent strings).
+- `src/lib/server/magic-link.test.ts` — 13 (ADR-0001 stateless HMAC
+  magic-link gate: unconfigured fail-open + configured token lifecycle).
+- `src/lib/server/notify.test.ts` — 7 (founder alerts: Postmark + ntfy
+  dual-channel, graceful when env is absent).
 - `src/lib/morphe/media.render.test.ts` — 6 (the responsive `<picture>` Media
   extension: the no-sources fixed point renders the bare `<img>` unchanged;
   sources/width/height/eager render the candidate sets with pinned dimensions).
@@ -80,12 +94,16 @@ Package manager is **bun** (never npm/pnpm/yarn).
   (Layout / Content / Input / Feedback / Action / Overlay) + 3 meta kinds +
   `compound`; the context algebra with the four laws wired into the render path
   (including the emphasis renormalization subalgebra and the stroke orbit);
-  three token strata; the compound factory with its validation gate; four
-  dialects (`icelandic-archive` default, `clinical`, `reykjavik-registry`,
-  `timaeus` — the plates' blue-constellation world on the minted cobalt scale)
-  pulled apart at the beacon, all passing the intent-keyset fixed-point tests,
-  each shipping a surface stack that `applyDialect` now emits (FP7) so a
-  dialect swap repaints its grounds; the global dialect flip (`activeDialect`, persisted, toggle on `/substrate`);
+  three token strata; the compound factory with its validation gate; six
+  dialects (`gallery` — the museum-paper light ground, **default** per
+  ADR-0005 — `night`, `icelandic-archive` (the retired-as-default amber
+  identity), `clinical`, `reykjavik-registry`, `timaeus`)
+  pulled apart at the beacon and the ground, all passing the intent-keyset
+  fixed-point tests and the data ⇄ CSS agreement suite,
+  each shipping a surface stack that `applyDialect` emits (FP7) so a
+  dialect swap repaints its grounds; the global dialect flip (`activeDialect`,
+  persisted, toggle on `/substrate`, applied at the shell boundary in
+  `+layout.svelte` so native chrome re-themes too);
   the Lemma 5 client store (`MorpheStore`, ADR-0003: prop > context > per-root
   ownership at `MorpheRoot`, full JSON values, flat keys) with all six
   bindable primitives reading initial tier-1 state from and committing back
@@ -100,12 +118,21 @@ Package manager is **bun** (never npm/pnpm/yarn).
   pure/total `applyDelta` in `delegation/`, `MorpheRoot.choices?` as the only
   renderer contract change — epochs never reach the renderer), with the `py/`
   Pydantic mirror and committed schema re-synced to the now-complete grammar.
-- **The site (the dignity test, live):** composer-first home (`/`) with the
-  two-amber beacon discipline; `/how-it-works` retold as the Timaeus narrative
-  (B1–B9, nine plates in two acts around the authoring loop, rendered
-  per-surface under the `timaeus` dialect; public story ends at B9 — the
-  Trajectory exclusion is enforced by the S3 test and the CI grep gate);
-  `/architecture`, `/onboarding`, `/substrate`; the plate derivative pipeline
+- **The site (the dignity test, live):** the stage home (`/`, ADR-0006):
+  hero → the composer → the **intent engine** (a chip row + Cmd/Ctrl+K
+  palette riding one execution path; five content morphs — governance,
+  technical, engagement, identity, plates — as hand-authored Deltas against a
+  `Vary`-keyed stage envelope through the R2 `applyDelta` gate, plus the
+  flip-the-lights gallery↔night tracer; chips degrade to plain anchors
+  without JS) → the night-pinned plate tease → the contact close, under the
+  two-beacon discipline (composer submit + contact submit); `/how-it-works`
+  retold as the Timaeus narrative
+  (B1–B9, nine plates in two acts around the authoring loop;
+  public story ends at B9 — the
+  Trajectory exclusion is enforced by the S3/S5/S6 tests and the CI grep gate);
+  `/architecture`, `/onboarding` (stateless magic-link gate + Postmark email),
+  `/substrate` (the six-way dialect toggle + the night-pinned vitrine);
+  the plate derivative pipeline
   (`bun run plates`: committed `assets/plates/` originals → byte-deterministic
   AVIF/WebP/PNG rungs in `static/images/plates/`, ≤ 300 KB each) feeding the
   responsive `Media.sources` grammar extension; the capability composer with two-stage retrieve→rerank ranking
@@ -125,7 +152,8 @@ Two different categories — do not conflate them:
 
 - **Reserved strata sockets** (`CONTRACT.md` §11): `Vary.objective` (what a
   future mid loop optimizes — the variation points themselves are wired as of
-  R2) and `persona`. These are *typed seams for Phase 2*, not unfinished
+  R2, and the home intent stage is their first production consumer) and
+  `persona`. These are *typed seams for Phase 2*, not unfinished
   features. Do not wire them ad hoc; do not remove them.
 - **Known defects, scheduled** (`CONTRACT.md` §12 / `docs/reconstruction-plan.md`):
   **none** — the R0 substrate-integrity pass closed all four (budget×expansion
@@ -145,7 +173,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 289/289 passing
+bun run test       # vitest run                      → 360/360 passing
 bun run build      # vite build                      → client + SSR bundles
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```

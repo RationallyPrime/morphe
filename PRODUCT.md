@@ -76,8 +76,9 @@ What this must **not** look like:
   matrix, pricing tiers. Sókrates publishes no tier pricing; it is bespoke.
 - **The saturated editorial-typographic lane.** Display serif + tiny tracked mono
   eyebrow above every section + monochrome restraint + zero imagery is now an AI
-  fingerprint. Sókrates shares ingredients with that lane (serif + mono + dark) —
-  so the execution must escape it through asymmetry, real artifact imagery, and a
+  fingerprint. Sókrates shares ingredients with that lane (serif + mono +
+  monochrome-plus-one-accent) — so the execution must escape it through
+  asymmetry, real artifact imagery, and a
   single deliberate kicker system, not section-grammar eyebrows. *Restraint
   without intent reads as mediocre, not refined.*
 - **The old `Design Sketch/DESIGN.md` literally.** It is the aesthetic *brief* (the
@@ -98,7 +99,7 @@ What this must **not** look like:
 2. **Show, don't tell.** The composer lets the visitor watch the substrate reason
    over a real operation. One working demonstration beats five claim-shaped cards.
 3. **Restraint with intent, never restraint by default.** Quiet is a deliberate
-   posture (the amber beacon is rare; tonal layering, not lines) — not an excuse
+   posture (the beacon is rare; tonal layering, not lines) — not an excuse
    to ship the safe, average, invisible page. Commit to a POV.
 4. **Second-meeting words stay gated.** The Greek lexicon (Hyle/Eidos/Demiurge/
    Aition, the four agents) is load-bearing on `/architecture` only. First-contact
@@ -126,8 +127,10 @@ than by convention (this is a differentiator worth preserving):
   Escape, and restoration.
 - Focus-visible rings on every interactive primitive; **reduced motion is honored**
   on every transition (a media query, not a JS hook) — non-negotiable.
-- Single dark theme: verify body text ≥ 4.5:1 and large text ≥ 3:1 against the
-  charcoal surface stack; light-on-dark type gets a line-height bump. Muted text
-  must still clear 4.5:1 — do not let "quiet" drop contrast below the floor.
+- One light default ground (the gallery paper) with dark dialects a flip away
+  (night, the Archive): verify body text ≥ 4.5:1 and large text ≥ 3:1 on every
+  ground a surface can render under; light-on-dark type gets a line-height
+  bump. Muted text must still clear 4.5:1 — do not let "quiet" drop contrast
+  below the floor.
 - Bilingual EN/IS; `html lang` follows the active locale. The user (founder, native
   Icelandic speaker) owns the canonical IS copy.

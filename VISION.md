@@ -390,7 +390,8 @@ frame stratum today, for visitor cohorts rather than directory-supplied roles:
 ad-click attribution (campaign taxonomy, geo, device — deterministic URL
 parameters, consent-clean) selects the dialect at the `MorpheRoot` boundary,
 and the same authored marketing tree re-poses itself per cohort. Palette
-differentiation is shipped (three dialects pulled apart at the beacon), and so
+differentiation is shipped (six dialects pulled apart at the beacon and the
+ground), and so
 is the `?cohort=` arrival wiring (a valid landing param selects the dialect
 once, on arrival; an explicit toggle always wins afterward). Per-cohort copy is
 the remaining named next step (`DESIGN.md` §9).

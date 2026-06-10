@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance for Claude Code (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works — it is built to answer that: the formal contract lives in `CONTRACT.md`, and the vision it is Phase 0 of (the stratified adaptive tower — why `Vary`, `action` ids, and `bind` paths are typed sockets, not unfinished features) lives in `VISION.md`. Those sockets are coming online: `action` ids wire at `MorpheRoot.actions`, `bind` paths wire to the client store, and `Vary` + the Delta machinery drives the home page's intent stage (ADR-0006) — keep them declarative.
+Guidance for Codex (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works — it is built to answer that: the formal contract lives in `CONTRACT.md`, and the vision it is Phase 0 of (the stratified adaptive tower — why `Vary`, `action` ids, and `bind` paths are typed sockets, not unfinished features) lives in `VISION.md`. Those sockets are coming online: `action` ids wire at `MorpheRoot.actions`, `bind` paths wire to the client store, and `Vary` + the Delta machinery drives the home page's intent stage (ADR-0006) — keep them declarative.
 
 ## What this repo is
 
