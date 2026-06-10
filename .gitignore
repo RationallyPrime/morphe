@@ -19,3 +19,9 @@ src/lib/compose/generated/
 # orchestration scratch (pre-authored workflow scripts; not part of the build)
 /scratch/
 .vercel
+# local agent scratch (Claude Code session state, impeccable critique snapshots)
+/.claude/
+/.impeccable/
+# local conversation exports (personal source material, never repo content)
+/Contextually aware adaptive UI design system.json
+/Dynamic adaptive UI with Pydantic FastUI.json
