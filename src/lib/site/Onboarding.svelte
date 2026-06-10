@@ -142,30 +142,32 @@ function back(): void {
 onMount(() => {
 	try {
 		const raw = localStorage.getItem(DRAFT_KEY);
-		if (!raw) return;
-		const d = JSON.parse(raw) as Partial<{
-			contact: typeof contact;
-			systems: SystemEntry[];
-			priorities: { workflow: string }[];
-			outcomes: string;
-			stepIndex: number;
-		}>;
-		if (d.contact) contact = { ...contact, ...d.contact };
-		if (Array.isArray(d.systems) && d.systems.length > 0) {
-			systems = d.systems.map((s) => ({ ...blankSystem(), ...s }));
+		if (raw) {
+			const d = JSON.parse(raw) as Partial<{
+				contact: typeof contact;
+				systems: SystemEntry[];
+				priorities: { workflow: string }[];
+				outcomes: string;
+				stepIndex: number;
+			}>;
+			if (d.contact) contact = { ...contact, ...d.contact };
+			if (Array.isArray(d.systems) && d.systems.length > 0) {
+				systems = d.systems.map((s) => ({ ...blankSystem(), ...s }));
+			}
+			if (Array.isArray(d.priorities) && d.priorities.length > 0) {
+				priorities = d.priorities.map((p) => ({
+					workflow: typeof p.workflow === "string" ? p.workflow : "",
+				}));
+			}
+			if (typeof d.outcomes === "string") outcomes = d.outcomes;
+			if (typeof d.stepIndex === "number")
+				stepIndex = Math.min(Math.max(0, d.stepIndex), STEPS.length - 1);
 		}
-		if (Array.isArray(d.priorities) && d.priorities.length > 0) {
-			priorities = d.priorities.map((p) => ({
-				workflow: typeof p.workflow === "string" ? p.workflow : "",
-			}));
-		}
-		if (typeof d.outcomes === "string") outcomes = d.outcomes;
-		if (typeof d.stepIndex === "number")
-			stepIndex = Math.min(Math.max(0, d.stepIndex), STEPS.length - 1);
 	} catch {
 		// A corrupt draft is discarded silently — start fresh.
 	}
-	// A draft with no email must not clobber the gate-verified prefill.
+	// Gate-verified prefill: runs on a fresh visit (no draft) AND after a draft
+	// restore, but never clobbers an email the visitor typed themselves.
 	if (!contact.email.trim() && prefillEmail) contact.email = prefillEmail;
 });
 
