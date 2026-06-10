@@ -26,7 +26,9 @@ import { registry as compoundRegistry } from "../compounds/factory.js";
 import type { Node } from "../grammar/types.js";
 import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
 import { CLINICAL_SURFACES, clinical } from "./clinical.js";
+import { GALLERY_SURFACES, gallery } from "./gallery.js";
 import { ARCHIVE_SURFACES, DEFAULT_DIALECT, icelandicArchive } from "./icelandic-archive.js";
+import { NIGHT_SURFACES, night } from "./night.js";
 import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
 import { DEFAULT_DIALECT_ID, DIALECT_IDS, DIALECTS, getDialect, hasDialect } from "./registry.js";
 import { REYKJAVIK_SURFACES, reykjavikRegistry } from "./reykjavik-registry.js";
@@ -54,6 +56,8 @@ const SURFACE_STACKS: Readonly<Record<string, Readonly<Record<string, string>>>>
 	clinical: CLINICAL_SURFACES,
 	"reykjavik-registry": REYKJAVIK_SURFACES,
 	timaeus: TIMAEUS_SURFACES,
+	gallery: GALLERY_SURFACES,
+	night: NIGHT_SURFACES,
 };
 
 /**
@@ -369,12 +373,17 @@ describe("data ⇄ CSS agreement — the default dialect equals its static fallb
 });
 
 describe("dialect registry — named lookup for the subtree-boundary swap", () => {
-	it("registers all three shipped dialects, keyed by id", () => {
+	it("registers every shipped dialect, keyed by id", () => {
 		expect(DIALECT_IDS).toContain("icelandic-archive");
 		expect(DIALECT_IDS).toContain("clinical");
 		expect(DIALECT_IDS).toContain("reykjavik-registry");
+		expect(DIALECT_IDS).toContain("timaeus");
+		expect(DIALECT_IDS).toContain("gallery");
+		expect(DIALECT_IDS).toContain("night");
 		expect(DIALECTS.clinical).toBe(clinical);
 		expect(DIALECTS["reykjavik-registry"]).toBe(reykjavikRegistry);
+		expect(DIALECTS.gallery).toBe(gallery);
+		expect(DIALECTS.night).toBe(night);
 	});
 
 	it("getDialect resolves by id and falls back to default for unknown ids", () => {
@@ -415,6 +424,72 @@ describe("timaeus — the plates' blue-constellation world (KRA-326)", () => {
 			const v = TIMAEUS_SURFACES[`--mo-intent-surface-${key}`];
 			expect(v, `timaeus surface ${key}`).toContain("--mo-cobalt-700");
 		}
+	});
+});
+
+describe("gallery + night — the plate-derived pair (KRA-349, ADR-0005)", () => {
+	// What is UNIQUE to this pair: both dialects are derived from the plates'
+	// OWN palette — gallery is the museum wall (bone paper ground, plate-shadow
+	// ink, one cobalt accent), night is the inside of the plates (the blue-black
+	// strata as the page ground, ice text, the lattice beacon). The default is
+	// untouched in this slice (the flip is KRA-354).
+	it("gallery stands on the bone paper ramp (every ground is a bone step)", () => {
+		for (const key of ["base", "raised", "sunken", "overlay"] as const) {
+			const v = GALLERY_SURFACES[`--mo-intent-surface-${key}`];
+			expect(v, `gallery surface ${key}`).toContain("--mo-bone-");
+		}
+	});
+
+	it("gallery text is the plate-shadow ink and its beacon rides the cobalt scale", () => {
+		expect(GALLERY_SURFACES["--mo-intent-on-surface"]).toBe("var(--mo-cobalt-800)");
+		const vars = applyDialect(gallery).vars;
+		expect(vars[intentVar("primary-action", "surface")]).toBe("var(--mo-cobalt-600)");
+		for (const channel of CHANNELS) {
+			const v = vars[intentVar("primary-action", channel)];
+			expect(v, `gallery.primary-action.${channel}`).toContain("--mo-cobalt-");
+		}
+	});
+
+	it("gallery's single accent is cobalt: no amber anywhere in the dialect", () => {
+		// ADR-0005's two-master rule: the amber retirement means the gallery may
+		// not reach for the warm metal at all — one accent, by conviction.
+		for (const [name, def] of Object.entries(gallery.intents)) {
+			for (const [channel, value] of Object.entries(def)) {
+				expect(value, `gallery.${name}.${channel}`).not.toContain("--mo-amber-");
+			}
+		}
+		for (const value of Object.values(GALLERY_SURFACES)) {
+			expect(value).not.toContain("--mo-amber-");
+		}
+	});
+
+	it("night stands on the strata (every ground is a deep cobalt step)", () => {
+		for (const key of ["base", "raised", "sunken", "overlay"] as const) {
+			const v = NIGHT_SURFACES[`--mo-intent-surface-${key}`];
+			expect(v, `night surface ${key}`).toMatch(/--mo-cobalt-9(00|50)/);
+		}
+		// And the well truly is the floor: sunken sits ON the deepest stratum.
+		expect(NIGHT_SURFACES["--mo-intent-surface-sunken"]).toBe("var(--mo-cobalt-950)");
+	});
+
+	it("night text is the ice of the hot cores and its beacon is the lattice light", () => {
+		expect(NIGHT_SURFACES["--mo-intent-on-surface"]).toBe("var(--mo-cobalt-100)");
+		const vars = applyDialect(night).vars;
+		expect(vars[intentVar("primary-action", "surface")]).toBe("var(--mo-cobalt-500)");
+	});
+
+	it("the pair's priors keep the substrate quiet (tight budget, in clamp range)", () => {
+		for (const d of [gallery, night]) {
+			const applied = applyDialect(d);
+			expect(applied.rootContext.emphasisBudget, `${d.id} budget`).toBe(2);
+			expect(applied.rootContext.scaleTier, `${d.id} scaleTier`).toBe(4);
+			expect(applied.rootContext.density, `${d.id} density`).toBe("regular");
+		}
+	});
+
+	it("the default dialect is UNCHANGED by this slice (the flip is KRA-354)", () => {
+		expect(DEFAULT_DIALECT_ID).toBe("icelandic-archive");
+		expect(DEFAULT_DIALECT.id).toBe("icelandic-archive");
 	});
 });
 

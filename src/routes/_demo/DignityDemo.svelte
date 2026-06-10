@@ -196,6 +196,14 @@
 	.toggle__swatch[data-dialect="timaeus"] {
 		background: var(--mo-cobalt-500);
 	}
+	/* The plate-derived pair reads as its GROUNDS, not its accent (both accents
+	   are cobalt; the ground is what distinguishes wall from night). */
+	.toggle__swatch[data-dialect="gallery"] {
+		background: var(--mo-bone-4);
+	}
+	.toggle__swatch[data-dialect="night"] {
+		background: var(--mo-cobalt-700);
+	}
 
 	.proof {
 		margin: 0 0 var(--mo-space-5);
