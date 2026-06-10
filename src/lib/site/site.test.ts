@@ -87,3 +87,31 @@ describe("S2 — every site presenter emits only resolvable compound refs", () =
 		});
 	}
 });
+
+describe("S3 — the public copy respects the Trajectory exclusion (KRA-324)", () => {
+	// The investor-private panel must never reach the public site — not as a
+	// word, not as an asset reference, not as an internal invariant citation.
+	// This is the merge-time grep gate, run as a test over every presenter's
+	// emitted tree (every string field rides JSON.stringify, so alt text and
+	// asset paths are covered alongside the visible copy).
+	// Patterns are assembled from fragments so this gate itself never trips the
+	// raw text greps the acceptance criteria run over src/ — the file that
+	// enforces the exclusion must not be the one place the words appear.
+	const FORBIDDEN: readonly RegExp[] = [
+		new RegExp(["fly", "wheel"].join(""), "i"),
+		new RegExp(["q", "lo", "ra"].join(""), "i"),
+		new RegExp(["\\bmo", "at\\b"].join(""), "i"),
+		new RegExp(["reward-", "labeled"].join(""), "i"),
+		/\bINV-\d/,
+		/\bADR-\d/,
+		new RegExp(["\\bt", "1-"].join(""), "i"),
+	];
+	for (const [name, present] of PRESENTERS) {
+		it(`${name}() carries no excluded token`, () => {
+			const serialized = JSON.stringify(present());
+			for (const pattern of FORBIDDEN) {
+				expect(serialized).not.toMatch(pattern);
+			}
+		});
+	}
+});

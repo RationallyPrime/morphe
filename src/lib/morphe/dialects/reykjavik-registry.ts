@@ -213,6 +213,7 @@ export const reykjavikRegistry: Dialect = {
 		...CORE,
 		...REYKJAVIK_REGISTER,
 	},
+	surfaces: REYKJAVIK_SURFACES,
 	// A registrar prior: exception-led, slightly denser, a marginally tighter top
 	// tier than the editorial Archive. Clamped by the provider so Lemma 2 holds.
 	priors: {

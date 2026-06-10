@@ -74,6 +74,7 @@ jobs:
           # real SSR'd copy is present.
           curl -s http://localhost:4173/substrate | grep -q "The whole site is data" || fail=1
           curl -s http://localhost:4173/ | grep -q "AI department" || fail=1
+          curl -s http://localhost:4173/how-it-works | grep -q "There is no done, only sharper." || fail=1
           exit $fail
 
   python:

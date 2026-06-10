@@ -217,6 +217,7 @@ export const clinical: Dialect = {
 		...CORE,
 		...CLINICAL_REGISTER,
 	},
+	surfaces: CLINICAL_SURFACES,
 	priors: {
 		// Exception-forward console: pack the rows, cap the drama, widen the
 		// budget so several live statuses coexist. All three are inside the

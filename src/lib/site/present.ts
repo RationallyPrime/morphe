@@ -440,7 +440,10 @@ export function onboardingBand(): Node {
 }
 
 /* ---------------------------------------------------------------------------
- * HOW IT WORKS.
+ * HOW IT WORKS — the Timaeus narrative (KRA-327): the operating lifecycle in
+ * nine plates, two acts around one perpetual loop. The route renders this page
+ * under the `timaeus` dialect (the plates are FIXED POINTS; the substrate
+ * re-poses around them). The public story ends at B9.
  * ------------------------------------------------------------------------- */
 
 export function howItWorksHero(): Node {
@@ -449,15 +452,85 @@ export function howItWorksHero(): Node {
 		name: "SiteHero",
 		emphasis: "strong",
 		args: {
-			title: t("From your systems to governed work, in one map.", "display", {
+			eyebrow: eyebrow("The operating lifecycle"),
+			title: t("What happens when the box arrives.", "display", {
 				emphasis: "strong",
 			}),
 			lede: t(
-				"Sókrates is a substrate, not a chatbot. It compiles what you run into a typed map, reasons over live truth, and does the integration-layer work under governance you control. Finance and operations first; the rest of the back office as the map grows.",
+				"The life of a Sókrates appliance, told in nine plates: from the moment it powers up behind your firewall to the moment finished work lands on the record. Two acts — first the system orders itself around your operation, then your work flows through it.",
 				"body",
 				{ emphasis: "muted" },
 			),
 		},
+	};
+}
+
+/** Intrinsic fallback dimensions shared by all nine narrative plates (3:4). */
+const PLATE_W = 960;
+const PLATE_H = 1280;
+
+/**
+ * A narrative plate as a responsive Media node: AVIF/WebP candidate sets from
+ * the committed derivative pipeline (`bun run plates`), the 960 PNG as the
+ * universal fallback, intrinsic dimensions pinned (no CLS). Only the first
+ * plate above the fold opts out of lazy loading. String fields (`src`, `alt`)
+ * are authored here — they cannot ride compound params.
+ */
+function plateMedia(slug: string, alt: string, eager: boolean): Node {
+	return {
+		kind: "media",
+		src: `/images/plates/${slug}-960.png`,
+		alt,
+		aspect: "portrait",
+		width: PLATE_W,
+		height: PLATE_H,
+		sizes: "(min-width: 64rem) 40rem, 100vw",
+		sources: [
+			{ type: "image/avif", srcset: plateSrcset(slug, "avif") },
+			{ type: "image/webp", srcset: plateSrcset(slug, "webp") },
+		],
+		...(eager ? { eager: true } : {}),
+	};
+}
+
+/**
+ * One beat of the story through the TimaeusPlate compound: the plate leads,
+ * the copy follows; the beat id rides as a folio-register Badge (the same
+ * plate-corner mark the figures themselves carry). Titles claim `strong` at
+ * subheading register — the PLATES are the loudest objects on this page, by
+ * design (the timaeus dialect's tight budget enforces the same instinct).
+ */
+function beat(
+	id: string,
+	slug: string,
+	alt: string,
+	title: string,
+	body: string,
+	eager = false,
+): Node {
+	return {
+		kind: "compound",
+		name: "TimaeusPlate",
+		args: {
+			plate: plateMedia(slug, alt, eager),
+			marker: { kind: "badge", label: id, intent: "folio" },
+			title: t(title, "subheading", { emphasis: "strong" }),
+			body: t(body, "body", { emphasis: "muted" }),
+		},
+	};
+}
+
+/** An act break: a quiet accession eyebrow, the act title, one framing line. */
+function actBreak(act: string, title: string, sub: string): Node {
+	return {
+		kind: "stack",
+		role: "section",
+		direction: "block",
+		children: [
+			eyebrow(act),
+			t(title, "heading", { emphasis: "strong" }),
+			t(sub, "body", { emphasis: "muted" }),
+		],
 	};
 }
 
@@ -468,98 +541,147 @@ export function howItWorksBody(): Node {
 		surface: "base",
 		budget: 4,
 		children: [
-			// --- The map -----------------------------------------------------
-			{
-				kind: "stack",
-				role: "section",
-				direction: "block",
-				children: [
-					t("The map is a function of the territory.", "heading", {
-						emphasis: "strong",
-					}),
-					t(
-						"Sókrates compiles your source systems into a typed map of how your operation actually works: the entities, the rules, the relationships that today live in one person's head. Answers are computed against current rows at query time, not against a stored snapshot that drifts. There is nothing to reconcile because nothing is memoised.",
-						"body",
-						{ emphasis: "muted" },
-					),
-				],
-			},
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- The governance ladder ---------------------------------------
-			governanceLadder(),
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- The gap is the queue ----------------------------------------
-			{
-				kind: "stack",
-				role: "section",
-				direction: "block",
-				children: [
-					t("The gap is the queue.", "heading", { emphasis: "strong" }),
-					t(
-						"When Sókrates hits something it cannot yet do, that gap is not a failure: it is the work queue. It closes the gap by extending its own capability layer, with a new internal tool or a permission request, never by silently writing into your external software. Each onboarding is the finite delta between your systems and what the platform already knows; what one customer's onboarding surfaces, the next inherits.",
-						"body",
-						{ emphasis: "muted" },
-					),
-				],
-			},
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- FAQ ---------------------------------------------------------
-			// (The sovereignty / "your hardware" beat is carried by the hero plate on
-			// this page and by the exit FAQ below, so the mid-page box split is dropped
-			// — one appliance photograph per page, never the same plate twice.)
-			faqSection(),
-
-			{ kind: "spacer", size: "xl" },
-
-			// --- Plate I (TEMPORARY: the KRA-325 srcset-pipeline demo; KRA-327
-			// gives the narrative its own page and replaces this block.) -------
-			timaeusPlateFigure(),
-		],
-	};
-}
-
-/**
- * Plate I of the Timaeus narrative, rendered through the responsive Media
- * extension: AVIF/WebP candidate sets from the committed derivative pipeline
- * (`bun run plates`) with the 960 PNG as the universal fallback. Intrinsic
- * dimensions are pinned so the box never shifts (CLS); the plate sits mid-page,
- * so it stays on the lazy default. String fields (`src`, `alt`) are authored
- * directly — they cannot ride compound params.
- */
-function timaeusPlateFigure(): Node {
-	const slug = "b1-boot-on-premises";
-	return {
-		kind: "stack",
-		role: "section",
-		direction: "block",
-		children: [
-			t("It begins on your premises.", "heading", { emphasis: "strong" }),
-			t(
-				"One appliance arrives, is racked behind your firewall, and boots. Nothing leaves the building; the map is compiled where the territory lives.",
-				"body",
-				{ emphasis: "muted" },
+			// --- Act I ---------------------------------------------------------
+			actBreak(
+				"Act I",
+				"Ordering the cosmos.",
+				"A loop, not a line: the system is assembled once, and then never stops being assembled.",
 			),
-			{ kind: "spacer", size: "sm" },
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B1",
+				"b1-boot-on-premises",
+				"Plate I — a wireframe constellation engraving: the appliance standing inside the outline of a building, its lattice lit at boot.",
+				"Boot on-premises",
+				"The appliance arrives, plugs in behind your firewall, and brings itself up — every service declared, not assembled by hand. The record is alive before the first act: from the moment it boots, everything the system does is captured, with nothing to switch on. You choose the posture at install — governed egress, or fully air-gapped with zero outbound.",
+				true,
+			),
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B2",
+				"b2-bind-the-sources",
+				"Plate II — the appliance bound by lattice lines to the constellation of the company's systems around it.",
+				"Bind the sources",
+				"An operator connects the systems your company actually runs — the ERP, the finance stack, the databases. Each connection is bound under explicit, scoped authorization: what the system may touch is governed from the first handshake, and your credentials never leave the box.",
+			),
+
+			{ kind: "spacer", size: "xl" },
+
+			// --- The authoring loop (the load-bearing core) ----------------------
+			// B3 → B4 → B5 → back. One raised frame holds the three beats so the
+			// loop reads as ONE object; the pullquote beneath carries the loopback.
 			{
-				kind: "media",
-				src: `/images/plates/${slug}-960.png`,
-				alt: "Plate I — a dark engraving of the appliance booting on premises: the machine standing in the customer's own rack, its beacon lit, the building's outline drawn around it.",
-				aspect: "portrait",
-				width: 960,
-				height: 1280,
-				sizes: "(min-width: 84rem) 80rem, 100vw",
-				sources: [
-					{ type: "image/avif", srcset: plateSrcset(slug, "avif") },
-					{ type: "image/webp", srcset: plateSrcset(slug, "webp") },
+				kind: "frame",
+				role: "section",
+				surface: "raised",
+				children: [
+					{
+						kind: "stack",
+						role: "section",
+						direction: "block",
+						children: [
+							eyebrow("The authoring loop"),
+							t("Three agents take turns ordering what flows in.", "heading", {
+								emphasis: "strong",
+							}),
+							t(
+								"B3, B4, B5 — and back again. What one pass cannot finish loops around to be asked, authored or forged on the next. This loop is the load-bearing core of the whole system.",
+								"body",
+								{ emphasis: "muted" },
+							),
+							{ kind: "spacer", size: "md" },
+							beat(
+								"B3",
+								"b3-information-flows-in",
+								"Plate III — streams of source records flowing as lattice light into the appliance's growing map.",
+								"Information flows in",
+								"The bound sources are read and their structure is lifted into one typed map. And Sókrates doesn't just ingest — where the documentation is silent, it puts questions to your people, and the answers become part of what it knows.",
+							),
+							{ kind: "spacer", size: "md" },
+							beat(
+								"B4",
+								"b4-aristotle-authors",
+								"Plate IV — Aristotle as a draughtsman figure, writing laws into the lattice of the map.",
+								"Aristotle authors",
+								"Aristotle reads the matter and the answers, and writes the rules — the laws that govern how your operation's pieces fit together and what counts as correct. Laws compose: larger governance is built from smaller laws, not bolted on.",
+							),
+							{ kind: "spacer", size: "md" },
+							beat(
+								"B5",
+								"b5-plato-smiths",
+								"Plate V — Plato at a forge of lattice light, smithing new capabilities for the constellation.",
+								"Plato smiths",
+								"Plato works the capability gaps: where the system cannot yet do something, it forges the missing piece — a tool, a check, a bespoke agent fitted to your domain — and registers it, ready to be dispatched.",
+							),
+						],
+					},
 				],
 			},
-			t("Plate I — the appliance boots on premises.", "caption", { intent: "provenance" }),
+
+			{ kind: "spacer", size: "md" },
+
+			// --- The loopback — the page's load-bearing line (also the CI SSR
+			// content marker for this route; change it deliberately or not at all).
+			{
+				kind: "compound",
+				name: "SitePullquote",
+				args: {
+					quote: t("There is no done, only sharper.", "display", { emphasis: "strong" }),
+					attribution: t(
+						"Holes in the laws, missing capabilities, unanswered questions — each loops back into the queue, and the next pass closes it. Convergence is asymptotic by design.",
+						"caption",
+						{ emphasis: "muted" },
+					),
+				},
+			},
+
+			{ kind: "spacer", size: "xl" },
+
+			// --- Act II --------------------------------------------------------
+			actBreak(
+				"Act II",
+				"Work flows through it.",
+				"The ordered system at work: a request arrives, authority is established, and the work runs to done — on the record.",
+			),
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B6",
+				"b6-a-trigger",
+				"Plate VI — a single signal entering the constellation from outside: a request arriving as a point of light.",
+				"A trigger",
+				"Work begins with a trigger: a person asks for something over Slack, Teams or email — or the system opens a turn on its own, from a schedule or a condition it was watching. Either way, the request is on the record from its first moment.",
+			),
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B7",
+				"b7-philosopher-king-reasons",
+				"Plate VII — the Philosopher-King at the centre of the lattice, weighing a plan and sealing its authority.",
+				"The Philosopher-King reasons",
+				"The orchestrator plans what must happen and under whose authority. If a standing grant already covers this class of work, it proceeds; if not, it drafts the act and waits for a human signature. Either way the act carries a signed envelope — authority is never implicit.",
+			),
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B8",
+				"b8-governed-workflow",
+				"Plate VIII — a governed workflow drawn as a constellation path, checkpoint by checkpoint, gate by gate.",
+				"The governed workflow runs to done",
+				"The plan compiles into a durable workflow that survives restarts and pauses at the gates you have set — most visibly, the approval gate. Every step is stamped onto the record as it happens. The work runs to done.",
+			),
+			{ kind: "spacer", size: "md" },
+			beat(
+				"B9",
+				"b9-on-the-record",
+				"Plate IX — the finished work laid into the record: the full causal tree of the act, preserved in the lattice.",
+				"On the record",
+				"The finished work lands in the system's history: every act, its cause and its authorization, auditable as one record. What the run revealed — a capability it lacked, a question it raised — feeds back into the loop. The cycle closes; the next ordering is sharper.",
+			),
+
+			{ kind: "spacer", size: "xl" },
+
+			// --- FAQ -------------------------------------------------------------
+			// The honest exit interview survives the retelling: the plates explain
+			// how it runs; the FAQ answers what a buyer actually asks next.
+			faqSection(),
 		],
 	};
 }

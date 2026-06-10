@@ -57,6 +57,15 @@ export interface Dialect {
 	readonly persona?: { readonly vertical: string; readonly role?: string };
 	/** Intent extension/override — the heart of the τ_frame injection. */
 	readonly intents: IntentDialect;
+	/**
+	 * The dialect's surface stack (`--mo-intent-surface-*`, outline, scrim):
+	 * the tonal grounds the subtree stands on. Emitted by `applyDialect`
+	 * alongside the intent vars so a boundary swap repaints the ground too —
+	 * without it, only the default dialect's CSS block paints surfaces and a
+	 * swap is a partial re-theme. Same discipline as intents: scale-var
+	 * references only, never literal hex.
+	 */
+	readonly surfaces?: Readonly<Record<string, string>>;
 	/** Bounded algebra priors. */
 	readonly priors: AlgebraPriors;
 	/** Allowed compound subset (empty in Phase 0). */

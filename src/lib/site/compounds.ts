@@ -396,6 +396,81 @@ export const SiteCtaBanner: CompoundDef = {
 };
 
 /* ===========================================================================
+ * TimaeusPlate — one beat of the Timaeus narrative (KRA-327).
+ *
+ * params: plate (node, required) · marker (node, required) · title (node, required)
+ *         · body (node, required)
+ * slots:  annotation — optional quiet trailing matter (a caption, a Link)
+ *
+ * A narrative figure: the plate carries one column, the beat's copy the other
+ * (the same no-breakpoint Grid idiom as SiteFeatureSplit — two columns wide,
+ * stacked narrow, the plate leading). The PLATE is the loudest object by
+ * design — under the timaeus dialect the emphasis budget is deliberately tight
+ * so the substrate never competes with its figures. The plate rides as a
+ * complete Media node (src/alt/srcset are STRING fields the factory cannot
+ * parameterise, so the call site authors them directly); the marker is a
+ * folio-register Badge node ("B1") — the same plate-corner mark the figures
+ * themselves carry.
+ * ========================================================================= */
+
+export const TimaeusPlate: CompoundDef = {
+	name: "TimaeusPlate",
+	version: "1.0.0",
+	grammarVersion: "0.1.0",
+	params: {
+		type: "object",
+		properties: {
+			plate: {
+				type: "node",
+				required: true,
+				description: "The plate image (a Media node with responsive sources, alt required).",
+			},
+			marker: {
+				type: "node",
+				required: true,
+				description: "The beat id as a folio-register Badge node, e.g. label 'B1'.",
+			},
+			title: {
+				type: "node",
+				required: true,
+				description: "The beat title (a Text node).",
+			},
+			body: {
+				type: "node",
+				required: true,
+				description: "The beat body, one to three sentences (a Text node).",
+			},
+		},
+	},
+	template: {
+		kind: "grid",
+		role: "list",
+		minTrack: "wide",
+		children: [
+			{ kind: "param-ref", param: "plate" },
+			{
+				kind: "stack",
+				role: "section",
+				direction: "block",
+				children: [
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "param-ref", param: "marker" },
+							{ kind: "param-ref", param: "title" },
+						],
+					},
+					{ kind: "param-ref", param: "body" },
+					{ kind: "slot", name: "annotation", fallback: [] },
+				],
+			},
+		],
+	},
+};
+
+/* ===========================================================================
  * Registration — through the factory gate, idempotent (mirrors
  * registerComposeCompounds). A failing def is never added; a malformed def
  * surfaces loudly instead of leaving a surface silently un-renderable.
@@ -408,6 +483,7 @@ export const SITE_COMPOUNDS: readonly CompoundDef[] = [
 	SiteStep,
 	SiteFeatureSplit,
 	SiteCtaBanner,
+	TimaeusPlate,
 ];
 
 /**

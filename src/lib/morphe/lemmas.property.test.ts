@@ -1061,8 +1061,10 @@ describe("Lemma 4 (DIALECT TOTALITY): laws survive every dialect; authored trees
 			const { vars } = applyDialect(d);
 			for (const [key, value] of Object.entries(vars)) {
 				// Injection happens at the intent layer — never a component class or
-				// a raw scale name on the LHS.
-				expect(key.startsWith("--mo-intent-")).toBe(true);
+				// a raw scale name on the LHS. Since FP7 the emitted set includes the
+				// dialect's SURFACE STACK; its keys are intent-stratum too, with one
+				// historically-named exception (`--mo-scrim`, the modal backdrop).
+				expect(key.startsWith("--mo-intent-") || key === "--mo-scrim", key).toBe(true);
 				// Values reference a neutral scale var (possibly via color-mix), never
 				// a literal hex — the vertical never leaks into the scale layer (L3).
 				const referencesScale = value.includes("var(--mo-") || value === "transparent";

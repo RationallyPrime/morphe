@@ -201,6 +201,7 @@ export const icelandicArchive: Dialect = {
 		...CORE,
 		...ARCHIVE_REGISTER,
 	},
+	surfaces: ARCHIVE_SURFACES,
 	priors: {
 		// Doxa register: quiet density, the top of the tree allowed to be loud
 		// (display headlines) but the beacon-budget kept to a single strong claim.
