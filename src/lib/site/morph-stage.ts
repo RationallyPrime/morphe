@@ -3,12 +3,16 @@
  *
  * The intent engine owns execution; this module owns the authored stage tree it
  * can move through. One Vary point keeps the content morphs mutually exclusive:
- * the default branch is empty, and each chip/palette intent selects exactly one
- * visitor story. No callbacks, no component-local routing, no raw geometry.
+ * the default branch is the standing plates TEASE (the page's resting state),
+ * and each chip/palette intent replaces it with exactly one visitor story —
+ * so "Tell me the story" transforms the tease into the full nine beats instead
+ * of stacking a second story surface above it. Closing an open story (the
+ * toggle) puts the tease back. No callbacks, no component-local routing, no
+ * raw geometry.
  */
 
 import type { EmissionEnvelope, IntentRef, Node, Text, VaryId } from "$morphe";
-import { PLATE_BEATS, type PlateBeat } from "./present.js";
+import { PLATE_BEATS, type PlateBeat, timaeusTease } from "./present.js";
 
 type TextAs = NonNullable<Text["as"]>;
 type TextExtra = {
@@ -114,19 +118,85 @@ function engagementMorph(): Node {
 }
 
 function identityMorph(): Node {
+	// One person = a folio-marked figure lifted from the canonical bios and
+	// portraits (sokrates-website Team canon): the portrait plate leads, the
+	// accession register carries the catalogue number, the bio is the record
+	// line. The four figures ride a narrow-track grid (the editorial plate
+	// wall), not a card wall — same treatment the canon Team section uses.
+	const person = (
+		folio: string,
+		name: string,
+		title: string,
+		bio: string,
+		photo: string,
+	): Node => ({
+		kind: "stack",
+		role: "section",
+		direction: "block",
+		children: [
+			{
+				kind: "media",
+				src: `/images/team/${photo}.jpg`,
+				alt: `Portrait of ${name}, ${title}.`,
+				width: 1000,
+				height: 1250,
+				sizes: "(min-width: 64rem) 16rem, (min-width: 40rem) 40vw, 80vw",
+			},
+			{
+				kind: "cluster",
+				role: "inline",
+				children: [
+					{ kind: "badge", label: folio, intent: "folio" },
+					t(name, "subheading", { emphasis: "strong" }),
+				],
+			},
+			t(title, "caption", { emphasis: "muted" }),
+			t(bio, "body", { emphasis: "muted" }),
+		],
+	});
 	return morphPanel([
 		eyebrow("Krates ehf."),
 		t("Built in Reykjavík, led by the founder.", "heading", { emphasis: "strong" }),
 		t(
-			"Sókrates is built by Krates ehf. The sale is founder-led because the first conversation is part of the work: understanding which systems matter, where the friction sits and what would count as a useful first answer.",
+			"Sókrates is built by Krates ehf. The sale is founder-led because the first conversation is part of the work: understanding which systems matter, where the friction sits and what would count as a useful first answer. You will talk to Hákon, not a queue.",
 			"body",
 			{ emphasis: "muted" },
 		),
-		t(
-			"You will talk to Hákon, not a queue. If there is a fit, the next step is a concrete workflow and a short path to installation.",
-			"body",
-			{ emphasis: "muted" },
-		),
+		{
+			kind: "grid",
+			role: "list",
+			minTrack: "narrow",
+			children: [
+				person(
+					"001",
+					"Hákon Freyr Gunnarsson",
+					"Founder & CEO",
+					"Mathematician and AI researcher. He works across product, software architecture and applied AI: multi-agent systems, full-stack engineering and knowledge workflows built for real-world use.",
+					"hakon",
+				),
+				person(
+					"002",
+					"Gunnlaugur Jónsson",
+					"Chairman, Fjártækniklasinn · Finance & Strategy",
+					"In financial markets since 1997. Founded the Reykjavík FinTech Cluster, managed the investment firms Straumborg and Lindir Resources and co-founded Viska Digital Assets. Wrote Ábyrgðarkver on personal responsibility after the 2008 crash.",
+					"gunnlaugur",
+				),
+				person(
+					"003",
+					"Dr. Ásgeir Theodór Jóhannesson",
+					"CEO, Fjártækniklasinn · Legal Counsel",
+					"Philosopher and international lawyer: a PhD on Kierkegaard (Southampton), dual LL.M.s with distinction (Vienna, Southampton) and admission to the Icelandic Bar.",
+					"asgeir",
+				),
+				person(
+					"004",
+					"Matthías Páll Gissurarson",
+					"Principal Engineer, Language & Compilers",
+					"A specialist in functional programming and programming languages, with a PhD from Chalmers in program synthesis and computer security. He sits on the steering committee of GHC (the Glasgow Haskell Compiler) and on the Haskell.org committee.",
+					"matthias",
+				),
+			],
+		},
 		t("Krates ehf., Reykjavík. 2026.", "caption", { emphasis: "muted" }),
 		{
 			kind: "cluster",
@@ -241,14 +311,18 @@ function platesMorph(): Node {
 	]);
 }
 
-/** The pure authored stage tree. The default branch renders no visible content. */
+/**
+ * The pure authored stage tree. The default branch IS the plates tease — the
+ * stage at rest shows the standing invitation, and "Tell me the story" morphs
+ * that same surface into the full nine beats (no stacked duplicate).
+ */
 export function homeIntentStage(): Node {
 	return {
 		kind: "vary",
 		id: HOME_INTENT_STAGE_ID,
 		default: HOME_STAGE_CHOICES.default,
 		options: [
-			{ kind: "stack", role: "section", direction: "block", children: [] },
+			timaeusTease(),
 			governanceMorph(),
 			engagementMorph(),
 			identityMorph(),

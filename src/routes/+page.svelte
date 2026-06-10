@@ -18,19 +18,16 @@ import {
 	homeIntentStageEnvelope,
 	intentEngine,
 	registerSiteCompounds,
-	timaeusTease,
 } from "$lib/site";
 import ContactForm from "$lib/site/ContactForm.svelte";
 import IntentChips from "$lib/site/IntentChips.svelte";
 import IntentPalette from "$lib/site/IntentPalette.svelte";
-import { getDialect } from "$morphe";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 
 // Register the site compounds through the factory gate. Idempotent.
 registerSiteCompounds();
 
 const heroTree = homeHero();
-const teaseTree = timaeusTease();
 const ctaTree = closingCta();
 const stageEnvelope = homeIntentStageEnvelope();
 
@@ -52,7 +49,7 @@ $effect(() => {
      left axis, the appliance plate on the right. No CTA, no proof line; the intro
      exists only to hand off to the composer below, which is the real top-fold
      action (WS1a — the editorial wall that used to bury the product is gone). -->
-<section class="s-section">
+<section class="s-section s-section--hero">
 	<div class="s-wrap s-hero__grid">
 		<div class="s-hero__copy">
 			<MorpheRoot tree={heroTree} />
@@ -89,8 +86,9 @@ $effect(() => {
   The intent row — the engine's primary affordance (ADR-0006 §2, KRA-355). Every
   chip is a real anchor to canonical content (no-JS ground truth); with JS, a
   morphing intent reshapes the page in place through the same engine path the
-  Cmd/Ctrl+K palette rides. This replaces the interim whisper links: same
-  destinations, now one vocabulary the morphs (KRA-356–359) will take over.
+  Cmd/Ctrl+K palette rides. The stage's DEFAULT branch is the standing plates
+  tease, so "Tell me the story" transforms that surface into the nine beats in
+  place (no stacked duplicate), and closing a story puts the tease back.
 -->
 <section class="s-section s-section--tight">
 	<div class="s-wrap">
@@ -102,17 +100,6 @@ $effect(() => {
 </section>
 
 <IntentPalette />
-
-<!--
-  The plate tease rides a NIGHT-pinned subtree (the vitrine idiom, ADR-0005):
-  the plates keep their own ground under every dialect, so this band stays the
-  constellation dark while the wall around it follows the active dialect.
--->
-<section class="s-section">
-	<div class="s-wrap tease-vitrine">
-		<MorpheRoot tree={teaseTree} dialect={getDialect("night")} />
-	</div>
-</section>
 
 <!--
   The close — the one conversion path (#contact). An asymmetric band: the closing
@@ -156,15 +143,6 @@ $effect(() => {
 	.contact__form {
 		margin-block-start: var(--mo-space-6);
 	}
-	/* The vitrine chrome: clip and outline the night-pinned band; the dark
-	   ground itself is painted by the pinned subtree, never by this wrapper. */
-	.tease-vitrine :global(.mo-root) {
-		border-radius: var(--mo-radius-3);
-		overflow: clip;
-		outline: 1px solid var(--mo-intent-outline);
-		outline-offset: -1px;
-		padding: clamp(var(--mo-space-5), 3vw, var(--mo-space-7));
-	}
 	.s-whisper a {
 		color: var(--mo-intent-on-surface);
 		text-decoration: underline;
@@ -194,13 +172,18 @@ $effect(() => {
 	.intent-stage :global(.mo-root) {
 		background: transparent;
 	}
-	/* The vitrine mat for stage plates (ADR-0005, KRA-359): dark artwork sits
+	/* The vitrine mat for stage PLATES (ADR-0005, KRA-359): dark artwork sits
 	   in a dark well and glows against whatever ground is active — the same
-	   treatment as the hero's box render. On night the well merges. */
-	.intent-stage :global(.mo-media) {
+	   treatment as the hero's box render. On night the well merges. Scoped to
+	   plate assets: the team portraits in the identity morph are photographs,
+	   not self-luminous artwork, and take no mat. */
+	.intent-stage :global(.mo-media:has(img[src^="/images/plates/"])) {
 		background: var(--mo-cobalt-950);
 		padding: var(--mo-space-4);
 		border-radius: var(--mo-radius-3);
+	}
+	.intent-stage :global(.mo-media img) {
+		border-radius: var(--mo-radius-2);
 	}
 
 	/*

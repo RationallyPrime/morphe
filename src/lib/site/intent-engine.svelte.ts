@@ -35,6 +35,32 @@ export type IntentOutcome =
 	| { readonly kind: "morphed" }
 	| { readonly kind: "rejected"; readonly reason: ApplyDeltaResult | "no-stage" };
 
+/**
+ * Resolve a Vary point's default choice by walking an authored tree (pure,
+ * structural). Used by the toggle path: closing an open morph means returning
+ * the Vary to its authored default branch, whatever that is — the engine never
+ * hardcodes a stage's choice numbering.
+ */
+export function varyDefaultChoice(node: unknown, id: string): number | null {
+	if (node === null || typeof node !== "object") return null;
+	if (Array.isArray(node)) {
+		for (const child of node) {
+			const found = varyDefaultChoice(child, id);
+			if (found !== null) return found;
+		}
+		return null;
+	}
+	const record = node as Record<string, unknown>;
+	if (record.kind === "vary" && record.id === id) {
+		return typeof record.default === "number" ? record.default : 0;
+	}
+	for (const value of Object.values(record)) {
+		const found = varyDefaultChoice(value, id);
+		if (found !== null) return found;
+	}
+	return null;
+}
+
 /** The stage envelope; null until a page installs a morphable region. */
 let stage = $state<EmissionEnvelope | null>(null);
 
@@ -82,12 +108,19 @@ export const intentEngine = {
 				if (stage === null) {
 					return { kind: "rejected", reason: "no-stage" };
 				}
+				// TOGGLE: invoking the morph that is already open closes it — the
+				// Vary returns to its authored default branch. A chip you opened
+				// is a chip you can close; the palette rides the same semantics.
+				const closing = stage.choices[intent.action.id] === intent.action.choice;
+				const choice = closing
+					? (varyDefaultChoice(stage.tree, intent.action.id) ?? 0)
+					: intent.action.choice;
 				// Stamp the LIVE epoch: a synchronous visitor is acting on the
 				// emission they can see. Staleness guards async proposers, and
 				// applyDelta still enforces it for them.
 				const outcome = applyDelta(stage, {
 					id: intent.action.id,
-					choice: intent.action.choice,
+					choice,
 					epoch: stage.epoch,
 				});
 				if (outcome.result !== "applied") {
@@ -99,7 +132,7 @@ export const intentEngine = {
 					return { kind: "rejected", reason: outcome.result };
 				}
 				stage = outcome.envelope;
-				announcement = intent.announce ?? `${intent.label} — shown below.`;
+				announcement = closing ? "Closed." : (intent.announce ?? `${intent.label} — shown below.`);
 				return { kind: "morphed" };
 			}
 		}

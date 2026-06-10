@@ -110,7 +110,11 @@
 	 * collapsing into body in a demoted context yet bounds it in a generous one.
 	 */
 	.mo-text[data-as="display"] {
-		font-size: clamp(var(--mo-ctx-type, var(--mo-type-4)), calc(var(--mo-ctx-type, var(--mo-type-4)) * 1.5 + 1.4vw), var(--mo-type-8));
+		/* The vw slope is tuned so display actually REACHES the --mo-type-8
+		   ceiling on real desktop widths (~1620px and up); at 1.4vw it only got
+		   there past 2700px, leaving every wide hero undersized against the
+		   documented ramp (DESIGN §4). */
+		font-size: clamp(var(--mo-ctx-type, var(--mo-type-4)), calc(var(--mo-ctx-type, var(--mo-type-4)) * 1.5 + 2.4vw), var(--mo-type-8));
 		font-weight: 500;
 	}
 	.mo-text[data-as="heading"] {

@@ -79,6 +79,12 @@ $effect(() => {
 		display: flex;
 		flex-direction: column;
 		min-block-size: 100vh;
+		/* The shell PAINTS the active dialect's ground. The body's background
+		   resolves from the static :root (gallery) block and never sees the
+		   shell's inline vars — so without this paint, flipping to a dark
+		   dialect leaves bone showing through every transparent band and the
+		   night text lands illegible on the gallery paper. */
+		background: var(--mo-intent-surface-base);
 	}
 	.shell__main {
 		flex: 1 1 auto;

@@ -114,12 +114,15 @@ describe("S4 — engagement and identity morphs stay inside their promised scope
 });
 
 describe("S6 — the plates morph references only the public nine (KRA-359 grep-gate)", () => {
-	it("every image reference in the stage is a b1–b9 plate asset", () => {
+	it("every image reference in the stage is a public asset: a b1–b9 plate or a team portrait", () => {
 		const json = JSON.stringify(homeIntentStage());
 		const refs = json.match(/\/images\/[a-z0-9/._-]+/gi) ?? [];
 		expect(refs.length).toBeGreaterThan(0);
 		for (const ref of refs) {
-			expect(ref, ref).toMatch(/^\/images\/plates\/b[1-9]-/);
+			// The exclusion law is unchanged (no t1-*, no index-0/1, nothing
+			// internal); the team portraits are canon public assets (the bios
+			// the identity morph lifts from the sokrates-website Team section).
+			expect(ref, ref).toMatch(/^\/images\/(plates\/b[1-9]-|team\/)/);
 		}
 	});
 

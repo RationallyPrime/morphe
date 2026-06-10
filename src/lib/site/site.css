@@ -146,6 +146,28 @@
 		order: -1;
 		justify-self: start;
 	}
+	/* The HOME hero plate (the 512px box render) grows to fill its track on
+	   wide grounds, killing the dead band between the copy's edge and the
+	   photograph. Scoped to the home band: the content-page heroes hang
+	   portrait plates that must not inflate. */
+	.s-section--hero .s-hero__plate {
+		max-inline-size: 33rem;
+	}
+}
+
+/* Landscape laptops — wide but NOT tall (1366×768 … 1536×864 … 1440×900).
+   The stage home's contract is "a short statement, then the composer" (ADR-0006
+   D7): on these viewports the hero must HAND OFF, so the band tightens and the
+   plate caps lower until the composer's work surface visibly enters the first
+   fold. Tall grounds (vertical monitors, full-height desktops) keep the
+   generous band — this is an aspect correction, not a new default. */
+@media (min-width: 60rem) and (max-height: 64rem) {
+	.s-section--hero {
+		padding-block: clamp(1.5rem, 4vh, 2.75rem);
+	}
+	.s-section--hero .s-hero__plate {
+		max-inline-size: 26rem;
+	}
 }
 
 /* The seal plate: the Sókrates mark as a large, faint archival seal — a single

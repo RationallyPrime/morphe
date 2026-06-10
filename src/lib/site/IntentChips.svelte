@@ -31,12 +31,27 @@
 			event.preventDefault();
 		}
 	}
+
+	/** A stage-delta chip is OPEN when the live stage shows its branch. */
+	function isOpen(intent: SiteIntent): boolean {
+		return (
+			intent.action.kind === "stage-delta" &&
+			intentEngine.choices?.[intent.action.id] === intent.action.choice
+		);
+	}
 </script>
 
 <nav class="chips" aria-label="What would you like to know?">
 	{#each intents as intent (intent.id)}
-		<a class="chip" href={intent.href} onclick={(e) => onChipClick(e, intent)}>
-			{intent.label}
+		{@const expanded = isOpen(intent)}
+		<a
+			class="chip"
+			class:chip--open={expanded}
+			href={intent.href}
+			aria-expanded={intent.action.kind === "stage-delta" ? expanded : undefined}
+			onclick={(e) => onChipClick(e, intent)}
+		>
+			{intent.label}{#if expanded}<span class="chip__close" aria-hidden="true">×</span>{/if}
 		</a>
 	{/each}
 </nav>
@@ -77,6 +92,26 @@
 	.chip:focus-visible {
 		outline: 2px solid var(--mo-intent-primary-action-ring);
 		outline-offset: 2px;
+	}
+
+	/* An OPEN chip: the catalog-accent register marks the live entry, and the
+	   close glyph says the same click puts it away (aria-expanded carries the
+	   state for AT; the glyph is decoration). */
+	.chip--open {
+		background: var(--mo-intent-accession-surface);
+		color: var(--mo-intent-accession-on);
+		outline-color: var(--mo-intent-accession-border);
+	}
+	.chip--open:hover {
+		background: var(--mo-intent-accession-hover);
+	}
+	.chip--open:active {
+		background: var(--mo-intent-accession-active);
+	}
+	.chip__close {
+		margin-inline-start: var(--mo-space-3);
+		font-size: var(--mo-type-4);
+		line-height: 1;
 	}
 
 	/* The live region is for AT only; visually it does not exist. */

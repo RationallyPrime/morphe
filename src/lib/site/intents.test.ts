@@ -225,6 +225,17 @@ describe("I4 — stage deltas ride the R2 gate (render totality at the morph sea
 		expect(outcome).toEqual({ kind: "rejected", reason: "out-of-range" });
 		expect(intentEngine.stage).toBe(envelope);
 	});
+
+	it("re-executing the OPEN morph closes it back to the Vary default (toggle)", () => {
+		intentEngine.setStage(envelope);
+		expect(intentEngine.execute(deltaIntent("stage-mode", 1))).toEqual({ kind: "morphed" });
+		expect(intentEngine.choices).toEqual({ "stage-mode": 1 });
+		// Same intent again: the open branch closes — the Vary returns to its
+		// authored default (no `default` field on this Vary, so option 0).
+		expect(intentEngine.execute(deltaIntent("stage-mode", 1))).toEqual({ kind: "morphed" });
+		expect(intentEngine.choices).toEqual({ "stage-mode": 0 });
+		expect(intentEngine.announcement).toBe("Closed.");
+	});
 });
 
 describe("I5 — content morphs consume the shared stage-delta path", () => {
@@ -256,6 +267,12 @@ describe("I5 — content morphs consume the shared stage-delta path", () => {
 		expect(envelope.tree.id).toBe(HOME_INTENT_STAGE_ID);
 		expect(envelope.tree.default).toBe(HOME_STAGE_CHOICES.default);
 		expect(envelope.tree.options).toHaveLength(6);
+		// The resting stage IS the plates tease (not an empty branch): the
+		// plates chip transforms it in place instead of stacking a duplicate.
+		expect(envelope.tree.options[HOME_STAGE_CHOICES.default]).toMatchObject({
+			kind: "compound",
+			name: "SiteFeatureSplit",
+		});
 	});
 
 	it("executes each authored content morph through the same engine gate", () => {

@@ -233,7 +233,10 @@ Craft constraints:
   morph is a hand-authored Delta against the stage's `Vary` envelope, validated
   by the same gates as everything else (a malformed morph is rejected, never
   rendered). Chips are real anchors (the no-JS ground truth); morphs are
-  progressive enhancement.
+  progressive enhancement. The stage's default branch is the standing plates
+  tease (the resting state — never an empty hole), a morph replaces it in
+  place, and re-invoking the open intent closes it (toggle; the open chip is
+  marked with the accession register, `aria-expanded` and a close glyph).
 - **Native-control-surface idiom.** Morphe `Button` is declarative (no live wire)
   and `Link` is an inline underlined `<a>`. So conversion CTAs and interactive
   controls (the composer, the contact + onboarding forms) live **outside** the
