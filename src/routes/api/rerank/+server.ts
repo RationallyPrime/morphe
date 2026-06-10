@@ -2,8 +2,7 @@
  * POST /api/rerank — the composer's two-stage ranking pipeline (ADR-0002, WS9).
  *
  * Body: { pain: string, systems?: string[] }. The visitor's typed pain is a normal
- * web query (categorically NOT their operations data — the composer never touches
- * their systems), so embedding/reranking it server-side is fine. The KEY stays
+ * web query, so embedding/reranking it server-side is fine. The KEY stays
  * server-side; the browser only ever sees ranked capability ids + scores.
  *
  * Pipeline:
@@ -15,10 +14,10 @@
  *      relevance order. The relevance THRESHOLD and the result CAP are applied
  *      client-side (D4/D5), where the on-voice copy lives.
  *
- * Graceful by construction: missing key, empty pain, no eligible caps, or any Voyage
- * failure returns { source: "fallback" } (HTTP 200) and the client falls back to its
- * deterministic matcher. The surface never shows an error. The reranker only REORDERS
- * real, grounded capabilities; it never invents one, so the grounding guarantee holds.
+ * Expected failures are quiet: missing key, empty pain, no eligible caps, or any
+ * Voyage failure returns { source: "fallback" } (HTTP 200) and the client falls
+ * back to its deterministic matcher. The reranker only reorders real, grounded
+ * capabilities; it never invents one, so the grounding guarantee holds.
  */
 
 import { error, json } from "@sveltejs/kit";

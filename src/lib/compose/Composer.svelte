@@ -6,8 +6,8 @@
  * point and names the systems they run; we rank concrete cross-system automations,
  * each cited to real endpoints and real compiled model names.
  *
- * READ-ONLY by construction: the surface shows the MAP of what Sókrates can do; it
- * does not touch the visitor's systems. The appliance is what acts, under governance.
+ * The surface answers a stated pain against the systems the visitor names. The
+ * appliance and its authority model live behind the result, not in the control copy.
  *
  * RANKING (ADR-0002, WS9): on submit we POST { pain, systems } to /api/rerank, which
  * runs the two-stage pipeline server-side (embed query -> system-aware cosine retrieve
@@ -28,7 +28,6 @@ import {
 	CATEGORY_LABELS,
 	composeAnswer,
 	emptyState,
-	featuredCapabilities,
 	matchCapabilities,
 	offDomainState,
 	parseQuery,
@@ -54,6 +53,13 @@ const RESULT_LIMIT = 4;
 // are tunable constants, not a model property — refine against real queries.
 const SCORE_FLOOR = 0.35;
 const SCORE_STRONG = 0.45;
+
+const EXAMPLE_PAINS: readonly string[] = [
+	"Overtime keeps surprising finance",
+	"Won deals stall before staffing",
+	"Invoices lag behind worked shifts",
+	"Customer margins take days to explain",
+];
 
 /** A capability id with its reranker score, or null for the deterministic fallback. */
 interface Scored {
@@ -91,7 +97,6 @@ function toggleSystem(id: string): void {
 }
 
 const query = $derived(parseQuery({ pain, systems: selected }));
-const featured = $derived(featuredCapabilities(query.systems));
 
 // Deterministic fallback: the tag matcher is already relevance-gated (it returns []
 // for an unrecognized pain — no padding to the full corpus), so its matches are the
@@ -140,6 +145,12 @@ function onPainKeydown(e: KeyboardEvent): void {
 	}
 }
 
+function chooseExample(example: string): void {
+	if (ranking) return;
+	pain = example;
+	void compose();
+}
+
 // Resolve scored ids to capabilities, preserving rank order and re-filtering by the
 // CURRENT selection (defensive against the brief stale window between a toggle and its
 // debounced re-rank). Drops any id not in the corpus or no longer system-eligible.
@@ -155,12 +166,12 @@ function resolveCaps(scored: Scored[]): { cap: Capability; score: number | null 
 
 // The answer tree: the relevance policy (D4/D5) over the submitted ranking.
 const tree = $derived.by(() => {
-	if (result === null) return emptyState(query, featured);
+	if (result === null) return emptyState(query);
 
 	const resolved = resolveCaps(result.scored);
 	// No eligible capability for this selection (e.g. nothing selected) — or a transient
 	// stale-filter window after a toggle: show the breadth, never the off-domain refusal.
-	if (resolved.length === 0) return emptyState(query, featured);
+	if (resolved.length === 0) return emptyState(query);
 
 	// Deterministic fallback: the matcher is the gate; no score threshold to apply.
 	if (result.source === "local") {
@@ -194,10 +205,9 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 	<header class="control">
 		<h2 class="control__title">What can Sókrates do for you?</h2>
 		<p class="control__lede">
-			Name the friction and the systems you run. Sókrates surfaces concrete
-			cross-system automations, each one cited to real endpoints and the models it
-			compiled from your specs. This shows the map of what is possible. It is
-			read-only; it does not touch your systems.
+			Name the friction and the systems you run. Sókrates returns the few
+			cross-system moves that fit, with the endpoints and model names behind each
+			one.
 		</p>
 
 		<form
@@ -217,6 +227,19 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 					bind:value={pain}
 					onkeydown={onPainKeydown}
 				></textarea>
+			</div>
+
+			<div class="examples" aria-label="Example friction">
+				{#each EXAMPLE_PAINS as example}
+					<button
+						type="button"
+						class="example-chip"
+						disabled={ranking}
+						onclick={() => chooseExample(example)}
+					>
+						{example}
+					</button>
+				{/each}
 			</div>
 
 			<fieldset class="systems">
@@ -244,7 +267,7 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 
 			<div class="actions">
 				<button type="submit" class="actions__submit" disabled={ranking}>
-					{ranking ? "Ranking…" : "Show me what's possible"}
+					{ranking ? "Ranking…" : "Show the fit"}
 				</button>
 				{#if stale}
 					<span class="actions__hint">Run it again to update the results.</span>
@@ -252,10 +275,7 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 			</div>
 		</form>
 
-		<p class="control__note">
-			Ranked on submit. It reads nothing from your systems and changes nothing.
-			The appliance is what acts, under governance.
-		</p>
+		<p class="control__note">Ranked on submit from the systems you choose here.</p>
 	</header>
 
 	<main class="surface">
@@ -343,6 +363,44 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 	.field__input:focus-visible {
 		outline: 2px solid var(--mo-intent-primary-action-ring);
 		outline-offset: 1px;
+	}
+
+	.examples {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-3);
+	}
+	.example-chip {
+		appearance: none;
+		min-block-size: 2.75rem;
+		border: 0;
+		border-radius: var(--mo-radius-full);
+		padding: var(--mo-space-3) var(--mo-space-5);
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface);
+		font-family: var(--mo-font-body);
+		font-size: var(--mo-type-3);
+		font-weight: 500;
+		cursor: pointer;
+		outline: 1px solid var(--mo-intent-outline);
+		outline-offset: -1px;
+		transition:
+			color 160ms ease,
+			outline-color 160ms ease,
+			background-color 160ms ease;
+	}
+	.example-chip:hover:not(:disabled) {
+		background: var(--mo-intent-primary-action-hover);
+		color: var(--mo-intent-primary-action-on);
+		outline-color: transparent;
+	}
+	.example-chip:disabled {
+		cursor: default;
+		opacity: 0.64;
+	}
+	.example-chip:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
 	}
 
 	.systems {

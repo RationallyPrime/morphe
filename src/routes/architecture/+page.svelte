@@ -19,7 +19,7 @@
 	<title>Architecture — Sókrates</title>
 	<meta
 		name="description"
-		content="Five primitives, one typed hypergraph, a signed envelope on every act. Hyle, Eidos, Demiurge, Aition, and the four-agent core, in third-person structural detail."
+		content="Five primitives, one typed hypergraph, one authority record for every act. Hyle, Eidos, Demiurge, Aition, and the four-agent core, in third-person structural detail."
 	/>
 </svelte:head>
 
@@ -31,7 +31,7 @@
 				<CtaLink href="/" label="See what it can do" variant="primary" />
 				<CtaLink href="/how-it-works" label="How it works" variant="secondary" />
 			</div>
-			<p class="s-proof">Read-side discovery always on. Write-side action only under a current envelope.</p>
+			<p class="s-proof">Evidence first. Action only with current authority.</p>
 		</div>
 		<figure class="s-hero__seal" aria-hidden="true">
 			<img class="s-hero__seal-img" src="/images/sokrates-mark.svg" alt="" width="220" height="220" />

@@ -14,9 +14,9 @@
  * grounded in the ACTUAL endpoints + the Eidos/Pydantic models Hyle compiled.
  * That grounding is the whole pitch: not a claim, an artifact you can verify.
  *
- * Read-only by construction here. The site shows the MAP of what's possible; the
- * appliance is what acts, under governance. `tier` carries the posture so a
- * capability can never present itself as more than it is on the front door.
+ * The composer surfaces grounded capabilities, not catalogue claims. `tier`
+ * carries the posture so a capability can never present itself as more than it is
+ * on the front door.
  */
 
 /** Stable slug for a source system, e.g. "humanity", "dkplus". */

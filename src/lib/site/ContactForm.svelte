@@ -54,8 +54,8 @@ async function submit(): Promise<void> {
 		<div>
 			<p class="ack__title">Received. Thank you.</p>
 			<p class="ack__body">
-				Hákon reads every one and replies by hand, usually within 48 hours. No deck, no
-				slides — a conversation about the work.
+				Hákon reads every one and replies by hand, usually within 48 hours. The reply
+				starts with the work itself.
 			</p>
 		</div>
 	</div>

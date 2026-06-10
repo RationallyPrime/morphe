@@ -18,7 +18,7 @@
 	registerSiteCompounds();
 
 	const gateLede =
-		"Onboarding starts with your work email: we send a link, the link opens the intake. One click, no password — it keeps the conversation anchored to a real inbox.";
+		"Onboarding starts with your work email: we send a link, the link opens the intake, and the conversation stays anchored to a real inbox.";
 
 	// $derived: data updates in place when navigating locked → token-granted.
 	const intro: Node = $derived({
