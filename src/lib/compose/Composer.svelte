@@ -25,14 +25,17 @@
 import type { Capability } from "$lib/compose";
 import {
 	CAPABILITIES,
+	CATEGORIES,
 	CATEGORY_LABELS,
+	categoryOf,
 	composeAnswer,
+	defaultSelection,
 	emptyState,
 	matchCapabilities,
 	offDomainState,
 	parseQuery,
 	registerComposeCompounds,
-	SYSTEMS,
+	systemsInCategory,
 	thinMatchState,
 } from "$lib/compose";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
@@ -57,8 +60,8 @@ const SCORE_STRONG = 0.45;
 const EXAMPLE_PAINS: readonly string[] = [
 	"Overtime keeps surprising finance",
 	"Won deals stall before staffing",
-	"Invoices lag behind worked shifts",
-	"Customer margins take days to explain",
+	"New hires reach the roster before payroll is ready",
+	"Sales promises work before cash risk is visible",
 ];
 
 /** A capability id with its reranker score, or null for the deterministic fallback. */
@@ -69,8 +72,10 @@ interface Scored {
 
 // Control-surface state. `pain` + `selected` are what the visitor edits; the RANKING
 // is computed on SUBMIT (the pipeline runs server-side), not live as you type.
+// The default selection is ONE system per category (a concrete stack), never the
+// whole matrix — see `defaultSelection` in taxonomy.ts.
 let pain = $state("");
-let selected = $state<string[]>(SYSTEMS.map((s) => s.id));
+let selected = $state<string[]>(defaultSelection());
 
 // The last submitted ranking, or null before anything is submitted (the surface then
 // shows the featured breadth). `source` distinguishes the scored Voyage path (which the
@@ -91,8 +96,16 @@ function scheduleRerank(): void {
 	toggleTimer = setTimeout(() => void compose(), 300);
 }
 
+// Selection is intra-category EXCLUSIVE: a business runs ONE system per category
+// (one ERP, one CRM, …), so picking a system releases any other in its category —
+// a category can hold zero or one selections, never two competing realizations.
 function toggleSystem(id: string): void {
-	selected = selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id];
+	if (selected.includes(id)) {
+		selected = selected.filter((s) => s !== id);
+	} else {
+		const category = categoryOf(id);
+		selected = [...selected.filter((s) => categoryOf(s) !== category), id];
+	}
 	scheduleRerank();
 }
 
@@ -243,20 +256,26 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 			</div>
 
 			<fieldset class="systems">
-				<legend class="systems__legend">Which systems do you run?</legend>
-				<div class="systems__options">
-					{#each SYSTEMS as system (system.id)}
-						<label class="chip" data-active={selected.includes(system.id)}>
-							<input
-								type="checkbox"
-								class="chip__input"
-								checked={selected.includes(system.id)}
-								onchange={() => toggleSystem(system.id)}
-							/>
-							<span class="chip__dot" aria-hidden="true"></span>
-							<span class="chip__label">{system.label}</span>
-							<span class="chip__cat">{CATEGORY_LABELS[system.category]}</span>
-						</label>
+				<legend class="systems__legend">Which systems do you run? One per column.</legend>
+				<div class="systems__groups">
+					{#each CATEGORIES as category (category)}
+						<div class="systems__group" role="group" aria-label={CATEGORY_LABELS[category]}>
+							<span class="systems__cat">{CATEGORY_LABELS[category]}</span>
+							<div class="systems__options">
+								{#each systemsInCategory(category) as system (system.id)}
+									<label class="chip" data-active={selected.includes(system.id)}>
+										<input
+											type="checkbox"
+											class="chip__input"
+											checked={selected.includes(system.id)}
+											onchange={() => toggleSystem(system.id)}
+										/>
+										<span class="chip__dot" aria-hidden="true"></span>
+										<span class="chip__label">{system.label}</span>
+									</label>
+								{/each}
+							</div>
+						</div>
 					{/each}
 				</div>
 				<p class="systems__unlisted">
@@ -419,6 +438,24 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 		text-transform: uppercase;
 		color: var(--mo-intent-on-surface-muted);
 	}
+	/* One column per category; the chips inside a column are mutually exclusive. */
+	.systems__groups {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-4) var(--mo-space-6);
+	}
+	.systems__group {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mo-space-2);
+	}
+	.systems__cat {
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-1);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--mo-intent-on-surface-muted);
+	}
 	.systems__options {
 		display: flex;
 		flex-wrap: wrap;
@@ -497,14 +534,6 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 	.chip[data-active="true"] .chip__dot {
 		background: var(--mo-intent-accession-on);
 	}
-	.chip__cat {
-		font-family: var(--mo-font-mono);
-		font-size: var(--mo-type-1);
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--mo-intent-on-surface-muted);
-	}
-
 	.actions {
 		display: flex;
 		align-items: center;

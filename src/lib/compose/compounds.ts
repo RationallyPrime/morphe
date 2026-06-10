@@ -16,10 +16,10 @@
  *   FlowArrow       — source-system → (label) → target-system; arrow decorative.
  *   SurfaceEvidence — one verifiable endpoint row (method Badge + path caption).
  *   ModelView       — a compiled-model chip (accession register, schema icon).
- *   CapabilityCard  — one cross-system automation card; SLOTS own the variable
- *                     children (flow / evidence / models) so registration is
- *                     order-independent — the card template references NO other
- *                     compound by name.
+ *   CapabilityCard  — one cross-system automation card; the proof (flow /
+ *                     evidence / models) rides an anchored Popover through the
+ *                     `proof` SLOT so registration is order-independent — the
+ *                     card template references NO other compound by name.
  *
  * Authoring idioms copied verbatim from src/routes/_demo/tree.ts (the
  * CatalogueEntry compound): NODE params let the call site own register; STRING
@@ -142,9 +142,14 @@ export const FlowArrow: CompoundDef = {
 				description: "The target/acted-upon system (a Text or Badge node).",
 			},
 			label: {
-				type: "string",
-				default: "",
-				description: "Optional caption on the flow edge (e.g. 'on approval').",
+				type: "node",
+				// Blank Text default — the same no-op idiom as `via`: an omitted label
+				// renders nothing. A NODE param (not a string) so the call site owns the
+				// register; a bare string would coerce to BODY register and render the
+				// verb LARGER than the caption-register system names it sits between.
+				default: { kind: "text", value: "" },
+				description:
+					"Optional caption on the flow edge (e.g. 'reads'), as a Text node in the caption register.",
 			},
 			via: {
 				type: "node",
@@ -341,8 +346,8 @@ export const ModelView: CompoundDef = {
  * CapabilityCard — one cross-system automation.
  *
  * params: title (node, required) · transform (node, required) · value (node,
- *         required) · tier (node, required) · pairing (node)
- * slots:  flow · evidence · models — the variable children the presenter fills.
+ *         required) · tier (node, required) · pairing (node) · wire (node)
+ * slots:  proof — the anchored proof Popover the presenter fills.
  *
  * OUTCOME-LED hierarchy. The customer reads the RESULT first, not the plumbing:
  *
@@ -350,26 +355,27 @@ export const ModelView: CompoundDef = {
  *      words) is the prominent line — the call site sets it strong/subheading so
  *      it carries the visual weight. A reader who knows their friction but not an
  *      API from an Annoying Pipsqueak Infidel sees the result, full stop.
- *   2. SUPPORTING: a quiet header (the domain `pairing` left, the honest tier
- *      Status right — read-only / "Proposes, never acts", which is TRUST, not
- *      jargon), the short human `title`, and one plain `transform` sentence of
- *      what it does. These frame the outcome without competing with it.
- *   3. DEMOTED PROOF: the source -> target FLOW, the verifiable ENDPOINT rows and
- *      the compiled-MODEL chips all live UNDER ONE quiet, default-collapsed
- *      Disclosure at the BOTTOM ("How Sókrates wires this"). The differentiator
- *      stays present and verifiable — it is one click away, a footnote, never a
- *      headline. The proof Disclosure is muted: it does not claim emphasis budget.
+ *   2. SUPPORTING: a quiet header (the domain `pairing` left; the honest tier as
+ *      a MUTED CAPTION right — "Reads, never writes" / "Drafts, you approve" —
+ *      trust stated plainly, never a Status pill shouting caution), the short
+ *      human `title`, and one plain `transform` sentence of what it does. These
+ *      frame the outcome without competing with it.
+ *   3. INSCRIBED PROOF: the source -> target FLOW, the verifiable ENDPOINT rows
+ *      and the compiled-MODEL chips all live inside ONE anchored Popover (the
+ *      `proof` slot) opened by the small ⓘ `wire` trigger in the header. The
+ *      differentiator stays present and verifiable — one tap away on the top
+ *      layer, never a headline, claiming zero resting-card area.
  *
- * CRITICAL: this template references NO other compound by name. The flow /
- * evidence / models children arrive entirely through SLOTS from present.ts —
- * spliced INSIDE the proof Disclosure the template owns — so the card registers
- * cleanly regardless of registration order, and the "quiet, collapsed, at the
- * bottom" posture lives in the template (structure), not the presenter (data).
+ * CRITICAL: this template references NO other compound by name. The proof
+ * Popover arrives entirely through the SLOT from present.ts — the trigger and
+ * the panel carry per-card ids (`anchor`/`id` are plain string fields, which the
+ * factory never interpolates, so BOTH ride in from the call site as nodes: the
+ * trigger through the `wire` param, the panel through the `proof` slot).
  * ========================================================================= */
 
 export const CapabilityCard: CompoundDef = {
 	name: "ComposeCapabilityCard",
-	version: "1.0.0",
+	version: "2.0.0",
 	grammarVersion: "0.1.0",
 	params: {
 		type: "object",
@@ -393,7 +399,7 @@ export const CapabilityCard: CompoundDef = {
 				type: "node",
 				required: true,
 				description:
-					"Governance posture as a Status node — read-only vs proposes — whose signal text renders the honest tier label so a card never presents itself as more than it is.",
+					"Governance posture as a quiet muted-caption Text node — 'Reads, never writes' vs 'Drafts, you approve' — so a card never presents itself as more than it is, without a pill shouting it.",
 			},
 			pairing: {
 				type: "node",
@@ -404,6 +410,14 @@ export const CapabilityCard: CompoundDef = {
 					intent: "accession",
 				},
 				description: "The system pairing label shown in the header (a Text or Badge node).",
+			},
+			wire: {
+				type: "node",
+				// Defaulted to a blank Text node (the FlowArrow `via` no-op idiom): a card
+				// authored without proof renders no orphaned trigger.
+				default: { kind: "text", value: "" },
+				description:
+					"The proof trigger — an icon-only ⓘ Button node carrying the per-card DOM id the proof Popover anchors to. Built by the presenter (ids are string fields the factory cannot interpolate).",
 			},
 		},
 	},
@@ -417,9 +431,9 @@ export const CapabilityCard: CompoundDef = {
 				role: "panel",
 				direction: "block",
 				children: [
-					// Header: the domain pairing (left) + the honest tier Status (right).
-					// Quiet supporting context — it frames the outcome, it does not compete
-					// with it. The tier label (read-only / "Proposes, never acts") is trust.
+					// Header: the domain pairing (left) + the honest tier caption and the ⓘ
+					// proof trigger (right). Quiet supporting context — it frames the outcome,
+					// it does not compete with it.
 					{
 						kind: "cluster",
 						role: "toolbar",
@@ -427,9 +441,18 @@ export const CapabilityCard: CompoundDef = {
 						align: "center",
 						children: [
 							{ kind: "param-ref", param: "pairing" },
-							// The honest governance posture — a Status node from the call site,
-							// tone + signal text driven by the capability's real tier.
-							{ kind: "param-ref", param: "tier" },
+							{
+								kind: "cluster",
+								role: "inline",
+								align: "center",
+								children: [
+									// The honest governance posture — a muted caption from the call
+									// site, its text driven by the capability's real tier.
+									{ kind: "param-ref", param: "tier" },
+									// The inscribed-i: opens the anchored proof Popover.
+									{ kind: "param-ref", param: "wire" },
+								],
+							},
 						],
 					},
 					// THE HERO: the business outcome, in the customer's words. The call site
@@ -440,51 +463,19 @@ export const CapabilityCard: CompoundDef = {
 					// register (a quiet caption under the outcome, not a heading above it).
 					{ kind: "param-ref", param: "title" },
 					{ kind: "spacer", size: "xs" },
-					// DEMOTED PROOF — the differentiator, quieted to a footnote. The flow edge,
-					// the verifiable endpoint rows and the compiled-model chips ALL live inside
-					// this single default-collapsed Disclosure. It stays one click away and
-					// verifiable, never a headline. The summary is plain language ("How Sókrates
-					// wires this"), not jargon; `open` is omitted so it renders collapsed.
-					//
-					// The variable proof children ride through SLOTS spliced INSIDE the
-					// Disclosure, so the template still references no compound by name and the
-					// "quiet, collapsed, at the bottom" posture is owned by the structure here.
+					// The plain-language mechanism lives ON the resting card — the one sentence
+					// written for the reader who will never open the plumbing (call site sets
+					// caption/muted, so it supports the outcome without competing).
+					{ kind: "param-ref", param: "transform" },
+					// INSCRIBED PROOF — the differentiator, demoted to an anchored Popover on
+					// the platform top layer (zero resting area; light-dismiss for free). The
+					// presenter fills this slot with the per-card Popover whose children are
+					// the flow edge, the endpoint citation rows and the model chips. Hidden
+					// until the ⓘ trigger above opens it; an empty fill renders nothing.
 					{
-						kind: "disclosure",
-						summary: "How Sókrates wires this",
-						children: [
-							// The plain-language mechanism, demoted out of the resting card so the
-							// wall reads as pure outcomes; the "how" reveals on demand with the
-							// verifiable plumbing it describes (call site sets caption/muted).
-							{ kind: "param-ref", param: "transform" },
-							// The source → target map edge.
-							{
-								kind: "slot",
-								name: "flow",
-								fallback: [
-									{ kind: "text", value: "Cross-system flow", as: "caption", emphasis: "muted" },
-								],
-							},
-							// Verifiable evidence: the real endpoint rows.
-							{
-								kind: "slot",
-								name: "evidence",
-								fallback: [
-									{
-										kind: "text",
-										value: "Evidence pending compilation.",
-										as: "caption",
-										emphasis: "muted",
-									},
-								],
-							},
-							// Compiled-model chips.
-							{
-								kind: "slot",
-								name: "models",
-								fallback: [],
-							},
-						],
+						kind: "slot",
+						name: "proof",
+						fallback: [],
 					},
 				],
 			},

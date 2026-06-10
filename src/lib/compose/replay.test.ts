@@ -131,207 +131,233 @@ describe("ContextDigest replay harness — compose presenters", () => {
 			          "emphasis": "muted"
 			        },
 			        "tier": {
-			          "kind": "status",
-			          "tone": "info",
-			          "signal": {
-			            "text": "Answers only",
-			            "icon": "visibility"
-			          }
+			          "kind": "text",
+			          "value": "Reads, never writes",
+			          "as": "caption",
+			          "emphasis": "muted"
 			        },
 			        "pairing": {
 			          "kind": "text",
 			          "value": "Labor cost",
 			          "as": "caption",
 			          "emphasis": "muted"
+			        },
+			        "wire": {
+			          "kind": "button",
+			          "id": "wire-schedule-to-labor-cost-forecast",
+			          "variant": "ghost",
+			          "intent": "neutral",
+			          "icon": "info",
+			          "a11y": {
+			            "mode": "aria-label",
+			            "text": "How Sókrates wires this"
+			          }
 			        }
 			      },
 			      "slots": {
-			        "flow": [
+			        "proof": [
 			          {
-			            "kind": "compound",
-			            "name": "ComposeFlowArrow",
-			            "args": {
-			              "source": {
-			                "kind": "text",
-			                "value": "Humanity",
-			                "as": "caption",
-			                "intent": "accession"
-			              },
-			              "target": {
-			                "kind": "text",
-			                "value": "dkPlus",
-			                "as": "caption",
-			                "intent": "accession"
-			              },
-			              "label": "reads"
-			            }
-			          }
-			        ],
-			        "evidence": [
-			          {
-			            "kind": "stack",
-			            "role": "list",
-			            "direction": "block",
-			            "emphasis": "muted",
+			            "kind": "popover",
+			            "anchor": "wire-schedule-to-labor-cost-forecast",
+			            "id": "wire-schedule-to-labor-cost-forecast-proof",
+			            "role": "tooltip",
+			            "placement": "bottom",
 			            "children": [
 			              {
-			                "kind": "text",
-			                "value": "Grounded in 3 real endpoints",
-			                "as": "caption",
-			                "emphasis": "muted"
-			              },
-			              {
-			                "kind": "compound",
-			                "name": "ComposeSurfaceEvidence",
-			                "args": {
-			                  "method": {
-			                    "kind": "badge",
-			                    "label": "GET",
-			                    "intent": "evidence",
-			                    "icon": "api"
+			                "kind": "stack",
+			                "role": "list",
+			                "direction": "block",
+			                "children": [
+			                  {
+			                    "kind": "compound",
+			                    "name": "ComposeFlowArrow",
+			                    "args": {
+			                      "source": {
+			                        "kind": "text",
+			                        "value": "Humanity",
+			                        "as": "caption",
+			                        "intent": "accession"
+			                      },
+			                      "target": {
+			                        "kind": "text",
+			                        "value": "dkPlus",
+			                        "as": "caption",
+			                        "intent": "accession"
+			                      },
+			                      "label": {
+			                        "kind": "text",
+			                        "value": "reads",
+			                        "as": "caption",
+			                        "emphasis": "muted"
+			                      }
+			                    }
 			                  },
-			                  "path": {
-			                    "kind": "text",
-			                    "value": "/shifts",
-			                    "as": "caption",
-			                    "intent": "evidence"
+			                  {
+			                    "kind": "stack",
+			                    "role": "list",
+			                    "direction": "block",
+			                    "emphasis": "muted",
+			                    "children": [
+			                      {
+			                        "kind": "text",
+			                        "value": "Grounded in 3 real endpoints",
+			                        "as": "caption",
+			                        "emphasis": "muted"
+			                      },
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeSurfaceEvidence",
+			                        "args": {
+			                          "method": {
+			                            "kind": "badge",
+			                            "label": "GET",
+			                            "intent": "evidence",
+			                            "icon": "api"
+			                          },
+			                          "path": {
+			                            "kind": "text",
+			                            "value": "/shifts",
+			                            "as": "caption",
+			                            "intent": "evidence"
+			                          },
+			                          "summary": {
+			                            "kind": "text",
+			                            "value": "GET Shifts",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "system": {
+			                            "kind": "text",
+			                            "value": "Humanity",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "direction": {
+			                            "kind": "text",
+			                            "value": "Reads",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          }
+			                        }
+			                      },
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeSurfaceEvidence",
+			                        "args": {
+			                          "method": {
+			                            "kind": "badge",
+			                            "label": "GET",
+			                            "intent": "evidence",
+			                            "icon": "api"
+			                          },
+			                          "path": {
+			                            "kind": "text",
+			                            "value": "/api/v1/general/employee",
+			                            "as": "caption",
+			                            "intent": "evidence"
+			                          },
+			                          "summary": {
+			                            "kind": "text",
+			                            "value": "Using this method you can get all employee´s from the system",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "system": {
+			                            "kind": "text",
+			                            "value": "dkPlus",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "direction": {
+			                            "kind": "text",
+			                            "value": "Reads",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          }
+			                        }
+			                      },
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeSurfaceEvidence",
+			                        "args": {
+			                          "method": {
+			                            "kind": "badge",
+			                            "label": "GET",
+			                            "intent": "evidence",
+			                            "icon": "api"
+			                          },
+			                          "path": {
+			                            "kind": "text",
+			                            "value": "/api/v1/general/dimension2/{page}/{size}",
+			                            "as": "caption",
+			                            "intent": "evidence"
+			                          },
+			                          "summary": {
+			                            "kind": "text",
+			                            "value": "Get dimensions 2 - Cost Centre",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "system": {
+			                            "kind": "text",
+			                            "value": "dkPlus",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          },
+			                          "direction": {
+			                            "kind": "text",
+			                            "value": "Reads",
+			                            "as": "caption",
+			                            "emphasis": "muted"
+			                          }
+			                        }
+			                      }
+			                    ]
 			                  },
-			                  "summary": {
-			                    "kind": "text",
-			                    "value": "GET Shifts",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "system": {
-			                    "kind": "text",
-			                    "value": "Humanity",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "direction": {
-			                    "kind": "text",
-			                    "value": "Reads",
-			                    "as": "caption",
-			                    "emphasis": "muted"
+			                  {
+			                    "kind": "cluster",
+			                    "role": "inline",
+			                    "align": "center",
+			                    "children": [
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeModelView",
+			                        "args": {
+			                          "name": {
+			                            "kind": "text",
+			                            "value": "Shift",
+			                            "as": "caption",
+			                            "intent": "accession"
+			                          }
+			                        }
+			                      },
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeModelView",
+			                        "args": {
+			                          "name": {
+			                            "kind": "text",
+			                            "value": "EmployeeModel",
+			                            "as": "caption",
+			                            "intent": "accession"
+			                          }
+			                        }
+			                      },
+			                      {
+			                        "kind": "compound",
+			                        "name": "ComposeModelView",
+			                        "args": {
+			                          "name": {
+			                            "kind": "text",
+			                            "value": "Dim2Model",
+			                            "as": "caption",
+			                            "intent": "accession"
+			                          }
+			                        }
+			                      }
+			                    ]
 			                  }
-			                }
-			              },
-			              {
-			                "kind": "compound",
-			                "name": "ComposeSurfaceEvidence",
-			                "args": {
-			                  "method": {
-			                    "kind": "badge",
-			                    "label": "GET",
-			                    "intent": "evidence",
-			                    "icon": "api"
-			                  },
-			                  "path": {
-			                    "kind": "text",
-			                    "value": "/api/v1/general/employee",
-			                    "as": "caption",
-			                    "intent": "evidence"
-			                  },
-			                  "summary": {
-			                    "kind": "text",
-			                    "value": "Using this method you can get all employee´s from the system",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "system": {
-			                    "kind": "text",
-			                    "value": "dkPlus",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "direction": {
-			                    "kind": "text",
-			                    "value": "Reads",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  }
-			                }
-			              },
-			              {
-			                "kind": "compound",
-			                "name": "ComposeSurfaceEvidence",
-			                "args": {
-			                  "method": {
-			                    "kind": "badge",
-			                    "label": "GET",
-			                    "intent": "evidence",
-			                    "icon": "api"
-			                  },
-			                  "path": {
-			                    "kind": "text",
-			                    "value": "/api/v1/general/dimension2/{page}/{size}",
-			                    "as": "caption",
-			                    "intent": "evidence"
-			                  },
-			                  "summary": {
-			                    "kind": "text",
-			                    "value": "Get dimensions 2 - Cost Centre",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "system": {
-			                    "kind": "text",
-			                    "value": "dkPlus",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  },
-			                  "direction": {
-			                    "kind": "text",
-			                    "value": "Reads",
-			                    "as": "caption",
-			                    "emphasis": "muted"
-			                  }
-			                }
-			              }
-			            ]
-			          }
-			        ],
-			        "models": [
-			          {
-			            "kind": "cluster",
-			            "role": "inline",
-			            "align": "center",
-			            "children": [
-			              {
-			                "kind": "compound",
-			                "name": "ComposeModelView",
-			                "args": {
-			                  "name": {
-			                    "kind": "text",
-			                    "value": "Shift",
-			                    "as": "caption",
-			                    "intent": "accession"
-			                  }
-			                }
-			              },
-			              {
-			                "kind": "compound",
-			                "name": "ComposeModelView",
-			                "args": {
-			                  "name": {
-			                    "kind": "text",
-			                    "value": "EmployeeModel",
-			                    "as": "caption",
-			                    "intent": "accession"
-			                  }
-			                }
-			              },
-			              {
-			                "kind": "compound",
-			                "name": "ComposeModelView",
-			                "args": {
-			                  "name": {
-			                    "kind": "text",
-			                    "value": "Dim2Model",
-			                    "as": "caption",
-			                    "intent": "accession"
-			                  }
-			                }
+			                ]
 			              }
 			            ]
 			          }

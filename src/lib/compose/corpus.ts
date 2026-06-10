@@ -1,6 +1,6 @@
 /**
- * THE COMPOSE CORPUS — cross-system capabilities as typed, GROUNDED data, now
- * over THREE systems (Humanity, dkPlus, Twenty CRM) and subset-aware.
+ * THE COMPOSE CORPUS — cross-system capabilities as typed, GROUNDED data over
+ * Humanity, dkPlus, Business Central, Twenty CRM and 50skills.
  *
  * Each `Capability` is one automation the composer surfaces. Every `surface` is
  * copied from a REAL operation in `data/evidence/*.json` (operationId/method/path/
@@ -13,26 +13,30 @@
  *
  * SUBSET-AWARE: each capability declares the FULL `systems` set it requires and
  * only surfaces when that set is a subset of the visitor's selected systems. The
- * corpus spans the whole lattice — single-system (Twenty-only, Humanity-only,
- * dkPlus-only), the three pairs (Twenty×dkPlus, Twenty×Humanity, Humanity×dkPlus)
- * and the three-way "deal to delivery" loop.
+ * corpus spans exact product footprints, including "choose one from each category"
+ * variants across CRM, ERP, WFM and workflow.
  *
  * `tier` is "read-only" for pure read/analyze/forecast/detect/report capabilities
  * and "proposes" for ones that draft/recommend/route for approval. Never "acts"
  * on this surface.
  *
  * Source of truth for the original 45: `data/capability-seed.md` (in order).
- * Grounding source: `data/evidence/{humanity,dkplus,twenty}.json`.
+ * Grounding source: `data/evidence/*.json`.
  */
 
-import type { Capability, CapabilityCorpus, SystemRef } from "./capability.js";
+import type { Capability, CapabilityCorpus, SurfaceUse, SystemRef } from "./capability.js";
 import { SYSTEMS } from "./taxonomy.js";
 
 const HUMANITY: SystemRef = { id: "humanity", label: "Humanity" };
 const DKPLUS: SystemRef = { id: "dkplus", label: "dkPlus" };
+const BUSINESS_CENTRAL: SystemRef = {
+	id: "businesscentral",
+	label: "Business Central",
+};
 const TWENTY: SystemRef = { id: "twenty", label: "Twenty" };
+const FIFTY_SKILLS: SystemRef = { id: "50skills", label: "50skills" };
 
-export const CAPABILITIES: readonly Capability[] = [
+const BASE_CAPABILITIES: readonly Capability[] = [
 	// 1
 	{
 		id: "approved-timeclock-to-payroll-work-journal-posting",
@@ -4859,6 +4863,2038 @@ export const CAPABILITIES: readonly Capability[] = [
 		models: ["CompanyForResponse", "Employee", "CompanyStatusResponse"],
 		tier: "read-only",
 	},
+	// 114 — 50skills
+	{
+		id: "50skills-journey-bottleneck-brief",
+		title: "Employee journey bottleneck brief",
+		painPoints: ["onboarding", "offboarding", "approvals", "reporting"],
+		systems: ["50skills"],
+		source: FIFTY_SKILLS,
+		target: FIFTY_SKILLS,
+		transform:
+			"Read journey statistics, recent journey changes and waiting actions to show which employee journeys are stuck and what is holding them.",
+		value:
+			"HR sees the onboarding and offboarding work that is blocking people before it turns into manager chasing.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/journeys/statistics",
+				operationId: "journeys_statistics_list",
+				summary: "",
+				model: "Statistics",
+			},
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/modified",
+				operationId: "traveller_journeys_modified_list",
+				summary: "",
+				model: "ModifiedTravellerJourneys",
+			},
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-actions",
+				operationId: "traveller_actions_list",
+				summary: "List traveller actions",
+				model: "TravellerActionDetail",
+			},
+		],
+		models: ["Statistics", "ModifiedTravellerJourneys", "TravellerActionDetail"],
+		tier: "read-only",
+	},
+	// 115 — Business Central
+	{
+		id: "business-central-cash-exposure-radar",
+		title: "Business Central cash exposure radar",
+		painPoints: ["invoicing", "margin", "reporting", "anomaly"],
+		systems: ["businesscentral"],
+		source: BUSINESS_CENTRAL,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Read aged receivables, customer financial details, sales invoices and ledger entries to rank cash exposure by customer and operating area.",
+		value:
+			"Finance sees the customers putting cash and margin at risk without waiting for a spreadsheet aging run.",
+		surfaces: [
+			{
+				system: "businesscentral",
+				direction: "read",
+				method: "GET",
+				path: "/companies({company_id})/agedAccountsReceivable",
+				operationId: "listAgedAccountsReceivable",
+				summary: "Returns a list of agedAccountsReceivable",
+				model: "agedAccountsReceivable",
+			},
+			{
+				system: "businesscentral",
+				direction: "read",
+				method: "GET",
+				path: "/companies({company_id})/customerFinancialDetails",
+				operationId: "listCustomerFinancialDetails",
+				summary: "Returns a list of customerFinancialDetails",
+				model: "customerFinancialDetail",
+			},
+			{
+				system: "businesscentral",
+				direction: "read",
+				method: "GET",
+				path: "/companies({company_id})/generalLedgerEntries",
+				operationId: "listGeneralLedgerEntries",
+				summary: "Returns a list of generalLedgerEntries",
+				model: "generalLedgerEntry",
+			},
+		],
+		models: ["agedAccountsReceivable", "customerFinancialDetail", "generalLedgerEntry"],
+		tier: "read-only",
+	},
+	// 116 — Twenty × Business Central
+	{
+		id: "won-opportunity-to-business-central-order",
+		title: "Won opportunity to Business Central order",
+		painPoints: ["deals", "sales-pipeline", "invoicing", "crm"],
+		systems: ["twenty", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Read closed-won Twenty opportunities, ensure the Business Central customer exists, then draft the sales order that turns the win into operational revenue.",
+		value:
+			"Closed deals stop living as sales promises and become orders finance and delivery can actually work from.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/customers",
+				operationId: "postCustomer",
+				summary: "Creates an object of type customer in Dynamics 365 Business Central",
+				model: "customer",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesOrders",
+				operationId: "postSalesOrder",
+				summary: "Creates an object of type salesOrder in Dynamics 365 Business Central",
+				model: "salesOrder",
+			},
+		],
+		models: ["OpportunityForResponse", "customer", "salesOrder"],
+		tier: "proposes",
+	},
+	// 117 — Business Central × Twenty
+	{
+		id: "business-central-cash-risk-back-to-crm",
+		title: "Business Central cash risk back to CRM",
+		painPoints: ["invoicing", "crm", "sales-pipeline", "margin"],
+		systems: ["businesscentral", "twenty"],
+		source: BUSINESS_CENTRAL,
+		target: TWENTY,
+		transform:
+			"Read overdue balances and customer financial details in Business Central, then post risk notes and owner tasks on the matching Twenty account.",
+		value:
+			"Sales sees collection risk before promising renewals, discounts or expansion work to the wrong account.",
+		surfaces: [
+			{
+				system: "businesscentral",
+				direction: "read",
+				method: "GET",
+				path: "/companies({company_id})/agedAccountsReceivable",
+				operationId: "listAgedAccountsReceivable",
+				summary: "Returns a list of agedAccountsReceivable",
+				model: "agedAccountsReceivable",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/tasks",
+				operationId: "createOneTask",
+				summary: "Create One task",
+				model: "TaskForResponse",
+			},
+		],
+		models: ["agedAccountsReceivable", "NoteForResponse", "TaskForResponse"],
+		tier: "proposes",
+	},
+	// 118 — Humanity × Business Central
+	{
+		id: "approved-humanity-time-to-business-central-time-registration",
+		title: "Approved Humanity time to Business Central time registration",
+		painPoints: ["payroll", "labor-cost", "approvals", "utilization"],
+		systems: ["humanity", "businesscentral"],
+		source: HUMANITY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Read approved Humanity timeclocks and shifts, match them to Business Central employees and projects, then draft time registration entries.",
+		value:
+			"Approved work lands in finance while it is still fresh instead of being reconstructed at payroll close.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/employees({employee_id})/timeRegistrationEntries",
+				operationId: "postTimeRegistrationEntryForEmployee",
+				summary: "Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+				model: "timeRegistrationEntry",
+			},
+		],
+		models: ["Timeclock", "Shift", "timeRegistrationEntry"],
+		tier: "proposes",
+	},
+	// 119 — Humanity × Business Central
+	{
+		id: "completed-humanity-work-to-business-central-invoice",
+		title: "Completed Humanity work to Business Central invoice",
+		painPoints: ["invoicing", "labor-cost", "margin", "payroll"],
+		systems: ["humanity", "businesscentral"],
+		source: HUMANITY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Read completed Humanity time, attach it to Business Central projects and customers, then draft invoice lines from the labor actually delivered.",
+		value:
+			"Billable work turns into invoice-ready revenue before the customer or manager has to ask for it.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesInvoices",
+				operationId: "postSalesInvoice",
+				summary: "Creates an object of type salesInvoice in Dynamics 365 Business Central",
+				model: "salesInvoice",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines",
+				operationId: "postSalesInvoiceLineForSalesInvoice",
+				summary: "Creates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+				model: "salesInvoiceLine",
+			},
+		],
+		models: ["Timeclock", "salesInvoice", "salesInvoiceLine"],
+		tier: "proposes",
+	},
+	// 120 — 50skills × Business Central
+	{
+		id: "50skills-new-hire-to-business-central-employee",
+		title: "50skills new hire to Business Central employee",
+		painPoints: ["onboarding", "hiring", "payroll", "approvals"],
+		systems: ["50skills", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"When a 50skills traveller journey reaches the approved new-hire step, create the Business Central employee and attach the onboarding document trail.",
+		value:
+			"A signed-off hire becomes payroll-ready without HR retyping the same person into finance.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_list",
+				summary: "List traveller journeys",
+				model: "TravellerJourney",
+			},
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/documents/{short_id}/document",
+				operationId: "documents_document_retrieve",
+				summary: "",
+				model: "Document",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/employees",
+				operationId: "postEmployee",
+				summary: "Creates an object of type employee in Dynamics 365 Business Central",
+				model: "employee",
+			},
+		],
+		models: ["TravellerJourney", "Document", "employee"],
+		tier: "proposes",
+	},
+	// 121 — 50skills × dkPlus
+	{
+		id: "50skills-new-hire-to-dkplus-employee",
+		title: "50skills new hire to dkPlus employee",
+		painPoints: ["onboarding", "hiring", "payroll", "approvals"],
+		systems: ["50skills", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"Use the completed 50skills new-hire journey and document trail to draft the dkPlus employee record finance needs before the first pay run.",
+		value:
+			"A hire who clears onboarding becomes pay-run ready without HR and finance reconciling two inboxes.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_list",
+				summary: "List traveller journeys",
+				model: "TravellerJourney",
+			},
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/documents/{short_id}/document",
+				operationId: "documents_document_retrieve",
+				summary: "",
+				model: "Document",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/general/employee",
+				operationId: "Employee_CreateEmployee",
+				summary: "Create an employee",
+				model: "EmployeeModel",
+			},
+		],
+		models: ["TravellerJourney", "Document", "EmployeeModel"],
+		tier: "proposes",
+	},
+	// 122 — 50skills × Humanity
+	{
+		id: "50skills-onboarding-to-humanity-schedulable-worker",
+		title: "50skills onboarding to Humanity schedulable worker",
+		painPoints: ["onboarding", "hiring", "scheduling", "compliance"],
+		systems: ["50skills", "humanity"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"When an onboarding journey completes the required forms and actions, create or update the Humanity employee before they appear on a roster.",
+		value:
+			"Managers can schedule the new starter only after the onboarding evidence says they are actually ready.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/forms/public/{uuid}",
+				operationId: "forms_public_retrieve",
+				summary: "Retrieve form",
+				model: "Form",
+			},
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/{short_id}",
+				operationId: "traveller_journeys_retrieve",
+				summary: "Retrieve traveller journey",
+				model: "TravellerJourneyDetail",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/employees",
+				operationId: "post-employee",
+				summary: "POST Employee",
+				model: "Employee",
+			},
+		],
+		models: ["Form", "TravellerJourneyDetail", "Employee"],
+		tier: "proposes",
+	},
+	// 123 — 50skills × Humanity
+	{
+		id: "50skills-offboarding-to-humanity-roster-cleanup",
+		title: "50skills offboarding to Humanity roster cleanup",
+		painPoints: ["offboarding", "scheduling", "payroll", "compliance"],
+		systems: ["50skills", "humanity"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Read offboarding journey changes, inspect future Humanity shifts for the leaver, then draft roster changes before the person disappears from payroll.",
+		value:
+			"Leavers stop carrying future coverage, access and payroll risk the moment offboarding starts.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/modified",
+				operationId: "traveller_journeys_modified_list",
+				summary: "",
+				model: "ModifiedTravellerJourneys",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "DELETE",
+				path: "/shifts/{id}",
+				operationId: "delete-shift",
+				summary: "DELETE Shift",
+				model: "Shift",
+			},
+		],
+		models: ["ModifiedTravellerJourneys", "Shift"],
+		tier: "proposes",
+	},
+	// 124 — Twenty × 50skills
+	{
+		id: "won-deal-to-50skills-implementation-journey",
+		title: "Won deal to 50skills implementation journey",
+		painPoints: ["deals", "onboarding", "customer-comms", "sales-pipeline"],
+		systems: ["twenty", "50skills"],
+		source: TWENTY,
+		target: FIFTY_SKILLS,
+		transform:
+			"When a Twenty opportunity closes, start the matching 50skills traveller journey and create the customer-facing kickoff actions.",
+		value:
+			"Customer onboarding begins from the won deal itself instead of waiting for somebody to remember the hand-off.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys/{short_id}/start",
+				operationId: "traveller_journeys_start_create",
+				summary: "",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney"],
+		tier: "proposes",
+	},
+	// 125 — 50skills × Twenty
+	{
+		id: "50skills-onboarding-risk-back-to-crm",
+		title: "50skills onboarding risk back to CRM",
+		painPoints: ["onboarding", "crm", "sales-pipeline", "customer-comms"],
+		systems: ["50skills", "twenty"],
+		source: FIFTY_SKILLS,
+		target: TWENTY,
+		transform:
+			"Read modified traveller journeys and blocked actions, then create Twenty notes and follow-up tasks on customer accounts whose onboarding is slipping.",
+		value:
+			"Sales and success see onboarding risk while there is still time to save the relationship.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/modified",
+				operationId: "traveller_journeys_modified_list",
+				summary: "",
+				model: "ModifiedTravellerJourneys",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/tasks",
+				operationId: "createOneTask",
+				summary: "Create One task",
+				model: "TaskForResponse",
+			},
+		],
+		models: ["ModifiedTravellerJourneys", "NoteForResponse", "TaskForResponse"],
+		tier: "proposes",
+	},
+	// 126 — Twenty × Humanity × Business Central
+	{
+		id: "business-central-deal-capacity-before-close",
+		title: "Business Central deal capacity before close",
+		painPoints: ["deals", "scheduling", "forecasting", "margin"],
+		systems: ["twenty", "humanity", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Compare late-stage Twenty opportunities with Humanity availability and Business Central projects before the deal is promised.",
+		value:
+			"Sales gets a capacity and margin answer before committing work the business cannot staff profitably.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/shifts",
+				operationId: "get-shifts",
+				summary: "GET Shifts",
+				model: "Shift",
+			},
+			{
+				system: "businesscentral",
+				direction: "read",
+				method: "GET",
+				path: "/companies({company_id})/projects",
+				operationId: "listProjects",
+				summary: "Returns a list of projects",
+				model: "project",
+			},
+		],
+		models: ["OpportunityForResponse", "Shift", "project"],
+		tier: "read-only",
+	},
+	// 127 — Twenty × Humanity × Business Central
+	{
+		id: "business-central-delivered-work-to-crm-and-invoice",
+		title: "Business Central delivered work to CRM and invoice",
+		painPoints: ["invoicing", "crm", "payroll", "customer-comms"],
+		systems: ["twenty", "humanity", "businesscentral"],
+		source: HUMANITY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Use completed Humanity time to draft the Business Central invoice and post a delivery note back on the Twenty account.",
+		value: "Delivered work closes as customer evidence and invoice-ready revenue in the same pass.",
+		surfaces: [
+			{
+				system: "humanity",
+				direction: "read",
+				method: "GET",
+				path: "/timeclocks",
+				operationId: "get-timeclocks",
+				summary: "GET Timeclocks",
+				model: "Timeclock",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesInvoices",
+				operationId: "postSalesInvoice",
+				summary: "Creates an object of type salesInvoice in Dynamics 365 Business Central",
+				model: "salesInvoice",
+			},
+			{
+				system: "twenty",
+				direction: "write",
+				method: "POST",
+				path: "/notes",
+				operationId: "createOneNote",
+				summary: "Create One note",
+				model: "NoteForResponse",
+			},
+		],
+		models: ["Timeclock", "salesInvoice", "NoteForResponse"],
+		tier: "proposes",
+	},
+	// 128 — Twenty × 50skills × Business Central
+	{
+		id: "50skills-business-central-kickoff-to-cash",
+		title: "50skills and Business Central kickoff to cash",
+		painPoints: ["deals", "onboarding", "invoicing", "customer-comms"],
+		systems: ["twenty", "50skills", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Turn a won Twenty opportunity into a 50skills implementation journey and a Business Central customer, order and invoice path.",
+		value:
+			"The customer kickoff, operating order and cash path are created from one commercial commitment.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesOrders",
+				operationId: "postSalesOrder",
+				summary: "Creates an object of type salesOrder in Dynamics 365 Business Central",
+				model: "salesOrder",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney", "salesOrder"],
+		tier: "proposes",
+	},
+	// 129 — Twenty × 50skills × dkPlus
+	{
+		id: "50skills-dkplus-kickoff-to-cash",
+		title: "50skills and dkPlus kickoff to cash",
+		painPoints: ["deals", "onboarding", "invoicing", "customer-comms"],
+		systems: ["twenty", "50skills", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Turn a won Twenty opportunity into a 50skills implementation journey and the dkPlus customer order and billing path.",
+		value:
+			"The customer hand-off starts the workflow and the money path instead of spawning two separate admin jobs.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/order",
+				operationId: "SalesOrder_CreateOrder",
+				summary: "Create Sales Order",
+				model: "StatusValueModel",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney", "StatusValueModel"],
+		tier: "proposes",
+	},
+	// 130 — 50skills × Humanity × Business Central
+	{
+		id: "50skills-humanity-business-central-new-hire-to-first-shift",
+		title: "Completed hire journey to roster and Business Central payroll file",
+		painPoints: ["onboarding", "hiring", "scheduling", "payroll"],
+		systems: ["50skills", "humanity", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"When a new-hire journey completes, create the Humanity employee, reserve the first shift and draft the Business Central employee record.",
+		value:
+			"A new starter moves from paperwork to rostered and payroll-ready without a three-system hand-off.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/{short_id}",
+				operationId: "traveller_journeys_retrieve",
+				summary: "Retrieve traveller journey",
+				model: "TravellerJourneyDetail",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/employees",
+				operationId: "post-employee",
+				summary: "POST Employee",
+				model: "Employee",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/employees",
+				operationId: "postEmployee",
+				summary: "Creates an object of type employee in Dynamics 365 Business Central",
+				model: "employee",
+			},
+		],
+		models: ["TravellerJourneyDetail", "Employee", "employee"],
+		tier: "proposes",
+	},
+	// 131 — 50skills × Humanity × dkPlus
+	{
+		id: "50skills-humanity-dkplus-new-hire-to-first-shift",
+		title: "Completed hire journey to roster and dkPlus pay run",
+		painPoints: ["onboarding", "hiring", "scheduling", "payroll"],
+		systems: ["50skills", "humanity", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"When a new-hire journey completes, create the Humanity employee, reserve the first shift and draft the dkPlus employee record.",
+		value:
+			"First-day readiness stops depending on HR, operations and finance noticing each other in time.",
+		surfaces: [
+			{
+				system: "50skills",
+				direction: "read",
+				method: "GET",
+				path: "/v1/traveller-journeys/{short_id}",
+				operationId: "traveller_journeys_retrieve",
+				summary: "Retrieve traveller journey",
+				model: "TravellerJourneyDetail",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/employees",
+				operationId: "post-employee",
+				summary: "POST Employee",
+				model: "Employee",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/general/employee",
+				operationId: "Employee_CreateEmployee",
+				summary: "Create an employee",
+				model: "EmployeeModel",
+			},
+		],
+		models: ["TravellerJourneyDetail", "Employee", "EmployeeModel"],
+		tier: "proposes",
+	},
+	// 132 — Twenty × 50skills × Humanity
+	{
+		id: "implementation-journey-to-staffed-coverage",
+		title: "Implementation journey to staffed coverage",
+		painPoints: ["onboarding", "deals", "scheduling", "customer-comms"],
+		systems: ["twenty", "50skills", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Start a customer implementation journey from a Twenty deal, then reserve Humanity coverage for the steps that need people on site.",
+		value: "Customer onboarding becomes staffed work, not a CRM task hoping somebody has time.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney", "Shift"],
+		tier: "proposes",
+	},
+	// 133 — Twenty × 50skills × Humanity × Business Central
+	{
+		id: "deal-to-onboard-staff-cash-business-central",
+		title: "Won deal to onboarding, staffing and cash in Business Central",
+		painPoints: ["deals", "onboarding", "scheduling", "invoicing"],
+		systems: ["twenty", "50skills", "humanity", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Turn a won deal into a customer journey, schedule the delivery work and create the Business Central order and invoice path from the same commitment.",
+		value:
+			"The whole post-sale chain is visible before the promise is made: onboarding, crew, order and cash.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+			{
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesOrders",
+				operationId: "postSalesOrder",
+				summary: "Creates an object of type salesOrder in Dynamics 365 Business Central",
+				model: "salesOrder",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney", "Shift", "salesOrder"],
+		tier: "proposes",
+	},
+	// 134 — Twenty × 50skills × Humanity × dkPlus
+	{
+		id: "deal-to-onboard-staff-cash-dkplus",
+		title: "Won deal to onboarding, staffing and cash in dkPlus",
+		painPoints: ["deals", "onboarding", "scheduling", "invoicing"],
+		systems: ["twenty", "50skills", "humanity", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Turn a won deal into a customer journey, schedule the delivery work and create the dkPlus order and invoice path from the same commitment.",
+		value: "Sales can see whether the post-sale machine is real before the customer hears yes.",
+		surfaces: [
+			{
+				system: "twenty",
+				direction: "read",
+				method: "GET",
+				path: "/opportunities",
+				operationId: "findManyOpportunities",
+				summary: "Find Many opportunities",
+				model: "OpportunityForResponse",
+			},
+			{
+				system: "50skills",
+				direction: "write",
+				method: "POST",
+				path: "/v1/traveller-journeys",
+				operationId: "traveller_journeys_create",
+				summary: "Create traveller journey",
+				model: "TravellerJourney",
+			},
+			{
+				system: "humanity",
+				direction: "write",
+				method: "POST",
+				path: "/shifts",
+				operationId: "post-shift",
+				summary: "POST Shift",
+				model: "Shift",
+			},
+			{
+				system: "dkplus",
+				direction: "write",
+				method: "POST",
+				path: "/api/v1/sales/order",
+				operationId: "SalesOrder_CreateOrder",
+				summary: "Create Sales Order",
+				model: "StatusValueModel",
+			},
+		],
+		models: ["OpportunityForResponse", "TravellerJourney", "Shift", "StatusValueModel"],
+		tier: "proposes",
+	},
+];
+
+function realSurface(surface: SurfaceUse): SurfaceUse {
+	return surface;
+}
+
+function uniqueModels(surfaces: readonly SurfaceUse[]): string[] {
+	const out: string[] = [];
+	for (const surface of surfaces) {
+		if (surface.model === undefined || out.includes(surface.model)) continue;
+		out.push(surface.model);
+	}
+	return out;
+}
+
+function completeCapability(
+	capability: Omit<Capability, "models"> & { surfaces: readonly SurfaceUse[] },
+): Capability {
+	const surfaces = [...capability.surfaces];
+	return {
+		...capability,
+		surfaces,
+		models: uniqueModels(surfaces),
+	};
+}
+
+const T_OPPORTUNITIES = realSurface({
+	system: "twenty",
+	direction: "read",
+	method: "GET",
+	path: "/opportunities",
+	operationId: "findManyOpportunities",
+	summary: "Find Many opportunities",
+	model: "OpportunityForResponse",
+});
+const T_COMPANIES = realSurface({
+	system: "twenty",
+	direction: "read",
+	method: "GET",
+	path: "/companies",
+	operationId: "findManyCompanies",
+	summary: "Find Many companies",
+	model: "CompanyForResponse",
+});
+const T_PEOPLE = realSurface({
+	system: "twenty",
+	direction: "read",
+	method: "GET",
+	path: "/people",
+	operationId: "findManyPeople",
+	summary: "Find Many people",
+	model: "PersonForResponse",
+});
+const T_NOTE = realSurface({
+	system: "twenty",
+	direction: "write",
+	method: "POST",
+	path: "/notes",
+	operationId: "createOneNote",
+	summary: "Create One note",
+	model: "NoteForResponse",
+});
+const T_TASK = realSurface({
+	system: "twenty",
+	direction: "write",
+	method: "POST",
+	path: "/tasks",
+	operationId: "createOneTask",
+	summary: "Create One task",
+	model: "TaskForResponse",
+});
+
+const H_SHIFTS = realSurface({
+	system: "humanity",
+	direction: "read",
+	method: "GET",
+	path: "/shifts",
+	operationId: "get-shifts",
+	summary: "GET Shifts",
+	model: "Shift",
+});
+const H_POST_SHIFT = realSurface({
+	system: "humanity",
+	direction: "write",
+	method: "POST",
+	path: "/shifts",
+	operationId: "post-shift",
+	summary: "POST Shift",
+	model: "Shift",
+});
+const H_TIME = realSurface({
+	system: "humanity",
+	direction: "read",
+	method: "GET",
+	path: "/timeclocks",
+	operationId: "get-timeclocks",
+	summary: "GET Timeclocks",
+	model: "Timeclock",
+});
+const H_AVAILABILITY = realSurface({
+	system: "humanity",
+	direction: "read",
+	method: "POST",
+	path: "/employees/availability",
+	operationId: "get-availability-in-date-period",
+	summary: "Get availability in date period",
+	model: "Availability",
+});
+const H_POST_EMPLOYEE = realSurface({
+	system: "humanity",
+	direction: "write",
+	method: "POST",
+	path: "/employees",
+	operationId: "post-employee",
+	summary: "POST Employee",
+	model: "Employee",
+});
+const H_EMPLOYEES = realSurface({
+	system: "humanity",
+	direction: "read",
+	method: "GET",
+	path: "/employees",
+	operationId: "get-employees",
+	summary: "GET Employees",
+	model: "Employee",
+});
+const H_DELETE_SHIFT = realSurface({
+	system: "humanity",
+	direction: "write",
+	method: "DELETE",
+	path: "/shifts/{id}",
+	operationId: "delete-shift",
+	summary: "DELETE Shift",
+	model: "Shift",
+});
+
+const F_JOURNEY_CREATE = realSurface({
+	system: "50skills",
+	direction: "write",
+	method: "POST",
+	path: "/v1/traveller-journeys",
+	operationId: "traveller_journeys_create",
+	summary: "Create traveller journey",
+	model: "TravellerJourney",
+});
+const F_JOURNEY_RETRIEVE = realSurface({
+	system: "50skills",
+	direction: "read",
+	method: "GET",
+	path: "/v1/traveller-journeys/{short_id}",
+	operationId: "traveller_journeys_retrieve",
+	summary: "Retrieve traveller journey",
+	model: "TravellerJourneyDetail",
+});
+const F_JOURNEY_MODIFIED = realSurface({
+	system: "50skills",
+	direction: "read",
+	method: "GET",
+	path: "/v1/traveller-journeys/modified",
+	operationId: "traveller_journeys_modified_list",
+	summary: "",
+	model: "ModifiedTravellerJourneys",
+});
+const F_ACTIONS = realSurface({
+	system: "50skills",
+	direction: "read",
+	method: "GET",
+	path: "/v1/traveller-actions",
+	operationId: "traveller_actions_list",
+	summary: "List traveller actions",
+	model: "TravellerActionDetail",
+});
+const F_RUN_ACTION = realSurface({
+	system: "50skills",
+	direction: "write",
+	method: "POST",
+	path: "/v1/traveller-actions/{id}/run",
+	operationId: "traveller_actions_run_create",
+	summary: "Run traveller action",
+	model: "RunTravellerActionData",
+});
+const F_DOCUMENT = realSurface({
+	system: "50skills",
+	direction: "read",
+	method: "GET",
+	path: "/v1/documents/{short_id}/document",
+	operationId: "documents_document_retrieve",
+	summary: "",
+	model: "Document",
+});
+const F_FORM = realSurface({
+	system: "50skills",
+	direction: "read",
+	method: "GET",
+	path: "/v1/forms/public/{uuid}",
+	operationId: "forms_public_retrieve",
+	summary: "Retrieve form",
+	model: "Form",
+});
+const F_USER_CREATE = realSurface({
+	system: "50skills",
+	direction: "write",
+	method: "POST",
+	path: "/v1/users",
+	operationId: "users_create",
+	summary: "Create user",
+	model: "CompanyUser",
+});
+
+const BC_AGED_AR = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/agedAccountsReceivable",
+	operationId: "listAgedAccountsReceivable",
+	summary: "Returns a list of agedAccountsReceivable",
+	model: "agedAccountsReceivable",
+});
+const BC_CUSTOMERS = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/customers",
+	operationId: "listCustomers",
+	summary: "Returns a list of customers",
+	model: "customer",
+});
+const BC_CUSTOMER_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/customers",
+	operationId: "postCustomer",
+	summary: "Creates an object of type customer in Dynamics 365 Business Central",
+	model: "customer",
+});
+const BC_CUSTOMER_FINANCIAL = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/customerFinancialDetails",
+	operationId: "listCustomerFinancialDetails",
+	summary: "Returns a list of customerFinancialDetails",
+	model: "customerFinancialDetail",
+});
+const BC_EMPLOYEE_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/employees",
+	operationId: "postEmployee",
+	summary: "Creates an object of type employee in Dynamics 365 Business Central",
+	model: "employee",
+});
+const BC_EMPLOYEES = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/employees",
+	operationId: "listEmployees",
+	summary: "Returns a list of employees",
+	model: "employee",
+});
+const BC_LEDGER = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/generalLedgerEntries",
+	operationId: "listGeneralLedgerEntries",
+	summary: "Returns a list of generalLedgerEntries",
+	model: "generalLedgerEntry",
+});
+const BC_PROJECTS = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/projects",
+	operationId: "listProjects",
+	summary: "Returns a list of projects",
+	model: "project",
+});
+const BC_PROJECT_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/projects",
+	operationId: "postProject",
+	summary: "Creates an object of type project in Dynamics 365 Business Central",
+	model: "project",
+});
+const BC_ORDER_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/salesOrders",
+	operationId: "postSalesOrder",
+	summary: "Creates an object of type salesOrder in Dynamics 365 Business Central",
+	model: "salesOrder",
+});
+const BC_INVOICES = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/salesInvoices",
+	operationId: "listSalesInvoices",
+	summary: "Returns a list of salesInvoices",
+	model: "salesInvoice",
+});
+const BC_ORDERS = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/salesOrders",
+	operationId: "listSalesOrders",
+	summary: "Returns a list of salesOrders",
+	model: "salesOrder",
+});
+const BC_INVOICE_LINE_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/salesInvoices({salesInvoice_id})/salesInvoiceLines",
+	operationId: "postSalesInvoiceLineForSalesInvoice",
+	summary: "Creates an object of type salesInvoiceLine in Dynamics 365 Business Central",
+	model: "salesInvoiceLine",
+});
+const BC_TIME_CREATE = realSurface({
+	system: "businesscentral",
+	direction: "write",
+	method: "POST",
+	path: "/companies({company_id})/employees({employee_id})/timeRegistrationEntries",
+	operationId: "postTimeRegistrationEntryForEmployee",
+	summary: "Creates an object of type timeRegistrationEntry in Dynamics 365 Business Central",
+	model: "timeRegistrationEntry",
+});
+const BC_ITEMS = realSurface({
+	system: "businesscentral",
+	direction: "read",
+	method: "GET",
+	path: "/companies({company_id})/items",
+	operationId: "listItems",
+	summary: "Returns a list of items",
+	model: "item",
+});
+
+const DK_CUSTOMERS = realSurface({
+	system: "dkplus",
+	direction: "read",
+	method: "GET",
+	path: "/api/v1/Customer/page/{page}/{count}",
+	operationId: "Customer_GetCustomersPaged",
+	summary: "Get Customers base on Filter",
+	model: "CustomerModel",
+});
+const DK_CUSTOMER_TRANSACTIONS = realSurface({
+	system: "dkplus",
+	direction: "read",
+	method: "GET",
+	path: "/api/v1/Customer/{customer}/transaction",
+	operationId: "Customer_GetCustomerTransactions",
+	summary: "Get Transactions for a Customer",
+	model: "TransactionModel",
+});
+const DK_EMPLOYEE_CREATE = realSurface({
+	system: "dkplus",
+	direction: "write",
+	method: "POST",
+	path: "/api/v1/general/employee",
+	operationId: "Employee_CreateEmployee",
+	summary: "Create an employee",
+	model: "EmployeeModel",
+});
+const DK_EMPLOYEE_WORK = realSurface({
+	system: "dkplus",
+	direction: "write",
+	method: "POST",
+	path: "/api/v1/general/employee/{employee}/work",
+	operationId: "EmployeeWork_CreateEmployeeWork",
+	summary: "Add Employee Work Journal Entry",
+	model: "EmployeeWork",
+});
+const DK_PROJECTS = realSurface({
+	system: "dkplus",
+	direction: "read",
+	method: "GET",
+	path: "/api/v1/project",
+	operationId: "Project_GetProjects",
+	summary: "Get all Projects",
+	model: "ProjectModel",
+});
+const DK_PROJECT_REQUESTS = realSurface({
+	system: "dkplus",
+	direction: "read",
+	method: "GET",
+	path: "/api/v1/projectrequest/{page}/{size}",
+	operationId: "ProjectRequest_GetProjectRequets",
+	summary: "Get Project Requests",
+	model: "Request",
+});
+const DK_ORDER_CREATE = realSurface({
+	system: "dkplus",
+	direction: "write",
+	method: "POST",
+	path: "/api/v1/sales/order",
+	operationId: "SalesOrder_CreateOrder",
+	summary: "Create Sales Order",
+	model: "StatusValueModel",
+});
+const DK_INVOICE_CREATE = realSurface({
+	system: "dkplus",
+	direction: "write",
+	method: "POST",
+	path: "/api/v1/sales/invoice",
+	operationId: "Invoice_CreateInvoice",
+	summary: "Create a Sales Invoice",
+	model: "InvoiceModel",
+});
+
+const LATTICE_COMPLETION_CAPABILITIES: readonly Capability[] = [
+	completeCapability({
+		id: "business-central-margin-guardrail-for-open-deals",
+		title: "Business Central margin guardrail for open deals",
+		painPoints: ["margin", "deals", "quoting", "sales-pipeline"],
+		systems: ["twenty", "businesscentral"],
+		source: BUSINESS_CENTRAL,
+		target: TWENTY,
+		transform:
+			"Compare open Twenty opportunities with Business Central item and customer-financial data, then put a deal-desk task on opportunities that are being priced below the cash reality.",
+		value: "Discounts get checked against margin and payment risk before a rep promises them.",
+		surfaces: [T_OPPORTUNITIES, BC_ITEMS, BC_CUSTOMER_FINANCIAL, T_TASK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-order-exception-to-account-owner",
+		title: "Business Central order exception to account owner",
+		painPoints: ["customer-comms", "deals", "invoicing", "crm"],
+		systems: ["twenty", "businesscentral"],
+		source: BUSINESS_CENTRAL,
+		target: TWENTY,
+		transform:
+			"Read Business Central orders and projects, find customer work drifting away from the account promise, and create a Twenty owner task before the customer asks.",
+		value:
+			"Account owners hear about delivery drift while there is still time to manage the relationship.",
+		surfaces: [BC_PROJECTS, BC_CUSTOMERS, T_COMPANIES, T_TASK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-invoice-proof-to-renewal-motion",
+		title: "Business Central invoice proof to renewal motion",
+		painPoints: ["invoicing", "crm", "customer-comms", "reporting"],
+		systems: ["businesscentral", "twenty"],
+		source: BUSINESS_CENTRAL,
+		target: TWENTY,
+		transform:
+			"Use Business Central invoice and ledger history to create Twenty renewal notes that show what was delivered, billed and still exposed.",
+		value:
+			"Renewal conversations start from paid proof, not from a salesperson rebuilding history.",
+		surfaces: [BC_INVOICES, BC_LEDGER, T_COMPANIES, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "won-deal-to-50skills-handoff-checklist",
+		title: "Won deal to 50skills handoff checklist",
+		painPoints: ["deals", "onboarding", "customer-comms", "approvals"],
+		systems: ["twenty", "50skills"],
+		source: TWENTY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Turn each closed-won Twenty opportunity into a 50skills traveller journey with the kickoff actions the delivery team must clear.",
+		value: "The customer handoff becomes a governed journey instead of a Slack memory test.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, F_ACTIONS],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-blocked-customer-onboarding-to-crm-rescue",
+		title: "50skills blocked onboarding to CRM rescue",
+		painPoints: ["onboarding", "crm", "customer-comms", "sales-pipeline"],
+		systems: ["50skills", "twenty"],
+		source: FIFTY_SKILLS,
+		target: TWENTY,
+		transform:
+			"Read modified 50skills traveller journeys and blocked actions, then create Twenty notes and rescue tasks on the matching customer.",
+		value: "Success sees the stuck handoff before the first value milestone slips.",
+		surfaces: [F_JOURNEY_MODIFIED, F_ACTIONS, T_NOTE, T_TASK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "crm-stakeholder-list-to-50skills-access-pack",
+		title: "CRM stakeholder list to 50skills access pack",
+		painPoints: ["contacts", "onboarding", "customer-comms", "master-data"],
+		systems: ["twenty", "50skills"],
+		source: TWENTY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Use Twenty people on a new account to create the 50skills users and document journey that get the right customer stakeholders into the implementation.",
+		value: "The people named in the sale are the people who receive the onboarding pack.",
+		surfaces: [T_PEOPLE, T_COMPANIES, F_USER_CREATE, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-project-demand-to-humanity-shift-drafts",
+		title: "Business Central project demand to Humanity shift drafts",
+		painPoints: ["scheduling", "forecasting", "utilization", "deals"],
+		systems: ["humanity", "businesscentral"],
+		source: BUSINESS_CENTRAL,
+		target: HUMANITY,
+		transform:
+			"Read Business Central projects due soon, compare them with Humanity availability, and draft the shifts needed to cover the work.",
+		value: "Finance demand becomes schedule demand before managers start guessing coverage.",
+		surfaces: [BC_PROJECTS, H_AVAILABILITY, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "humanity-overtime-to-business-central-margin-alert",
+		title: "Humanity overtime to Business Central margin alert",
+		painPoints: ["overtime", "margin", "labor-cost", "reporting"],
+		systems: ["humanity", "businesscentral"],
+		source: HUMANITY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Compare Humanity timeclocks with Business Central projects and ledger entries to find jobs where overtime is eating the expected margin.",
+		value: "Margin leaks from overtime are visible before the invoice locks in the loss.",
+		surfaces: [H_TIME, BC_PROJECTS, BC_LEDGER],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "business-central-employee-master-to-humanity-roster-readiness",
+		title: "Business Central employee records to Humanity roster readiness",
+		painPoints: ["master-data", "payroll", "scheduling", "onboarding"],
+		systems: ["businesscentral", "humanity"],
+		source: BUSINESS_CENTRAL,
+		target: HUMANITY,
+		transform:
+			"Use Business Central employee records and Humanity employees to find people who are payroll-ready but missing roster setup.",
+		value: "A payroll-ready employee cannot disappear before the first schedule is built.",
+		surfaces: [BC_EMPLOYEES, H_EMPLOYEES, H_SHIFTS],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "50skills-approved-document-to-business-central-customer-file",
+		title: "50skills approved document to Business Central customer file",
+		painPoints: ["onboarding", "approvals", "master-data", "invoicing"],
+		systems: ["50skills", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Use approved 50skills journey documents to create or enrich the Business Central customer record before billing starts.",
+		value: "Finance starts with the signed customer facts, not a copied sales note.",
+		surfaces: [F_JOURNEY_RETRIEVE, F_DOCUMENT, BC_CUSTOMER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-project-launch-to-50skills-journey",
+		title: "Business Central project launch to 50skills journey",
+		painPoints: ["onboarding", "deals", "approvals", "customer-comms"],
+		systems: ["businesscentral", "50skills"],
+		source: BUSINESS_CENTRAL,
+		target: FIFTY_SKILLS,
+		transform:
+			"When a Business Central project is opened, create the 50skills implementation journey and assign the first runnable actions.",
+		value: "The project record starts the customer journey instead of waiting for a coordinator.",
+		surfaces: [BC_PROJECT_CREATE, F_JOURNEY_CREATE, F_RUN_ACTION],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-cash-risk-to-50skills-approval-journey",
+		title: "Business Central cash risk to 50skills approval journey",
+		painPoints: ["invoicing", "approvals", "margin", "customer-comms"],
+		systems: ["businesscentral", "50skills"],
+		source: BUSINESS_CENTRAL,
+		target: FIFTY_SKILLS,
+		transform:
+			"Turn aged receivable exposure in Business Central into a 50skills approval journey for hold, escalation or customer follow-up.",
+		value: "Cash-risk decisions stop hiding in finance spreadsheets and become accountable work.",
+		surfaces: [BC_AGED_AR, BC_CUSTOMER_FINANCIAL, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-user-provisioning-to-business-central-employee",
+		title: "50skills user provisioning to Business Central employee",
+		painPoints: ["onboarding", "payroll", "master-data", "hiring"],
+		systems: ["50skills", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"When a 50skills user clears the employee setup journey, create the Business Central employee record with the document trail attached.",
+		value: "The person approved in HR is the same person finance can pay.",
+		surfaces: [F_USER_CREATE, F_FORM, F_DOCUMENT, BC_EMPLOYEE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-approved-document-to-dkplus-customer-file",
+		title: "50skills approved document to dkPlus customer file",
+		painPoints: ["onboarding", "approvals", "master-data", "invoicing"],
+		systems: ["50skills", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"Use approved 50skills journey documents to verify the dkPlus customer and order details before billing starts.",
+		value: "The first invoice is based on signed onboarding facts, not a copied email.",
+		surfaces: [F_JOURNEY_RETRIEVE, F_DOCUMENT, DK_CUSTOMERS, DK_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "dkplus-project-launch-to-50skills-journey",
+		title: "dkPlus project launch to 50skills journey",
+		painPoints: ["onboarding", "approvals", "customer-comms", "deals"],
+		systems: ["dkplus", "50skills"],
+		source: DKPLUS,
+		target: FIFTY_SKILLS,
+		transform:
+			"When a dkPlus project request is ready, create the 50skills implementation journey and assign the first kickoff actions.",
+		value: "Project demand becomes customer onboarding work without a second admin queue.",
+		surfaces: [DK_PROJECT_REQUESTS, F_JOURNEY_CREATE, F_RUN_ACTION],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "dkplus-cash-risk-to-50skills-approval-journey",
+		title: "dkPlus cash risk to 50skills approval journey",
+		painPoints: ["invoicing", "approvals", "margin", "customer-comms"],
+		systems: ["dkplus", "50skills"],
+		source: DKPLUS,
+		target: FIFTY_SKILLS,
+		transform:
+			"Turn dkPlus customer transaction risk into a 50skills approval journey for credit hold, escalation or account follow-up.",
+		value: "The cash-risk call becomes visible work instead of a private finance judgment.",
+		surfaces: [DK_CUSTOMER_TRANSACTIONS, DK_CUSTOMERS, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-user-provisioning-to-dkplus-employee",
+		title: "50skills user provisioning to dkPlus employee",
+		painPoints: ["onboarding", "payroll", "master-data", "hiring"],
+		systems: ["50skills", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"When a 50skills user clears the employee setup journey, create the dkPlus employee record finance needs for payroll.",
+		value: "Approved HR setup becomes pay-run ready without somebody translating names by hand.",
+		surfaces: [F_USER_CREATE, F_FORM, F_DOCUMENT, DK_EMPLOYEE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-credential-form-to-humanity-position-gate",
+		title: "50skills credential form to Humanity position gate",
+		painPoints: ["onboarding", "compliance", "scheduling", "hiring"],
+		systems: ["50skills", "humanity"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Read completed 50skills credential forms before the worker is created in Humanity or assigned to regulated shifts.",
+		value: "A person is not rostered into regulated work until the evidence exists.",
+		surfaces: [F_FORM, F_DOCUMENT, H_POST_EMPLOYEE, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-blocked-action-to-humanity-schedule-freeze",
+		title: "50skills blocked action to Humanity schedule freeze",
+		painPoints: ["onboarding", "scheduling", "approvals", "compliance"],
+		systems: ["50skills", "humanity"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Detect blocked 50skills traveller actions and prevent the affected worker from being added to Humanity shifts until the action clears.",
+		value: "Managers stop scheduling around paperwork that is not actually finished.",
+		surfaces: [F_ACTIONS, F_JOURNEY_MODIFIED, H_SHIFTS, H_DELETE_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "humanity-first-shift-to-50skills-day-one-journey",
+		title: "Humanity first shift to 50skills day-one journey",
+		painPoints: ["onboarding", "scheduling", "hiring", "customer-comms"],
+		systems: ["humanity", "50skills"],
+		source: HUMANITY,
+		target: FIFTY_SKILLS,
+		transform:
+			"When a new employee receives their first Humanity shift, start the 50skills day-one journey and run the welcome actions.",
+		value: "The first shift automatically carries the onboarding work that makes it safe.",
+		surfaces: [H_SHIFTS, H_POST_EMPLOYEE, F_JOURNEY_CREATE, F_RUN_ACTION],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-deal-project-and-crew-go-no-go",
+		title: "Business Central deal, project and crew go/no-go",
+		painPoints: ["deals", "scheduling", "forecasting", "margin"],
+		systems: ["twenty", "humanity", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Check late-stage Twenty opportunities against Humanity availability and Business Central project load before the commitment is accepted.",
+		value: "A deal gets a staffing and margin answer before the customer hears yes.",
+		surfaces: [T_OPPORTUNITIES, H_AVAILABILITY, BC_PROJECTS, BC_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-worked-time-to-account-health",
+		title: "Business Central worked time to account health",
+		painPoints: ["crm", "labor-cost", "invoicing", "customer-comms"],
+		systems: ["twenty", "humanity", "businesscentral"],
+		source: HUMANITY,
+		target: TWENTY,
+		transform:
+			"Combine Humanity timeclocks with Business Central invoices and post a Twenty account note when delivered work is not matching the customer story.",
+		value: "The account team sees the work and the money in the same customer thread.",
+		surfaces: [H_TIME, BC_INVOICES, T_COMPANIES, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-cash-risk-capacity-reprioritizer",
+		title: "Business Central cash-risk capacity reprioritizer",
+		painPoints: ["invoicing", "scheduling", "margin", "utilization"],
+		systems: ["businesscentral", "humanity", "twenty"],
+		source: BUSINESS_CENTRAL,
+		target: HUMANITY,
+		transform:
+			"Use Business Central receivables and Twenty account ownership to prioritize Humanity coverage toward customers whose cash risk or strategic value justifies it.",
+		value: "Capacity goes where customer value and cash exposure make it worth spending.",
+		surfaces: [BC_AGED_AR, T_COMPANIES, H_AVAILABILITY, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-kickoff-pack-from-won-deal",
+		title: "Business Central kickoff pack from won deal",
+		painPoints: ["deals", "onboarding", "invoicing", "customer-comms"],
+		systems: ["twenty", "50skills", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Turn a won Twenty deal into a 50skills kickoff journey and the Business Central customer and order records finance needs.",
+		value: "Commercial commitment, customer journey and finance setup begin from the same event.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, BC_CUSTOMER_CREATE, BC_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-implementation-slip-to-business-central-cash-forecast",
+		title: "50skills implementation slip to Business Central cash forecast",
+		painPoints: ["onboarding", "forecasting", "invoicing", "customer-comms"],
+		systems: ["50skills", "twenty", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Detect slipping 50skills implementation journeys, update the Twenty customer thread, and flag the Business Central order or invoice path at risk.",
+		value: "The cash forecast moves the day an onboarding slips, not the week the invoice fails.",
+		surfaces: [F_JOURNEY_MODIFIED, T_NOTE, BC_ORDERS, BC_INVOICES],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-customer-risk-to-50skills-success-journey",
+		title: "Business Central customer risk to 50skills success journey",
+		painPoints: ["invoicing", "onboarding", "crm", "customer-comms"],
+		systems: ["businesscentral", "twenty", "50skills"],
+		source: BUSINESS_CENTRAL,
+		target: FIFTY_SKILLS,
+		transform:
+			"Use Business Central financial exposure and Twenty ownership to start a 50skills success journey for accounts that need structured intervention.",
+		value: "At-risk customers get a governed rescue path, not another unowned note.",
+		surfaces: [BC_AGED_AR, T_COMPANIES, T_TASK, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-document-pack-to-business-central-order-readiness",
+		title: "50skills document pack to Business Central order readiness",
+		painPoints: ["approvals", "onboarding", "invoicing", "deals"],
+		systems: ["50skills", "twenty", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Check the 50skills document pack for a sold account before creating the Business Central order and posting a readiness note in Twenty.",
+		value: "The order waits for the documents that make it billable.",
+		surfaces: [F_DOCUMENT, T_OPPORTUNITIES, BC_ORDER_CREATE, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "dkplus-kickoff-pack-from-won-deal",
+		title: "dkPlus kickoff pack from won deal",
+		painPoints: ["deals", "onboarding", "invoicing", "customer-comms"],
+		systems: ["twenty", "50skills", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Turn a won Twenty deal into a 50skills kickoff journey and the dkPlus customer order path finance needs.",
+		value:
+			"Sales, onboarding and finance start from the same commitment instead of three handoffs.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, DK_CUSTOMERS, DK_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-implementation-slip-to-dkplus-cash-forecast",
+		title: "50skills implementation slip to dkPlus cash forecast",
+		painPoints: ["onboarding", "forecasting", "invoicing", "customer-comms"],
+		systems: ["50skills", "twenty", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"Detect slipping 50skills implementation journeys, update the Twenty customer thread, and flag the dkPlus order or invoice path at risk.",
+		value: "Cash timing moves with onboarding reality, not month-end explanation.",
+		surfaces: [F_JOURNEY_MODIFIED, T_NOTE, DK_CUSTOMERS, DK_CUSTOMER_TRANSACTIONS],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "dkplus-customer-risk-to-50skills-success-journey",
+		title: "dkPlus customer risk to 50skills success journey",
+		painPoints: ["invoicing", "onboarding", "crm", "customer-comms"],
+		systems: ["dkplus", "twenty", "50skills"],
+		source: DKPLUS,
+		target: FIFTY_SKILLS,
+		transform:
+			"Use dkPlus transaction history and Twenty ownership to start a 50skills success journey for accounts that need structured intervention.",
+		value: "Receivables risk becomes an owned rescue workflow before renewal damage spreads.",
+		surfaces: [DK_CUSTOMER_TRANSACTIONS, T_COMPANIES, T_TASK, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-document-pack-to-dkplus-order-readiness",
+		title: "50skills document pack to dkPlus order readiness",
+		painPoints: ["approvals", "onboarding", "invoicing", "deals"],
+		systems: ["50skills", "twenty", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"Check the 50skills document pack for a sold account before creating the dkPlus order and posting a readiness note in Twenty.",
+		value: "The order starts only when the onboarding evidence is strong enough to bill from.",
+		surfaces: [F_DOCUMENT, T_OPPORTUNITIES, DK_ORDER_CREATE, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "won-deal-to-staffed-implementation-crew",
+		title: "Won deal to staffed implementation crew",
+		painPoints: ["deals", "onboarding", "scheduling", "forecasting"],
+		systems: ["twenty", "50skills", "humanity"],
+		source: TWENTY,
+		target: HUMANITY,
+		transform:
+			"Turn a won Twenty opportunity into a 50skills implementation journey and reserve Humanity availability for the work that needs people.",
+		value: "Customer onboarding comes with an actual crew plan, not a hopeful task.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, H_AVAILABILITY, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-blocked-customer-step-to-crew-replan",
+		title: "50skills blocked customer step to crew replan",
+		painPoints: ["onboarding", "scheduling", "customer-comms", "utilization"],
+		systems: ["50skills", "humanity", "twenty"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"When a customer journey blocks in 50skills, re-check Humanity shifts and create a Twenty note explaining the delivery impact.",
+		value: "Blocked onboarding stops wasting crew time and creates a clear customer message.",
+		surfaces: [F_JOURNEY_MODIFIED, H_SHIFTS, H_DELETE_SHIFT, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "crm-stakeholders-to-field-readiness-journey",
+		title: "CRM stakeholders to field readiness journey",
+		painPoints: ["contacts", "onboarding", "scheduling", "customer-comms"],
+		systems: ["twenty", "50skills", "humanity"],
+		source: TWENTY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Use Twenty stakeholder data to create the 50skills journey and Humanity shift plan for customer-facing field work.",
+		value: "The people, checklist and field schedule agree before anyone arrives on site.",
+		surfaces: [T_PEOPLE, F_JOURNEY_CREATE, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "humanity-coverage-hole-to-50skills-hiring-journey",
+		title: "Humanity coverage hole to 50skills hiring journey",
+		painPoints: ["scheduling", "hiring", "onboarding", "forecasting"],
+		systems: ["humanity", "50skills", "twenty"],
+		source: HUMANITY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Detect Humanity coverage gaps for committed customer work and start the 50skills hiring or contractor journey tied back to the Twenty account.",
+		value: "A staffing gap turns into recruiting work while there is still time to fill it.",
+		surfaces: [H_AVAILABILITY, H_SHIFTS, T_COMPANIES, F_JOURNEY_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-new-hire-to-first-shift-and-business-central-payroll",
+		title: "50skills new hire to first shift and Business Central payroll",
+		painPoints: ["onboarding", "hiring", "scheduling", "payroll"],
+		systems: ["50skills", "humanity", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Use a completed 50skills hire journey to create the Humanity employee, reserve the first shift and create the Business Central employee record.",
+		value: "A hire reaches day one rostered and payroll-ready from the same evidence.",
+		surfaces: [F_JOURNEY_RETRIEVE, H_POST_EMPLOYEE, H_POST_SHIFT, BC_EMPLOYEE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-offboarding-to-humanity-and-business-central-stop-work",
+		title: "50skills offboarding to Humanity and Business Central stop-work",
+		painPoints: ["offboarding", "scheduling", "payroll", "compliance"],
+		systems: ["50skills", "humanity", "businesscentral"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Use offboarding journey changes to remove future Humanity shifts and flag the Business Central employee and time-entry path before payroll closes.",
+		value: "A leaver stops creating schedule, access and payroll exposure immediately.",
+		surfaces: [F_JOURNEY_MODIFIED, H_SHIFTS, H_DELETE_SHIFT, BC_TIME_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "business-central-project-to-50skills-training-and-humanity-coverage",
+		title: "Business Central project to 50skills training and Humanity coverage",
+		painPoints: ["compliance", "scheduling", "onboarding", "deals"],
+		systems: ["businesscentral", "50skills", "humanity"],
+		source: BUSINESS_CENTRAL,
+		target: FIFTY_SKILLS,
+		transform:
+			"Read Business Central project demand, start the 50skills training journey, and reserve Humanity coverage only when readiness evidence exists.",
+		value: "Project demand creates certified coverage, not just booked bodies.",
+		surfaces: [BC_PROJECTS, F_JOURNEY_CREATE, F_FORM, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "humanity-time-to-business-central-and-50skills-exception-journey",
+		title: "Humanity time to Business Central and 50skills exception journey",
+		painPoints: ["payroll", "approvals", "labor-cost", "reporting"],
+		systems: ["humanity", "businesscentral", "50skills"],
+		source: HUMANITY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Post approved Humanity time toward Business Central time registration and start a 50skills exception journey when hours need manager approval.",
+		value: "Payroll exceptions become owned approval work instead of payroll archaeology.",
+		surfaces: [H_TIME, BC_TIME_CREATE, F_JOURNEY_CREATE, F_RUN_ACTION],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-new-hire-to-first-shift-and-dkplus-payroll",
+		title: "50skills new hire to first shift and dkPlus payroll",
+		painPoints: ["onboarding", "hiring", "scheduling", "payroll"],
+		systems: ["50skills", "humanity", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: DKPLUS,
+		transform:
+			"Use a completed 50skills hire journey to create the Humanity employee, reserve the first shift and create the dkPlus employee record.",
+		value:
+			"The signed hire shows up rostered and in the dkPlus payroll file before day one starts.",
+		surfaces: [F_JOURNEY_RETRIEVE, H_POST_EMPLOYEE, H_POST_SHIFT, DK_EMPLOYEE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-offboarding-to-humanity-and-dkplus-stop-work",
+		title: "50skills offboarding to Humanity and dkPlus stop-work",
+		painPoints: ["offboarding", "scheduling", "payroll", "compliance"],
+		systems: ["50skills", "humanity", "dkplus"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Use offboarding journey changes to remove future Humanity shifts and flag dkPlus payroll and work-journal exposure before close.",
+		value: "Offboarding clears the future roster and the pay-run exposure the same day.",
+		surfaces: [F_JOURNEY_MODIFIED, H_SHIFTS, H_DELETE_SHIFT, DK_EMPLOYEE_WORK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "dkplus-project-to-50skills-training-and-humanity-coverage",
+		title: "dkPlus project to 50skills training and Humanity coverage",
+		painPoints: ["compliance", "scheduling", "onboarding", "deals"],
+		systems: ["dkplus", "50skills", "humanity"],
+		source: DKPLUS,
+		target: FIFTY_SKILLS,
+		transform:
+			"Read dkPlus project demand, start the 50skills training journey, and reserve Humanity coverage only when readiness evidence exists.",
+		value: "Coverage is reserved only for people whose training evidence already exists.",
+		surfaces: [DK_PROJECTS, F_JOURNEY_CREATE, F_FORM, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "humanity-time-to-dkplus-and-50skills-exception-journey",
+		title: "Humanity time to dkPlus and 50skills exception journey",
+		painPoints: ["payroll", "approvals", "labor-cost", "reporting"],
+		systems: ["humanity", "dkplus", "50skills"],
+		source: HUMANITY,
+		target: FIFTY_SKILLS,
+		transform:
+			"Post approved Humanity time toward dkPlus work journals and start a 50skills exception journey when hours need manager approval.",
+		value: "Exception hours find an owner while the pay period is still open.",
+		surfaces: [H_TIME, DK_EMPLOYEE_WORK, F_JOURNEY_CREATE, F_RUN_ACTION],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-bc-post-sale-operating-thread",
+		title: "Won deal to a running operation in Business Central",
+		painPoints: ["deals", "onboarding", "scheduling", "invoicing"],
+		systems: ["twenty", "50skills", "humanity", "businesscentral"],
+		source: TWENTY,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Turn a won deal into a 50skills journey, Humanity coverage and Business Central order setup in one governed post-sale thread.",
+		value: "The whole promise-to-cash chain exists before the customer waits on it.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, H_POST_SHIFT, BC_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-bc-onboarding-slip-to-crew-and-cash-replan",
+		title: "Onboarding slip to crew and cash replan in Business Central",
+		painPoints: ["onboarding", "scheduling", "invoicing", "customer-comms"],
+		systems: ["50skills", "humanity", "businesscentral", "twenty"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"Use a slipping 50skills journey to adjust Humanity coverage, flag Business Central cash timing and update the Twenty customer thread.",
+		value: "One slip replans people, money and customer expectation together.",
+		surfaces: [F_JOURNEY_MODIFIED, H_SHIFTS, BC_AGED_AR, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-bc-new-hire-capacity-to-customer-promise",
+		title: "New-hire capacity to customer promise in Business Central",
+		painPoints: ["hiring", "onboarding", "scheduling", "deals"],
+		systems: ["50skills", "humanity", "businesscentral", "twenty"],
+		source: FIFTY_SKILLS,
+		target: TWENTY,
+		transform:
+			"Move a completed hire journey through Humanity scheduling and Business Central employee setup, then unblock the Twenty deal that needed the capacity.",
+		value: "Sales sees exactly when new capacity is real enough to sell.",
+		surfaces: [F_JOURNEY_RETRIEVE, H_POST_EMPLOYEE, BC_EMPLOYEE_CREATE, T_TASK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-bc-delivered-work-to-renewal-and-cash",
+		title: "Delivered work to renewal and cash in Business Central",
+		painPoints: ["invoicing", "crm", "labor-cost", "customer-comms"],
+		systems: ["humanity", "businesscentral", "twenty", "50skills"],
+		source: HUMANITY,
+		target: TWENTY,
+		transform:
+			"Turn completed Humanity work and 50skills delivery evidence into Business Central invoice lines and a Twenty renewal note.",
+		value:
+			"Completed work turns into invoice lines and a renewal note while the delivery is still fresh.",
+		surfaces: [H_TIME, F_DOCUMENT, BC_INVOICE_LINE_CREATE, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-dkplus-post-sale-operating-thread",
+		title: "Won deal to a running operation in dkPlus",
+		painPoints: ["deals", "onboarding", "scheduling", "invoicing"],
+		systems: ["twenty", "50skills", "humanity", "dkplus"],
+		source: TWENTY,
+		target: DKPLUS,
+		transform:
+			"Open the 50skills journey, draft the Humanity coverage and stage the dkPlus order from one won deal, as one governed thread.",
+		value: "Order, crew and onboarding leave the won deal as one motion, not three queues.",
+		surfaces: [T_OPPORTUNITIES, F_JOURNEY_CREATE, H_POST_SHIFT, DK_ORDER_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-dkplus-onboarding-slip-to-crew-and-cash-replan",
+		title: "Onboarding slip to crew and cash replan in dkPlus",
+		painPoints: ["onboarding", "scheduling", "invoicing", "customer-comms"],
+		systems: ["50skills", "humanity", "dkplus", "twenty"],
+		source: FIFTY_SKILLS,
+		target: HUMANITY,
+		transform:
+			"When a 50skills journey slips, redraw the Humanity coverage, reread the dkPlus cash position and leave the change on the Twenty customer thread.",
+		value:
+			"A slipped onboarding redraws the roster, the cash timing and the customer note in one pass.",
+		surfaces: [F_JOURNEY_MODIFIED, H_SHIFTS, DK_CUSTOMER_TRANSACTIONS, T_NOTE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-dkplus-new-hire-capacity-to-customer-promise",
+		title: "New-hire capacity to customer promise in dkPlus",
+		painPoints: ["hiring", "onboarding", "scheduling", "deals"],
+		systems: ["50skills", "humanity", "dkplus", "twenty"],
+		source: FIFTY_SKILLS,
+		target: TWENTY,
+		transform:
+			"Carry a completed hire journey through Humanity scheduling and dkPlus employee setup, then release the Twenty deal that was waiting on the capacity.",
+		value: "The deal that was waiting on capacity unblocks the day the hire is real.",
+		surfaces: [F_JOURNEY_RETRIEVE, H_POST_EMPLOYEE, DK_EMPLOYEE_CREATE, T_TASK],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "full-dkplus-delivered-work-to-renewal-and-cash",
+		title: "Delivered work to renewal and cash in dkPlus",
+		painPoints: ["invoicing", "crm", "labor-cost", "customer-comms"],
+		systems: ["humanity", "dkplus", "twenty", "50skills"],
+		source: HUMANITY,
+		target: TWENTY,
+		transform:
+			"Draft the dkPlus invoice from completed Humanity work and 50skills delivery evidence, and leave the renewal note on the Twenty account.",
+		value:
+			"The invoice and the renewal note come from the same delivered hours, not two retellings.",
+		surfaces: [H_TIME, F_DOCUMENT, DK_INVOICE_CREATE, T_NOTE],
+		tier: "proposes",
+	}),
+];
+
+export const CAPABILITIES: readonly Capability[] = [
+	...BASE_CAPABILITIES,
+	...LATTICE_COMPLETION_CAPABILITIES,
 ];
 
 /** The full corpus the composer answers for, with grounding provenance. */
@@ -4880,6 +6916,16 @@ export const COMPOSE_CORPUS: CapabilityCorpus = {
 			system: "twenty",
 			specVersion: "3.1.1",
 			source: "twenty_openapi_core.json",
+		},
+		{
+			system: "businesscentral",
+			specVersion: "3.0.0",
+			source: "microsoft-business-central-v1-openapi.yaml",
+		},
+		{
+			system: "50skills",
+			specVersion: "3.0.3",
+			source: "50skills-journeys-api.yaml",
 		},
 	],
 };

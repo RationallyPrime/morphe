@@ -20,12 +20,12 @@
  *   capabilityCard(cap)            -> an OUTCOME-LED ComposeCapabilityCard
  *                                     CompoundRef: the business `value` leads as
  *                                     the strong hero line, `title`/`transform`
- *                                     support it quietly, and the flow / evidence
- *                                     / models slots (FlowArrow / SurfaceEvidence /
- *                                     ModelView refs derived from the capability's
- *                                     real endpoints and compiled model names) are
- *                                     demoted into the template's single collapsed
- *                                     "How Sókrates wires this" proof footnote.
+ *                                     support it quietly, the tier reads as a
+ *                                     muted caption, and the proof (FlowArrow /
+ *                                     SurfaceEvidence / ModelView refs derived
+ *                                     from the capability's real endpoints and
+ *                                     compiled model names) rides ONE anchored
+ *                                     Popover opened by the header's ⓘ trigger.
  *   composeAnswer(caps, query)     -> a Frame(page) with a PainPrompt masthead
  *                                     (summary slot = result line + active-tag
  *                                     badges) over a Grid(list) of capabilityCard.
@@ -73,29 +73,25 @@ function text(
 function tierLabel(tier: Capability["tier"]): string {
 	switch (tier) {
 		case "read-only":
-			return "Answers only";
+			return "Reads, never writes";
 		case "proposes":
-			return "Drafts for approval";
+			return "Drafts, you approve";
 		default:
 			// "acts" is never presented on this surface; degrade to the safe label.
-			return "Answers only";
+			return "Reads, never writes";
 	}
 }
 
 /**
- * The honest governance Status NODE for a card header. The tone + signal text +
- * icon are driven by the real tier so a `proposes` capability reads "Proposes,
- * (caution / draw glyph) and an answer-only one reads as an evidence answer
- * (info / visibility glyph). The text channel carries the non-color signal
- * (WCAG 1.4.1).
+ * The honest governance posture for a card header — a QUIET muted caption, not
+ * a Status pill. The old caution/info Status chip dressed the system's proudest
+ * claim (governed writes) in the dialect's deviation color; the posture is
+ * supporting context, so it reads in the same muted caption register as the
+ * pairing label. The text itself carries the trust ("Reads, never writes" /
+ * "Drafts, you approve"), so a card never presents itself as more than it is.
  */
-function tierStatus(tier: Capability["tier"]): Node {
-	const proposes = tier === "proposes";
-	return {
-		kind: "status",
-		tone: proposes ? "caution" : "info",
-		signal: { text: tierLabel(tier), icon: proposes ? "draw" : "visibility" },
-	};
+function tierNote(tier: Capability["tier"]): Node {
+	return text(tierLabel(tier), "caption", { emphasis: "muted" });
 }
 
 /** A short directional verb for the flow edge, lifted from the tier posture. */
@@ -123,6 +119,19 @@ function directionLabel(direction: SurfaceUse["direction"]): string {
 		default:
 			return "Reads";
 	}
+}
+
+/**
+ * The DISPLAY form of an endpoint path — the citation locus, not the wire form.
+ * Business Central paths carry a `/companies({company_id})` tenancy prefix that
+ * holds no evidentiary meaning a reader can check (the row already names the
+ * system) and is long enough to clip unbroken on narrow viewports, so it is
+ * dropped for display. The corpus keeps the full path; the grounding tests
+ * verify THAT against the spec, this only shortens what renders.
+ */
+function displayPath(path: string): string {
+	const trimmed = path.replace(/^\/companies\(\{[^}]*\}\)/, "");
+	return trimmed.length > 0 ? trimmed : path;
 }
 
 /* ---------------------------------------------------------------------------
@@ -186,11 +195,15 @@ function flowArrow(cap: Capability): CompoundRef {
 		args: {
 			source: text(cap.source.label, "caption", { intent: "accession" }),
 			target: text(cap.target.label, "caption", { intent: "accession" }),
-			// Two-system edges carry the flow verb ("reads"/"proposes") on the single arrow.
-			// The three-way chain drops it: the path reads as a clean source -> via -> target
-			// map (the posture is already stated by the card's tier Status), so no verb floats
-			// between the first arrow and the via waypoint.
-			label: via !== undefined ? "" : flowVerb(cap),
+			// Two-system edges carry the flow verb ("reads"/"proposes") on the single
+			// arrow — as a muted CAPTION node, so the verb reads quieter than the system
+			// names it connects (a bare string would coerce to body register). The
+			// three-way chain drops it: the path reads as a clean source -> via -> target
+			// map (the posture is already stated by the card's tier caption), so no verb
+			// floats between the first arrow and the via waypoint.
+			...(via === undefined
+				? { label: text(flowVerb(cap), "caption", { emphasis: "muted" }) }
+				: {}),
 			// The middle hop only exists for three-system caps; omitted otherwise so the
 			// FlowArrow template's blank default keeps the single/two-system render intact.
 			...(via !== undefined ? { via: viaSegment(via) } : {}),
@@ -233,7 +246,7 @@ function surfaceEvidence(surface: SurfaceUse): CompoundRef {
 				icon: "api",
 			},
 			// The endpoint path — the citation locus, in the evidence caption register.
-			path: text(surface.path, "caption", { intent: "evidence" }),
+			path: text(displayPath(surface.path), "caption", { intent: "evidence" }),
 			// The human label lifted from the spec — a muted caption.
 			summary: text(surface.summary ?? "", "caption", { emphasis: "muted" }),
 			// Provenance trail: which system + which access direction, both muted captions.
@@ -261,15 +274,12 @@ function modelView(name: string): CompoundRef {
 }
 
 /**
- * The evidence slot content: the verifiable endpoint citations, one
- * SurfaceEvidence row per surface, wrapped in a quiet block Stack. This used to
- * be its OWN "Grounded in N real endpoints" Disclosure, but the card template now
- * owns the single outer "How Sókrates wires this" Disclosure that demotes ALL the
- * proof (flow + endpoints + models) to one collapsed footnote — so the evidence
- * slot is plain rows spliced inside it, not a second nested disclosure. The
- * real-endpoint count still leads the block as a muted caption so a reader who
- * opens the footnote sees exactly how many endpoints back the capability — the
- * differentiator stays present and verifiable, just no longer shouted.
+ * The evidence block: the verifiable endpoint citations, one SurfaceEvidence row
+ * per surface, wrapped in a quiet block Stack — plain rows spliced inside the
+ * card's anchored proof Popover, never a nested disclosure. The real-endpoint
+ * count still leads the block as a muted caption so a reader who opens the proof
+ * sees exactly how many endpoints back the capability — the differentiator stays
+ * present and verifiable, just no longer shouted.
  */
 function evidenceRows(cap: Capability): Node {
 	const count = cap.surfaces.length;
@@ -307,6 +317,53 @@ function modelsCluster(cap: Capability): Node {
  * capabilityCard — one cross-system automation as a CapabilityCard CompoundRef.
  * ------------------------------------------------------------------------- */
 
+/** The per-card DOM id the proof Popover anchors to (unique: cap ids are). */
+function wireId(cap: Capability): string {
+	return `wire-${cap.id}`;
+}
+
+/**
+ * The inscribed-i proof trigger: an icon-only ghost Button carrying the card's
+ * anchor id. Declarative — it has no `action`; the Popover primitive annotates
+ * it with the native `popovertarget` relationship at mount, so open/close is
+ * the platform's, not ours. Neutral intent keeps it a quiet glyph, not a beacon;
+ * the a11y name says exactly what it opens.
+ */
+function wireTrigger(cap: Capability): Node {
+	return {
+		kind: "button",
+		id: wireId(cap),
+		variant: "ghost",
+		intent: "neutral",
+		icon: "info",
+		a11y: { mode: "aria-label", text: "How Sókrates wires this" },
+	};
+}
+
+/**
+ * The proof panel: ONE anchored Popover on the platform top layer holding the
+ * flow edge, the endpoint citation rows and the model chips. Anchored to the
+ * card's ⓘ trigger, light-dismissed by the platform, claiming zero resting-card
+ * area — the proof stays present and verifiable, one tap away, never a headline.
+ */
+function proofPopover(cap: Capability): Node {
+	return {
+		kind: "popover",
+		anchor: wireId(cap),
+		id: `${wireId(cap)}-proof`,
+		role: "tooltip",
+		placement: "bottom",
+		children: [
+			{
+				kind: "stack",
+				role: "list",
+				direction: "block",
+				children: [flowSlot(cap), evidenceRows(cap), modelsCluster(cap)],
+			},
+		],
+	};
+}
+
 /**
  * Build a `ComposeCapabilityCard` CompoundRef for one capability — OUTCOME-LED.
  *
@@ -317,20 +374,20 @@ function modelsCluster(cap: Capability): Node {
  *                so it owns the card's visual weight. Was a plain body line before.
  *   - title:     SUPPORTING — demoted from a strong subheading to a quiet caption;
  *                the short human name UNDER the outcome, not a heading above it.
- *   - transform: SUPPORTING — one plain muted sentence of what it does (unchanged).
- *   - tier:      the honest governance Status (trust, not jargon) — preserved.
+ *   - transform: SUPPORTING — one plain muted sentence of what it does, ON the
+ *                resting card (the one line written for the reader who never
+ *                opens the plumbing).
+ *   - tier:      the honest governance posture as a quiet muted caption.
+ *   - wire:      the ⓘ trigger Button carrying the per-card anchor id.
  *
- * The variable children ride the slots, spliced INSIDE the template's single
- * "How Sókrates wires this" Disclosure that demotes ALL the proof to one collapsed
- * footnote:
- *   - flow:     a FlowArrow ref (source system -> verb -> target system);
- *   - evidence: a muted Stack of SurfaceEvidence rows led by the endpoint count;
- *   - models:   a Cluster of ModelView chips (one per compiled model name).
+ * The proof (flow edge + endpoint rows + model chips) rides the `proof` slot as
+ * ONE anchored Popover — `anchor`/`id` are string fields the factory never
+ * interpolates, so the per-card ids ride in from here, not from the template.
  */
 export function capabilityCard(cap: Capability): CompoundRef {
 	// Header-left carries the capability's domain (its lead pain tag) as a quiet,
 	// neutral category label — NOT the source/target systems, which the FlowArrow
-	// inside the proof footnote names. Muted so it frames the outcome below without
+	// inside the proof popover names. Muted so it frames the outcome below without
 	// competing with it for the card's single amber accent.
 	const leadTag = cap.painPoints[0];
 	const pairing = text(leadTag ? tagLabel(leadTag) : "Automation", "caption", {
@@ -346,14 +403,13 @@ export function capabilityCard(cap: Capability): CompoundRef {
 			// SUPPORTING: the human name, demoted to a quiet caption under the outcome.
 			title: text(cap.title, "caption", { emphasis: "muted" }),
 			transform: text(cap.transform, "caption", { emphasis: "muted" }),
-			tier: tierStatus(cap.tier),
+			tier: tierNote(cap.tier),
 			pairing,
+			wire: wireTrigger(cap),
 		},
 		slots: {
-			// All three proof children land inside the template's collapsed proof Disclosure.
-			flow: [flowSlot(cap)],
-			evidence: [evidenceRows(cap)],
-			models: [modelsCluster(cap)],
+			// The whole proof lands in the template's slot as one anchored Popover.
+			proof: [proofPopover(cap)],
 		},
 	};
 }

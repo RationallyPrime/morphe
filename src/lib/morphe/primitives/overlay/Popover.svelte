@@ -241,7 +241,17 @@
 		color: var(--mo-overlay-on);
 		font-family: var(--mo-font-body);
 		font-size: var(--mo-ctx-type, var(--mo-type-3));
-		max-inline-size: min(92vw, 22rem);
+		/* FIXED inline size, not a max: a max lets the panel shrink to min-content
+		   when its primary position-area has little room (e.g. a trigger near the
+		   viewport's inline-end), and a shrunken panel never OVERFLOWS — so the
+		   position-try fallbacks never fire and the panel renders as a crushed
+		   column instead of flipping to the side with room. A fixed size makes a
+		   cramped placement genuinely overflow, which is what position-try needs. */
+		inline-size: min(92vw, 22rem);
+		/* A fixed-width top-layer panel must wrap ANY content handed to it — an
+		   unbroken token (an endpoint path, a long identifier) would otherwise
+		   overflow the panel edge invisibly. */
+		overflow-wrap: anywhere;
 
 		/*
 		 * CSS Anchor Positioning — the panel anchors to the trigger's anchor-name

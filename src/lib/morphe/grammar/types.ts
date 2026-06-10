@@ -412,6 +412,14 @@ interface ButtonBase {
 	readonly action?: string;
 	/** Optional shape glyph (Material Symbol) shown alongside / instead of text. */
 	readonly icon?: string;
+	/**
+	 * Optional stable DOM id — the ANCHOR seam for overlays. A `Popover` names
+	 * this id as its `anchor`; the Popover primitive then annotates this button
+	 * with the `popovertarget` / `aria-controls` / `aria-expanded` relationships
+	 * at mount ("we never fabricate the trigger; we only annotate the element the
+	 * author anchored"). Still declarative: the tree carries an id, never a wire.
+	 */
+	readonly id?: string;
 }
 
 /**

@@ -67,8 +67,10 @@ export {
 	CATEGORY_LABELS,
 	categoriesOf,
 	categoryOf,
+	defaultSelection,
 	PAIN_KEYWORDS,
 	PAIN_TAGS,
 	SYSTEMS,
+	systemsInCategory,
 	tagsFromText,
 } from "./taxonomy.js";

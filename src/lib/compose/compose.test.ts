@@ -24,7 +24,14 @@ import {
 	offDomainState,
 	thinMatchState,
 } from "./present.js";
-import { CATEGORIES, CATEGORY_LABELS, categoriesOf, categoryOf, SYSTEMS } from "./taxonomy.js";
+import {
+	CATEGORIES,
+	CATEGORY_LABELS,
+	categoriesOf,
+	categoryOf,
+	PAIN_TAGS,
+	SYSTEMS,
+} from "./taxonomy.js";
 
 const BANNED_UI_PHRASES = [
 	"under governance",
@@ -323,14 +330,14 @@ describe("compose presenting — UI copy stays out of doctrine register", () => 
 });
 
 describe("compose presenting — outcome-led card relocates proof but keeps tier + real method", () => {
-	it("a proposes card leads with the outcome and demotes proof under the wiring disclosure", () => {
+	it("a proposes card leads with the outcome and demotes proof into the anchored popover", () => {
 		const reg = new CompoundRegistry();
 		registerComposeCompounds(reg);
 		const cap = CAPABILITIES.find((c) => c.tier === "proposes");
 		expect(cap).toBeDefined();
 		if (!cap) return;
 
-		// Expand through the factory (fills flow/evidence/models slots + nested refs).
+		// Expand through the factory (fills the proof slot + nested refs).
 		const expanded = reg.expand(capabilityCard(cap));
 		const json = JSON.stringify(expanded);
 
@@ -346,15 +353,33 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		);
 		expect(outcomeNode, "outcome value is not a strong subheading hero").toBeDefined();
 
-		// tier param is rendered (honest governance is trust, kept visible), not the
-		// old hardcoded chip. The value subheading is the outcome, never the tier.
-		expect(json).toContain("Drafts for approval");
-		expect(json).not.toContain('"Answers only"');
+		// tier renders as the quiet muted caption (honest governance kept visible),
+		// never the old caution/info Status pill. The value subheading is the
+		// outcome, never the tier.
+		expect(json).toContain("Drafts, you approve");
+		expect(json).not.toContain('"Reads, never writes"');
+		expect(json).not.toContain('"kind":"status"');
+		const tierNode = findTextNode(
+			expanded,
+			(t) => t.value === "Drafts, you approve" && t.as === "caption" && t.emphasis === "muted",
+		);
+		expect(tierNode, "tier posture is not a muted caption").toBeDefined();
 
-		// THE PROOF IS DEMOTED, NOT DELETED: the single quiet wiring disclosure owns it.
+		// THE PROOF IS DEMOTED, NOT DELETED: one anchored Popover owns it, opened by
+		// the inscribed-i trigger whose accessible name says what it opens. The
+		// trigger's DOM id and the popover's anchor are the same per-card value —
+		// the platform relationship is intact in the data.
 		expect(json).toContain("How Sókrates wires this");
+		const popover = findNode(expanded, (n) => n.kind === "popover");
+		expect(popover, "no proof popover in the expanded card").toBeDefined();
+		const trigger = findNode(expanded, (n) => n.kind === "button");
+		expect(trigger, "no proof trigger button in the expanded card").toBeDefined();
+		const anchor = (popover as { anchor?: string } | undefined)?.anchor;
+		const triggerId = (trigger as { id?: string } | undefined)?.id;
+		expect(anchor).toBe(`wire-${cap.id}`);
+		expect(triggerId).toBe(anchor);
 		// the first surface's real HTTP method still renders (as the evidence badge
-		// label) — relocated under the disclosure, still verifiable.
+		// label) — relocated into the popover, still verifiable.
 		const method = cap.surfaces[0]?.method;
 		expect(method).toBeDefined();
 		if (method) expect(json).toContain(method);
@@ -372,8 +397,8 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 		expect(cap).toBeDefined();
 		if (!cap) return;
 		const json = JSON.stringify(reg.expand(capabilityCard(cap)));
-		expect(json).toContain("Answers only");
-		expect(json).not.toContain("Drafts for approval");
+		expect(json).toContain("Reads, never writes");
+		expect(json).not.toContain("Drafts, you approve");
 	});
 
 	it("the demoted proof rows carry the CAPTION register, not body (quiet lives in the data)", () => {
@@ -421,14 +446,7 @@ describe("compose presenting — outcome-led card relocates proof but keeps tier
 });
 
 describe("compose grounding — every cited surface is a real endpoint", () => {
-	const humanity = loadEvidence("humanity.json");
-	const dkplus = loadEvidence("dkplus.json");
-	const twenty = loadEvidence("twenty.json");
-	const index: Record<string, Map<string, EvidenceOp>> = {
-		humanity: new Map(humanity.operations.map((o) => [o.operationId, o])),
-		dkplus: new Map(dkplus.operations.map((o) => [o.operationId, o])),
-		twenty: new Map(twenty.operations.map((o) => [o.operationId, o])),
-	};
+	const index = evidenceIndex();
 
 	it("resolves every surface operationId to a real op with matching method and path", () => {
 		for (const cap of CAPABILITIES) {
@@ -468,7 +486,11 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 	const twenty = loadEvidence("twenty.json");
 	const dkplus = loadEvidence("dkplus.json");
 	const humanity = loadEvidence("humanity.json");
+	const businessCentral = loadEvidence("businesscentral.json");
+	const fiftySkills = loadEvidence("50skills.json");
 	const twentyModels = new Set(twenty.models);
+	const businessCentralModels = new Set(businessCentral.models);
+	const fiftySkillsModels = new Set(fiftySkills.models);
 
 	// Every dkplus.json.models entry, expanded into its readable leaf forms: each
 	// trailing run of dot-segments concatenated (e.g. `dkCloud.Data.Model.Sales.
@@ -518,6 +540,16 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 				HUMANITY_ALLOWED_MODELS.has(model),
 				`${where}: humanity model "${model}" is not a specs-scope.md §2 label (fabrication?)`,
 			).toBe(true);
+		} else if (system === "businesscentral") {
+			expect(
+				businessCentralModels.has(model),
+				`${where}: Business Central model "${model}" not in businesscentral.json.models`,
+			).toBe(true);
+		} else if (system === "50skills") {
+			expect(
+				fiftySkillsModels.has(model),
+				`${where}: 50skills model "${model}" not in 50skills.json.models`,
+			).toBe(true);
 		} else {
 			throw new Error(`${where}: unknown system "${system}"`);
 		}
@@ -546,6 +578,8 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 					if (system === "twenty") return twentyModels.has(model);
 					if (system === "dkplus") return dkplusLeafForms.has(model);
 					if (system === "humanity") return HUMANITY_ALLOWED_MODELS.has(model);
+					if (system === "businesscentral") return businessCentralModels.has(model);
+					if (system === "50skills") return fiftySkillsModels.has(model);
 					return false;
 				});
 				expect(
@@ -557,10 +591,10 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 	});
 });
 
-describe("compose corpus — grounded, three-system, subset-aware", () => {
-	// The corpus grew past the original 45 Humanity×dkPlus automations: it now also
-	// carries single-system caps (so any one selection is never empty), the two new
-	// cross-system pairs (Twenty×dkPlus, Twenty×Humanity) and the three-way loop.
+describe("compose corpus — grounded, category-lattice, subset-aware", () => {
+	// The corpus grew past the original 45 Humanity×dkPlus automations: it now carries
+	// single-system caps, exact cross-system pairs, category triples and full
+	// CRM×ERP×WFM×workflow footprints with both ERP realizations.
 	it("has more than the original 45 capabilities", () => {
 		expect(CAPABILITIES.length).toBeGreaterThan(45);
 	});
@@ -570,7 +604,7 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		// single-system, pair, and three-way seed coverage. This pass should surface
 		// roughly forty more evidence-grounded examples without weakening the subset
 		// gate.
-		expect(CAPABILITIES.length).toBeGreaterThanOrEqual(113);
+		expect(CAPABILITIES.length).toBeGreaterThanOrEqual(185);
 	});
 
 	it("every capability carries at least one real endpoint surface", () => {
@@ -582,6 +616,15 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 	it("every capability id is unique", () => {
 		const ids = new Set(CAPABILITIES.map((c) => c.id));
 		expect(ids.size).toBe(CAPABILITIES.length);
+	});
+
+	it("every capability uses only the closed pain-tag vocabulary", () => {
+		const known = new Set<string>(PAIN_TAGS);
+		for (const cap of CAPABILITIES) {
+			for (const tag of cap.painPoints) {
+				expect(known.has(tag), `${cap.id}: unknown pain tag "${tag}"`).toBe(true);
+			}
+		}
 	});
 
 	it("every capability declares a non-empty `systems` of known SYSTEM ids", () => {
@@ -596,13 +639,14 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		}
 	});
 
-	it("spans the whole lattice — single, every pair, and the three-way", () => {
-		// At least one capability at each subset cardinality, proving "one system,
-		// any two, all three" are all answerable.
+	it("spans the whole lattice — single, pairs, triples and four-system footprints", () => {
+		// At least one capability at each subset cardinality, proving the corpus can
+		// answer from a lone product through the full cross-category chain.
 		const bySize = (n: number) => CAPABILITIES.some((c) => c.systems.length === n);
 		expect(bySize(1), "no single-system capability").toBe(true);
 		expect(bySize(2), "no two-system capability").toBe(true);
 		expect(bySize(3), "no three-system capability").toBe(true);
+		expect(bySize(4), "no four-system capability").toBe(true);
 	});
 
 	it("has high-ROI examples for every non-empty exact system footprint", () => {
@@ -617,10 +661,32 @@ describe("compose corpus — grounded, three-system, subset-aware", () => {
 		expect(countExact(["twenty"]), "Twenty-only").toBeGreaterThanOrEqual(8);
 		expect(countExact(["dkplus"]), "dkPlus-only").toBeGreaterThanOrEqual(8);
 		expect(countExact(["humanity"]), "Humanity-only").toBeGreaterThanOrEqual(8);
-		expect(countExact(["twenty", "dkplus"]), "Twenty×dkPlus").toBeGreaterThanOrEqual(12);
-		expect(countExact(["twenty", "humanity"]), "Twenty×Humanity").toBeGreaterThanOrEqual(12);
-		expect(countExact(["humanity", "dkplus"]), "Humanity×dkPlus").toBeGreaterThanOrEqual(53);
-		expect(countExact(["twenty", "humanity", "dkplus"]), "three-way").toBeGreaterThanOrEqual(12);
+		expect(countExact(["businesscentral"]), "Business Central-only").toBeGreaterThanOrEqual(1);
+		expect(countExact(["50skills"]), "50skills-only").toBeGreaterThanOrEqual(1);
+
+		const crossSystemPermutations: readonly (readonly string[])[] = [
+			["twenty", "dkplus"],
+			["twenty", "businesscentral"],
+			["twenty", "humanity"],
+			["twenty", "50skills"],
+			["dkplus", "humanity"],
+			["businesscentral", "humanity"],
+			["dkplus", "50skills"],
+			["businesscentral", "50skills"],
+			["humanity", "50skills"],
+			["twenty", "dkplus", "humanity"],
+			["twenty", "businesscentral", "humanity"],
+			["twenty", "dkplus", "50skills"],
+			["twenty", "businesscentral", "50skills"],
+			["twenty", "humanity", "50skills"],
+			["dkplus", "humanity", "50skills"],
+			["businesscentral", "humanity", "50skills"],
+			["twenty", "dkplus", "humanity", "50skills"],
+			["twenty", "businesscentral", "humanity", "50skills"],
+		];
+		for (const systems of crossSystemPermutations) {
+			expect(countExact(systems), systems.join("×")).toBeGreaterThanOrEqual(5);
+		}
 	});
 });
 
@@ -646,6 +712,21 @@ function collectCompoundRefs(node: Node, name: string): CompoundRef[] {
 function childrenOfNode(node: Node): Node[] {
 	const maybe = (node as { children?: unknown }).children;
 	return Array.isArray(maybe) ? (maybe as Node[]) : [];
+}
+
+/** Walk a Node tree and return the first node satisfying `pred`. */
+function findNode(node: Node, pred: (n: Node) => boolean): Node | undefined {
+	let found: Node | undefined;
+	const visit = (n: Node): void => {
+		if (found) return;
+		if (pred(n)) {
+			found = n;
+			return;
+		}
+		for (const kid of childrenOfNode(n)) visit(kid);
+	};
+	visit(node);
+	return found;
 }
 
 /** A Text node's structural shape, narrowed for the predicate below. */
@@ -734,17 +815,24 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 		expect(categoryOf("salesforce")).toBeUndefined();
 	});
 
-	it("each category is filled by exactly one product today (1:1 mapping)", () => {
+	it("each category is filled by at least one product", () => {
 		for (const cat of CATEGORIES) {
 			const filling = SYSTEMS.filter((s) => s.category === cat);
-			expect(filling.length, `${cat} products`).toBe(1);
+			expect(filling.length, `${cat} products`).toBeGreaterThanOrEqual(1);
 		}
 	});
 
 	it("categoriesOf maps a system set to its deduped, canonically ordered categories", () => {
-		// Order follows CATEGORIES (crm, erp, wfm), not the input order.
+		// Order follows CATEGORIES (crm, erp, wfm, workflow), not the input order.
 		expect(categoriesOf(["dkplus", "twenty"])).toEqual(["crm", "erp"]);
+		expect(categoriesOf(["businesscentral", "dkplus"])).toEqual(["erp"]);
 		expect(categoriesOf(["twenty", "dkplus", "humanity"])).toEqual(["crm", "erp", "wfm"]);
+		expect(categoriesOf(["50skills", "twenty", "businesscentral", "humanity"])).toEqual([
+			"crm",
+			"erp",
+			"wfm",
+			"workflow",
+		]);
 		expect(categoriesOf([])).toEqual([]);
 		// Unknown ids contribute no category.
 		expect(categoriesOf(["hubspot"])).toEqual([]);
@@ -755,10 +843,26 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 			for (const s of cap.systems) {
 				expect(categoryOf(s), `${cap.id}: system "${s}" has no category`).toBeDefined();
 			}
-			// One category per system today, so the footprint cardinality matches.
-			expect(categoriesOf(cap.systems).length, `${cap.id} category footprint`).toBe(
+			expect(categoriesOf(cap.systems).length, `${cap.id} category footprint`).toBeGreaterThan(0);
+			expect(categoriesOf(cap.systems).length, `${cap.id} category footprint`).toBeLessThanOrEqual(
 				cap.systems.length,
 			);
 		}
 	});
 });
+
+function evidenceIndex(): Record<string, Map<string, EvidenceOp>> {
+	const files: Record<string, string> = {
+		humanity: "humanity.json",
+		dkplus: "dkplus.json",
+		twenty: "twenty.json",
+		businesscentral: "businesscentral.json",
+		"50skills": "50skills.json",
+	};
+	const index: Record<string, Map<string, EvidenceOp>> = {};
+	for (const [system, file] of Object.entries(files)) {
+		const evidence = loadEvidence(file);
+		index[system] = new Map(evidence.operations.map((o) => [o.operationId, o]));
+	}
+	return index;
+}

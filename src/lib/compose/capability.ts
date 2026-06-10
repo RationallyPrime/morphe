@@ -25,12 +25,11 @@ export type SystemId = string;
 /**
  * The product CATEGORY a system belongs to — the system-AGNOSTIC axis. A
  * capability's reach is conceptually a category shape ("CRM -> ERP"); the concrete
- * systems that realize it (Twenty -> dkPlus) are the GROUNDING axis. Today there is
- * exactly one product per category, so category-keyed and system-keyed surfacing are
- * identical; this type is the seam that lets a second product in a category light up
- * the same capabilities later (see MIGRATION.md — the template/binding split).
+ * systems that realize it (Twenty -> dkPlus) are the GROUNDING axis. Multiple
+ * products can fill a category; the deferred template/binding split is what will
+ * eventually let one category-shaped capability bind to every compatible product.
  */
-export type Category = "crm" | "erp" | "wfm";
+export type Category = "crm" | "erp" | "wfm" | "workflow";
 
 export interface SystemRef {
 	id: SystemId;

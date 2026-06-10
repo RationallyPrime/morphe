@@ -35,7 +35,9 @@ export type PainTag =
 	| "sales-pipeline"
 	| "deals"
 	| "contacts"
-	| "crm";
+	| "crm"
+	| "onboarding"
+	| "offboarding";
 
 /** The canonical, ordered list of every pain tag. */
 export const PAIN_TAGS: readonly PainTag[] = [
@@ -60,6 +62,8 @@ export const PAIN_TAGS: readonly PainTag[] = [
 	"deals",
 	"contacts",
 	"crm",
+	"onboarding",
+	"offboarding",
 ];
 
 /**
@@ -296,6 +300,25 @@ export const PAIN_KEYWORDS: Readonly<Record<string, PainTag>> = {
 	pipedrive: "crm",
 	"follow up": "crm",
 	"follow-up": "crm",
+
+	// onboarding
+	onboarding: "onboarding",
+	onboard: "onboarding",
+	"new hire": "onboarding",
+	"new starter": "onboarding",
+	"employee journey": "onboarding",
+	"welcome email": "onboarding",
+	"access setup": "onboarding",
+	"implementation kickoff": "onboarding",
+
+	// offboarding
+	offboarding: "offboarding",
+	offboard: "offboarding",
+	leaver: "offboarding",
+	termination: "offboarding",
+	terminated: "offboarding",
+	"final payroll": "offboarding",
+	"remove access": "offboarding",
 };
 
 /**
@@ -320,10 +343,8 @@ export function tagsFromText(text: string): PainTag[] {
  *
  * Each system is classified by `Category` (the system-AGNOSTIC concept it fills).
  * Capabilities reach across categories ("CRM -> ERP"); the concrete systems that
- * realize them are the grounding. With one product per category today, surfacing by
- * category and by system is identical — this classification is the seam for a second
- * product in a category later. To add one: add a `System` here with its category;
- * the binding/grounding of capabilities to it is the deferred template work.
+ * realize them are the grounding. Multiple products can fill a category; until the
+ * template/binding split lands, each corpus card binds to concrete systems directly.
  * ------------------------------------------------------------------------- */
 
 /** A registered system: a display ref plus the category it fills. */
@@ -332,20 +353,23 @@ export interface System extends SystemRef {
 }
 
 /** The canonical, ordered list of categories. */
-export const CATEGORIES: readonly Category[] = ["crm", "erp", "wfm"];
+export const CATEGORIES: readonly Category[] = ["crm", "erp", "wfm", "workflow"];
 
 /** Human label for each category (the system-agnostic register). */
 export const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 	crm: "CRM",
 	erp: "ERP / Finance",
 	wfm: "Workforce",
+	workflow: "Workflow",
 };
 
 /** The systems the composer answers for. Order is the display order. */
 export const SYSTEMS: readonly System[] = [
 	{ id: "humanity", label: "Humanity", category: "wfm" },
 	{ id: "dkplus", label: "dkPlus", category: "erp" },
+	{ id: "businesscentral", label: "Business Central", category: "erp" },
 	{ id: "twenty", label: "Twenty", category: "crm" },
+	{ id: "50skills", label: "50skills", category: "workflow" },
 ];
 
 /** The category a system fills, or `undefined` for an unknown id. */
@@ -365,4 +389,29 @@ export function categoriesOf(systems: readonly SystemId[]): Category[] {
 		if (c !== undefined) seen.add(c);
 	}
 	return CATEGORIES.filter((c) => seen.has(c));
+}
+
+/** The systems filling one category, in display order (the picker's grouping). */
+export function systemsInCategory(category: Category): System[] {
+	return SYSTEMS.filter((s) => s.category === category);
+}
+
+/**
+ * The composer's default selection: ONE system per category — the first of each
+ * in display order — never the whole matrix. A real business runs one concrete
+ * stack (one ERP, one CRM, …), so the default models that; selecting every
+ * registered product at once would co-surface the mirror-realizations of the
+ * same category-shaped capability (e.g. the dkPlus and Business Central variants
+ * of one automation), which reads as a template, not an answer. Selection stays
+ * intra-category EXCLUSIVE at the control surface for the same reason.
+ */
+export function defaultSelection(): SystemId[] {
+	const seen = new Set<Category>();
+	const out: SystemId[] = [];
+	for (const s of SYSTEMS) {
+		if (seen.has(s.category)) continue;
+		seen.add(s.category);
+		out.push(s.id);
+	}
+	return out;
 }

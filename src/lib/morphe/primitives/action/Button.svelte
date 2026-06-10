@@ -62,6 +62,7 @@
 </script>
 
 <button
+	id={node.id}
 	type={node.type ?? "button"}
 	class="mo-action"
 	data-variant={variant}
