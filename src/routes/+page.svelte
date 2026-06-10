@@ -14,6 +14,8 @@
 import Composer from "$lib/compose/Composer.svelte";
 import { closingCta, homeHero, registerSiteCompounds, timaeusTease } from "$lib/site";
 import ContactForm from "$lib/site/ContactForm.svelte";
+import IntentChips from "$lib/site/IntentChips.svelte";
+import IntentPalette from "$lib/site/IntentPalette.svelte";
 import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
 
 // Register the site compounds through the factory gate. Idempotent.
@@ -69,13 +71,20 @@ const ctaTree = closingCta();
 	</div>
 </section>
 
+<!--
+  The intent row — the engine's primary affordance (ADR-0006 §2, KRA-355). Every
+  chip is a real anchor to canonical content (no-JS ground truth); with JS, a
+  morphing intent reshapes the page in place through the same engine path the
+  Cmd/Ctrl+K palette rides. This replaces the interim whisper links: same
+  destinations, now one vocabulary the morphs (KRA-356–359) will take over.
+-->
 <section class="s-section s-section--tight">
-	<div class="s-wrap stage-whisper" aria-label="Next paths">
-		<a href="/onboarding">Begin onboarding</a>
-		<a href="/how-it-works">Read the nine-plate story</a>
-		<a href="/architecture">See the architecture</a>
+	<div class="s-wrap">
+		<IntentChips />
 	</div>
 </section>
+
+<IntentPalette />
 
 <section class="s-section">
 	<div class="s-wrap">
@@ -125,26 +134,14 @@ const ctaTree = closingCta();
 	.contact__form {
 		margin-block-start: var(--mo-space-6);
 	}
-	.stage-whisper {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--mo-space-3) var(--mo-space-5);
-		align-items: center;
-		font-family: var(--mo-font-mono);
-		font-size: var(--mo-type-2);
-		color: var(--mo-intent-on-surface-muted);
-	}
-	.stage-whisper a,
 	.s-whisper a {
 		color: var(--mo-intent-on-surface);
 		text-decoration: underline;
 		text-underline-offset: 0.22em;
 	}
-	.stage-whisper a:hover,
 	.s-whisper a:hover {
 		color: var(--mo-intent-accession-on);
 	}
-	.stage-whisper a:focus-visible,
 	.s-whisper a:focus-visible {
 		outline: 2px solid var(--mo-intent-primary-action-ring);
 		outline-offset: 2px;
