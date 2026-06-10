@@ -1,6 +1,6 @@
 # Morphe — Status
 
-**Date:** 2026-06-09
+**Date:** 2026-06-10
 **Verdict: GREEN.** Types clean, all tests pass, production build succeeds.
 
 This is the rolling status snapshot. The deeper ledger — every vision mechanism
@@ -15,11 +15,11 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (486 files) |
-| Tests | `bun run test` (`vitest run`) | **233/233 passing** across 13 files |
+| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (504 files) |
+| Tests | `bun run test` (`vitest run`) | **246/246 passing** across 14 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
 
-### Test breakdown (233 total)
+### Test breakdown (246 total)
 
 - `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
@@ -30,13 +30,18 @@ Package manager is **bun** (never npm/pnpm/yarn).
 - `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
 - `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
-- `src/lib/morphe/lemmas.property.test.ts` — 21 (lemmas-as-property-tests,
+- `src/lib/morphe/lemmas.property.test.ts` — 29 (lemmas-as-property-tests,
   in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
-  compound-wrapping commutation).
-- `src/lib/morphe/primitives.render.test.ts` — 47 (SSR render totality + a11y
+  compound-wrapping commutation and the Lemma 6 bounded-delegation suite:
+  adversarial deltas, epoch invalidation, liveVaryIds through CompoundRef
+  slot fills/args, Within resolution into algebra inputs).
+- `src/lib/morphe/primitives.render.test.ts` — 51 (SSR render totality + a11y
   for all 22 primitive kinds incl. Action/Overlay, input modes, unknown
-  compounds, shared node instances, bound-primitive store seeding, and
-  dialect compound-gating at render).
+  compounds, shared node instances, bound-primitive store seeding, dialect
+  compound-gating at render, and Vary rendering from the root choice map
+  with clamped fallback).
+- `src/lib/morphe/delegation/envelope.test.ts` — 1 (ADR-0004 envelope/Delta
+  typing wraps a pure tree without touching the grammar).
 - `src/lib/morphe/state/store.test.ts` — 12 (ADR-0003 client-store contract:
   layered ownership, full JSON values, replace-on-write + notify-on-set,
   dev-freeze; R1.2 event tiers: atomic commit+record, bounded FIFO window,
@@ -79,7 +84,11 @@ Package manager is **bun** (never npm/pnpm/yarn).
   records); the R1.4 declarative action wire (`MorpheRoot.actions` binds
   in-tree `Button.action` ids without putting handlers in the tree); the R1.5 compound lifecycle
   (`candidate`/`promoted` through one gate) with `Dialect.compounds[]`
-  render-gating via the `restrictCompounds` view.
+  render-gating via the `restrictCompounds` view; the R2 bounded-delegation
+  surface (ADR-0004: `Within`/`VaryId` in the grammar, the emission envelope +
+  pure/total `applyDelta` in `delegation/`, `MorpheRoot.choices?` as the only
+  renderer contract change — epochs never reach the renderer), with the `py/`
+  Pydantic mirror and committed schema re-synced to the now-complete grammar.
 - **The site (the dignity test, live):** composer-first home (`/`) with the
   two-amber beacon discipline, `/how-it-works`, `/architecture`, `/onboarding`,
   `/substrate`; the capability composer with two-stage retrieve→rerank ranking
@@ -97,9 +106,10 @@ Production, server-side only.
 
 Two different categories — do not conflate them:
 
-- **Reserved strata sockets** (`CONTRACT.md` §11): `bind` store-paths, inert
-  `Vary`/`objective`, `persona`. These are *typed seams for Phases 1–2*, not unfinished features.
-  Do not wire them ad hoc; do not remove them.
+- **Reserved strata sockets** (`CONTRACT.md` §11): `Vary.objective` (what a
+  future mid loop optimizes — the variation points themselves are wired as of
+  R2) and `persona`. These are *typed seams for Phase 2*, not unfinished
+  features. Do not wire them ad hoc; do not remove them.
 - **Known defects, scheduled** (`CONTRACT.md` §12 / `docs/reconstruction-plan.md`):
   **none** — the R0 substrate-integrity pass closed all four (budget×expansion
   commutation, render totality at unknown compounds, index child keying,
@@ -118,7 +128,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 233/233 passing
+bun run test       # vitest run                      → 246/246 passing
 bun run build      # vite build                      → client + SSR bundles
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```
