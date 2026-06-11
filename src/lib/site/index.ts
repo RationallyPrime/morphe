@@ -48,6 +48,7 @@ export {
 	intentRegistry,
 	matchIntents,
 	registerSiteIntents,
+	resolveArrivalIntent,
 	SITE_INTENTS,
 } from "./intents.js";
 export {

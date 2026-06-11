@@ -30,6 +30,7 @@ import {
 	intentGateFailure,
 	matchIntents,
 	registerSiteIntents,
+	resolveArrivalIntent,
 	SITE_INTENTS,
 	type SiteIntent,
 } from "./intents.js";
@@ -334,5 +335,40 @@ describe("I6 — voice (D12): intent strings stay out of doctrine register", () 
 				expect(visitorStrings, `${intent.id}: ${phrase}`).not.toContain(phrase);
 			}
 		}
+	});
+});
+
+describe("I6 — arrival intents: ?intent= resolves through the registry (KRA-376)", () => {
+	const reg = new IntentRegistry();
+	registerSiteIntents(reg);
+
+	it("resolves every registered stage-delta intent by id", () => {
+		const stageIds = SITE_INTENTS.filter((i) => i.action.kind === "stage-delta").map((i) => i.id);
+		expect(stageIds.length).toBeGreaterThan(0);
+		for (const id of stageIds) {
+			expect(resolveArrivalIntent(id, reg)?.id).toBe(id);
+		}
+	});
+
+	it("never resolves a non-stage intent: a URL cannot flip the lights or navigate", () => {
+		// flip-the-lights is REGISTERED — the refusal is about its action kind,
+		// not its membership (?cohort= owns dialect attribution).
+		expect(resolveArrivalIntent("flip-the-lights", reg)).toBeNull();
+	});
+
+	it("ignores unknown, garbage and absent params (never an error, never a reset)", () => {
+		expect(resolveArrivalIntent("not-a-thing", reg)).toBeNull();
+		expect(resolveArrivalIntent("", reg)).toBeNull();
+		expect(resolveArrivalIntent("   ", reg)).toBeNull();
+		expect(resolveArrivalIntent(null, reg)).toBeNull();
+		expect(resolveArrivalIntent("GOVERNANCE-STORY", reg)).toBeNull(); // exact-match, like cohort
+	});
+
+	it("a resolved arrival intent rides the SAME engine path to an applied morph", () => {
+		intentEngine.setStage(homeIntentStageEnvelope());
+		const arrival = resolveArrivalIntent("governance-story", reg) as SiteIntent;
+		expect(intentEngine.execute(arrival)).toEqual({ kind: "morphed" });
+		expect(intentEngine.choices?.[HOME_INTENT_STAGE_ID]).toBe(HOME_STAGE_CHOICES.governance);
+		expect(intentEngine.announcement).toContain("How it is held");
 	});
 });
