@@ -207,10 +207,10 @@ function identityMorph(): Node {
 }
 
 /**
- * The technical version (KRA-357) — the CTO chip. Architecture substance from
- * the /architecture canon, condensed and register-shifted toward evidence:
- * the four substrate names as provenance-marked record entries, the queue as
- * the honest closing fact. The full page stays canonical.
+ * The technical version (KRA-357) — the CTO chip. One mechanism clause per
+ * substrate name, the read/write authority seam on the Aition entry, the
+ * single-router rule on the Demiurge entry, and the enforced layering as the
+ * closer. The full page (/architecture) stays canonical.
  */
 function technicalMorph(): Node {
 	const piece = (name: string, line: string): Node => ({
@@ -225,26 +225,34 @@ function technicalMorph(): Node {
 		eyebrow("The architecture"),
 		t("Matter, form, actor, cause.", "heading", { emphasis: "strong" }),
 		t(
-			"Sókrates is built on a typed map of your operation. Four named pieces carry the whole machine, and every governed act crosses the same gate.",
+			"Sókrates compiles the systems you already run into one typed graph and runs governed work over it. Four names carry the machine. What follows is mechanism, not metaphor.",
 			"body",
 			{ emphasis: "muted" },
 		),
-		piece("Hyle", "Matter — reads the source systems and lifts their structure into the map."),
+		piece(
+			"Hyle",
+			"Matter — reads the schemas your systems already publish (OpenAPI, JSON Schema, GraphQL, SQL) and compiles them into typed records. A new source is a parser, not a project.",
+		),
 		piece(
 			"Eidos",
-			"Form — the canonical typed hypergraph. The lakehouse and the runtime are projections of it.",
+			"Form — the one canonical graph. The lakehouse and the runtime are projections of it; the graph holds current state, and history lives in the trace of every act.",
 		),
 		piece(
 			"Demiurge",
-			"Actor — a person, an agent, a process: each one named, each acting under authority.",
+			"Actor — a person, an agent, a process: every actor is a named identity in the graph. One orchestrator routes all agent work; no agent calls another sideways.",
 		),
 		piece(
 			"Aition",
-			"Cause — the authority envelope every governed act carries, verified before anything is written.",
+			"Cause — the write gate. Reads run on a standing grant; a write demands a signed, single-use envelope naming the actor, the act and the approval. Verified, burned, then persisted.",
 		),
 		piece(
 			"traversable",
-			"The queue — every edge carries a flag, and the false-flagged set is the work the system knows it cannot yet do.",
+			"The queue — every edge carries a flag saying whether the system can traverse it yet. The false-flagged set is the work queue: a typed inventory of what it cannot yet do.",
+		),
+		t(
+			"None of this is convention. The layering between these pieces is mechanically enforced; an import that crosses a boundary fails the build.",
+			"body",
+			{ emphasis: "muted" },
 		),
 		{
 			kind: "cluster",
