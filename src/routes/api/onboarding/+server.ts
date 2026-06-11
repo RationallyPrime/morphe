@@ -10,6 +10,7 @@
 import { json } from "@sveltejs/kit";
 import { magicLinkConfigured, verifyMagicToken } from "$lib/server/magic-link";
 import { sendFounderAlert } from "$lib/server/notify";
+import { mintReceiptId } from "$lib/server/receipt";
 import type { RequestHandler } from "./$types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,7 +73,10 @@ export const POST: RequestHandler = async ({ request }) => {
 	const priorities = Array.isArray(body.priorities) ? body.priorities : [];
 	const outcomes = str(body.outcomes);
 
+	const receipt = mintReceiptId();
+
 	const lines: string[] = [
+		`Receipt: ${receipt}`,
 		`Company: ${company || "(not given)"}`,
 		`Contact: ${str(contact.name) || "(not given)"}${str(contact.title) ? `, ${str(contact.title)}` : ""}`,
 		`Email: ${email}`,
@@ -111,5 +115,5 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (!result.delivered) {
 		return json({ ok: false, error: result.reason }, { status: 503 });
 	}
-	return json({ ok: true });
+	return json({ ok: true, receipt });
 };
