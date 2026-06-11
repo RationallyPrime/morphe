@@ -2188,3 +2188,2568 @@ Spec: 3.0.3 · 66 operations · 81 models · `/home/rationallyprime/projects/mor
 - `WaitForTimeJourneyValues`
 - `WaitUntilFixedDateJourneyData`
 - `WaitUntilRelativeDateJourneyData`
+
+## Asana
+
+Spec: 3.0.0 · 247 operations · 273 models · `/home/rationallyprime/projects/morphe/data/specs/asana-openapi.yaml`
+
+### Access requests
+
+- `GET /access_requests` — Get access requests (getAccessRequests) → `AccessRequestResponse`
+- `POST /access_requests` — Create an access request (createAccessRequest) → `AccessRequestResponse`
+- `POST /access_requests/{access_request_gid}/approve` — Approve an access request (approveAccessRequest) → `EmptyResponse`
+- `POST /access_requests/{access_request_gid}/reject` — Reject an access request (rejectAccessRequest) → `EmptyResponse`
+
+### Agents
+
+- `GET /agents/{agent_gid}` — Get an agent (getAgent) → `AgentResponse`
+- `GET /workspaces/{workspace_gid}/agents` — Get a list of agents in a workspace (getAgentsForWorkspace) → `AgentCompact`
+
+### Allocations
+
+- `GET /allocations` — Get multiple allocations (getAllocations) → `AllocationResponse`
+- `POST /allocations` — Create an allocation (createAllocation) → `AllocationResponse`
+- `DELETE /allocations/{allocation_gid}` — Delete an allocation (deleteAllocation) → `EmptyResponse`
+- `GET /allocations/{allocation_gid}` — Get an allocation (getAllocation) → `AllocationResponse`
+- `PUT /allocations/{allocation_gid}` — Update an allocation (updateAllocation) → `AllocationResponse`
+
+### Attachments
+
+- `GET /attachments` — Get attachments from an object (getAttachmentsForObject) → `AttachmentCompact`
+- `POST /attachments` — Upload an attachment (createAttachmentForObject) → `AttachmentResponse`
+- `DELETE /attachments/{attachment_gid}` — Delete an attachment (deleteAttachment) → `EmptyResponse`
+- `GET /attachments/{attachment_gid}` — Get an attachment (getAttachment) → `AttachmentResponse`
+
+### Audit log API
+
+- `GET /workspaces/{workspace_gid}/audit_log_events` — Get audit log events (getAuditLogEvents) → `AuditLogEvent`
+
+### Batch API
+
+- `POST /batch` — Submit parallel requests (createBatchRequest) → `BatchResponse`
+
+### Budgets
+
+- `GET /budgets` — Get all budgets (getBudgets) → `BudgetResponse`
+- `POST /budgets` — Create a budget (createBudget) → `BudgetResponse`
+- `DELETE /budgets/{budget_gid}` — Delete a budget (deleteBudget) → `EmptyResponse`
+- `GET /budgets/{budget_gid}` — Get a budget (getBudget) → `BudgetResponse`
+- `PUT /budgets/{budget_gid}` — Update a budget (updateBudget) → `BudgetResponse`
+
+### Custom field settings
+
+- `GET /goals/{goal_gid}/custom_field_settings` — Get a goal's custom fields (getCustomFieldSettingsForGoal) → `CustomFieldSettingResponse`
+- `GET /portfolios/{portfolio_gid}/custom_field_settings` — Get a portfolio's custom fields (getCustomFieldSettingsForPortfolio) → `CustomFieldSettingResponse`
+- `GET /projects/{project_gid}/custom_field_settings` — Get a project's custom fields (getCustomFieldSettingsForProject) → `CustomFieldSettingResponse`
+- `GET /teams/{team_gid}/custom_field_settings` — Get a team's custom fields (getCustomFieldSettingsForTeam) → `CustomFieldSettingResponse`
+
+### Custom fields
+
+- `POST /custom_fields` — Create a custom field (createCustomField) → `CustomFieldResponse`
+- `DELETE /custom_fields/{custom_field_gid}` — Delete a custom field (deleteCustomField) → `EmptyResponse`
+- `GET /custom_fields/{custom_field_gid}` — Get a custom field (getCustomField) → `CustomFieldResponse`
+- `PUT /custom_fields/{custom_field_gid}` — Update a custom field (updateCustomField) → `CustomFieldResponse`
+- `POST /custom_fields/{custom_field_gid}/enum_options` — Create an enum option (createEnumOptionForCustomField) → `EnumOption`
+- `POST /custom_fields/{custom_field_gid}/enum_options/insert` — Reorder a custom field's enum (insertEnumOptionForCustomField) → `EnumOption`
+- `PUT /enum_options/{enum_option_gid}` — Update an enum option (updateEnumOption) → `EnumOption`
+- `GET /workspaces/{workspace_gid}/custom_fields` — Get a workspace's custom fields (getCustomFieldsForWorkspace) → `CustomFieldResponse`
+
+### Custom types
+
+- `GET /custom_types` — Get all custom types associated with an object (getCustomTypes) → `CustomTypeResponse`
+- `GET /custom_types/{custom_type_gid}` — Get a custom type (getCustomType) → `CustomTypeResponse`
+
+### Events
+
+- `GET /events` — Get events on a resource (getEvents) → `EventResponse`
+
+### Exports
+
+- `POST /exports/graph` — Initiate a graph export (createGraphExport) → `GraphExportResponse`
+- `POST /exports/resource` — Initiate a resource export (createResourceExport) → `ResourceExportResponse`
+
+### Goal relationships
+
+- `GET /goal_relationships` — Get goal relationships (getGoalRelationships) → `GoalRelationshipCompact`
+- `GET /goal_relationships/{goal_relationship_gid}` — Get a goal relationship (getGoalRelationship) → `GoalRelationshipResponse`
+- `PUT /goal_relationships/{goal_relationship_gid}` — Update a goal relationship (updateGoalRelationship) → `GoalRelationshipResponse`
+- `POST /goals/{goal_gid}/addSupportingRelationship` — Add a supporting goal relationship (addSupportingRelationship) → `GoalRelationshipResponse`
+- `POST /goals/{goal_gid}/removeSupportingRelationship` — Removes a supporting goal relationship (removeSupportingRelationship) → `EmptyResponse`
+
+### Goals
+
+- `GET /goals` — Get goals (getGoals) → `GoalCompact`
+- `POST /goals` — Create a goal (createGoal) → `GoalResponse`
+- `DELETE /goals/{goal_gid}` — Delete a goal (deleteGoal) → `EmptyResponse`
+- `GET /goals/{goal_gid}` — Get a goal (getGoal) → `GoalResponse`
+- `PUT /goals/{goal_gid}` — Update a goal (updateGoal) → `GoalResponse`
+- `POST /goals/{goal_gid}/addCustomFieldSetting` — Add a custom field to a goal (addCustomFieldSettingForGoal) → `CustomFieldSettingResponse`
+- `POST /goals/{goal_gid}/addFollowers` — Add a collaborator to a goal (addFollowers) → `GoalResponse`
+- `GET /goals/{goal_gid}/parentGoals` — Get parent goals from a goal (getParentGoalsForGoal) → `GoalCompact`
+- `POST /goals/{goal_gid}/removeCustomFieldSetting` — Remove a custom field from a goal (removeCustomFieldSettingForGoal) → `EmptyResponse`
+- `POST /goals/{goal_gid}/removeFollowers` — Remove a collaborator from a goal (removeFollowers) → `GoalResponse`
+- `POST /goals/{goal_gid}/setMetric` — Create a goal metric (createGoalMetric) → `GoalResponse`
+- `POST /goals/{goal_gid}/setMetricCurrentValue` — Update a goal metric (updateGoalMetric) → `GoalResponse`
+
+### Jobs
+
+- `GET /jobs/{job_gid}` — Get a job by id (getJob) → `JobResponse`
+
+### Memberships
+
+- `GET /memberships` — Get multiple memberships (getMemberships) → `MembershipCompact`
+- `POST /memberships` — Create a membership (createMembership) → `MembershipResponse`
+- `DELETE /memberships/{membership_gid}` — Delete a membership (deleteMembership) → `EmptyResponse`
+- `GET /memberships/{membership_gid}` — Get a membership (getMembership) → `MembershipResponse`
+- `PUT /memberships/{membership_gid}` — Update a membership (updateMembership) → `MembershipResponse`
+
+### Ooo entries
+
+- `GET /ooo_entries` — Get OOO entries for a user (getOooEntries) → `OooEntryResponse`
+- `POST /ooo_entries` — Create an OOO entry (createOooEntry) → `OooEntryResponse`
+- `DELETE /ooo_entries/{ooo_entry_gid}` — Delete an OOO entry (deleteOooEntry) → `EmptyResponse`
+- `GET /ooo_entries/{ooo_entry_gid}` — Get an OOO entry (getOooEntry) → `OooEntryResponse`
+- `PUT /ooo_entries/{ooo_entry_gid}` — Update an OOO entry (updateOooEntry) → `OooEntryResponse`
+
+### Organization exports
+
+- `POST /organization_exports` — Create an organization export request (createOrganizationExport) → `OrganizationExportResponse`
+- `GET /organization_exports/{organization_export_gid}` — Get details on an org export request (getOrganizationExport) → `OrganizationExportResponse`
+
+### Portfolio memberships
+
+- `GET /portfolio_memberships` — Get multiple portfolio memberships (getPortfolioMemberships) → `DeprecatedPortfolioMembershipCompact`
+- `GET /portfolio_memberships/{portfolio_membership_gid}` — Get a portfolio membership (getPortfolioMembership) → `DeprecatedPortfolioMembershipResponse`
+- `GET /portfolios/{portfolio_gid}/portfolio_memberships` — Get memberships from a portfolio (getPortfolioMembershipsForPortfolio) → `DeprecatedPortfolioMembershipCompact`
+
+### Portfolios
+
+- `GET /portfolios` — Get multiple portfolios (getPortfolios) → `PortfolioCompact`
+- `POST /portfolios` — Create a portfolio (createPortfolio) → `PortfolioResponse`
+- `DELETE /portfolios/{portfolio_gid}` — Delete a portfolio (deletePortfolio) → `EmptyResponse`
+- `GET /portfolios/{portfolio_gid}` — Get a portfolio (getPortfolio) → `PortfolioResponse`
+- `PUT /portfolios/{portfolio_gid}` — Update a portfolio (updatePortfolio) → `PortfolioResponse`
+- `POST /portfolios/{portfolio_gid}/addCustomFieldSetting` — Add a custom field to a portfolio (addCustomFieldSettingForPortfolio) → `CustomFieldSettingResponse`
+- `POST /portfolios/{portfolio_gid}/addItem` — Add a portfolio item (addItemForPortfolio) → `EmptyResponse`
+- `POST /portfolios/{portfolio_gid}/addMembers` — Add users to a portfolio (addMembersForPortfolio) → `PortfolioResponse`
+- `POST /portfolios/{portfolio_gid}/duplicate` — Duplicate a portfolio (duplicatePortfolio) → `JobResponse`
+- `GET /portfolios/{portfolio_gid}/items` — Get portfolio items (getItemsForPortfolio) → `ProjectCompact`
+- `POST /portfolios/{portfolio_gid}/removeCustomFieldSetting` — Remove a custom field from a portfolio (removeCustomFieldSettingForPortfolio) → `EmptyResponse`
+- `POST /portfolios/{portfolio_gid}/removeItem` — Remove a portfolio item (removeItemForPortfolio) → `EmptyResponse`
+- `POST /portfolios/{portfolio_gid}/removeMembers` — Remove users from a portfolio (removeMembersForPortfolio) → `PortfolioResponse`
+
+### Project briefs
+
+- `DELETE /project_briefs/{project_brief_gid}` — Delete a project brief (deleteProjectBrief) → `EmptyResponse`
+- `GET /project_briefs/{project_brief_gid}` — Get a project brief (getProjectBrief) → `ProjectBriefResponse`
+- `PUT /project_briefs/{project_brief_gid}` — Update a project brief (updateProjectBrief) → `ProjectBriefResponse`
+- `POST /projects/{project_gid}/project_briefs` — Create a project brief (createProjectBrief) → `ProjectBriefResponse`
+
+### Project memberships
+
+- `GET /project_memberships/{project_membership_gid}` — Get a project membership (getProjectMembership) → `ProjectMembershipNormalResponse`
+- `GET /projects/{project_gid}/project_memberships` — Get memberships from a project (getProjectMembershipsForProject) → `ProjectMembershipCompact`
+
+### Project portfolio settings
+
+- `GET /portfolios/{portfolio_gid}/project_portfolio_settings` — Get project portfolio settings for a portfolio (getProjectPortfolioSettingsForPortfolio) → `ProjectPortfolioSettingCompact`
+- `GET /project_portfolio_settings/{project_portfolio_setting_gid}` — Get a project portfolio setting (getProjectPortfolioSetting) → `ProjectPortfolioSettingResponse`
+- `PUT /project_portfolio_settings/{project_portfolio_setting_gid}` — Update a project portfolio setting (updateProjectPortfolioSetting) → `ProjectPortfolioSettingResponse`
+- `GET /projects/{project_gid}/project_portfolio_settings` — Get project portfolio settings for a project (getProjectPortfolioSettingsForProject) → `ProjectPortfolioSettingCompact`
+
+### Project statuses
+
+- `DELETE /project_statuses/{project_status_gid}` — Delete a project status (deleteProjectStatus) → `EmptyResponse`
+- `GET /project_statuses/{project_status_gid}` — Get a project status (getProjectStatus) → `ProjectStatusResponse`
+- `GET /projects/{project_gid}/project_statuses` — Get statuses from a project (getProjectStatusesForProject) → `ProjectStatusCompact`
+- `POST /projects/{project_gid}/project_statuses` — Create a project status (createProjectStatusForProject) → `ProjectStatusResponse`
+
+### Project templates
+
+- `GET /project_templates` — Get multiple project templates (getProjectTemplates) → `ProjectTemplateCompact`
+- `DELETE /project_templates/{project_template_gid}` — Delete a project template (deleteProjectTemplate) → `EmptyResponse`
+- `GET /project_templates/{project_template_gid}` — Get a project template (getProjectTemplate) → `ProjectTemplateResponse`
+- `POST /project_templates/{project_template_gid}/instantiateProject` — Instantiate a project from a project template (instantiateProject) → `JobResponse`
+- `GET /teams/{team_gid}/project_templates` — Get a team's project templates (getProjectTemplatesForTeam) → `ProjectTemplateCompact`
+
+### Projects
+
+- `GET /projects` — Get multiple projects (getProjects) → `ProjectCompact`
+- `POST /projects` — Create a project (createProject) → `ProjectResponse`
+- `DELETE /projects/{project_gid}` — Delete a project (deleteProject) → `EmptyResponse`
+- `GET /projects/{project_gid}` — Get a project (getProject) → `ProjectResponse`
+- `PUT /projects/{project_gid}` — Update a project (updateProject) → `ProjectResponse`
+- `POST /projects/{project_gid}/addCustomFieldSetting` — Add a custom field to a project (addCustomFieldSettingForProject) → `CustomFieldSettingResponse`
+- `POST /projects/{project_gid}/addFollowers` — Add followers to a project (addFollowersForProject) → `ProjectResponse`
+- `POST /projects/{project_gid}/addMembers` — Add users to a project (addMembersForProject) → `ProjectResponse`
+- `POST /projects/{project_gid}/duplicate` — Duplicate a project (duplicateProject) → `JobResponse`
+- `POST /projects/{project_gid}/removeCustomFieldSetting` — Remove a custom field from a project (removeCustomFieldSettingForProject) → `EmptyResponse`
+- `POST /projects/{project_gid}/removeFollowers` — Remove followers from a project (removeFollowersForProject) → `ProjectResponse`
+- `POST /projects/{project_gid}/removeMembers` — Remove users from a project (removeMembersForProject) → `ProjectResponse`
+- `POST /projects/{project_gid}/saveAsTemplate` — Create a project template from a project (projectSaveAsTemplate) → `JobResponse`
+- `GET /projects/{project_gid}/task_counts` — Get task count of a project (getTaskCountsForProject) → `TaskCountResponse`
+- `GET /tasks/{task_gid}/projects` — Get projects a task is in (getProjectsForTask) → `ProjectCompact`
+- `GET /teams/{team_gid}/projects` — Get a team's projects (getProjectsForTeam) → `ProjectCompact`
+- `POST /teams/{team_gid}/projects` — Create a project in a team (createProjectForTeam) → `ProjectResponse`
+- `GET /workspaces/{workspace_gid}/projects` — Get all projects in a workspace (getProjectsForWorkspace) → `ProjectCompact`
+- `POST /workspaces/{workspace_gid}/projects` — Create a project in a workspace (createProjectForWorkspace) → `ProjectResponse`
+- `GET /workspaces/{workspace_gid}/projects/search` — Search projects in a workspace (searchProjectsForWorkspace) → `ProjectCompact`
+
+### Rates
+
+- `GET /rates` — Get multiple rates (getRates) → `RateOrPlaceholderCompact`
+- `POST /rates` — Create a rate (createRate) → `RateResponse`
+- `DELETE /rates/{rate_gid}` — Delete a rate (deleteRate) → `EmptyResponse`
+- `GET /rates/{rate_gid}` — Get a rate (getRate) → `RateResponse`
+- `PUT /rates/{rate_gid}` — Update a rate (updateRate) → `RateResponse`
+
+### Reactions
+
+- `GET /reactions` — Get reactions with an emoji base on an object. (getReactionsOnObject) → `ReactionCompact`
+
+### Roles
+
+- `GET /roles` — Get multiple roles (getRoles) → `RbacRoleCompact`
+- `POST /roles` — Create a role (createRole) → `RbacRoleResponse`
+- `DELETE /roles/{role_gid}` — Delete a role (deleteRole) → `EmptyResponse`
+- `GET /roles/{role_gid}` — Get a role (getRole) → `RbacRoleResponse`
+- `PUT /roles/{role_gid}` — Update a role (updateRole) → `RbacRoleResponse`
+
+### Rules
+
+- `POST /rule_triggers/{rule_trigger_gid}/run` — Trigger a rule (triggerRule) → `RuleTriggerResponse`
+
+### Sections
+
+- `GET /projects/{project_gid}/sections` — Get sections in a project (getSectionsForProject) → `SectionCompact`
+- `POST /projects/{project_gid}/sections` — Create a section in a project (createSectionForProject) → `SectionResponse`
+- `POST /projects/{project_gid}/sections/insert` — Move or Insert sections (insertSectionForProject) → `EmptyResponse`
+- `DELETE /sections/{section_gid}` — Delete a section (deleteSection) → `EmptyResponse`
+- `GET /sections/{section_gid}` — Get a section (getSection) → `SectionResponse`
+- `PUT /sections/{section_gid}` — Update a section (updateSection) → `SectionResponse`
+- `POST /sections/{section_gid}/addTask` — Add task to section (addTaskForSection) → `EmptyResponse`
+
+### Status updates
+
+- `GET /status_updates` — Get status updates from an object (getStatusesForObject) → `StatusUpdateCompact`
+- `POST /status_updates` — Create a status update (createStatusForObject) → `StatusUpdateResponse`
+- `DELETE /status_updates/{status_update_gid}` — Delete a status update (deleteStatus) → `EmptyResponse`
+- `GET /status_updates/{status_update_gid}` — Get a status update (getStatus) → `StatusUpdateResponse`
+
+### Stories
+
+- `GET /goals/{goal_gid}/stories` — Get stories from a goal (getStoriesForGoal) → `StoryCompact`
+- `POST /goals/{goal_gid}/stories` — Create a story on a goal (createStoryForGoal) → `StoryResponse`
+- `DELETE /stories/{story_gid}` — Delete a story (deleteStory) → `EmptyResponse`
+- `GET /stories/{story_gid}` — Get a story (getStory) → `StoryResponse`
+- `PUT /stories/{story_gid}` — Update a story (updateStory) → `StoryResponse`
+- `GET /tasks/{task_gid}/stories` — Get stories from a task (getStoriesForTask) → `StoryCompact`
+- `POST /tasks/{task_gid}/stories` — Create a story on a task (createStoryForTask) → `StoryResponse`
+
+### Tags
+
+- `GET /tags` — Get multiple tags (getTags) → `TagCompact`
+- `POST /tags` — Create a tag (createTag) → `TagResponse`
+- `DELETE /tags/{tag_gid}` — Delete a tag (deleteTag) → `EmptyResponse`
+- `GET /tags/{tag_gid}` — Get a tag (getTag) → `TagResponse`
+- `PUT /tags/{tag_gid}` — Update a tag (updateTag) → `TagResponse`
+- `GET /tasks/{task_gid}/tags` — Get a task's tags (getTagsForTask) → `TagCompact`
+- `GET /workspaces/{workspace_gid}/tags` — Get tags in a workspace (getTagsForWorkspace) → `TagCompact`
+- `POST /workspaces/{workspace_gid}/tags` — Create a tag in a workspace (createTagForWorkspace) → `TagResponse`
+
+### Task templates
+
+- `GET /task_templates` — Get multiple task templates (getTaskTemplates) → `TaskTemplateCompact`
+- `DELETE /task_templates/{task_template_gid}` — Delete a task template (deleteTaskTemplate) → `EmptyResponse`
+- `GET /task_templates/{task_template_gid}` — Get a task template (getTaskTemplate) → `TaskTemplateResponse`
+- `POST /task_templates/{task_template_gid}/instantiateTask` — Instantiate a task from a task template (instantiateTask) → `JobResponse`
+
+### Tasks
+
+- `GET /projects/{project_gid}/tasks` — Get tasks from a project (getTasksForProject) → `TaskCompact`
+- `GET /sections/{section_gid}/tasks` — Get tasks from a section (getTasksForSection) → `TaskCompact`
+- `GET /tags/{tag_gid}/tasks` — Get tasks from a tag (getTasksForTag) → `TaskCompact`
+- `GET /tasks` — Get multiple tasks (getTasks) → `TaskCompact`
+- `POST /tasks` — Create a task (createTask) → `TaskResponse`
+- `DELETE /tasks/{task_gid}` — Delete a task (deleteTask) → `EmptyResponse`
+- `GET /tasks/{task_gid}` — Get a task (getTask) → `TaskResponse`
+- `PUT /tasks/{task_gid}` — Update a task (updateTask) → `TaskResponse`
+- `POST /tasks/{task_gid}/addDependencies` — Set dependencies for a task (addDependenciesForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/addDependents` — Set dependents for a task (addDependentsForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/addFollowers` — Add followers to a task (addFollowersForTask) → `TaskResponse`
+- `POST /tasks/{task_gid}/addProject` — Add a project to a task (addProjectForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/addTag` — Add a tag to a task (addTagForTask) → `EmptyResponse`
+- `GET /tasks/{task_gid}/dependencies` — Get dependencies from a task (getDependenciesForTask) → `TaskCompact`
+- `GET /tasks/{task_gid}/dependents` — Get dependents from a task (getDependentsForTask) → `TaskCompact`
+- `POST /tasks/{task_gid}/duplicate` — Duplicate a task (duplicateTask) → `JobResponse`
+- `POST /tasks/{task_gid}/removeDependencies` — Unlink dependencies from a task (removeDependenciesForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/removeDependents` — Unlink dependents from a task (removeDependentsForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/removeFollowers` — Remove followers from a task (removeFollowerForTask) → `TaskResponse`
+- `POST /tasks/{task_gid}/removeProject` — Remove a project from a task (removeProjectForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/removeTag` — Remove a tag from a task (removeTagForTask) → `EmptyResponse`
+- `POST /tasks/{task_gid}/setParent` — Set the parent of a task (setParentForTask) → `TaskResponse`
+- `GET /tasks/{task_gid}/subtasks` — Get subtasks from a task (getSubtasksForTask) → `TaskCompact`
+- `POST /tasks/{task_gid}/subtasks` — Create a subtask (createSubtaskForTask) → `TaskResponse`
+- `GET /user_task_lists/{user_task_list_gid}/tasks` — Get tasks from a user task list (getTasksForUserTaskList) → `TaskCompact`
+- `GET /workspaces/{workspace_gid}/tasks/custom_id/{custom_id}` — Get a task for a given custom ID (getTaskForCustomID) → `TaskResponse`
+- `GET /workspaces/{workspace_gid}/tasks/search` — Search tasks in a workspace (searchTasksForWorkspace) → `TaskCompact`
+
+### Team memberships
+
+- `GET /team_memberships` — Get team memberships (getTeamMemberships) → `TeamMembershipCompact`
+- `GET /team_memberships/{team_membership_gid}` — Get a team membership (getTeamMembership) → `TeamMembershipResponse`
+- `GET /teams/{team_gid}/team_memberships` — Get memberships from a team (getTeamMembershipsForTeam) → `TeamMembershipCompact`
+- `GET /users/{user_gid}/team_memberships` — Get memberships from a user (getTeamMembershipsForUser) → `TeamMembershipCompact`
+
+### Teams
+
+- `POST /teams` — Create a team (createTeam) → `TeamResponse`
+- `GET /teams/{team_gid}` — Get a team (getTeam) → `TeamResponse`
+- `PUT /teams/{team_gid}` — Update a team (updateTeam) → `TeamResponse`
+- `POST /teams/{team_gid}/addUser` — Add a user to a team (addUserForTeam) → `TeamMembershipResponse`
+- `POST /teams/{team_gid}/removeUser` — Remove a user from a team (removeUserForTeam) → `EmptyResponse`
+- `GET /users/{user_gid}/teams` — Get teams for a user (getTeamsForUser) → `TeamCompact`
+- `GET /workspaces/{workspace_gid}/teams` — Get teams in a workspace (getTeamsForWorkspace) → `TeamCompact`
+
+### Time periods
+
+- `GET /time_periods` — Get time periods (getTimePeriods) → `TimePeriodCompact`
+- `GET /time_periods/{time_period_gid}` — Get a time period (getTimePeriod) → `TimePeriodResponse`
+
+### Time tracking categories
+
+- `GET /time_tracking_categories` — Get time tracking categories for a workspace (getTimeTrackingCategories) → `TimeTrackingCategoryCompact`
+- `POST /time_tracking_categories` — Create a time tracking category (createTimeTrackingCategory) → `TimeTrackingCategoryResponse`
+- `DELETE /time_tracking_categories/{time_tracking_category_gid}` — Delete a time tracking category (deleteTimeTrackingCategory) → `EmptyResponse`
+- `GET /time_tracking_categories/{time_tracking_category_gid}` — Get a time tracking category (getTimeTrackingCategory) → `TimeTrackingCategoryResponse`
+- `PUT /time_tracking_categories/{time_tracking_category_gid}` — Update a time tracking category (updateTimeTrackingCategory) → `TimeTrackingCategoryResponse`
+- `GET /time_tracking_categories/{time_tracking_category_gid}/time_tracking_entries` — Get time tracking entries for a time tracking category (getTimeTrackingEntriesForTimeTrackingCategory) → `TimeTrackingEntryCompact`
+
+### Time tracking entries
+
+- `GET /tasks/{task_gid}/time_tracking_entries` — Get time tracking entries for a task (getTimeTrackingEntriesForTask) → `TimeTrackingEntryCompact`
+- `POST /tasks/{task_gid}/time_tracking_entries` — Create a time tracking entry (createTimeTrackingEntry) → `TimeTrackingEntryBase`
+- `GET /time_tracking_entries` — Get multiple time tracking entries (getTimeTrackingEntries) → `TimeTrackingEntryCompact`
+- `DELETE /time_tracking_entries/{time_tracking_entry_gid}` — Delete a time tracking entry (deleteTimeTrackingEntry) → `EmptyResponse`
+- `GET /time_tracking_entries/{time_tracking_entry_gid}` — Get a time tracking entry (getTimeTrackingEntry) → `TimeTrackingEntryBase`
+- `PUT /time_tracking_entries/{time_tracking_entry_gid}` — Update a time tracking entry (updateTimeTrackingEntry) → `TimeTrackingEntryBase`
+
+### Timesheet approval statuses
+
+- `GET /timesheet_approval_statuses` — Get multiple timesheet approval statuses (getTimesheetApprovalStatuses) → `TimesheetApprovalStatusCompact`
+- `POST /timesheet_approval_statuses` — Create a timesheet approval status (createTimesheetApprovalStatus) → `TimesheetApprovalStatusResponse`
+- `GET /timesheet_approval_statuses/{timesheet_approval_status_gid}` — Get a timesheet approval status (getTimesheetApprovalStatus) → `TimesheetApprovalStatusResponse`
+- `PUT /timesheet_approval_statuses/{timesheet_approval_status_gid}` — Update a timesheet approval status (updateTimesheetApprovalStatus) → `TimesheetApprovalStatusResponse`
+
+### Typeahead
+
+- `GET /workspaces/{workspace_gid}/typeahead` — Get objects via typeahead (typeaheadForWorkspace) → `AsanaNamedResource`
+
+### User task lists
+
+- `GET /user_task_lists/{user_task_list_gid}` — Get a user task list (getUserTaskList) → `UserTaskListResponse`
+- `GET /users/{user_gid}/user_task_list` — Get a user's task list (getUserTaskListForUser) → `UserTaskListResponse`
+
+### Users
+
+- `GET /teams/{team_gid}/users` — Get users in a team (getUsersForTeam) → `UserCompact`
+- `GET /users` — Get multiple users (getUsers) → `UserCompact`
+- `GET /users/{user_gid}` — Get a user (getUser) → `UserResponse`
+- `PUT /users/{user_gid}` — Update a user (updateUser) → `UserResponse`
+- `GET /users/{user_gid}/favorites` — Get a user's favorites (getFavoritesForUser) → `AsanaNamedResource`
+- `GET /workspaces/{workspace_gid}/users` — Get users in a workspace or organization (getUsersForWorkspace) → `UserCompact`
+- `GET /workspaces/{workspace_gid}/users/{user_gid}` — Get a user in a workspace or organization (getUserForWorkspace) → `UserResponse`
+- `PUT /workspaces/{workspace_gid}/users/{user_gid}` — Update a user in a workspace or organization (updateUserForWorkspace) → `UserResponse`
+
+### Webhooks
+
+- `GET /webhooks` — Get multiple webhooks (getWebhooks) → `WebhookResponse`
+- `POST /webhooks` — Establish a webhook (createWebhook) → `WebhookResponse`
+- `DELETE /webhooks/{webhook_gid}` — Delete a webhook (deleteWebhook) → `EmptyResponse`
+- `GET /webhooks/{webhook_gid}` — Get a webhook (getWebhook) → `WebhookResponse`
+- `PUT /webhooks/{webhook_gid}` — Update a webhook (updateWebhook) → `WebhookResponse`
+
+### Workspace memberships
+
+- `GET /users/{user_gid}/workspace_memberships` — Get workspace memberships for a user (getWorkspaceMembershipsForUser) → `WorkspaceMembershipCompact`
+- `GET /workspace_memberships/{workspace_membership_gid}` — Get a workspace membership (getWorkspaceMembership) → `WorkspaceMembershipResponse`
+- `GET /workspaces/{workspace_gid}/workspace_memberships` — Get the workspace memberships for a workspace (getWorkspaceMembershipsForWorkspace) → `WorkspaceMembershipCompact`
+
+### Workspaces
+
+- `GET /workspaces` — Get multiple workspaces (getWorkspaces) → `WorkspaceCompact`
+- `GET /workspaces/{workspace_gid}` — Get a workspace (getWorkspace) → `WorkspaceResponse`
+- `PUT /workspaces/{workspace_gid}` — Update a workspace (updateWorkspace) → `WorkspaceResponse`
+- `POST /workspaces/{workspace_gid}/addUser` — Add a user to a workspace or organization (addUserForWorkspace) → `UserBaseResponse`
+- `GET /workspaces/{workspace_gid}/events` — Get workspace events (getWorkspaceEvents) → `EventResponse`
+- `POST /workspaces/{workspace_gid}/removeUser` — Remove a user from a workspace or organization (removeUserForWorkspace) → `EmptyResponse`
+
+### Models (273)
+
+- `AccessRequestApproveRequest`
+- `AccessRequestCreateRequest`
+- `AccessRequestRejectRequest`
+- `AccessRequestResponse`
+- `AccessRequestTargetIdCompact`
+- `AddCustomFieldSettingRequest`
+- `AddFollowersRequest`
+- `AddMembersRequest`
+- `AgentCompact`
+- `AgentResponse`
+- `AllocationBase`
+- `AllocationRequest`
+- `AllocationResponse`
+- `AsanaNamedResource`
+- `AsanaResource`
+- `AttachmentBase`
+- `AttachmentCompact`
+- `AttachmentRequest`
+- `AttachmentResponse`
+- `AuditLogEvent`
+- `AuditLogEventActor`
+- `AuditLogEventContext`
+- `AuditLogEventDetails`
+- `AuditLogEventResource`
+- `BatchRequest`
+- `BatchRequestAction`
+- `BatchResponse`
+- `BudgetActualRequest`
+- `BudgetActualResponse`
+- `BudgetCompact`
+- `BudgetEstimateRequest`
+- `BudgetEstimateResponse`
+- `BudgetRequest`
+- `BudgetResponse`
+- `BudgetTotalRequest`
+- `BudgetTotalResponse`
+- `CreateMembershipRequest`
+- `CreateTimesheetApprovalStatusRequest`
+- `CreateTimeTrackingEntryRequest`
+- `CustomFieldBase`
+- `CustomFieldCompact`
+- `CustomFieldCreateRequest`
+- `CustomFieldMembershipBase`
+- `CustomFieldMembershipCompact`
+- `CustomFieldMembershipResponse`
+- `CustomFieldRequest`
+- `CustomFieldResponse`
+- `CustomFieldSettingBase`
+- `CustomFieldSettingCompact`
+- `CustomFieldSettingResponse`
+- `CustomTypeBase`
+- `CustomTypeCompact`
+- `CustomTypeMembershipBase`
+- `CustomTypeMembershipCompact`
+- `CustomTypeMembershipResponse`
+- `CustomTypeResponse`
+- `CustomTypeStatusOptionBase`
+- `CustomTypeStatusOptionCompact`
+- `CustomTypeStatusOptionResponse`
+- `DateVariableCompact`
+- `DateVariableRequest`
+- `DeprecatedPortfolioMembershipBase`
+- `DeprecatedPortfolioMembershipCompact`
+- `DeprecatedPortfolioMembershipResponse`
+- `EmptyResponse`
+- `EnumOption`
+- `EnumOptionBase`
+- `EnumOptionInsertRequest`
+- `EnumOptionRequest`
+- `Error`
+- `ErrorResponse`
+- `EventResponse`
+- `GoalAddSubgoalRequest`
+- `GoalAddSupportingRelationshipRequest`
+- `GoalAddSupportingWorkRequest`
+- `GoalBase`
+- `GoalCompact`
+- `GoalMembershipBase`
+- `GoalMembershipCompact`
+- `GoalMembershipResponse`
+- `GoalMetricBase`
+- `GoalMetricCurrentValueRequest`
+- `GoalMetricRequest`
+- `GoalRelationshipBase`
+- `GoalRelationshipCompact`
+- `GoalRelationshipRequest`
+- `GoalRelationshipResponse`
+- `GoalRemoveSubgoalRequest`
+- `GoalRemoveSupportingRelationshipRequest`
+- `GoalRequest`
+- `GoalRequestBase`
+- `GoalResponse`
+- `GoalUpdateRequest`
+- `GraphExportCompact`
+- `GraphExportRequest`
+- `GraphExportResponse`
+- `JobBase`
+- `JobCompact`
+- `JobResponse`
+- `Like`
+- `MemberCompact`
+- `MembershipCompact`
+- `MembershipRequest`
+- `MembershipResponse`
+- `MembershipUpdateRequest`
+- `ModifyDependenciesRequest`
+- `ModifyDependentsRequest`
+- `NextPage`
+- `OooEntryBase`
+- `OooEntryCreateRequest`
+- `OooEntryResponse`
+- `OooEntryUpdateRequest`
+- `OrganizationExportBase`
+- `OrganizationExportCompact`
+- `OrganizationExportRequest`
+- `OrganizationExportResponse`
+- `PlaceholderCompact`
+- `PlaceholderRateCompact`
+- `PortfolioAddItemRequest`
+- `PortfolioBase`
+- `PortfolioCompact`
+- `PortfolioDuplicateRequest`
+- `PortfolioMembershipBase`
+- `PortfolioMembershipCompact`
+- `PortfolioMembershipCompactResponse`
+- `PortfolioMembershipResponse`
+- `PortfolioRemoveItemRequest`
+- `PortfolioRequest`
+- `PortfolioResponse`
+- `PortfolioUpdateRequest`
+- `Preview`
+- `ProjectBase`
+- `ProjectBriefBase`
+- `ProjectBriefCompact`
+- `ProjectBriefRequest`
+- `ProjectBriefResponse`
+- `ProjectCompact`
+- `ProjectDuplicateRequest`
+- `ProjectMembershipBase`
+- `ProjectMembershipCompact`
+- `ProjectMembershipCompactResponse`
+- `ProjectMembershipNormalResponse`
+- `ProjectPortfolioSettingCompact`
+- `ProjectPortfolioSettingResponse`
+- `ProjectPortfolioSettingUpdateRequest`
+- `ProjectRequest`
+- `ProjectResponse`
+- `ProjectSaveAsTemplateRequest`
+- `ProjectSectionInsertRequest`
+- `ProjectStatusBase`
+- `ProjectStatusCompact`
+- `ProjectStatusRequest`
+- `ProjectStatusResponse`
+- `ProjectTemplateBase`
+- `ProjectTemplateCompact`
+- `ProjectTemplateInstantiateProjectRequest`
+- `ProjectTemplateResponse`
+- `ProjectUpdateRequest`
+- `RateBase`
+- `RateCompact`
+- `RateOrPlaceholderCompact`
+- `RateRequest`
+- `RateResponse`
+- `RateUpdateRequest`
+- `RbacRoleBase`
+- `RbacRoleCompact`
+- `RbacRoleRequest`
+- `RbacRoleResponse`
+- `RbacRoleUpdateRequest`
+- `ReactionCompact`
+- `ReactionSummaryItemCompact`
+- `RemoveCustomFieldSettingRequest`
+- `RemoveFollowersRequest`
+- `RemoveMembersRequest`
+- `RequestedRoleRequest`
+- `ResourceExportCompact`
+- `ResourceExportFilters`
+- `ResourceExportRequest`
+- `ResourceExportRequestParameter`
+- `ResourceExportResponse`
+- `RuleTriggerRequest`
+- `RuleTriggerResponse`
+- `SectionBase`
+- `SectionCompact`
+- `SectionRequest`
+- `SectionResponse`
+- `SectionTaskInsertRequest`
+- `StatusUpdateBase`
+- `StatusUpdateCompact`
+- `StatusUpdateRequest`
+- `StatusUpdateResponse`
+- `StoryBase`
+- `StoryCompact`
+- `StoryRequest`
+- `StoryResponse`
+- `StoryResponseDates`
+- `TagBase`
+- `TagBaseRequest`
+- `TagCompact`
+- `TagCreateRequest`
+- `TagCreateTagForWorkspaceRequest`
+- `TagResponse`
+- `TagUpdateRequest`
+- `TaskAddFollowersRequest`
+- `TaskAddProjectRequest`
+- `TaskAddTagRequest`
+- `TaskBase`
+- `TaskCompact`
+- `TaskCountResponse`
+- `TaskCreateRequest`
+- `TaskDuplicateRequest`
+- `TaskRemoveFollowersRequest`
+- `TaskRemoveProjectRequest`
+- `TaskRemoveTagRequest`
+- `TaskRequestBase`
+- `TaskResponse`
+- `TaskSetParentRequest`
+- `TaskTemplateBase`
+- `TaskTemplateCompact`
+- `TaskTemplateInstantiateTaskRequest`
+- `TaskTemplateRecipe`
+- `TaskTemplateRecipeCompact`
+- `TaskTemplateResponse`
+- `TaskUpdateRequest`
+- `TeamAddUserRequest`
+- `TeamBase`
+- `TeamCompact`
+- `TeamMembershipBase`
+- `TeamMembershipCompact`
+- `TeamMembershipResponse`
+- `TeamRemoveUserRequest`
+- `TeamRequest`
+- `TeamResponse`
+- `TemplateRole`
+- `TimePeriodBase`
+- `TimePeriodCompact`
+- `TimePeriodResponse`
+- `TimesheetApprovalStatusCompact`
+- `TimesheetApprovalStatusResponse`
+- `TimeTrackingCategoryBaseRequest`
+- `TimeTrackingCategoryCompact`
+- `TimeTrackingCategoryCreateRequest`
+- `TimeTrackingCategoryResponse`
+- `TimeTrackingCategoryUpdateRequest`
+- `TimeTrackingEntryBase`
+- `TimeTrackingEntryCompact`
+- `UpdateTimesheetApprovalStatusRequest`
+- `UpdateTimeTrackingEntryRequest`
+- `UserBase`
+- `UserBaseResponse`
+- `UserCompact`
+- `UserRequest`
+- `UserResponse`
+- `UserTaskListBase`
+- `UserTaskListCompact`
+- `UserTaskListRequest`
+- `UserTaskListResponse`
+- `UserUpdateRequest`
+- `WebhookCompact`
+- `WebhookFilter`
+- `WebhookRequest`
+- `WebhookResponse`
+- `WebhookUpdateRequest`
+- `WorkspaceAddUserRequest`
+- `WorkspaceBase`
+- `WorkspaceCompact`
+- `WorkspaceMembershipBase`
+- `WorkspaceMembershipCompact`
+- `WorkspaceMembershipRequest`
+- `WorkspaceMembershipResponse`
+- `WorkspaceRemoveUserRequest`
+- `WorkspaceRequest`
+- `WorkspaceResponse`
+
+## Jira (Cloud platform v3)
+
+Spec: 3.0.1 · 619 operations · 968 models · `/home/rationallyprime/projects/morphe/data/specs/jira-platform-swagger-v3.json`
+
+### Announcement banner
+
+- `GET /rest/api/3/announcementBanner` — Get announcement banner configuration (getBanner) → `AnnouncementBannerConfiguration`
+- `PUT /rest/api/3/announcementBanner` — Update announcement banner configuration (setBanner) → `AnnouncementBannerConfigurationUpdate`
+
+### App data policies
+
+- `GET /rest/api/3/data-policy` — Get data policy for the workspace (getPolicy) → `WorkspaceDataPolicy`
+- `GET /rest/api/3/data-policy/project` — Get data policy for projects (getPolicies) → `ProjectDataPolicies`
+
+### App migration
+
+- `PUT /rest/atlassian-connect/1/migration/field` — Bulk update custom field value (AppIssueFieldValueUpdateResource.updateIssueFields_put) → `ConnectCustomFieldValues`
+- `PUT /rest/atlassian-connect/1/migration/properties/{entityType}` — Bulk update entity properties (MigrationResource.updateEntityPropertiesValue_put) → `EntityPropertyDetails`
+- `POST /rest/atlassian-connect/1/migration/workflow/rule/search` — Get workflow transition rule configurations (MigrationResource.workflowRuleSearch_post) → `WorkflowRulesSearchDetails`
+
+### App properties
+
+- `GET /rest/atlassian-connect/1/addons/{addonKey}/properties` — Get app properties (AddonPropertiesResource.getAddonProperties_get) → `PropertyKeys`
+- `DELETE /rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}` — Delete app property (AddonPropertiesResource.deleteAddonProperty_delete)
+- `GET /rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}` — Get app property (AddonPropertiesResource.getAddonProperty_get) → `EntityProperty`
+- `PUT /rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}` — Set app property (AddonPropertiesResource.putAddonProperty_put) → `OperationMessage`
+- `GET /rest/forge/1/app/properties` — Get app property keys (Forge) (getForgeAppPropertyKeys)
+- `DELETE /rest/forge/1/app/properties/{propertyKey}` — Delete app property (Forge) (deleteForgeAppProperty)
+- `GET /rest/forge/1/app/properties/{propertyKey}` — Get app property (Forge) (getForgeAppProperty)
+- `PUT /rest/forge/1/app/properties/{propertyKey}` — Set app property (Forge) (putForgeAppProperty) → `OperationMessage`
+
+### Application roles
+
+- `GET /rest/api/3/applicationrole` — Get all application roles (getAllApplicationRoles) → `ApplicationRole`
+- `GET /rest/api/3/applicationrole/{key}` — Get application role (getApplicationRole) → `ApplicationRole`
+
+### Audit records
+
+- `GET /rest/api/3/auditing/record` — Get audit records (getAuditRecords) → `AuditRecords`
+
+### Avatars
+
+- `GET /rest/api/3/avatar/{type}/system` — Get system avatars by type (getAllSystemAvatars) → `SystemAvatars`
+- `GET /rest/api/3/universal_avatar/type/{type}/owner/{entityId}` — Get avatars (getAvatars) → `Avatars`
+- `POST /rest/api/3/universal_avatar/type/{type}/owner/{entityId}` — Load avatar (storeAvatar) → `Avatar`
+- `DELETE /rest/api/3/universal_avatar/type/{type}/owner/{owningObjectId}/avatar/{id}` — Delete avatar (deleteAvatar)
+- `GET /rest/api/3/universal_avatar/view/type/{type}` — Get avatar image by type (getAvatarImageByType) → `StreamingResponseBody`
+- `GET /rest/api/3/universal_avatar/view/type/{type}/avatar/{id}` — Get avatar image by ID (getAvatarImageByID) → `StreamingResponseBody`
+- `GET /rest/api/3/universal_avatar/view/type/{type}/owner/{entityId}` — Get avatar image by owner (getAvatarImageByOwner) → `StreamingResponseBody`
+
+### Classification levels
+
+- `GET /rest/api/3/classification-levels` — Get all classification levels (getAllUserDataClassificationLevels) → `DataClassificationLevelsBean`
+
+### Dashboards
+
+- `GET /rest/api/3/dashboard` — Get all dashboards (getAllDashboards) → `PageOfDashboards`
+- `POST /rest/api/3/dashboard` — Create dashboard (createDashboard) → `Dashboard`
+- `GET /rest/api/3/dashboard/{dashboardId}/gadget` — Get gadgets (getAllGadgets) → `DashboardGadgetResponse`
+- `POST /rest/api/3/dashboard/{dashboardId}/gadget` — Add gadget to dashboard (addGadget) → `DashboardGadget`
+- `DELETE /rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}` — Remove gadget from dashboard (removeGadget)
+- `PUT /rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}` — Update gadget on dashboard (updateGadget) → `DashboardGadgetUpdateRequest`
+- `GET /rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties` — Get dashboard item property keys (getDashboardItemPropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}` — Delete dashboard item property (deleteDashboardItemProperty)
+- `GET /rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}` — Get dashboard item property (getDashboardItemProperty) → `EntityProperty`
+- `PUT /rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}` — Set dashboard item property (setDashboardItemProperty)
+- `DELETE /rest/api/3/dashboard/{id}` — Delete dashboard (deleteDashboard)
+- `GET /rest/api/3/dashboard/{id}` — Get dashboard (getDashboard) → `Dashboard`
+- `PUT /rest/api/3/dashboard/{id}` — Update dashboard (updateDashboard) → `Dashboard`
+- `POST /rest/api/3/dashboard/{id}/copy` — Copy dashboard (copyDashboard) → `Dashboard`
+- `PUT /rest/api/3/dashboard/bulk/edit` — Bulk edit dashboards (bulkEditDashboards) → `BulkEditShareableEntityResponse`
+- `GET /rest/api/3/dashboard/gadgets` — Get available gadgets (getAllAvailableDashboardGadgets) → `AvailableDashboardGadgetsResponse`
+- `GET /rest/api/3/dashboard/search` — Search for dashboards (getDashboardsPaginated) → `PageBeanDashboard`
+
+### Dynamic modules
+
+- `DELETE /rest/atlassian-connect/1/app/module/dynamic` — Remove modules (DynamicModulesResource.removeModules_delete)
+- `GET /rest/atlassian-connect/1/app/module/dynamic` — Get modules (DynamicModulesResource.getModules_get) → `ConnectModules`
+- `POST /rest/atlassian-connect/1/app/module/dynamic` — Register modules (DynamicModulesResource.registerModules_post) → `ConnectModules`
+
+### Field schemes
+
+- `GET /rest/api/3/config/fieldschemes` — Get field schemes (getFieldAssociationSchemes) → `PageBean2GetFieldAssociationSchemeResponse`
+- `POST /rest/api/3/config/fieldschemes` — Create field scheme (createFieldAssociationScheme) → `CreateFieldAssociationSchemeResponse`
+- `DELETE /rest/api/3/config/fieldschemes/{id}` — Delete a field scheme (deleteFieldAssociationScheme) → `DeleteFieldAssociationSchemeResponse`
+- `GET /rest/api/3/config/fieldschemes/{id}` — Get field scheme (getFieldAssociationSchemeById) → `GetFieldAssociationSchemeByIdResponse`
+- `PUT /rest/api/3/config/fieldschemes/{id}` — Update field scheme (updateFieldAssociationScheme) → `UpdateFieldAssociationSchemeResponse`
+- `POST /rest/api/3/config/fieldschemes/{id}/clone` — Clone field scheme (cloneFieldAssociationScheme) → `CreateFieldAssociationSchemeResponse`
+- `GET /rest/api/3/config/fieldschemes/{id}/fields` — Search field scheme fields (searchFieldAssociationSchemeFields) → `PageBean2FieldAssociationSchemeFieldSearchResult`
+- `GET /rest/api/3/config/fieldschemes/{id}/fields/{fieldId}/parameters` — Get field parameters (getFieldAssociationSchemeItemParameters) → `GetFieldAssociationParametersResponse`
+- `GET /rest/api/3/config/fieldschemes/{id}/projects` — Search field scheme projects (searchFieldAssociationSchemeProjects) → `PageBean2FieldAssociationSchemeProjectSearchResult`
+- `DELETE /rest/api/3/config/fieldschemes/fields` — Remove fields associated with field schemes (removeFieldsAssociatedWithSchemes) → `MinimalFieldSchemeToFieldsResponse`
+- `PUT /rest/api/3/config/fieldschemes/fields` — Update fields associated with field schemes (updateFieldsAssociatedWithSchemes) → `FieldSchemeToFieldsResponse`
+- `DELETE /rest/api/3/config/fieldschemes/fields/parameters` — Remove field parameters (removeFieldAssociationSchemeItemParameters) → `RemoveFieldParametersResult`
+- `PUT /rest/api/3/config/fieldschemes/fields/parameters` — Update field parameters (updateFieldAssociationSchemeItemParameters) → `UpdateFieldSchemeParametersResponse`
+- `GET /rest/api/3/config/fieldschemes/projects` — Get projects with field schemes (getProjectsWithFieldSchemes) → `PageBean2GetProjectsWithFieldSchemesResponse`
+- `PUT /rest/api/3/config/fieldschemes/projects` — Associate projects to field schemes (associateProjectsToFieldAssociationSchemes) → `FieldSchemeToProjectsResponse`
+
+### Filter sharing
+
+- `GET /rest/api/3/filter/{id}/permission` — Get share permissions (getSharePermissions) → `SharePermission`
+- `POST /rest/api/3/filter/{id}/permission` — Add share permission (addSharePermission) → `SharePermission`
+- `DELETE /rest/api/3/filter/{id}/permission/{permissionId}` — Delete share permission (deleteSharePermission)
+- `GET /rest/api/3/filter/{id}/permission/{permissionId}` — Get share permission (getSharePermission) → `SharePermission`
+- `GET /rest/api/3/filter/defaultShareScope` — Get default share scope (getDefaultShareScope) → `DefaultShareScope`
+- `PUT /rest/api/3/filter/defaultShareScope` — Set default share scope (setDefaultShareScope) → `DefaultShareScope`
+
+### Filters
+
+- `POST /rest/api/3/filter` — Create filter (createFilter) → `Filter`
+- `DELETE /rest/api/3/filter/{id}` — Delete filter (deleteFilter)
+- `GET /rest/api/3/filter/{id}` — Get filter (getFilter) → `Filter`
+- `PUT /rest/api/3/filter/{id}` — Update filter (updateFilter) → `Filter`
+- `DELETE /rest/api/3/filter/{id}/columns` — Reset columns (resetColumns)
+- `GET /rest/api/3/filter/{id}/columns` — Get columns (getColumns) → `ColumnItem`
+- `PUT /rest/api/3/filter/{id}/columns` — Set columns (setColumns) → `ColumnRequestBody`
+- `DELETE /rest/api/3/filter/{id}/favourite` — Remove filter as favorite (deleteFavouriteForFilter) → `Filter`
+- `PUT /rest/api/3/filter/{id}/favourite` — Add filter as favorite (setFavouriteForFilter) → `Filter`
+- `PUT /rest/api/3/filter/{id}/owner` — Change filter owner (changeFilterOwner) → `ChangeFilterOwner`
+- `GET /rest/api/3/filter/favourite` — Get favorite filters (getFavouriteFilters) → `Filter`
+- `GET /rest/api/3/filter/my` — Get my filters (getMyFilters) → `Filter`
+- `GET /rest/api/3/filter/search` — Search for filters (getFiltersPaginated) → `PageBeanFilterDetails`
+
+### Group and user picker
+
+- `GET /rest/api/3/groupuserpicker` — Find users and groups (findUsersAndGroups) → `FoundUsersAndGroups`
+
+### Groups
+
+- `DELETE /rest/api/3/group` — Remove group (removeGroup)
+- `GET /rest/api/3/group` — Get group (getGroup) → `Group`
+- `POST /rest/api/3/group` — Create group (createGroup) → `Group`
+- `GET /rest/api/3/group/bulk` — Bulk get groups (bulkGetGroups) → `PageBeanGroupDetails`
+- `GET /rest/api/3/group/member` — Get users from group (getUsersFromGroup) → `PageBeanUserDetails`
+- `DELETE /rest/api/3/group/user` — Remove user from group (removeUserFromGroup)
+- `POST /rest/api/3/group/user` — Add user to group (addUserToGroup) → `Group`
+- `GET /rest/api/3/groups/picker` — Find groups (findGroups) → `FoundGroups`
+
+### Issue attachments
+
+- `DELETE /rest/api/3/attachment/{id}` — Delete attachment (removeAttachment)
+- `GET /rest/api/3/attachment/{id}` — Get attachment metadata (getAttachment) → `AttachmentMetadata`
+- `GET /rest/api/3/attachment/{id}/expand/human` — Get all metadata for an expanded attachment (expandAttachmentForHumans) → `AttachmentArchiveMetadataReadable`
+- `GET /rest/api/3/attachment/{id}/expand/raw` — Get contents metadata for an expanded attachment (expandAttachmentForMachines) → `AttachmentArchiveImpl`
+- `GET /rest/api/3/attachment/content/{id}` — Get attachment content (getAttachmentContent)
+- `GET /rest/api/3/attachment/meta` — Get Jira attachment settings (getAttachmentMeta) → `AttachmentSettings`
+- `GET /rest/api/3/attachment/thumbnail/{id}` — Get attachment thumbnail (getAttachmentThumbnail)
+- `POST /rest/api/3/issue/{issueIdOrKey}/attachments` — Add attachment (addAttachment) → `Attachment`
+
+### Issue bulk operations
+
+- `POST /rest/api/3/bulk/issues/delete` — Bulk delete issues (submitBulkDelete) → `SubmittedBulkOperation`
+- `GET /rest/api/3/bulk/issues/fields` — Get bulk editable fields (getBulkEditableFields) → `BulkEditGetFields`
+- `POST /rest/api/3/bulk/issues/fields` — Bulk edit issues (submitBulkEdit) → `SubmittedBulkOperation`
+- `POST /rest/api/3/bulk/issues/move` — Bulk move issues (submitBulkMove) → `SubmittedBulkOperation`
+- `GET /rest/api/3/bulk/issues/transition` — Get available transitions (getAvailableTransitions) → `BulkTransitionGetAvailableTransitions`
+- `POST /rest/api/3/bulk/issues/transition` — Bulk transition issue statuses (submitBulkTransition) → `SubmittedBulkOperation`
+- `POST /rest/api/3/bulk/issues/unwatch` — Bulk unwatch issues (submitBulkUnwatch) → `SubmittedBulkOperation`
+- `POST /rest/api/3/bulk/issues/watch` — Bulk watch issues (submitBulkWatch) → `SubmittedBulkOperation`
+- `GET /rest/api/3/bulk/queue/{taskId}` — Get bulk issue operation progress (getBulkOperationProgress) → `BulkOperationProgress`
+
+### Issue comment properties
+
+- `GET /rest/api/3/comment/{commentId}/properties` — Get comment property keys (getCommentPropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/comment/{commentId}/properties/{propertyKey}` — Delete comment property (deleteCommentProperty)
+- `GET /rest/api/3/comment/{commentId}/properties/{propertyKey}` — Get comment property (getCommentProperty) → `EntityProperty`
+- `PUT /rest/api/3/comment/{commentId}/properties/{propertyKey}` — Set comment property (setCommentProperty)
+
+### Issue comments
+
+- `POST /rest/api/3/comment/list` — Get comments by IDs (getCommentsByIds) → `PageBeanComment`
+- `GET /rest/api/3/issue/{issueIdOrKey}/comment` — Get comments (getComments) → `PageOfComments`
+- `POST /rest/api/3/issue/{issueIdOrKey}/comment` — Add comment (addComment) → `Comment`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/comment/{id}` — Delete comment (deleteComment)
+- `GET /rest/api/3/issue/{issueIdOrKey}/comment/{id}` — Get comment (getComment) → `Comment`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/comment/{id}` — Update comment (updateComment) → `Comment`
+
+### Issue custom field associations
+
+- `DELETE /rest/api/3/field/association` — Remove associations (removeAssociations) → `FieldAssociationsRequest`
+- `PUT /rest/api/3/field/association` — Create associations (createAssociations) → `FieldAssociationsRequest`
+
+### Issue custom field configuration (apps)
+
+- `GET /rest/api/3/app/field/{fieldIdOrKey}/context/configuration` — Get custom field configurations (getCustomFieldConfiguration) → `PageBeanContextualConfiguration`
+- `PUT /rest/api/3/app/field/{fieldIdOrKey}/context/configuration` — Update custom field configurations (updateCustomFieldConfiguration) → `CustomFieldConfigurations`
+- `POST /rest/api/3/app/field/context/configuration/list` — Bulk get custom field configurations (getCustomFieldsConfigurations) → `PageBeanBulkContextualConfiguration`
+
+### Issue custom field contexts
+
+- `GET /rest/api/3/field/{fieldId}/context` — Get custom field contexts (getContextsForField) → `PageBeanCustomFieldContext`
+- `POST /rest/api/3/field/{fieldId}/context` — Create custom field context (createCustomFieldContext) → `CreateCustomFieldContext`
+- `DELETE /rest/api/3/field/{fieldId}/context/{contextId}` — Delete custom field context (deleteCustomFieldContext)
+- `PUT /rest/api/3/field/{fieldId}/context/{contextId}` — Update custom field context (updateCustomFieldContext) → `CustomFieldContextUpdateDetails`
+- `PUT /rest/api/3/field/{fieldId}/context/{contextId}/issuetype` — Add issue types to context (addIssueTypesToContext) → `IssueTypeIds`
+- `POST /rest/api/3/field/{fieldId}/context/{contextId}/issuetype/remove` — Remove issue types from context (removeIssueTypesFromContext) → `IssueTypeIds`
+- `PUT /rest/api/3/field/{fieldId}/context/{contextId}/project` — Assign custom field context to projects (assignProjectsToCustomFieldContext) → `ProjectIds`
+- `POST /rest/api/3/field/{fieldId}/context/{contextId}/project/remove` — Remove custom field context from projects (removeCustomFieldContextFromProjects) → `ProjectIds`
+- `GET /rest/api/3/field/{fieldId}/context/defaultValue` — Get custom field contexts default values (getDefaultValues) → `PageBeanCustomFieldContextDefaultValue`
+- `PUT /rest/api/3/field/{fieldId}/context/defaultValue` — Set custom field contexts default values (setDefaultValues) → `CustomFieldContextDefaultValueUpdate`
+- `GET /rest/api/3/field/{fieldId}/context/issuetypemapping` — Get issue types for custom field context (getIssueTypeMappingsForContexts) → `PageBeanIssueTypeToContextMapping`
+- `POST /rest/api/3/field/{fieldId}/context/mapping` — Get custom field contexts for projects and issue types (getCustomFieldContextsForProjectsAndIssueTypes) → `PageBeanContextForProjectAndIssueType`
+- `GET /rest/api/3/field/{fieldId}/context/projectmapping` — Get project mappings for custom field context (getProjectContextMapping) → `PageBeanCustomFieldContextProjectMapping`
+
+### Issue custom field options
+
+- `GET /rest/api/3/customFieldOption/{id}` — Get custom field option (getCustomFieldOption) → `CustomFieldOption`
+- `GET /rest/api/3/field/{fieldId}/context/{contextId}/option` — Get custom field options (context) (getOptionsForContext) → `PageBeanCustomFieldContextOption`
+- `POST /rest/api/3/field/{fieldId}/context/{contextId}/option` — Create custom field options (context) (createCustomFieldOption) → `CustomFieldCreatedContextOptionsList`
+- `PUT /rest/api/3/field/{fieldId}/context/{contextId}/option` — Update custom field options (context) (updateCustomFieldOption) → `CustomFieldUpdatedContextOptionsList`
+- `DELETE /rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}` — Delete custom field options (context) (deleteCustomFieldOption)
+- `DELETE /rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}/issue` — Replace custom field options (replaceCustomFieldOption)
+- `PUT /rest/api/3/field/{fieldId}/context/{contextId}/option/move` — Reorder custom field options (context) (reorderCustomFieldOptions) → `OrderOfCustomFieldOptions`
+
+### Issue custom field options (apps)
+
+- `GET /rest/api/3/field/{fieldKey}/option` — Get all issue field options (getAllIssueFieldOptions) → `PageBeanIssueFieldOption`
+- `POST /rest/api/3/field/{fieldKey}/option` — Create issue field option (createIssueFieldOption) → `IssueFieldOption`
+- `DELETE /rest/api/3/field/{fieldKey}/option/{optionId}` — Delete issue field option (deleteIssueFieldOption)
+- `GET /rest/api/3/field/{fieldKey}/option/{optionId}` — Get issue field option (getIssueFieldOption) → `IssueFieldOption`
+- `PUT /rest/api/3/field/{fieldKey}/option/{optionId}` — Update issue field option (updateIssueFieldOption) → `IssueFieldOption`
+- `DELETE /rest/api/3/field/{fieldKey}/option/{optionId}/issue` — Replace issue field option (replaceIssueFieldOption)
+- `GET /rest/api/3/field/{fieldKey}/option/suggestions/edit` — Get selectable issue field options (getSelectableIssueFieldOptions) → `PageBeanIssueFieldOption`
+- `GET /rest/api/3/field/{fieldKey}/option/suggestions/search` — Get visible issue field options (getVisibleIssueFieldOptions) → `PageBeanIssueFieldOption`
+
+### Issue custom field values (apps)
+
+- `PUT /rest/api/3/app/field/{fieldIdOrKey}/value` — Update custom field value (updateCustomFieldValue) → `CustomFieldValueUpdateDetails`
+- `POST /rest/api/3/app/field/value` — Update custom fields (updateMultipleCustomFieldValues) → `MultipleCustomFieldValuesUpdateDetails`
+
+### Issue field configurations
+
+- `GET /rest/api/3/fieldconfiguration` — Get all field configurations (getAllFieldConfigurations) → `PageBeanFieldConfigurationDetails`
+- `POST /rest/api/3/fieldconfiguration` — Create field configuration (createFieldConfiguration) → `FieldConfiguration`
+- `DELETE /rest/api/3/fieldconfiguration/{id}` — Delete field configuration (deleteFieldConfiguration)
+- `PUT /rest/api/3/fieldconfiguration/{id}` — Update field configuration (updateFieldConfiguration) → `FieldConfigurationDetails`
+- `GET /rest/api/3/fieldconfiguration/{id}/fields` — Get field configuration items (getFieldConfigurationItems) → `PageBeanFieldConfigurationItem`
+- `PUT /rest/api/3/fieldconfiguration/{id}/fields` — Update field configuration items (updateFieldConfigurationItems) → `FieldConfigurationItemsDetails`
+- `GET /rest/api/3/fieldconfigurationscheme` — Get all field configuration schemes (getAllFieldConfigurationSchemes) → `PageBeanFieldConfigurationScheme`
+- `POST /rest/api/3/fieldconfigurationscheme` — Create field configuration scheme (createFieldConfigurationScheme) → `FieldConfigurationScheme`
+- `DELETE /rest/api/3/fieldconfigurationscheme/{id}` — Delete field configuration scheme (deleteFieldConfigurationScheme)
+- `PUT /rest/api/3/fieldconfigurationscheme/{id}` — Update field configuration scheme (updateFieldConfigurationScheme) → `UpdateFieldConfigurationSchemeDetails`
+- `PUT /rest/api/3/fieldconfigurationscheme/{id}/mapping` — Assign issue types to field configurations (setFieldConfigurationSchemeMapping) → `AssociateFieldConfigurationsWithIssueTypesRequest`
+- `POST /rest/api/3/fieldconfigurationscheme/{id}/mapping/delete` — Remove issue types from field configuration scheme (removeIssueTypesFromGlobalFieldConfigurationScheme) → `IssueTypeIdsToRemove`
+- `GET /rest/api/3/fieldconfigurationscheme/mapping` — Get field configuration issue type items (getFieldConfigurationSchemeMappings) → `PageBeanFieldConfigurationIssueTypeItem`
+- `GET /rest/api/3/fieldconfigurationscheme/project` — Get field configuration schemes for projects (getFieldConfigurationSchemeProjectMapping) → `PageBeanFieldConfigurationSchemeProjects`
+- `PUT /rest/api/3/fieldconfigurationscheme/project` — Assign field configuration scheme to project (assignFieldConfigurationSchemeToProject) → `FieldConfigurationSchemeProjectAssociation`
+
+### Issue fields
+
+- `GET /rest/api/3/field` — Get fields (getFields) → `FieldDetails`
+- `POST /rest/api/3/field` — Create custom field (createCustomField) → `FieldDetails`
+- `PUT /rest/api/3/field/{fieldId}` — Update custom field (updateCustomField) → `UpdateCustomFieldDetails`
+- `GET /rest/api/3/field/{fieldId}/association/project` — Get field project associations (getFieldProjectAssociations) → `PageBeanFieldProjectAssociation`
+- `GET /rest/api/3/field/{fieldId}/contexts` — Get contexts for a field (getContextsForFieldDeprecated) → `PageBeanContext`
+- `DELETE /rest/api/3/field/{id}` — Delete custom field (deleteCustomField)
+- `POST /rest/api/3/field/{id}/restore` — Restore custom field from trash (restoreCustomField)
+- `POST /rest/api/3/field/{id}/trash` — Move custom field to trash (trashCustomField)
+- `GET /rest/api/3/field/search` — Get fields paginated (getFieldsPaginated) → `PageBeanField`
+- `GET /rest/api/3/field/search/trashed` — Get fields in trash paginated (getTrashedFieldsPaginated) → `PageBeanField`
+- `GET /rest/api/3/projects/fields` — Get fields for projects (getProjectFields) → `PageBean2ProjectFieldBean`
+
+### Issue link types
+
+- `GET /rest/api/3/issueLinkType` — Get issue link types (getIssueLinkTypes) → `IssueLinkTypes`
+- `POST /rest/api/3/issueLinkType` — Create issue link type (createIssueLinkType) → `IssueLinkType`
+- `DELETE /rest/api/3/issueLinkType/{issueLinkTypeId}` — Delete issue link type (deleteIssueLinkType)
+- `GET /rest/api/3/issueLinkType/{issueLinkTypeId}` — Get issue link type (getIssueLinkType) → `IssueLinkType`
+- `PUT /rest/api/3/issueLinkType/{issueLinkTypeId}` — Update issue link type (updateIssueLinkType) → `IssueLinkType`
+
+### Issue links
+
+- `POST /rest/api/3/issueLink` — Create issue link (linkIssues) → `LinkIssueRequestJsonBean`
+- `DELETE /rest/api/3/issueLink/{linkId}` — Delete issue link (deleteIssueLink)
+- `GET /rest/api/3/issueLink/{linkId}` — Get issue link (getIssueLink) → `IssueLink`
+
+### Issue navigator settings
+
+- `GET /rest/api/3/settings/columns` — Get issue navigator default columns (getIssueNavigatorDefaultColumns) → `ColumnItem`
+- `PUT /rest/api/3/settings/columns` — Set issue navigator default columns (setIssueNavigatorDefaultColumns) → `ColumnRequestBody`
+
+### Issue notification schemes
+
+- `GET /rest/api/3/notificationscheme` — Get notification schemes paginated (getNotificationSchemes) → `PageBeanNotificationScheme`
+- `POST /rest/api/3/notificationscheme` — Create notification scheme (createNotificationScheme) → `NotificationSchemeId`
+- `GET /rest/api/3/notificationscheme/{id}` — Get notification scheme (getNotificationScheme) → `NotificationScheme`
+- `PUT /rest/api/3/notificationscheme/{id}` — Update notification scheme (updateNotificationScheme) → `UpdateNotificationSchemeDetails`
+- `PUT /rest/api/3/notificationscheme/{id}/notification` — Add notifications to notification scheme (addNotifications) → `AddNotificationsDetails`
+- `DELETE /rest/api/3/notificationscheme/{notificationSchemeId}` — Delete notification scheme (deleteNotificationScheme)
+- `DELETE /rest/api/3/notificationscheme/{notificationSchemeId}/notification/{notificationId}` — Remove notification from notification scheme (removeNotificationFromNotificationScheme)
+- `GET /rest/api/3/notificationscheme/project` — Get projects using notification schemes paginated (getNotificationSchemeToProjectMappings) → `PageBeanNotificationSchemeAndProjectMappingJsonBean`
+
+### Issue panels
+
+- `POST /rest/api/3/forge/panel/action/bulk/async` — Bulk pin or unpin issue panel to projects (bulkPinUnpinProjectsAsync) → `ForgePanelProjectPinAsyncResponse`
+
+### Issue priorities
+
+- `GET /rest/api/3/priority` — Get priorities (getPriorities) → `Priority`
+- `POST /rest/api/3/priority` — Create priority (createPriority) → `PriorityId`
+- `DELETE /rest/api/3/priority/{id}` — Delete priority (deletePriority)
+- `GET /rest/api/3/priority/{id}` — Get priority (getPriority) → `Priority`
+- `PUT /rest/api/3/priority/{id}` — Update priority (updatePriority) → `UpdatePriorityDetails`
+- `PUT /rest/api/3/priority/default` — Set default priority (setDefaultPriority) → `SetDefaultPriorityRequest`
+- `PUT /rest/api/3/priority/move` — Move priorities (movePriorities) → `ReorderIssuePriorities`
+- `GET /rest/api/3/priority/search` — Search priorities (searchPriorities) → `PageBeanPriority`
+
+### Issue properties
+
+- `GET /rest/api/3/issue/{issueIdOrKey}/properties` — Get issue property keys (getIssuePropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}` — Delete issue property (deleteIssueProperty)
+- `GET /rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}` — Get issue property (getIssueProperty) → `EntityProperty`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}` — Set issue property (setIssueProperty)
+- `POST /rest/api/3/issue/properties` — Bulk set issues properties by list (bulkSetIssuesPropertiesList) → `IssueEntityProperties`
+- `DELETE /rest/api/3/issue/properties/{propertyKey}` — Bulk delete issue property (bulkDeleteIssueProperty) → `IssueFilterForBulkPropertyDelete`
+- `PUT /rest/api/3/issue/properties/{propertyKey}` — Bulk set issue property (bulkSetIssueProperty) → `BulkIssuePropertyUpdateRequest`
+- `POST /rest/api/3/issue/properties/multi` — Bulk set issue properties by issue (bulkSetIssuePropertiesByIssue) → `MultiIssueEntityProperties`
+
+### Issue redaction
+
+- `POST /rest/api/3/redact` — Redact (redact) → `BulkRedactionRequest`
+- `GET /rest/api/3/redact/status/{jobId}` — Get redaction status (getRedactionStatus) → `RedactionJobStatusResponse`
+
+### Issue remote links
+
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/remotelink` — Delete remote issue link by global ID (deleteRemoteIssueLinkByGlobalId)
+- `GET /rest/api/3/issue/{issueIdOrKey}/remotelink` — Get remote issue links (getRemoteIssueLinks)
+- `POST /rest/api/3/issue/{issueIdOrKey}/remotelink` — Create or update remote issue link (createOrUpdateRemoteIssueLink) → `RemoteIssueLinkIdentifies`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}` — Delete remote issue link by ID (deleteRemoteIssueLinkById)
+- `GET /rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}` — Get remote issue link by ID (getRemoteIssueLinkById) → `RemoteIssueLink`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}` — Update remote issue link by ID (updateRemoteIssueLink) → `RemoteIssueLinkRequest`
+
+### Issue resolutions
+
+- `GET /rest/api/3/resolution` — Get resolutions (getResolutions) → `Resolution`
+- `POST /rest/api/3/resolution` — Create resolution (createResolution) → `ResolutionId`
+- `DELETE /rest/api/3/resolution/{id}` — Delete resolution (deleteResolution)
+- `GET /rest/api/3/resolution/{id}` — Get resolution (getResolution) → `Resolution`
+- `PUT /rest/api/3/resolution/{id}` — Update resolution (updateResolution) → `UpdateResolutionDetails`
+- `PUT /rest/api/3/resolution/default` — Set default resolution (setDefaultResolution) → `SetDefaultResolutionRequest`
+- `PUT /rest/api/3/resolution/move` — Move resolutions (moveResolutions) → `ReorderIssueResolutionsRequest`
+- `GET /rest/api/3/resolution/search` — Search resolutions (searchResolutions) → `PageBeanResolutionJsonBean`
+
+### Issue search
+
+- `GET /rest/api/3/issue/picker` — Get issue picker suggestions (getIssuePickerResource) → `IssuePickerSuggestions`
+- `POST /rest/api/3/jql/match` — Check issues against JQL (matchIssues) → `IssueMatches`
+- `GET /rest/api/3/search` — Currently being removed. Search for issues using JQL (GET) (searchForIssuesUsingJql) → `SearchResults`
+- `POST /rest/api/3/search` — Currently being removed. Search for issues using JQL (POST) (searchForIssuesUsingJqlPost) → `SearchResults`
+- `POST /rest/api/3/search/approximate-count` — Count issues using JQL (countIssues) → `JQLCountResultsBean`
+- `GET /rest/api/3/search/jql` — Search for issues using JQL enhanced search (GET) (searchAndReconsileIssuesUsingJql) → `SearchAndReconcileResults`
+- `POST /rest/api/3/search/jql` — Search for issues using JQL enhanced search (POST) (searchAndReconsileIssuesUsingJqlPost) → `SearchAndReconcileResults`
+
+### Issue security level
+
+- `GET /rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members` — Get issue security level members by issue security scheme (getIssueSecurityLevelMembers) → `PageBeanIssueSecurityLevelMember`
+- `GET /rest/api/3/securitylevel/{id}` — Get issue security level (getIssueSecurityLevel) → `SecurityLevel`
+
+### Issue security schemes
+
+- `GET /rest/api/3/issuesecurityschemes` — Get issue security schemes (getIssueSecuritySchemes) → `SecuritySchemes`
+- `POST /rest/api/3/issuesecurityschemes` — Create issue security scheme (createIssueSecurityScheme) → `SecuritySchemeId`
+- `GET /rest/api/3/issuesecurityschemes/{id}` — Get issue security scheme (getIssueSecurityScheme) → `SecurityScheme`
+- `PUT /rest/api/3/issuesecurityschemes/{id}` — Update issue security scheme (updateIssueSecurityScheme) → `UpdateIssueSecuritySchemeRequestBean`
+- `DELETE /rest/api/3/issuesecurityschemes/{schemeId}` — Delete issue security scheme (deleteSecurityScheme)
+- `PUT /rest/api/3/issuesecurityschemes/{schemeId}/level` — Add issue security levels (addSecurityLevel) → `AddSecuritySchemeLevelsRequestBean`
+- `DELETE /rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}` — Remove issue security level (removeLevel)
+- `PUT /rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}` — Update issue security level (updateSecurityLevel) → `UpdateIssueSecurityLevelDetails`
+- `PUT /rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member` — Add issue security level members (addSecurityLevelMembers) → `SecuritySchemeMembersRequest`
+- `DELETE /rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member/{memberId}` — Remove member from issue security level (removeMemberFromSecurityLevel)
+- `GET /rest/api/3/issuesecurityschemes/level` — Get issue security levels (getSecurityLevels) → `PageBeanSecurityLevel`
+- `PUT /rest/api/3/issuesecurityschemes/level/default` — Set default issue security levels (setDefaultLevels) → `SetDefaultLevelsRequest`
+- `GET /rest/api/3/issuesecurityschemes/level/member` — Get issue security level members (getSecurityLevelMembers) → `PageBeanSecurityLevelMember`
+- `GET /rest/api/3/issuesecurityschemes/project` — Get projects using issue security schemes (searchProjectsUsingSecuritySchemes) → `PageBeanIssueSecuritySchemeToProjectMapping`
+- `PUT /rest/api/3/issuesecurityschemes/project` — Associate security scheme to project (associateSchemesToProjects) → `AssociateSecuritySchemeWithProjectDetails`
+- `GET /rest/api/3/issuesecurityschemes/search` — Search issue security schemes (searchSecuritySchemes) → `PageBeanSecuritySchemeWithProjects`
+
+### Issue type properties
+
+- `GET /rest/api/3/issuetype/{issueTypeId}/properties` — Get issue type property keys (getIssueTypePropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}` — Delete issue type property (deleteIssueTypeProperty)
+- `GET /rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}` — Get issue type property (getIssueTypeProperty) → `EntityProperty`
+- `PUT /rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}` — Set issue type property (setIssueTypeProperty)
+
+### Issue type schemes
+
+- `GET /rest/api/3/issuetypescheme` — Get all issue type schemes (getAllIssueTypeSchemes) → `PageBeanIssueTypeScheme`
+- `POST /rest/api/3/issuetypescheme` — Create issue type scheme (createIssueTypeScheme) → `IssueTypeSchemeID`
+- `DELETE /rest/api/3/issuetypescheme/{issueTypeSchemeId}` — Delete issue type scheme (deleteIssueTypeScheme)
+- `PUT /rest/api/3/issuetypescheme/{issueTypeSchemeId}` — Update issue type scheme (updateIssueTypeScheme) → `IssueTypeSchemeUpdateDetails`
+- `PUT /rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype` — Add issue types to issue type scheme (addIssueTypesToIssueTypeScheme) → `IssueTypeIds`
+- `DELETE /rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/{issueTypeId}` — Remove issue type from issue type scheme (removeIssueTypeFromIssueTypeScheme)
+- `PUT /rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/move` — Change order of issue types (reorderIssueTypesInIssueTypeScheme) → `OrderOfIssueTypes`
+- `GET /rest/api/3/issuetypescheme/mapping` — Get issue type scheme items (getIssueTypeSchemesMapping) → `PageBeanIssueTypeSchemeMapping`
+- `GET /rest/api/3/issuetypescheme/project` — Get issue type schemes for projects (getIssueTypeSchemeForProjects) → `PageBeanIssueTypeSchemeProjects`
+- `PUT /rest/api/3/issuetypescheme/project` — Assign issue type scheme to project (assignIssueTypeSchemeToProject) → `IssueTypeSchemeProjectAssociation`
+
+### Issue type screen schemes
+
+- `GET /rest/api/3/issuetypescreenscheme` — Get issue type screen schemes (getIssueTypeScreenSchemes) → `PageBeanIssueTypeScreenScheme`
+- `POST /rest/api/3/issuetypescreenscheme` — Create issue type screen scheme (createIssueTypeScreenScheme) → `IssueTypeScreenSchemeId`
+- `DELETE /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}` — Delete issue type screen scheme (deleteIssueTypeScreenScheme)
+- `PUT /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}` — Update issue type screen scheme (updateIssueTypeScreenScheme) → `IssueTypeScreenSchemeUpdateDetails`
+- `PUT /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping` — Append mappings to issue type screen scheme (appendMappingsForIssueTypeScreenScheme) → `IssueTypeScreenSchemeMappingDetails`
+- `PUT /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/default` — Update issue type screen scheme default screen scheme (updateDefaultScreenScheme) → `UpdateDefaultScreenScheme`
+- `POST /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/remove` — Remove mappings from issue type screen scheme (removeMappingsFromIssueTypeScreenScheme) → `IssueTypeIds`
+- `GET /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project` — Get issue type screen scheme projects (getProjectsForIssueTypeScreenScheme) → `PageBeanProjectDetails`
+- `GET /rest/api/3/issuetypescreenscheme/mapping` — Get issue type screen scheme items (getIssueTypeScreenSchemeMappings) → `PageBeanIssueTypeScreenSchemeItem`
+- `GET /rest/api/3/issuetypescreenscheme/project` — Get issue type screen schemes for projects (getIssueTypeScreenSchemeProjectAssociations) → `PageBeanIssueTypeScreenSchemesProjects`
+- `PUT /rest/api/3/issuetypescreenscheme/project` — Assign issue type screen scheme to project (assignIssueTypeScreenSchemeToProject) → `IssueTypeScreenSchemeProjectAssociation`
+
+### Issue types
+
+- `GET /rest/api/3/issuetype` — Get all issue types for user (getIssueAllTypes) → `IssueTypeDetails`
+- `POST /rest/api/3/issuetype` — Create issue type (createIssueType) → `IssueTypeDetails`
+- `DELETE /rest/api/3/issuetype/{id}` — Delete issue type (deleteIssueType)
+- `GET /rest/api/3/issuetype/{id}` — Get issue type (getIssueType) → `IssueTypeDetails`
+- `PUT /rest/api/3/issuetype/{id}` — Update issue type (updateIssueType) → `IssueTypeDetails`
+- `GET /rest/api/3/issuetype/{id}/alternatives` — Get alternative issue types (getAlternativeIssueTypes) → `IssueTypeDetails`
+- `POST /rest/api/3/issuetype/{id}/avatar2` — Load issue type avatar (createIssueTypeAvatar) → `Avatar`
+- `GET /rest/api/3/issuetype/project` — Get issue types for project (getIssueTypesForProject) → `IssueTypeDetails`
+
+### Issue votes
+
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/votes` — Delete vote (removeVote)
+- `GET /rest/api/3/issue/{issueIdOrKey}/votes` — Get votes (getVotes) → `Votes`
+- `POST /rest/api/3/issue/{issueIdOrKey}/votes` — Add vote (addVote)
+
+### Issue watchers
+
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/watchers` — Delete watcher (removeWatcher)
+- `GET /rest/api/3/issue/{issueIdOrKey}/watchers` — Get issue watchers (getIssueWatchers) → `Watchers`
+- `POST /rest/api/3/issue/{issueIdOrKey}/watchers` — Add watcher (addWatcher)
+- `POST /rest/api/3/issue/watching` — Get is watching issue bulk (getIsWatchingIssueBulk) → `BulkIssueIsWatching`
+
+### Issue worklog properties
+
+- `GET /rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties` — Get worklog property keys (getWorklogPropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}` — Delete worklog property (deleteWorklogProperty)
+- `GET /rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}` — Get worklog property (getWorklogProperty) → `EntityProperty`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}` — Set worklog property (setWorklogProperty)
+
+### Issue worklogs
+
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/worklog` — Bulk delete worklogs (bulkDeleteWorklogs) → `WorklogIdsRequestBean`
+- `GET /rest/api/3/issue/{issueIdOrKey}/worklog` — Get issue worklogs (getIssueWorklog) → `PageOfWorklogs`
+- `POST /rest/api/3/issue/{issueIdOrKey}/worklog` — Add worklog (addWorklog) → `Worklog`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}/worklog/{id}` — Delete worklog (deleteWorklog)
+- `GET /rest/api/3/issue/{issueIdOrKey}/worklog/{id}` — Get worklog (getWorklog) → `Worklog`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/worklog/{id}` — Update worklog (updateWorklog) → `Worklog`
+- `POST /rest/api/3/issue/{issueIdOrKey}/worklog/move` — Bulk move worklogs (bulkMoveWorklogs) → `WorklogsMoveRequestBean`
+- `GET /rest/api/3/worklog/deleted` — Get IDs of deleted worklogs (getIdsOfWorklogsDeletedSince) → `ChangedWorklogs`
+- `POST /rest/api/3/worklog/list` — Get worklogs (getWorklogsForIds) → `Worklog`
+- `GET /rest/api/3/worklog/updated` — Get IDs of updated worklogs (getIdsOfWorklogsModifiedSince) → `ChangedWorklogs`
+
+### Issues
+
+- `POST /rest/api/3/changelog/bulkfetch` — Bulk fetch changelogs (getBulkChangelogs) → `BulkChangelogResponseBean`
+- `GET /rest/api/3/events` — Get events (getEvents) → `IssueEvent`
+- `POST /rest/api/3/issue` — Create issue (createIssue) → `CreatedIssue`
+- `DELETE /rest/api/3/issue/{issueIdOrKey}` — Delete issue (deleteIssue)
+- `GET /rest/api/3/issue/{issueIdOrKey}` — Get issue (getIssue) → `IssueBean`
+- `PUT /rest/api/3/issue/{issueIdOrKey}` — Edit issue (editIssue) → `IssueUpdateDetails`
+- `PUT /rest/api/3/issue/{issueIdOrKey}/assignee` — Assign issue (assignIssue) → `User`
+- `GET /rest/api/3/issue/{issueIdOrKey}/changelog` — Get changelogs (getChangeLogs) → `PageBeanChangelog`
+- `POST /rest/api/3/issue/{issueIdOrKey}/changelog/list` — Get changelogs by IDs (getChangeLogsByIds) → `PageOfChangelogs`
+- `GET /rest/api/3/issue/{issueIdOrKey}/editmeta` — Get edit issue metadata (getEditIssueMeta) → `IssueUpdateMetadata`
+- `POST /rest/api/3/issue/{issueIdOrKey}/notify` — Send notification for issue (notify) → `Notification`
+- `GET /rest/api/3/issue/{issueIdOrKey}/transitions` — Get transitions (getTransitions) → `Transitions`
+- `POST /rest/api/3/issue/{issueIdOrKey}/transitions` — Transition issue (doTransition) → `IssueUpdateDetails`
+- `POST /rest/api/3/issue/archive` — Archive issue(s) by JQL (archiveIssuesAsync) → `ArchiveIssueAsyncRequest`
+- `PUT /rest/api/3/issue/archive` — Archive issue(s) by issue ID/key (archiveIssues) → `IssueArchivalSyncResponse`
+- `POST /rest/api/3/issue/bulk` — Bulk create issue (createIssues) → `CreatedIssues`
+- `POST /rest/api/3/issue/bulkfetch` — Bulk fetch issues (bulkFetchIssues) → `BulkIssueResults`
+- `GET /rest/api/3/issue/createmeta` — Get create issue metadata (getCreateIssueMeta) → `IssueCreateMetadata`
+- `GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes` — Get create metadata issue types for a project (getCreateIssueMetaIssueTypes) → `PageOfCreateMetaIssueTypes`
+- `GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId}` — Get create field metadata for a project and issue type id (getCreateIssueMetaIssueTypeId) → `PageOfCreateMetaIssueTypeWithField`
+- `GET /rest/api/3/issue/limit/report` — Get issue limit report (getIssueLimitReport) → `IssueLimitReportResponseBean`
+- `PUT /rest/api/3/issue/unarchive` — Unarchive issue(s) by issue keys/ID (unarchiveIssues) → `IssueArchivalSyncResponse`
+- `PUT /rest/api/3/issues/archive/export` — Export archived issue(s) (exportArchivedIssues) → `ExportArchivedIssuesTaskProgressResponse`
+
+### Jira expressions
+
+- `POST /rest/api/3/expression/analyse` — Analyse Jira expression (analyseExpression) → `JiraExpressionsAnalysis`
+- `POST /rest/api/3/expression/eval` — Currently being removed. Evaluate Jira expression (evaluateJiraExpression) → `JiraExpressionResult`
+- `POST /rest/api/3/expression/evaluate` — Evaluate Jira expression using enhanced search API (evaluateJSISJiraExpression) → `JExpEvaluateJiraExpressionResultBean`
+
+### Jira settings
+
+- `GET /rest/api/3/application-properties` — Get application property (getApplicationProperty) → `ApplicationProperty`
+- `PUT /rest/api/3/application-properties/{id}` — Set application property (setApplicationProperty) → `ApplicationProperty`
+- `GET /rest/api/3/application-properties/advanced-settings` — Get advanced settings (getAdvancedSettings) → `ApplicationProperty`
+- `GET /rest/api/3/configuration` — Get global settings (getConfiguration) → `Configuration`
+
+### JQL
+
+- `GET /rest/api/3/jql/autocompletedata` — Get field reference data (GET) (getAutoComplete) → `JQLReferenceData`
+- `POST /rest/api/3/jql/autocompletedata` — Get field reference data (POST) (getAutoCompletePost) → `JQLReferenceData`
+- `GET /rest/api/3/jql/autocompletedata/suggestions` — Get field auto complete suggestions (getFieldAutoCompleteForQueryString) → `AutoCompleteSuggestions`
+- `POST /rest/api/3/jql/parse` — Parse JQL query (parseJqlQueries) → `ParsedJqlQueries`
+- `POST /rest/api/3/jql/pdcleaner` — Convert user identifiers to account IDs in JQL queries (migrateQueries) → `ConvertedJQLQueries`
+- `POST /rest/api/3/jql/sanitize` — Sanitize JQL queries (sanitiseJqlQueries) → `SanitizedJqlQueries`
+
+### JQL functions (apps)
+
+- `GET /rest/api/3/jql/function/computation` — Get precomputations (apps) (getPrecomputations) → `PageBean2JqlFunctionPrecomputationBean`
+- `POST /rest/api/3/jql/function/computation` — Update precomputations (apps) (updatePrecomputations) → `JqlFunctionPrecomputationUpdateResponse`
+- `POST /rest/api/3/jql/function/computation/search` — Get precomputations by ID (apps) (getPrecomputationsByID) → `JqlFunctionPrecomputationGetByIdResponse`
+
+### Labels
+
+- `GET /rest/api/3/label` — Get all labels (getAllLabels) → `PageBeanString`
+
+### License metrics
+
+- `GET /rest/api/3/instance/license` — Get license (getLicense) → `License`
+- `GET /rest/api/3/license/approximateLicenseCount` — Get approximate license count (getApproximateLicenseCount) → `LicenseMetric`
+- `GET /rest/api/3/license/approximateLicenseCount/product/{applicationKey}` — Get approximate application license count (getApproximateApplicationLicenseCount) → `LicenseMetric`
+
+### Migration of Connect modules to Forge
+
+- `GET /rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task` — Get Connect issue field migration task (ConnectToForgeMigrationFetchTaskResource.fetchMigrationTask_get) → `TaskProgress`
+- `POST /rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task` — Submit Connect issue field migration task (ConnectToForgeMigrationTaskSubmissionResource.submitTask_post)
+
+### Myself
+
+- `DELETE /rest/api/3/mypreferences` — Delete preference (removePreference)
+- `GET /rest/api/3/mypreferences` — Get preference (getPreference)
+- `PUT /rest/api/3/mypreferences` — Set preference (setPreference)
+- `GET /rest/api/3/mypreferences/locale` — Get locale (getLocale) → `Locale`
+- `PUT /rest/api/3/mypreferences/locale` — Set locale (setLocale) → `Locale`
+- `GET /rest/api/3/myself` — Get current user (getCurrentUser) → `User`
+
+### Permission schemes
+
+- `GET /rest/api/3/permissionscheme` — Get all permission schemes (getAllPermissionSchemes) → `PermissionSchemes`
+- `POST /rest/api/3/permissionscheme` — Create permission scheme (createPermissionScheme) → `PermissionScheme`
+- `DELETE /rest/api/3/permissionscheme/{schemeId}` — Delete permission scheme (deletePermissionScheme)
+- `GET /rest/api/3/permissionscheme/{schemeId}` — Get permission scheme (getPermissionScheme) → `PermissionScheme`
+- `PUT /rest/api/3/permissionscheme/{schemeId}` — Update permission scheme (updatePermissionScheme) → `PermissionScheme`
+- `GET /rest/api/3/permissionscheme/{schemeId}/permission` — Get permission scheme grants (getPermissionSchemeGrants) → `PermissionGrants`
+- `POST /rest/api/3/permissionscheme/{schemeId}/permission` — Create permission grant (createPermissionGrant) → `PermissionGrant`
+- `DELETE /rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}` — Delete permission scheme grant (deletePermissionSchemeEntity)
+- `GET /rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}` — Get permission scheme grant (getPermissionSchemeGrant) → `PermissionGrant`
+
+### Permissions
+
+- `GET /rest/api/3/mypermissions` — Get my permissions (getMyPermissions) → `Permissions`
+- `GET /rest/api/3/permissions` — Get all permissions (getAllPermissions) → `Permissions`
+- `POST /rest/api/3/permissions/check` — Get bulk permissions (getBulkPermissions) → `BulkPermissionGrants`
+- `POST /rest/api/3/permissions/project` — Get permitted projects (getPermittedProjects) → `PermittedProjects`
+
+### Plans
+
+- `GET /rest/api/3/plans/plan` — Get plans paginated (getPlans) → `PageWithCursorGetPlanResponseForPage`
+- `POST /rest/api/3/plans/plan` — Create plan (createPlan) → `CreatePlanRequest`
+- `GET /rest/api/3/plans/plan/{planId}` — Get plan (getPlan) → `GetPlanResponse`
+- `PUT /rest/api/3/plans/plan/{planId}` — Update plan (updatePlan)
+- `PUT /rest/api/3/plans/plan/{planId}/archive` — Archive plan (archivePlan)
+- `POST /rest/api/3/plans/plan/{planId}/duplicate` — Duplicate plan (duplicatePlan) → `DuplicatePlanRequest`
+- `PUT /rest/api/3/plans/plan/{planId}/trash` — Trash plan (trashPlan)
+
+### Priority schemes
+
+- `GET /rest/api/3/priorityscheme` — Get priority schemes (getPrioritySchemes) → `PageBeanPrioritySchemeWithPaginatedPrioritiesAndProjects`
+- `POST /rest/api/3/priorityscheme` — Create priority scheme (createPriorityScheme) → `PrioritySchemeId`
+- `DELETE /rest/api/3/priorityscheme/{schemeId}` — Delete priority scheme (deletePriorityScheme)
+- `PUT /rest/api/3/priorityscheme/{schemeId}` — Update priority scheme (updatePriorityScheme) → `UpdatePrioritySchemeResponseBean`
+- `GET /rest/api/3/priorityscheme/{schemeId}/priorities` — Get priorities by priority scheme (getPrioritiesByPriorityScheme) → `PageBeanPriorityWithSequence`
+- `GET /rest/api/3/priorityscheme/{schemeId}/projects` — Get projects by priority scheme (getProjectsByPriorityScheme) → `PageBeanProject`
+- `POST /rest/api/3/priorityscheme/mappings` — Suggested priorities for mappings (suggestedPrioritiesForMappings) → `PageBeanPriorityWithSequence`
+- `GET /rest/api/3/priorityscheme/priorities/available` — Get available priorities by priority scheme (getAvailablePrioritiesByPriorityScheme) → `PageBeanPriorityWithSequence`
+
+### Project avatars
+
+- `PUT /rest/api/3/project/{projectIdOrKey}/avatar` — Set project avatar (updateProjectAvatar) → `Avatar`
+- `DELETE /rest/api/3/project/{projectIdOrKey}/avatar/{id}` — Delete project avatar (deleteProjectAvatar)
+- `POST /rest/api/3/project/{projectIdOrKey}/avatar2` — Load project avatar (createProjectAvatar) → `Avatar`
+- `GET /rest/api/3/project/{projectIdOrKey}/avatars` — Get all project avatars (getAllProjectAvatars) → `ProjectAvatars`
+
+### Project categories
+
+- `GET /rest/api/3/projectCategory` — Get all project categories (getAllProjectCategories) → `ProjectCategory`
+- `POST /rest/api/3/projectCategory` — Create project category (createProjectCategory) → `ProjectCategory`
+- `DELETE /rest/api/3/projectCategory/{id}` — Delete project category (removeProjectCategory)
+- `GET /rest/api/3/projectCategory/{id}` — Get project category by ID (getProjectCategoryById) → `ProjectCategory`
+- `PUT /rest/api/3/projectCategory/{id}` — Update project category (updateProjectCategory) → `UpdatedProjectCategory`
+
+### Project classification levels
+
+- `GET /rest/api/3/project/{projectIdOrKey}/classification-config` — Get the classification configuration for a project (getProjectClassificationConfig)
+- `DELETE /rest/api/3/project/{projectIdOrKey}/classification-level/default` — Remove the default data classification level from a project (removeDefaultProjectClassification)
+- `GET /rest/api/3/project/{projectIdOrKey}/classification-level/default` — Get the default data classification level of a project (getDefaultProjectClassification)
+- `PUT /rest/api/3/project/{projectIdOrKey}/classification-level/default` — Update the default data classification level of a project (updateDefaultProjectClassification) → `UpdateDefaultProjectClassificationBean`
+
+### Project components
+
+- `GET /rest/api/3/component` — Find components for projects (findComponentsForProjects) → `PageBean2ComponentJsonBean`
+- `POST /rest/api/3/component` — Create component (createComponent) → `ProjectComponent`
+- `DELETE /rest/api/3/component/{id}` — Delete component (deleteComponent)
+- `GET /rest/api/3/component/{id}` — Get component (getComponent) → `ProjectComponent`
+- `PUT /rest/api/3/component/{id}` — Update component (updateComponent) → `ProjectComponent`
+- `GET /rest/api/3/component/{id}/relatedIssueCounts` — Get component issues count (getComponentRelatedIssues) → `ComponentIssuesCount`
+- `GET /rest/api/3/project/{projectIdOrKey}/component` — Get project components paginated (getProjectComponentsPaginated) → `PageBeanComponentWithIssueCount`
+- `GET /rest/api/3/project/{projectIdOrKey}/components` — Get project components (getProjectComponents) → `ProjectComponent`
+
+### Project email
+
+- `GET /rest/api/3/project/{projectId}/email` — Get project's sender email (getProjectEmail) → `ProjectEmailAddress`
+- `PUT /rest/api/3/project/{projectId}/email` — Set project's sender email (updateProjectEmail) → `ProjectEmailAddress`
+
+### Project features
+
+- `GET /rest/api/3/project/{projectIdOrKey}/features` — Get project features (getFeaturesForProject) → `ContainerForProjectFeatures`
+- `PUT /rest/api/3/project/{projectIdOrKey}/features/{featureKey}` — Set project feature state (toggleFeatureForProject) → `ContainerForProjectFeatures`
+
+### Project key and name validation
+
+- `GET /rest/api/3/projectvalidate/key` — Validate project key (validateProjectKey) → `ErrorCollection`
+- `GET /rest/api/3/projectvalidate/validProjectKey` — Get valid project key (getValidProjectKey)
+- `GET /rest/api/3/projectvalidate/validProjectName` — Get valid project name (getValidProjectName)
+
+### Project permission schemes
+
+- `GET /rest/api/3/project/{projectKeyOrId}/issuesecuritylevelscheme` — Get project issue security scheme (getProjectIssueSecurityScheme) → `SecurityScheme`
+- `GET /rest/api/3/project/{projectKeyOrId}/permissionscheme` — Get assigned permission scheme (getAssignedPermissionScheme) → `PermissionScheme`
+- `PUT /rest/api/3/project/{projectKeyOrId}/permissionscheme` — Assign permission scheme (assignPermissionScheme) → `PermissionScheme`
+- `GET /rest/api/3/project/{projectKeyOrId}/securitylevel` — Get project issue security levels (getSecurityLevelsForProject) → `ProjectIssueSecurityLevels`
+
+### Project properties
+
+- `GET /rest/api/3/project/{projectIdOrKey}/properties` — Get project property keys (getProjectPropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}` — Delete project property (deleteProjectProperty)
+- `GET /rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}` — Get project property (getProjectProperty) → `EntityProperty`
+- `PUT /rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}` — Set project property (setProjectProperty)
+
+### Project role actors
+
+- `DELETE /rest/api/3/project/{projectIdOrKey}/role/{id}` — Delete actors from project role (deleteActor)
+- `POST /rest/api/3/project/{projectIdOrKey}/role/{id}` — Add actors to project role (addActorUsers) → `ProjectRole`
+- `PUT /rest/api/3/project/{projectIdOrKey}/role/{id}` — Set actors for project role (setActors) → `ProjectRole`
+- `DELETE /rest/api/3/role/{id}/actors` — Delete default actors from project role (deleteProjectRoleActorsFromRole) → `ProjectRole`
+- `GET /rest/api/3/role/{id}/actors` — Get default actors for project role (getProjectRoleActorsForRole) → `ProjectRole`
+- `POST /rest/api/3/role/{id}/actors` — Add default actors to project role (addProjectRoleActorsToRole) → `ProjectRole`
+
+### Project roles
+
+- `GET /rest/api/3/project/{projectIdOrKey}/role` — Get project roles for project (getProjectRoles)
+- `GET /rest/api/3/project/{projectIdOrKey}/role/{id}` — Get project role for project (getProjectRole) → `ProjectRole`
+- `GET /rest/api/3/project/{projectIdOrKey}/roledetails` — Get project role details (getProjectRoleDetails) → `ProjectRoleDetails`
+- `GET /rest/api/3/role` — Get all project roles (getAllProjectRoles) → `ProjectRole`
+- `POST /rest/api/3/role` — Create project role (createProjectRole) → `ProjectRole`
+- `DELETE /rest/api/3/role/{id}` — Delete project role (deleteProjectRole)
+- `GET /rest/api/3/role/{id}` — Get project role by ID (getProjectRoleById) → `ProjectRole`
+- `POST /rest/api/3/role/{id}` — Partial update project role (partialUpdateProjectRole) → `ProjectRole`
+- `PUT /rest/api/3/role/{id}` — Fully update project role (fullyUpdateProjectRole) → `ProjectRole`
+
+### Project templates
+
+- `POST /rest/api/3/project-template` — Create custom project (createProjectWithCustomTemplate) → `ProjectCustomTemplateCreateRequestDTO`
+- `PUT /rest/api/3/project-template/edit-template` — Edit a custom project template (editTemplate) → `EditTemplateRequest`
+- `GET /rest/api/3/project-template/live-template` — Gets a custom project template (liveTemplate) → `ProjectTemplateModel`
+- `DELETE /rest/api/3/project-template/remove-template` — Deletes a custom project template (removeTemplate)
+- `POST /rest/api/3/project-template/save-template` — Save a custom project template (saveTemplate) → `SaveTemplateResponse`
+
+### Project types
+
+- `GET /rest/api/3/project/type` — Get all project types (getAllProjectTypes) → `ProjectType`
+- `GET /rest/api/3/project/type/{projectTypeKey}` — Get project type by key (getProjectTypeByKey) → `ProjectType`
+- `GET /rest/api/3/project/type/{projectTypeKey}/accessible` — Get accessible project type by key (getAccessibleProjectTypeByKey) → `ProjectType`
+- `GET /rest/api/3/project/type/accessible` — Get licensed project types (getAllAccessibleProjectTypes) → `ProjectType`
+
+### Project versions
+
+- `GET /rest/api/3/project/{projectIdOrKey}/version` — Get project versions paginated (getProjectVersionsPaginated) → `PageBeanVersion`
+- `GET /rest/api/3/project/{projectIdOrKey}/versions` — Get project versions (getProjectVersions) → `Version`
+- `POST /rest/api/3/version` — Create version (createVersion) → `Version`
+- `DELETE /rest/api/3/version/{id}` — Delete version (deleteVersion)
+- `GET /rest/api/3/version/{id}` — Get version (getVersion) → `Version`
+- `PUT /rest/api/3/version/{id}` — Update version (updateVersion) → `Version`
+- `PUT /rest/api/3/version/{id}/mergeto/{moveIssuesTo}` — Merge versions (mergeVersions)
+- `POST /rest/api/3/version/{id}/move` — Move version (moveVersion) → `Version`
+- `GET /rest/api/3/version/{id}/relatedIssueCounts` — Get version's related issues count (getVersionRelatedIssues) → `VersionIssueCounts`
+- `GET /rest/api/3/version/{id}/relatedwork` — Get related work (getRelatedWork) → `VersionRelatedWork`
+- `POST /rest/api/3/version/{id}/relatedwork` — Create related work (createRelatedWork) → `VersionRelatedWork`
+- `PUT /rest/api/3/version/{id}/relatedwork` — Update related work (updateRelatedWork) → `VersionRelatedWork`
+- `POST /rest/api/3/version/{id}/removeAndSwap` — Delete and replace version (deleteAndReplaceVersion) → `DeleteAndReplaceVersionBean`
+- `GET /rest/api/3/version/{id}/unresolvedIssueCount` — Get version's unresolved issues count (getVersionUnresolvedIssues) → `VersionUnresolvedIssuesCount`
+- `DELETE /rest/api/3/version/{versionId}/relatedwork/{relatedWorkId}` — Delete related work (deleteRelatedWork)
+
+### Projects
+
+- `GET /rest/api/3/project` — Get all projects (getAllProjects) → `Project`
+- `POST /rest/api/3/project` — Create project (createProject) → `ProjectIdentifiers`
+- `GET /rest/api/3/project/{projectId}/hierarchy` — Get project issue type hierarchy (getHierarchy) → `ProjectIssueTypeHierarchy`
+- `DELETE /rest/api/3/project/{projectIdOrKey}` — Delete project (deleteProject)
+- `GET /rest/api/3/project/{projectIdOrKey}` — Get project (getProject) → `Project`
+- `PUT /rest/api/3/project/{projectIdOrKey}` — Update project (updateProject) → `Project`
+- `POST /rest/api/3/project/{projectIdOrKey}/archive` — Archive project (archiveProject)
+- `POST /rest/api/3/project/{projectIdOrKey}/delete` — Delete project asynchronously (deleteProjectAsynchronously)
+- `POST /rest/api/3/project/{projectIdOrKey}/restore` — Restore deleted or archived project (restore) → `Project`
+- `GET /rest/api/3/project/{projectIdOrKey}/statuses` — Get all statuses for project (getAllStatuses) → `IssueTypeWithStatus`
+- `GET /rest/api/3/project/{projectKeyOrId}/notificationscheme` — Get project notification scheme (getNotificationSchemeForProject) → `NotificationScheme`
+- `GET /rest/api/3/project/recent` — Get recent projects (getRecent) → `Project`
+- `GET /rest/api/3/project/search` — Get projects paginated (searchProjects) → `PageBeanProject`
+
+### Screen schemes
+
+- `GET /rest/api/3/screenscheme` — Get screen schemes (getScreenSchemes) → `PageBeanScreenScheme`
+- `POST /rest/api/3/screenscheme` — Create screen scheme (createScreenScheme) → `ScreenSchemeId`
+- `DELETE /rest/api/3/screenscheme/{screenSchemeId}` — Delete screen scheme (deleteScreenScheme)
+- `PUT /rest/api/3/screenscheme/{screenSchemeId}` — Update screen scheme (updateScreenScheme) → `UpdateScreenSchemeDetails`
+
+### Screen tab fields
+
+- `GET /rest/api/3/screens/{screenId}/tabs/{tabId}/fields` — Get all screen tab fields (getAllScreenTabFields) → `ScreenableField`
+- `POST /rest/api/3/screens/{screenId}/tabs/{tabId}/fields` — Add screen tab field (addScreenTabField) → `ScreenableField`
+- `DELETE /rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}` — Remove screen tab field (removeScreenTabField)
+- `POST /rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}/move` — Move screen tab field (moveScreenTabField) → `MoveFieldBean`
+
+### Screen tabs
+
+- `GET /rest/api/3/screens/{screenId}/tabs` — Get all screen tabs (getAllScreenTabs) → `ScreenableTab`
+- `POST /rest/api/3/screens/{screenId}/tabs` — Create screen tab (addScreenTab) → `ScreenableTab`
+- `DELETE /rest/api/3/screens/{screenId}/tabs/{tabId}` — Delete screen tab (deleteScreenTab)
+- `PUT /rest/api/3/screens/{screenId}/tabs/{tabId}` — Update screen tab (renameScreenTab) → `ScreenableTab`
+- `POST /rest/api/3/screens/{screenId}/tabs/{tabId}/move/{pos}` — Move screen tab (moveScreenTab)
+- `GET /rest/api/3/screens/tabs` — Get bulk screen tabs (getBulkScreenTabs)
+
+### Screens
+
+- `GET /rest/api/3/field/{fieldId}/screens` — Get screens for a field (getScreensForField) → `PageBeanScreenWithTab`
+- `GET /rest/api/3/screens` — Get screens (getScreens) → `PageBeanScreen`
+- `POST /rest/api/3/screens` — Create screen (createScreen) → `Screen`
+- `DELETE /rest/api/3/screens/{screenId}` — Delete screen (deleteScreen)
+- `PUT /rest/api/3/screens/{screenId}` — Update screen (updateScreen) → `Screen`
+- `GET /rest/api/3/screens/{screenId}/availableFields` — Get available screen fields (getAvailableScreenFields) → `ScreenableField`
+- `POST /rest/api/3/screens/addToDefault/{fieldId}` — Add field to default screen (addFieldToDefaultScreen)
+
+### Server info
+
+- `GET /rest/api/3/serverInfo` — Get Jira instance info (getServerInfo) → `ServerInformation`
+
+### Service Registry
+
+- `GET /rest/atlassian-connect/1/service-registry` — Retrieve the attributes of service registries (ServiceRegistryResource.services_get) → `ServiceRegistry`
+
+### Status
+
+- `DELETE /rest/api/3/statuses` — Bulk delete Statuses (deleteStatusesById)
+- `GET /rest/api/3/statuses` — Bulk get statuses (getStatusesById) → `JiraStatus`
+- `POST /rest/api/3/statuses` — Bulk create statuses (createStatuses) → `JiraStatus`
+- `PUT /rest/api/3/statuses` — Bulk update statuses (updateStatuses) → `StatusUpdateRequest`
+- `GET /rest/api/3/statuses/{statusId}/project/{projectId}/issueTypeUsages` — Get issue type usages by status and project (getProjectIssueTypeUsagesForStatus) → `StatusProjectIssueTypeUsageDTO`
+- `GET /rest/api/3/statuses/{statusId}/projectUsages` — Get project usages by status (getProjectUsagesForStatus) → `StatusProjectUsageDTO`
+- `GET /rest/api/3/statuses/{statusId}/workflowUsages` — Get workflow usages by status (getWorkflowUsagesForStatus) → `StatusWorkflowUsageDTO`
+- `GET /rest/api/3/statuses/byNames` — Bulk get statuses by name (getStatusesByName) → `JiraStatus`
+- `GET /rest/api/3/statuses/search` — Search statuses paginated (search) → `PageOfStatuses`
+
+### Tasks
+
+- `GET /rest/api/3/task/{taskId}` — Get task (getTask) → `TaskProgressBeanObject`
+- `POST /rest/api/3/task/{taskId}/cancel` — Cancel task (cancelTask)
+
+### Teams in plan
+
+- `GET /rest/api/3/plans/plan/{planId}/team` — Get teams in plan paginated (getTeams) → `PageWithCursorGetTeamResponseForPage`
+- `POST /rest/api/3/plans/plan/{planId}/team/atlassian` — Add Atlassian team to plan (addAtlassianTeam) → `AddAtlassianTeamRequest`
+- `DELETE /rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}` — Remove Atlassian team from plan (removeAtlassianTeam)
+- `GET /rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}` — Get Atlassian team in plan (getAtlassianTeam) → `GetAtlassianTeamResponse`
+- `PUT /rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}` — Update Atlassian team in plan (updateAtlassianTeam)
+- `POST /rest/api/3/plans/plan/{planId}/team/planonly` — Create plan-only team (createPlanOnlyTeam) → `CreatePlanOnlyTeamRequest`
+- `DELETE /rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}` — Delete plan-only team (deletePlanOnlyTeam)
+- `GET /rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}` — Get plan-only team (getPlanOnlyTeam) → `GetPlanOnlyTeamResponse`
+- `PUT /rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}` — Update plan-only team (updatePlanOnlyTeam)
+
+### Time tracking
+
+- `GET /rest/api/3/configuration/timetracking` — Get selected time tracking provider (getSelectedTimeTrackingImplementation) → `TimeTrackingProvider`
+- `PUT /rest/api/3/configuration/timetracking` — Select time tracking provider (selectTimeTrackingImplementation) → `TimeTrackingProvider`
+- `GET /rest/api/3/configuration/timetracking/list` — Get all time tracking providers (getAvailableTimeTrackingImplementations) → `TimeTrackingProvider`
+- `GET /rest/api/3/configuration/timetracking/options` — Get time tracking settings (getSharedTimeTrackingConfiguration) → `TimeTrackingConfiguration`
+- `PUT /rest/api/3/configuration/timetracking/options` — Set time tracking settings (setSharedTimeTrackingConfiguration) → `TimeTrackingConfiguration`
+
+### UI modifications (apps)
+
+- `GET /rest/api/3/uiModifications` — Get UI modifications (getUiModifications) → `PageBeanUiModificationDetails`
+- `POST /rest/api/3/uiModifications` — Create UI modification (createUiModification) → `UiModificationIdentifiers`
+- `DELETE /rest/api/3/uiModifications/{uiModificationId}` — Delete UI modification (deleteUiModification)
+- `PUT /rest/api/3/uiModifications/{uiModificationId}` — Update UI modification (updateUiModification) → `UpdateUiModificationDetails`
+
+### User properties
+
+- `GET /rest/api/3/user/properties` — Get user property keys (getUserPropertyKeys) → `PropertyKeys`
+- `DELETE /rest/api/3/user/properties/{propertyKey}` — Delete user property (deleteUserProperty)
+- `GET /rest/api/3/user/properties/{propertyKey}` — Get user property (getUserProperty) → `EntityProperty`
+- `PUT /rest/api/3/user/properties/{propertyKey}` — Set user property (setUserProperty)
+
+### User search
+
+- `GET /rest/api/3/user/assignable/multiProjectSearch` — Find users assignable to projects (findBulkAssignableUsers) → `User`
+- `GET /rest/api/3/user/assignable/search` — Find users assignable to issues (findAssignableUsers) → `User`
+- `GET /rest/api/3/user/permission/search` — Find users with permissions (findUsersWithAllPermissions) → `User`
+- `GET /rest/api/3/user/picker` — Find users for picker (findUsersForPicker) → `FoundUsers`
+- `GET /rest/api/3/user/search` — Find users (findUsers) → `User`
+- `GET /rest/api/3/user/search/query` — Find users by query (findUsersByQuery) → `PageBeanUser`
+- `GET /rest/api/3/user/search/query/key` — Find user keys by query (findUserKeysByQuery) → `PageBeanUserKey`
+- `GET /rest/api/3/user/viewissue/search` — Find users with browse permission (findUsersWithBrowsePermission) → `User`
+
+### Users
+
+- `DELETE /rest/api/3/user` — Delete user (removeUser)
+- `GET /rest/api/3/user` — Get user (getUser) → `User`
+- `POST /rest/api/3/user` — Create user (createUser) → `User`
+- `GET /rest/api/3/user/bulk` — Bulk get users (bulkGetUsers) → `PageBeanUser`
+- `GET /rest/api/3/user/bulk/migration` — Get account IDs for users (bulkGetUsersMigration) → `UserMigrationBean`
+- `DELETE /rest/api/3/user/columns` — Reset user default columns (resetUserColumns)
+- `GET /rest/api/3/user/columns` — Get user default columns (getUserDefaultColumns) → `ColumnItem`
+- `PUT /rest/api/3/user/columns` — Set user default columns (setUserColumns) → `UserColumnRequestBody`
+- `GET /rest/api/3/user/email` — Get user email (getUserEmail) → `UnrestrictedUserEmail`
+- `GET /rest/api/3/user/email/bulk` — Get user email bulk (getUserEmailBulk) → `UnrestrictedUserEmail`
+- `GET /rest/api/3/user/groups` — Get user groups (getUserGroups) → `GroupName`
+- `GET /rest/api/3/users` — Get all users default (getAllUsersDefault) → `User`
+- `GET /rest/api/3/users/search` — Get all users (getAllUsers) → `User`
+
+### Webhooks
+
+- `DELETE /rest/api/3/webhook` — Delete webhooks by ID (deleteWebhookById) → `ContainerForWebhookIDs`
+- `GET /rest/api/3/webhook` — Get dynamic webhooks for app (getDynamicWebhooksForApp) → `PageBeanWebhook`
+- `POST /rest/api/3/webhook` — Register dynamic webhooks (registerDynamicWebhooks) → `ContainerForRegisteredWebhooks`
+- `GET /rest/api/3/webhook/failed` — Get failed webhooks (getFailedWebhooks) → `FailedWebhooks`
+- `PUT /rest/api/3/webhook/refresh` — Extend webhook life (refreshWebhooks) → `WebhooksExpirationDate`
+
+### Workflow scheme drafts
+
+- `POST /rest/api/3/workflowscheme/{id}/createdraft` — Create draft workflow scheme (createWorkflowSchemeDraftFromParent) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/draft` — Delete draft workflow scheme (deleteWorkflowSchemeDraft)
+- `GET /rest/api/3/workflowscheme/{id}/draft` — Get draft workflow scheme (getWorkflowSchemeDraft) → `WorkflowScheme`
+- `PUT /rest/api/3/workflowscheme/{id}/draft` — Update draft workflow scheme (updateWorkflowSchemeDraft) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/draft/default` — Delete draft default workflow (deleteDraftDefaultWorkflow) → `WorkflowScheme`
+- `GET /rest/api/3/workflowscheme/{id}/draft/default` — Get draft default workflow (getDraftDefaultWorkflow) → `DefaultWorkflow`
+- `PUT /rest/api/3/workflowscheme/{id}/draft/default` — Update draft default workflow (updateDraftDefaultWorkflow) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}` — Delete workflow for issue type in draft workflow scheme (deleteWorkflowSchemeDraftIssueType) → `WorkflowScheme`
+- `GET /rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}` — Get workflow for issue type in draft workflow scheme (getWorkflowSchemeDraftIssueType) → `IssueTypeWorkflowMapping`
+- `PUT /rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}` — Set workflow for issue type in draft workflow scheme (setWorkflowSchemeDraftIssueType) → `WorkflowScheme`
+- `POST /rest/api/3/workflowscheme/{id}/draft/publish` — Publish draft workflow scheme (publishDraftWorkflowScheme) → `PublishDraftWorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/draft/workflow` — Delete issue types for workflow in draft workflow scheme (deleteDraftWorkflowMapping)
+- `GET /rest/api/3/workflowscheme/{id}/draft/workflow` — Get issue types for workflows in draft workflow scheme (getDraftWorkflow) → `IssueTypesWorkflowMapping`
+- `PUT /rest/api/3/workflowscheme/{id}/draft/workflow` — Set issue types for workflow in workflow scheme (updateDraftWorkflowMapping) → `WorkflowScheme`
+
+### Workflow scheme project associations
+
+- `GET /rest/api/3/workflowscheme/project` — Get workflow scheme project associations (getWorkflowSchemeProjectAssociations) → `ContainerOfWorkflowSchemeAssociations`
+- `PUT /rest/api/3/workflowscheme/project` — Assign workflow scheme to project (assignSchemeToProject) → `WorkflowSchemeProjectAssociation`
+
+### Workflow schemes
+
+- `GET /rest/api/3/workflowscheme` — Get all workflow schemes (getAllWorkflowSchemes) → `PageBeanWorkflowScheme`
+- `POST /rest/api/3/workflowscheme` — Create workflow scheme (createWorkflowScheme) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}` — Delete workflow scheme (deleteWorkflowScheme)
+- `GET /rest/api/3/workflowscheme/{id}` — Get workflow scheme (getWorkflowScheme) → `WorkflowScheme`
+- `PUT /rest/api/3/workflowscheme/{id}` — Classic update workflow scheme (updateWorkflowScheme) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/default` — Delete default workflow (deleteDefaultWorkflow) → `WorkflowScheme`
+- `GET /rest/api/3/workflowscheme/{id}/default` — Get default workflow (getDefaultWorkflow) → `DefaultWorkflow`
+- `PUT /rest/api/3/workflowscheme/{id}/default` — Update default workflow (updateDefaultWorkflow) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/issuetype/{issueType}` — Delete workflow for issue type in workflow scheme (deleteWorkflowSchemeIssueType) → `WorkflowScheme`
+- `GET /rest/api/3/workflowscheme/{id}/issuetype/{issueType}` — Get workflow for issue type in workflow scheme (getWorkflowSchemeIssueType) → `IssueTypeWorkflowMapping`
+- `PUT /rest/api/3/workflowscheme/{id}/issuetype/{issueType}` — Set workflow for issue type in workflow scheme (setWorkflowSchemeIssueType) → `WorkflowScheme`
+- `DELETE /rest/api/3/workflowscheme/{id}/workflow` — Delete issue types for workflow in workflow scheme (deleteWorkflowMapping)
+- `GET /rest/api/3/workflowscheme/{id}/workflow` — Get issue types for workflows in workflow scheme (getWorkflow) → `IssueTypesWorkflowMapping`
+- `PUT /rest/api/3/workflowscheme/{id}/workflow` — Set issue types for workflow in workflow scheme (updateWorkflowMapping) → `WorkflowScheme`
+- `GET /rest/api/3/workflowscheme/{workflowSchemeId}/projectUsages` — Get projects which are using a given workflow scheme (getProjectUsagesForWorkflowScheme) → `WorkflowSchemeProjectUsageDTO`
+- `POST /rest/api/3/workflowscheme/project/switch` — Switch workflow scheme for project (switchWorkflowSchemeForProject) → `WorkflowSchemeProjectSwitchBean`
+- `POST /rest/api/3/workflowscheme/read` — Bulk get workflow schemes (readWorkflowSchemes) → `WorkflowSchemeReadResponse`
+- `POST /rest/api/3/workflowscheme/update` — Update workflow scheme (updateSchemes) → `WorkflowSchemeUpdateRequest`
+- `POST /rest/api/3/workflowscheme/update/mappings` — Get required status mappings for workflow scheme update (getRequiredWorkflowSchemeMappings) → `WorkflowSchemeUpdateRequiredMappingsResponse`
+
+### Workflow status categories
+
+- `GET /rest/api/3/statuscategory` — Get all status categories (getStatusCategories) → `StatusCategory`
+- `GET /rest/api/3/statuscategory/{idOrKey}` — Get status category (getStatusCategory) → `StatusCategory`
+
+### Workflow statuses
+
+- `GET /rest/api/3/status` — Get all statuses (getStatuses) → `StatusDetails`
+- `GET /rest/api/3/status/{idOrName}` — Get status (getStatus) → `StatusDetails`
+
+### Workflow transition properties
+
+- `DELETE /rest/api/3/workflow/transitions/{transitionId}/properties` — Delete workflow transition property (deleteWorkflowTransitionProperty)
+- `GET /rest/api/3/workflow/transitions/{transitionId}/properties` — Get workflow transition properties (getWorkflowTransitionProperties) → `WorkflowTransitionProperty`
+- `POST /rest/api/3/workflow/transitions/{transitionId}/properties` — Create workflow transition property (createWorkflowTransitionProperty) → `WorkflowTransitionProperty`
+- `PUT /rest/api/3/workflow/transitions/{transitionId}/properties` — Update workflow transition property (updateWorkflowTransitionProperty) → `WorkflowTransitionProperty`
+
+### Workflow transition rules
+
+- `GET /rest/api/3/workflow/rule/config` — Get workflow transition rule configurations (getWorkflowTransitionRuleConfigurations) → `PageBeanWorkflowTransitionRules`
+- `PUT /rest/api/3/workflow/rule/config` — Update workflow transition rule configurations (updateWorkflowTransitionRuleConfigurations) → `WorkflowTransitionRulesUpdateErrors`
+- `PUT /rest/api/3/workflow/rule/config/delete` — Delete workflow transition rule configurations (deleteWorkflowTransitionRuleConfigurations) → `WorkflowTransitionRulesUpdateErrors`
+
+### Workflows
+
+- `DELETE /rest/api/3/workflow/{entityId}` — Delete inactive workflow (deleteInactiveWorkflow)
+- `GET /rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages` — Get issue types in a project that are using a given workflow (getWorkflowProjectIssueTypeUsages) → `WorkflowProjectIssueTypeUsageDTO`
+- `GET /rest/api/3/workflow/{workflowId}/projectUsages` — Get projects using a given workflow (getProjectUsagesForWorkflow) → `WorkflowProjectUsageDTO`
+- `GET /rest/api/3/workflow/{workflowId}/workflowSchemes` — Get workflow schemes which are using a given workflow (getWorkflowSchemeUsagesForWorkflow) → `WorkflowSchemeUsageDTO`
+- `POST /rest/api/3/workflow/history` — Read workflow version from history (readWorkflowFromHistory) → `WorkflowHistoryReadResponseDTO`
+- `POST /rest/api/3/workflow/history/list` — List workflow history entries (listWorkflowHistory) → `WorkflowHistoryListResponseDTO`
+- `GET /rest/api/3/workflow/search` — Get workflows paginated (getWorkflowsPaginated) → `PageBeanWorkflow`
+- `POST /rest/api/3/workflows` — Bulk get workflows (readWorkflows) → `WorkflowReadResponse`
+- `GET /rest/api/3/workflows/capabilities` — Get available workflow capabilities (workflowCapabilities) → `WorkflowCapabilities`
+- `POST /rest/api/3/workflows/create` — Bulk create workflows (createWorkflows) → `WorkflowCreateResponse`
+- `POST /rest/api/3/workflows/create/validation` — Validate create workflows (validateCreateWorkflows) → `WorkflowValidationErrorList`
+- `GET /rest/api/3/workflows/defaultEditor` — Get the user's default workflow editor (getDefaultEditor) → `DefaultWorkflowEditorResponse`
+- `POST /rest/api/3/workflows/preview` — Preview workflow (readWorkflowPreviews) → `WorkflowPreviewResponse`
+- `GET /rest/api/3/workflows/search` — Search workflows (searchWorkflows) → `WorkflowSearchResponse`
+- `POST /rest/api/3/workflows/update` — Bulk update workflows (updateWorkflows) → `WorkflowUpdateResponse`
+- `POST /rest/api/3/workflows/update/validation` — Validate update workflows (validateUpdateWorkflows) → `WorkflowValidationErrorList`
+
+### Untagged
+
+- `POST /rest/internal/api/latest/worklog/bulk` — Get worklogs by issue id and worklog id (getWorklogsByIssueIdAndWorklogId) → `BulkWorklogKeyResponseBean`
+
+### Models (968)
+
+- `ActorInputBean`
+- `ActorsMap`
+- `AddAtlassianTeamRequest`
+- `AddFieldBean`
+- `AddGroupBean`
+- `AddNotificationsDetails`
+- `AddSecuritySchemeLevelsRequestBean`
+- `AnnouncementBannerConfiguration`
+- `AnnouncementBannerConfigurationUpdate`
+- `Application`
+- `ApplicationProperty`
+- `ApplicationRole`
+- `ApprovalConfiguration`
+- `ApprovalConfigurationPreview`
+- `AppWorkflowTransitionRule`
+- `ArchivedIssuesFilterRequest`
+- `ArchiveIssueAsyncRequest`
+- `AssociatedItemBean`
+- `AssociateFieldConfigurationsWithIssueTypesRequest`
+- `AssociateSecuritySchemeWithProjectDetails`
+- `AssociationContextObject`
+- `Attachment`
+- `AttachmentArchive`
+- `AttachmentArchiveEntry`
+- `AttachmentArchiveImpl`
+- `AttachmentArchiveItemReadable`
+- `AttachmentArchiveMetadataReadable`
+- `AttachmentMetadata`
+- `AttachmentSettings`
+- `AuditRecordBean`
+- `AuditRecords`
+- `AutoCompleteSuggestion`
+- `AutoCompleteSuggestions`
+- `AvailableDashboardGadget`
+- `AvailableDashboardGadgetsResponse`
+- `AvailableWorkflowConnectRule`
+- `AvailableWorkflowForgeRule`
+- `AvailableWorkflowSystemRule`
+- `AvailableWorkflowTriggers`
+- `AvailableWorkflowTriggerTypes`
+- `Avatar`
+- `Avatars`
+- `AvatarUrlsBean`
+- `BoardColumnPayload`
+- `BoardFeaturePayload`
+- `BoardFeaturesPayload`
+- `BoardPayload`
+- `BoardsPayload`
+- `BulkChangelogRequestBean`
+- `BulkChangelogResponseBean`
+- `BulkChangeOwnerDetails`
+- `BulkContextualConfiguration`
+- `BulkCustomFieldOptionCreateRequest`
+- `BulkCustomFieldOptionUpdateRequest`
+- `BulkEditActionError`
+- `BulkEditGetFields`
+- `BulkEditShareableEntityRequest`
+- `BulkEditShareableEntityResponse`
+- `BulkFetchIssueRequestBean`
+- `BulkIssueIsWatching`
+- `BulkIssuePropertyUpdateRequest`
+- `BulkIssueResults`
+- `BulkOperationErrorResponse`
+- `BulkOperationErrorResult`
+- `BulkOperationProgress`
+- `BulkPermissionGrants`
+- `BulkPermissionsRequestBean`
+- `BulkProjectPermissionGrants`
+- `BulkProjectPermissions`
+- `BulkRedactionRequest`
+- `BulkRedactionResponse`
+- `BulkTransitionGetAvailableTransitions`
+- `BulkTransitionSubmitInput`
+- `BulkWorklogKeyRequestBean`
+- `BulkWorklogKeyResponseBean`
+- `CardLayout`
+- `CardLayoutField`
+- `ChangeDetails`
+- `ChangedValueBean`
+- `ChangedWorklog`
+- `ChangedWorklogs`
+- `ChangeFilterOwner`
+- `Changelog`
+- `ColumnItem`
+- `ColumnRequestBody`
+- `Comment`
+- `ComponentIssuesCount`
+- `ComponentJsonBean`
+- `ComponentWithIssueCount`
+- `CompoundClause`
+- `ConditionGroupConfiguration`
+- `ConditionGroupPayload`
+- `ConditionGroupUpdate`
+- `Configuration`
+- `ConfigurationsListParameters`
+- `ConnectCustomFieldValue`
+- `ConnectCustomFieldValues`
+- `ConnectModule`
+- `ConnectModules`
+- `ConnectWorkflowTransitionRule`
+- `ContainerForProjectFeatures`
+- `ContainerForRegisteredWebhooks`
+- `ContainerForWebhookIDs`
+- `ContainerOfWorkflowSchemeAssociations`
+- `ContentItem`
+- `Context`
+- `ContextForProjectAndIssueType`
+- `ContextualConfiguration`
+- `ConvertedJQLQueries`
+- `CreateCrossProjectReleaseRequest`
+- `CreateCustomFieldContext`
+- `CreateCustomFieldRequest`
+- `CreateDateFieldRequest`
+- `CreatedIssue`
+- `CreatedIssues`
+- `CreateExclusionRulesRequest`
+- `CreateFieldAssociationSchemeLinksBean`
+- `CreateFieldAssociationSchemeRequest`
+- `CreateFieldAssociationSchemeResponse`
+- `CreateIssueSecuritySchemeDetails`
+- `CreateIssueSourceRequest`
+- `CreateNotificationSchemeDetails`
+- `CreatePermissionHolderRequest`
+- `CreatePermissionRequest`
+- `CreatePlanOnlyTeamRequest`
+- `CreatePlanRequest`
+- `CreatePriorityDetails`
+- `CreatePrioritySchemeDetails`
+- `CreateProjectDetails`
+- `CreateResolutionDetails`
+- `CreateSchedulingRequest`
+- `CreateUiModificationDetails`
+- `CreateUpdateRoleRequestBean`
+- `CustomContextVariable`
+- `CustomFieldConfigurations`
+- `CustomFieldContext`
+- `CustomFieldContextDefaultValue`
+- `CustomFieldContextDefaultValueCascadingOption`
+- `CustomFieldContextDefaultValueDate`
+- `CustomFieldContextDefaultValueDateTime`
+- `CustomFieldContextDefaultValueFloat`
+- `CustomFieldContextDefaultValueForgeDateTimeField`
+- `CustomFieldContextDefaultValueForgeGroupField`
+- `CustomFieldContextDefaultValueForgeMultiGroupField`
+- `CustomFieldContextDefaultValueForgeMultiStringField`
+- `CustomFieldContextDefaultValueForgeMultiUserField`
+- `CustomFieldContextDefaultValueForgeNumberField`
+- `CustomFieldContextDefaultValueForgeObjectField`
+- `CustomFieldContextDefaultValueForgeStringField`
+- `CustomFieldContextDefaultValueForgeUserField`
+- `CustomFieldContextDefaultValueLabels`
+- `CustomFieldContextDefaultValueMultipleGroupPicker`
+- `CustomFieldContextDefaultValueMultipleOption`
+- `CustomFieldContextDefaultValueMultipleVersionPicker`
+- `CustomFieldContextDefaultValueMultiUserPicker`
+- `CustomFieldContextDefaultValueProject`
+- `CustomFieldContextDefaultValueReadOnly`
+- `CustomFieldContextDefaultValueSingleGroupPicker`
+- `CustomFieldContextDefaultValueSingleOption`
+- `CustomFieldContextDefaultValueSingleVersionPicker`
+- `CustomFieldContextDefaultValueTextArea`
+- `CustomFieldContextDefaultValueTextField`
+- `CustomFieldContextDefaultValueUpdate`
+- `CustomFieldContextDefaultValueURL`
+- `CustomFieldContextOption`
+- `CustomFieldContextProjectMapping`
+- `CustomFieldContextSingleUserPickerDefaults`
+- `CustomFieldContextUpdateDetails`
+- `CustomFieldCreatedContextOptionsList`
+- `CustomFieldDefinitionJsonBean`
+- `CustomFieldOption`
+- `CustomFieldOptionCreate`
+- `CustomFieldOptionUpdate`
+- `CustomFieldPayload`
+- `CustomFieldReplacement`
+- `CustomFieldUpdatedContextOptionsList`
+- `CustomFieldValueUpdate`
+- `CustomFieldValueUpdateDetails`
+- `CustomTemplateOptions`
+- `CustomTemplateRequestDTO`
+- `CustomTemplatesProjectDetails`
+- `Dashboard`
+- `DashboardDetails`
+- `DashboardGadget`
+- `DashboardGadgetPosition`
+- `DashboardGadgetResponse`
+- `DashboardGadgetSettings`
+- `DashboardGadgetUpdateRequest`
+- `DataClassificationLevelsBean`
+- `DataClassificationTagBean`
+- `DateRangeFilterRequest`
+- `DefaultLevelValue`
+- `DefaultShareScope`
+- `DefaultWorkflow`
+- `DefaultWorkflowEditorResponse`
+- `DeleteAndReplaceVersionBean`
+- `DeleteFieldAssociationSchemeResponse`
+- `DetailedErrorCollection`
+- `DocumentVersion`
+- `DuplicatePlanRequest`
+- `EditTemplateRequest`
+- `EntityProperty`
+- `EntityPropertyDetails`
+- `Error`
+- `ErrorCollection`
+- `ErrorCollections`
+- `ErrorMessage`
+- `Errors`
+- `EventNotification`
+- `ExpandPrioritySchemeBean`
+- `ExpandPrioritySchemePage`
+- `ExportArchivedIssuesTaskProgressResponse`
+- `FailedWebhook`
+- `FailedWebhooks`
+- `Field`
+- `FieldAssociationItemPayload`
+- `FieldAssociationParameters`
+- `FieldAssociationSchemeFieldSearchResult`
+- `FieldAssociationSchemeLinks`
+- `FieldAssociationSchemeLinksBean`
+- `FieldAssociationSchemeMatchedFilters`
+- `FieldAssociationSchemeProjectSearchResult`
+- `FieldAssociationsRequest`
+- `FieldCapabilityPayload`
+- `FieldChangedClause`
+- `FieldConfiguration`
+- `FieldConfigurationDetails`
+- `FieldConfigurationIssueTypeItem`
+- `FieldConfigurationItem`
+- `FieldConfigurationItemsDetails`
+- `FieldConfigurationScheme`
+- `FieldConfigurationSchemeProjectAssociation`
+- `FieldConfigurationSchemeProjects`
+- `FieldConfigurationToIssueTypeMapping`
+- `FieldCreateMetadata`
+- `FieldDetails`
+- `FieldIdentifierObject`
+- `FieldIdIdentifier`
+- `FieldLastUsed`
+- `FieldLayoutConfiguration`
+- `FieldLayoutPayload`
+- `FieldLayoutSchemePayload`
+- `FieldMetadata`
+- `FieldProjectAssociation`
+- `FieldReferenceData`
+- `fields`
+- `Fields`
+- `FieldSchemePayload`
+- `FieldSchemeToFieldsPartialFailure`
+- `FieldSchemeToFieldsResponse`
+- `FieldSchemeToProjectsPartialFailure`
+- `FieldSchemeToProjectsRequest`
+- `FieldSchemeToProjectsResponse`
+- `FieldsSchemeItemParameter`
+- `FieldsSchemeItemWorkTypeParameter`
+- `FieldUpdateOperation`
+- `FieldValueClause`
+- `FieldWasClause`
+- `Filter`
+- `FilterDetails`
+- `FilterSubscription`
+- `FilterSubscriptionsList`
+- `ForgePanelProjectPinAsyncResponse`
+- `ForgePanelProjectPinRequest`
+- `FoundGroup`
+- `FoundGroups`
+- `FoundUsers`
+- `FoundUsersAndGroups`
+- `FromLayoutPayload`
+- `FunctionOperand`
+- `FunctionReferenceData`
+- `GetAtlassianTeamResponse`
+- `GetCrossProjectReleaseResponse`
+- `GetCustomFieldResponse`
+- `GetDateFieldResponse`
+- `GetExclusionRulesResponse`
+- `GetFieldAssociationParametersResponse`
+- `GetFieldAssociationSchemeByIdResponse`
+- `GetFieldAssociationSchemeResponse`
+- `GetIssueSourceResponse`
+- `GetPermissionHolderResponse`
+- `GetPermissionResponse`
+- `GetPlanOnlyTeamResponse`
+- `GetPlanResponse`
+- `GetPlanResponseForPage`
+- `GetProjectsWithFieldSchemesResponse`
+- `GetSchedulingResponse`
+- `GetTeamResponseForPage`
+- `GlobalScopeBean`
+- `Group`
+- `GroupDetails`
+- `GroupLabel`
+- `GroupName`
+- `HealthCheckResult`
+- `Hierarchy`
+- `HistoryMetadata`
+- `HistoryMetadataParticipant`
+- `Icon`
+- `IconBean`
+- `IdBean`
+- `IdOrKeyBean`
+- `IncludedFields`
+- `InputStreamSource`
+- `IssueArchivalSyncRequest`
+- `IssueArchivalSyncResponse`
+- `IssueBean`
+- `IssueBulkDeletePayload`
+- `IssueBulkEditField`
+- `IssueBulkEditPayload`
+- `IssueBulkMovePayload`
+- `IssueBulkOperationsFieldOption`
+- `IssueBulkTransitionForWorkflow`
+- `IssueBulkTransitionPayload`
+- `IssueBulkWatchOrUnwatchPayload`
+- `IssueChangeLog`
+- `IssueChangelogIds`
+- `IssueCommentListRequestBean`
+- `IssueContextVariable`
+- `IssueCreateMetadata`
+- `IssueEntityProperties`
+- `IssueEntityPropertiesForMultiUpdate`
+- `IssueError`
+- `IssueEvent`
+- `IssueFieldOption`
+- `IssueFieldOptionConfiguration`
+- `IssueFieldOptionCreateBean`
+- `IssueFieldOptionScopeBean`
+- `IssueFilterForBulkPropertyDelete`
+- `IssueFilterForBulkPropertySet`
+- `IssueLayoutItemPayload`
+- `IssueLayoutPayload`
+- `IssueLimitReportResponseBean`
+- `IssueLink`
+- `IssueLinkType`
+- `IssueLinkTypes`
+- `IssueList`
+- `IssueMatches`
+- `IssueMatchesForJQL`
+- `IssuePickerSuggestions`
+- `IssuePickerSuggestionsIssueType`
+- `IssuesAndJQLQueries`
+- `IssueSecurityLevelMember`
+- `IssueSecuritySchemeToProjectMapping`
+- `IssuesJqlMetaDataBean`
+- `IssuesMetaBean`
+- `IssuesUpdateBean`
+- `IssueTransition`
+- `IssueTransitionStatus`
+- `IssueTypeCreateBean`
+- `IssueTypeDetails`
+- `IssueTypeHierarchyPayload`
+- `IssueTypeIds`
+- `IssueTypeIdsToRemove`
+- `IssueTypeInfo`
+- `IssueTypeIssueCreateMetadata`
+- `IssueTypePayload`
+- `IssueTypeProjectCreatePayload`
+- `IssueTypeScheme`
+- `IssueTypeSchemeDetails`
+- `IssueTypeSchemeID`
+- `IssueTypeSchemeMapping`
+- `IssueTypeSchemePayload`
+- `IssueTypeSchemeProjectAssociation`
+- `IssueTypeSchemeProjects`
+- `IssueTypeSchemeUpdateDetails`
+- `IssueTypeScreenScheme`
+- `IssueTypeScreenSchemeDetails`
+- `IssueTypeScreenSchemeId`
+- `IssueTypeScreenSchemeItem`
+- `IssueTypeScreenSchemeMapping`
+- `IssueTypeScreenSchemeMappingDetails`
+- `IssueTypeScreenSchemePayload`
+- `IssueTypeScreenSchemeProjectAssociation`
+- `IssueTypeScreenSchemesProjects`
+- `IssueTypeScreenSchemeUpdateDetails`
+- `IssueTypesWorkflowMapping`
+- `IssueTypeToContextMapping`
+- `IssueTypeUpdateBean`
+- `IssueTypeWithStatus`
+- `IssueTypeWorkflowMapping`
+- `IssueUpdateDetails`
+- `IssueUpdateMetadata`
+- `JexpEvaluateCtxIssues`
+- `JexpEvaluateCtxJqlIssues`
+- `JExpEvaluateIssuesJqlMetaDataBean`
+- `JExpEvaluateIssuesMetaBean`
+- `JExpEvaluateJiraExpressionResultBean`
+- `JExpEvaluateMetaDataBean`
+- `JexpIssues`
+- `JexpJqlIssues`
+- `JiraCascadingSelectField`
+- `JiraColorField`
+- `JiraColorInput`
+- `JiraComponentField`
+- `JiraDateField`
+- `JiraDateInput`
+- `JiraDateTimeField`
+- `JiraDateTimeInput`
+- `JiraDurationField`
+- `JiraExpressionAnalysis`
+- `JiraExpressionComplexity`
+- `JiraExpressionEvalContextBean`
+- `JiraExpressionEvalRequestBean`
+- `JiraExpressionEvaluateContextBean`
+- `JiraExpressionEvaluateRequestBean`
+- `JiraExpressionEvaluationMetaDataBean`
+- `JiraExpressionForAnalysis`
+- `JiraExpressionResult`
+- `JiraExpressionsAnalysis`
+- `JiraExpressionsComplexityBean`
+- `JiraExpressionsComplexityValueBean`
+- `JiraExpressionValidationError`
+- `JiraGroupInput`
+- `JiraIssueFields`
+- `JiraIssueTypeField`
+- `JiraLabelPropertiesInputJackson1`
+- `JiraLabelsField`
+- `JiraLabelsInput`
+- `JiraMultipleGroupPickerField`
+- `JiraMultipleSelectField`
+- `JiraMultipleSelectUserPickerField`
+- `JiraMultipleVersionPickerField`
+- `JiraMultiSelectComponentField`
+- `JiraNumberField`
+- `JiraPriorityField`
+- `JiraRichTextField`
+- `JiraRichTextInput`
+- `JiraSelectedOptionField`
+- `JiraSingleGroupPickerField`
+- `JiraSingleLineTextField`
+- `JiraSingleSelectField`
+- `JiraSingleSelectUserPickerField`
+- `JiraSingleVersionPickerField`
+- `JiraStatus`
+- `JiraStatusInput`
+- `JiraTimeTrackingField`
+- `JiraUrlField`
+- `JiraUserField`
+- `JiraVersionField`
+- `JiraWorkflow`
+- `JiraWorkflowPreviewStatus`
+- `JiraWorkflowStatus`
+- `JQLCountRequestBean`
+- `JQLCountResultsBean`
+- `JqlFunctionPrecomputationBean`
+- `JqlFunctionPrecomputationGetByIdRequest`
+- `JqlFunctionPrecomputationGetByIdResponse`
+- `JqlFunctionPrecomputationUpdateBean`
+- `JqlFunctionPrecomputationUpdateErrorResponse`
+- `JqlFunctionPrecomputationUpdateRequestBean`
+- `JqlFunctionPrecomputationUpdateResponse`
+- `JQLPersonalDataMigrationRequest`
+- `JqlQueriesToParse`
+- `JqlQueriesToSanitize`
+- `JqlQuery`
+- `JqlQueryClause`
+- `JqlQueryClauseOperand`
+- `JqlQueryClauseTimePredicate`
+- `JqlQueryField`
+- `JqlQueryFieldEntityProperty`
+- `JqlQueryOrderByClause`
+- `JqlQueryOrderByClauseElement`
+- `JqlQueryToSanitize`
+- `JqlQueryUnitaryOperand`
+- `JQLQueryWithUnknownUsers`
+- `JQLReferenceData`
+- `JsonContextVariable`
+- `JsonNode`
+- `JsonTypeBean`
+- `KeywordOperand`
+- `LegacyJackson1ListAttachment`
+- `LegacyJackson1ListColumnItem`
+- `LegacyJackson1ListIssueEvent`
+- `LegacyJackson1ListIssueTypeWithStatus`
+- `LegacyJackson1ListProject`
+- `LegacyJackson1ListProjectComponent`
+- `LegacyJackson1ListProjectRoleDetails`
+- `LegacyJackson1ListProjectType`
+- `LegacyJackson1ListUserMigrationBean`
+- `LegacyJackson1ListVersion`
+- `LegacyJackson1ListWorklog`
+- `License`
+- `LicensedApplication`
+- `LicenseMetric`
+- `LimitDetailsBean`
+- `LinkedIssue`
+- `LinkGroup`
+- `LinkIssueRequestJsonBean`
+- `ListOperand`
+- `ListWrapperCallbackApplicationRole`
+- `ListWrapperCallbackGroupName`
+- `Locale`
+- `MandatoryFieldValue`
+- `MandatoryFieldValueForADF`
+- `MappingsByIssueTypeOverride`
+- `MappingsByWorkflow`
+- `MinimalFieldSchemeToFieldsPartialFailure`
+- `MinimalFieldSchemeToFieldsResponse`
+- `MoveFieldBean`
+- `MultiIssueEntityProperties`
+- `MultipartFile`
+- `MultipleCustomFieldValuesUpdate`
+- `MultipleCustomFieldValuesUpdateDetails`
+- `NestedResponse`
+- `NewUserDetails`
+- `NonWorkingDay`
+- `Notification`
+- `NotificationEvent`
+- `NotificationRecipients`
+- `NotificationRecipientsRestrictions`
+- `NotificationScheme`
+- `NotificationSchemeAndProjectMappingJsonBean`
+- `NotificationSchemeEvent`
+- `NotificationSchemeEventDetails`
+- `NotificationSchemeEventIDPayload`
+- `NotificationSchemeEventPayload`
+- `NotificationSchemeEventTypeId`
+- `NotificationSchemeId`
+- `NotificationSchemeNotificationDetails`
+- `NotificationSchemeNotificationDetailsPayload`
+- `NotificationSchemePayload`
+- `OldToNewSecurityLevelMappingsBean`
+- `OperationMessage`
+- `Operations`
+- `OrderOfCustomFieldOptions`
+- `OrderOfIssueTypes`
+- `PageBean2ComponentJsonBean`
+- `PageBean2FieldAssociationSchemeFieldSearchResult`
+- `PageBean2FieldAssociationSchemeProjectSearchResult`
+- `PageBean2GetFieldAssociationSchemeResponse`
+- `PageBean2GetProjectsWithFieldSchemesResponse`
+- `PageBean2JqlFunctionPrecomputationBean`
+- `PageBean2ProjectFieldBean`
+- `PageBeanBulkContextualConfiguration`
+- `PageBeanChangelog`
+- `PageBeanComment`
+- `PageBeanComponentWithIssueCount`
+- `PageBeanContext`
+- `PageBeanContextForProjectAndIssueType`
+- `PageBeanContextualConfiguration`
+- `PageBeanCustomFieldContext`
+- `PageBeanCustomFieldContextDefaultValue`
+- `PageBeanCustomFieldContextOption`
+- `PageBeanCustomFieldContextProjectMapping`
+- `PageBeanDashboard`
+- `PageBeanField`
+- `PageBeanFieldConfigurationDetails`
+- `PageBeanFieldConfigurationIssueTypeItem`
+- `PageBeanFieldConfigurationItem`
+- `PageBeanFieldConfigurationScheme`
+- `PageBeanFieldConfigurationSchemeProjects`
+- `PageBeanFieldProjectAssociation`
+- `PageBeanFilterDetails`
+- `PageBeanGroupDetails`
+- `PageBeanIssueFieldOption`
+- `PageBeanIssueSecurityLevelMember`
+- `PageBeanIssueSecuritySchemeToProjectMapping`
+- `PageBeanIssueTypeScheme`
+- `PageBeanIssueTypeSchemeMapping`
+- `PageBeanIssueTypeSchemeProjects`
+- `PageBeanIssueTypeScreenScheme`
+- `PageBeanIssueTypeScreenSchemeItem`
+- `PageBeanIssueTypeScreenSchemesProjects`
+- `PageBeanIssueTypeToContextMapping`
+- `PageBeanNotificationScheme`
+- `PageBeanNotificationSchemeAndProjectMappingJsonBean`
+- `PageBeanPriority`
+- `PageBeanPrioritySchemeWithPaginatedPrioritiesAndProjects`
+- `PageBeanPriorityWithSequence`
+- `PageBeanProject`
+- `PageBeanProjectDetails`
+- `PageBeanResolutionJsonBean`
+- `PageBeanScreen`
+- `PageBeanScreenScheme`
+- `PageBeanScreenWithTab`
+- `PageBeanSecurityLevel`
+- `PageBeanSecurityLevelMember`
+- `PageBeanSecuritySchemeWithProjects`
+- `PageBeanString`
+- `PageBeanUiModificationDetails`
+- `PageBeanUser`
+- `PageBeanUserDetails`
+- `PageBeanUserKey`
+- `PageBeanVersion`
+- `PageBeanWebhook`
+- `PageBeanWorkflow`
+- `PageBeanWorkflowScheme`
+- `PageBeanWorkflowTransitionRules`
+- `PagedListUserDetailsApplicationUser`
+- `PageOfChangelogs`
+- `PageOfComments`
+- `PageOfCreateMetaIssueTypes`
+- `PageOfCreateMetaIssueTypeWithField`
+- `PageOfDashboards`
+- `PageOfStatuses`
+- `PageOfWorklogs`
+- `PageWithCursorGetPlanResponseForPage`
+- `PageWithCursorGetTeamResponseForPage`
+- `PaginatedResponseComment`
+- `PaginatedResponseFieldCreateMetadata`
+- `PaginatedResponseIssueTypeIssueCreateMetadata`
+- `ParameterRemovalDetails`
+- `ParsedJqlQueries`
+- `ParsedJqlQuery`
+- `PermissionDetails`
+- `PermissionGrant`
+- `PermissionGrantDTO`
+- `PermissionGrants`
+- `PermissionHolder`
+- `PermissionPayloadDTO`
+- `Permissions`
+- `PermissionScheme`
+- `PermissionSchemes`
+- `PermissionsKeysBean`
+- `PermittedProjects`
+- `PreviewConditionGroupConfiguration`
+- `PreviewRuleConfiguration`
+- `PreviewTrigger`
+- `Priority`
+- `PriorityId`
+- `PriorityMapping`
+- `PrioritySchemeChangesWithoutMappings`
+- `PrioritySchemeId`
+- `PrioritySchemeWithPaginatedPrioritiesAndProjects`
+- `PriorityWithSequence`
+- `Project`
+- `ProjectAndIssueTypePair`
+- `ProjectArchetype`
+- `ProjectAvatars`
+- `ProjectCategory`
+- `ProjectComponent`
+- `ProjectCreateResourceIdentifier`
+- `ProjectCustomTemplateCreateRequestDTO`
+- `ProjectDataPolicies`
+- `ProjectDataPolicy`
+- `ProjectDetails`
+- `ProjectEmailAddress`
+- `ProjectFeature`
+- `ProjectFeatureState`
+- `ProjectFieldBean`
+- `ProjectId`
+- `ProjectIdAssociationContext`
+- `ProjectIdentifierBean`
+- `ProjectIdentifiers`
+- `ProjectIds`
+- `ProjectInsight`
+- `ProjectIssueCreateMetadata`
+- `ProjectIssueSecurityLevels`
+- `ProjectIssueTypeHierarchy`
+- `ProjectIssueTypeMapping`
+- `ProjectIssueTypeMappings`
+- `ProjectIssueTypeQueryContext`
+- `ProjectIssueTypesHierarchyLevel`
+- `ProjectLandingPageInfo`
+- `ProjectPayload`
+- `ProjectPermissions`
+- `ProjectPinAction`
+- `ProjectRole`
+- `ProjectRoleActorsUpdateBean`
+- `ProjectRoleDetails`
+- `ProjectRoleGroup`
+- `ProjectRoleUser`
+- `ProjectScopeBean`
+- `ProjectTemplateKey`
+- `ProjectTemplateModel`
+- `ProjectType`
+- `ProjectUsage`
+- `ProjectUsagePage`
+- `ProjectWithDataPolicy`
+- `PropertyKey`
+- `PropertyKeys`
+- `PublishDraftWorkflowScheme`
+- `PublishedWorkflowId`
+- `QuickFilterPayload`
+- `RedactionJobStatusResponse`
+- `RedactionPosition`
+- `RegisteredWebhook`
+- `RemoteIssueLink`
+- `RemoteIssueLinkIdentifies`
+- `RemoteIssueLinkRequest`
+- `RemoteObject`
+- `RemoveFieldAssociationsRequestItem`
+- `RemoveFieldParametersResult`
+- `RemoveFieldParametersResultError`
+- `RemoveOptionFromIssuesResult`
+- `ReorderIssuePriorities`
+- `ReorderIssueResolutionsRequest`
+- `RequiredMappingByIssueType`
+- `RequiredMappingByWorkflows`
+- `Resolution`
+- `ResolutionId`
+- `ResolutionJsonBean`
+- `Resource`
+- `RestrictedPermission`
+- `RichText`
+- `RoleActor`
+- `RolePayload`
+- `RolesCapabilityPayload`
+- `RuleConfiguration`
+- `RulePayload`
+- `SanitizedJqlQueries`
+- `SanitizedJqlQuery`
+- `SaveProjectTemplateRequest`
+- `SaveTemplateRequest`
+- `SaveTemplateResponse`
+- `Scope`
+- `ScopePayload`
+- `Screen`
+- `ScreenableField`
+- `ScreenableTab`
+- `ScreenDetails`
+- `ScreenPayload`
+- `ScreenScheme`
+- `ScreenSchemeDetails`
+- `ScreenSchemeId`
+- `ScreenSchemePayload`
+- `ScreenTypes`
+- `ScreenWithTab`
+- `SearchAndReconcileRequestBean`
+- `SearchAndReconcileResults`
+- `SearchAutoCompleteFilter`
+- `SearchRequestBean`
+- `SearchResultFieldParameters`
+- `SearchResults`
+- `SearchResultWorkTypeParameters`
+- `SearchWarningBean`
+- `SecurityLevel`
+- `SecurityLevelMember`
+- `SecurityLevelMemberPayload`
+- `SecurityLevelPayload`
+- `SecurityScheme`
+- `SecuritySchemeId`
+- `SecuritySchemeLevelBean`
+- `SecuritySchemeLevelMemberBean`
+- `SecuritySchemeMembersRequest`
+- `SecuritySchemePayload`
+- `SecuritySchemes`
+- `SecuritySchemeWithProjects`
+- `ServerInformation`
+- `ServiceManagementNavigationInfo`
+- `ServiceRegistry`
+- `ServiceRegistryTier`
+- `SetDefaultLevelsRequest`
+- `SetDefaultPriorityRequest`
+- `SetDefaultResolutionRequest`
+- `SharePermission`
+- `SharePermissionInputBean`
+- `SimpleApplicationPropertyBean`
+- `SimpleErrorCollection`
+- `SimpleLink`
+- `SimpleListWrapperApplicationRole`
+- `SimpleListWrapperGroupName`
+- `SimplifiedHierarchyLevel`
+- `SimplifiedIssueTransition`
+- `SingleRedactionRequest`
+- `SingleRedactionResponse`
+- `SoftwareNavigationInfo`
+- `Status`
+- `StatusCategory`
+- `StatusCreate`
+- `StatusCreateRequest`
+- `StatusDetails`
+- `StatusesPerWorkflow`
+- `StatusLayoutUpdate`
+- `StatusMapping`
+- `StatusMappingDTO`
+- `StatusMetadata`
+- `StatusMigration`
+- `StatusPayload`
+- `StatusProjectIssueTypeUsage`
+- `StatusProjectIssueTypeUsageDTO`
+- `StatusProjectIssueTypeUsagePage`
+- `StatusProjectUsage`
+- `StatusProjectUsageDTO`
+- `StatusProjectUsagePage`
+- `StatusScope`
+- `StatusUpdate`
+- `StatusUpdateRequest`
+- `StatusWorkflowUsageDTO`
+- `StatusWorkflowUsagePage`
+- `StatusWorkflowUsageWorkflow`
+- `StreamingResponseBody`
+- `StringList`
+- `SubmittedBulkOperation`
+- `SuccessOrErrorResults`
+- `SuggestedIssue`
+- `SuggestedMappingsForPrioritiesRequestBean`
+- `SuggestedMappingsForProjectsRequestBean`
+- `SuggestedMappingsRequestBean`
+- `SwimlanePayload`
+- `SwimlanesPayload`
+- `SystemAvatars`
+- `TabPayload`
+- `targetClassification`
+- `targetMandatoryFields`
+- `targetStatus`
+- `targetToSourcesMapping`
+- `TaskProgress`
+- `TaskProgressBeanJsonNode`
+- `TaskProgressBeanObject`
+- `TaskProgressBeanRemoveOptionFromIssuesResult`
+- `TimeTrackingConfiguration`
+- `TimeTrackingDetails`
+- `TimeTrackingProvider`
+- `ToLayoutPayload`
+- `Transition`
+- `TransitionLink`
+- `TransitionPayload`
+- `TransitionPreview`
+- `Transitions`
+- `TransitionScreenDetails`
+- `TransitionUpdateDTO`
+- `UiModificationContextDetails`
+- `UiModificationDetails`
+- `UiModificationIdentifiers`
+- `UnrestrictedUserEmail`
+- `UpdateCustomFieldDetails`
+- `UpdateDefaultProjectClassificationBean`
+- `UpdateDefaultScreenScheme`
+- `UpdatedProjectCategory`
+- `UpdateFieldAssociationSchemeLinksBean`
+- `UpdateFieldAssociationSchemeRequest`
+- `UpdateFieldAssociationSchemeResponse`
+- `UpdateFieldAssociationsRequestItem`
+- `UpdateFieldConfigurationSchemeDetails`
+- `UpdateFieldSchemeParametersPartialFailure`
+- `UpdateFieldSchemeParametersRequest`
+- `UpdateFieldSchemeParametersResponse`
+- `UpdateIssueSecurityLevelDetails`
+- `UpdateIssueSecuritySchemeRequestBean`
+- `UpdateNotificationSchemeDetails`
+- `UpdatePrioritiesInSchemeRequestBean`
+- `UpdatePriorityDetails`
+- `UpdatePrioritySchemeRequestBean`
+- `UpdatePrioritySchemeResponseBean`
+- `UpdateProjectDetails`
+- `UpdateProjectsInSchemeRequestBean`
+- `UpdateResolutionDetails`
+- `UpdateScreenDetails`
+- `UpdateScreenSchemeDetails`
+- `UpdateScreenTypes`
+- `UpdateUiModificationDetails`
+- `UpdateUserToGroupBean`
+- `User`
+- `UserBean`
+- `UserBeanAvatarUrls`
+- `UserColumnRequestBody`
+- `UserContextVariable`
+- `UserDetails`
+- `UserFilter`
+- `UserKey`
+- `UserList`
+- `UserMigrationBean`
+- `UserPermission`
+- `UserPickerUser`
+- `ValidationOptionsForCreate`
+- `ValidationOptionsForUpdate`
+- `ValueOperand`
+- `Version`
+- `VersionApprover`
+- `VersionIssueCounts`
+- `VersionIssuesStatus`
+- `VersionMoveBean`
+- `VersionRelatedWork`
+- `VersionUnresolvedIssuesCount`
+- `VersionUsageInCustomField`
+- `Visibility`
+- `Votes`
+- `WarningCollection`
+- `Watchers`
+- `Webhook`
+- `WebhookDetails`
+- `WebhookRegistrationDetails`
+- `WebhooksExpirationDate`
+- `Workflow`
+- `WorkflowAssociationStatusMapping`
+- `WorkflowCapabilities`
+- `WorkflowCapabilityPayload`
+- `WorkflowCompoundCondition`
+- `WorkflowCondition`
+- `WorkflowCreate`
+- `WorkflowCreateRequest`
+- `WorkflowCreateResponse`
+- `WorkflowCreateValidateRequest`
+- `WorkflowDocumentDTO`
+- `WorkflowDocumentStatusDTO`
+- `WorkflowDocumentVersionBean`
+- `WorkflowElementReference`
+- `WorkflowHistoryItemDTO`
+- `WorkflowHistoryListRequest`
+- `WorkflowHistoryListResponseDTO`
+- `WorkflowHistoryReadRequest`
+- `WorkflowHistoryReadResponseDTO`
+- `WorkflowId`
+- `WorkflowLayout`
+- `WorkflowMetadataAndIssueTypeRestModel`
+- `WorkflowMetadataRestModel`
+- `WorkflowOperations`
+- `WorkflowPayload`
+- `WorkflowPreview`
+- `WorkflowPreviewLayout`
+- `WorkflowPreviewRequest`
+- `WorkflowPreviewResponse`
+- `WorkflowPreviewScope`
+- `WorkflowPreviewStatus`
+- `WorkflowProjectIdScope`
+- `WorkflowProjectIssueTypeUsage`
+- `WorkflowProjectIssueTypeUsageDTO`
+- `WorkflowProjectIssueTypeUsagePage`
+- `WorkflowProjectUsageDTO`
+- `WorkflowReadRequest`
+- `WorkflowReadResponse`
+- `WorkflowReferenceStatus`
+- `WorkflowRuleConfiguration`
+- `WorkflowRules`
+- `WorkflowRulesSearch`
+- `WorkflowRulesSearchDetails`
+- `WorkflowScheme`
+- `WorkflowSchemeAssociation`
+- `WorkflowSchemeAssociations`
+- `WorkflowSchemeIdName`
+- `WorkflowSchemePayload`
+- `WorkflowSchemeProjectAssociation`
+- `WorkflowSchemeProjectSwitchBean`
+- `WorkflowSchemeProjectUsageDTO`
+- `WorkflowSchemeReadRequest`
+- `WorkflowSchemeReadResponse`
+- `WorkflowSchemeUpdateRequest`
+- `WorkflowSchemeUpdateRequiredMappingsRequest`
+- `WorkflowSchemeUpdateRequiredMappingsResponse`
+- `WorkflowSchemeUsage`
+- `WorkflowSchemeUsageDTO`
+- `WorkflowSchemeUsagePage`
+- `WorkflowScope`
+- `WorkflowSearchResponse`
+- `WorkflowSimpleCondition`
+- `WorkflowStatus`
+- `WorkflowStatusLayout`
+- `WorkflowStatusLayoutPayload`
+- `WorkflowStatusPayload`
+- `WorkflowStatusUpdate`
+- `WorkflowsWithTransitionRulesDetails`
+- `WorkflowTransition`
+- `WorkflowTransitionLinks`
+- `WorkflowTransitionProperty`
+- `WorkflowTransitionRule`
+- `WorkflowTransitionRules`
+- `WorkflowTransitionRulesDetails`
+- `WorkflowTransitionRulesUpdate`
+- `WorkflowTransitionRulesUpdateErrorDetails`
+- `WorkflowTransitionRulesUpdateErrors`
+- `WorkflowTransitions`
+- `WorkflowTrigger`
+- `WorkflowUpdate`
+- `WorkflowUpdateRequest`
+- `WorkflowUpdateResponse`
+- `WorkflowUpdateValidateRequestBean`
+- `WorkflowValidationError`
+- `WorkflowValidationErrorList`
+- `WorkingDaysConfig`
+- `Worklog`
+- `WorklogCompositeKey`
+- `WorklogIdsRequestBean`
+- `WorklogKeyResult`
+- `WorklogsMoveRequestBean`
+- `WorkManagementNavigationInfo`
+- `WorkspaceDataPolicy`
+- `WorkTypeParameters`

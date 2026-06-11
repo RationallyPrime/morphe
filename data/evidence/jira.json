@@ -1,0 +1,7674 @@
+{
+	"system": "jira",
+	"label": "Jira (Cloud platform v3)",
+	"specVersion": "3.0.1",
+	"source": "/home/rationallyprime/projects/morphe/data/specs/jira-platform-swagger-v3.json",
+	"operationCount": 619,
+	"modelCount": 968,
+	"operations": [
+		{
+			"operationId": "getBanner",
+			"method": "GET",
+			"path": "/rest/api/3/announcementBanner",
+			"summary": "Get announcement banner configuration",
+			"tags": [
+				"Announcement banner"
+			],
+			"direction": "read",
+			"model": "AnnouncementBannerConfiguration"
+		},
+		{
+			"operationId": "setBanner",
+			"method": "PUT",
+			"path": "/rest/api/3/announcementBanner",
+			"summary": "Update announcement banner configuration",
+			"tags": [
+				"Announcement banner"
+			],
+			"direction": "write",
+			"model": "AnnouncementBannerConfigurationUpdate"
+		},
+		{
+			"operationId": "getPolicy",
+			"method": "GET",
+			"path": "/rest/api/3/data-policy",
+			"summary": "Get data policy for the workspace",
+			"tags": [
+				"App data policies"
+			],
+			"direction": "read",
+			"model": "WorkspaceDataPolicy"
+		},
+		{
+			"operationId": "getPolicies",
+			"method": "GET",
+			"path": "/rest/api/3/data-policy/project",
+			"summary": "Get data policy for projects",
+			"tags": [
+				"App data policies"
+			],
+			"direction": "read",
+			"model": "ProjectDataPolicies"
+		},
+		{
+			"operationId": "AppIssueFieldValueUpdateResource.updateIssueFields_put",
+			"method": "PUT",
+			"path": "/rest/atlassian-connect/1/migration/field",
+			"summary": "Bulk update custom field value",
+			"tags": [
+				"App migration"
+			],
+			"direction": "write",
+			"model": "ConnectCustomFieldValues"
+		},
+		{
+			"operationId": "MigrationResource.updateEntityPropertiesValue_put",
+			"method": "PUT",
+			"path": "/rest/atlassian-connect/1/migration/properties/{entityType}",
+			"summary": "Bulk update entity properties",
+			"tags": [
+				"App migration"
+			],
+			"direction": "write",
+			"model": "EntityPropertyDetails"
+		},
+		{
+			"operationId": "MigrationResource.workflowRuleSearch_post",
+			"method": "POST",
+			"path": "/rest/atlassian-connect/1/migration/workflow/rule/search",
+			"summary": "Get workflow transition rule configurations",
+			"tags": [
+				"App migration"
+			],
+			"direction": "write",
+			"model": "WorkflowRulesSearchDetails"
+		},
+		{
+			"operationId": "AddonPropertiesResource.getAddonProperties_get",
+			"method": "GET",
+			"path": "/rest/atlassian-connect/1/addons/{addonKey}/properties",
+			"summary": "Get app properties",
+			"tags": [
+				"App properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "AddonPropertiesResource.deleteAddonProperty_delete",
+			"method": "DELETE",
+			"path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+			"summary": "Delete app property",
+			"tags": [
+				"App properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "AddonPropertiesResource.getAddonProperty_get",
+			"method": "GET",
+			"path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+			"summary": "Get app property",
+			"tags": [
+				"App properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "AddonPropertiesResource.putAddonProperty_put",
+			"method": "PUT",
+			"path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+			"summary": "Set app property",
+			"tags": [
+				"App properties"
+			],
+			"direction": "write",
+			"model": "OperationMessage"
+		},
+		{
+			"operationId": "getForgeAppPropertyKeys",
+			"method": "GET",
+			"path": "/rest/forge/1/app/properties",
+			"summary": "Get app property keys (Forge)",
+			"tags": [
+				"App properties"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "deleteForgeAppProperty",
+			"method": "DELETE",
+			"path": "/rest/forge/1/app/properties/{propertyKey}",
+			"summary": "Delete app property (Forge)",
+			"tags": [
+				"App properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getForgeAppProperty",
+			"method": "GET",
+			"path": "/rest/forge/1/app/properties/{propertyKey}",
+			"summary": "Get app property (Forge)",
+			"tags": [
+				"App properties"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "putForgeAppProperty",
+			"method": "PUT",
+			"path": "/rest/forge/1/app/properties/{propertyKey}",
+			"summary": "Set app property (Forge)",
+			"tags": [
+				"App properties"
+			],
+			"direction": "write",
+			"model": "OperationMessage"
+		},
+		{
+			"operationId": "getAllApplicationRoles",
+			"method": "GET",
+			"path": "/rest/api/3/applicationrole",
+			"summary": "Get all application roles",
+			"tags": [
+				"Application roles"
+			],
+			"direction": "read",
+			"model": "ApplicationRole"
+		},
+		{
+			"operationId": "getApplicationRole",
+			"method": "GET",
+			"path": "/rest/api/3/applicationrole/{key}",
+			"summary": "Get application role",
+			"tags": [
+				"Application roles"
+			],
+			"direction": "read",
+			"model": "ApplicationRole"
+		},
+		{
+			"operationId": "getAuditRecords",
+			"method": "GET",
+			"path": "/rest/api/3/auditing/record",
+			"summary": "Get audit records",
+			"tags": [
+				"Audit records"
+			],
+			"direction": "read",
+			"model": "AuditRecords"
+		},
+		{
+			"operationId": "getAllSystemAvatars",
+			"method": "GET",
+			"path": "/rest/api/3/avatar/{type}/system",
+			"summary": "Get system avatars by type",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "read",
+			"model": "SystemAvatars"
+		},
+		{
+			"operationId": "getAvatars",
+			"method": "GET",
+			"path": "/rest/api/3/universal_avatar/type/{type}/owner/{entityId}",
+			"summary": "Get avatars",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "read",
+			"model": "Avatars"
+		},
+		{
+			"operationId": "storeAvatar",
+			"method": "POST",
+			"path": "/rest/api/3/universal_avatar/type/{type}/owner/{entityId}",
+			"summary": "Load avatar",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "write",
+			"model": "Avatar"
+		},
+		{
+			"operationId": "deleteAvatar",
+			"method": "DELETE",
+			"path": "/rest/api/3/universal_avatar/type/{type}/owner/{owningObjectId}/avatar/{id}",
+			"summary": "Delete avatar",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAvatarImageByType",
+			"method": "GET",
+			"path": "/rest/api/3/universal_avatar/view/type/{type}",
+			"summary": "Get avatar image by type",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "read",
+			"model": "StreamingResponseBody"
+		},
+		{
+			"operationId": "getAvatarImageByID",
+			"method": "GET",
+			"path": "/rest/api/3/universal_avatar/view/type/{type}/avatar/{id}",
+			"summary": "Get avatar image by ID",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "read",
+			"model": "StreamingResponseBody"
+		},
+		{
+			"operationId": "getAvatarImageByOwner",
+			"method": "GET",
+			"path": "/rest/api/3/universal_avatar/view/type/{type}/owner/{entityId}",
+			"summary": "Get avatar image by owner",
+			"tags": [
+				"Avatars"
+			],
+			"direction": "read",
+			"model": "StreamingResponseBody"
+		},
+		{
+			"operationId": "getAllUserDataClassificationLevels",
+			"method": "GET",
+			"path": "/rest/api/3/classification-levels",
+			"summary": "Get all classification levels",
+			"tags": [
+				"Classification levels"
+			],
+			"direction": "read",
+			"model": "DataClassificationLevelsBean"
+		},
+		{
+			"operationId": "getAllDashboards",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard",
+			"summary": "Get all dashboards",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "PageOfDashboards"
+		},
+		{
+			"operationId": "createDashboard",
+			"method": "POST",
+			"path": "/rest/api/3/dashboard",
+			"summary": "Create dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "Dashboard"
+		},
+		{
+			"operationId": "getAllGadgets",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/{dashboardId}/gadget",
+			"summary": "Get gadgets",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "DashboardGadgetResponse"
+		},
+		{
+			"operationId": "addGadget",
+			"method": "POST",
+			"path": "/rest/api/3/dashboard/{dashboardId}/gadget",
+			"summary": "Add gadget to dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "DashboardGadget"
+		},
+		{
+			"operationId": "removeGadget",
+			"method": "DELETE",
+			"path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}",
+			"summary": "Remove gadget from dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateGadget",
+			"method": "PUT",
+			"path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}",
+			"summary": "Update gadget on dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "DashboardGadgetUpdateRequest"
+		},
+		{
+			"operationId": "getDashboardItemPropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties",
+			"summary": "Get dashboard item property keys",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteDashboardItemProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+			"summary": "Delete dashboard item property",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDashboardItemProperty",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+			"summary": "Get dashboard item property",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setDashboardItemProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+			"summary": "Set dashboard item property",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "deleteDashboard",
+			"method": "DELETE",
+			"path": "/rest/api/3/dashboard/{id}",
+			"summary": "Delete dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDashboard",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/{id}",
+			"summary": "Get dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "Dashboard"
+		},
+		{
+			"operationId": "updateDashboard",
+			"method": "PUT",
+			"path": "/rest/api/3/dashboard/{id}",
+			"summary": "Update dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "Dashboard"
+		},
+		{
+			"operationId": "copyDashboard",
+			"method": "POST",
+			"path": "/rest/api/3/dashboard/{id}/copy",
+			"summary": "Copy dashboard",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "Dashboard"
+		},
+		{
+			"operationId": "bulkEditDashboards",
+			"method": "PUT",
+			"path": "/rest/api/3/dashboard/bulk/edit",
+			"summary": "Bulk edit dashboards",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "write",
+			"model": "BulkEditShareableEntityResponse"
+		},
+		{
+			"operationId": "getAllAvailableDashboardGadgets",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/gadgets",
+			"summary": "Get available gadgets",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "AvailableDashboardGadgetsResponse"
+		},
+		{
+			"operationId": "getDashboardsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/dashboard/search",
+			"summary": "Search for dashboards",
+			"tags": [
+				"Dashboards"
+			],
+			"direction": "read",
+			"model": "PageBeanDashboard"
+		},
+		{
+			"operationId": "DynamicModulesResource.removeModules_delete",
+			"method": "DELETE",
+			"path": "/rest/atlassian-connect/1/app/module/dynamic",
+			"summary": "Remove modules",
+			"tags": [
+				"Dynamic modules"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "DynamicModulesResource.getModules_get",
+			"method": "GET",
+			"path": "/rest/atlassian-connect/1/app/module/dynamic",
+			"summary": "Get modules",
+			"tags": [
+				"Dynamic modules"
+			],
+			"direction": "read",
+			"model": "ConnectModules"
+		},
+		{
+			"operationId": "DynamicModulesResource.registerModules_post",
+			"method": "POST",
+			"path": "/rest/atlassian-connect/1/app/module/dynamic",
+			"summary": "Register modules",
+			"tags": [
+				"Dynamic modules"
+			],
+			"direction": "write",
+			"model": "ConnectModules"
+		},
+		{
+			"operationId": "getFieldAssociationSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes",
+			"summary": "Get field schemes",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "PageBean2GetFieldAssociationSchemeResponse"
+		},
+		{
+			"operationId": "createFieldAssociationScheme",
+			"method": "POST",
+			"path": "/rest/api/3/config/fieldschemes",
+			"summary": "Create field scheme",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "CreateFieldAssociationSchemeResponse"
+		},
+		{
+			"operationId": "deleteFieldAssociationScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/config/fieldschemes/{id}",
+			"summary": "Delete a field scheme",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "DeleteFieldAssociationSchemeResponse"
+		},
+		{
+			"operationId": "getFieldAssociationSchemeById",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes/{id}",
+			"summary": "Get field scheme",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "GetFieldAssociationSchemeByIdResponse"
+		},
+		{
+			"operationId": "updateFieldAssociationScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/config/fieldschemes/{id}",
+			"summary": "Update field scheme",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "UpdateFieldAssociationSchemeResponse"
+		},
+		{
+			"operationId": "cloneFieldAssociationScheme",
+			"method": "POST",
+			"path": "/rest/api/3/config/fieldschemes/{id}/clone",
+			"summary": "Clone field scheme",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "CreateFieldAssociationSchemeResponse"
+		},
+		{
+			"operationId": "searchFieldAssociationSchemeFields",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes/{id}/fields",
+			"summary": "Search field scheme fields",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "PageBean2FieldAssociationSchemeFieldSearchResult"
+		},
+		{
+			"operationId": "getFieldAssociationSchemeItemParameters",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes/{id}/fields/{fieldId}/parameters",
+			"summary": "Get field parameters",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "GetFieldAssociationParametersResponse"
+		},
+		{
+			"operationId": "searchFieldAssociationSchemeProjects",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes/{id}/projects",
+			"summary": "Search field scheme projects",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "PageBean2FieldAssociationSchemeProjectSearchResult"
+		},
+		{
+			"operationId": "removeFieldsAssociatedWithSchemes",
+			"method": "DELETE",
+			"path": "/rest/api/3/config/fieldschemes/fields",
+			"summary": "Remove fields associated with field schemes",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "MinimalFieldSchemeToFieldsResponse"
+		},
+		{
+			"operationId": "updateFieldsAssociatedWithSchemes",
+			"method": "PUT",
+			"path": "/rest/api/3/config/fieldschemes/fields",
+			"summary": "Update fields associated with field schemes",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "FieldSchemeToFieldsResponse"
+		},
+		{
+			"operationId": "removeFieldAssociationSchemeItemParameters",
+			"method": "DELETE",
+			"path": "/rest/api/3/config/fieldschemes/fields/parameters",
+			"summary": "Remove field parameters",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "RemoveFieldParametersResult"
+		},
+		{
+			"operationId": "updateFieldAssociationSchemeItemParameters",
+			"method": "PUT",
+			"path": "/rest/api/3/config/fieldschemes/fields/parameters",
+			"summary": "Update field parameters",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "UpdateFieldSchemeParametersResponse"
+		},
+		{
+			"operationId": "getProjectsWithFieldSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/config/fieldschemes/projects",
+			"summary": "Get projects with field schemes",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "read",
+			"model": "PageBean2GetProjectsWithFieldSchemesResponse"
+		},
+		{
+			"operationId": "associateProjectsToFieldAssociationSchemes",
+			"method": "PUT",
+			"path": "/rest/api/3/config/fieldschemes/projects",
+			"summary": "Associate projects to field schemes",
+			"tags": [
+				"Field schemes"
+			],
+			"direction": "write",
+			"model": "FieldSchemeToProjectsResponse"
+		},
+		{
+			"operationId": "getSharePermissions",
+			"method": "GET",
+			"path": "/rest/api/3/filter/{id}/permission",
+			"summary": "Get share permissions",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "read",
+			"model": "SharePermission"
+		},
+		{
+			"operationId": "addSharePermission",
+			"method": "POST",
+			"path": "/rest/api/3/filter/{id}/permission",
+			"summary": "Add share permission",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "write",
+			"model": "SharePermission"
+		},
+		{
+			"operationId": "deleteSharePermission",
+			"method": "DELETE",
+			"path": "/rest/api/3/filter/{id}/permission/{permissionId}",
+			"summary": "Delete share permission",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSharePermission",
+			"method": "GET",
+			"path": "/rest/api/3/filter/{id}/permission/{permissionId}",
+			"summary": "Get share permission",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "read",
+			"model": "SharePermission"
+		},
+		{
+			"operationId": "getDefaultShareScope",
+			"method": "GET",
+			"path": "/rest/api/3/filter/defaultShareScope",
+			"summary": "Get default share scope",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "read",
+			"model": "DefaultShareScope"
+		},
+		{
+			"operationId": "setDefaultShareScope",
+			"method": "PUT",
+			"path": "/rest/api/3/filter/defaultShareScope",
+			"summary": "Set default share scope",
+			"tags": [
+				"Filter sharing"
+			],
+			"direction": "write",
+			"model": "DefaultShareScope"
+		},
+		{
+			"operationId": "createFilter",
+			"method": "POST",
+			"path": "/rest/api/3/filter",
+			"summary": "Create filter",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "Filter"
+		},
+		{
+			"operationId": "deleteFilter",
+			"method": "DELETE",
+			"path": "/rest/api/3/filter/{id}",
+			"summary": "Delete filter",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getFilter",
+			"method": "GET",
+			"path": "/rest/api/3/filter/{id}",
+			"summary": "Get filter",
+			"tags": [
+				"Filters"
+			],
+			"direction": "read",
+			"model": "Filter"
+		},
+		{
+			"operationId": "updateFilter",
+			"method": "PUT",
+			"path": "/rest/api/3/filter/{id}",
+			"summary": "Update filter",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "Filter"
+		},
+		{
+			"operationId": "resetColumns",
+			"method": "DELETE",
+			"path": "/rest/api/3/filter/{id}/columns",
+			"summary": "Reset columns",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getColumns",
+			"method": "GET",
+			"path": "/rest/api/3/filter/{id}/columns",
+			"summary": "Get columns",
+			"tags": [
+				"Filters"
+			],
+			"direction": "read",
+			"model": "ColumnItem"
+		},
+		{
+			"operationId": "setColumns",
+			"method": "PUT",
+			"path": "/rest/api/3/filter/{id}/columns",
+			"summary": "Set columns",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "ColumnRequestBody"
+		},
+		{
+			"operationId": "deleteFavouriteForFilter",
+			"method": "DELETE",
+			"path": "/rest/api/3/filter/{id}/favourite",
+			"summary": "Remove filter as favorite",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "Filter"
+		},
+		{
+			"operationId": "setFavouriteForFilter",
+			"method": "PUT",
+			"path": "/rest/api/3/filter/{id}/favourite",
+			"summary": "Add filter as favorite",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "Filter"
+		},
+		{
+			"operationId": "changeFilterOwner",
+			"method": "PUT",
+			"path": "/rest/api/3/filter/{id}/owner",
+			"summary": "Change filter owner",
+			"tags": [
+				"Filters"
+			],
+			"direction": "write",
+			"model": "ChangeFilterOwner"
+		},
+		{
+			"operationId": "getFavouriteFilters",
+			"method": "GET",
+			"path": "/rest/api/3/filter/favourite",
+			"summary": "Get favorite filters",
+			"tags": [
+				"Filters"
+			],
+			"direction": "read",
+			"model": "Filter"
+		},
+		{
+			"operationId": "getMyFilters",
+			"method": "GET",
+			"path": "/rest/api/3/filter/my",
+			"summary": "Get my filters",
+			"tags": [
+				"Filters"
+			],
+			"direction": "read",
+			"model": "Filter"
+		},
+		{
+			"operationId": "getFiltersPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/filter/search",
+			"summary": "Search for filters",
+			"tags": [
+				"Filters"
+			],
+			"direction": "read",
+			"model": "PageBeanFilterDetails"
+		},
+		{
+			"operationId": "findUsersAndGroups",
+			"method": "GET",
+			"path": "/rest/api/3/groupuserpicker",
+			"summary": "Find users and groups",
+			"tags": [
+				"Group and user picker"
+			],
+			"direction": "read",
+			"model": "FoundUsersAndGroups"
+		},
+		{
+			"operationId": "removeGroup",
+			"method": "DELETE",
+			"path": "/rest/api/3/group",
+			"summary": "Remove group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getGroup",
+			"method": "GET",
+			"path": "/rest/api/3/group",
+			"summary": "Get group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "read",
+			"model": "Group"
+		},
+		{
+			"operationId": "createGroup",
+			"method": "POST",
+			"path": "/rest/api/3/group",
+			"summary": "Create group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "write",
+			"model": "Group"
+		},
+		{
+			"operationId": "bulkGetGroups",
+			"method": "GET",
+			"path": "/rest/api/3/group/bulk",
+			"summary": "Bulk get groups",
+			"tags": [
+				"Groups"
+			],
+			"direction": "read",
+			"model": "PageBeanGroupDetails"
+		},
+		{
+			"operationId": "getUsersFromGroup",
+			"method": "GET",
+			"path": "/rest/api/3/group/member",
+			"summary": "Get users from group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "read",
+			"model": "PageBeanUserDetails"
+		},
+		{
+			"operationId": "removeUserFromGroup",
+			"method": "DELETE",
+			"path": "/rest/api/3/group/user",
+			"summary": "Remove user from group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "addUserToGroup",
+			"method": "POST",
+			"path": "/rest/api/3/group/user",
+			"summary": "Add user to group",
+			"tags": [
+				"Groups"
+			],
+			"direction": "write",
+			"model": "Group"
+		},
+		{
+			"operationId": "findGroups",
+			"method": "GET",
+			"path": "/rest/api/3/groups/picker",
+			"summary": "Find groups",
+			"tags": [
+				"Groups"
+			],
+			"direction": "read",
+			"model": "FoundGroups"
+		},
+		{
+			"operationId": "removeAttachment",
+			"method": "DELETE",
+			"path": "/rest/api/3/attachment/{id}",
+			"summary": "Delete attachment",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAttachment",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/{id}",
+			"summary": "Get attachment metadata",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read",
+			"model": "AttachmentMetadata"
+		},
+		{
+			"operationId": "expandAttachmentForHumans",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/{id}/expand/human",
+			"summary": "Get all metadata for an expanded attachment",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read",
+			"model": "AttachmentArchiveMetadataReadable"
+		},
+		{
+			"operationId": "expandAttachmentForMachines",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/{id}/expand/raw",
+			"summary": "Get contents metadata for an expanded attachment",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read",
+			"model": "AttachmentArchiveImpl"
+		},
+		{
+			"operationId": "getAttachmentContent",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/content/{id}",
+			"summary": "Get attachment content",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "getAttachmentMeta",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/meta",
+			"summary": "Get Jira attachment settings",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read",
+			"model": "AttachmentSettings"
+		},
+		{
+			"operationId": "getAttachmentThumbnail",
+			"method": "GET",
+			"path": "/rest/api/3/attachment/thumbnail/{id}",
+			"summary": "Get attachment thumbnail",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "addAttachment",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/attachments",
+			"summary": "Add attachment",
+			"tags": [
+				"Issue attachments"
+			],
+			"direction": "write",
+			"model": "Attachment"
+		},
+		{
+			"operationId": "submitBulkDelete",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/delete",
+			"summary": "Bulk delete issues",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "getBulkEditableFields",
+			"method": "GET",
+			"path": "/rest/api/3/bulk/issues/fields",
+			"summary": "Get bulk editable fields",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "read",
+			"model": "BulkEditGetFields"
+		},
+		{
+			"operationId": "submitBulkEdit",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/fields",
+			"summary": "Bulk edit issues",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "submitBulkMove",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/move",
+			"summary": "Bulk move issues",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "getAvailableTransitions",
+			"method": "GET",
+			"path": "/rest/api/3/bulk/issues/transition",
+			"summary": "Get available transitions",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "read",
+			"model": "BulkTransitionGetAvailableTransitions"
+		},
+		{
+			"operationId": "submitBulkTransition",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/transition",
+			"summary": "Bulk transition issue statuses",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "submitBulkUnwatch",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/unwatch",
+			"summary": "Bulk unwatch issues",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "submitBulkWatch",
+			"method": "POST",
+			"path": "/rest/api/3/bulk/issues/watch",
+			"summary": "Bulk watch issues",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "write",
+			"model": "SubmittedBulkOperation"
+		},
+		{
+			"operationId": "getBulkOperationProgress",
+			"method": "GET",
+			"path": "/rest/api/3/bulk/queue/{taskId}",
+			"summary": "Get bulk issue operation progress",
+			"tags": [
+				"Issue bulk operations"
+			],
+			"direction": "read",
+			"model": "BulkOperationProgress"
+		},
+		{
+			"operationId": "getCommentPropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/comment/{commentId}/properties",
+			"summary": "Get comment property keys",
+			"tags": [
+				"Issue comment properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteCommentProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+			"summary": "Delete comment property",
+			"tags": [
+				"Issue comment properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCommentProperty",
+			"method": "GET",
+			"path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+			"summary": "Get comment property",
+			"tags": [
+				"Issue comment properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setCommentProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+			"summary": "Set comment property",
+			"tags": [
+				"Issue comment properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getCommentsByIds",
+			"method": "POST",
+			"path": "/rest/api/3/comment/list",
+			"summary": "Get comments by IDs",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "write",
+			"model": "PageBeanComment"
+		},
+		{
+			"operationId": "getComments",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/comment",
+			"summary": "Get comments",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "read",
+			"model": "PageOfComments"
+		},
+		{
+			"operationId": "addComment",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/comment",
+			"summary": "Add comment",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "write",
+			"model": "Comment"
+		},
+		{
+			"operationId": "deleteComment",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+			"summary": "Delete comment",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getComment",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+			"summary": "Get comment",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "read",
+			"model": "Comment"
+		},
+		{
+			"operationId": "updateComment",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+			"summary": "Update comment",
+			"tags": [
+				"Issue comments"
+			],
+			"direction": "write",
+			"model": "Comment"
+		},
+		{
+			"operationId": "removeAssociations",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/association",
+			"summary": "Remove associations",
+			"tags": [
+				"Issue custom field associations"
+			],
+			"direction": "write",
+			"model": "FieldAssociationsRequest"
+		},
+		{
+			"operationId": "createAssociations",
+			"method": "PUT",
+			"path": "/rest/api/3/field/association",
+			"summary": "Create associations",
+			"tags": [
+				"Issue custom field associations"
+			],
+			"direction": "write",
+			"model": "FieldAssociationsRequest"
+		},
+		{
+			"operationId": "getCustomFieldConfiguration",
+			"method": "GET",
+			"path": "/rest/api/3/app/field/{fieldIdOrKey}/context/configuration",
+			"summary": "Get custom field configurations",
+			"tags": [
+				"Issue custom field configuration (apps)"
+			],
+			"direction": "read",
+			"model": "PageBeanContextualConfiguration"
+		},
+		{
+			"operationId": "updateCustomFieldConfiguration",
+			"method": "PUT",
+			"path": "/rest/api/3/app/field/{fieldIdOrKey}/context/configuration",
+			"summary": "Update custom field configurations",
+			"tags": [
+				"Issue custom field configuration (apps)"
+			],
+			"direction": "write",
+			"model": "CustomFieldConfigurations"
+		},
+		{
+			"operationId": "getCustomFieldsConfigurations",
+			"method": "POST",
+			"path": "/rest/api/3/app/field/context/configuration/list",
+			"summary": "Bulk get custom field configurations",
+			"tags": [
+				"Issue custom field configuration (apps)"
+			],
+			"direction": "write",
+			"model": "PageBeanBulkContextualConfiguration"
+		},
+		{
+			"operationId": "getContextsForField",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/context",
+			"summary": "Get custom field contexts",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "read",
+			"model": "PageBeanCustomFieldContext"
+		},
+		{
+			"operationId": "createCustomFieldContext",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldId}/context",
+			"summary": "Create custom field context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "CreateCustomFieldContext"
+		},
+		{
+			"operationId": "deleteCustomFieldContext",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}",
+			"summary": "Delete custom field context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateCustomFieldContext",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}",
+			"summary": "Update custom field context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "CustomFieldContextUpdateDetails"
+		},
+		{
+			"operationId": "addIssueTypesToContext",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/issuetype",
+			"summary": "Add issue types to context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "IssueTypeIds"
+		},
+		{
+			"operationId": "removeIssueTypesFromContext",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/issuetype/remove",
+			"summary": "Remove issue types from context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "IssueTypeIds"
+		},
+		{
+			"operationId": "assignProjectsToCustomFieldContext",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/project",
+			"summary": "Assign custom field context to projects",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "ProjectIds"
+		},
+		{
+			"operationId": "removeCustomFieldContextFromProjects",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/project/remove",
+			"summary": "Remove custom field context from projects",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "ProjectIds"
+		},
+		{
+			"operationId": "getDefaultValues",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/context/defaultValue",
+			"summary": "Get custom field contexts default values",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "read",
+			"model": "PageBeanCustomFieldContextDefaultValue"
+		},
+		{
+			"operationId": "setDefaultValues",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/defaultValue",
+			"summary": "Set custom field contexts default values",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "CustomFieldContextDefaultValueUpdate"
+		},
+		{
+			"operationId": "getIssueTypeMappingsForContexts",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/context/issuetypemapping",
+			"summary": "Get issue types for custom field context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeToContextMapping"
+		},
+		{
+			"operationId": "getCustomFieldContextsForProjectsAndIssueTypes",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldId}/context/mapping",
+			"summary": "Get custom field contexts for projects and issue types",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "write",
+			"model": "PageBeanContextForProjectAndIssueType"
+		},
+		{
+			"operationId": "getProjectContextMapping",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/context/projectmapping",
+			"summary": "Get project mappings for custom field context",
+			"tags": [
+				"Issue custom field contexts"
+			],
+			"direction": "read",
+			"model": "PageBeanCustomFieldContextProjectMapping"
+		},
+		{
+			"operationId": "getCustomFieldOption",
+			"method": "GET",
+			"path": "/rest/api/3/customFieldOption/{id}",
+			"summary": "Get custom field option",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "read",
+			"model": "CustomFieldOption"
+		},
+		{
+			"operationId": "getOptionsForContext",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+			"summary": "Get custom field options (context)",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "read",
+			"model": "PageBeanCustomFieldContextOption"
+		},
+		{
+			"operationId": "createCustomFieldOption",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+			"summary": "Create custom field options (context)",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "write",
+			"model": "CustomFieldCreatedContextOptionsList"
+		},
+		{
+			"operationId": "updateCustomFieldOption",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+			"summary": "Update custom field options (context)",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "write",
+			"model": "CustomFieldUpdatedContextOptionsList"
+		},
+		{
+			"operationId": "deleteCustomFieldOption",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}",
+			"summary": "Delete custom field options (context)",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "replaceCustomFieldOption",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}/issue",
+			"summary": "Replace custom field options",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "reorderCustomFieldOptions",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/move",
+			"summary": "Reorder custom field options (context)",
+			"tags": [
+				"Issue custom field options"
+			],
+			"direction": "write",
+			"model": "OrderOfCustomFieldOptions"
+		},
+		{
+			"operationId": "getAllIssueFieldOptions",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldKey}/option",
+			"summary": "Get all issue field options",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueFieldOption"
+		},
+		{
+			"operationId": "createIssueFieldOption",
+			"method": "POST",
+			"path": "/rest/api/3/field/{fieldKey}/option",
+			"summary": "Create issue field option",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "write",
+			"model": "IssueFieldOption"
+		},
+		{
+			"operationId": "deleteIssueFieldOption",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+			"summary": "Delete issue field option",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueFieldOption",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+			"summary": "Get issue field option",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "read",
+			"model": "IssueFieldOption"
+		},
+		{
+			"operationId": "updateIssueFieldOption",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+			"summary": "Update issue field option",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "write",
+			"model": "IssueFieldOption"
+		},
+		{
+			"operationId": "replaceIssueFieldOption",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{fieldKey}/option/{optionId}/issue",
+			"summary": "Replace issue field option",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSelectableIssueFieldOptions",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldKey}/option/suggestions/edit",
+			"summary": "Get selectable issue field options",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueFieldOption"
+		},
+		{
+			"operationId": "getVisibleIssueFieldOptions",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldKey}/option/suggestions/search",
+			"summary": "Get visible issue field options",
+			"tags": [
+				"Issue custom field options (apps)"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueFieldOption"
+		},
+		{
+			"operationId": "updateCustomFieldValue",
+			"method": "PUT",
+			"path": "/rest/api/3/app/field/{fieldIdOrKey}/value",
+			"summary": "Update custom field value",
+			"tags": [
+				"Issue custom field values (apps)"
+			],
+			"direction": "write",
+			"model": "CustomFieldValueUpdateDetails"
+		},
+		{
+			"operationId": "updateMultipleCustomFieldValues",
+			"method": "POST",
+			"path": "/rest/api/3/app/field/value",
+			"summary": "Update custom fields",
+			"tags": [
+				"Issue custom field values (apps)"
+			],
+			"direction": "write",
+			"model": "MultipleCustomFieldValuesUpdateDetails"
+		},
+		{
+			"operationId": "getAllFieldConfigurations",
+			"method": "GET",
+			"path": "/rest/api/3/fieldconfiguration",
+			"summary": "Get all field configurations",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldConfigurationDetails"
+		},
+		{
+			"operationId": "createFieldConfiguration",
+			"method": "POST",
+			"path": "/rest/api/3/fieldconfiguration",
+			"summary": "Create field configuration",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "FieldConfiguration"
+		},
+		{
+			"operationId": "deleteFieldConfiguration",
+			"method": "DELETE",
+			"path": "/rest/api/3/fieldconfiguration/{id}",
+			"summary": "Delete field configuration",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateFieldConfiguration",
+			"method": "PUT",
+			"path": "/rest/api/3/fieldconfiguration/{id}",
+			"summary": "Update field configuration",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "FieldConfigurationDetails"
+		},
+		{
+			"operationId": "getFieldConfigurationItems",
+			"method": "GET",
+			"path": "/rest/api/3/fieldconfiguration/{id}/fields",
+			"summary": "Get field configuration items",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldConfigurationItem"
+		},
+		{
+			"operationId": "updateFieldConfigurationItems",
+			"method": "PUT",
+			"path": "/rest/api/3/fieldconfiguration/{id}/fields",
+			"summary": "Update field configuration items",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "FieldConfigurationItemsDetails"
+		},
+		{
+			"operationId": "getAllFieldConfigurationSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/fieldconfigurationscheme",
+			"summary": "Get all field configuration schemes",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldConfigurationScheme"
+		},
+		{
+			"operationId": "createFieldConfigurationScheme",
+			"method": "POST",
+			"path": "/rest/api/3/fieldconfigurationscheme",
+			"summary": "Create field configuration scheme",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "FieldConfigurationScheme"
+		},
+		{
+			"operationId": "deleteFieldConfigurationScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/fieldconfigurationscheme/{id}",
+			"summary": "Delete field configuration scheme",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateFieldConfigurationScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/fieldconfigurationscheme/{id}",
+			"summary": "Update field configuration scheme",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "UpdateFieldConfigurationSchemeDetails"
+		},
+		{
+			"operationId": "setFieldConfigurationSchemeMapping",
+			"method": "PUT",
+			"path": "/rest/api/3/fieldconfigurationscheme/{id}/mapping",
+			"summary": "Assign issue types to field configurations",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "AssociateFieldConfigurationsWithIssueTypesRequest"
+		},
+		{
+			"operationId": "removeIssueTypesFromGlobalFieldConfigurationScheme",
+			"method": "POST",
+			"path": "/rest/api/3/fieldconfigurationscheme/{id}/mapping/delete",
+			"summary": "Remove issue types from field configuration scheme",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "IssueTypeIdsToRemove"
+		},
+		{
+			"operationId": "getFieldConfigurationSchemeMappings",
+			"method": "GET",
+			"path": "/rest/api/3/fieldconfigurationscheme/mapping",
+			"summary": "Get field configuration issue type items",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldConfigurationIssueTypeItem"
+		},
+		{
+			"operationId": "getFieldConfigurationSchemeProjectMapping",
+			"method": "GET",
+			"path": "/rest/api/3/fieldconfigurationscheme/project",
+			"summary": "Get field configuration schemes for projects",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldConfigurationSchemeProjects"
+		},
+		{
+			"operationId": "assignFieldConfigurationSchemeToProject",
+			"method": "PUT",
+			"path": "/rest/api/3/fieldconfigurationscheme/project",
+			"summary": "Assign field configuration scheme to project",
+			"tags": [
+				"Issue field configurations"
+			],
+			"direction": "write",
+			"model": "FieldConfigurationSchemeProjectAssociation"
+		},
+		{
+			"operationId": "getFields",
+			"method": "GET",
+			"path": "/rest/api/3/field",
+			"summary": "Get fields",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "FieldDetails"
+		},
+		{
+			"operationId": "createCustomField",
+			"method": "POST",
+			"path": "/rest/api/3/field",
+			"summary": "Create custom field",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "write",
+			"model": "FieldDetails"
+		},
+		{
+			"operationId": "updateCustomField",
+			"method": "PUT",
+			"path": "/rest/api/3/field/{fieldId}",
+			"summary": "Update custom field",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "write",
+			"model": "UpdateCustomFieldDetails"
+		},
+		{
+			"operationId": "getFieldProjectAssociations",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/association/project",
+			"summary": "Get field project associations",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "PageBeanFieldProjectAssociation"
+		},
+		{
+			"operationId": "getContextsForFieldDeprecated",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/contexts",
+			"summary": "Get contexts for a field",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "PageBeanContext"
+		},
+		{
+			"operationId": "deleteCustomField",
+			"method": "DELETE",
+			"path": "/rest/api/3/field/{id}",
+			"summary": "Delete custom field",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "restoreCustomField",
+			"method": "POST",
+			"path": "/rest/api/3/field/{id}/restore",
+			"summary": "Restore custom field from trash",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "trashCustomField",
+			"method": "POST",
+			"path": "/rest/api/3/field/{id}/trash",
+			"summary": "Move custom field to trash",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getFieldsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/field/search",
+			"summary": "Get fields paginated",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "PageBeanField"
+		},
+		{
+			"operationId": "getTrashedFieldsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/field/search/trashed",
+			"summary": "Get fields in trash paginated",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "PageBeanField"
+		},
+		{
+			"operationId": "getProjectFields",
+			"method": "GET",
+			"path": "/rest/api/3/projects/fields",
+			"summary": "Get fields for projects",
+			"tags": [
+				"Issue fields"
+			],
+			"direction": "read",
+			"model": "PageBean2ProjectFieldBean"
+		},
+		{
+			"operationId": "getIssueLinkTypes",
+			"method": "GET",
+			"path": "/rest/api/3/issueLinkType",
+			"summary": "Get issue link types",
+			"tags": [
+				"Issue link types"
+			],
+			"direction": "read",
+			"model": "IssueLinkTypes"
+		},
+		{
+			"operationId": "createIssueLinkType",
+			"method": "POST",
+			"path": "/rest/api/3/issueLinkType",
+			"summary": "Create issue link type",
+			"tags": [
+				"Issue link types"
+			],
+			"direction": "write",
+			"model": "IssueLinkType"
+		},
+		{
+			"operationId": "deleteIssueLinkType",
+			"method": "DELETE",
+			"path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+			"summary": "Delete issue link type",
+			"tags": [
+				"Issue link types"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueLinkType",
+			"method": "GET",
+			"path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+			"summary": "Get issue link type",
+			"tags": [
+				"Issue link types"
+			],
+			"direction": "read",
+			"model": "IssueLinkType"
+		},
+		{
+			"operationId": "updateIssueLinkType",
+			"method": "PUT",
+			"path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+			"summary": "Update issue link type",
+			"tags": [
+				"Issue link types"
+			],
+			"direction": "write",
+			"model": "IssueLinkType"
+		},
+		{
+			"operationId": "linkIssues",
+			"method": "POST",
+			"path": "/rest/api/3/issueLink",
+			"summary": "Create issue link",
+			"tags": [
+				"Issue links"
+			],
+			"direction": "write",
+			"model": "LinkIssueRequestJsonBean"
+		},
+		{
+			"operationId": "deleteIssueLink",
+			"method": "DELETE",
+			"path": "/rest/api/3/issueLink/{linkId}",
+			"summary": "Delete issue link",
+			"tags": [
+				"Issue links"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueLink",
+			"method": "GET",
+			"path": "/rest/api/3/issueLink/{linkId}",
+			"summary": "Get issue link",
+			"tags": [
+				"Issue links"
+			],
+			"direction": "read",
+			"model": "IssueLink"
+		},
+		{
+			"operationId": "getIssueNavigatorDefaultColumns",
+			"method": "GET",
+			"path": "/rest/api/3/settings/columns",
+			"summary": "Get issue navigator default columns",
+			"tags": [
+				"Issue navigator settings"
+			],
+			"direction": "read",
+			"model": "ColumnItem"
+		},
+		{
+			"operationId": "setIssueNavigatorDefaultColumns",
+			"method": "PUT",
+			"path": "/rest/api/3/settings/columns",
+			"summary": "Set issue navigator default columns",
+			"tags": [
+				"Issue navigator settings"
+			],
+			"direction": "write",
+			"model": "ColumnRequestBody"
+		},
+		{
+			"operationId": "getNotificationSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/notificationscheme",
+			"summary": "Get notification schemes paginated",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanNotificationScheme"
+		},
+		{
+			"operationId": "createNotificationScheme",
+			"method": "POST",
+			"path": "/rest/api/3/notificationscheme",
+			"summary": "Create notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "write",
+			"model": "NotificationSchemeId"
+		},
+		{
+			"operationId": "getNotificationScheme",
+			"method": "GET",
+			"path": "/rest/api/3/notificationscheme/{id}",
+			"summary": "Get notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "read",
+			"model": "NotificationScheme"
+		},
+		{
+			"operationId": "updateNotificationScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/notificationscheme/{id}",
+			"summary": "Update notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "write",
+			"model": "UpdateNotificationSchemeDetails"
+		},
+		{
+			"operationId": "addNotifications",
+			"method": "PUT",
+			"path": "/rest/api/3/notificationscheme/{id}/notification",
+			"summary": "Add notifications to notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "write",
+			"model": "AddNotificationsDetails"
+		},
+		{
+			"operationId": "deleteNotificationScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/notificationscheme/{notificationSchemeId}",
+			"summary": "Delete notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "removeNotificationFromNotificationScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/notificationscheme/{notificationSchemeId}/notification/{notificationId}",
+			"summary": "Remove notification from notification scheme",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getNotificationSchemeToProjectMappings",
+			"method": "GET",
+			"path": "/rest/api/3/notificationscheme/project",
+			"summary": "Get projects using notification schemes paginated",
+			"tags": [
+				"Issue notification schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanNotificationSchemeAndProjectMappingJsonBean"
+		},
+		{
+			"operationId": "bulkPinUnpinProjectsAsync",
+			"method": "POST",
+			"path": "/rest/api/3/forge/panel/action/bulk/async",
+			"summary": "Bulk pin or unpin issue panel to projects",
+			"tags": [
+				"Issue panels"
+			],
+			"direction": "write",
+			"model": "ForgePanelProjectPinAsyncResponse"
+		},
+		{
+			"operationId": "getPriorities",
+			"method": "GET",
+			"path": "/rest/api/3/priority",
+			"summary": "Get priorities",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "read",
+			"model": "Priority"
+		},
+		{
+			"operationId": "createPriority",
+			"method": "POST",
+			"path": "/rest/api/3/priority",
+			"summary": "Create priority",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "write",
+			"model": "PriorityId"
+		},
+		{
+			"operationId": "deletePriority",
+			"method": "DELETE",
+			"path": "/rest/api/3/priority/{id}",
+			"summary": "Delete priority",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPriority",
+			"method": "GET",
+			"path": "/rest/api/3/priority/{id}",
+			"summary": "Get priority",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "read",
+			"model": "Priority"
+		},
+		{
+			"operationId": "updatePriority",
+			"method": "PUT",
+			"path": "/rest/api/3/priority/{id}",
+			"summary": "Update priority",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "write",
+			"model": "UpdatePriorityDetails"
+		},
+		{
+			"operationId": "setDefaultPriority",
+			"method": "PUT",
+			"path": "/rest/api/3/priority/default",
+			"summary": "Set default priority",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "write",
+			"model": "SetDefaultPriorityRequest"
+		},
+		{
+			"operationId": "movePriorities",
+			"method": "PUT",
+			"path": "/rest/api/3/priority/move",
+			"summary": "Move priorities",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "write",
+			"model": "ReorderIssuePriorities"
+		},
+		{
+			"operationId": "searchPriorities",
+			"method": "GET",
+			"path": "/rest/api/3/priority/search",
+			"summary": "Search priorities",
+			"tags": [
+				"Issue priorities"
+			],
+			"direction": "read",
+			"model": "PageBeanPriority"
+		},
+		{
+			"operationId": "getIssuePropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/properties",
+			"summary": "Get issue property keys",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteIssueProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+			"summary": "Delete issue property",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueProperty",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+			"summary": "Get issue property",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setIssueProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+			"summary": "Set issue property",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "bulkSetIssuesPropertiesList",
+			"method": "POST",
+			"path": "/rest/api/3/issue/properties",
+			"summary": "Bulk set issues properties by list",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write",
+			"model": "IssueEntityProperties"
+		},
+		{
+			"operationId": "bulkDeleteIssueProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/properties/{propertyKey}",
+			"summary": "Bulk delete issue property",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write",
+			"model": "IssueFilterForBulkPropertyDelete"
+		},
+		{
+			"operationId": "bulkSetIssueProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/properties/{propertyKey}",
+			"summary": "Bulk set issue property",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write",
+			"model": "BulkIssuePropertyUpdateRequest"
+		},
+		{
+			"operationId": "bulkSetIssuePropertiesByIssue",
+			"method": "POST",
+			"path": "/rest/api/3/issue/properties/multi",
+			"summary": "Bulk set issue properties by issue",
+			"tags": [
+				"Issue properties"
+			],
+			"direction": "write",
+			"model": "MultiIssueEntityProperties"
+		},
+		{
+			"operationId": "redact",
+			"method": "POST",
+			"path": "/rest/api/3/redact",
+			"summary": "Redact",
+			"tags": [
+				"Issue redaction"
+			],
+			"direction": "write",
+			"model": "BulkRedactionRequest"
+		},
+		{
+			"operationId": "getRedactionStatus",
+			"method": "GET",
+			"path": "/rest/api/3/redact/status/{jobId}",
+			"summary": "Get redaction status",
+			"tags": [
+				"Issue redaction"
+			],
+			"direction": "read",
+			"model": "RedactionJobStatusResponse"
+		},
+		{
+			"operationId": "deleteRemoteIssueLinkByGlobalId",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+			"summary": "Delete remote issue link by global ID",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getRemoteIssueLinks",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+			"summary": "Get remote issue links",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "createOrUpdateRemoteIssueLink",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+			"summary": "Create or update remote issue link",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "write",
+			"model": "RemoteIssueLinkIdentifies"
+		},
+		{
+			"operationId": "deleteRemoteIssueLinkById",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+			"summary": "Delete remote issue link by ID",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getRemoteIssueLinkById",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+			"summary": "Get remote issue link by ID",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "read",
+			"model": "RemoteIssueLink"
+		},
+		{
+			"operationId": "updateRemoteIssueLink",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+			"summary": "Update remote issue link by ID",
+			"tags": [
+				"Issue remote links"
+			],
+			"direction": "write",
+			"model": "RemoteIssueLinkRequest"
+		},
+		{
+			"operationId": "getResolutions",
+			"method": "GET",
+			"path": "/rest/api/3/resolution",
+			"summary": "Get resolutions",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "read",
+			"model": "Resolution"
+		},
+		{
+			"operationId": "createResolution",
+			"method": "POST",
+			"path": "/rest/api/3/resolution",
+			"summary": "Create resolution",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "write",
+			"model": "ResolutionId"
+		},
+		{
+			"operationId": "deleteResolution",
+			"method": "DELETE",
+			"path": "/rest/api/3/resolution/{id}",
+			"summary": "Delete resolution",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getResolution",
+			"method": "GET",
+			"path": "/rest/api/3/resolution/{id}",
+			"summary": "Get resolution",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "read",
+			"model": "Resolution"
+		},
+		{
+			"operationId": "updateResolution",
+			"method": "PUT",
+			"path": "/rest/api/3/resolution/{id}",
+			"summary": "Update resolution",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "write",
+			"model": "UpdateResolutionDetails"
+		},
+		{
+			"operationId": "setDefaultResolution",
+			"method": "PUT",
+			"path": "/rest/api/3/resolution/default",
+			"summary": "Set default resolution",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "write",
+			"model": "SetDefaultResolutionRequest"
+		},
+		{
+			"operationId": "moveResolutions",
+			"method": "PUT",
+			"path": "/rest/api/3/resolution/move",
+			"summary": "Move resolutions",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "write",
+			"model": "ReorderIssueResolutionsRequest"
+		},
+		{
+			"operationId": "searchResolutions",
+			"method": "GET",
+			"path": "/rest/api/3/resolution/search",
+			"summary": "Search resolutions",
+			"tags": [
+				"Issue resolutions"
+			],
+			"direction": "read",
+			"model": "PageBeanResolutionJsonBean"
+		},
+		{
+			"operationId": "getIssuePickerResource",
+			"method": "GET",
+			"path": "/rest/api/3/issue/picker",
+			"summary": "Get issue picker suggestions",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "read",
+			"model": "IssuePickerSuggestions"
+		},
+		{
+			"operationId": "matchIssues",
+			"method": "POST",
+			"path": "/rest/api/3/jql/match",
+			"summary": "Check issues against JQL",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "write",
+			"model": "IssueMatches"
+		},
+		{
+			"operationId": "searchForIssuesUsingJql",
+			"method": "GET",
+			"path": "/rest/api/3/search",
+			"summary": "Currently being removed. Search for issues using JQL (GET)",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "read",
+			"model": "SearchResults"
+		},
+		{
+			"operationId": "searchForIssuesUsingJqlPost",
+			"method": "POST",
+			"path": "/rest/api/3/search",
+			"summary": "Currently being removed. Search for issues using JQL (POST)",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "write",
+			"model": "SearchResults"
+		},
+		{
+			"operationId": "countIssues",
+			"method": "POST",
+			"path": "/rest/api/3/search/approximate-count",
+			"summary": "Count issues using JQL",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "write",
+			"model": "JQLCountResultsBean"
+		},
+		{
+			"operationId": "searchAndReconsileIssuesUsingJql",
+			"method": "GET",
+			"path": "/rest/api/3/search/jql",
+			"summary": "Search for issues using JQL enhanced search (GET)",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "read",
+			"model": "SearchAndReconcileResults"
+		},
+		{
+			"operationId": "searchAndReconsileIssuesUsingJqlPost",
+			"method": "POST",
+			"path": "/rest/api/3/search/jql",
+			"summary": "Search for issues using JQL enhanced search (POST)",
+			"tags": [
+				"Issue search"
+			],
+			"direction": "write",
+			"model": "SearchAndReconcileResults"
+		},
+		{
+			"operationId": "getIssueSecurityLevelMembers",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members",
+			"summary": "Get issue security level members by issue security scheme",
+			"tags": [
+				"Issue security level"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueSecurityLevelMember"
+		},
+		{
+			"operationId": "getIssueSecurityLevel",
+			"method": "GET",
+			"path": "/rest/api/3/securitylevel/{id}",
+			"summary": "Get issue security level",
+			"tags": [
+				"Issue security level"
+			],
+			"direction": "read",
+			"model": "SecurityLevel"
+		},
+		{
+			"operationId": "getIssueSecuritySchemes",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes",
+			"summary": "Get issue security schemes",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "SecuritySchemes"
+		},
+		{
+			"operationId": "createIssueSecurityScheme",
+			"method": "POST",
+			"path": "/rest/api/3/issuesecurityschemes",
+			"summary": "Create issue security scheme",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "SecuritySchemeId"
+		},
+		{
+			"operationId": "getIssueSecurityScheme",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/{id}",
+			"summary": "Get issue security scheme",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "SecurityScheme"
+		},
+		{
+			"operationId": "updateIssueSecurityScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/{id}",
+			"summary": "Update issue security scheme",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "UpdateIssueSecuritySchemeRequestBean"
+		},
+		{
+			"operationId": "deleteSecurityScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}",
+			"summary": "Delete issue security scheme",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "addSecurityLevel",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}/level",
+			"summary": "Add issue security levels",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "AddSecuritySchemeLevelsRequestBean"
+		},
+		{
+			"operationId": "removeLevel",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}",
+			"summary": "Remove issue security level",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateSecurityLevel",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}",
+			"summary": "Update issue security level",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "UpdateIssueSecurityLevelDetails"
+		},
+		{
+			"operationId": "addSecurityLevelMembers",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member",
+			"summary": "Add issue security level members",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "SecuritySchemeMembersRequest"
+		},
+		{
+			"operationId": "removeMemberFromSecurityLevel",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member/{memberId}",
+			"summary": "Remove member from issue security level",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSecurityLevels",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/level",
+			"summary": "Get issue security levels",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanSecurityLevel"
+		},
+		{
+			"operationId": "setDefaultLevels",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/level/default",
+			"summary": "Set default issue security levels",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "SetDefaultLevelsRequest"
+		},
+		{
+			"operationId": "getSecurityLevelMembers",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/level/member",
+			"summary": "Get issue security level members",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanSecurityLevelMember"
+		},
+		{
+			"operationId": "searchProjectsUsingSecuritySchemes",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/project",
+			"summary": "Get projects using issue security schemes",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueSecuritySchemeToProjectMapping"
+		},
+		{
+			"operationId": "associateSchemesToProjects",
+			"method": "PUT",
+			"path": "/rest/api/3/issuesecurityschemes/project",
+			"summary": "Associate security scheme to project",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "write",
+			"model": "AssociateSecuritySchemeWithProjectDetails"
+		},
+		{
+			"operationId": "searchSecuritySchemes",
+			"method": "GET",
+			"path": "/rest/api/3/issuesecurityschemes/search",
+			"summary": "Search issue security schemes",
+			"tags": [
+				"Issue security schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanSecuritySchemeWithProjects"
+		},
+		{
+			"operationId": "getIssueTypePropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype/{issueTypeId}/properties",
+			"summary": "Get issue type property keys",
+			"tags": [
+				"Issue type properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteIssueTypeProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+			"summary": "Delete issue type property",
+			"tags": [
+				"Issue type properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueTypeProperty",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+			"summary": "Get issue type property",
+			"tags": [
+				"Issue type properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setIssueTypeProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+			"summary": "Set issue type property",
+			"tags": [
+				"Issue type properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAllIssueTypeSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescheme",
+			"summary": "Get all issue type schemes",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeScheme"
+		},
+		{
+			"operationId": "createIssueTypeScheme",
+			"method": "POST",
+			"path": "/rest/api/3/issuetypescheme",
+			"summary": "Create issue type scheme",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeSchemeID"
+		},
+		{
+			"operationId": "deleteIssueTypeScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}",
+			"summary": "Delete issue type scheme",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateIssueTypeScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}",
+			"summary": "Update issue type scheme",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeSchemeUpdateDetails"
+		},
+		{
+			"operationId": "addIssueTypesToIssueTypeScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype",
+			"summary": "Add issue types to issue type scheme",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeIds"
+		},
+		{
+			"operationId": "removeIssueTypeFromIssueTypeScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/{issueTypeId}",
+			"summary": "Remove issue type from issue type scheme",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "reorderIssueTypesInIssueTypeScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/move",
+			"summary": "Change order of issue types",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write",
+			"model": "OrderOfIssueTypes"
+		},
+		{
+			"operationId": "getIssueTypeSchemesMapping",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescheme/mapping",
+			"summary": "Get issue type scheme items",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeSchemeMapping"
+		},
+		{
+			"operationId": "getIssueTypeSchemeForProjects",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescheme/project",
+			"summary": "Get issue type schemes for projects",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeSchemeProjects"
+		},
+		{
+			"operationId": "assignIssueTypeSchemeToProject",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescheme/project",
+			"summary": "Assign issue type scheme to project",
+			"tags": [
+				"Issue type schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeSchemeProjectAssociation"
+		},
+		{
+			"operationId": "getIssueTypeScreenSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescreenscheme",
+			"summary": "Get issue type screen schemes",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeScreenScheme"
+		},
+		{
+			"operationId": "createIssueTypeScreenScheme",
+			"method": "POST",
+			"path": "/rest/api/3/issuetypescreenscheme",
+			"summary": "Create issue type screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeScreenSchemeId"
+		},
+		{
+			"operationId": "deleteIssueTypeScreenScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}",
+			"summary": "Delete issue type screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateIssueTypeScreenScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}",
+			"summary": "Update issue type screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeScreenSchemeUpdateDetails"
+		},
+		{
+			"operationId": "appendMappingsForIssueTypeScreenScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping",
+			"summary": "Append mappings to issue type screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeScreenSchemeMappingDetails"
+		},
+		{
+			"operationId": "updateDefaultScreenScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/default",
+			"summary": "Update issue type screen scheme default screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "UpdateDefaultScreenScheme"
+		},
+		{
+			"operationId": "removeMappingsFromIssueTypeScreenScheme",
+			"method": "POST",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/remove",
+			"summary": "Remove mappings from issue type screen scheme",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeIds"
+		},
+		{
+			"operationId": "getProjectsForIssueTypeScreenScheme",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project",
+			"summary": "Get issue type screen scheme projects",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanProjectDetails"
+		},
+		{
+			"operationId": "getIssueTypeScreenSchemeMappings",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescreenscheme/mapping",
+			"summary": "Get issue type screen scheme items",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeScreenSchemeItem"
+		},
+		{
+			"operationId": "getIssueTypeScreenSchemeProjectAssociations",
+			"method": "GET",
+			"path": "/rest/api/3/issuetypescreenscheme/project",
+			"summary": "Get issue type screen schemes for projects",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanIssueTypeScreenSchemesProjects"
+		},
+		{
+			"operationId": "assignIssueTypeScreenSchemeToProject",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetypescreenscheme/project",
+			"summary": "Assign issue type screen scheme to project",
+			"tags": [
+				"Issue type screen schemes"
+			],
+			"direction": "write",
+			"model": "IssueTypeScreenSchemeProjectAssociation"
+		},
+		{
+			"operationId": "getIssueAllTypes",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype",
+			"summary": "Get all issue types for user",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "read",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "createIssueType",
+			"method": "POST",
+			"path": "/rest/api/3/issuetype",
+			"summary": "Create issue type",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "write",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "deleteIssueType",
+			"method": "DELETE",
+			"path": "/rest/api/3/issuetype/{id}",
+			"summary": "Delete issue type",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueType",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype/{id}",
+			"summary": "Get issue type",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "read",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "updateIssueType",
+			"method": "PUT",
+			"path": "/rest/api/3/issuetype/{id}",
+			"summary": "Update issue type",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "write",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "getAlternativeIssueTypes",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype/{id}/alternatives",
+			"summary": "Get alternative issue types",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "read",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "createIssueTypeAvatar",
+			"method": "POST",
+			"path": "/rest/api/3/issuetype/{id}/avatar2",
+			"summary": "Load issue type avatar",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "write",
+			"model": "Avatar"
+		},
+		{
+			"operationId": "getIssueTypesForProject",
+			"method": "GET",
+			"path": "/rest/api/3/issuetype/project",
+			"summary": "Get issue types for project",
+			"tags": [
+				"Issue types"
+			],
+			"direction": "read",
+			"model": "IssueTypeDetails"
+		},
+		{
+			"operationId": "removeVote",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+			"summary": "Delete vote",
+			"tags": [
+				"Issue votes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getVotes",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+			"summary": "Get votes",
+			"tags": [
+				"Issue votes"
+			],
+			"direction": "read",
+			"model": "Votes"
+		},
+		{
+			"operationId": "addVote",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+			"summary": "Add vote",
+			"tags": [
+				"Issue votes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "removeWatcher",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+			"summary": "Delete watcher",
+			"tags": [
+				"Issue watchers"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssueWatchers",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+			"summary": "Get issue watchers",
+			"tags": [
+				"Issue watchers"
+			],
+			"direction": "read",
+			"model": "Watchers"
+		},
+		{
+			"operationId": "addWatcher",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+			"summary": "Add watcher",
+			"tags": [
+				"Issue watchers"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIsWatchingIssueBulk",
+			"method": "POST",
+			"path": "/rest/api/3/issue/watching",
+			"summary": "Get is watching issue bulk",
+			"tags": [
+				"Issue watchers"
+			],
+			"direction": "write",
+			"model": "BulkIssueIsWatching"
+		},
+		{
+			"operationId": "getWorklogPropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties",
+			"summary": "Get worklog property keys",
+			"tags": [
+				"Issue worklog properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteWorklogProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+			"summary": "Delete worklog property",
+			"tags": [
+				"Issue worklog properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorklogProperty",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+			"summary": "Get worklog property",
+			"tags": [
+				"Issue worklog properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setWorklogProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+			"summary": "Set worklog property",
+			"tags": [
+				"Issue worklog properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "bulkDeleteWorklogs",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+			"summary": "Bulk delete worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write",
+			"model": "WorklogIdsRequestBean"
+		},
+		{
+			"operationId": "getIssueWorklog",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+			"summary": "Get issue worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "read",
+			"model": "PageOfWorklogs"
+		},
+		{
+			"operationId": "addWorklog",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+			"summary": "Add worklog",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write",
+			"model": "Worklog"
+		},
+		{
+			"operationId": "deleteWorklog",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+			"summary": "Delete worklog",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorklog",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+			"summary": "Get worklog",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "read",
+			"model": "Worklog"
+		},
+		{
+			"operationId": "updateWorklog",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+			"summary": "Update worklog",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write",
+			"model": "Worklog"
+		},
+		{
+			"operationId": "bulkMoveWorklogs",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/worklog/move",
+			"summary": "Bulk move worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write",
+			"model": "WorklogsMoveRequestBean"
+		},
+		{
+			"operationId": "getIdsOfWorklogsDeletedSince",
+			"method": "GET",
+			"path": "/rest/api/3/worklog/deleted",
+			"summary": "Get IDs of deleted worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "read",
+			"model": "ChangedWorklogs"
+		},
+		{
+			"operationId": "getWorklogsForIds",
+			"method": "POST",
+			"path": "/rest/api/3/worklog/list",
+			"summary": "Get worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "write",
+			"model": "Worklog"
+		},
+		{
+			"operationId": "getIdsOfWorklogsModifiedSince",
+			"method": "GET",
+			"path": "/rest/api/3/worklog/updated",
+			"summary": "Get IDs of updated worklogs",
+			"tags": [
+				"Issue worklogs"
+			],
+			"direction": "read",
+			"model": "ChangedWorklogs"
+		},
+		{
+			"operationId": "getBulkChangelogs",
+			"method": "POST",
+			"path": "/rest/api/3/changelog/bulkfetch",
+			"summary": "Bulk fetch changelogs",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "BulkChangelogResponseBean"
+		},
+		{
+			"operationId": "getEvents",
+			"method": "GET",
+			"path": "/rest/api/3/events",
+			"summary": "Get events",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "IssueEvent"
+		},
+		{
+			"operationId": "createIssue",
+			"method": "POST",
+			"path": "/rest/api/3/issue",
+			"summary": "Create issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "CreatedIssue"
+		},
+		{
+			"operationId": "deleteIssue",
+			"method": "DELETE",
+			"path": "/rest/api/3/issue/{issueIdOrKey}",
+			"summary": "Delete issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getIssue",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}",
+			"summary": "Get issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "IssueBean"
+		},
+		{
+			"operationId": "editIssue",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}",
+			"summary": "Edit issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "IssueUpdateDetails"
+		},
+		{
+			"operationId": "assignIssue",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/assignee",
+			"summary": "Assign issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "User"
+		},
+		{
+			"operationId": "getChangeLogs",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/changelog",
+			"summary": "Get changelogs",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "PageBeanChangelog"
+		},
+		{
+			"operationId": "getChangeLogsByIds",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/changelog/list",
+			"summary": "Get changelogs by IDs",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "PageOfChangelogs"
+		},
+		{
+			"operationId": "getEditIssueMeta",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/editmeta",
+			"summary": "Get edit issue metadata",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "IssueUpdateMetadata"
+		},
+		{
+			"operationId": "notify",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/notify",
+			"summary": "Send notification for issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "Notification"
+		},
+		{
+			"operationId": "getTransitions",
+			"method": "GET",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/transitions",
+			"summary": "Get transitions",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "Transitions"
+		},
+		{
+			"operationId": "doTransition",
+			"method": "POST",
+			"path": "/rest/api/3/issue/{issueIdOrKey}/transitions",
+			"summary": "Transition issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "IssueUpdateDetails"
+		},
+		{
+			"operationId": "archiveIssuesAsync",
+			"method": "POST",
+			"path": "/rest/api/3/issue/archive",
+			"summary": "Archive issue(s) by JQL",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "ArchiveIssueAsyncRequest"
+		},
+		{
+			"operationId": "archiveIssues",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/archive",
+			"summary": "Archive issue(s) by issue ID/key",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "IssueArchivalSyncResponse"
+		},
+		{
+			"operationId": "createIssues",
+			"method": "POST",
+			"path": "/rest/api/3/issue/bulk",
+			"summary": "Bulk create issue",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "CreatedIssues"
+		},
+		{
+			"operationId": "bulkFetchIssues",
+			"method": "POST",
+			"path": "/rest/api/3/issue/bulkfetch",
+			"summary": "Bulk fetch issues",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "BulkIssueResults"
+		},
+		{
+			"operationId": "getCreateIssueMeta",
+			"method": "GET",
+			"path": "/rest/api/3/issue/createmeta",
+			"summary": "Get create issue metadata",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "IssueCreateMetadata"
+		},
+		{
+			"operationId": "getCreateIssueMetaIssueTypes",
+			"method": "GET",
+			"path": "/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes",
+			"summary": "Get create metadata issue types for a project",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "PageOfCreateMetaIssueTypes"
+		},
+		{
+			"operationId": "getCreateIssueMetaIssueTypeId",
+			"method": "GET",
+			"path": "/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId}",
+			"summary": "Get create field metadata for a project and issue type id",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "PageOfCreateMetaIssueTypeWithField"
+		},
+		{
+			"operationId": "getIssueLimitReport",
+			"method": "GET",
+			"path": "/rest/api/3/issue/limit/report",
+			"summary": "Get issue limit report",
+			"tags": [
+				"Issues"
+			],
+			"direction": "read",
+			"model": "IssueLimitReportResponseBean"
+		},
+		{
+			"operationId": "unarchiveIssues",
+			"method": "PUT",
+			"path": "/rest/api/3/issue/unarchive",
+			"summary": "Unarchive issue(s) by issue keys/ID",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "IssueArchivalSyncResponse"
+		},
+		{
+			"operationId": "exportArchivedIssues",
+			"method": "PUT",
+			"path": "/rest/api/3/issues/archive/export",
+			"summary": "Export archived issue(s)",
+			"tags": [
+				"Issues"
+			],
+			"direction": "write",
+			"model": "ExportArchivedIssuesTaskProgressResponse"
+		},
+		{
+			"operationId": "analyseExpression",
+			"method": "POST",
+			"path": "/rest/api/3/expression/analyse",
+			"summary": "Analyse Jira expression",
+			"tags": [
+				"Jira expressions"
+			],
+			"direction": "write",
+			"model": "JiraExpressionsAnalysis"
+		},
+		{
+			"operationId": "evaluateJiraExpression",
+			"method": "POST",
+			"path": "/rest/api/3/expression/eval",
+			"summary": "Currently being removed. Evaluate Jira expression",
+			"tags": [
+				"Jira expressions"
+			],
+			"direction": "write",
+			"model": "JiraExpressionResult"
+		},
+		{
+			"operationId": "evaluateJSISJiraExpression",
+			"method": "POST",
+			"path": "/rest/api/3/expression/evaluate",
+			"summary": "Evaluate Jira expression using enhanced search API",
+			"tags": [
+				"Jira expressions"
+			],
+			"direction": "write",
+			"model": "JExpEvaluateJiraExpressionResultBean"
+		},
+		{
+			"operationId": "getApplicationProperty",
+			"method": "GET",
+			"path": "/rest/api/3/application-properties",
+			"summary": "Get application property",
+			"tags": [
+				"Jira settings"
+			],
+			"direction": "read",
+			"model": "ApplicationProperty"
+		},
+		{
+			"operationId": "setApplicationProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/application-properties/{id}",
+			"summary": "Set application property",
+			"tags": [
+				"Jira settings"
+			],
+			"direction": "write",
+			"model": "ApplicationProperty"
+		},
+		{
+			"operationId": "getAdvancedSettings",
+			"method": "GET",
+			"path": "/rest/api/3/application-properties/advanced-settings",
+			"summary": "Get advanced settings",
+			"tags": [
+				"Jira settings"
+			],
+			"direction": "read",
+			"model": "ApplicationProperty"
+		},
+		{
+			"operationId": "getConfiguration",
+			"method": "GET",
+			"path": "/rest/api/3/configuration",
+			"summary": "Get global settings",
+			"tags": [
+				"Jira settings"
+			],
+			"direction": "read",
+			"model": "Configuration"
+		},
+		{
+			"operationId": "getAutoComplete",
+			"method": "GET",
+			"path": "/rest/api/3/jql/autocompletedata",
+			"summary": "Get field reference data (GET)",
+			"tags": [
+				"JQL"
+			],
+			"direction": "read",
+			"model": "JQLReferenceData"
+		},
+		{
+			"operationId": "getAutoCompletePost",
+			"method": "POST",
+			"path": "/rest/api/3/jql/autocompletedata",
+			"summary": "Get field reference data (POST)",
+			"tags": [
+				"JQL"
+			],
+			"direction": "write",
+			"model": "JQLReferenceData"
+		},
+		{
+			"operationId": "getFieldAutoCompleteForQueryString",
+			"method": "GET",
+			"path": "/rest/api/3/jql/autocompletedata/suggestions",
+			"summary": "Get field auto complete suggestions",
+			"tags": [
+				"JQL"
+			],
+			"direction": "read",
+			"model": "AutoCompleteSuggestions"
+		},
+		{
+			"operationId": "parseJqlQueries",
+			"method": "POST",
+			"path": "/rest/api/3/jql/parse",
+			"summary": "Parse JQL query",
+			"tags": [
+				"JQL"
+			],
+			"direction": "write",
+			"model": "ParsedJqlQueries"
+		},
+		{
+			"operationId": "migrateQueries",
+			"method": "POST",
+			"path": "/rest/api/3/jql/pdcleaner",
+			"summary": "Convert user identifiers to account IDs in JQL queries",
+			"tags": [
+				"JQL"
+			],
+			"direction": "write",
+			"model": "ConvertedJQLQueries"
+		},
+		{
+			"operationId": "sanitiseJqlQueries",
+			"method": "POST",
+			"path": "/rest/api/3/jql/sanitize",
+			"summary": "Sanitize JQL queries",
+			"tags": [
+				"JQL"
+			],
+			"direction": "write",
+			"model": "SanitizedJqlQueries"
+		},
+		{
+			"operationId": "getPrecomputations",
+			"method": "GET",
+			"path": "/rest/api/3/jql/function/computation",
+			"summary": "Get precomputations (apps)",
+			"tags": [
+				"JQL functions (apps)"
+			],
+			"direction": "read",
+			"model": "PageBean2JqlFunctionPrecomputationBean"
+		},
+		{
+			"operationId": "updatePrecomputations",
+			"method": "POST",
+			"path": "/rest/api/3/jql/function/computation",
+			"summary": "Update precomputations (apps)",
+			"tags": [
+				"JQL functions (apps)"
+			],
+			"direction": "write",
+			"model": "JqlFunctionPrecomputationUpdateResponse"
+		},
+		{
+			"operationId": "getPrecomputationsByID",
+			"method": "POST",
+			"path": "/rest/api/3/jql/function/computation/search",
+			"summary": "Get precomputations by ID (apps)",
+			"tags": [
+				"JQL functions (apps)"
+			],
+			"direction": "write",
+			"model": "JqlFunctionPrecomputationGetByIdResponse"
+		},
+		{
+			"operationId": "getAllLabels",
+			"method": "GET",
+			"path": "/rest/api/3/label",
+			"summary": "Get all labels",
+			"tags": [
+				"Labels"
+			],
+			"direction": "read",
+			"model": "PageBeanString"
+		},
+		{
+			"operationId": "getLicense",
+			"method": "GET",
+			"path": "/rest/api/3/instance/license",
+			"summary": "Get license",
+			"tags": [
+				"License metrics"
+			],
+			"direction": "read",
+			"model": "License"
+		},
+		{
+			"operationId": "getApproximateLicenseCount",
+			"method": "GET",
+			"path": "/rest/api/3/license/approximateLicenseCount",
+			"summary": "Get approximate license count",
+			"tags": [
+				"License metrics"
+			],
+			"direction": "read",
+			"model": "LicenseMetric"
+		},
+		{
+			"operationId": "getApproximateApplicationLicenseCount",
+			"method": "GET",
+			"path": "/rest/api/3/license/approximateLicenseCount/product/{applicationKey}",
+			"summary": "Get approximate application license count",
+			"tags": [
+				"License metrics"
+			],
+			"direction": "read",
+			"model": "LicenseMetric"
+		},
+		{
+			"operationId": "ConnectToForgeMigrationFetchTaskResource.fetchMigrationTask_get",
+			"method": "GET",
+			"path": "/rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task",
+			"summary": "Get Connect issue field migration task",
+			"tags": [
+				"Migration of Connect modules to Forge"
+			],
+			"direction": "read",
+			"model": "TaskProgress"
+		},
+		{
+			"operationId": "ConnectToForgeMigrationTaskSubmissionResource.submitTask_post",
+			"method": "POST",
+			"path": "/rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task",
+			"summary": "Submit Connect issue field migration task",
+			"tags": [
+				"Migration of Connect modules to Forge"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "removePreference",
+			"method": "DELETE",
+			"path": "/rest/api/3/mypreferences",
+			"summary": "Delete preference",
+			"tags": [
+				"Myself"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPreference",
+			"method": "GET",
+			"path": "/rest/api/3/mypreferences",
+			"summary": "Get preference",
+			"tags": [
+				"Myself"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "setPreference",
+			"method": "PUT",
+			"path": "/rest/api/3/mypreferences",
+			"summary": "Set preference",
+			"tags": [
+				"Myself"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getLocale",
+			"method": "GET",
+			"path": "/rest/api/3/mypreferences/locale",
+			"summary": "Get locale",
+			"tags": [
+				"Myself"
+			],
+			"direction": "read",
+			"model": "Locale"
+		},
+		{
+			"operationId": "setLocale",
+			"method": "PUT",
+			"path": "/rest/api/3/mypreferences/locale",
+			"summary": "Set locale",
+			"tags": [
+				"Myself"
+			],
+			"direction": "write",
+			"model": "Locale"
+		},
+		{
+			"operationId": "getCurrentUser",
+			"method": "GET",
+			"path": "/rest/api/3/myself",
+			"summary": "Get current user",
+			"tags": [
+				"Myself"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "getAllPermissionSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/permissionscheme",
+			"summary": "Get all permission schemes",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "read",
+			"model": "PermissionSchemes"
+		},
+		{
+			"operationId": "createPermissionScheme",
+			"method": "POST",
+			"path": "/rest/api/3/permissionscheme",
+			"summary": "Create permission scheme",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "write",
+			"model": "PermissionScheme"
+		},
+		{
+			"operationId": "deletePermissionScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/permissionscheme/{schemeId}",
+			"summary": "Delete permission scheme",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPermissionScheme",
+			"method": "GET",
+			"path": "/rest/api/3/permissionscheme/{schemeId}",
+			"summary": "Get permission scheme",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "read",
+			"model": "PermissionScheme"
+		},
+		{
+			"operationId": "updatePermissionScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/permissionscheme/{schemeId}",
+			"summary": "Update permission scheme",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "write",
+			"model": "PermissionScheme"
+		},
+		{
+			"operationId": "getPermissionSchemeGrants",
+			"method": "GET",
+			"path": "/rest/api/3/permissionscheme/{schemeId}/permission",
+			"summary": "Get permission scheme grants",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "read",
+			"model": "PermissionGrants"
+		},
+		{
+			"operationId": "createPermissionGrant",
+			"method": "POST",
+			"path": "/rest/api/3/permissionscheme/{schemeId}/permission",
+			"summary": "Create permission grant",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "write",
+			"model": "PermissionGrant"
+		},
+		{
+			"operationId": "deletePermissionSchemeEntity",
+			"method": "DELETE",
+			"path": "/rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}",
+			"summary": "Delete permission scheme grant",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPermissionSchemeGrant",
+			"method": "GET",
+			"path": "/rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}",
+			"summary": "Get permission scheme grant",
+			"tags": [
+				"Permission schemes"
+			],
+			"direction": "read",
+			"model": "PermissionGrant"
+		},
+		{
+			"operationId": "getMyPermissions",
+			"method": "GET",
+			"path": "/rest/api/3/mypermissions",
+			"summary": "Get my permissions",
+			"tags": [
+				"Permissions"
+			],
+			"direction": "read",
+			"model": "Permissions"
+		},
+		{
+			"operationId": "getAllPermissions",
+			"method": "GET",
+			"path": "/rest/api/3/permissions",
+			"summary": "Get all permissions",
+			"tags": [
+				"Permissions"
+			],
+			"direction": "read",
+			"model": "Permissions"
+		},
+		{
+			"operationId": "getBulkPermissions",
+			"method": "POST",
+			"path": "/rest/api/3/permissions/check",
+			"summary": "Get bulk permissions",
+			"tags": [
+				"Permissions"
+			],
+			"direction": "write",
+			"model": "BulkPermissionGrants"
+		},
+		{
+			"operationId": "getPermittedProjects",
+			"method": "POST",
+			"path": "/rest/api/3/permissions/project",
+			"summary": "Get permitted projects",
+			"tags": [
+				"Permissions"
+			],
+			"direction": "write",
+			"model": "PermittedProjects"
+		},
+		{
+			"operationId": "getPlans",
+			"method": "GET",
+			"path": "/rest/api/3/plans/plan",
+			"summary": "Get plans paginated",
+			"tags": [
+				"Plans"
+			],
+			"direction": "read",
+			"model": "PageWithCursorGetPlanResponseForPage"
+		},
+		{
+			"operationId": "createPlan",
+			"method": "POST",
+			"path": "/rest/api/3/plans/plan",
+			"summary": "Create plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "write",
+			"model": "CreatePlanRequest"
+		},
+		{
+			"operationId": "getPlan",
+			"method": "GET",
+			"path": "/rest/api/3/plans/plan/{planId}",
+			"summary": "Get plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "read",
+			"model": "GetPlanResponse"
+		},
+		{
+			"operationId": "updatePlan",
+			"method": "PUT",
+			"path": "/rest/api/3/plans/plan/{planId}",
+			"summary": "Update plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "archivePlan",
+			"method": "PUT",
+			"path": "/rest/api/3/plans/plan/{planId}/archive",
+			"summary": "Archive plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "duplicatePlan",
+			"method": "POST",
+			"path": "/rest/api/3/plans/plan/{planId}/duplicate",
+			"summary": "Duplicate plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "write",
+			"model": "DuplicatePlanRequest"
+		},
+		{
+			"operationId": "trashPlan",
+			"method": "PUT",
+			"path": "/rest/api/3/plans/plan/{planId}/trash",
+			"summary": "Trash plan",
+			"tags": [
+				"Plans"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPrioritySchemes",
+			"method": "GET",
+			"path": "/rest/api/3/priorityscheme",
+			"summary": "Get priority schemes",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanPrioritySchemeWithPaginatedPrioritiesAndProjects"
+		},
+		{
+			"operationId": "createPriorityScheme",
+			"method": "POST",
+			"path": "/rest/api/3/priorityscheme",
+			"summary": "Create priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "write",
+			"model": "PrioritySchemeId"
+		},
+		{
+			"operationId": "deletePriorityScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/priorityscheme/{schemeId}",
+			"summary": "Delete priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updatePriorityScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/priorityscheme/{schemeId}",
+			"summary": "Update priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "write",
+			"model": "UpdatePrioritySchemeResponseBean"
+		},
+		{
+			"operationId": "getPrioritiesByPriorityScheme",
+			"method": "GET",
+			"path": "/rest/api/3/priorityscheme/{schemeId}/priorities",
+			"summary": "Get priorities by priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanPriorityWithSequence"
+		},
+		{
+			"operationId": "getProjectsByPriorityScheme",
+			"method": "GET",
+			"path": "/rest/api/3/priorityscheme/{schemeId}/projects",
+			"summary": "Get projects by priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanProject"
+		},
+		{
+			"operationId": "suggestedPrioritiesForMappings",
+			"method": "POST",
+			"path": "/rest/api/3/priorityscheme/mappings",
+			"summary": "Suggested priorities for mappings",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "write",
+			"model": "PageBeanPriorityWithSequence"
+		},
+		{
+			"operationId": "getAvailablePrioritiesByPriorityScheme",
+			"method": "GET",
+			"path": "/rest/api/3/priorityscheme/priorities/available",
+			"summary": "Get available priorities by priority scheme",
+			"tags": [
+				"Priority schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanPriorityWithSequence"
+		},
+		{
+			"operationId": "updateProjectAvatar",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}/avatar",
+			"summary": "Set project avatar",
+			"tags": [
+				"Project avatars"
+			],
+			"direction": "write",
+			"model": "Avatar"
+		},
+		{
+			"operationId": "deleteProjectAvatar",
+			"method": "DELETE",
+			"path": "/rest/api/3/project/{projectIdOrKey}/avatar/{id}",
+			"summary": "Delete project avatar",
+			"tags": [
+				"Project avatars"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "createProjectAvatar",
+			"method": "POST",
+			"path": "/rest/api/3/project/{projectIdOrKey}/avatar2",
+			"summary": "Load project avatar",
+			"tags": [
+				"Project avatars"
+			],
+			"direction": "write",
+			"model": "Avatar"
+		},
+		{
+			"operationId": "getAllProjectAvatars",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/avatars",
+			"summary": "Get all project avatars",
+			"tags": [
+				"Project avatars"
+			],
+			"direction": "read",
+			"model": "ProjectAvatars"
+		},
+		{
+			"operationId": "getAllProjectCategories",
+			"method": "GET",
+			"path": "/rest/api/3/projectCategory",
+			"summary": "Get all project categories",
+			"tags": [
+				"Project categories"
+			],
+			"direction": "read",
+			"model": "ProjectCategory"
+		},
+		{
+			"operationId": "createProjectCategory",
+			"method": "POST",
+			"path": "/rest/api/3/projectCategory",
+			"summary": "Create project category",
+			"tags": [
+				"Project categories"
+			],
+			"direction": "write",
+			"model": "ProjectCategory"
+		},
+		{
+			"operationId": "removeProjectCategory",
+			"method": "DELETE",
+			"path": "/rest/api/3/projectCategory/{id}",
+			"summary": "Delete project category",
+			"tags": [
+				"Project categories"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getProjectCategoryById",
+			"method": "GET",
+			"path": "/rest/api/3/projectCategory/{id}",
+			"summary": "Get project category by ID",
+			"tags": [
+				"Project categories"
+			],
+			"direction": "read",
+			"model": "ProjectCategory"
+		},
+		{
+			"operationId": "updateProjectCategory",
+			"method": "PUT",
+			"path": "/rest/api/3/projectCategory/{id}",
+			"summary": "Update project category",
+			"tags": [
+				"Project categories"
+			],
+			"direction": "write",
+			"model": "UpdatedProjectCategory"
+		},
+		{
+			"operationId": "getProjectClassificationConfig",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/classification-config",
+			"summary": "Get the classification configuration for a project",
+			"tags": [
+				"Project classification levels"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "removeDefaultProjectClassification",
+			"method": "DELETE",
+			"path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+			"summary": "Remove the default data classification level from a project",
+			"tags": [
+				"Project classification levels"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDefaultProjectClassification",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+			"summary": "Get the default data classification level of a project",
+			"tags": [
+				"Project classification levels"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "updateDefaultProjectClassification",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+			"summary": "Update the default data classification level of a project",
+			"tags": [
+				"Project classification levels"
+			],
+			"direction": "write",
+			"model": "UpdateDefaultProjectClassificationBean"
+		},
+		{
+			"operationId": "findComponentsForProjects",
+			"method": "GET",
+			"path": "/rest/api/3/component",
+			"summary": "Find components for projects",
+			"tags": [
+				"Project components"
+			],
+			"direction": "read",
+			"model": "PageBean2ComponentJsonBean"
+		},
+		{
+			"operationId": "createComponent",
+			"method": "POST",
+			"path": "/rest/api/3/component",
+			"summary": "Create component",
+			"tags": [
+				"Project components"
+			],
+			"direction": "write",
+			"model": "ProjectComponent"
+		},
+		{
+			"operationId": "deleteComponent",
+			"method": "DELETE",
+			"path": "/rest/api/3/component/{id}",
+			"summary": "Delete component",
+			"tags": [
+				"Project components"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getComponent",
+			"method": "GET",
+			"path": "/rest/api/3/component/{id}",
+			"summary": "Get component",
+			"tags": [
+				"Project components"
+			],
+			"direction": "read",
+			"model": "ProjectComponent"
+		},
+		{
+			"operationId": "updateComponent",
+			"method": "PUT",
+			"path": "/rest/api/3/component/{id}",
+			"summary": "Update component",
+			"tags": [
+				"Project components"
+			],
+			"direction": "write",
+			"model": "ProjectComponent"
+		},
+		{
+			"operationId": "getComponentRelatedIssues",
+			"method": "GET",
+			"path": "/rest/api/3/component/{id}/relatedIssueCounts",
+			"summary": "Get component issues count",
+			"tags": [
+				"Project components"
+			],
+			"direction": "read",
+			"model": "ComponentIssuesCount"
+		},
+		{
+			"operationId": "getProjectComponentsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/component",
+			"summary": "Get project components paginated",
+			"tags": [
+				"Project components"
+			],
+			"direction": "read",
+			"model": "PageBeanComponentWithIssueCount"
+		},
+		{
+			"operationId": "getProjectComponents",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/components",
+			"summary": "Get project components",
+			"tags": [
+				"Project components"
+			],
+			"direction": "read",
+			"model": "ProjectComponent"
+		},
+		{
+			"operationId": "getProjectEmail",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectId}/email",
+			"summary": "Get project's sender email",
+			"tags": [
+				"Project email"
+			],
+			"direction": "read",
+			"model": "ProjectEmailAddress"
+		},
+		{
+			"operationId": "updateProjectEmail",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectId}/email",
+			"summary": "Set project's sender email",
+			"tags": [
+				"Project email"
+			],
+			"direction": "write",
+			"model": "ProjectEmailAddress"
+		},
+		{
+			"operationId": "getFeaturesForProject",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/features",
+			"summary": "Get project features",
+			"tags": [
+				"Project features"
+			],
+			"direction": "read",
+			"model": "ContainerForProjectFeatures"
+		},
+		{
+			"operationId": "toggleFeatureForProject",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}/features/{featureKey}",
+			"summary": "Set project feature state",
+			"tags": [
+				"Project features"
+			],
+			"direction": "write",
+			"model": "ContainerForProjectFeatures"
+		},
+		{
+			"operationId": "validateProjectKey",
+			"method": "GET",
+			"path": "/rest/api/3/projectvalidate/key",
+			"summary": "Validate project key",
+			"tags": [
+				"Project key and name validation"
+			],
+			"direction": "read",
+			"model": "ErrorCollection"
+		},
+		{
+			"operationId": "getValidProjectKey",
+			"method": "GET",
+			"path": "/rest/api/3/projectvalidate/validProjectKey",
+			"summary": "Get valid project key",
+			"tags": [
+				"Project key and name validation"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "getValidProjectName",
+			"method": "GET",
+			"path": "/rest/api/3/projectvalidate/validProjectName",
+			"summary": "Get valid project name",
+			"tags": [
+				"Project key and name validation"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "getProjectIssueSecurityScheme",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectKeyOrId}/issuesecuritylevelscheme",
+			"summary": "Get project issue security scheme",
+			"tags": [
+				"Project permission schemes"
+			],
+			"direction": "read",
+			"model": "SecurityScheme"
+		},
+		{
+			"operationId": "getAssignedPermissionScheme",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectKeyOrId}/permissionscheme",
+			"summary": "Get assigned permission scheme",
+			"tags": [
+				"Project permission schemes"
+			],
+			"direction": "read",
+			"model": "PermissionScheme"
+		},
+		{
+			"operationId": "assignPermissionScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectKeyOrId}/permissionscheme",
+			"summary": "Assign permission scheme",
+			"tags": [
+				"Project permission schemes"
+			],
+			"direction": "write",
+			"model": "PermissionScheme"
+		},
+		{
+			"operationId": "getSecurityLevelsForProject",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectKeyOrId}/securitylevel",
+			"summary": "Get project issue security levels",
+			"tags": [
+				"Project permission schemes"
+			],
+			"direction": "read",
+			"model": "ProjectIssueSecurityLevels"
+		},
+		{
+			"operationId": "getProjectPropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/properties",
+			"summary": "Get project property keys",
+			"tags": [
+				"Project properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteProjectProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+			"summary": "Delete project property",
+			"tags": [
+				"Project properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getProjectProperty",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+			"summary": "Get project property",
+			"tags": [
+				"Project properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setProjectProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+			"summary": "Set project property",
+			"tags": [
+				"Project properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "deleteActor",
+			"method": "DELETE",
+			"path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+			"summary": "Delete actors from project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "addActorUsers",
+			"method": "POST",
+			"path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+			"summary": "Add actors to project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "setActors",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+			"summary": "Set actors for project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "deleteProjectRoleActorsFromRole",
+			"method": "DELETE",
+			"path": "/rest/api/3/role/{id}/actors",
+			"summary": "Delete default actors from project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "getProjectRoleActorsForRole",
+			"method": "GET",
+			"path": "/rest/api/3/role/{id}/actors",
+			"summary": "Get default actors for project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "read",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "addProjectRoleActorsToRole",
+			"method": "POST",
+			"path": "/rest/api/3/role/{id}/actors",
+			"summary": "Add default actors to project role",
+			"tags": [
+				"Project role actors"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "getProjectRoles",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/role",
+			"summary": "Get project roles for project",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "getProjectRole",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+			"summary": "Get project role for project",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "read",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "getProjectRoleDetails",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/roledetails",
+			"summary": "Get project role details",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "read",
+			"model": "ProjectRoleDetails"
+		},
+		{
+			"operationId": "getAllProjectRoles",
+			"method": "GET",
+			"path": "/rest/api/3/role",
+			"summary": "Get all project roles",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "read",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "createProjectRole",
+			"method": "POST",
+			"path": "/rest/api/3/role",
+			"summary": "Create project role",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "deleteProjectRole",
+			"method": "DELETE",
+			"path": "/rest/api/3/role/{id}",
+			"summary": "Delete project role",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getProjectRoleById",
+			"method": "GET",
+			"path": "/rest/api/3/role/{id}",
+			"summary": "Get project role by ID",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "read",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "partialUpdateProjectRole",
+			"method": "POST",
+			"path": "/rest/api/3/role/{id}",
+			"summary": "Partial update project role",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "fullyUpdateProjectRole",
+			"method": "PUT",
+			"path": "/rest/api/3/role/{id}",
+			"summary": "Fully update project role",
+			"tags": [
+				"Project roles"
+			],
+			"direction": "write",
+			"model": "ProjectRole"
+		},
+		{
+			"operationId": "createProjectWithCustomTemplate",
+			"method": "POST",
+			"path": "/rest/api/3/project-template",
+			"summary": "Create custom project",
+			"tags": [
+				"Project templates"
+			],
+			"direction": "write",
+			"model": "ProjectCustomTemplateCreateRequestDTO"
+		},
+		{
+			"operationId": "editTemplate",
+			"method": "PUT",
+			"path": "/rest/api/3/project-template/edit-template",
+			"summary": "Edit a custom project template",
+			"tags": [
+				"Project templates"
+			],
+			"direction": "write",
+			"model": "EditTemplateRequest"
+		},
+		{
+			"operationId": "liveTemplate",
+			"method": "GET",
+			"path": "/rest/api/3/project-template/live-template",
+			"summary": "Gets a custom project template",
+			"tags": [
+				"Project templates"
+			],
+			"direction": "read",
+			"model": "ProjectTemplateModel"
+		},
+		{
+			"operationId": "removeTemplate",
+			"method": "DELETE",
+			"path": "/rest/api/3/project-template/remove-template",
+			"summary": "Deletes a custom project template",
+			"tags": [
+				"Project templates"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "saveTemplate",
+			"method": "POST",
+			"path": "/rest/api/3/project-template/save-template",
+			"summary": "Save a custom project template",
+			"tags": [
+				"Project templates"
+			],
+			"direction": "write",
+			"model": "SaveTemplateResponse"
+		},
+		{
+			"operationId": "getAllProjectTypes",
+			"method": "GET",
+			"path": "/rest/api/3/project/type",
+			"summary": "Get all project types",
+			"tags": [
+				"Project types"
+			],
+			"direction": "read",
+			"model": "ProjectType"
+		},
+		{
+			"operationId": "getProjectTypeByKey",
+			"method": "GET",
+			"path": "/rest/api/3/project/type/{projectTypeKey}",
+			"summary": "Get project type by key",
+			"tags": [
+				"Project types"
+			],
+			"direction": "read",
+			"model": "ProjectType"
+		},
+		{
+			"operationId": "getAccessibleProjectTypeByKey",
+			"method": "GET",
+			"path": "/rest/api/3/project/type/{projectTypeKey}/accessible",
+			"summary": "Get accessible project type by key",
+			"tags": [
+				"Project types"
+			],
+			"direction": "read",
+			"model": "ProjectType"
+		},
+		{
+			"operationId": "getAllAccessibleProjectTypes",
+			"method": "GET",
+			"path": "/rest/api/3/project/type/accessible",
+			"summary": "Get licensed project types",
+			"tags": [
+				"Project types"
+			],
+			"direction": "read",
+			"model": "ProjectType"
+		},
+		{
+			"operationId": "getProjectVersionsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/version",
+			"summary": "Get project versions paginated",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "PageBeanVersion"
+		},
+		{
+			"operationId": "getProjectVersions",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/versions",
+			"summary": "Get project versions",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "Version"
+		},
+		{
+			"operationId": "createVersion",
+			"method": "POST",
+			"path": "/rest/api/3/version",
+			"summary": "Create version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "Version"
+		},
+		{
+			"operationId": "deleteVersion",
+			"method": "DELETE",
+			"path": "/rest/api/3/version/{id}",
+			"summary": "Delete version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getVersion",
+			"method": "GET",
+			"path": "/rest/api/3/version/{id}",
+			"summary": "Get version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "Version"
+		},
+		{
+			"operationId": "updateVersion",
+			"method": "PUT",
+			"path": "/rest/api/3/version/{id}",
+			"summary": "Update version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "Version"
+		},
+		{
+			"operationId": "mergeVersions",
+			"method": "PUT",
+			"path": "/rest/api/3/version/{id}/mergeto/{moveIssuesTo}",
+			"summary": "Merge versions",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "moveVersion",
+			"method": "POST",
+			"path": "/rest/api/3/version/{id}/move",
+			"summary": "Move version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "Version"
+		},
+		{
+			"operationId": "getVersionRelatedIssues",
+			"method": "GET",
+			"path": "/rest/api/3/version/{id}/relatedIssueCounts",
+			"summary": "Get version's related issues count",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "VersionIssueCounts"
+		},
+		{
+			"operationId": "getRelatedWork",
+			"method": "GET",
+			"path": "/rest/api/3/version/{id}/relatedwork",
+			"summary": "Get related work",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "VersionRelatedWork"
+		},
+		{
+			"operationId": "createRelatedWork",
+			"method": "POST",
+			"path": "/rest/api/3/version/{id}/relatedwork",
+			"summary": "Create related work",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "VersionRelatedWork"
+		},
+		{
+			"operationId": "updateRelatedWork",
+			"method": "PUT",
+			"path": "/rest/api/3/version/{id}/relatedwork",
+			"summary": "Update related work",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "VersionRelatedWork"
+		},
+		{
+			"operationId": "deleteAndReplaceVersion",
+			"method": "POST",
+			"path": "/rest/api/3/version/{id}/removeAndSwap",
+			"summary": "Delete and replace version",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write",
+			"model": "DeleteAndReplaceVersionBean"
+		},
+		{
+			"operationId": "getVersionUnresolvedIssues",
+			"method": "GET",
+			"path": "/rest/api/3/version/{id}/unresolvedIssueCount",
+			"summary": "Get version's unresolved issues count",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "read",
+			"model": "VersionUnresolvedIssuesCount"
+		},
+		{
+			"operationId": "deleteRelatedWork",
+			"method": "DELETE",
+			"path": "/rest/api/3/version/{versionId}/relatedwork/{relatedWorkId}",
+			"summary": "Delete related work",
+			"tags": [
+				"Project versions"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAllProjects",
+			"method": "GET",
+			"path": "/rest/api/3/project",
+			"summary": "Get all projects",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "Project"
+		},
+		{
+			"operationId": "createProject",
+			"method": "POST",
+			"path": "/rest/api/3/project",
+			"summary": "Create project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write",
+			"model": "ProjectIdentifiers"
+		},
+		{
+			"operationId": "getHierarchy",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectId}/hierarchy",
+			"summary": "Get project issue type hierarchy",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "ProjectIssueTypeHierarchy"
+		},
+		{
+			"operationId": "deleteProject",
+			"method": "DELETE",
+			"path": "/rest/api/3/project/{projectIdOrKey}",
+			"summary": "Delete project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getProject",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}",
+			"summary": "Get project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "Project"
+		},
+		{
+			"operationId": "updateProject",
+			"method": "PUT",
+			"path": "/rest/api/3/project/{projectIdOrKey}",
+			"summary": "Update project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write",
+			"model": "Project"
+		},
+		{
+			"operationId": "archiveProject",
+			"method": "POST",
+			"path": "/rest/api/3/project/{projectIdOrKey}/archive",
+			"summary": "Archive project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "deleteProjectAsynchronously",
+			"method": "POST",
+			"path": "/rest/api/3/project/{projectIdOrKey}/delete",
+			"summary": "Delete project asynchronously",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "restore",
+			"method": "POST",
+			"path": "/rest/api/3/project/{projectIdOrKey}/restore",
+			"summary": "Restore deleted or archived project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "write",
+			"model": "Project"
+		},
+		{
+			"operationId": "getAllStatuses",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectIdOrKey}/statuses",
+			"summary": "Get all statuses for project",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "IssueTypeWithStatus"
+		},
+		{
+			"operationId": "getNotificationSchemeForProject",
+			"method": "GET",
+			"path": "/rest/api/3/project/{projectKeyOrId}/notificationscheme",
+			"summary": "Get project notification scheme",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "NotificationScheme"
+		},
+		{
+			"operationId": "getRecent",
+			"method": "GET",
+			"path": "/rest/api/3/project/recent",
+			"summary": "Get recent projects",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "Project"
+		},
+		{
+			"operationId": "searchProjects",
+			"method": "GET",
+			"path": "/rest/api/3/project/search",
+			"summary": "Get projects paginated",
+			"tags": [
+				"Projects"
+			],
+			"direction": "read",
+			"model": "PageBeanProject"
+		},
+		{
+			"operationId": "getScreenSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/screenscheme",
+			"summary": "Get screen schemes",
+			"tags": [
+				"Screen schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanScreenScheme"
+		},
+		{
+			"operationId": "createScreenScheme",
+			"method": "POST",
+			"path": "/rest/api/3/screenscheme",
+			"summary": "Create screen scheme",
+			"tags": [
+				"Screen schemes"
+			],
+			"direction": "write",
+			"model": "ScreenSchemeId"
+		},
+		{
+			"operationId": "deleteScreenScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/screenscheme/{screenSchemeId}",
+			"summary": "Delete screen scheme",
+			"tags": [
+				"Screen schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateScreenScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/screenscheme/{screenSchemeId}",
+			"summary": "Update screen scheme",
+			"tags": [
+				"Screen schemes"
+			],
+			"direction": "write",
+			"model": "UpdateScreenSchemeDetails"
+		},
+		{
+			"operationId": "getAllScreenTabFields",
+			"method": "GET",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields",
+			"summary": "Get all screen tab fields",
+			"tags": [
+				"Screen tab fields"
+			],
+			"direction": "read",
+			"model": "ScreenableField"
+		},
+		{
+			"operationId": "addScreenTabField",
+			"method": "POST",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields",
+			"summary": "Add screen tab field",
+			"tags": [
+				"Screen tab fields"
+			],
+			"direction": "write",
+			"model": "ScreenableField"
+		},
+		{
+			"operationId": "removeScreenTabField",
+			"method": "DELETE",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}",
+			"summary": "Remove screen tab field",
+			"tags": [
+				"Screen tab fields"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "moveScreenTabField",
+			"method": "POST",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}/move",
+			"summary": "Move screen tab field",
+			"tags": [
+				"Screen tab fields"
+			],
+			"direction": "write",
+			"model": "MoveFieldBean"
+		},
+		{
+			"operationId": "getAllScreenTabs",
+			"method": "GET",
+			"path": "/rest/api/3/screens/{screenId}/tabs",
+			"summary": "Get all screen tabs",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "read",
+			"model": "ScreenableTab"
+		},
+		{
+			"operationId": "addScreenTab",
+			"method": "POST",
+			"path": "/rest/api/3/screens/{screenId}/tabs",
+			"summary": "Create screen tab",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "write",
+			"model": "ScreenableTab"
+		},
+		{
+			"operationId": "deleteScreenTab",
+			"method": "DELETE",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}",
+			"summary": "Delete screen tab",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "renameScreenTab",
+			"method": "PUT",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}",
+			"summary": "Update screen tab",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "write",
+			"model": "ScreenableTab"
+		},
+		{
+			"operationId": "moveScreenTab",
+			"method": "POST",
+			"path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/move/{pos}",
+			"summary": "Move screen tab",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getBulkScreenTabs",
+			"method": "GET",
+			"path": "/rest/api/3/screens/tabs",
+			"summary": "Get bulk screen tabs",
+			"tags": [
+				"Screen tabs"
+			],
+			"direction": "read"
+		},
+		{
+			"operationId": "getScreensForField",
+			"method": "GET",
+			"path": "/rest/api/3/field/{fieldId}/screens",
+			"summary": "Get screens for a field",
+			"tags": [
+				"Screens"
+			],
+			"direction": "read",
+			"model": "PageBeanScreenWithTab"
+		},
+		{
+			"operationId": "getScreens",
+			"method": "GET",
+			"path": "/rest/api/3/screens",
+			"summary": "Get screens",
+			"tags": [
+				"Screens"
+			],
+			"direction": "read",
+			"model": "PageBeanScreen"
+		},
+		{
+			"operationId": "createScreen",
+			"method": "POST",
+			"path": "/rest/api/3/screens",
+			"summary": "Create screen",
+			"tags": [
+				"Screens"
+			],
+			"direction": "write",
+			"model": "Screen"
+		},
+		{
+			"operationId": "deleteScreen",
+			"method": "DELETE",
+			"path": "/rest/api/3/screens/{screenId}",
+			"summary": "Delete screen",
+			"tags": [
+				"Screens"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateScreen",
+			"method": "PUT",
+			"path": "/rest/api/3/screens/{screenId}",
+			"summary": "Update screen",
+			"tags": [
+				"Screens"
+			],
+			"direction": "write",
+			"model": "Screen"
+		},
+		{
+			"operationId": "getAvailableScreenFields",
+			"method": "GET",
+			"path": "/rest/api/3/screens/{screenId}/availableFields",
+			"summary": "Get available screen fields",
+			"tags": [
+				"Screens"
+			],
+			"direction": "read",
+			"model": "ScreenableField"
+		},
+		{
+			"operationId": "addFieldToDefaultScreen",
+			"method": "POST",
+			"path": "/rest/api/3/screens/addToDefault/{fieldId}",
+			"summary": "Add field to default screen",
+			"tags": [
+				"Screens"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getServerInfo",
+			"method": "GET",
+			"path": "/rest/api/3/serverInfo",
+			"summary": "Get Jira instance info",
+			"tags": [
+				"Server info"
+			],
+			"direction": "read",
+			"model": "ServerInformation"
+		},
+		{
+			"operationId": "ServiceRegistryResource.services_get",
+			"method": "GET",
+			"path": "/rest/atlassian-connect/1/service-registry",
+			"summary": "Retrieve the attributes of service registries",
+			"tags": [
+				"Service Registry"
+			],
+			"direction": "read",
+			"model": "ServiceRegistry"
+		},
+		{
+			"operationId": "deleteStatusesById",
+			"method": "DELETE",
+			"path": "/rest/api/3/statuses",
+			"summary": "Bulk delete Statuses",
+			"tags": [
+				"Status"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getStatusesById",
+			"method": "GET",
+			"path": "/rest/api/3/statuses",
+			"summary": "Bulk get statuses",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "JiraStatus"
+		},
+		{
+			"operationId": "createStatuses",
+			"method": "POST",
+			"path": "/rest/api/3/statuses",
+			"summary": "Bulk create statuses",
+			"tags": [
+				"Status"
+			],
+			"direction": "write",
+			"model": "JiraStatus"
+		},
+		{
+			"operationId": "updateStatuses",
+			"method": "PUT",
+			"path": "/rest/api/3/statuses",
+			"summary": "Bulk update statuses",
+			"tags": [
+				"Status"
+			],
+			"direction": "write",
+			"model": "StatusUpdateRequest"
+		},
+		{
+			"operationId": "getProjectIssueTypeUsagesForStatus",
+			"method": "GET",
+			"path": "/rest/api/3/statuses/{statusId}/project/{projectId}/issueTypeUsages",
+			"summary": "Get issue type usages by status and project",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "StatusProjectIssueTypeUsageDTO"
+		},
+		{
+			"operationId": "getProjectUsagesForStatus",
+			"method": "GET",
+			"path": "/rest/api/3/statuses/{statusId}/projectUsages",
+			"summary": "Get project usages by status",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "StatusProjectUsageDTO"
+		},
+		{
+			"operationId": "getWorkflowUsagesForStatus",
+			"method": "GET",
+			"path": "/rest/api/3/statuses/{statusId}/workflowUsages",
+			"summary": "Get workflow usages by status",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "StatusWorkflowUsageDTO"
+		},
+		{
+			"operationId": "getStatusesByName",
+			"method": "GET",
+			"path": "/rest/api/3/statuses/byNames",
+			"summary": "Bulk get statuses by name",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "JiraStatus"
+		},
+		{
+			"operationId": "search",
+			"method": "GET",
+			"path": "/rest/api/3/statuses/search",
+			"summary": "Search statuses paginated",
+			"tags": [
+				"Status"
+			],
+			"direction": "read",
+			"model": "PageOfStatuses"
+		},
+		{
+			"operationId": "getTask",
+			"method": "GET",
+			"path": "/rest/api/3/task/{taskId}",
+			"summary": "Get task",
+			"tags": [
+				"Tasks"
+			],
+			"direction": "read",
+			"model": "TaskProgressBeanObject"
+		},
+		{
+			"operationId": "cancelTask",
+			"method": "POST",
+			"path": "/rest/api/3/task/{taskId}/cancel",
+			"summary": "Cancel task",
+			"tags": [
+				"Tasks"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getTeams",
+			"method": "GET",
+			"path": "/rest/api/3/plans/plan/{planId}/team",
+			"summary": "Get teams in plan paginated",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "read",
+			"model": "PageWithCursorGetTeamResponseForPage"
+		},
+		{
+			"operationId": "addAtlassianTeam",
+			"method": "POST",
+			"path": "/rest/api/3/plans/plan/{planId}/team/atlassian",
+			"summary": "Add Atlassian team to plan",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write",
+			"model": "AddAtlassianTeamRequest"
+		},
+		{
+			"operationId": "removeAtlassianTeam",
+			"method": "DELETE",
+			"path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+			"summary": "Remove Atlassian team from plan",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getAtlassianTeam",
+			"method": "GET",
+			"path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+			"summary": "Get Atlassian team in plan",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "read",
+			"model": "GetAtlassianTeamResponse"
+		},
+		{
+			"operationId": "updateAtlassianTeam",
+			"method": "PUT",
+			"path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+			"summary": "Update Atlassian team in plan",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "createPlanOnlyTeam",
+			"method": "POST",
+			"path": "/rest/api/3/plans/plan/{planId}/team/planonly",
+			"summary": "Create plan-only team",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write",
+			"model": "CreatePlanOnlyTeamRequest"
+		},
+		{
+			"operationId": "deletePlanOnlyTeam",
+			"method": "DELETE",
+			"path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+			"summary": "Delete plan-only team",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getPlanOnlyTeam",
+			"method": "GET",
+			"path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+			"summary": "Get plan-only team",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "read",
+			"model": "GetPlanOnlyTeamResponse"
+		},
+		{
+			"operationId": "updatePlanOnlyTeam",
+			"method": "PUT",
+			"path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+			"summary": "Update plan-only team",
+			"tags": [
+				"Teams in plan"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getSelectedTimeTrackingImplementation",
+			"method": "GET",
+			"path": "/rest/api/3/configuration/timetracking",
+			"summary": "Get selected time tracking provider",
+			"tags": [
+				"Time tracking"
+			],
+			"direction": "read",
+			"model": "TimeTrackingProvider"
+		},
+		{
+			"operationId": "selectTimeTrackingImplementation",
+			"method": "PUT",
+			"path": "/rest/api/3/configuration/timetracking",
+			"summary": "Select time tracking provider",
+			"tags": [
+				"Time tracking"
+			],
+			"direction": "write",
+			"model": "TimeTrackingProvider"
+		},
+		{
+			"operationId": "getAvailableTimeTrackingImplementations",
+			"method": "GET",
+			"path": "/rest/api/3/configuration/timetracking/list",
+			"summary": "Get all time tracking providers",
+			"tags": [
+				"Time tracking"
+			],
+			"direction": "read",
+			"model": "TimeTrackingProvider"
+		},
+		{
+			"operationId": "getSharedTimeTrackingConfiguration",
+			"method": "GET",
+			"path": "/rest/api/3/configuration/timetracking/options",
+			"summary": "Get time tracking settings",
+			"tags": [
+				"Time tracking"
+			],
+			"direction": "read",
+			"model": "TimeTrackingConfiguration"
+		},
+		{
+			"operationId": "setSharedTimeTrackingConfiguration",
+			"method": "PUT",
+			"path": "/rest/api/3/configuration/timetracking/options",
+			"summary": "Set time tracking settings",
+			"tags": [
+				"Time tracking"
+			],
+			"direction": "write",
+			"model": "TimeTrackingConfiguration"
+		},
+		{
+			"operationId": "getUiModifications",
+			"method": "GET",
+			"path": "/rest/api/3/uiModifications",
+			"summary": "Get UI modifications",
+			"tags": [
+				"UI modifications (apps)"
+			],
+			"direction": "read",
+			"model": "PageBeanUiModificationDetails"
+		},
+		{
+			"operationId": "createUiModification",
+			"method": "POST",
+			"path": "/rest/api/3/uiModifications",
+			"summary": "Create UI modification",
+			"tags": [
+				"UI modifications (apps)"
+			],
+			"direction": "write",
+			"model": "UiModificationIdentifiers"
+		},
+		{
+			"operationId": "deleteUiModification",
+			"method": "DELETE",
+			"path": "/rest/api/3/uiModifications/{uiModificationId}",
+			"summary": "Delete UI modification",
+			"tags": [
+				"UI modifications (apps)"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "updateUiModification",
+			"method": "PUT",
+			"path": "/rest/api/3/uiModifications/{uiModificationId}",
+			"summary": "Update UI modification",
+			"tags": [
+				"UI modifications (apps)"
+			],
+			"direction": "write",
+			"model": "UpdateUiModificationDetails"
+		},
+		{
+			"operationId": "getUserPropertyKeys",
+			"method": "GET",
+			"path": "/rest/api/3/user/properties",
+			"summary": "Get user property keys",
+			"tags": [
+				"User properties"
+			],
+			"direction": "read",
+			"model": "PropertyKeys"
+		},
+		{
+			"operationId": "deleteUserProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/user/properties/{propertyKey}",
+			"summary": "Delete user property",
+			"tags": [
+				"User properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getUserProperty",
+			"method": "GET",
+			"path": "/rest/api/3/user/properties/{propertyKey}",
+			"summary": "Get user property",
+			"tags": [
+				"User properties"
+			],
+			"direction": "read",
+			"model": "EntityProperty"
+		},
+		{
+			"operationId": "setUserProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/user/properties/{propertyKey}",
+			"summary": "Set user property",
+			"tags": [
+				"User properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "findBulkAssignableUsers",
+			"method": "GET",
+			"path": "/rest/api/3/user/assignable/multiProjectSearch",
+			"summary": "Find users assignable to projects",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "findAssignableUsers",
+			"method": "GET",
+			"path": "/rest/api/3/user/assignable/search",
+			"summary": "Find users assignable to issues",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "findUsersWithAllPermissions",
+			"method": "GET",
+			"path": "/rest/api/3/user/permission/search",
+			"summary": "Find users with permissions",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "findUsersForPicker",
+			"method": "GET",
+			"path": "/rest/api/3/user/picker",
+			"summary": "Find users for picker",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "FoundUsers"
+		},
+		{
+			"operationId": "findUsers",
+			"method": "GET",
+			"path": "/rest/api/3/user/search",
+			"summary": "Find users",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "findUsersByQuery",
+			"method": "GET",
+			"path": "/rest/api/3/user/search/query",
+			"summary": "Find users by query",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "PageBeanUser"
+		},
+		{
+			"operationId": "findUserKeysByQuery",
+			"method": "GET",
+			"path": "/rest/api/3/user/search/query/key",
+			"summary": "Find user keys by query",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "PageBeanUserKey"
+		},
+		{
+			"operationId": "findUsersWithBrowsePermission",
+			"method": "GET",
+			"path": "/rest/api/3/user/viewissue/search",
+			"summary": "Find users with browse permission",
+			"tags": [
+				"User search"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "removeUser",
+			"method": "DELETE",
+			"path": "/rest/api/3/user",
+			"summary": "Delete user",
+			"tags": [
+				"Users"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getUser",
+			"method": "GET",
+			"path": "/rest/api/3/user",
+			"summary": "Get user",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "createUser",
+			"method": "POST",
+			"path": "/rest/api/3/user",
+			"summary": "Create user",
+			"tags": [
+				"Users"
+			],
+			"direction": "write",
+			"model": "User"
+		},
+		{
+			"operationId": "bulkGetUsers",
+			"method": "GET",
+			"path": "/rest/api/3/user/bulk",
+			"summary": "Bulk get users",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "PageBeanUser"
+		},
+		{
+			"operationId": "bulkGetUsersMigration",
+			"method": "GET",
+			"path": "/rest/api/3/user/bulk/migration",
+			"summary": "Get account IDs for users",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "UserMigrationBean"
+		},
+		{
+			"operationId": "resetUserColumns",
+			"method": "DELETE",
+			"path": "/rest/api/3/user/columns",
+			"summary": "Reset user default columns",
+			"tags": [
+				"Users"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getUserDefaultColumns",
+			"method": "GET",
+			"path": "/rest/api/3/user/columns",
+			"summary": "Get user default columns",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "ColumnItem"
+		},
+		{
+			"operationId": "setUserColumns",
+			"method": "PUT",
+			"path": "/rest/api/3/user/columns",
+			"summary": "Set user default columns",
+			"tags": [
+				"Users"
+			],
+			"direction": "write",
+			"model": "UserColumnRequestBody"
+		},
+		{
+			"operationId": "getUserEmail",
+			"method": "GET",
+			"path": "/rest/api/3/user/email",
+			"summary": "Get user email",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "UnrestrictedUserEmail"
+		},
+		{
+			"operationId": "getUserEmailBulk",
+			"method": "GET",
+			"path": "/rest/api/3/user/email/bulk",
+			"summary": "Get user email bulk",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "UnrestrictedUserEmail"
+		},
+		{
+			"operationId": "getUserGroups",
+			"method": "GET",
+			"path": "/rest/api/3/user/groups",
+			"summary": "Get user groups",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "GroupName"
+		},
+		{
+			"operationId": "getAllUsersDefault",
+			"method": "GET",
+			"path": "/rest/api/3/users",
+			"summary": "Get all users default",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "getAllUsers",
+			"method": "GET",
+			"path": "/rest/api/3/users/search",
+			"summary": "Get all users",
+			"tags": [
+				"Users"
+			],
+			"direction": "read",
+			"model": "User"
+		},
+		{
+			"operationId": "deleteWebhookById",
+			"method": "DELETE",
+			"path": "/rest/api/3/webhook",
+			"summary": "Delete webhooks by ID",
+			"tags": [
+				"Webhooks"
+			],
+			"direction": "write",
+			"model": "ContainerForWebhookIDs"
+		},
+		{
+			"operationId": "getDynamicWebhooksForApp",
+			"method": "GET",
+			"path": "/rest/api/3/webhook",
+			"summary": "Get dynamic webhooks for app",
+			"tags": [
+				"Webhooks"
+			],
+			"direction": "read",
+			"model": "PageBeanWebhook"
+		},
+		{
+			"operationId": "registerDynamicWebhooks",
+			"method": "POST",
+			"path": "/rest/api/3/webhook",
+			"summary": "Register dynamic webhooks",
+			"tags": [
+				"Webhooks"
+			],
+			"direction": "write",
+			"model": "ContainerForRegisteredWebhooks"
+		},
+		{
+			"operationId": "getFailedWebhooks",
+			"method": "GET",
+			"path": "/rest/api/3/webhook/failed",
+			"summary": "Get failed webhooks",
+			"tags": [
+				"Webhooks"
+			],
+			"direction": "read",
+			"model": "FailedWebhooks"
+		},
+		{
+			"operationId": "refreshWebhooks",
+			"method": "PUT",
+			"path": "/rest/api/3/webhook/refresh",
+			"summary": "Extend webhook life",
+			"tags": [
+				"Webhooks"
+			],
+			"direction": "write",
+			"model": "WebhooksExpirationDate"
+		},
+		{
+			"operationId": "createWorkflowSchemeDraftFromParent",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/{id}/createdraft",
+			"summary": "Create draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteWorkflowSchemeDraft",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/draft",
+			"summary": "Delete draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorkflowSchemeDraft",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/draft",
+			"summary": "Get draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "read",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "updateWorkflowSchemeDraft",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/draft",
+			"summary": "Update draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteDraftDefaultWorkflow",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/default",
+			"summary": "Delete draft default workflow",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getDraftDefaultWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/default",
+			"summary": "Get draft default workflow",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "read",
+			"model": "DefaultWorkflow"
+		},
+		{
+			"operationId": "updateDraftDefaultWorkflow",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/default",
+			"summary": "Update draft default workflow",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteWorkflowSchemeDraftIssueType",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+			"summary": "Delete workflow for issue type in draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getWorkflowSchemeDraftIssueType",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+			"summary": "Get workflow for issue type in draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "read",
+			"model": "IssueTypeWorkflowMapping"
+		},
+		{
+			"operationId": "setWorkflowSchemeDraftIssueType",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+			"summary": "Set workflow for issue type in draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "publishDraftWorkflowScheme",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/publish",
+			"summary": "Publish draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "PublishDraftWorkflowScheme"
+		},
+		{
+			"operationId": "deleteDraftWorkflowMapping",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+			"summary": "Delete issue types for workflow in draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getDraftWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+			"summary": "Get issue types for workflows in draft workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "read",
+			"model": "IssueTypesWorkflowMapping"
+		},
+		{
+			"operationId": "updateDraftWorkflowMapping",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+			"summary": "Set issue types for workflow in workflow scheme",
+			"tags": [
+				"Workflow scheme drafts"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getWorkflowSchemeProjectAssociations",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/project",
+			"summary": "Get workflow scheme project associations",
+			"tags": [
+				"Workflow scheme project associations"
+			],
+			"direction": "read",
+			"model": "ContainerOfWorkflowSchemeAssociations"
+		},
+		{
+			"operationId": "assignSchemeToProject",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/project",
+			"summary": "Assign workflow scheme to project",
+			"tags": [
+				"Workflow scheme project associations"
+			],
+			"direction": "write",
+			"model": "WorkflowSchemeProjectAssociation"
+		},
+		{
+			"operationId": "getAllWorkflowSchemes",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme",
+			"summary": "Get all workflow schemes",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "PageBeanWorkflowScheme"
+		},
+		{
+			"operationId": "createWorkflowScheme",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme",
+			"summary": "Create workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteWorkflowScheme",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}",
+			"summary": "Delete workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorkflowScheme",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}",
+			"summary": "Get workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "updateWorkflowScheme",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}",
+			"summary": "Classic update workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteDefaultWorkflow",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/default",
+			"summary": "Delete default workflow",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getDefaultWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/default",
+			"summary": "Get default workflow",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "DefaultWorkflow"
+		},
+		{
+			"operationId": "updateDefaultWorkflow",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/default",
+			"summary": "Update default workflow",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteWorkflowSchemeIssueType",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+			"summary": "Delete workflow for issue type in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getWorkflowSchemeIssueType",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+			"summary": "Get workflow for issue type in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "IssueTypeWorkflowMapping"
+		},
+		{
+			"operationId": "setWorkflowSchemeIssueType",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+			"summary": "Set workflow for issue type in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "deleteWorkflowMapping",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflowscheme/{id}/workflow",
+			"summary": "Delete issue types for workflow in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{id}/workflow",
+			"summary": "Get issue types for workflows in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "IssueTypesWorkflowMapping"
+		},
+		{
+			"operationId": "updateWorkflowMapping",
+			"method": "PUT",
+			"path": "/rest/api/3/workflowscheme/{id}/workflow",
+			"summary": "Set issue types for workflow in workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowScheme"
+		},
+		{
+			"operationId": "getProjectUsagesForWorkflowScheme",
+			"method": "GET",
+			"path": "/rest/api/3/workflowscheme/{workflowSchemeId}/projectUsages",
+			"summary": "Get projects which are using a given workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "read",
+			"model": "WorkflowSchemeProjectUsageDTO"
+		},
+		{
+			"operationId": "switchWorkflowSchemeForProject",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/project/switch",
+			"summary": "Switch workflow scheme for project",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowSchemeProjectSwitchBean"
+		},
+		{
+			"operationId": "readWorkflowSchemes",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/read",
+			"summary": "Bulk get workflow schemes",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowSchemeReadResponse"
+		},
+		{
+			"operationId": "updateSchemes",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/update",
+			"summary": "Update workflow scheme",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowSchemeUpdateRequest"
+		},
+		{
+			"operationId": "getRequiredWorkflowSchemeMappings",
+			"method": "POST",
+			"path": "/rest/api/3/workflowscheme/update/mappings",
+			"summary": "Get required status mappings for workflow scheme update",
+			"tags": [
+				"Workflow schemes"
+			],
+			"direction": "write",
+			"model": "WorkflowSchemeUpdateRequiredMappingsResponse"
+		},
+		{
+			"operationId": "getStatusCategories",
+			"method": "GET",
+			"path": "/rest/api/3/statuscategory",
+			"summary": "Get all status categories",
+			"tags": [
+				"Workflow status categories"
+			],
+			"direction": "read",
+			"model": "StatusCategory"
+		},
+		{
+			"operationId": "getStatusCategory",
+			"method": "GET",
+			"path": "/rest/api/3/statuscategory/{idOrKey}",
+			"summary": "Get status category",
+			"tags": [
+				"Workflow status categories"
+			],
+			"direction": "read",
+			"model": "StatusCategory"
+		},
+		{
+			"operationId": "getStatuses",
+			"method": "GET",
+			"path": "/rest/api/3/status",
+			"summary": "Get all statuses",
+			"tags": [
+				"Workflow statuses"
+			],
+			"direction": "read",
+			"model": "StatusDetails"
+		},
+		{
+			"operationId": "getStatus",
+			"method": "GET",
+			"path": "/rest/api/3/status/{idOrName}",
+			"summary": "Get status",
+			"tags": [
+				"Workflow statuses"
+			],
+			"direction": "read",
+			"model": "StatusDetails"
+		},
+		{
+			"operationId": "deleteWorkflowTransitionProperty",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflow/transitions/{transitionId}/properties",
+			"summary": "Delete workflow transition property",
+			"tags": [
+				"Workflow transition properties"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorkflowTransitionProperties",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/transitions/{transitionId}/properties",
+			"summary": "Get workflow transition properties",
+			"tags": [
+				"Workflow transition properties"
+			],
+			"direction": "read",
+			"model": "WorkflowTransitionProperty"
+		},
+		{
+			"operationId": "createWorkflowTransitionProperty",
+			"method": "POST",
+			"path": "/rest/api/3/workflow/transitions/{transitionId}/properties",
+			"summary": "Create workflow transition property",
+			"tags": [
+				"Workflow transition properties"
+			],
+			"direction": "write",
+			"model": "WorkflowTransitionProperty"
+		},
+		{
+			"operationId": "updateWorkflowTransitionProperty",
+			"method": "PUT",
+			"path": "/rest/api/3/workflow/transitions/{transitionId}/properties",
+			"summary": "Update workflow transition property",
+			"tags": [
+				"Workflow transition properties"
+			],
+			"direction": "write",
+			"model": "WorkflowTransitionProperty"
+		},
+		{
+			"operationId": "getWorkflowTransitionRuleConfigurations",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/rule/config",
+			"summary": "Get workflow transition rule configurations",
+			"tags": [
+				"Workflow transition rules"
+			],
+			"direction": "read",
+			"model": "PageBeanWorkflowTransitionRules"
+		},
+		{
+			"operationId": "updateWorkflowTransitionRuleConfigurations",
+			"method": "PUT",
+			"path": "/rest/api/3/workflow/rule/config",
+			"summary": "Update workflow transition rule configurations",
+			"tags": [
+				"Workflow transition rules"
+			],
+			"direction": "write",
+			"model": "WorkflowTransitionRulesUpdateErrors"
+		},
+		{
+			"operationId": "deleteWorkflowTransitionRuleConfigurations",
+			"method": "PUT",
+			"path": "/rest/api/3/workflow/rule/config/delete",
+			"summary": "Delete workflow transition rule configurations",
+			"tags": [
+				"Workflow transition rules"
+			],
+			"direction": "write",
+			"model": "WorkflowTransitionRulesUpdateErrors"
+		},
+		{
+			"operationId": "deleteInactiveWorkflow",
+			"method": "DELETE",
+			"path": "/rest/api/3/workflow/{entityId}",
+			"summary": "Delete inactive workflow",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write"
+		},
+		{
+			"operationId": "getWorkflowProjectIssueTypeUsages",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages",
+			"summary": "Get issue types in a project that are using a given workflow",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "WorkflowProjectIssueTypeUsageDTO"
+		},
+		{
+			"operationId": "getProjectUsagesForWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/{workflowId}/projectUsages",
+			"summary": "Get projects using a given workflow",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "WorkflowProjectUsageDTO"
+		},
+		{
+			"operationId": "getWorkflowSchemeUsagesForWorkflow",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/{workflowId}/workflowSchemes",
+			"summary": "Get workflow schemes which are using a given workflow",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "WorkflowSchemeUsageDTO"
+		},
+		{
+			"operationId": "readWorkflowFromHistory",
+			"method": "POST",
+			"path": "/rest/api/3/workflow/history",
+			"summary": "Read workflow version from history",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowHistoryReadResponseDTO"
+		},
+		{
+			"operationId": "listWorkflowHistory",
+			"method": "POST",
+			"path": "/rest/api/3/workflow/history/list",
+			"summary": "List workflow history entries",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowHistoryListResponseDTO"
+		},
+		{
+			"operationId": "getWorkflowsPaginated",
+			"method": "GET",
+			"path": "/rest/api/3/workflow/search",
+			"summary": "Get workflows paginated",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "PageBeanWorkflow"
+		},
+		{
+			"operationId": "readWorkflows",
+			"method": "POST",
+			"path": "/rest/api/3/workflows",
+			"summary": "Bulk get workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowReadResponse"
+		},
+		{
+			"operationId": "workflowCapabilities",
+			"method": "GET",
+			"path": "/rest/api/3/workflows/capabilities",
+			"summary": "Get available workflow capabilities",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "WorkflowCapabilities"
+		},
+		{
+			"operationId": "createWorkflows",
+			"method": "POST",
+			"path": "/rest/api/3/workflows/create",
+			"summary": "Bulk create workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowCreateResponse"
+		},
+		{
+			"operationId": "validateCreateWorkflows",
+			"method": "POST",
+			"path": "/rest/api/3/workflows/create/validation",
+			"summary": "Validate create workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowValidationErrorList"
+		},
+		{
+			"operationId": "getDefaultEditor",
+			"method": "GET",
+			"path": "/rest/api/3/workflows/defaultEditor",
+			"summary": "Get the user's default workflow editor",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "DefaultWorkflowEditorResponse"
+		},
+		{
+			"operationId": "readWorkflowPreviews",
+			"method": "POST",
+			"path": "/rest/api/3/workflows/preview",
+			"summary": "Preview workflow",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowPreviewResponse"
+		},
+		{
+			"operationId": "searchWorkflows",
+			"method": "GET",
+			"path": "/rest/api/3/workflows/search",
+			"summary": "Search workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "read",
+			"model": "WorkflowSearchResponse"
+		},
+		{
+			"operationId": "updateWorkflows",
+			"method": "POST",
+			"path": "/rest/api/3/workflows/update",
+			"summary": "Bulk update workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowUpdateResponse"
+		},
+		{
+			"operationId": "validateUpdateWorkflows",
+			"method": "POST",
+			"path": "/rest/api/3/workflows/update/validation",
+			"summary": "Validate update workflows",
+			"tags": [
+				"Workflows"
+			],
+			"direction": "write",
+			"model": "WorkflowValidationErrorList"
+		},
+		{
+			"operationId": "getWorklogsByIssueIdAndWorklogId",
+			"method": "POST",
+			"path": "/rest/internal/api/latest/worklog/bulk",
+			"summary": "Get worklogs by issue id and worklog id",
+			"tags": [],
+			"direction": "write",
+			"model": "BulkWorklogKeyResponseBean"
+		}
+	],
+	"models": [
+		"ActorInputBean",
+		"ActorsMap",
+		"AddAtlassianTeamRequest",
+		"AddFieldBean",
+		"AddGroupBean",
+		"AddNotificationsDetails",
+		"AddSecuritySchemeLevelsRequestBean",
+		"AnnouncementBannerConfiguration",
+		"AnnouncementBannerConfigurationUpdate",
+		"Application",
+		"ApplicationProperty",
+		"ApplicationRole",
+		"ApprovalConfiguration",
+		"ApprovalConfigurationPreview",
+		"AppWorkflowTransitionRule",
+		"ArchivedIssuesFilterRequest",
+		"ArchiveIssueAsyncRequest",
+		"AssociatedItemBean",
+		"AssociateFieldConfigurationsWithIssueTypesRequest",
+		"AssociateSecuritySchemeWithProjectDetails",
+		"AssociationContextObject",
+		"Attachment",
+		"AttachmentArchive",
+		"AttachmentArchiveEntry",
+		"AttachmentArchiveImpl",
+		"AttachmentArchiveItemReadable",
+		"AttachmentArchiveMetadataReadable",
+		"AttachmentMetadata",
+		"AttachmentSettings",
+		"AuditRecordBean",
+		"AuditRecords",
+		"AutoCompleteSuggestion",
+		"AutoCompleteSuggestions",
+		"AvailableDashboardGadget",
+		"AvailableDashboardGadgetsResponse",
+		"AvailableWorkflowConnectRule",
+		"AvailableWorkflowForgeRule",
+		"AvailableWorkflowSystemRule",
+		"AvailableWorkflowTriggers",
+		"AvailableWorkflowTriggerTypes",
+		"Avatar",
+		"Avatars",
+		"AvatarUrlsBean",
+		"BoardColumnPayload",
+		"BoardFeaturePayload",
+		"BoardFeaturesPayload",
+		"BoardPayload",
+		"BoardsPayload",
+		"BulkChangelogRequestBean",
+		"BulkChangelogResponseBean",
+		"BulkChangeOwnerDetails",
+		"BulkContextualConfiguration",
+		"BulkCustomFieldOptionCreateRequest",
+		"BulkCustomFieldOptionUpdateRequest",
+		"BulkEditActionError",
+		"BulkEditGetFields",
+		"BulkEditShareableEntityRequest",
+		"BulkEditShareableEntityResponse",
+		"BulkFetchIssueRequestBean",
+		"BulkIssueIsWatching",
+		"BulkIssuePropertyUpdateRequest",
+		"BulkIssueResults",
+		"BulkOperationErrorResponse",
+		"BulkOperationErrorResult",
+		"BulkOperationProgress",
+		"BulkPermissionGrants",
+		"BulkPermissionsRequestBean",
+		"BulkProjectPermissionGrants",
+		"BulkProjectPermissions",
+		"BulkRedactionRequest",
+		"BulkRedactionResponse",
+		"BulkTransitionGetAvailableTransitions",
+		"BulkTransitionSubmitInput",
+		"BulkWorklogKeyRequestBean",
+		"BulkWorklogKeyResponseBean",
+		"CardLayout",
+		"CardLayoutField",
+		"ChangeDetails",
+		"ChangedValueBean",
+		"ChangedWorklog",
+		"ChangedWorklogs",
+		"ChangeFilterOwner",
+		"Changelog",
+		"ColumnItem",
+		"ColumnRequestBody",
+		"Comment",
+		"ComponentIssuesCount",
+		"ComponentJsonBean",
+		"ComponentWithIssueCount",
+		"CompoundClause",
+		"ConditionGroupConfiguration",
+		"ConditionGroupPayload",
+		"ConditionGroupUpdate",
+		"Configuration",
+		"ConfigurationsListParameters",
+		"ConnectCustomFieldValue",
+		"ConnectCustomFieldValues",
+		"ConnectModule",
+		"ConnectModules",
+		"ConnectWorkflowTransitionRule",
+		"ContainerForProjectFeatures",
+		"ContainerForRegisteredWebhooks",
+		"ContainerForWebhookIDs",
+		"ContainerOfWorkflowSchemeAssociations",
+		"ContentItem",
+		"Context",
+		"ContextForProjectAndIssueType",
+		"ContextualConfiguration",
+		"ConvertedJQLQueries",
+		"CreateCrossProjectReleaseRequest",
+		"CreateCustomFieldContext",
+		"CreateCustomFieldRequest",
+		"CreateDateFieldRequest",
+		"CreatedIssue",
+		"CreatedIssues",
+		"CreateExclusionRulesRequest",
+		"CreateFieldAssociationSchemeLinksBean",
+		"CreateFieldAssociationSchemeRequest",
+		"CreateFieldAssociationSchemeResponse",
+		"CreateIssueSecuritySchemeDetails",
+		"CreateIssueSourceRequest",
+		"CreateNotificationSchemeDetails",
+		"CreatePermissionHolderRequest",
+		"CreatePermissionRequest",
+		"CreatePlanOnlyTeamRequest",
+		"CreatePlanRequest",
+		"CreatePriorityDetails",
+		"CreatePrioritySchemeDetails",
+		"CreateProjectDetails",
+		"CreateResolutionDetails",
+		"CreateSchedulingRequest",
+		"CreateUiModificationDetails",
+		"CreateUpdateRoleRequestBean",
+		"CustomContextVariable",
+		"CustomFieldConfigurations",
+		"CustomFieldContext",
+		"CustomFieldContextDefaultValue",
+		"CustomFieldContextDefaultValueCascadingOption",
+		"CustomFieldContextDefaultValueDate",
+		"CustomFieldContextDefaultValueDateTime",
+		"CustomFieldContextDefaultValueFloat",
+		"CustomFieldContextDefaultValueForgeDateTimeField",
+		"CustomFieldContextDefaultValueForgeGroupField",
+		"CustomFieldContextDefaultValueForgeMultiGroupField",
+		"CustomFieldContextDefaultValueForgeMultiStringField",
+		"CustomFieldContextDefaultValueForgeMultiUserField",
+		"CustomFieldContextDefaultValueForgeNumberField",
+		"CustomFieldContextDefaultValueForgeObjectField",
+		"CustomFieldContextDefaultValueForgeStringField",
+		"CustomFieldContextDefaultValueForgeUserField",
+		"CustomFieldContextDefaultValueLabels",
+		"CustomFieldContextDefaultValueMultipleGroupPicker",
+		"CustomFieldContextDefaultValueMultipleOption",
+		"CustomFieldContextDefaultValueMultipleVersionPicker",
+		"CustomFieldContextDefaultValueMultiUserPicker",
+		"CustomFieldContextDefaultValueProject",
+		"CustomFieldContextDefaultValueReadOnly",
+		"CustomFieldContextDefaultValueSingleGroupPicker",
+		"CustomFieldContextDefaultValueSingleOption",
+		"CustomFieldContextDefaultValueSingleVersionPicker",
+		"CustomFieldContextDefaultValueTextArea",
+		"CustomFieldContextDefaultValueTextField",
+		"CustomFieldContextDefaultValueUpdate",
+		"CustomFieldContextDefaultValueURL",
+		"CustomFieldContextOption",
+		"CustomFieldContextProjectMapping",
+		"CustomFieldContextSingleUserPickerDefaults",
+		"CustomFieldContextUpdateDetails",
+		"CustomFieldCreatedContextOptionsList",
+		"CustomFieldDefinitionJsonBean",
+		"CustomFieldOption",
+		"CustomFieldOptionCreate",
+		"CustomFieldOptionUpdate",
+		"CustomFieldPayload",
+		"CustomFieldReplacement",
+		"CustomFieldUpdatedContextOptionsList",
+		"CustomFieldValueUpdate",
+		"CustomFieldValueUpdateDetails",
+		"CustomTemplateOptions",
+		"CustomTemplateRequestDTO",
+		"CustomTemplatesProjectDetails",
+		"Dashboard",
+		"DashboardDetails",
+		"DashboardGadget",
+		"DashboardGadgetPosition",
+		"DashboardGadgetResponse",
+		"DashboardGadgetSettings",
+		"DashboardGadgetUpdateRequest",
+		"DataClassificationLevelsBean",
+		"DataClassificationTagBean",
+		"DateRangeFilterRequest",
+		"DefaultLevelValue",
+		"DefaultShareScope",
+		"DefaultWorkflow",
+		"DefaultWorkflowEditorResponse",
+		"DeleteAndReplaceVersionBean",
+		"DeleteFieldAssociationSchemeResponse",
+		"DetailedErrorCollection",
+		"DocumentVersion",
+		"DuplicatePlanRequest",
+		"EditTemplateRequest",
+		"EntityProperty",
+		"EntityPropertyDetails",
+		"Error",
+		"ErrorCollection",
+		"ErrorCollections",
+		"ErrorMessage",
+		"Errors",
+		"EventNotification",
+		"ExpandPrioritySchemeBean",
+		"ExpandPrioritySchemePage",
+		"ExportArchivedIssuesTaskProgressResponse",
+		"FailedWebhook",
+		"FailedWebhooks",
+		"Field",
+		"FieldAssociationItemPayload",
+		"FieldAssociationParameters",
+		"FieldAssociationSchemeFieldSearchResult",
+		"FieldAssociationSchemeLinks",
+		"FieldAssociationSchemeLinksBean",
+		"FieldAssociationSchemeMatchedFilters",
+		"FieldAssociationSchemeProjectSearchResult",
+		"FieldAssociationsRequest",
+		"FieldCapabilityPayload",
+		"FieldChangedClause",
+		"FieldConfiguration",
+		"FieldConfigurationDetails",
+		"FieldConfigurationIssueTypeItem",
+		"FieldConfigurationItem",
+		"FieldConfigurationItemsDetails",
+		"FieldConfigurationScheme",
+		"FieldConfigurationSchemeProjectAssociation",
+		"FieldConfigurationSchemeProjects",
+		"FieldConfigurationToIssueTypeMapping",
+		"FieldCreateMetadata",
+		"FieldDetails",
+		"FieldIdentifierObject",
+		"FieldIdIdentifier",
+		"FieldLastUsed",
+		"FieldLayoutConfiguration",
+		"FieldLayoutPayload",
+		"FieldLayoutSchemePayload",
+		"FieldMetadata",
+		"FieldProjectAssociation",
+		"FieldReferenceData",
+		"fields",
+		"Fields",
+		"FieldSchemePayload",
+		"FieldSchemeToFieldsPartialFailure",
+		"FieldSchemeToFieldsResponse",
+		"FieldSchemeToProjectsPartialFailure",
+		"FieldSchemeToProjectsRequest",
+		"FieldSchemeToProjectsResponse",
+		"FieldsSchemeItemParameter",
+		"FieldsSchemeItemWorkTypeParameter",
+		"FieldUpdateOperation",
+		"FieldValueClause",
+		"FieldWasClause",
+		"Filter",
+		"FilterDetails",
+		"FilterSubscription",
+		"FilterSubscriptionsList",
+		"ForgePanelProjectPinAsyncResponse",
+		"ForgePanelProjectPinRequest",
+		"FoundGroup",
+		"FoundGroups",
+		"FoundUsers",
+		"FoundUsersAndGroups",
+		"FromLayoutPayload",
+		"FunctionOperand",
+		"FunctionReferenceData",
+		"GetAtlassianTeamResponse",
+		"GetCrossProjectReleaseResponse",
+		"GetCustomFieldResponse",
+		"GetDateFieldResponse",
+		"GetExclusionRulesResponse",
+		"GetFieldAssociationParametersResponse",
+		"GetFieldAssociationSchemeByIdResponse",
+		"GetFieldAssociationSchemeResponse",
+		"GetIssueSourceResponse",
+		"GetPermissionHolderResponse",
+		"GetPermissionResponse",
+		"GetPlanOnlyTeamResponse",
+		"GetPlanResponse",
+		"GetPlanResponseForPage",
+		"GetProjectsWithFieldSchemesResponse",
+		"GetSchedulingResponse",
+		"GetTeamResponseForPage",
+		"GlobalScopeBean",
+		"Group",
+		"GroupDetails",
+		"GroupLabel",
+		"GroupName",
+		"HealthCheckResult",
+		"Hierarchy",
+		"HistoryMetadata",
+		"HistoryMetadataParticipant",
+		"Icon",
+		"IconBean",
+		"IdBean",
+		"IdOrKeyBean",
+		"IncludedFields",
+		"InputStreamSource",
+		"IssueArchivalSyncRequest",
+		"IssueArchivalSyncResponse",
+		"IssueBean",
+		"IssueBulkDeletePayload",
+		"IssueBulkEditField",
+		"IssueBulkEditPayload",
+		"IssueBulkMovePayload",
+		"IssueBulkOperationsFieldOption",
+		"IssueBulkTransitionForWorkflow",
+		"IssueBulkTransitionPayload",
+		"IssueBulkWatchOrUnwatchPayload",
+		"IssueChangeLog",
+		"IssueChangelogIds",
+		"IssueCommentListRequestBean",
+		"IssueContextVariable",
+		"IssueCreateMetadata",
+		"IssueEntityProperties",
+		"IssueEntityPropertiesForMultiUpdate",
+		"IssueError",
+		"IssueEvent",
+		"IssueFieldOption",
+		"IssueFieldOptionConfiguration",
+		"IssueFieldOptionCreateBean",
+		"IssueFieldOptionScopeBean",
+		"IssueFilterForBulkPropertyDelete",
+		"IssueFilterForBulkPropertySet",
+		"IssueLayoutItemPayload",
+		"IssueLayoutPayload",
+		"IssueLimitReportResponseBean",
+		"IssueLink",
+		"IssueLinkType",
+		"IssueLinkTypes",
+		"IssueList",
+		"IssueMatches",
+		"IssueMatchesForJQL",
+		"IssuePickerSuggestions",
+		"IssuePickerSuggestionsIssueType",
+		"IssuesAndJQLQueries",
+		"IssueSecurityLevelMember",
+		"IssueSecuritySchemeToProjectMapping",
+		"IssuesJqlMetaDataBean",
+		"IssuesMetaBean",
+		"IssuesUpdateBean",
+		"IssueTransition",
+		"IssueTransitionStatus",
+		"IssueTypeCreateBean",
+		"IssueTypeDetails",
+		"IssueTypeHierarchyPayload",
+		"IssueTypeIds",
+		"IssueTypeIdsToRemove",
+		"IssueTypeInfo",
+		"IssueTypeIssueCreateMetadata",
+		"IssueTypePayload",
+		"IssueTypeProjectCreatePayload",
+		"IssueTypeScheme",
+		"IssueTypeSchemeDetails",
+		"IssueTypeSchemeID",
+		"IssueTypeSchemeMapping",
+		"IssueTypeSchemePayload",
+		"IssueTypeSchemeProjectAssociation",
+		"IssueTypeSchemeProjects",
+		"IssueTypeSchemeUpdateDetails",
+		"IssueTypeScreenScheme",
+		"IssueTypeScreenSchemeDetails",
+		"IssueTypeScreenSchemeId",
+		"IssueTypeScreenSchemeItem",
+		"IssueTypeScreenSchemeMapping",
+		"IssueTypeScreenSchemeMappingDetails",
+		"IssueTypeScreenSchemePayload",
+		"IssueTypeScreenSchemeProjectAssociation",
+		"IssueTypeScreenSchemesProjects",
+		"IssueTypeScreenSchemeUpdateDetails",
+		"IssueTypesWorkflowMapping",
+		"IssueTypeToContextMapping",
+		"IssueTypeUpdateBean",
+		"IssueTypeWithStatus",
+		"IssueTypeWorkflowMapping",
+		"IssueUpdateDetails",
+		"IssueUpdateMetadata",
+		"JexpEvaluateCtxIssues",
+		"JexpEvaluateCtxJqlIssues",
+		"JExpEvaluateIssuesJqlMetaDataBean",
+		"JExpEvaluateIssuesMetaBean",
+		"JExpEvaluateJiraExpressionResultBean",
+		"JExpEvaluateMetaDataBean",
+		"JexpIssues",
+		"JexpJqlIssues",
+		"JiraCascadingSelectField",
+		"JiraColorField",
+		"JiraColorInput",
+		"JiraComponentField",
+		"JiraDateField",
+		"JiraDateInput",
+		"JiraDateTimeField",
+		"JiraDateTimeInput",
+		"JiraDurationField",
+		"JiraExpressionAnalysis",
+		"JiraExpressionComplexity",
+		"JiraExpressionEvalContextBean",
+		"JiraExpressionEvalRequestBean",
+		"JiraExpressionEvaluateContextBean",
+		"JiraExpressionEvaluateRequestBean",
+		"JiraExpressionEvaluationMetaDataBean",
+		"JiraExpressionForAnalysis",
+		"JiraExpressionResult",
+		"JiraExpressionsAnalysis",
+		"JiraExpressionsComplexityBean",
+		"JiraExpressionsComplexityValueBean",
+		"JiraExpressionValidationError",
+		"JiraGroupInput",
+		"JiraIssueFields",
+		"JiraIssueTypeField",
+		"JiraLabelPropertiesInputJackson1",
+		"JiraLabelsField",
+		"JiraLabelsInput",
+		"JiraMultipleGroupPickerField",
+		"JiraMultipleSelectField",
+		"JiraMultipleSelectUserPickerField",
+		"JiraMultipleVersionPickerField",
+		"JiraMultiSelectComponentField",
+		"JiraNumberField",
+		"JiraPriorityField",
+		"JiraRichTextField",
+		"JiraRichTextInput",
+		"JiraSelectedOptionField",
+		"JiraSingleGroupPickerField",
+		"JiraSingleLineTextField",
+		"JiraSingleSelectField",
+		"JiraSingleSelectUserPickerField",
+		"JiraSingleVersionPickerField",
+		"JiraStatus",
+		"JiraStatusInput",
+		"JiraTimeTrackingField",
+		"JiraUrlField",
+		"JiraUserField",
+		"JiraVersionField",
+		"JiraWorkflow",
+		"JiraWorkflowPreviewStatus",
+		"JiraWorkflowStatus",
+		"JQLCountRequestBean",
+		"JQLCountResultsBean",
+		"JqlFunctionPrecomputationBean",
+		"JqlFunctionPrecomputationGetByIdRequest",
+		"JqlFunctionPrecomputationGetByIdResponse",
+		"JqlFunctionPrecomputationUpdateBean",
+		"JqlFunctionPrecomputationUpdateErrorResponse",
+		"JqlFunctionPrecomputationUpdateRequestBean",
+		"JqlFunctionPrecomputationUpdateResponse",
+		"JQLPersonalDataMigrationRequest",
+		"JqlQueriesToParse",
+		"JqlQueriesToSanitize",
+		"JqlQuery",
+		"JqlQueryClause",
+		"JqlQueryClauseOperand",
+		"JqlQueryClauseTimePredicate",
+		"JqlQueryField",
+		"JqlQueryFieldEntityProperty",
+		"JqlQueryOrderByClause",
+		"JqlQueryOrderByClauseElement",
+		"JqlQueryToSanitize",
+		"JqlQueryUnitaryOperand",
+		"JQLQueryWithUnknownUsers",
+		"JQLReferenceData",
+		"JsonContextVariable",
+		"JsonNode",
+		"JsonTypeBean",
+		"KeywordOperand",
+		"LegacyJackson1ListAttachment",
+		"LegacyJackson1ListColumnItem",
+		"LegacyJackson1ListIssueEvent",
+		"LegacyJackson1ListIssueTypeWithStatus",
+		"LegacyJackson1ListProject",
+		"LegacyJackson1ListProjectComponent",
+		"LegacyJackson1ListProjectRoleDetails",
+		"LegacyJackson1ListProjectType",
+		"LegacyJackson1ListUserMigrationBean",
+		"LegacyJackson1ListVersion",
+		"LegacyJackson1ListWorklog",
+		"License",
+		"LicensedApplication",
+		"LicenseMetric",
+		"LimitDetailsBean",
+		"LinkedIssue",
+		"LinkGroup",
+		"LinkIssueRequestJsonBean",
+		"ListOperand",
+		"ListWrapperCallbackApplicationRole",
+		"ListWrapperCallbackGroupName",
+		"Locale",
+		"MandatoryFieldValue",
+		"MandatoryFieldValueForADF",
+		"MappingsByIssueTypeOverride",
+		"MappingsByWorkflow",
+		"MinimalFieldSchemeToFieldsPartialFailure",
+		"MinimalFieldSchemeToFieldsResponse",
+		"MoveFieldBean",
+		"MultiIssueEntityProperties",
+		"MultipartFile",
+		"MultipleCustomFieldValuesUpdate",
+		"MultipleCustomFieldValuesUpdateDetails",
+		"NestedResponse",
+		"NewUserDetails",
+		"NonWorkingDay",
+		"Notification",
+		"NotificationEvent",
+		"NotificationRecipients",
+		"NotificationRecipientsRestrictions",
+		"NotificationScheme",
+		"NotificationSchemeAndProjectMappingJsonBean",
+		"NotificationSchemeEvent",
+		"NotificationSchemeEventDetails",
+		"NotificationSchemeEventIDPayload",
+		"NotificationSchemeEventPayload",
+		"NotificationSchemeEventTypeId",
+		"NotificationSchemeId",
+		"NotificationSchemeNotificationDetails",
+		"NotificationSchemeNotificationDetailsPayload",
+		"NotificationSchemePayload",
+		"OldToNewSecurityLevelMappingsBean",
+		"OperationMessage",
+		"Operations",
+		"OrderOfCustomFieldOptions",
+		"OrderOfIssueTypes",
+		"PageBean2ComponentJsonBean",
+		"PageBean2FieldAssociationSchemeFieldSearchResult",
+		"PageBean2FieldAssociationSchemeProjectSearchResult",
+		"PageBean2GetFieldAssociationSchemeResponse",
+		"PageBean2GetProjectsWithFieldSchemesResponse",
+		"PageBean2JqlFunctionPrecomputationBean",
+		"PageBean2ProjectFieldBean",
+		"PageBeanBulkContextualConfiguration",
+		"PageBeanChangelog",
+		"PageBeanComment",
+		"PageBeanComponentWithIssueCount",
+		"PageBeanContext",
+		"PageBeanContextForProjectAndIssueType",
+		"PageBeanContextualConfiguration",
+		"PageBeanCustomFieldContext",
+		"PageBeanCustomFieldContextDefaultValue",
+		"PageBeanCustomFieldContextOption",
+		"PageBeanCustomFieldContextProjectMapping",
+		"PageBeanDashboard",
+		"PageBeanField",
+		"PageBeanFieldConfigurationDetails",
+		"PageBeanFieldConfigurationIssueTypeItem",
+		"PageBeanFieldConfigurationItem",
+		"PageBeanFieldConfigurationScheme",
+		"PageBeanFieldConfigurationSchemeProjects",
+		"PageBeanFieldProjectAssociation",
+		"PageBeanFilterDetails",
+		"PageBeanGroupDetails",
+		"PageBeanIssueFieldOption",
+		"PageBeanIssueSecurityLevelMember",
+		"PageBeanIssueSecuritySchemeToProjectMapping",
+		"PageBeanIssueTypeScheme",
+		"PageBeanIssueTypeSchemeMapping",
+		"PageBeanIssueTypeSchemeProjects",
+		"PageBeanIssueTypeScreenScheme",
+		"PageBeanIssueTypeScreenSchemeItem",
+		"PageBeanIssueTypeScreenSchemesProjects",
+		"PageBeanIssueTypeToContextMapping",
+		"PageBeanNotificationScheme",
+		"PageBeanNotificationSchemeAndProjectMappingJsonBean",
+		"PageBeanPriority",
+		"PageBeanPrioritySchemeWithPaginatedPrioritiesAndProjects",
+		"PageBeanPriorityWithSequence",
+		"PageBeanProject",
+		"PageBeanProjectDetails",
+		"PageBeanResolutionJsonBean",
+		"PageBeanScreen",
+		"PageBeanScreenScheme",
+		"PageBeanScreenWithTab",
+		"PageBeanSecurityLevel",
+		"PageBeanSecurityLevelMember",
+		"PageBeanSecuritySchemeWithProjects",
+		"PageBeanString",
+		"PageBeanUiModificationDetails",
+		"PageBeanUser",
+		"PageBeanUserDetails",
+		"PageBeanUserKey",
+		"PageBeanVersion",
+		"PageBeanWebhook",
+		"PageBeanWorkflow",
+		"PageBeanWorkflowScheme",
+		"PageBeanWorkflowTransitionRules",
+		"PagedListUserDetailsApplicationUser",
+		"PageOfChangelogs",
+		"PageOfComments",
+		"PageOfCreateMetaIssueTypes",
+		"PageOfCreateMetaIssueTypeWithField",
+		"PageOfDashboards",
+		"PageOfStatuses",
+		"PageOfWorklogs",
+		"PageWithCursorGetPlanResponseForPage",
+		"PageWithCursorGetTeamResponseForPage",
+		"PaginatedResponseComment",
+		"PaginatedResponseFieldCreateMetadata",
+		"PaginatedResponseIssueTypeIssueCreateMetadata",
+		"ParameterRemovalDetails",
+		"ParsedJqlQueries",
+		"ParsedJqlQuery",
+		"PermissionDetails",
+		"PermissionGrant",
+		"PermissionGrantDTO",
+		"PermissionGrants",
+		"PermissionHolder",
+		"PermissionPayloadDTO",
+		"Permissions",
+		"PermissionScheme",
+		"PermissionSchemes",
+		"PermissionsKeysBean",
+		"PermittedProjects",
+		"PreviewConditionGroupConfiguration",
+		"PreviewRuleConfiguration",
+		"PreviewTrigger",
+		"Priority",
+		"PriorityId",
+		"PriorityMapping",
+		"PrioritySchemeChangesWithoutMappings",
+		"PrioritySchemeId",
+		"PrioritySchemeWithPaginatedPrioritiesAndProjects",
+		"PriorityWithSequence",
+		"Project",
+		"ProjectAndIssueTypePair",
+		"ProjectArchetype",
+		"ProjectAvatars",
+		"ProjectCategory",
+		"ProjectComponent",
+		"ProjectCreateResourceIdentifier",
+		"ProjectCustomTemplateCreateRequestDTO",
+		"ProjectDataPolicies",
+		"ProjectDataPolicy",
+		"ProjectDetails",
+		"ProjectEmailAddress",
+		"ProjectFeature",
+		"ProjectFeatureState",
+		"ProjectFieldBean",
+		"ProjectId",
+		"ProjectIdAssociationContext",
+		"ProjectIdentifierBean",
+		"ProjectIdentifiers",
+		"ProjectIds",
+		"ProjectInsight",
+		"ProjectIssueCreateMetadata",
+		"ProjectIssueSecurityLevels",
+		"ProjectIssueTypeHierarchy",
+		"ProjectIssueTypeMapping",
+		"ProjectIssueTypeMappings",
+		"ProjectIssueTypeQueryContext",
+		"ProjectIssueTypesHierarchyLevel",
+		"ProjectLandingPageInfo",
+		"ProjectPayload",
+		"ProjectPermissions",
+		"ProjectPinAction",
+		"ProjectRole",
+		"ProjectRoleActorsUpdateBean",
+		"ProjectRoleDetails",
+		"ProjectRoleGroup",
+		"ProjectRoleUser",
+		"ProjectScopeBean",
+		"ProjectTemplateKey",
+		"ProjectTemplateModel",
+		"ProjectType",
+		"ProjectUsage",
+		"ProjectUsagePage",
+		"ProjectWithDataPolicy",
+		"PropertyKey",
+		"PropertyKeys",
+		"PublishDraftWorkflowScheme",
+		"PublishedWorkflowId",
+		"QuickFilterPayload",
+		"RedactionJobStatusResponse",
+		"RedactionPosition",
+		"RegisteredWebhook",
+		"RemoteIssueLink",
+		"RemoteIssueLinkIdentifies",
+		"RemoteIssueLinkRequest",
+		"RemoteObject",
+		"RemoveFieldAssociationsRequestItem",
+		"RemoveFieldParametersResult",
+		"RemoveFieldParametersResultError",
+		"RemoveOptionFromIssuesResult",
+		"ReorderIssuePriorities",
+		"ReorderIssueResolutionsRequest",
+		"RequiredMappingByIssueType",
+		"RequiredMappingByWorkflows",
+		"Resolution",
+		"ResolutionId",
+		"ResolutionJsonBean",
+		"Resource",
+		"RestrictedPermission",
+		"RichText",
+		"RoleActor",
+		"RolePayload",
+		"RolesCapabilityPayload",
+		"RuleConfiguration",
+		"RulePayload",
+		"SanitizedJqlQueries",
+		"SanitizedJqlQuery",
+		"SaveProjectTemplateRequest",
+		"SaveTemplateRequest",
+		"SaveTemplateResponse",
+		"Scope",
+		"ScopePayload",
+		"Screen",
+		"ScreenableField",
+		"ScreenableTab",
+		"ScreenDetails",
+		"ScreenPayload",
+		"ScreenScheme",
+		"ScreenSchemeDetails",
+		"ScreenSchemeId",
+		"ScreenSchemePayload",
+		"ScreenTypes",
+		"ScreenWithTab",
+		"SearchAndReconcileRequestBean",
+		"SearchAndReconcileResults",
+		"SearchAutoCompleteFilter",
+		"SearchRequestBean",
+		"SearchResultFieldParameters",
+		"SearchResults",
+		"SearchResultWorkTypeParameters",
+		"SearchWarningBean",
+		"SecurityLevel",
+		"SecurityLevelMember",
+		"SecurityLevelMemberPayload",
+		"SecurityLevelPayload",
+		"SecurityScheme",
+		"SecuritySchemeId",
+		"SecuritySchemeLevelBean",
+		"SecuritySchemeLevelMemberBean",
+		"SecuritySchemeMembersRequest",
+		"SecuritySchemePayload",
+		"SecuritySchemes",
+		"SecuritySchemeWithProjects",
+		"ServerInformation",
+		"ServiceManagementNavigationInfo",
+		"ServiceRegistry",
+		"ServiceRegistryTier",
+		"SetDefaultLevelsRequest",
+		"SetDefaultPriorityRequest",
+		"SetDefaultResolutionRequest",
+		"SharePermission",
+		"SharePermissionInputBean",
+		"SimpleApplicationPropertyBean",
+		"SimpleErrorCollection",
+		"SimpleLink",
+		"SimpleListWrapperApplicationRole",
+		"SimpleListWrapperGroupName",
+		"SimplifiedHierarchyLevel",
+		"SimplifiedIssueTransition",
+		"SingleRedactionRequest",
+		"SingleRedactionResponse",
+		"SoftwareNavigationInfo",
+		"Status",
+		"StatusCategory",
+		"StatusCreate",
+		"StatusCreateRequest",
+		"StatusDetails",
+		"StatusesPerWorkflow",
+		"StatusLayoutUpdate",
+		"StatusMapping",
+		"StatusMappingDTO",
+		"StatusMetadata",
+		"StatusMigration",
+		"StatusPayload",
+		"StatusProjectIssueTypeUsage",
+		"StatusProjectIssueTypeUsageDTO",
+		"StatusProjectIssueTypeUsagePage",
+		"StatusProjectUsage",
+		"StatusProjectUsageDTO",
+		"StatusProjectUsagePage",
+		"StatusScope",
+		"StatusUpdate",
+		"StatusUpdateRequest",
+		"StatusWorkflowUsageDTO",
+		"StatusWorkflowUsagePage",
+		"StatusWorkflowUsageWorkflow",
+		"StreamingResponseBody",
+		"StringList",
+		"SubmittedBulkOperation",
+		"SuccessOrErrorResults",
+		"SuggestedIssue",
+		"SuggestedMappingsForPrioritiesRequestBean",
+		"SuggestedMappingsForProjectsRequestBean",
+		"SuggestedMappingsRequestBean",
+		"SwimlanePayload",
+		"SwimlanesPayload",
+		"SystemAvatars",
+		"TabPayload",
+		"targetClassification",
+		"targetMandatoryFields",
+		"targetStatus",
+		"targetToSourcesMapping",
+		"TaskProgress",
+		"TaskProgressBeanJsonNode",
+		"TaskProgressBeanObject",
+		"TaskProgressBeanRemoveOptionFromIssuesResult",
+		"TimeTrackingConfiguration",
+		"TimeTrackingDetails",
+		"TimeTrackingProvider",
+		"ToLayoutPayload",
+		"Transition",
+		"TransitionLink",
+		"TransitionPayload",
+		"TransitionPreview",
+		"Transitions",
+		"TransitionScreenDetails",
+		"TransitionUpdateDTO",
+		"UiModificationContextDetails",
+		"UiModificationDetails",
+		"UiModificationIdentifiers",
+		"UnrestrictedUserEmail",
+		"UpdateCustomFieldDetails",
+		"UpdateDefaultProjectClassificationBean",
+		"UpdateDefaultScreenScheme",
+		"UpdatedProjectCategory",
+		"UpdateFieldAssociationSchemeLinksBean",
+		"UpdateFieldAssociationSchemeRequest",
+		"UpdateFieldAssociationSchemeResponse",
+		"UpdateFieldAssociationsRequestItem",
+		"UpdateFieldConfigurationSchemeDetails",
+		"UpdateFieldSchemeParametersPartialFailure",
+		"UpdateFieldSchemeParametersRequest",
+		"UpdateFieldSchemeParametersResponse",
+		"UpdateIssueSecurityLevelDetails",
+		"UpdateIssueSecuritySchemeRequestBean",
+		"UpdateNotificationSchemeDetails",
+		"UpdatePrioritiesInSchemeRequestBean",
+		"UpdatePriorityDetails",
+		"UpdatePrioritySchemeRequestBean",
+		"UpdatePrioritySchemeResponseBean",
+		"UpdateProjectDetails",
+		"UpdateProjectsInSchemeRequestBean",
+		"UpdateResolutionDetails",
+		"UpdateScreenDetails",
+		"UpdateScreenSchemeDetails",
+		"UpdateScreenTypes",
+		"UpdateUiModificationDetails",
+		"UpdateUserToGroupBean",
+		"User",
+		"UserBean",
+		"UserBeanAvatarUrls",
+		"UserColumnRequestBody",
+		"UserContextVariable",
+		"UserDetails",
+		"UserFilter",
+		"UserKey",
+		"UserList",
+		"UserMigrationBean",
+		"UserPermission",
+		"UserPickerUser",
+		"ValidationOptionsForCreate",
+		"ValidationOptionsForUpdate",
+		"ValueOperand",
+		"Version",
+		"VersionApprover",
+		"VersionIssueCounts",
+		"VersionIssuesStatus",
+		"VersionMoveBean",
+		"VersionRelatedWork",
+		"VersionUnresolvedIssuesCount",
+		"VersionUsageInCustomField",
+		"Visibility",
+		"Votes",
+		"WarningCollection",
+		"Watchers",
+		"Webhook",
+		"WebhookDetails",
+		"WebhookRegistrationDetails",
+		"WebhooksExpirationDate",
+		"Workflow",
+		"WorkflowAssociationStatusMapping",
+		"WorkflowCapabilities",
+		"WorkflowCapabilityPayload",
+		"WorkflowCompoundCondition",
+		"WorkflowCondition",
+		"WorkflowCreate",
+		"WorkflowCreateRequest",
+		"WorkflowCreateResponse",
+		"WorkflowCreateValidateRequest",
+		"WorkflowDocumentDTO",
+		"WorkflowDocumentStatusDTO",
+		"WorkflowDocumentVersionBean",
+		"WorkflowElementReference",
+		"WorkflowHistoryItemDTO",
+		"WorkflowHistoryListRequest",
+		"WorkflowHistoryListResponseDTO",
+		"WorkflowHistoryReadRequest",
+		"WorkflowHistoryReadResponseDTO",
+		"WorkflowId",
+		"WorkflowLayout",
+		"WorkflowMetadataAndIssueTypeRestModel",
+		"WorkflowMetadataRestModel",
+		"WorkflowOperations",
+		"WorkflowPayload",
+		"WorkflowPreview",
+		"WorkflowPreviewLayout",
+		"WorkflowPreviewRequest",
+		"WorkflowPreviewResponse",
+		"WorkflowPreviewScope",
+		"WorkflowPreviewStatus",
+		"WorkflowProjectIdScope",
+		"WorkflowProjectIssueTypeUsage",
+		"WorkflowProjectIssueTypeUsageDTO",
+		"WorkflowProjectIssueTypeUsagePage",
+		"WorkflowProjectUsageDTO",
+		"WorkflowReadRequest",
+		"WorkflowReadResponse",
+		"WorkflowReferenceStatus",
+		"WorkflowRuleConfiguration",
+		"WorkflowRules",
+		"WorkflowRulesSearch",
+		"WorkflowRulesSearchDetails",
+		"WorkflowScheme",
+		"WorkflowSchemeAssociation",
+		"WorkflowSchemeAssociations",
+		"WorkflowSchemeIdName",
+		"WorkflowSchemePayload",
+		"WorkflowSchemeProjectAssociation",
+		"WorkflowSchemeProjectSwitchBean",
+		"WorkflowSchemeProjectUsageDTO",
+		"WorkflowSchemeReadRequest",
+		"WorkflowSchemeReadResponse",
+		"WorkflowSchemeUpdateRequest",
+		"WorkflowSchemeUpdateRequiredMappingsRequest",
+		"WorkflowSchemeUpdateRequiredMappingsResponse",
+		"WorkflowSchemeUsage",
+		"WorkflowSchemeUsageDTO",
+		"WorkflowSchemeUsagePage",
+		"WorkflowScope",
+		"WorkflowSearchResponse",
+		"WorkflowSimpleCondition",
+		"WorkflowStatus",
+		"WorkflowStatusLayout",
+		"WorkflowStatusLayoutPayload",
+		"WorkflowStatusPayload",
+		"WorkflowStatusUpdate",
+		"WorkflowsWithTransitionRulesDetails",
+		"WorkflowTransition",
+		"WorkflowTransitionLinks",
+		"WorkflowTransitionProperty",
+		"WorkflowTransitionRule",
+		"WorkflowTransitionRules",
+		"WorkflowTransitionRulesDetails",
+		"WorkflowTransitionRulesUpdate",
+		"WorkflowTransitionRulesUpdateErrorDetails",
+		"WorkflowTransitionRulesUpdateErrors",
+		"WorkflowTransitions",
+		"WorkflowTrigger",
+		"WorkflowUpdate",
+		"WorkflowUpdateRequest",
+		"WorkflowUpdateResponse",
+		"WorkflowUpdateValidateRequestBean",
+		"WorkflowValidationError",
+		"WorkflowValidationErrorList",
+		"WorkingDaysConfig",
+		"Worklog",
+		"WorklogCompositeKey",
+		"WorklogIdsRequestBean",
+		"WorklogKeyResult",
+		"WorklogsMoveRequestBean",
+		"WorkManagementNavigationInfo",
+		"WorkspaceDataPolicy",
+		"WorkTypeParameters"
+	]
+}

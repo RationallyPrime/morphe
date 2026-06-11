@@ -28,6 +28,8 @@ the right parser. BambooHR was already downloaded one level up at
 | HubSpot Webhooks | CRM events | `hubspot-webhooks-2026-03.json` | OpenAPI 3.0 JSON | `https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/Webhooks/Webhooks/Rollouts/147891/2026-03/webhooks.json` |
 | Slack Web API | comms / approval | `slack-web-openapi-v2.json` | Swagger 2.0 JSON | `https://raw.githubusercontent.com/slackapi/slack-api-specs/master/web-api/slack_web_openapi_v2_without_examples.json` |
 | Slack Events | comms events | `slack-events-asyncapi-v1.json` | AsyncAPI 1.2 JSON | `https://raw.githubusercontent.com/slackapi/slack-api-specs/master/events-api/slack_events_api_async_v1.json` |
+| Asana | PM / work management | `asana-openapi.yaml` | OpenAPI 3.0 YAML | `https://raw.githubusercontent.com/Asana/openapi/master/defs/asana_oas.yaml` |
+| Jira Cloud platform | PM / issue tracking | `jira-platform-swagger-v3.json` | OpenAPI 3.0 JSON | `https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` |
 
 HubSpot also publishes `2026-09` rollout specs in the same repo. Those are not used here
 because they are future-dated relative to 2026-06-10; `2026-03` is the latest released

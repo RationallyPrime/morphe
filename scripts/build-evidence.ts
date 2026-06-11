@@ -17,6 +17,8 @@
  *   data/evidence/twenty.json
  *   data/evidence/businesscentral.json
  *   data/evidence/50skills.json
+ *   data/evidence/asana.json
+ *   data/evidence/jira.json
  *   data/evidence/catalog.md
  */
 
@@ -66,6 +68,14 @@ const FIFTY_SKILLS_SPEC = resolve(
 	"data",
 	"specs",
 	"50skills-journeys-api.yaml",
+);
+const ASANA_SPEC = resolve(import.meta.dirname, "..", "data", "specs", "asana-openapi.yaml");
+const JIRA_SPEC = resolve(
+	import.meta.dirname,
+	"..",
+	"data",
+	"specs",
+	"jira-platform-swagger-v3.json",
 );
 
 const EVIDENCE_DIR = resolve(import.meta.dirname, "..", "data", "evidence");
@@ -488,11 +498,31 @@ function main(): void {
 		modelsFor: componentSchemaNames,
 	});
 
+	const asana = buildIndex(readSpec(ASANA_SPEC), {
+		system: "asana",
+		label: "Asana",
+		source: ASANA_SPEC,
+		specVersionKey: "openapi",
+		modelFor: openApiModel,
+		modelsFor: componentSchemaNames,
+	});
+
+	const jira = buildIndex(readSpec(JIRA_SPEC), {
+		system: "jira",
+		label: "Jira (Cloud platform v3)",
+		source: JIRA_SPEC,
+		specVersionKey: "openapi",
+		modelFor: openApiModel,
+		modelsFor: componentSchemaNames,
+	});
+
 	const humanityPath = resolve(EVIDENCE_DIR, "humanity.json");
 	const dkplusPath = resolve(EVIDENCE_DIR, "dkplus.json");
 	const twentyPath = resolve(EVIDENCE_DIR, "twenty.json");
 	const businessCentralPath = resolve(EVIDENCE_DIR, "businesscentral.json");
 	const fiftySkillsPath = resolve(EVIDENCE_DIR, "50skills.json");
+	const asanaPath = resolve(EVIDENCE_DIR, "asana.json");
+	const jiraPath = resolve(EVIDENCE_DIR, "jira.json");
 	const catalogPath = resolve(EVIDENCE_DIR, "catalog.md");
 
 	writeJson(humanityPath, humanity);
@@ -500,6 +530,8 @@ function main(): void {
 	writeJson(twentyPath, twenty);
 	writeJson(businessCentralPath, businessCentral);
 	writeJson(fiftySkillsPath, fiftySkills);
+	writeJson(asanaPath, asana);
+	writeJson(jiraPath, jira);
 
 	const catalog = [
 		"# Grounding-Evidence Catalog",
@@ -513,11 +545,13 @@ function main(): void {
 		renderCatalogSection(twenty),
 		renderCatalogSection(businessCentral),
 		renderCatalogSection(fiftySkills),
+		renderCatalogSection(asana),
+		renderCatalogSection(jira),
 	].join("\n");
 	mkdirSync(dirname(catalogPath), { recursive: true });
 	writeFileSync(catalogPath, `${catalog}`, "utf8");
 
-	for (const index of [humanity, dkplus, twenty, businessCentral, fiftySkills]) {
+	for (const index of [humanity, dkplus, twenty, businessCentral, fiftySkills, asana, jira]) {
 		// biome-ignore lint/suspicious/noConsole: build script progress output.
 		console.log(`${index.system}: ${index.operationCount} operations, ${index.modelCount} models`);
 	}
@@ -531,6 +565,10 @@ function main(): void {
 	console.log(`wrote ${businessCentralPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${fiftySkillsPath}`);
+	// biome-ignore lint/suspicious/noConsole: build script progress output.
+	console.log(`wrote ${asanaPath}`);
+	// biome-ignore lint/suspicious/noConsole: build script progress output.
+	console.log(`wrote ${jiraPath}`);
 	// biome-ignore lint/suspicious/noConsole: build script progress output.
 	console.log(`wrote ${catalogPath}`);
 }
