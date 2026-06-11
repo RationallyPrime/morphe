@@ -58,7 +58,7 @@ export { gallery } from "./dialects/gallery.js";
 export { icelandicArchive } from "./dialects/icelandic-archive.js";
 export { night } from "./dialects/night.js";
 export type { AppliedDialect } from "./dialects/provider.svelte.js";
-export { applyDialect, dialectStyle } from "./dialects/provider.svelte.js";
+export { applyDialect, dialectStyle, unknownIntentsIn } from "./dialects/provider.svelte.js";
 export {
 	DEFAULT_DIALECT,
 	DEFAULT_DIALECT_ID,
