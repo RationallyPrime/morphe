@@ -18,6 +18,24 @@ export {
 	SiteStep,
 	SiteValueProp,
 } from "./compounds.js";
+// The onboarding dossier (KRA-370) — the intake as a typed record, plus the
+// first real mid-loop delegate.
+export type { DossierDraft, DossierOpts, DossierStep } from "./dossier.js";
+export {
+	DOSSIER_STAGE_CHOICES,
+	DOSSIER_STAGE_ID,
+	DOSSIER_SYSTEMS_CHOICES,
+	DOSSIER_SYSTEMS_ID,
+	dossierEnvelope,
+	dossierTree,
+	groundedSystem,
+} from "./dossier.js";
+export {
+	createDossierMidLoop,
+	DOSSIER_COMPACT_THRESHOLD,
+	DOSSIER_NAMED_SYSTEMS_PATH,
+	DOSSIER_STEP_PATH,
+} from "./dossier-midloop.js";
 export type { IntentOutcome } from "./intent-engine.svelte.js";
 
 // The intent engine (ADR-0006) — the registered morph vocabulary (data), the
