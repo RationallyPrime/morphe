@@ -11,6 +11,8 @@
  * non-beacon so nothing else competes for the eye's one strong signal.
  */
 
+import { untrack } from "svelte";
+import { page } from "$app/state";
 import Composer from "$lib/compose/Composer.svelte";
 import {
 	closingCta,
@@ -18,6 +20,8 @@ import {
 	homeIntentStageEnvelope,
 	intentEngine,
 	registerSiteCompounds,
+	registerSiteIntents,
+	resolveArrivalIntent,
 } from "$lib/site";
 import ContactForm from "$lib/site/ContactForm.svelte";
 import IntentChips from "$lib/site/IntentChips.svelte";
@@ -31,8 +35,19 @@ const heroTree = homeHero();
 const ctaTree = closingCta();
 const stageEnvelope = homeIntentStageEnvelope();
 
+// Register the gated vocabulary before arrival resolution (idempotent; the
+// chips/palette register too, but this page must not depend on child order).
+registerSiteIntents();
+
 $effect(() => {
 	intentEngine.setStage(stageEnvelope);
+	// ARRIVAL INTENT (KRA-376): a valid `?intent=` landing param opens its
+	// stage morph through the same execute() path the chips ride. The URL
+	// read is untrack'd, so this applies ONCE on arrival (the layout's
+	// `?cohort=` idiom) and never fights a later chip click. SSR renders the
+	// default branch; resolution is client-only by $effect discipline.
+	const arrival = resolveArrivalIntent(untrack(() => page.url.searchParams.get("intent")));
+	if (arrival !== null) intentEngine.execute(arrival);
 	return () => intentEngine.setStage(null);
 });
 </script>

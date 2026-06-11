@@ -180,6 +180,38 @@ export function matchIntents(query: string, intents: readonly SiteIntent[]): rea
 }
 
 /* ------------------------------------------------------------------------- *
+ * Arrival intents (KRA-376) — the third driver class after clicks and the
+ * dossier's interaction digest: the LINK THAT BROUGHT YOU. A landing URL may
+ * carry `?intent=<id>`; a valid id opens its stage morph on arrival through
+ * the SAME `execute()` path the chips and palette ride. The discipline
+ * mirrors `?cohort=` dialect attribution (dialects/arrival.ts): the param is
+ * a statement about THIS arrival — it acts once, persists nothing, and an
+ * unknown/garbage value is ignored, never an error and never a reset.
+ *
+ * Only `stage-delta` intents resolve. A URL must not flip the dialect
+ * (`?cohort=` owns dialect attribution, with its own persistence rules) and
+ * must not trigger navigation — so the refusal is about the action KIND, not
+ * registry membership. Ids are exact-match, like cohort ids.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Decide which intent (if any) an arrival's `?intent=` param should execute.
+ *
+ * @param param the raw `?intent=` value from the landing URL (null if absent)
+ * @param reg   the registry holding the gated vocabulary
+ * @returns the intent to execute once on arrival, or null to do nothing
+ */
+export function resolveArrivalIntent(
+	param: string | null,
+	reg: IntentRegistry = intentRegistry,
+): SiteIntent | null {
+	if (param === null) return null;
+	const intent = reg.get(param);
+	if (intent === undefined || intent.action.kind !== "stage-delta") return null;
+	return intent;
+}
+
+/* ------------------------------------------------------------------------- *
  * The launch vocabulary (D9: six chips). Five content intents ship as plain
  * anchors to their canonical pages — KRA-356–359 upgrade each to its morph —
  * and the tracer morph (flip the lights) ships live, proving the engine
