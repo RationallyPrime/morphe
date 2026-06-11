@@ -178,7 +178,7 @@ function identityMorph(): Node {
 					"002",
 					"Gunnlaugur Jónsson",
 					"Chairman, Fjártækniklasinn · Finance & Strategy",
-					"In financial markets since 1997. Founded the Reykjavík FinTech Cluster, managed the investment firms Straumborg and Lindir Resources and co-founded Viska Digital Assets. Wrote Ábyrgðarkver on personal responsibility after the 2008 crash.",
+					"In financial markets since 1997. Founder of the Reykjavík Fintech Cluster, co-founder of Viska Digital Assets, and author of Ábyrgðarkver, a book on personal responsibility written after Iceland's 2008 financial crisis.",
 					"gunnlaugur",
 				),
 				person(
