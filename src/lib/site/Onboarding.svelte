@@ -9,8 +9,32 @@
  * intake is never lost. The magic-link gate (ADR-0001) lives in the route, not
  * here: the page passes the verified token (sent along on submit) and the
  * gate-verified email as a prefill.
+ *
+ * THE DOSSIER (KRA-370): beside the wizard, a MorpheRoot renders the visitor's
+ * intake as a typed record, re-emitted per draft change (the slow loop). The
+ * wizard mirrors tier-1 interaction into a MorpheStore; the dossier mid loop
+ * reads the digest and proposes the systems section's ledger↔compact movement;
+ * submit success seals the record — every movement gated by applyDelta, the
+ * sealed record pinned to the night dialect (the vitrine idiom, "filed into
+ * the archive"). The wizard stays native; the record tree carries no inputs.
  */
 import { onMount } from "svelte";
+import type { ChoiceMap, EmissionEnvelope } from "$morphe";
+import {
+	applyDelta,
+	commitTier1,
+	createInMemoryMorpheStore,
+	digestOf,
+	liveVaryIds,
+	night,
+} from "$morphe";
+import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+import { DOSSIER_STAGE_CHOICES, DOSSIER_STAGE_ID, dossierEnvelope } from "./dossier.js";
+import {
+	createDossierMidLoop,
+	DOSSIER_NAMED_SYSTEMS_PATH,
+	DOSSIER_STEP_PATH,
+} from "./dossier-midloop.js";
 
 let {
 	token = null,
@@ -80,6 +104,75 @@ let stepIndex = $state(0);
 let status = $state<"editing" | "submitting" | "done" | "error">("editing");
 
 const current = $derived(STEPS[stepIndex]);
+
+// --- the dossier (KRA-370) ----------------------------------------------
+// The record's tier-1 store: the wizard (native chrome) mirrors interaction
+// into it via commitTier1, so the mid loop has a real digest to read.
+const store = createInMemoryMorpheStore();
+let receipt = $state<string | null>(null);
+let sealedAt = $state<string | null>(null);
+
+// The slow loop: each draft change re-emits a fresh envelope. The epoch is a
+// plain monotonic counter (not reactive state) bumped per emission — ADR-0004,
+// epochs live host-side and are consumed by applyDelta before render.
+let emission = 0;
+const envelope = $derived.by<EmissionEnvelope>(() => {
+	emission += 1;
+	return dossierEnvelope(
+		{
+			contact: { ...contact },
+			systems: systems.map((s) => ({ ...s })),
+			priorities: priorities.map((p) => ({ ...p })),
+			outcomes,
+		},
+		{
+			...(current ? { activeStep: current.id } : {}),
+			...(receipt !== null ? { receipt } : {}),
+			...(sealedAt !== null ? { sealedAt } : {}),
+		},
+		emission,
+	);
+});
+
+const midLoop = createDossierMidLoop(() => envelope.epoch);
+
+// The gate: the seal delta (submit success) and the mid loop's proposals both
+// pass through applyDelta against the live emission; a rejected delta leaves
+// the envelope reference untouched, so nothing broken can ever render.
+const choices = $derived.by<ChoiceMap>(() => {
+	let env = envelope;
+	if (receipt !== null) {
+		const sealed = applyDelta(env, {
+			id: DOSSIER_STAGE_ID,
+			choice: DOSSIER_STAGE_CHOICES.sealed,
+			epoch: env.epoch,
+		});
+		if (sealed.result === "applied") env = sealed.envelope;
+	}
+	for (const delta of midLoop.propose(digestOf(store), liveVaryIds(env.tree))) {
+		const applied = applyDelta(env, delta);
+		if (applied.result === "applied") env = applied.envelope;
+	}
+	return env.choices;
+});
+
+// The tier-1 mirror: named-system count + active step, committed only on real
+// change (commitTier1 records an event per call; same-value re-commits would
+// flood the bounded window).
+let lastNamed = -1;
+let lastStep: StepId | null = null;
+$effect(() => {
+	const named = systems.filter((s) => s.name.trim().length > 0).length;
+	if (named !== lastNamed) {
+		lastNamed = named;
+		commitTier1(store, DOSSIER_NAMED_SYSTEMS_PATH, "filter-edit", named);
+	}
+	const step = current?.id ?? null;
+	if (step !== null && step !== lastStep) {
+		lastStep = step;
+		commitTier1(store, DOSSIER_STEP_PATH, "selection", step);
+	}
+});
 
 // --- validation ---------------------------------------------------------
 const emailValid = $derived(EMAIL_RE.test(contact.email.trim()));
@@ -209,6 +302,8 @@ function startOver(): void {
 	outcomes = "";
 	stepIndex = 0;
 	status = "editing";
+	receipt = null;
+	sealedAt = null;
 	clearDraft();
 }
 
@@ -238,8 +333,14 @@ async function submit(): Promise<void> {
 				...(token ? { token } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+		const data = (await res.json().catch(() => ({}))) as { ok?: boolean; receipt?: string };
 		if (res.ok && data.ok) {
+			receipt = typeof data.receipt === "string" ? data.receipt : "RECEIVED";
+			sealedAt = new Date().toLocaleDateString("en-GB", {
+				day: "numeric",
+				month: "long",
+				year: "numeric",
+			});
 			status = "done";
 			clearDraft();
 		} else {
@@ -251,20 +352,23 @@ async function submit(): Promise<void> {
 }
 </script>
 
-{#if status === "done"}
-	<div class="ack" role="status" aria-live="polite">
-		<span class="ack__glyph material-symbols-outlined" aria-hidden="true">task_alt</span>
-		<div>
-			<p class="ack__title">Received. We have your intake.</p>
-			<p class="ack__body">
-				Hákon reviews each one by hand and replies within a couple of working days, usually with the
-				first questions Sókrates would ask about your systems.
-			</p>
-			<button class="ghost" type="button" onclick={startOver}>Submit another</button>
-		</div>
-	</div>
-{:else}
-	<div class="onb">
+<div class="onb-layout">
+	<div class="onb-flow">
+		{#if status === "done"}
+			<div class="ack" role="status" aria-live="polite">
+				<span class="ack__glyph material-symbols-outlined" aria-hidden="true">task_alt</span>
+				<div>
+					<p class="ack__title">Received. We have your intake.</p>
+					<p class="ack__body">
+						{#if receipt && receipt !== "RECEIVED"}Your record is sealed as intake {receipt}.
+						{/if}Hákon reviews each one by hand and replies within a couple of working days,
+						usually with the first questions Sókrates would ask about your systems.
+					</p>
+					<button class="ghost" type="button" onclick={startOver}>Submit another</button>
+				</div>
+			</div>
+		{:else}
+			<div class="onb">
 		<!-- Stepper -->
 		<ol class="strip" aria-label="Onboarding steps">
 			{#each STEPS as step, i (step.id)}
@@ -422,16 +526,56 @@ async function submit(): Promise<void> {
 			</div>
 		</div>
 
-		{#if status === "error"}
-			<p class="err" role="alert">
-				Something went wrong sending that. Email
-				<a class="err__link" href={mailtoHref}>{FOUNDER_EMAIL}</a> and we will pick it up directly.
-			</p>
+				{#if status === "error"}
+					<p class="err" role="alert">
+						Something went wrong sending that. Email
+						<a class="err__link" href={mailtoHref}>{FOUNDER_EMAIL}</a> and we will pick it up directly.
+					</p>
+				{/if}
+			</div>
 		{/if}
 	</div>
-{/if}
+
+	<!-- The record: render-only Morphe tree (the wizard is the control surface).
+	     Deliberately NOT aria-live — it rebuilds per keystroke; the ack's status
+	     region carries the one seal announcement. Sealed pins the night dialect:
+	     the record is filed into the archive while the page keeps its ground. -->
+	<aside class="onb-record" aria-label="Your intake record">
+		<MorpheRoot
+			tree={envelope.tree}
+			{choices}
+			{store}
+			dialect={receipt !== null ? night : undefined}
+		/>
+	</aside>
+</div>
 
 <style>
+	/* The two tracks: the wizard (the work) and the record (the proof). One
+	   column on narrow viewports — the record follows the form; side by side
+	   once there is room to watch it build. */
+	.onb-layout {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--mo-space-6);
+		align-items: start;
+	}
+	.onb-flow {
+		min-inline-size: 0;
+	}
+	.onb-record {
+		min-inline-size: 0;
+	}
+	@media (min-width: 64rem) {
+		.onb-layout {
+			grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+		}
+		.onb-record {
+			position: sticky;
+			inset-block-start: var(--mo-space-6);
+		}
+	}
+
 	.onb {
 		display: flex;
 		flex-direction: column;
