@@ -38,6 +38,9 @@ export {
 export { CAPABILITIES, COMPOSE_CORPUS } from "./corpus.js";
 // Document text — the shared embed/rerank representation of a capability (no drift).
 export { documentText } from "./document.js";
+export type { ExamplePain } from "./examples.js";
+// Examples — system-gated suggestion chips (re-shape around the visitor's stack).
+export { EXAMPLE_LIMIT, EXAMPLE_PAINS, examplePainsFor } from "./examples.js";
 export type { ComposeQuery } from "./input.js";
 // Input — visitor-input validation (hand-written, not orval zod).
 export { composeQuerySchema, parseQuery } from "./input.js";

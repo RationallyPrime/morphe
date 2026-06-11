@@ -488,9 +488,13 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 	const humanity = loadEvidence("humanity.json");
 	const businessCentral = loadEvidence("businesscentral.json");
 	const fiftySkills = loadEvidence("50skills.json");
+	const asana = loadEvidence("asana.json");
+	const jira = loadEvidence("jira.json");
 	const twentyModels = new Set(twenty.models);
 	const businessCentralModels = new Set(businessCentral.models);
 	const fiftySkillsModels = new Set(fiftySkills.models);
+	const asanaModels = new Set(asana.models);
+	const jiraModels = new Set(jira.models);
 
 	// Every dkplus.json.models entry, expanded into its readable leaf forms: each
 	// trailing run of dot-segments concatenated (e.g. `dkCloud.Data.Model.Sales.
@@ -550,6 +554,16 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 				fiftySkillsModels.has(model),
 				`${where}: 50skills model "${model}" not in 50skills.json.models`,
 			).toBe(true);
+		} else if (system === "asana") {
+			// Asana declares its models as components.schemas keys — exact membership.
+			expect(
+				asanaModels.has(model),
+				`${where}: asana model "${model}" not in asana.json.models`,
+			).toBe(true);
+		} else if (system === "jira") {
+			expect(jiraModels.has(model), `${where}: jira model "${model}" not in jira.json.models`).toBe(
+				true,
+			);
 		} else {
 			throw new Error(`${where}: unknown system "${system}"`);
 		}
@@ -580,6 +594,8 @@ describe("compose grounding — every cited MODEL name is a real compiled model"
 					if (system === "humanity") return HUMANITY_ALLOWED_MODELS.has(model);
 					if (system === "businesscentral") return businessCentralModels.has(model);
 					if (system === "50skills") return fiftySkillsModels.has(model);
+					if (system === "asana") return asanaModels.has(model);
+					if (system === "jira") return jiraModels.has(model);
 					return false;
 				});
 				expect(
@@ -663,6 +679,26 @@ describe("compose corpus — grounded, category-lattice, subset-aware", () => {
 		expect(countExact(["humanity"]), "Humanity-only").toBeGreaterThanOrEqual(8);
 		expect(countExact(["businesscentral"]), "Business Central-only").toBeGreaterThanOrEqual(1);
 		expect(countExact(["50skills"]), "50skills-only").toBeGreaterThanOrEqual(1);
+		expect(countExact(["asana"]), "Asana-only").toBeGreaterThanOrEqual(3);
+		expect(countExact(["jira"]), "Jira-only").toBeGreaterThanOrEqual(3);
+
+		// PM cross-category pairs: each PM system reaches CRM, both ERPs (one per
+		// card), WFM and workflow — never the other PM system (see the purity guard).
+		const pmPairs: readonly (readonly string[])[] = [
+			["twenty", "asana"],
+			["twenty", "jira"],
+			["asana", "dkplus"],
+			["asana", "businesscentral"],
+			["asana", "humanity"],
+			["asana", "50skills"],
+			["jira", "dkplus"],
+			["jira", "businesscentral"],
+			["jira", "humanity"],
+			["jira", "50skills"],
+		];
+		for (const systems of pmPairs) {
+			expect(countExact(systems), systems.join("×")).toBeGreaterThanOrEqual(1);
+		}
 
 		const crossSystemPermutations: readonly (readonly string[])[] = [
 			["twenty", "dkplus"],
@@ -833,6 +869,8 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 			"wfm",
 			"workflow",
 		]);
+		expect(categoriesOf(["jira", "asana"])).toEqual(["pm"]);
+		expect(categoriesOf(["asana", "twenty"])).toEqual(["crm", "pm"]);
 		expect(categoriesOf([])).toEqual([]);
 		// Unknown ids contribute no category.
 		expect(categoriesOf(["hubspot"])).toEqual([]);
@@ -849,6 +887,20 @@ describe("compose taxonomy — category classification (system-agnostic axis)", 
 			);
 		}
 	});
+
+	it("no capability mixes systems within one category — one ERP (one PM, …) at a time", () => {
+		// A business runs ONE system per category, and the picker enforces
+		// intra-category exclusivity — so a card requiring two realizations of the
+		// same category (dkPlus AND Business Central, Asana AND Jira) could never
+		// surface. Such a card is dead weight at best and a template smell at worst:
+		// each system in a capability's footprint must fill a DISTINCT category.
+		for (const cap of CAPABILITIES) {
+			expect(
+				categoriesOf(cap.systems).length,
+				`${cap.id}: [${cap.systems.join(", ")}] mixes systems within one category`,
+			).toBe(cap.systems.length);
+		}
+	});
 });
 
 function evidenceIndex(): Record<string, Map<string, EvidenceOp>> {
@@ -858,6 +910,8 @@ function evidenceIndex(): Record<string, Map<string, EvidenceOp>> {
 		twenty: "twenty.json",
 		businesscentral: "businesscentral.json",
 		"50skills": "50skills.json",
+		asana: "asana.json",
+		jira: "jira.json",
 	};
 	const index: Record<string, Map<string, EvidenceOp>> = {};
 	for (const [system, file] of Object.entries(files)) {

@@ -1,6 +1,6 @@
 /**
  * THE COMPOSE CORPUS — cross-system capabilities as typed, GROUNDED data over
- * Humanity, dkPlus, Business Central, Twenty CRM and 50skills.
+ * Humanity, dkPlus, Business Central, Twenty CRM, 50skills, Asana and Jira.
  *
  * Each `Capability` is one automation the composer surfaces. Every `surface` is
  * copied from a REAL operation in `data/evidence/*.json` (operationId/method/path/
@@ -35,6 +35,8 @@ const BUSINESS_CENTRAL: SystemRef = {
 };
 const TWENTY: SystemRef = { id: "twenty", label: "Twenty" };
 const FIFTY_SKILLS: SystemRef = { id: "50skills", label: "50skills" };
+const ASANA: SystemRef = { id: "asana", label: "Asana" };
+const JIRA: SystemRef = { id: "jira", label: "Jira" };
 
 const BASE_CAPABILITIES: readonly Capability[] = [
 	// 1
@@ -6892,9 +6894,485 @@ const LATTICE_COMPLETION_CAPABILITIES: readonly Capability[] = [
 	}),
 ];
 
+/* ---------------------------------------------------------------------------
+ * PM (project / work management) — Asana and Jira surfaces, grounded in
+ * `data/evidence/asana.json` and `data/evidence/jira.json`. Asana and Jira fill
+ * the same `pm` category, so no capability may require both (the picker keeps
+ * intra-category selection exclusive; a both-PMs card could never surface).
+ * ------------------------------------------------------------------------- */
+
+const AS_TASK_SEARCH = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/workspaces/{workspace_gid}/tasks/search",
+	operationId: "searchTasksForWorkspace",
+	summary: "Search tasks in a workspace",
+	model: "TaskCompact",
+});
+const AS_PROJECT_TASKS = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/projects/{project_gid}/tasks",
+	operationId: "getTasksForProject",
+	summary: "Get tasks from a project",
+	model: "TaskCompact",
+});
+const AS_TASK_COUNTS = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/projects/{project_gid}/task_counts",
+	operationId: "getTaskCountsForProject",
+	summary: "Get task count of a project",
+	model: "TaskCountResponse",
+});
+const AS_PORTFOLIOS = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/portfolios",
+	operationId: "getPortfolios",
+	summary: "Get multiple portfolios",
+	model: "PortfolioCompact",
+});
+const AS_STATUS_UPDATES = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/status_updates",
+	operationId: "getStatusesForObject",
+	summary: "Get status updates from an object",
+	model: "StatusUpdateCompact",
+});
+const AS_PROJECT_STATUSES = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/projects/{project_gid}/project_statuses",
+	operationId: "getProjectStatusesForProject",
+	summary: "Get statuses from a project",
+	model: "ProjectStatusCompact",
+});
+const AS_DEPENDENCIES = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/tasks/{task_gid}/dependencies",
+	operationId: "getDependenciesForTask",
+	summary: "Get dependencies from a task",
+	model: "TaskCompact",
+});
+const AS_DEPENDENTS = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/tasks/{task_gid}/dependents",
+	operationId: "getDependentsForTask",
+	summary: "Get dependents from a task",
+	model: "TaskCompact",
+});
+const AS_PROJECT_CREATE = realSurface({
+	system: "asana",
+	direction: "write",
+	method: "POST",
+	path: "/workspaces/{workspace_gid}/projects",
+	operationId: "createProjectForWorkspace",
+	summary: "Create a project in a workspace",
+	model: "ProjectResponse",
+});
+const AS_TASK_CREATE = realSurface({
+	system: "asana",
+	direction: "write",
+	method: "POST",
+	path: "/tasks",
+	operationId: "createTask",
+	summary: "Create a task",
+	model: "TaskResponse",
+});
+const AS_TIME_ENTRIES = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/tasks/{task_gid}/time_tracking_entries",
+	operationId: "getTimeTrackingEntriesForTask",
+	summary: "Get time tracking entries for a task",
+	model: "TimeTrackingEntryCompact",
+});
+const AS_TEMPLATES = realSurface({
+	system: "asana",
+	direction: "read",
+	method: "GET",
+	path: "/project_templates",
+	operationId: "getProjectTemplates",
+	summary: "Get multiple project templates",
+	model: "ProjectTemplateCompact",
+});
+const AS_INSTANTIATE = realSurface({
+	system: "asana",
+	direction: "write",
+	method: "POST",
+	path: "/project_templates/{project_template_gid}/instantiateProject",
+	operationId: "instantiateProject",
+	summary: "Instantiate a project from a project template",
+	model: "JobResponse",
+});
+
+const J_SEARCH = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/search/jql",
+	operationId: "searchAndReconsileIssuesUsingJql",
+	summary: "Search for issues using JQL enhanced search (GET)",
+	model: "SearchAndReconcileResults",
+});
+const J_CHANGELOG = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/issue/{issueIdOrKey}/changelog",
+	operationId: "getChangeLogs",
+	summary: "Get changelogs",
+	model: "PageBeanChangelog",
+});
+const J_WORKLOGS = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/issue/{issueIdOrKey}/worklog",
+	operationId: "getIssueWorklog",
+	summary: "Get issue worklogs",
+	model: "PageOfWorklogs",
+});
+const J_WORKLOGS_UPDATED = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/worklog/updated",
+	operationId: "getIdsOfWorklogsModifiedSince",
+	summary: "Get IDs of updated worklogs",
+	model: "ChangedWorklogs",
+});
+const J_VERSIONS = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/project/{projectIdOrKey}/versions",
+	operationId: "getProjectVersions",
+	summary: "Get project versions",
+	model: "Version",
+});
+const J_VERSION_ISSUES = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/version/{id}/relatedIssueCounts",
+	operationId: "getVersionRelatedIssues",
+	summary: "Get version's related issues count",
+	model: "VersionIssueCounts",
+});
+const J_ISSUE_CREATE = realSurface({
+	system: "jira",
+	direction: "write",
+	method: "POST",
+	path: "/rest/api/3/issue",
+	operationId: "createIssue",
+	summary: "Create issue",
+	model: "CreatedIssue",
+});
+const J_ASSIGNABLE = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/user/assignable/search",
+	operationId: "findAssignableUsers",
+	summary: "Find users assignable to issues",
+	model: "User",
+});
+const J_TRANSITIONS = realSurface({
+	system: "jira",
+	direction: "read",
+	method: "GET",
+	path: "/rest/api/3/issue/{issueIdOrKey}/transitions",
+	operationId: "getTransitions",
+	summary: "Get transitions",
+	model: "Transitions",
+});
+const J_COMMENT = realSurface({
+	system: "jira",
+	direction: "write",
+	method: "POST",
+	path: "/rest/api/3/issue/{issueIdOrKey}/comment",
+	operationId: "addComment",
+	summary: "Add comment",
+	model: "Comment",
+});
+
+const PM_CAPABILITIES: readonly Capability[] = [
+	// Asana — single-system
+	completeCapability({
+		id: "asana-overdue-task-radar",
+		title: "Asana overdue task radar",
+		painPoints: ["delivery", "reporting", "anomaly"],
+		systems: ["asana"],
+		source: ASANA,
+		target: ASANA,
+		transform:
+			"Search workspace tasks for overdue and idle work, read each project's task counts, and rank the projects where delivery is quietly slipping.",
+		value: "Slipping work surfaces before the deadline does, not after.",
+		surfaces: [AS_TASK_SEARCH, AS_PROJECT_TASKS, AS_TASK_COUNTS],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "asana-portfolio-status-brief",
+		title: "Asana portfolio status brief",
+		painPoints: ["reporting", "delivery"],
+		systems: ["asana"],
+		source: ASANA,
+		target: ASANA,
+		transform:
+			"Read portfolios, their status updates and each project's posted statuses, then compose one brief of what moved, what stalled and what has gone silent.",
+		value: "Leadership reads one honest delivery brief instead of chasing ten project leads.",
+		surfaces: [AS_PORTFOLIOS, AS_STATUS_UPDATES, AS_PROJECT_STATUSES],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "asana-blocked-dependency-scan",
+		title: "Asana blocked dependency scan",
+		painPoints: ["delivery", "anomaly", "utilization"],
+		systems: ["asana"],
+		source: ASANA,
+		target: ASANA,
+		transform:
+			"Walk task dependencies and dependents across the workspace and flag the chains where one stalled task is silently blocking many downstream ones.",
+		value: "The one task holding up twelve others stops hiding in the backlog.",
+		surfaces: [AS_DEPENDENCIES, AS_DEPENDENTS, AS_TASK_SEARCH],
+		tier: "read-only",
+	}),
+	// Twenty × Asana
+	completeCapability({
+		id: "won-opportunity-to-asana-delivery-project",
+		title: "Won opportunity to Asana delivery project",
+		painPoints: ["deals", "sales-pipeline", "delivery", "onboarding"],
+		systems: ["twenty", "asana"],
+		source: TWENTY,
+		target: ASANA,
+		transform:
+			"Read closed-won Twenty opportunities and draft the Asana delivery project with its kickoff tasks, so the win lands in the delivery tool the same day.",
+		value: "Closed deals become delivery plans instead of waiting in a sales tab.",
+		surfaces: [T_OPPORTUNITIES, AS_PROJECT_CREATE, AS_TASK_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "asana-delivery-slip-back-to-crm",
+		title: "Asana delivery slip back to CRM",
+		painPoints: ["delivery", "customer-comms", "deals"],
+		systems: ["asana", "twenty"],
+		source: ASANA,
+		target: TWENTY,
+		transform:
+			"Read project status updates and task lists for customer deliveries, and draft a Twenty note on the account when a delivery starts slipping.",
+		value:
+			"Account owners hear about a slipping delivery from their own CRM, not from the customer.",
+		surfaces: [AS_STATUS_UPDATES, AS_PROJECT_TASKS, T_NOTE],
+		tier: "proposes",
+	}),
+	// Asana × ERP (one ERP per card — never both)
+	completeCapability({
+		id: "asana-tracked-time-to-dkplus-invoice",
+		title: "Asana tracked time to dkPlus invoice",
+		painPoints: ["invoicing", "margin", "delivery", "utilization"],
+		systems: ["asana", "dkplus"],
+		source: ASANA,
+		target: DKPLUS,
+		transform:
+			"Read time tracking entries on billable project tasks and draft the dkPlus sales invoice for the period's delivered work.",
+		value: "Hours logged in the delivery tool stop leaking before they reach an invoice.",
+		surfaces: [AS_TIME_ENTRIES, AS_PROJECT_TASKS, DK_INVOICE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "asana-milestone-to-business-central-invoice",
+		title: "Asana milestone to Business Central invoice",
+		painPoints: ["invoicing", "delivery", "margin"],
+		systems: ["asana", "businesscentral"],
+		source: ASANA,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Watch project tasks for completed billing milestones and draft the Business Central sales invoice with its lines when one lands.",
+		value: "Milestone billing follows delivery automatically instead of waiting for month end.",
+		surfaces: [
+			AS_PROJECT_TASKS,
+			realSurface({
+				system: "businesscentral",
+				direction: "write",
+				method: "POST",
+				path: "/companies({company_id})/salesInvoices",
+				operationId: "postSalesInvoice",
+				summary: "Creates an object of type salesInvoice in Dynamics 365 Business Central",
+				model: "salesInvoice",
+			}),
+			BC_INVOICE_LINE_CREATE,
+		],
+		tier: "proposes",
+	}),
+	// Asana × WFM / workflow
+	completeCapability({
+		id: "asana-workload-to-humanity-coverage",
+		title: "Asana workload to Humanity coverage",
+		painPoints: ["scheduling", "utilization", "delivery"],
+		systems: ["asana", "humanity"],
+		source: ASANA,
+		target: HUMANITY,
+		transform:
+			"Read project task counts and open work, check Humanity availability for the people it needs, and draft the shifts that actually cover the plan.",
+		value: "Delivery plans get staffed against real availability, not optimism.",
+		surfaces: [AS_TASK_COUNTS, AS_PROJECT_TASKS, H_AVAILABILITY, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-onboarding-to-asana-day-one-plan",
+		title: "50skills onboarding to Asana day-one plan",
+		painPoints: ["onboarding", "hiring", "delivery"],
+		systems: ["50skills", "asana"],
+		source: FIFTY_SKILLS,
+		target: ASANA,
+		transform:
+			"Watch 50skills journeys for arriving hires and instantiate the team's Asana onboarding project from its template, dated to day one.",
+		value: "Every new hire lands to the same ready task plan instead of a hand-rebuilt list.",
+		surfaces: [F_JOURNEY_MODIFIED, AS_TEMPLATES, AS_INSTANTIATE],
+		tier: "proposes",
+	}),
+	// Jira — single-system
+	completeCapability({
+		id: "jira-stale-issue-radar",
+		title: "Jira stale issue radar",
+		painPoints: ["delivery", "anomaly", "reporting"],
+		systems: ["jira"],
+		source: JIRA,
+		target: JIRA,
+		transform:
+			"Search issues with JQL for tickets that have not moved, read their changelogs to see where they stalled, and rank the queues going quiet.",
+		value: "Tickets stop aging silently in columns nobody reviews.",
+		surfaces: [J_SEARCH, J_CHANGELOG],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "jira-worklog-capture-audit",
+		title: "Jira worklog capture audit",
+		painPoints: ["delivery", "utilization", "reporting"],
+		systems: ["jira"],
+		source: JIRA,
+		target: JIRA,
+		transform:
+			"Read updated worklogs against active issues and flag the work that moved without any time being logged on it.",
+		value: "The gap between work done and work logged becomes visible weekly, not at billing.",
+		surfaces: [J_WORKLOGS_UPDATED, J_WORKLOGS, J_SEARCH],
+		tier: "read-only",
+	}),
+	completeCapability({
+		id: "jira-release-readiness-report",
+		title: "Jira release readiness report",
+		painPoints: ["delivery", "reporting", "forecasting"],
+		systems: ["jira"],
+		source: JIRA,
+		target: JIRA,
+		transform:
+			"Read each project's versions and their related issue counts, and report which releases are actually on track and which are quietly overloaded.",
+		value: "Release dates get challenged by data weeks before they slip.",
+		surfaces: [J_VERSIONS, J_VERSION_ISSUES],
+		tier: "read-only",
+	}),
+	// Twenty × Jira
+	completeCapability({
+		id: "won-opportunity-to-jira-delivery-epic",
+		title: "Won opportunity to Jira delivery epic",
+		painPoints: ["deals", "sales-pipeline", "delivery"],
+		systems: ["twenty", "jira"],
+		source: TWENTY,
+		target: JIRA,
+		transform:
+			"Read closed-won Twenty opportunities, draft the Jira delivery issue and suggest assignees from the people actually assignable in that project.",
+		value: "What sales sold shows up in engineering's queue with an owner attached.",
+		surfaces: [T_OPPORTUNITIES, J_ISSUE_CREATE, J_ASSIGNABLE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "jira-blocked-delivery-back-to-crm",
+		title: "Jira blocked delivery back to CRM",
+		painPoints: ["delivery", "customer-comms", "deals"],
+		systems: ["jira", "twenty"],
+		source: JIRA,
+		target: TWENTY,
+		transform:
+			"Search for blocked customer-facing issues, draft a Twenty note on the affected account and a Jira comment recording that the account owner was told.",
+		value: "Blocked deliveries reach the account owner before the renewal call does.",
+		surfaces: [J_SEARCH, T_NOTE, J_COMMENT],
+		tier: "proposes",
+	}),
+	// Jira × ERP (one ERP per card — never both)
+	completeCapability({
+		id: "jira-worklogs-to-dkplus-invoice",
+		title: "Jira worklogs to dkPlus invoice",
+		painPoints: ["invoicing", "margin", "delivery"],
+		systems: ["jira", "dkplus"],
+		source: JIRA,
+		target: DKPLUS,
+		transform:
+			"Read issue worklogs for billable customer work and draft the dkPlus sales invoice for the period, line by line from the logged time.",
+		value: "Engineering hours become invoice lines without a spreadsheet in between.",
+		surfaces: [J_WORKLOGS, J_SEARCH, DK_INVOICE_CREATE],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "jira-worklogs-to-business-central-time",
+		title: "Jira worklogs to Business Central time registration",
+		painPoints: ["payroll", "labor-cost", "delivery"],
+		systems: ["jira", "businesscentral"],
+		source: JIRA,
+		target: BUSINESS_CENTRAL,
+		transform:
+			"Read updated issue worklogs and post the matching Business Central time registration entries per employee, so logged work lands in the books.",
+		value:
+			"Engineering time reaches finance as accounting data, not as a month-end reconstruction.",
+		surfaces: [J_WORKLOGS_UPDATED, J_WORKLOGS, BC_TIME_CREATE],
+		tier: "proposes",
+	}),
+	// Jira × WFM / workflow
+	completeCapability({
+		id: "jira-incident-surge-to-humanity-staffing",
+		title: "Jira incident surge to Humanity staffing",
+		painPoints: ["scheduling", "delivery", "forecasting"],
+		systems: ["jira", "humanity"],
+		source: JIRA,
+		target: HUMANITY,
+		transform:
+			"Watch issue search for incident and support surges, check who is available in Humanity, and draft the extra coverage shifts before the queue drowns.",
+		value: "The roster reacts to the queue on the same day, not at the next planning meeting.",
+		surfaces: [J_SEARCH, H_AVAILABILITY, H_POST_SHIFT],
+		tier: "proposes",
+	}),
+	completeCapability({
+		id: "50skills-new-hire-to-jira-access-tickets",
+		title: "50skills new hire to Jira access tickets",
+		painPoints: ["onboarding", "compliance", "approvals"],
+		systems: ["50skills", "jira"],
+		source: FIFTY_SKILLS,
+		target: JIRA,
+		transform:
+			"Watch 50skills journeys for arriving hires, draft the Jira access and equipment tickets for day one, and read their transitions to track what is still open.",
+		value: "Nobody spends their first week waiting on an access request someone forgot to file.",
+		surfaces: [F_JOURNEY_MODIFIED, J_ISSUE_CREATE, J_TRANSITIONS],
+		tier: "proposes",
+	}),
+];
+
 export const CAPABILITIES: readonly Capability[] = [
 	...BASE_CAPABILITIES,
 	...LATTICE_COMPLETION_CAPABILITIES,
+	...PM_CAPABILITIES,
 ];
 
 /** The full corpus the composer answers for, with grounding provenance. */
@@ -6926,6 +7404,16 @@ export const COMPOSE_CORPUS: CapabilityCorpus = {
 			system: "50skills",
 			specVersion: "3.0.3",
 			source: "50skills-journeys-api.yaml",
+		},
+		{
+			system: "asana",
+			specVersion: "3.0.0",
+			source: "asana-openapi.yaml",
+		},
+		{
+			system: "jira",
+			specVersion: "3.0.1",
+			source: "jira-platform-swagger-v3.json",
 		},
 	],
 };

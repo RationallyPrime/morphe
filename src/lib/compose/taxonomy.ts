@@ -37,7 +37,8 @@ export type PainTag =
 	| "contacts"
 	| "crm"
 	| "onboarding"
-	| "offboarding";
+	| "offboarding"
+	| "delivery";
 
 /** The canonical, ordered list of every pain tag. */
 export const PAIN_TAGS: readonly PainTag[] = [
@@ -64,6 +65,7 @@ export const PAIN_TAGS: readonly PainTag[] = [
 	"crm",
 	"onboarding",
 	"offboarding",
+	"delivery",
 ];
 
 /**
@@ -319,6 +321,28 @@ export const PAIN_KEYWORDS: Readonly<Record<string, PainTag>> = {
 	terminated: "offboarding",
 	"final payroll": "offboarding",
 	"remove access": "offboarding",
+
+	// delivery (project / work management)
+	delivery: "delivery",
+	sprint: "delivery",
+	ticket: "delivery",
+	backlog: "delivery",
+	kanban: "delivery",
+	epic: "delivery",
+	standup: "delivery",
+	"stand-up": "delivery",
+	"scope creep": "delivery",
+	milestone: "delivery",
+	deliverable: "delivery",
+	deadline: "delivery",
+	"ship date": "delivery",
+	"release date": "delivery",
+	worklog: "delivery",
+	"work log": "delivery",
+	"project plan": "delivery",
+	"project management": "delivery",
+	jira: "delivery",
+	asana: "delivery",
 };
 
 /**
@@ -353,7 +377,7 @@ export interface System extends SystemRef {
 }
 
 /** The canonical, ordered list of categories. */
-export const CATEGORIES: readonly Category[] = ["crm", "erp", "wfm", "workflow"];
+export const CATEGORIES: readonly Category[] = ["crm", "erp", "wfm", "workflow", "pm"];
 
 /** Human label for each category (the system-agnostic register). */
 export const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
@@ -361,6 +385,7 @@ export const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 	erp: "ERP / Finance",
 	wfm: "Workforce",
 	workflow: "Workflow",
+	pm: "Projects",
 };
 
 /** The systems the composer answers for. Order is the display order. */
@@ -370,6 +395,8 @@ export const SYSTEMS: readonly System[] = [
 	{ id: "businesscentral", label: "Business Central", category: "erp" },
 	{ id: "twenty", label: "Twenty", category: "crm" },
 	{ id: "50skills", label: "50skills", category: "workflow" },
+	{ id: "asana", label: "Asana", category: "pm" },
+	{ id: "jira", label: "Jira", category: "pm" },
 ];
 
 /** The category a system fills, or `undefined` for an unknown id. */

@@ -31,6 +31,7 @@ import {
 	composeAnswer,
 	defaultSelection,
 	emptyState,
+	examplePainsFor,
 	matchCapabilities,
 	offDomainState,
 	parseQuery,
@@ -56,13 +57,6 @@ const RESULT_LIMIT = 4;
 // are tunable constants, not a model property — refine against real queries.
 const SCORE_FLOOR = 0.35;
 const SCORE_STRONG = 0.45;
-
-const EXAMPLE_PAINS: readonly string[] = [
-	"Overtime keeps surprising finance",
-	"Won deals stall before staffing",
-	"New hires reach the roster before payroll is ready",
-	"Sales promises work before cash risk is visible",
-];
 
 /** A capability id with its reranker score, or null for the deterministic fallback. */
 interface Scored {
@@ -110,6 +104,11 @@ function toggleSystem(id: string): void {
 }
 
 const query = $derived(parseQuery({ pain, systems: selected }));
+
+// Suggestion chips re-shape around the selected stack: only examples whose full
+// system footprint is selected are offered (the capability subset gate, applied
+// to suggestions), so a chip can never propose a friction we cannot answer.
+const examples = $derived(examplePainsFor(selected));
 
 // Deterministic fallback: the tag matcher is already relevance-gated (it returns []
 // for an unrecognized pain — no padding to the full corpus), so its matches are the
@@ -242,18 +241,20 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 				></textarea>
 			</div>
 
-			<div class="examples" aria-label="Example friction">
-				{#each EXAMPLE_PAINS as example}
-					<button
-						type="button"
-						class="example-chip"
-						disabled={ranking}
-						onclick={() => chooseExample(example)}
-					>
-						{example}
-					</button>
-				{/each}
-			</div>
+			{#if examples.length > 0}
+				<div class="examples" aria-label="Example friction">
+					{#each examples as example (example)}
+						<button
+							type="button"
+							class="example-chip"
+							disabled={ranking}
+							onclick={() => chooseExample(example)}
+						>
+							{example}
+						</button>
+					{/each}
+				</div>
+			{/if}
 
 			<fieldset class="systems">
 				<legend class="systems__legend">Which systems do you run? One per column.</legend>

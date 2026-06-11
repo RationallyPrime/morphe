@@ -29,7 +29,7 @@ export type SystemId = string;
  * products can fill a category; the deferred template/binding split is what will
  * eventually let one category-shaped capability bind to every compatible product.
  */
-export type Category = "crm" | "erp" | "wfm" | "workflow";
+export type Category = "crm" | "erp" | "wfm" | "workflow" | "pm";
 
 export interface SystemRef {
 	id: SystemId;
