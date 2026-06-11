@@ -136,6 +136,12 @@ const envelope = $derived.by<EmissionEnvelope>(() => {
 
 const midLoop = createDossierMidLoop(() => envelope.epoch);
 
+// The one ack sentence the seal adds (a real minted id only — the "RECEIVED"
+// fallback would read as noise).
+const receiptLine = $derived(
+	receipt !== null && receipt !== "RECEIVED" ? `Your record is sealed as intake ${receipt}. ` : "",
+);
+
 // The gate: the seal delta (submit success) and the mid loop's proposals both
 // pass through applyDelta against the live emission; a rejected delta leaves
 // the envelope reference untouched, so nothing broken can ever render.
@@ -360,9 +366,8 @@ async function submit(): Promise<void> {
 				<div>
 					<p class="ack__title">Received. We have your intake.</p>
 					<p class="ack__body">
-						{#if receipt && receipt !== "RECEIVED"}Your record is sealed as intake {receipt}.
-						{/if}Hákon reviews each one by hand and replies within a couple of working days,
-						usually with the first questions Sókrates would ask about your systems.
+						{receiptLine}Hákon reviews each one by hand and replies within a couple of working
+						days, usually with the first questions Sókrates would ask about your systems.
 					</p>
 					<button class="ghost" type="button" onclick={startOver}>Submit another</button>
 				</div>
