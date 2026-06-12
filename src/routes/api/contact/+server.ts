@@ -1,7 +1,7 @@
 /*
  * POST /api/contact — a marketing lead. Validates server-side, drops bots via a
  * honeypot, and notifies the founder (Postmark email + ntfy push; see
- * $lib/server/notify for the channel env). There is NO customer auto-reply:
+ * $serverlib/notify for the channel env). There is NO customer auto-reply:
  * Hákon replies by hand. The payload never leaves for anywhere but the
  * founder's inbox/topic.
  *
@@ -10,7 +10,7 @@
  */
 
 import { json } from "@sveltejs/kit";
-import { sendFounderAlert } from "$lib/server/notify";
+import { sendFounderAlert } from "$serverlib/notify";
 import type { RequestHandler } from "./$types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

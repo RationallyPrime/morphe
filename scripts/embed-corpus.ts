@@ -8,7 +8,7 @@
  * and the runtime never re-embeds documents (only the visitor's query, per request).
  *
  * Run:  bun scripts/embed-corpus.ts        (reads VOYAGE_API_KEY from .env)
- * Emits (committed): src/lib/compose/embeddings.ts (NB: NOT under generated/, which is
+ * Emits (committed): src/app/compose/embeddings.ts (NB: NOT under generated/, which is
  * gitignored — these embeddings are deliberately committed, per ADR-0002).
  *
  * Regenerate whenever the corpus TEXT changes; `embeddings.test.ts` enforces the
@@ -18,8 +18,8 @@
 
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { CAPABILITIES } from "../src/lib/compose/corpus.js";
-import { documentText } from "../src/lib/compose/document.js";
+import { CAPABILITIES } from "../src/app/compose/corpus.js";
+import { documentText } from "../src/app/compose/document.js";
 
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";
 const MODEL = "voyage-4-large";
@@ -30,7 +30,7 @@ const BATCH = 128;
 /** 6 decimals: negligible cosine error, roughly halves the committed file size vs full float repr. */
 const PRECISION = 1e6;
 
-const OUT = resolve(import.meta.dirname, "..", "src", "lib", "compose", "embeddings.ts");
+const OUT = resolve(import.meta.dirname, "..", "src", "app", "compose", "embeddings.ts");
 
 interface EmbedResponse {
 	data?: { index: number; embedding: number[] }[];

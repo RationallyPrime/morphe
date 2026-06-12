@@ -13,7 +13,8 @@
 
 import { untrack } from "svelte";
 import { page } from "$app/state";
-import Composer from "$lib/compose/Composer.svelte";
+import Composer from "$compose/Composer.svelte";
+import { MorpheRoot } from "$lib/components";
 import {
 	closingCta,
 	homeHero,
@@ -22,11 +23,10 @@ import {
 	registerSiteCompounds,
 	registerSiteIntents,
 	resolveArrivalIntent,
-} from "$lib/site";
-import ContactForm from "$lib/site/ContactForm.svelte";
-import IntentChips from "$lib/site/IntentChips.svelte";
-import IntentPalette from "$lib/site/IntentPalette.svelte";
-import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+} from "$site";
+import ContactForm from "$site/ContactForm.svelte";
+import IntentChips from "$site/IntentChips.svelte";
+import IntentPalette from "$site/IntentPalette.svelte";
 
 // Register the site compounds through the factory gate. Idempotent.
 registerSiteCompounds();

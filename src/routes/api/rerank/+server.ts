@@ -21,9 +21,9 @@
  */
 
 import { error, json } from "@sveltejs/kit";
+import type { Capability } from "$compose";
+import { documentText, retrieve, SYSTEMS } from "$compose";
 import { env } from "$env/dynamic/private";
-import type { Capability } from "$lib/compose";
-import { documentText, retrieve, SYSTEMS } from "$lib/compose";
 import type { RequestHandler } from "./$types";
 
 const VOYAGE_EMBED_URL = "https://api.voyageai.com/v1/embeddings";

@@ -66,7 +66,7 @@ A short scroll, one dominant idea, the product doing the talking:
   input. Keep it short.
 - Re-sequence the rest of the page around the composer (proof/governance/close
   become support, not competition).
-- Files: `src/routes/+page.svelte`, `src/lib/site/present.ts`, `src/lib/compose/*`.
+- Files: `src/routes/+page.svelte`, `src/app/site/present.ts`, `src/app/compose/*`.
 
 ### WS2 — CTA consolidation
 - Decide the single primary action (likely "Talk to us" / book a conversation).
@@ -81,9 +81,9 @@ A short scroll, one dominant idea, the product doing the talking:
 ### WS4 — De-jargon the copy
 - Purge user-facing "compose/composition" as the recurring verb. Replace with
   plain language about what it does (answers, surfaces, shows what's possible).
-- Sweep `src/lib/site/present.ts` and `src/lib/compose/present.ts` copy.
+- Sweep `src/app/site/present.ts` and `src/app/compose/present.ts` copy.
 - Keep the EN copy only; the IS copy is the user's to write. Internal code names
-  (`$lib/compose`, `composeAnswer`, etc.) can stay.
+  (`$compose`, `composeAnswer`, etc.) can stay.
 
 ### WS5 — Navbar → morph-the-page (design-heavy, OPEN)
 - Direction: drop the 5-link navbar; use Morphe to morph the page in place rather
@@ -157,7 +157,7 @@ A short scroll, one dominant idea, the product doing the talking:
 - **Retrieve (system-aware):** subset-eligibility gate (systems ⊆ selected) → in-memory
   **cosine** over **precomputed capability embeddings** → top-K candidates. Cap embeddings
   generated at **build time** (Voyage **voyage-4-large, 1024, input_type document**;
-  `bun run embed` → committed `src/lib/compose/embeddings.ts`); the **query** is
+  `bun run embed` → committed `src/app/compose/embeddings.ts`); the **query** is
   embedded per request (input_type query). **No vector DB** — cosine over ~1000 in-memory
   vectors is trivial.
 - **Status (2026-06-09):** stages **1 + 2 done + green**. Stage 1: `document.ts`,

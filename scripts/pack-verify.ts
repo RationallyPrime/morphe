@@ -1,0 +1,207 @@
+/**
+ * Pack verification for the published package shape.
+ *
+ * This deliberately installs the tarball into a throwaway Vite + Svelte app
+ * instead of importing from the workspace. It catches broken export maps,
+ * missing CSS assets, missing peer/runtime deps, and deep-path accidents before
+ * the package ever reaches GitHub Packages.
+ */
+
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { isAbsolute, join, resolve } from "node:path";
+
+const repoRoot = resolve(import.meta.dirname, "..");
+const tempRoot = mkdtempSync(join(tmpdir(), "morphe-pack-verify-"));
+const runtimeDir = join(tempRoot, "xdg-runtime");
+const scaffold = join(tempRoot, "consumer");
+let tarball = "";
+
+interface Command {
+	readonly cmd: string;
+	readonly args: readonly string[];
+	readonly cwd: string;
+}
+
+function run({ cmd, args, cwd }: Command): string {
+	const result = spawnSync(cmd, [...args], {
+		cwd,
+		encoding: "utf8",
+		env: {
+			...process.env,
+			TEMP: runtimeDir,
+			TMP: runtimeDir,
+			TMPDIR: runtimeDir,
+			XDG_RUNTIME_DIR: runtimeDir,
+		},
+	});
+	if (result.status !== 0) {
+		const rendered = [`$ ${cmd} ${args.join(" ")}`];
+		if (result.stdout.trim()) rendered.push(result.stdout.trim());
+		if (result.stderr.trim()) rendered.push(result.stderr.trim());
+		throw new Error(rendered.join("\n"));
+	}
+	return result.stdout.trim();
+}
+
+function write(path: string, content: string): void {
+	writeFileSync(path, content.trimStart(), "utf8");
+}
+
+try {
+	mkdirSync(runtimeDir, { recursive: true });
+	mkdirSync(join(scaffold, "src"), { recursive: true });
+
+	const packed = run({
+		cmd: "bun",
+		args: ["pm", "pack", "--destination", tempRoot, "--quiet"],
+		cwd: repoRoot,
+	});
+	const packedParts = packed.split(/\s+/);
+	let tarballName: string | undefined;
+	for (let i = packedParts.length - 1; i >= 0; i -= 1) {
+		const part = packedParts[i];
+		if (part?.endsWith(".tgz")) {
+			tarballName = part;
+			break;
+		}
+	}
+	if (!tarballName) {
+		throw new Error(`bun pm pack did not report a tarball name: ${packed}`);
+	}
+	tarball = isAbsolute(tarballName) ? tarballName : join(tempRoot, tarballName);
+	if (!existsSync(tarball)) {
+		throw new Error(`Expected tarball at ${tarball}`);
+	}
+
+	write(
+		join(scaffold, "package.json"),
+		JSON.stringify(
+			{
+				type: "module",
+				private: true,
+				scripts: {
+					build: "vite build",
+					"build:ssr": "vite build --ssr src/entry-server.ts --outDir .ssr",
+					verify: "bun run build:ssr && bun src/verify-built.ts",
+				},
+				dependencies: {
+					"@rationallyprime/morphe": `file:${tarball}`,
+					"@sveltejs/vite-plugin-svelte": "^4.0.0",
+					"@tanstack/svelte-query": "^6.1.34",
+					svelte: "^5.1.0",
+					typescript: "^5.6.0",
+					vite: "^5.4.0",
+					zod: "^4.4.3",
+				},
+			},
+			null,
+			"\t",
+		),
+	);
+	write(
+		join(scaffold, "tsconfig.json"),
+		JSON.stringify(
+			{
+				compilerOptions: {
+					module: "ESNext",
+					moduleResolution: "bundler",
+					strict: true,
+					target: "ES2022",
+					verbatimModuleSyntax: true,
+				},
+				include: ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts"],
+			},
+			null,
+			"\t",
+		),
+	);
+	write(
+		join(scaffold, "vite.config.ts"),
+		`
+			import { svelte } from "@sveltejs/vite-plugin-svelte";
+			import { defineConfig } from "vite";
+
+			export default defineConfig({
+				plugins: [svelte()],
+			});
+		`,
+	);
+	write(
+		join(scaffold, "index.html"),
+		`
+			<div id="app"></div>
+			<script type="module" src="/src/main.ts"></script>
+		`,
+	);
+	write(
+		join(scaffold, "src", "App.svelte"),
+		`
+			<script lang="ts">
+				import "@rationallyprime/morphe/styles.css";
+				import type { Node } from "@rationallyprime/morphe";
+				import { MorpheRoot } from "@rationallyprime/morphe/components";
+
+				const tree: Node = {
+					kind: "frame",
+					role: "section",
+					children: [
+						{
+							kind: "text",
+							value: "Pack verify surface",
+							as: "heading",
+							intent: "provenance",
+						},
+					],
+				};
+			</script>
+
+			<MorpheRoot {tree} />
+		`,
+	);
+	write(
+		join(scaffold, "src", "main.ts"),
+		`
+			import { mount } from "svelte";
+			import App from "./App.svelte";
+
+			const target = document.getElementById("app");
+			if (!target) throw new Error("missing #app target");
+			mount(App, { target });
+		`,
+	);
+	write(
+		join(scaffold, "src", "entry-server.ts"),
+		`
+			import { render } from "svelte/server";
+			import App from "./App.svelte";
+
+			export function renderSurface(): string {
+				return render(App).body;
+			}
+		`,
+	);
+	write(
+		join(scaffold, "src", "verify-built.ts"),
+		`
+			const { renderSurface } = await import("../.ssr/entry-server.js") as {
+				renderSurface: () => string;
+			};
+			const body = renderSurface();
+			if (!body.includes("Pack verify surface")) {
+				throw new Error(\`expected rendered package surface, got: \${body}\`);
+			}
+		`,
+	);
+
+	run({ cmd: "bun", args: ["install"], cwd: scaffold });
+	run({ cmd: "bun", args: ["run", "build"], cwd: scaffold });
+	run({ cmd: "bun", args: ["run", "verify"], cwd: scaffold });
+
+	process.stdout.write(`pack-verify passed: ${tarball}\n`);
+} finally {
+	if (process.env.KEEP_PACK_VERIFY !== "1") {
+		rmSync(tempRoot, { recursive: true, force: true });
+	}
+}

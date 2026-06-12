@@ -141,7 +141,7 @@ one; tuning improves only quality").
   precisely this); JSON Schema emission with the discriminator layout TS
   codegen needs. Lives under `py/` until the landing; must be re-synced when
   R2.1 extends the grammar.
-- **R3.2 (L, was R3.4) Monorepo landing.** Per `MIGRATION.md`: `src/lib/morphe/`
+- **R3.2 (L, was R3.4) Monorepo landing.** Per `MIGRATION.md`: `src/lib/`
   and `py/morphe_grammar` move next to Hyle/Eidos; TS/bun jobs grafted onto
   the monorepo CI. Layer guards enforce downward-only deps on arrival.
   **Owner decision needed first (grill-sized):** does the Sókrates site move
@@ -168,7 +168,7 @@ one; tuning improves only quality").
   `+layout.svelte` and set `activeDialect` on arrival; precedence over the
   persisted choice, never over an explicit toggle. The dialect mechanism needs
   zero changes — this is pure wiring at the τ_frame seam.
-- **R4.2 (blocked) Per-cohort copy.** Branch `$lib/site/present.ts` copy per
+- **R4.2 (blocked) Per-cohort copy.** Branch `$site/present.ts` copy per
   cohort. **Waits on founder input**: which cohorts, which pitches, and the
   Icelandic copy is the user's. Do not invent pitches.
 

@@ -1,0 +1,127 @@
+name: Publish package
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - ".github/workflows/publish.yml"
+      - "PACKAGING.md"
+      - "bun.lock"
+      - "package.json"
+      - "scripts/pack-verify.ts"
+      - "src/lib/**"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  dry-run:
+    name: package dry-run
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Full local gates
+        run: |
+          bun run lint
+          bun run check
+          bun run test
+          bun run build
+          bun run pack:verify
+
+      - name: Build package
+        run: bun run package
+
+      - name: Configure GitHub Packages auth
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          cat > .npmrc <<'NPMRC'
+          @rationallyprime:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+          NPMRC
+          cat > bunfig.toml <<'BUNFIG'
+          [install.scopes]
+          "@rationallyprime" = { url = "https://npm.pkg.github.com", token = "$NODE_AUTH_TOKEN" }
+          BUNFIG
+
+      - name: Dry-run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          bun publish --dry-run --registry https://npm.pkg.github.com --access restricted || {
+            echo "::warning::bun publish dry-run failed; falling back to npm publish dry-run for the publish step only."
+            npm publish --dry-run --registry https://npm.pkg.github.com --access restricted
+          }
+
+  publish:
+    name: publish v-tag
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Full local gates
+        run: |
+          bun run lint
+          bun run check
+          bun run test
+          bun run build
+          bun run pack:verify
+
+      - name: Build package
+        run: bun run package
+
+      - name: Configure GitHub Packages auth
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          cat > .npmrc <<'NPMRC'
+          @rationallyprime:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+          NPMRC
+          cat > bunfig.toml <<'BUNFIG'
+          [install.scopes]
+          "@rationallyprime" = { url = "https://npm.pkg.github.com", token = "$NODE_AUTH_TOKEN" }
+          BUNFIG
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          bun publish --registry https://npm.pkg.github.com --access restricted || {
+            echo "::warning::bun publish failed; falling back to npm publish for the publish step only because GitHub Packages registry auth can be stricter than npmjs.org."
+            npm publish --registry https://npm.pkg.github.com --access restricted
+          }

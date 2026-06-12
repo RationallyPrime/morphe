@@ -1,6 +1,6 @@
 # Morphe — Status
 
-**Date:** 2026-06-10
+**Date:** 2026-06-12
 **Verdict: GREEN.** Types clean, all tests pass, production build succeeds.
 
 This is the rolling status snapshot. The deeper ledger — every vision mechanism
@@ -15,71 +15,76 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** (522 files) |
-| Tests | `bun run test` (`vitest run`) | **360/360 passing** across 19 files |
+| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** |
+| Tests | `bun run test` (`vitest run`) | **409/409 passing** across 22 files |
 | Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
+| Package | `bun run pack:verify` | **Success** (tarball installed into throwaway Vite + Svelte 5 consumer) |
 
-### Test breakdown (360 total)
+### Test breakdown (409 total)
 
-- `src/lib/morphe/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
+- `src/lib/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
   compound-gate template-root-claim rejection and the R1.5 lifecycle +
   dialect-restriction suite).
-- `src/lib/morphe/dialects/dialects.test.ts` — 75 (Lemma-4 fixed-point parity
+- `src/lib/dialects/dialects.test.ts` — 75 (Lemma-4 fixed-point parity
   across all six dialects + no-raw-color channel guard + compound-subset
   resolution + CompoundRef authored-surface intent walk + the timaeus
   beacon/grounds suite + the gallery/night plate-derived-pair suite (KRA-349,
   ADR-0005) + the data ⇄ CSS agreement suite (each static `intents.css` block
   equals its dialect's data, selector-aware — KRA-354) + FP7: surface stacks
   ride `applyDialect`, so a boundary swap repaints the ground it stands on).
-- `src/lib/morphe/dialects/active.test.ts` — 5 (global dialect rune store).
-- `src/lib/morphe/dialects/arrival.test.ts` — 13 (τ_frame arrival attribution:
+- `src/lib/dialects/active.test.ts` — 5 (global dialect rune store).
+- `src/lib/dialects/arrival.test.ts` — 18 (τ_frame arrival attribution:
   `?cohort=` precedence + arrival sequence against the real store).
-- `src/lib/morphe/lemmas.property.test.ts` — 29 (lemmas-as-property-tests,
+- `src/lib/lemmas.property.test.ts` — 29 (lemmas-as-property-tests,
   in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
   compound-wrapping commutation and the Lemma 6 bounded-delegation suite:
   adversarial deltas, epoch invalidation, liveVaryIds through CompoundRef
   slot fills/args, Within resolution into algebra inputs).
-- `src/lib/morphe/primitives.render.test.ts` — 51 (SSR render totality + a11y
+- `src/lib/primitives.render.test.ts` — 51 (SSR render totality + a11y
   for all 22 primitive kinds incl. Action/Overlay, input modes, unknown
   compounds, shared node instances, bound-primitive store seeding, dialect
   compound-gating at render, and Vary rendering from the root choice map
   with clamped fallback).
-- `src/lib/morphe/delegation/envelope.test.ts` — 1 (ADR-0004 envelope/Delta
+- `src/lib/delegation/envelope.test.ts` — 1 (ADR-0004 envelope/Delta
   typing wraps a pure tree without touching the grammar).
-- `src/lib/morphe/state/store.test.ts` — 12 (ADR-0003 client-store contract:
+- `src/lib/state/store.test.ts` — 12 (ADR-0003 client-store contract:
   layered ownership, full JSON values, replace-on-write + notify-on-set,
   dev-freeze; R1.2 event tiers: atomic commit+record, bounded FIFO window,
   injected clock, tier unforgeability, and the architecture scans — store
   reads stay inside declared-bind primitives, no primitive touches the
   escalation context).
-- `src/lib/morphe/state/actions.test.ts` — 3 (R1.4 action lookup: mapped id
+- `src/lib/state/actions.test.ts` — 3 (R1.4 action lookup: mapped id
   fires, unmapped id dev-warns and no-ops, missing id never looks up).
-- `src/lib/morphe/state/digest.test.ts` — 3 (R1.3 ContextDigest: versioned
+- `src/lib/state/digest.test.ts` — 3 (R1.3 ContextDigest: versioned
   JSON-round-trippable snapshot, escalation wrapping captures the
   point-in-time digest).
-- `src/lib/compose/compose.test.ts` — 39 (composer: corpus grounding
+- `src/app/compose/compose.test.ts` — 41 (composer: corpus grounding
   invariants, presenters, ranking policy).
-- `src/lib/compose/replay.test.ts` — 2 (Corollary 2 replay harness:
+- `src/app/compose/examples.test.ts` — 9 (system-gated suggestion chips).
+- `src/app/compose/replay.test.ts` — 2 (Corollary 2 replay harness:
   recorded digest/input pairs replay deterministically through real compose
   presenters).
-- `src/lib/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
-- `src/lib/site/site.test.ts` — 32 (site compounds incl. `TimaeusPlate` and
+- `src/app/compose/retrieve.test.ts` — 10 (two-stage retrieve→rerank).
+- `src/app/site/dossier.test.ts` — 23 (onboarding dossier presenter and first
+  real mid-loop delegate).
+- `src/app/site/site.test.ts` — 32 (site compounds incl. `TimaeusPlate` and
   `SiteEntry` pass the factory gate on a fresh registry; every site presenter
   emits only resolvable compound refs; presenter copy stays out of doctrine
   register (D12); the engagement/identity/plates morphs stay inside their
   promised scope and the plates morph references only the public nine; the
   Trajectory-exclusion grep gate as a test — no excluded token in any
   presenter's emitted tree).
-- `src/lib/site/intents.test.ts` — 19 (the intent engine, ADR-0006/KRA-355:
+- `src/app/site/intents.test.ts` — 24 (the intent engine, ADR-0006/KRA-355:
   the registration gate, palette matching over the registered vocabulary, the
   flip-the-lights tracer morph riding one engine path, stage deltas through
   the R2 `applyDelta` gate — render totality at the morph seam — and the D12
   voice scan on intent strings).
-- `src/lib/server/magic-link.test.ts` — 13 (ADR-0001 stateless HMAC
+- `src/app/server/magic-link.test.ts` — 13 (ADR-0001 stateless HMAC
   magic-link gate: unconfigured fail-open + configured token lifecycle).
-- `src/lib/server/notify.test.ts` — 7 (founder alerts: Postmark + ntfy
+- `src/app/server/notify.test.ts` — 7 (founder alerts: Postmark + ntfy
   dual-channel, graceful when env is absent).
-- `src/lib/morphe/media.render.test.ts` — 6 (the responsive `<picture>` Media
+- `src/app/server/receipt.test.ts` — 5 (deterministic accession receipt ids).
+- `src/lib/media.render.test.ts` — 6 (the responsive `<picture>` Media
   extension: the no-sources fixed point renders the bare `<img>` unchanged;
   sources/width/height/eager render the candidate sets with pinned dimensions).
 - `scripts/plate-manifest.test.ts` — 12 (the plate derivative plan: rungs ×
@@ -173,7 +178,8 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run                      → 360/360 passing
+bun run test       # vitest run                      → 409/409 passing
 bun run build      # vite build                      → client + SSR bundles
+bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the dignity test)
 ```

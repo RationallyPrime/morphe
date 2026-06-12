@@ -2,15 +2,15 @@
  * POST /api/onboarding — an onboarding intake submission. When the magic-link
  * gate is configured (ADR-0001) the intake must carry a signature-valid token.
  * Formats the intake into a readable brief and alerts the founder (Postmark
- * email + ntfy push; see $lib/server/notify). No customer auto-reply; the
+ * email + ntfy push; see $serverlib/notify). No customer auto-reply; the
  * founder follows up by hand. Returns 503 when delivery is not configured /
  * fails, so the client can offer a mailto fallback and never lose an intake.
  */
 
 import { json } from "@sveltejs/kit";
-import { magicLinkConfigured, verifyMagicToken } from "$lib/server/magic-link";
-import { sendFounderAlert } from "$lib/server/notify";
-import { mintReceiptId } from "$lib/server/receipt";
+import { magicLinkConfigured, verifyMagicToken } from "$serverlib/magic-link";
+import { sendFounderAlert } from "$serverlib/notify";
+import { mintReceiptId } from "$serverlib/receipt";
 import type { RequestHandler } from "./$types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

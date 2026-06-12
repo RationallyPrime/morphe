@@ -696,7 +696,7 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | Slow loop (agent emitting trees) | A1 | hand-authored presenters today | ✗ (post-lift) |
 | Dignity test (Corollary 1 exit criterion) | C1 | the Sókrates site itself | ✔ |
 
-The site (`src/routes/`, `src/lib/site/`, `src/lib/compose/`) is Phase 0's
+The site (`src/routes/`, `src/app/site/`, `src/app/compose/`) is Phase 0's
 proving ground: every page is hand-authored trees through the full pipeline,
 which is exactly Corollary 1's "no agent" degradation — the system standing as
 a good design system before any model touches it.

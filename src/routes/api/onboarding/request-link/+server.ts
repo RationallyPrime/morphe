@@ -11,9 +11,9 @@
  */
 
 import { json } from "@sveltejs/kit";
-import { emailConfigured, sendTransactionalEmail } from "$lib/server/email";
-import { createMagicToken, MAGIC_LINK_TTL_MS, magicLinkConfigured } from "$lib/server/magic-link";
-import { sendFounderAlert } from "$lib/server/notify";
+import { emailConfigured, sendTransactionalEmail } from "$serverlib/email";
+import { createMagicToken, MAGIC_LINK_TTL_MS, magicLinkConfigured } from "$serverlib/magic-link";
+import { sendFounderAlert } from "$serverlib/notify";
 import type { RequestHandler } from "./$types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { registerSiteCompounds } from "$lib/site";
-	import CtaLink from "$lib/site/CtaLink.svelte";
-	import type { Node } from "$morphe";
-	import { getDialect } from "$morphe";
+	import type { Node } from "$lib";
+	import { getDialect } from "$lib";
 	/*
 	 * /substrate — the engine, demoted from /. The whole marketing site is rendered
 	 * through Morphe; this page exposes the substrate itself: one hand-authored Node
@@ -10,7 +8,9 @@
 	 * Corollary-1 dignity test). A short native intro frames why it is here, then the
 	 * demo carries the proof.
 	 */
-	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+	import { MorpheRoot } from "$lib/components";
+	import { registerSiteCompounds } from "$site";
+	import CtaLink from "$site/CtaLink.svelte";
 	import DignityDemo from "../_demo/DignityDemo.svelte";
 
 	// Registers SiteHero (and the rest) through the factory gate, so the intro tree's

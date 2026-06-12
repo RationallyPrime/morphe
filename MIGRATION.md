@@ -8,7 +8,7 @@ ourselves (no `any`, a11y structural, tests green, lint clean) so migration day
 is a lift, not a CI reckoning.
 
 ## What migrates (and what stays)
-- **Migrates:** `src/lib/morphe/` — the extractable core:
+- **Migrates:** `src/lib/` — the extractable core:
   `grammar/ tokens/ context/ compounds/ dialects/ render/ primitives/`. The library.
 - **Stays behind:** `src/routes/` — the SvelteKit demo + dignity-test harness. Throwaway scaffold.
 

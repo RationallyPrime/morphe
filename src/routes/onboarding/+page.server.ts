@@ -7,7 +7,7 @@
  *   locked  — no token, or expired/invalid: render the email-capture gate.
  */
 
-import { magicLinkConfigured, verifyMagicToken } from "$lib/server/magic-link";
+import { magicLinkConfigured, verifyMagicToken } from "$serverlib/magic-link";
 import type { PageServerLoad } from "./$types";
 
 export interface GateData {

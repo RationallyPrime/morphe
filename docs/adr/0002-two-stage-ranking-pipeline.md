@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-06-09
 - **Deciders:** Hákon (founder), grill session on KRA-274 (extends D4/D5)
-- **Related:** `docs/redesign-plan.md` (WS6, WS9), `src/lib/compose/*`, `/api/rerank`, ADR-0001
+- **Related:** `docs/redesign-plan.md` (WS6, WS9), `src/app/compose/*`, `/api/rerank`, ADR-0001
 
 ## Context
 
@@ -39,7 +39,7 @@ threshold → cap`.
    - Capability embeddings are **precomputed at build time** — Voyage
      **`voyage-4-large`, 1024 dims, `input_type: "document"`** (best general-purpose +
      multilingual retrieval; matters for IS queries against EN corpus) — **committed as
-     generated static data** at `src/lib/compose/embeddings.ts` (NOT under the gitignored
+     generated static data** at `src/app/compose/embeddings.ts` (NOT under the gitignored
      `generated/` dir — these are deliberately committed) via
      `scripts/embed-corpus.ts` (`bun run embed`). The **query** is embedded per request
      (server-side, existing `VOYAGE_API_KEY`, `input_type: "query"`). **No vector DB /

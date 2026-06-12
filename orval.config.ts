@@ -4,7 +4,7 @@
  * Input: the grounding specs in ./generated (Humanity OpenAPI 3.1 promoted +
  * dkPlus Swagger 2.0).
  *
- * Output: ./src/lib/compose/generated/{humanity,dkplus}/ — TS types (model/) +
+ * Output: ./src/app/compose/generated/{humanity,dkplus}/ — TS types (model/) +
  * a svelte-query client (for when the appliance goes live).
  *
  * dkPlus uses the original 2.0 source, not the 3.0 conversion: the conversion
@@ -37,8 +37,8 @@ export default defineConfig({
 		input: { target: HUMANITY, validation: false },
 		output: {
 			mode: "tags-split",
-			target: "./src/lib/compose/generated/humanity/endpoints.ts",
-			schemas: "./src/lib/compose/generated/humanity/model",
+			target: "./src/app/compose/generated/humanity/endpoints.ts",
+			schemas: "./src/app/compose/generated/humanity/model",
 			client: "svelte-query",
 			httpClient: "fetch",
 			clean: true,
@@ -48,8 +48,8 @@ export default defineConfig({
 		input: { target: DKPLUS, validation: false },
 		output: {
 			mode: "tags-split",
-			target: "./src/lib/compose/generated/dkplus/endpoints.ts",
-			schemas: "./src/lib/compose/generated/dkplus/model",
+			target: "./src/app/compose/generated/dkplus/endpoints.ts",
+			schemas: "./src/app/compose/generated/dkplus/model",
 			client: "svelte-query",
 			httpClient: "fetch",
 			clean: true,
@@ -58,7 +58,7 @@ export default defineConfig({
 
 	// --- Deferred to the live-appliance phase (see header) ---
 	// "humanity-zod": { input: { target: HUMANITY, validation: false },
-	//   output: { target: "./src/lib/compose/generated/humanity/zod.ts", client: "zod" } },
+	//   output: { target: "./src/app/compose/generated/humanity/zod.ts", client: "zod" } },
 	// "dkplus-zod": { input: { target: DKPLUS, validation: false },
-	//   output: { target: "./src/lib/compose/generated/dkplus/zod.ts", client: "zod" } },
+	//   output: { target: "./src/app/compose/generated/dkplus/zod.ts", client: "zod" } },
 });

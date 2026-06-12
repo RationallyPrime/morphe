@@ -19,10 +19,10 @@ Four lemmas carry the weight, all enforced in code rather than convention:
 
 | Lemma | Claim | Where it lives |
 |---|---|---|
-| **1 — Grammar** | UI is a discriminated `Node` union; an unlabelled input or a clickable `<div>` is *unrepresentable* | `src/lib/morphe/grammar/types.ts` |
-| **2 — Context algebra** | A child's rendering context is a pure function of (parent context, role); `Frame` is the only reset | `src/lib/morphe/context/` |
+| **1 — Grammar** | UI is a discriminated `Node` union; an unlabelled input or a clickable `<div>` is *unrepresentable* | `src/lib/grammar/types.ts` |
+| **2 — Context algebra** | A child's rendering context is a pure function of (parent context, role); `Frame` is the only reset | `src/lib/context/` |
 | **3 — Fixed point** | The same authored tree is byte-identical under every dialect | `dialects.test.ts` |
-| **4 — Dialects** | A dialect remaps the intent layer and bounded priors — and nothing else | `src/lib/morphe/dialects/` |
+| **4 — Dialects** | A dialect remaps the intent layer and bounded priors — and nothing else | `src/lib/dialects/` |
 
 On top of those, the substrate already carries the **Lemma 5/6 seams**: a
 client store with typed event tiers and a replayable `ContextDigest`, and

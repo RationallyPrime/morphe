@@ -1,17 +1,14 @@
 /*
  * Morphe app-level stylesheet.
  *
- * The token layers live under src/lib/morphe/tokens/:
+ * The token layers live under src/lib/styles.css:
  *   - scales.css   (neutral raw ramps; referenced by no component directly)
  *   - intents.css  (semantic intent names mapped onto scales)
  *
- * The renderer/dialect provider imports those at the boundary. This file only
- * carries the document reset + the body surface, so the page has a sane base
- * even before a dialect is applied.
+ * Routes import the package style seam at the layout boundary. This file only
+ * carries the document reset + body surface, so the page has a sane base even
+ * before a dialect is applied.
  */
-
-@import "./lib/morphe/tokens/scales.css";
-@import "./lib/morphe/tokens/intents.css";
 
 *,
 *::before,

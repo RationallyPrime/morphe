@@ -14,8 +14,8 @@
  * below renders under both dialects with zero edits.
  */
 
-import type { CompoundDef, Node } from "$morphe";
-import { registry } from "$morphe";
+import type { CompoundDef, Node } from "$lib";
+import { registry } from "$lib";
 
 /* ===========================================================================
  * 1. A COMPOUND, as DATA (Lemma 1 — algebraic closure).
@@ -133,7 +133,7 @@ export function registerDemoCompounds(): void {
  * 2. THE SECOND DIALECT — now promoted to the library.
  *
  * `reykjavik-registry` used to be defined inline here. It now lives in the
- * library (`$morphe` → `dialects/reykjavik-registry.ts`) and is registered in
+ * library (`$lib` → `dialects/reykjavik-registry.ts`) and is registered in
  * the global dialect registry, so the demo sources it from the registry like any
  * other shipped dialect rather than owning it locally. The fixed-point claim is
  * unchanged: toggling to it re-themes the page without touching the authored tree.

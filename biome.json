@@ -13,7 +13,7 @@
 			"!.claude",
 			"!.impeccable",
 			"!data",
-			"!src/lib/compose/embeddings.ts",
+			"!src/app/compose/embeddings.ts",
 			"!*.json",
 			"package.json",
 			"tsconfig.json",

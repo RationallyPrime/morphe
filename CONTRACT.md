@@ -13,7 +13,7 @@ Morphe is ultimately for, `VISION.md` wins. **Lemma numbering here follows
 L6 Bounded delegation, L7 Venue) — the same numbering the source comments use.
 
 Status: implemented + integrated. `bun run check` clean (0 errors, 0 warnings),
-166 tests passing, `bun run build` succeeds (adapter-vercel, `nodejs22.x`). The
+409 tests passing, `bun run build` succeeds (adapter-vercel, `nodejs22.x`). The
 ACTION (`Button`, `Link`) and OVERLAY (`Dialog`, `Popover`, `Disclosure`)
 families and the input MODE extensions (`Field.multiline`,
 `Toggle.variant:"checkbox"`, `Select.variant:"radiogroup"`) are in the grammar,
@@ -27,7 +27,7 @@ during implementation; the only integration fix was a Svelte-tokenizer caveat
 ## 0. The one rule for primitive agents
 
 > **A primitive agent edits ONLY its own
-> `src/lib/morphe/primitives/<family>/<Name>.svelte` file.**
+> `src/lib/primitives/<family>/<Name>.svelte` file.**
 
 You do NOT touch: `grammar/types.ts`, `render/registry.ts`, `render/Node.svelte`,
 `render/props.ts`, any file under `tokens/`, `context/`, `compounds/`, or
@@ -89,7 +89,7 @@ default mode working. Every one of these files compiles as a stub today
 ## 2. File layout
 
 ```
-src/lib/morphe/
+src/lib/
   grammar/types.ts            # the Node discriminated union — LOCKED, declarative only
   tokens/
     scales.css                # neutral raw ramps (referenced by NO component)
@@ -638,7 +638,7 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 | Dialect compound-gating | `Dialect.compounds[]` (render-gated via `restrictCompounds`) | wired to Lemma 4's compound dialect: a non-empty list restricts expansion; empty = unrestricted | ✔ |
 | Dialect personas | `Dialect.persona` | τ_frame bootstrap (deployment/directory; cohort attribution on the site) | 2 |
 
-`src/lib/morphe/delegation/envelope.ts` owns the emission envelope
+`src/lib/delegation/envelope.ts` owns the emission envelope
 `{ epoch, tree, choices }` and `Delta { id, choice, epoch }`. The epoch is
 host-side and pre-render only: `applyDelta(envelope, delta)` checks it first,
 rejects stale work, rejects unknown ids and out-of-range choices, and records

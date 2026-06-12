@@ -15,9 +15,9 @@
 	 * allows. It is mounted by both `/` and `/dignity`.
 	 */
 
-	import type { Dialect } from "$morphe";
-	import { activeDialect, DIALECT_IDS, DIALECTS } from "$morphe";
-	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+	import type { Dialect } from "$lib";
+	import { activeDialect, DIALECT_IDS, DIALECTS } from "$lib";
+	import { MorpheRoot } from "$lib/components";
 	import { dignityTree, registerDemoCompounds } from "./tree.js";
 
 	// Register the CatalogueEntry compound through the factory gate. Idempotent —

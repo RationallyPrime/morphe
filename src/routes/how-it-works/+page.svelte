@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { closingCta, howItWorksBody, howItWorksHero, registerSiteCompounds } from "$lib/site";
-	import CtaLink from "$lib/site/CtaLink.svelte";
 	/*
 	 * /how-it-works — the Timaeus narrative (KRA-327): the operating lifecycle
 	 * told as nine plates in two acts. Editorial copy authored as Morphe trees;
@@ -13,8 +11,10 @@
 	 * the NATIVE chrome (section grounds, CTAs) the same way +layout.svelte
 	 * themes the shell — same vars, one boundary further in.
 	 */
-	import { applyDialect, dialectStyle, getDialect } from "$morphe";
-	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+	import { applyDialect, dialectStyle, getDialect } from "$lib";
+	import { MorpheRoot } from "$lib/components";
+	import { closingCta, howItWorksBody, howItWorksHero, registerSiteCompounds } from "$site";
+	import CtaLink from "$site/CtaLink.svelte";
 
 	registerSiteCompounds();
 

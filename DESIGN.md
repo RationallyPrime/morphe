@@ -50,7 +50,7 @@ enforced in code (`CONTRACT.md` is canon):
   Feedback (`progress`/`status`/`inline-alert` — color never the only signal),
   Action (`button` does something / `link` goes somewhere), Overlay (`dialog`/
   `popover`/`disclosure` — platform top layer), Meta (`slot`/`param-ref`/`vary`),
-  `compound`. Source of truth: `src/lib/morphe/grammar/types.ts`. **Locked.**
+  `compound`. Source of truth: `src/lib/grammar/types.ts`. **Locked.**
 - **Context algebra (Lemma 2).** Containers carry a compositional `role` (`page`/
   `section`/`panel`/`toolbar`/`list`/`form`/`field-group`/`inline`); a child's
   context is `f(parent ctx, role)`. Four laws: Locality, Stability, Monotone-depth,
@@ -215,7 +215,7 @@ Craft constraints:
 
 ## 6. Components & idioms
 
-- **Site compounds** (`src/lib/site/compounds.ts`): editorial building blocks
+- **Site compounds** (`src/app/site/compounds.ts`): editorial building blocks
   (`SiteHero`, `SiteValueProp`, `SitePullquote`, `SiteStep`, `SiteFeatureSplit`,
   `SiteCtaBanner`, `SiteEntry`, `TimaeusPlate`). Variability rides
   as **node params + slots** only — the factory does not interpolate string fields
@@ -229,7 +229,7 @@ Craft constraints:
   The native wrapper owns only clip/outline/margin chrome; the well's paint
   comes from the pinned dialect's surface stack, never from the wrapper.
 - **The intent engine (ADR-0006).** The home is a stage: a chip row +
-  Cmd/Ctrl+K palette ride one execution path (`$lib/site/intent-engine`), and a
+  Cmd/Ctrl+K palette ride one execution path (`$site/intent-engine`), and a
   morph is a hand-authored Delta against the stage's `Vary` envelope, validated
   by the same gates as everything else (a malformed morph is rejected, never
   rendered). Chips are real anchors (the no-JS ground truth); morphs are
@@ -334,10 +334,10 @@ re-*copy*) into the pitch that cohort responds to, with zero change to the autho
 nodes. The palette differentiation above is step one (each cohort reads as its own
 brand). Step two is **shipped**: the layout reads a landing `?cohort=` param and
 sets `activeDialect` on arrival (`resolveArrivalDialect` in
-`src/lib/morphe/dialects/arrival.ts`; precedence: valid param > persisted choice >
+`src/lib/dialects/arrival.ts`; precedence: valid param > persisted choice >
 default, unknown params ignored, an explicit in-session toggle always wins
 afterward). The remaining step, not yet built: branch the centralized copy in
-`$lib/site/present.ts` per cohort/persona so the *pitch*, not only the palette,
+`$site/present.ts` per cohort/persona so the *pitch*, not only the palette,
 fits the profile. Copy-per-cohort is a product decision (which cohorts, which
 pitches) and the Icelandic copy is the user's — so it waits for that input rather
 than being invented here.

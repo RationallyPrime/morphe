@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { registerSiteCompounds } from "$lib/site";
-	import Onboarding from "$lib/site/Onboarding.svelte";
-	import OnboardingGate from "$lib/site/OnboardingGate.svelte";
-	import type { Node } from "$morphe";
+	import type { Node } from "$lib";
 	/*
 	 * /onboarding — the guided intake flow, behind the stateless magic-link gate
 	 * (ADR-0001; +page.server.ts decides open/granted/locked per request). A
 	 * Morphe intro tree frames it; the flow and the gate screen are native
-	 * control surfaces ($lib/site/Onboarding, $lib/site/OnboardingGate).
+	 * control surfaces ($site/Onboarding, $site/OnboardingGate).
 	 * Reachable from the marketing CTAs and the nav.
 	 */
-	import MorpheRoot from "$morphe/render/MorpheRoot.svelte";
+	import { MorpheRoot } from "$lib/components";
+	import { registerSiteCompounds } from "$site";
+	import Onboarding from "$site/Onboarding.svelte";
+	import OnboardingGate from "$site/OnboardingGate.svelte";
 	import type { PageProps } from "./$types";
 
 	const { data }: PageProps = $props();

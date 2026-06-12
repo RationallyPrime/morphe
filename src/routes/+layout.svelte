@@ -1,9 +1,9 @@
 <script lang="ts">
 import { untrack } from "svelte";
 import { page } from "$app/state";
+import "$lib/styles.css";
 import "../app.css";
-import "$lib/site/site.css";
-import Nav from "$lib/site/Nav.svelte";
+import "$site/site.css";
 import {
 	activeDialect,
 	applyDialect,
@@ -12,7 +12,8 @@ import {
 	dialectStyle,
 	persistableDialect,
 	resolveArrivalDialect,
-} from "$morphe";
+} from "$lib";
+import Nav from "$site/Nav.svelte";
 
 let { children } = $props();
 
