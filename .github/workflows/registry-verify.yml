@@ -1,0 +1,40 @@
+name: Verify published package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Published @rationallyprime/morphe version to install"
+        required: true
+        default: "0.1.0"
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  verify:
+    name: registry install proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Install and render published package
+        env:
+          MORPHE_VERIFY_PACKAGE: ${{ inputs.version }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: bun run registry:verify

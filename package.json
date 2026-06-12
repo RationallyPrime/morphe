@@ -53,6 +53,7 @@
 		"preview": "vite preview",
 		"package": "svelte-package",
 		"pack:verify": "bun scripts/pack-verify.ts",
+		"registry:verify": "MORPHE_VERIFY_REGISTRY=1 bun scripts/pack-verify.ts",
 		"prepack": "bun run package",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

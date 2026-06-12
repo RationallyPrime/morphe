@@ -8,7 +8,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
@@ -16,6 +16,7 @@ const repoRoot = resolve(import.meta.dirname, "..");
 const tempRoot = mkdtempSync(join(tmpdir(), "morphe-pack-verify-"));
 const runtimeDir = join(tempRoot, "xdg-runtime");
 const scaffold = join(tempRoot, "consumer");
+const verifyRegistry = process.env.MORPHE_VERIFY_REGISTRY === "1";
 let tarball = "";
 
 interface Command {
@@ -49,30 +50,68 @@ function write(path: string, content: string): void {
 	writeFileSync(path, content.trimStart(), "utf8");
 }
 
+function packageVersionFromManifest(): string {
+	const manifest: unknown = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+	if (!manifest || typeof manifest !== "object") {
+		throw new Error("package.json must contain an object");
+	}
+	const version = (manifest as { readonly version?: unknown }).version;
+	if (typeof version !== "string" || version.length === 0) {
+		throw new Error("package.json must contain a non-empty version string");
+	}
+	return version;
+}
+
+function registryToken(): string | undefined {
+	return process.env.GITHUB_PACKAGES_TOKEN || process.env.NODE_AUTH_TOKEN;
+}
+
 try {
 	mkdirSync(runtimeDir, { recursive: true });
 	mkdirSync(join(scaffold, "src"), { recursive: true });
 
-	const packed = run({
-		cmd: "bun",
-		args: ["pm", "pack", "--destination", tempRoot, "--quiet"],
-		cwd: repoRoot,
-	});
-	const packedParts = packed.split(/\s+/);
-	let tarballName: string | undefined;
-	for (let i = packedParts.length - 1; i >= 0; i -= 1) {
-		const part = packedParts[i];
-		if (part?.endsWith(".tgz")) {
-			tarballName = part;
-			break;
+	let dependencySource = "";
+	const surfaceText = verifyRegistry ? "Registry verify surface" : "Pack verify surface";
+
+	if (verifyRegistry) {
+		const packageVersion = process.env.MORPHE_VERIFY_PACKAGE || packageVersionFromManifest();
+		const token = registryToken();
+		if (!token) {
+			throw new Error(
+				"Registry verification requires GITHUB_PACKAGES_TOKEN or NODE_AUTH_TOKEN with read:packages.",
+			);
 		}
-	}
-	if (!tarballName) {
-		throw new Error(`bun pm pack did not report a tarball name: ${packed}`);
-	}
-	tarball = isAbsolute(tarballName) ? tarballName : join(tempRoot, tarballName);
-	if (!existsSync(tarball)) {
-		throw new Error(`Expected tarball at ${tarball}`);
+		dependencySource = packageVersion;
+		write(
+			join(scaffold, "bunfig.toml"),
+			`
+				[install.scopes]
+				"@rationallyprime" = { url = "https://npm.pkg.github.com", token = ${JSON.stringify(token)} }
+			`,
+		);
+	} else {
+		const packed = run({
+			cmd: "bun",
+			args: ["pm", "pack", "--destination", tempRoot, "--quiet"],
+			cwd: repoRoot,
+		});
+		const packedParts = packed.split(/\s+/);
+		let tarballName: string | undefined;
+		for (let i = packedParts.length - 1; i >= 0; i -= 1) {
+			const part = packedParts[i];
+			if (part?.endsWith(".tgz")) {
+				tarballName = part;
+				break;
+			}
+		}
+		if (!tarballName) {
+			throw new Error(`bun pm pack did not report a tarball name: ${packed}`);
+		}
+		tarball = isAbsolute(tarballName) ? tarballName : join(tempRoot, tarballName);
+		if (!existsSync(tarball)) {
+			throw new Error(`Expected tarball at ${tarball}`);
+		}
+		dependencySource = `file:${tarball}`;
 	}
 
 	write(
@@ -87,7 +126,7 @@ try {
 					verify: "bun run build:ssr && bun src/verify-built.ts",
 				},
 				dependencies: {
-					"@rationallyprime/morphe": `file:${tarball}`,
+					"@rationallyprime/morphe": dependencySource,
 					"@sveltejs/vite-plugin-svelte": "^4.0.0",
 					"@tanstack/svelte-query": "^6.1.34",
 					svelte: "^5.1.0",
@@ -149,7 +188,7 @@ try {
 					children: [
 						{
 							kind: "text",
-							value: "Pack verify surface",
+							value: "${surfaceText}",
 							as: "heading",
 							intent: "provenance",
 						},
@@ -189,7 +228,7 @@ try {
 				renderSurface: () => string;
 			};
 			const body = renderSurface();
-			if (!body.includes("Pack verify surface")) {
+			if (!body.includes("${surfaceText}")) {
 				throw new Error(\`expected rendered package surface, got: \${body}\`);
 			}
 		`,
@@ -199,7 +238,11 @@ try {
 	run({ cmd: "bun", args: ["run", "build"], cwd: scaffold });
 	run({ cmd: "bun", args: ["run", "verify"], cwd: scaffold });
 
-	process.stdout.write(`pack-verify passed: ${tarball}\n`);
+	if (verifyRegistry) {
+		process.stdout.write(`registry-verify passed: @rationallyprime/morphe@${dependencySource}\n`);
+	} else {
+		process.stdout.write(`pack-verify passed: ${tarball}\n`);
+	}
 } finally {
 	if (process.env.KEEP_PACK_VERIFY !== "1") {
 		rmSync(tempRoot, { recursive: true, force: true });

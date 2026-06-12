@@ -114,6 +114,18 @@ bun run pack:verify
 consumer under `/tmp`, imports the public seams, builds the client mount, builds an SSR
 entry, and asserts that the rendered surface contains the expected Morphe output.
 
+After a version is published, the same verifier can install from GitHub Packages instead
+of the local tarball:
+
+```bash
+GITHUB_PACKAGES_TOKEN=... bun run registry:verify
+```
+
+`registry:verify` reads `package.json`'s current version by default. Set
+`MORPHE_VERIFY_PACKAGE=0.1.0` to verify a specific published version. The
+`Verify published package` workflow runs this registry proof with the repository
+`GITHUB_TOKEN` and `packages: read`.
+
 ## Publishing
 
 Publishing is manual and boring:
@@ -133,6 +145,9 @@ The `Publish package` workflow runs on `v*` tags with `packages: write`, rebuild
 package with `svelte-package`, and publishes to `https://npm.pkg.github.com` using the
 workflow `GITHUB_TOKEN`. Pull requests touching `package.json`, `bun.lock`, `src/lib/**`,
 the verifier, or the workflow run the same gates and a publish dry-run.
+
+Run the manual `Verify published package` workflow after the tag publish to prove that
+the private package can be installed from the registry in the throwaway consumer scaffold.
 
 No changesets yet. Until Morphe has multiple consumers, cut releases by bumping
 `package.json`, tagging `vX.Y.Z`, and letting CI publish.
