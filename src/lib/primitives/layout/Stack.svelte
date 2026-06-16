@@ -57,6 +57,11 @@
 	// ctx prop), never its raw self-claim.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const childStyle = $derived(boundaryStyle(child));
+
+	// Tree indent (author intent: a LEVEL, not pixels) — emitted as a unit count
+	// the CSS multiplies by a space-scale step, so a deeper path insets further
+	// while the value stays a count. Absent/0 ⇒ no inset (the grammar fixed-point).
+	const indent = $derived(node.indent && node.indent > 0 ? node.indent : undefined);
 </script>
 
 <div
@@ -66,6 +71,7 @@
 	data-emphasis={emphasis}
 	style={childStyle}
 	style:--mo-ctx-stroke={emphasisToStrokeStep(emphasis)}
+	style:--mo-stack-indent={indent}
 >
 	{#each node.children as c, i (i)}
 		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
@@ -106,6 +112,17 @@
 			flex-direction: row;
 			align-items: center;
 		}
+	}
+
+	/*
+	 * Tree indent — a LEVEL compiled into space. The level rides --mo-stack-indent
+	 * and the unit is a space-scale step, so a deeper account path (Expenses:SaaS:AI)
+	 * insets further while the authored value stays a count, never a pixel. Inline-
+	 * start only; inside a tabular row's leading cell the content shifts within the
+	 * track, so column edges still line up.
+	 */
+	.mo-stack[style*="--mo-stack-indent"] {
+		padding-inline-start: calc(var(--mo-stack-indent) * var(--mo-space-6));
 	}
 
 	/* Emphasis-to-separation is intentionally not wired until the algebra owns it. */

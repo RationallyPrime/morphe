@@ -934,3 +934,118 @@ describe("SSR dialect-prior seeding — the root descends from the dialect's cla
 		);
 	});
 });
+
+/* ===========================================================================
+ * LEDGER AFFORDANCES — the tabular extensions a register needs, each an OPTIONAL
+ * field on an EXISTING primitive (no new kind), resolved into colour/space by the
+ * dialect + algebra. Two things are asserted for each: the behaviour, and the
+ * grammar fixed-point (a tree authored BEFORE the field still renders unchanged).
+ * ========================================================================= */
+
+describe("ledger affordances — Text.polarity / Grid.ruled / Stack.indent", () => {
+	it("Text.polarity routes a negative amount through the dialect's --mo-numeric-negative channel", () => {
+		const html = ssr(
+			{
+				kind: "text",
+				value: "(2140.13 USD)",
+				as: "body",
+				intent: "evidence",
+				numeric: true,
+				polarity: "negative",
+			},
+			clinical,
+		);
+		expect(html).toContain('data-polarity="negative"');
+		// Colour rides the numeric channel (with a fallback to the base ink), NOT the
+		// carrying `evidence` intent — a negative reads "in the red" wherever a dialect
+		// defines that channel; clinical does.
+		expect(html).toContain("--mo-numeric-negative");
+	});
+
+	it("Text.polarity positive reads the calm numeric channel", () => {
+		const html = ssr(
+			{ kind: "text", value: "354.98 EUR", as: "body", numeric: true, polarity: "positive" },
+			clinical,
+		);
+		expect(html).toContain('data-polarity="positive"');
+		// Positive routes through its own channel too, but with a fallback to the base
+		// ink — no dialect defines `--mo-numeric-positive`, so it renders calm ink.
+		expect(html).toContain("--mo-numeric-positive");
+	});
+
+	it("a Text WITHOUT polarity still renders and carries no polarity attr (the fixed-point)", () => {
+		const html = ssr({ kind: "text", value: "plain body", as: "body" }, clinical);
+		expect(html).toContain("plain body");
+		expect(html).not.toContain("data-polarity");
+	});
+
+	it("Grid.ruled marks a TABULAR list for hairline rows", () => {
+		const html = ssr(
+			{
+				kind: "grid",
+				role: "list",
+				columns: ["flexible", "content"],
+				ruled: true,
+				children: [
+					{
+						kind: "grid",
+						role: "inline",
+						children: [
+							{ kind: "text", value: "Cash" },
+							{ kind: "text", value: "100.00", numeric: true },
+						],
+					},
+				],
+			},
+			clinical,
+		);
+		expect(html).toContain("data-ruled");
+		expect(html).toContain("data-columns");
+	});
+
+	it("Grid.ruled is INERT on a non-tabular grid — no columns ⇒ no rules (the fixed-point)", () => {
+		const html = ssr(
+			{ kind: "grid", role: "list", ruled: true, children: [{ kind: "text", value: "card" }] },
+			clinical,
+		);
+		expect(html).not.toContain("data-ruled");
+	});
+
+	it("Stack.indent insets a hierarchical row by its tree LEVEL (level → space scale)", () => {
+		const html = ssr(
+			{
+				kind: "stack",
+				role: "inline",
+				direction: "block",
+				indent: 2,
+				children: [{ kind: "text", value: "Expenses:SaaS:AI" }],
+			},
+			clinical,
+		);
+		expect(html).toMatch(/--mo-stack-indent:\s*2/);
+	});
+
+	it("Stack.indent absent or 0 emits no inset (the fixed-point)", () => {
+		const flat = ssr(
+			{
+				kind: "stack",
+				role: "inline",
+				direction: "block",
+				children: [{ kind: "text", value: "Expenses" }],
+			},
+			clinical,
+		);
+		expect(flat).not.toContain("--mo-stack-indent");
+		const zero = ssr(
+			{
+				kind: "stack",
+				role: "inline",
+				direction: "block",
+				indent: 0,
+				children: [{ kind: "text", value: "Expenses" }],
+			},
+			clinical,
+		);
+		expect(zero).not.toContain("--mo-stack-indent");
+	});
+});

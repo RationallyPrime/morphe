@@ -37,38 +37,51 @@
 	// less information. Absent grant (standalone render) ⇒ the normal baseline.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 
+	/** Base colour: the intent's `on` channel, or the bare on-surface var. */
+	const baseColor = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
+
 	/**
-	 * Color comes from the intent's `on` channel; with no intent we read the base
-	 * on-surface var. A muted claim overrides to the muted on-surface tone (handled
-	 * in CSS so an explicit intent color still wins for non-muted claims).
+	 * Color. With a sign POLARITY the amount tints through the dialect's
+	 * `--mo-numeric-<polarity>` channel, FALLING BACK to `baseColor` when the active
+	 * dialect defines no such channel — so a sign is recoloured ONLY where a dialect
+	 * opts in (clinical's "in the red"), and every other ground keeps its
+	 * contrast-correct ink. The var() fallback is load-bearing: a bare `:root`
+	 * default chaining `--mo-intent-on-surface` would be substituted at `:root` (the
+	 * DEFAULT dialect's ink) and inherit that frozen value onto dark grounds — the
+	 * very invisible-ink class this avoids. A muted claim still overrides in CSS.
 	 */
-	const color = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
+	const color = $derived(
+		node.polarity ? `var(--mo-numeric-${node.polarity}, ${baseColor})` : baseColor,
+	);
 
 	/** Line clamp: author intent (a line count), not a pixel height. */
 	const clampLines = $derived(node.clamp && node.clamp > 0 ? node.clamp : undefined);
 
 	/** Tabular-figure register: digits share one advance width so ledger columns align. */
 	const numeric = $derived(node.numeric ? "" : undefined);
+
+	/** Sign register (debit/credit) — semantic hook; the colour rides `color` above. */
+	const polarity = $derived(node.polarity);
 </script>
 
 {#if as === "display"}
-	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h1>
 {:else if as === "heading"}
-	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h2>
 {:else if as === "subheading"}
-	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h3>
 {:else if as === "caption"}
-	<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
+	<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</small>
 {:else}
-	<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
+	<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</p>
 {/if}
