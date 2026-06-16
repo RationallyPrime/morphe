@@ -56,37 +56,71 @@ export type PrimitiveKind = Exclude<
 /**
  * The registry. Every PrimitiveKind MUST have an entry — the exhaustive Record
  * type makes an omission a compile error. Each component receives `{ node, ctx }`
- * props (see Node.svelte); the `Component` type here is intentionally loose on
- * props because each primitive narrows its own `node` by kind internally.
+ * props (see Node.svelte); the component type is intentionally loose on props
+ * because each primitive narrows its own `node` by kind internally.
+ *
+ * The map is built LAZILY (memoised on first access), never at module-eval time.
+ * This module sits in a necessary import cycle: `Node.svelte` imports it for
+ * `primitiveFor`, every primitive imports `Node.svelte` to recurse, and this
+ * module imports every primitive. Reading the component bindings into a literal
+ * at eval time races that cycle — under a native-ESM loader (Vite dev) a binding
+ * can still be in its temporal dead zone, so the eager literal threw "Cannot
+ * access 'Cluster' before initialization" and left `cluster`/`link` silently
+ * unrenderable while the earlier-resolved kinds rendered. Deferring the reads to
+ * first render (after every module in the cycle has initialised) makes the
+ * registry total regardless of load order, with no change to the public shape.
  */
 // biome-ignore lint/suspicious/noExplicitAny: heterogeneous registry — each primitive narrows its own `node` by kind; no common prop type exists.
-export const PRIMITIVES: Record<PrimitiveKind, Component<any>> = {
-	stack: Stack,
-	grid: Grid,
-	cluster: Cluster,
-	frame: Frame,
-	spacer: Spacer,
-	text: Text,
-	number: NumberView,
-	badge: Badge,
-	icon: Icon,
-	media: Media,
-	field: Field,
-	select: Select,
-	toggle: Toggle,
-	range: Range,
-	progress: Progress,
-	status: Status,
-	"inline-alert": InlineAlert,
-	button: Button,
-	link: Link,
-	dialog: Dialog,
-	popover: Popover,
-	disclosure: Disclosure,
-};
+type PrimitiveMap = Record<PrimitiveKind, Component<any>>;
+
+let memoized: PrimitiveMap | null = null;
+function primitivesMap(): PrimitiveMap {
+	memoized ??= {
+		stack: Stack,
+		grid: Grid,
+		cluster: Cluster,
+		frame: Frame,
+		spacer: Spacer,
+		text: Text,
+		number: NumberView,
+		badge: Badge,
+		icon: Icon,
+		media: Media,
+		field: Field,
+		select: Select,
+		toggle: Toggle,
+		range: Range,
+		progress: Progress,
+		status: Status,
+		"inline-alert": InlineAlert,
+		button: Button,
+		link: Link,
+		dialog: Dialog,
+		popover: Popover,
+		disclosure: Disclosure,
+	};
+	return memoized;
+}
 
 /** Look up the component for a primitive kind. */
-// biome-ignore lint/suspicious/noExplicitAny: same heterogeneous-registry escape as PRIMITIVES above.
+// biome-ignore lint/suspicious/noExplicitAny: same heterogeneous-registry escape as the map above.
 export function primitiveFor(kind: PrimitiveKind): Component<any> {
-	return PRIMITIVES[kind];
+	return primitivesMap()[kind];
 }
+
+/**
+ * The primitive map as an object — lazily resolved so reads never trip the
+ * import-cycle dead zone (see above). Property access, `in`, and enumeration all
+ * forward to the memoised map, so consumers and tests use it exactly like the
+ * plain object it replaces.
+ */
+export const PRIMITIVES: PrimitiveMap = new Proxy({} as PrimitiveMap, {
+	get: (_target, key) => primitivesMap()[key as PrimitiveKind],
+	has: (_target, key) => key in primitivesMap(),
+	ownKeys: () => Reflect.ownKeys(primitivesMap()),
+	getOwnPropertyDescriptor: (_target, key) => ({
+		enumerable: true,
+		configurable: true,
+		value: primitivesMap()[key as PrimitiveKind],
+	}),
+});

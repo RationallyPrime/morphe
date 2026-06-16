@@ -48,6 +48,19 @@
 	/* Global disabled opacity (dialect-agnostic; lives in :root only). */
 	--mo-disabled-opacity: 0.5;
 
+	/*
+	 * Link text — dialect-agnostic globals (like the opacity above), so they
+	 * inherit into every dialect scope and re-resolve against that dialect's
+	 * `on-surface` / `primary-action` at the link itself. A link is body ink +
+	 * underline at rest (contrast-guaranteed on any ground by construction) and
+	 * shifts to the action beacon on hover (a recognisable interactive cue that
+	 * also contrasts). This is the fix for the gallery invisible-link bug: the
+	 * provenance `on` ice tone is correct for a navy label panel, not for inline
+	 * text on paper. An explicitly-intented link still reads its own channels.
+	 */
+	--mo-link-on: var(--mo-intent-on-surface);
+	--mo-link-hover: var(--mo-intent-primary-action-surface);
+
 	/* --- primary-action (the cobalt beacon on paper) ------------------------ */
 	--mo-intent-primary-action-surface: var(--mo-cobalt-600);
 	--mo-intent-primary-action-on: var(--mo-cobalt-100);

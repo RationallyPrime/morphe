@@ -46,26 +46,29 @@
 
 	/** Line clamp: author intent (a line count), not a pixel height. */
 	const clampLines = $derived(node.clamp && node.clamp > 0 ? node.clamp : undefined);
+
+	/** Tabular-figure register: digits share one advance width so ledger columns align. */
+	const numeric = $derived(node.numeric ? "" : undefined);
 </script>
 
 {#if as === "display"}
-	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h1>
 {:else if as === "heading"}
-	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h2>
 {:else if as === "subheading"}
-	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
+	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</h3>
 {:else if as === "caption"}
-	<small class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
+	<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</small>
 {:else}
-	<p class="mo-text" data-as={as} data-emphasis={emphasis} style:color={color} style:--mo-text-clamp={clampLines}>
+	<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
 	</p>
 {/if}
@@ -153,6 +156,17 @@
 	}
 	.mo-text[data-emphasis="critical"] {
 		font-weight: 700;
+	}
+
+	/*
+	 * Numeric register — tabular figures. Digits take one shared advance width so
+	 * amounts align vertically down a ledger column (the missing half of a real
+	 * money table; pairs with `Grid.columns` for the horizontal half). Purely how
+	 * the glyphs are spaced — the value is still the canonical ADR-0002 string.
+	 */
+	.mo-text[data-numeric] {
+		font-variant-numeric: tabular-nums;
+		font-feature-settings: "tnum" 1;
 	}
 
 	/* An empty text node (an omitted optional kicker/eyebrow/lede default) collapses
