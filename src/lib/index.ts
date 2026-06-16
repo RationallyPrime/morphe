@@ -89,6 +89,7 @@ export type {
 	Field,
 	Frame,
 	Grid,
+	GridColumn,
 	Icon,
 	InlineAlert,
 	InputA11y,

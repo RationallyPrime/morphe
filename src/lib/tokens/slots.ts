@@ -72,13 +72,19 @@ export const SLOTS = {
 			slot(intent, "disabled", slot(intent, "surface")),
 	},
 	/**
-	 * Link chrome — `on`-color forward with a hover shift and an underline. No new
-	 * tokens: links reuse the intent's `on`/`hover` channels. Defaults to the
-	 * provenance (citation) register, not the amber beacon.
+	 * Link chrome — text + underline (the underline IS the affordance; functional
+	 * colour is never the only signal). The DEFAULT (provenance/citation) link
+	 * routes through the dedicated `--mo-link-*` channel, which resolves via the
+	 * dialect's `on-surface` ink and is therefore contrast-guaranteed on every
+	 * ground — fixing the gallery bug where the provenance `on` ice tone (built
+	 * for a navy panel) was used as inline text on paper and vanished. A link that
+	 * carries an EXPLICIT non-provenance intent still reads that intent's channels.
 	 */
 	link: {
-		on: (intent: string = "provenance"): string => slot(intent, "on"),
-		hover: (intent: string = "provenance"): string => slot(intent, "hover"),
+		on: (intent: string = "provenance"): string =>
+			intent === "provenance" ? `var(--mo-link-on)` : slot(intent, "on"),
+		hover: (intent: string = "provenance"): string =>
+			intent === "provenance" ? `var(--mo-link-hover)` : slot(intent, "hover"),
 		ring: (intent: string = "provenance"): string => slot(intent, "ring"),
 	},
 	/**

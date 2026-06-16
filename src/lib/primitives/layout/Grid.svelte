@@ -42,6 +42,17 @@
 	// Rendered at the emphasis the parent granted this Grid, never a self-claim.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const childStyle = $derived(boundaryStyle(child));
+
+	// Tabular mode: an explicit `columns` template turns this Grid into a ledger
+	// list. Each column intent compiles to one track ("flexible" absorbs slack,
+	// "content" sizes to its widest cell); the direct-child rows adopt these
+	// tracks via subgrid (see the style block) so columns align across every row.
+	// Absent ⇒ `--mo-grid-template` stays unset and the auto-fit card template wins.
+	const columnTemplate = $derived(
+		node.columns && node.columns.length > 0
+			? node.columns.map((c) => (c === "flexible" ? "minmax(0, 1fr)" : "max-content")).join(" ")
+			: undefined,
+	);
 </script>
 
 <div
@@ -49,8 +60,10 @@
 	data-min-track={minTrack}
 	data-role={node.role}
 	data-emphasis={emphasis}
+	data-columns={columnTemplate ? "" : undefined}
 	style={childStyle}
 	style:--mo-ctx-stroke={emphasisToStrokeStep(emphasis)}
+	style:--mo-grid-template={columnTemplate}
 >
 	{#each node.children as c, i (i)}
 		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
@@ -70,6 +83,26 @@
 		grid-template-columns: repeat(auto-fit, minmax(min(var(--mo-track, 16rem), 100%), 1fr));
 		/* Items stretch to fill their track height so cards in a row align. */
 		align-items: stretch;
+	}
+
+	/*
+	 * Tabular mode — an explicit `columns` template. The Grid lays its rows on one
+	 * shared set of tracks (`--mo-grid-template`); each direct-child row Grid spans
+	 * the whole set and adopts it as a SUBGRID, so every row's cells land on the
+	 * same column edges. This is the ledger/table affordance with no <table> and no
+	 * per-row track guessing — columns align by construction, and unlike the
+	 * auto-fit default a 2-cell and a 3-cell sibling can never disagree on geometry.
+	 */
+	.mo-grid[data-columns] {
+		grid-template-columns: var(--mo-grid-template);
+		/* Rows size to content and read top-to-bottom; no card-height stretch. */
+		align-items: start;
+	}
+	.mo-grid[data-columns] > :global(.mo-grid) {
+		grid-column: 1 / -1;
+		grid-template-columns: subgrid;
+		/* Inherit the list's column gutters so the subgrid tracks line up exactly. */
+		column-gap: inherit;
 	}
 
 	/* minTrack intent → a track floor (rem, so it scales with root font size). */

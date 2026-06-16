@@ -134,11 +134,30 @@ export interface Stack {
 	readonly children: readonly Node[];
 }
 
+/**
+ * A column sizing intent for a TABULAR Grid (author intent, never pixels):
+ *   - "flexible": grows to absorb remaining width (the label / name column).
+ *   - "content":  sized to its widest cell (numeric / badge / meta columns).
+ * Consumed only when `Grid.columns` is present; the Grid's direct-child rows
+ * (each a Grid) adopt these tracks via CSS subgrid, so columns line up across
+ * every row — the table affordance ledgers need, expressed as an extension of
+ * the existing Grid, not a new primitive.
+ */
+export type GridColumn = "flexible" | "content";
+
 export interface Grid {
 	readonly kind: "grid";
 	readonly role: ContainerRole;
 	/** Author intent, not pixels: the algebra compiles tracks into space. */
 	readonly minTrack?: "narrow" | "regular" | "wide";
+	/**
+	 * Explicit column template — turns the Grid into a tabular/ledger list whose
+	 * direct-child rows (each a Grid) align to one shared set of tracks via
+	 * subgrid, so columns line up across rows. Absent ⇒ the auto-fit card
+	 * behaviour is unchanged (the grammar fixed-point: every tree authored before
+	 * this field existed stays valid).
+	 */
+	readonly columns?: readonly GridColumn[];
 	readonly emphasis?: EmphasisClaim;
 	readonly children: readonly Node[];
 }
@@ -188,6 +207,14 @@ export interface Text {
 	readonly intent?: IntentRef;
 	/** Truncate to a line count; author intent, not a pixel height. */
 	readonly clamp?: number;
+	/**
+	 * Numeric register — tabular figures (`font-variant-numeric: tabular-nums`) so
+	 * digits align vertically in ledger columns. A presentation capability of the
+	 * SAME primitive, not a new kind; absent ⇒ proportional figures (the grammar
+	 * fixed-point). Pairs with quantities carried as strings (ADR-0002), which
+	 * never become JS numbers — the register is purely how the glyphs are spaced.
+	 */
+	readonly numeric?: boolean;
 }
 
 export interface NumberNode {
