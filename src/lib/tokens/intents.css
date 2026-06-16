@@ -234,3 +234,20 @@
 	--mo-intent-info-active: color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-neutral-3));
 	--mo-intent-info-disabled: color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3));
 }
+
+/*
+ * Numeric polarity — the clinical console is the ONE dialect that opts a ledger
+ * amount's sign into a colour: a negative reads "in the red" via a red INK (the
+ * red-400 step, distinct from the caution SURFACE channel) that clears contrast on
+ * the dark slate ground. This is the ONLY definition of `--mo-numeric-negative`;
+ * `Text` reads it with a var() FALLBACK to the base ink, so every other ground
+ * shows negatives in their own ink (no frozen default-dialect colour, no invisible
+ * ink on a dark ground). The accounting parentheses on the value are the
+ * dialect-independent WCAG 1.4.1 non-color signal. Scoped by `data-mo-dialect`
+ * rather than the provider's inline spread because `--mo-numeric-*` is a global,
+ * not an intent channel — keeping it out of every dialect object's keyset (the
+ * FP4 / Lemma-4 fixed points hold).
+ */
+[data-mo-dialect="clinical"] {
+	--mo-numeric-negative: var(--mo-red-400);
+}

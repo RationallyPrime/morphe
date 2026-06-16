@@ -61,6 +61,7 @@
 	data-role={node.role}
 	data-emphasis={emphasis}
 	data-columns={columnTemplate ? "" : undefined}
+	data-ruled={node.ruled && columnTemplate ? "" : undefined}
 	style={childStyle}
 	style:--mo-ctx-stroke={emphasisToStrokeStep(emphasis)}
 	style:--mo-grid-template={columnTemplate}
@@ -103,6 +104,19 @@
 		grid-template-columns: subgrid;
 		/* Inherit the list's column gutters so the subgrid tracks line up exactly. */
 		column-gap: inherit;
+	}
+
+	/*
+	 * Ledger rules — a hairline under every row but the last, spanning all columns
+	 * (the row is a full-width subgrid, so the border crosses the whole table). The
+	 * stroke is the dialect's `--mo-intent-outline` at the default border width: a
+	 * crisp register line in the clinical console, a ghost one on the gallery wall.
+	 * A small block-end pad lifts the rule off the baseline; the list gap does the
+	 * rest. Tabular-only (the selector requires data-columns).
+	 */
+	.mo-grid[data-ruled][data-columns] > :global(.mo-grid:not(:last-child)) {
+		border-block-end: var(--mo-border-width) solid var(--mo-intent-outline);
+		padding-block-end: var(--mo-space-2);
 	}
 
 	/* minTrack intent → a track floor (rem, so it scales with root font size). */

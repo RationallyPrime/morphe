@@ -130,6 +130,15 @@ export interface Stack {
 	readonly role: ContainerRole;
 	/** "auto" lets a container query flip the axis with no JS (Lemma 2). */
 	readonly direction?: "block" | "inline" | "auto";
+	/**
+	 * Tree indent LEVEL (not pixels) — insets the stack's content by
+	 * `indent × space-step`, so a hierarchical row (an account path like
+	 * `Expenses:SaaS:AI`) reads as a tree. The level is author intent; the algebra
+	 * compiles it into space through the space scale, so it tracks the root font
+	 * size. Inside a tabular row's leading cell the inset shifts content WITHIN the
+	 * track, so column edges still line up. Absent/0 ⇒ no inset (the fixed-point).
+	 */
+	readonly indent?: number;
 	readonly emphasis?: EmphasisClaim;
 	readonly children: readonly Node[];
 }
@@ -158,6 +167,15 @@ export interface Grid {
 	 * this field existed stays valid).
 	 */
 	readonly columns?: readonly GridColumn[];
+	/**
+	 * Ledger rules — when true AND `columns` is present, the tabular Grid draws a
+	 * hairline between its rows (`--mo-border-width` in the dialect's
+	 * `--mo-intent-outline`): the register affordance of a bank statement / book of
+	 * record. Author intent, not geometry — stroke width and colour are scale/intent
+	 * tokens the dialect resolves. Absent ⇒ no rules (the grammar fixed-point);
+	 * ignored on a non-tabular (auto-fit) Grid.
+	 */
+	readonly ruled?: boolean;
 	readonly emphasis?: EmphasisClaim;
 	readonly children: readonly Node[];
 }
@@ -215,6 +233,17 @@ export interface Text {
 	 * never become JS numbers — the register is purely how the glyphs are spaced.
 	 */
 	readonly numeric?: boolean;
+	/**
+	 * Sign register — debit/credit polarity for a ledger amount. Author INTENT,
+	 * never a colour: the primitive maps it to the dialect-resolved
+	 * `--mo-numeric-<polarity>` channel (a negative reads "in the red" wherever the
+	 * dialect defines it; the `:root` default is the on-surface ink, so the SIGN
+	 * itself — accounting parentheses on the value string, the WCAG 1.4.1 non-color
+	 * signal — always carries the meaning even when no dialect tints it). Pairs with
+	 * `numeric` for aligned, signed amounts. Absent ⇒ no polarity (the grammar
+	 * fixed-point).
+	 */
+	readonly polarity?: "positive" | "negative";
 }
 
 export interface NumberNode {
