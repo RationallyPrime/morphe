@@ -29,6 +29,12 @@
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 
+	const STRUCTURAL_BLOCK_ROLES: ReadonlySet<Stack["role"]> = new Set(["page", "section", "list"]);
+
+	function defaultDirectionForRole(role: Stack["role"]): NonNullable<Stack["direction"]> {
+		return STRUCTURAL_BLOCK_ROLES.has(role) ? "block" : "auto";
+	}
+
 	let { node, ctx }: PrimitiveProps<Stack> = $props();
 
 	// A server-driven tree is immutable per <Node> instance: a changed tree mounts
@@ -46,7 +52,7 @@
 	// and B are both in scope, so the law runs HERE — not as a per-node self-claim.
 	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
 
-	const dir = $derived(node.direction ?? "auto");
+	const dir = $derived(node.direction ?? defaultDirectionForRole(node.role));
 	// This Stack renders at the emphasis its OWN parent granted it (carried on the
 	// ctx prop), never its raw self-claim.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");

@@ -258,7 +258,47 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 });
 
 /* ===========================================================================
- * 2. A11y relationships the grammar promises (cheap, SSR-visible assertions).
+ * 2. LAYOUT ROLE DEFAULTS — omitted Stack.direction is still a substrate
+ *    decision, not an authoring burden.
+ * ========================================================================= */
+
+describe("layout Stack defaults", () => {
+	it("defaults vertical document-flow roles to block direction", () => {
+		for (const role of ["page", "section", "list"] as const) {
+			const html = ssr({
+				kind: "stack",
+				role,
+				children: [{ kind: "text", value: role, as: "body" }],
+			});
+			expect(html).toContain(`data-role="${role}"`);
+			expect(html).toContain('data-direction="block"');
+		}
+	});
+
+	it("keeps omitted direction adaptive for non-structural Stack roles", () => {
+		const html = ssr({
+			kind: "stack",
+			role: "toolbar",
+			children: [{ kind: "text", value: "tools", as: "body" }],
+		});
+		expect(html).toContain('data-role="toolbar"');
+		expect(html).toContain('data-direction="auto"');
+	});
+
+	it("honors explicit Stack direction even on structural roles", () => {
+		const html = ssr({
+			kind: "stack",
+			role: "section",
+			direction: "inline",
+			children: [{ kind: "text", value: "explicit", as: "body" }],
+		});
+		expect(html).toContain('data-role="section"');
+		expect(html).toContain('data-direction="inline"');
+	});
+});
+
+/* ===========================================================================
+ * 3. A11y relationships the grammar promises (cheap, SSR-visible assertions).
  * ========================================================================= */
 
 describe("a11y — Action family accessible names (CONTRACT §7)", () => {
@@ -423,7 +463,7 @@ describe("a11y — Overlay labelling (CONTRACT §7)", () => {
 });
 
 /* ===========================================================================
- * 3. INPUT MODE EXTENSIONS — both modes of each input render, the default
+ * 4. INPUT MODE EXTENSIONS — both modes of each input render, the default
  *    (pre-mode) mode still works (the grammar fixed-point), and the a11y
  *    label/description relationship is preserved across the mode switch.
  * ========================================================================= */
