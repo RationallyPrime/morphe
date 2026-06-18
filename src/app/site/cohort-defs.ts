@@ -29,6 +29,16 @@ export const PHARMA_SOVEREIGN: Cohort = {
 	id: "pharma-sovereign",
 	dialect: "clinical",
 	copy: {
+		nav: { cta: "Discuss sovereign deployment" },
+		composer: {
+			lede: "Name the friction and the systems you run. Sókrates returns the cross-system moves that fit — every one on local inference, your IP never leaving the building.",
+			painPlaceholder:
+				"e.g. assay results sit in the LIMS, batch records in the MES, and QA reconciles them by hand before every release",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. a LIMS for assays, an ELN for studies, and a validated QMS that can't go to the cloud.",
+		},
 		meta: {
 			title: "Sókrates — A sovereign AI department for drug development",
 			description:
@@ -79,6 +89,16 @@ export const FINANCE_CONTROLS: Cohort = {
 	id: "finance-controls",
 	dialect: "ledger",
 	copy: {
+		nav: { cta: "Discuss controls" },
+		composer: {
+			lede: "Name the finance friction and the systems behind it. Sókrates returns the cross-system moves that fit — read by default, every act on an audit record.",
+			painPlaceholder:
+				"e.g. month-end reconciliation crosses the ERP, the bank file and three spreadsheets, and one controller carries it",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. an ERP for the ledger, a bank portal for statements, and spreadsheets for the close.",
+		},
 		meta: {
 			title: "Sókrates for financial controls",
 			description:
@@ -129,6 +149,16 @@ export const PUBLIC_SECTOR_SOVEREIGN: Cohort = {
 	id: "public-sector-sovereign",
 	dialect: "reykjavik-registry",
 	copy: {
+		nav: { cta: "Review data custody" },
+		composer: {
+			lede: "Name the operational friction and the systems behind it. Sókrates returns the cross-system moves that fit — local custody, every answer cited to the record.",
+			painPlaceholder:
+				"e.g. a case status crosses the casework system, the finance ledger and a procurement tool, and a clerk stitches it together",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. a casework system, a finance ledger, and a procurement tool — all kept on-premises.",
+		},
 		meta: {
 			title: "Sókrates for sovereign public operations",
 			description:
@@ -179,6 +209,16 @@ export const HEALTHCARE_OPERATIONS: Cohort = {
 	id: "healthcare-operations",
 	dialect: "clinical",
 	copy: {
+		nav: { cta: "Map one workflow" },
+		composer: {
+			lede: "Name the operational friction around care and the systems behind it. Sókrates returns the cross-system moves that fit — operations, never clinical judgement.",
+			painPlaceholder:
+				"e.g. a roster change crosses the scheduling system, the HR tool and payroll, and a coordinator reconciles it by hand",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. a scheduling system, an HR and rota tool, a billing system, and records requests in between.",
+		},
 		meta: {
 			title: "Sókrates for healthcare operations",
 			description:
@@ -235,6 +275,16 @@ export const INDUSTRIAL_QUALITY: Cohort = {
 	id: "industrial-quality",
 	dialect: "foundry",
 	copy: {
+		nav: { cta: "Bring one exception" },
+		composer: {
+			lede: "Name the exception and the systems behind it. Sókrates returns the cross-system moves that fit — evidence-bearing, without replacing your QMS.",
+			painPlaceholder:
+				"e.g. a deviation crosses the QMS, the ERP and a maintenance log, and one senior operator carries the evidence",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. a QMS for deviations, an ERP for inventory, an MES on the line, and a maintenance log.",
+		},
 		meta: {
 			title: "Sókrates for industrial quality",
 			description:
@@ -286,6 +336,16 @@ export const ROLLUP_INTEGRATION: Cohort = {
 	id: "rollup-integration",
 	dialect: "estate",
 	copy: {
+		nav: { cta: "Map the estate" },
+		composer: {
+			lede: "Name the post-close question and the systems behind it. Sókrates returns the cross-system moves that fit — one operating map across what each company already runs.",
+			painPlaceholder:
+				"e.g. a revenue question crosses three companies' ERPs, two CRMs and a pile of spreadsheets, post-close",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. three inherited ERPs, two CRMs, and the spreadsheets holding the platform together.",
+		},
 		meta: {
 			title: "Sókrates for roll-up integration",
 			description:
@@ -342,6 +402,16 @@ export const MIDMARKET_OPS: Cohort = {
 	id: "midmarket-ops",
 	dialect: "gallery",
 	copy: {
+		nav: { cta: "Map one workflow" },
+		composer: {
+			lede: "Name the friction and the systems you run. Sókrates returns the cross-system moves that fit — the work between systems that keeps landing on one person.",
+			painPlaceholder:
+				"e.g. a won deal stalls before delivery because the CRM, the project tool and finance never quite line up",
+		},
+		contact: {
+			operationPlaceholder:
+				"e.g. a CRM for sales, a project tool for delivery, payroll for the team, and spreadsheets in between.",
+		},
 		meta: {
 			title: "Sókrates for midmarket operations",
 			description:

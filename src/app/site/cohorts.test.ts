@@ -23,7 +23,7 @@ import {
 	resolveArrivalCohort,
 	SITE_COHORTS,
 } from "./cohorts.js";
-import { resolveCopy } from "./copy.js";
+import { BASE_COPY, resolveCopy } from "./copy.js";
 
 describe("K1 — the gate", () => {
 	it("rejects a non-kebab id", () => {
@@ -153,6 +153,24 @@ describe("K8 — every shipped cohort resolves to render-safe copy", () => {
 			for (const id of copy.faq.order) {
 				expect(copy.faq.entries[id], `${c.id}: ${id}`).toBeDefined();
 			}
+		}
+	});
+});
+
+describe("K9 — every shipped cohort tailors the conversion surfaces", () => {
+	// The whole point of the surface expansion: a cohort re-pitches the centerpiece
+	// (composer) and the quiet nav CTA, not just the hero/close/faq. Prove each one
+	// actually overrides them (resolved value diverges from base), and the resolved
+	// copy stays a total SiteCopy (every surface slot present).
+	it("each re-pitches the nav CTA and the composer pain placeholder", () => {
+		for (const c of SITE_COHORTS) {
+			const copy = resolveCopy(c.copy);
+			expect(copy.nav.cta, `${c.id} nav.cta`).not.toBe(BASE_COPY.nav.cta);
+			expect(copy.composer.painPlaceholder, `${c.id} composer.painPlaceholder`).not.toBe(
+				BASE_COPY.composer.painPlaceholder,
+			);
+			// inheritance still holds — an un-overridden field falls back to base.
+			expect(copy.composer.title).toBe(BASE_COPY.composer.title);
 		}
 	});
 });
