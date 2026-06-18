@@ -40,6 +40,11 @@ import {
 	thinMatchState,
 } from "$compose";
 import { MorpheRoot } from "$lib/components";
+import { BASE_COMPOSER_COPY, type ComposerCopy } from "./copy.js";
+
+// Cohort-targetable control-surface copy. Defaults to the canonical deck so the
+// component stays standalone-embeddable; the site passes a cohort overlay when present.
+let { copy = BASE_COMPOSER_COPY }: { copy?: ComposerCopy } = $props();
 
 // Register the compose compounds through the factory gate. Idempotent — safe under
 // HMR and repeated imports. Done at module-eval so the registry is ready to render.
@@ -215,12 +220,8 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 	  query handed to the pipeline; MorpheRoot below re-renders the answer.
 	-->
 	<header class="control">
-		<h2 class="control__title">What can Sókrates do for you?</h2>
-		<p class="control__lede">
-			Name the friction and the systems you run. Sókrates returns the few
-			cross-system moves that fit, with the endpoints and model names behind each
-			one.
-		</p>
+		<h2 class="control__title">{copy.title}</h2>
+		<p class="control__lede">{copy.lede}</p>
 
 		<form
 			class="control__form"
@@ -230,12 +231,12 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 			}}
 		>
 			<div class="field">
-				<label class="field__label" for="compose-pain">Describe the friction</label>
+				<label class="field__label" for="compose-pain">{copy.painLabel}</label>
 				<textarea
 					id="compose-pain"
 					class="field__input"
 					rows="3"
-					placeholder="e.g. shift planning is slow and error prone, and overtime keeps blowing the budget"
+					placeholder={copy.painPlaceholder}
 					bind:value={pain}
 					onkeydown={onPainKeydown}
 				></textarea>
@@ -257,7 +258,7 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 			{/if}
 
 			<fieldset class="systems">
-				<legend class="systems__legend">Which systems do you run? One per column.</legend>
+				<legend class="systems__legend">{copy.systemsLegend}</legend>
 				<div class="systems__groups">
 					{#each CATEGORIES as category (category)}
 						<div class="systems__group" role="group" aria-label={CATEGORY_LABELS[category]}>
@@ -280,14 +281,14 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 					{/each}
 				</div>
 				<p class="systems__unlisted">
-					Run a system we don't list?
-					<a class="systems__unlisted-link" href="/#contact">Tell us, we'll map it.</a>
+					{copy.unlistedPrompt}
+					<a class="systems__unlisted-link" href="/#contact">{copy.unlistedLink}</a>
 				</p>
 			</fieldset>
 
 			<div class="actions">
 				<button type="submit" class="actions__submit" disabled={ranking}>
-					{ranking ? "Ranking…" : "Show the fit"}
+					{ranking ? copy.rankingLabel : copy.submitLabel}
 				</button>
 				{#if stale}
 					<span class="actions__hint">Run it again to update the results.</span>
@@ -295,7 +296,7 @@ const stale = $derived(result !== null && pain.trim() !== submittedPain);
 			</div>
 		</form>
 
-		<p class="control__note">Ranked on submit from the systems you choose here.</p>
+		<p class="control__note">{copy.note}</p>
 	</header>
 
 	<main class="surface">

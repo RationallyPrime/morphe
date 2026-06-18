@@ -5,6 +5,13 @@
  * over ntfy. No customer auto-reply. On a delivery failure it offers a mailto
  * fallback so a lead is never lost. A honeypot field drops bots.
  */
+import { activeDialect } from "$lib";
+import { activeCohort } from "./active-cohort.svelte.js";
+import { BASE_CONTACT_COPY, type ContactCopy } from "./copy.js";
+import { intentEngine } from "./intent-engine.svelte.js";
+
+let { copy = BASE_CONTACT_COPY }: { copy?: ContactCopy } = $props();
+
 const FOUNDER_EMAIL = "hakon@sokrates.is";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -38,6 +45,9 @@ async function submit(): Promise<void> {
 				email: email.trim(),
 				operation: operation.trim(),
 				company_url: companyUrl,
+				cohort: activeCohort.current,
+				intent: intentEngine.openIntentId,
+				dialect: activeDialect.id,
 			}),
 		});
 		const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
@@ -52,11 +62,8 @@ async function submit(): Promise<void> {
 	<div class="ack" role="status" aria-live="polite">
 		<span class="ack__glyph material-symbols-outlined" aria-hidden="true">mark_email_read</span>
 		<div>
-			<p class="ack__title">Received. Thank you.</p>
-			<p class="ack__body">
-				Hákon reads every one and replies by hand, usually within 48 hours. The reply
-				starts with the work itself.
-			</p>
+			<p class="ack__title">{copy.ackTitle}</p>
+			<p class="ack__body">{copy.ackBody}</p>
 		</div>
 	</div>
 {:else}
@@ -68,12 +75,12 @@ async function submit(): Promise<void> {
 		}}
 	>
 		<div class="field">
-			<label class="field__label" for="contact-name">Your name</label>
+			<label class="field__label" for="contact-name">{copy.nameLabel}</label>
 			<input id="contact-name" class="field__input" type="text" autocomplete="name" bind:value={name} />
 		</div>
 
 		<div class="field">
-			<label class="field__label" for="contact-email">Email</label>
+			<label class="field__label" for="contact-email">{copy.emailLabel}</label>
 			<input
 				id="contact-email"
 				class="field__input"
@@ -85,13 +92,13 @@ async function submit(): Promise<void> {
 		</div>
 
 		<div class="field">
-			<label class="field__label" for="contact-operation">What runs your operation today?</label>
+			<label class="field__label" for="contact-operation">{copy.operationLabel}</label>
 			<textarea
 				id="contact-operation"
 				class="field__input"
 				rows="4"
 				required
-				placeholder="e.g. dkPlus for finance, Humanity for shifts, and a lot of spreadsheets in between."
+				placeholder={copy.operationPlaceholder}
 				bind:value={operation}
 			></textarea>
 		</div>
@@ -104,15 +111,15 @@ async function submit(): Promise<void> {
 
 		<div class="form__actions">
 			<button class="submit" type="submit" disabled={!canSubmit}>
-				{status === "submitting" ? "Sending…" : "Talk to us"}
+				{status === "submitting" ? copy.submittingLabel : copy.submitLabel}
 			</button>
-			<span class="form__hint">Hákon replies by hand, usually within 48 hours.</span>
+			<span class="form__hint">{copy.hint}</span>
 		</div>
 
 		{#if status === "error"}
 			<p class="form__error" role="alert">
-				Something went wrong sending that. Email
-				<a class="form__mailto" href={mailtoHref}>{FOUNDER_EMAIL}</a> directly and we will pick it up.
+				{copy.errorLead}
+				<a class="form__mailto" href={mailtoHref}>{FOUNDER_EMAIL}</a> {copy.errorTail}
 			</p>
 		{/if}
 	</form>

@@ -15,8 +15,11 @@
 	 * one engine `announcement` line.
 	 */
 
+	import { BASE_INTENT_COPY, type IntentCopy } from "./copy.js";
 	import { intentEngine } from "./intent-engine.svelte.js";
 	import { intentRegistry, registerSiteIntents, type SiteIntent } from "./intents.js";
+
+	let { copy = BASE_INTENT_COPY }: { copy?: IntentCopy } = $props();
 
 	// Idempotent — safe under HMR and repeat mounts.
 	registerSiteIntents();
@@ -41,7 +44,7 @@
 	}
 </script>
 
-<nav class="chips" aria-label="What would you like to know?">
+<nav class="chips" aria-label={copy.prompt}>
 	{#each intents as intent (intent.id)}
 		{@const expanded = isOpen(intent)}
 		<a
@@ -51,7 +54,7 @@
 			aria-expanded={intent.action.kind === "stage-delta" ? expanded : undefined}
 			onclick={(e) => onChipClick(e, intent)}
 		>
-			{intent.label}{#if expanded}<span class="chip__close" aria-hidden="true">×</span>{/if}
+			{copy.labels?.[intent.id] ?? intent.label}{#if expanded}<span class="chip__close" aria-hidden="true">×</span>{/if}
 		</a>
 	{/each}
 </nav>

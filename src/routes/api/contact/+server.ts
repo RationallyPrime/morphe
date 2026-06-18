@@ -20,6 +20,9 @@ interface ContactBody {
 	email?: unknown;
 	operation?: unknown;
 	company_url?: unknown; // honeypot — must stay empty
+	cohort?: unknown; // arrival attribution (client-read at submit)
+	intent?: unknown;
+	dialect?: unknown;
 }
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -39,6 +42,13 @@ export const POST: RequestHandler = async ({ request }) => {
 	const email = typeof body.email === "string" ? body.email.trim() : "";
 	const operation = typeof body.operation === "string" ? body.operation.trim() : "";
 
+	// Arrival attribution — non-empty strings only; "none" otherwise.
+	const attr = (v: unknown): string =>
+		typeof v === "string" && v.trim().length > 0 ? v.trim() : "none";
+	const cohort = attr(body.cohort);
+	const intent = attr(body.intent);
+	const dialect = attr(body.dialect);
+
 	if (!EMAIL_RE.test(email)) {
 		return json({ ok: false, error: "invalid-email" }, { status: 422 });
 	}
@@ -53,6 +63,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		"What runs their operation today:",
 		operation,
 		"",
+		`Attribution: cohort=${cohort} intent=${intent} dialect=${dialect}`,
 		`Reply to ${email} within 48h.`,
 	];
 

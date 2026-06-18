@@ -21,8 +21,9 @@ import {
 	persistableCohort,
 	registerSiteCohorts,
 	resolveArrivalCohort,
+	SITE_COHORTS,
 } from "./cohorts.js";
-import { resolveCopy } from "./copy.js";
+import { BASE_COPY, resolveCopy } from "./copy.js";
 
 describe("K1 — the gate", () => {
 	it("rejects a non-kebab id", () => {
@@ -33,6 +34,28 @@ describe("K1 — the gate", () => {
 	});
 	it("passes a clean def", () => {
 		expect(cohortGateFailure({ id: "ok-id", dialect: "clinical", copy: {} })).toBeNull();
+	});
+	it("rejects a faq.order that names an entry no overlay or base provides", () => {
+		// faqSection THROWS on a dangling order id — the gate rejects it at registration
+		// so render stays total by construction (parity with the intent/compound gates).
+		const failure = cohortGateFailure({
+			id: "ok-id",
+			dialect: "clinical",
+			copy: { faq: { order: ["no-such-entry"] } },
+		});
+		expect(failure).not.toBeNull();
+		expect(failure).toContain("no-such-entry");
+	});
+	it("passes a faq.order that names only base + overlay entries", () => {
+		expect(
+			cohortGateFailure({
+				id: "ok-id",
+				dialect: "clinical",
+				copy: {
+					faq: { entries: { custom: { q: "Q?", a: "A." } }, order: ["custom", "exit"] },
+				},
+			}),
+		).toBeNull();
 	});
 });
 
@@ -98,7 +121,7 @@ describe("K5 — persistence: no-cohort is not a choice", () => {
 	});
 });
 
-describe("K6 — resolved pharma copy stays out of doctrine/Trajectory register", () => {
+describe("K6 — every cohort's resolved copy stays out of doctrine/Trajectory register", () => {
 	const BANNED = ["under governance", "read-only", "Read-only", "by construction", "AUTHORIZES"];
 	const FORBIDDEN: readonly RegExp[] = [
 		/\bINV-\d/,
@@ -106,8 +129,70 @@ describe("K6 — resolved pharma copy stays out of doctrine/Trajectory register"
 		new RegExp(["fly", "wheel"].join(""), "i"),
 	];
 	it("carries no banned or excluded token", () => {
-		const json = JSON.stringify(resolveCopy(getCohort("pharma-sovereign")?.copy));
-		for (const p of BANNED) expect(json, p).not.toContain(p);
-		for (const r of FORBIDDEN) expect(json).not.toMatch(r);
+		for (const c of SITE_COHORTS) {
+			const json = JSON.stringify(resolveCopy(c.copy));
+			for (const p of BANNED) expect(json, `${c.id}: ${p}`).not.toContain(p);
+			for (const r of FORBIDDEN) expect(json, c.id).not.toMatch(r);
+		}
+	});
+});
+
+describe("K7 — the six audience cohorts register, gate-clean, on real dialects", () => {
+	const SIX = [
+		"finance-controls",
+		"public-sector-sovereign",
+		"healthcare-operations",
+		"industrial-quality",
+		"rollup-integration",
+		"midmarket-ops",
+	];
+	it("each is registered and passes the gate", () => {
+		for (const id of SIX) {
+			const c = getCohort(id);
+			expect(c, id).toBeDefined();
+			if (c === undefined) continue;
+			expect(cohortGateFailure(c), id).toBeNull();
+		}
+	});
+	it("each selects a registered dialect", () => {
+		for (const id of SIX) {
+			expect(hasDialect(getCohort(id)?.dialect ?? ""), id).toBe(true);
+		}
+	});
+	it("COHORT_IDS carries pharma + the six (seven shipped)", () => {
+		expect(COHORT_IDS).toContain("pharma-sovereign");
+		for (const id of SIX) expect(COHORT_IDS, id).toContain(id);
+		expect(COHORT_IDS).toHaveLength(7);
+	});
+});
+
+describe("K8 — every shipped cohort resolves to render-safe copy", () => {
+	// faqSection() THROWS on an order id with no entry (present.ts) — so a dangling
+	// `faq.order` key would crash the page at render. Guard it here, at test time.
+	it("no faq.order id is dangling in any cohort", () => {
+		for (const c of SITE_COHORTS) {
+			const copy = resolveCopy(c.copy);
+			for (const id of copy.faq.order) {
+				expect(copy.faq.entries[id], `${c.id}: ${id}`).toBeDefined();
+			}
+		}
+	});
+});
+
+describe("K9 — every shipped cohort tailors the conversion surfaces", () => {
+	// The whole point of the surface expansion: a cohort re-pitches the centerpiece
+	// (composer) and the quiet nav CTA, not just the hero/close/faq. Prove each one
+	// actually overrides them (resolved value diverges from base), and the resolved
+	// copy stays a total SiteCopy (every surface slot present).
+	it("each re-pitches the nav CTA and the composer pain placeholder", () => {
+		for (const c of SITE_COHORTS) {
+			const copy = resolveCopy(c.copy);
+			expect(copy.nav.cta, `${c.id} nav.cta`).not.toBe(BASE_COPY.nav.cta);
+			expect(copy.composer.painPlaceholder, `${c.id} composer.painPlaceholder`).not.toBe(
+				BASE_COPY.composer.painPlaceholder,
+			);
+			// inheritance still holds — an un-overridden field falls back to base.
+			expect(copy.composer.title).toBe(BASE_COPY.composer.title);
+		}
 	});
 });

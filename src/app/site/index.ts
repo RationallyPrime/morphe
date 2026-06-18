@@ -8,7 +8,8 @@
  */
 
 // The app-wide active cohort + the reactive resolved copy the presenters read.
-export { activeCohort, activeCopy } from "./active-cohort.svelte.js";
+// `pageCopy` is the SSR-safe page entry (store wins; else the request-scoped id).
+export { activeCohort, activeCopy, pageCopy } from "./active-cohort.svelte.js";
 // The cohort registry — a cohort selects a dialect AND a copy overlay (CONTEXT.md).
 export type { Cohort } from "./cohorts.js";
 export {
@@ -35,8 +36,21 @@ export {
 	SiteValueProp,
 } from "./compounds.js";
 // The copy deck — targetable marketing copy as data; base + per-cohort overlay.
-export type { CohortCopyOverlay, FaqEntry, SiteCopy } from "./copy.js";
-export { BASE_COPY, resolveCopy } from "./copy.js";
+export type {
+	CohortCopyOverlay,
+	ContactCopy,
+	FaqEntry,
+	IntentCopy,
+	NavCopy,
+	SiteCopy,
+} from "./copy.js";
+export {
+	BASE_CONTACT_COPY,
+	BASE_COPY,
+	BASE_INTENT_COPY,
+	BASE_NAV_COPY,
+	resolveCopy,
+} from "./copy.js";
 // The onboarding dossier (KRA-370) — the intake as a typed record, plus the
 // first real mid-loop delegate.
 export type { DossierDraft, DossierOpts, DossierStep } from "./dossier.js";

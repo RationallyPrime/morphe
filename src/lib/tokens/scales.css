@@ -178,6 +178,47 @@
 	--mo-bone-5: #f5f2ec; /* raised card */
 	--mo-bone-6: #fbf9f5; /* overlay / brightest panel */
 
+	/* Teal — a SIXTH chromatic family: a cool blue-green ledger accent, minted for
+	   the `ledger` dialect (the financial-controls register). Distinct from the
+	   periwinkle blue, the electric cobalt and the amethyst violet — a precise,
+	   instrument-panel cyan-green. Vertical-NEUTRAL like every ramp here: a raw teal
+	   progression the intent layer assigns meaning to. 500 is the on-dark beacon
+	   tone; 700 the deep surface tone the substrate cools toward; `on` the dark text
+	   that rides the bright 500 fill. */
+	--mo-teal-300: #99f6e4;
+	--mo-teal-400: #5eead4;
+	--mo-teal-500: #2dd4bf; /* the ledger beacon */
+	--mo-teal-600: #14b8a6;
+	--mo-teal-700: #123f3b; /* deep ledger surface tone */
+	--mo-teal-on: #04302c; /* on-teal (dark text on the beacon) */
+
+	/* Copper — a SEVENTH chromatic family: a warm bronze/holdings accent, minted for
+	   the `estate` dialect (the roll-up/platform register). Warm and metallic but
+	   distinctly browner and more muted than the yellow-gold amber beacon — the tone
+	   of consolidated holdings, not the Archive's gold. Vertical-NEUTRAL: a raw
+	   copper progression the intent layer assigns meaning to. 500 is the on-dark
+	   beacon tone; 700 the deep surface tone; `on` the dark text on the 500 fill. */
+	--mo-copper-300: #f2d3b3;
+	--mo-copper-400: #e0a96b;
+	--mo-copper-500: #d2924f; /* the estate beacon */
+	--mo-copper-600: #a96b2c;
+	--mo-copper-700: #432a14; /* deep estate surface tone */
+	--mo-copper-on: #2a1808; /* on-copper (dark text on the beacon) */
+
+	/* Steel — an EIGHTH chromatic family: a machined blue-grey blueprint accent,
+	   minted for the `foundry` dialect (the industrial-quality register). A muted,
+	   greyed steel-blue — clearly cooler and more desaturated than the Clinical
+	   periwinkle and the electric cobalt, the tone of a drawing rendered in steel.
+	   Vertical-NEUTRAL: a raw steel progression the intent layer assigns meaning to.
+	   500 is the on-dark beacon tone; 700 the deep surface tone; `on` the dark text
+	   on the 500 fill. */
+	--mo-steel-300: #cbd8e6;
+	--mo-steel-400: #9db4cc;
+	--mo-steel-500: #7b9cba; /* the foundry beacon */
+	--mo-steel-600: #4f6e8c;
+	--mo-steel-700: #243748; /* deep foundry surface tone */
+	--mo-steel-on: #081626; /* on-steel (dark text on the beacon) */
+
 	/* --- Font families (pulled through from the Archive; the three families) - */
 	/* The host app wires the actual @font-face / next-font variables into these
 	   three vars; Morphe references only these neutral handles. */

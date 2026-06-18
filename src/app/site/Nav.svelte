@@ -1,4 +1,5 @@
 <script lang="ts">
+
 /*
  * Nav — the site chrome's top bar. Native (outside any Morphe tree), styled from
  * the `--mo-*` tokens so it follows the active dialect. Deliberately minimal (D2):
@@ -11,6 +12,11 @@
  */
 
 import CtaLink from "./CtaLink.svelte";
+import { BASE_NAV_COPY } from "./copy.js";
+
+// The CTA label follows the active cohort (the layout passes the resolved nav copy);
+// the default is the base so the component stays standalone.
+let { cta = BASE_NAV_COPY.cta }: { cta?: string } = $props();
 </script>
 
 <header class="nav">
@@ -20,7 +26,7 @@ import CtaLink from "./CtaLink.svelte";
 			<span class="brand__word">Sókrates</span>
 		</a>
 
-		<CtaLink href="/#contact" label="Talk to us" variant="secondary" />
+		<CtaLink href="/#contact" label={cta} variant="secondary" />
 	</div>
 </header>
 

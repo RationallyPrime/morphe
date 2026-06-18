@@ -67,3 +67,42 @@ describe("BASE_COPY — every ordered faq id resolves to an entry", () => {
 		}
 	});
 });
+
+describe("resolveCopy — the surface slots (nav/composer/contact/intent)", () => {
+	it("BASE_COPY carries every surface slot", () => {
+		expect(BASE_COPY.nav.cta).toBeTypeOf("string");
+		expect(BASE_COPY.composer.title).toBeTypeOf("string");
+		expect(BASE_COPY.contact.submitLabel).toBeTypeOf("string");
+		expect(BASE_COPY.intent.prompt).toBeTypeOf("string");
+	});
+
+	it("overrides nav.cta, inheriting everything else", () => {
+		const out = resolveCopy({ nav: { cta: "Map one workflow" } });
+		expect(out.nav.cta).toBe("Map one workflow");
+		expect(out.composer).toEqual(BASE_COPY.composer);
+		expect(out.contact).toEqual(BASE_COPY.contact);
+	});
+
+	it("merges composer + contact field-by-field (override one, inherit the rest)", () => {
+		const out = resolveCopy({
+			composer: { painPlaceholder: "e.g. month-end reconciliation" },
+			contact: { submitLabel: "Discuss controls" },
+		});
+		expect(out.composer.painPlaceholder).toBe("e.g. month-end reconciliation");
+		expect(out.composer.title).toBe(BASE_COPY.composer.title); // inherited
+		expect(out.contact.submitLabel).toBe("Discuss controls");
+		expect(out.contact.nameLabel).toBe(BASE_COPY.contact.nameLabel); // inherited
+	});
+
+	it("merges intent framing field-by-field and intent.labels by key", () => {
+		const out = resolveCopy({
+			intent: {
+				prompt: "What do you want to verify?",
+				labels: { "tell-me-the-story": "Show the control model" },
+			},
+		});
+		expect(out.intent.prompt).toBe("What do you want to verify?");
+		expect(out.intent.palettePlaceholder).toBe(BASE_COPY.intent.palettePlaceholder); // inherited
+		expect(out.intent.labels?.["tell-me-the-story"]).toBe("Show the control model");
+	});
+});

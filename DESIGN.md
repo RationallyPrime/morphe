@@ -322,8 +322,9 @@ plates' actual ground). The functional/lineage intents (`provenance`, `info`,
 `caution`, `success`) stay near-constant across dialects on purpose: a citation
 is blue, a deviation is red, in every reading — gallery flips them to
 light-theme form (pale washes, deep text) without leaving their families. All
-six dialects clear WCAG AA on muted on-surface text at their tuned mute levels
-(72–74%).
+nine dialects clear WCAG AA on muted on-surface text at their tuned mute levels
+(72–74%); the three cohort registers (`ledger`/`estate`/`foundry`) also clear AA
+on their beacon and accent-on-surface pairs (6.3–9.3:1).
 
 ### Cohorts: dialects as ad-profile-targeted pitches (direction)
 

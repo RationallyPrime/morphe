@@ -60,7 +60,7 @@ describe("A3 — setById with an unknown id is a no-op (not a reset)", () => {
 });
 
 describe("A4 — the registry contains every global dialect", () => {
-	it("ships the archive, clinical, reykjavik, timaeus and the plate-derived pair", () => {
+	it("ships the archive, clinical, reykjavik, timaeus, the plate-derived pair, and the cohort registers", () => {
 		expect(DIALECT_IDS).toEqual([
 			"icelandic-archive",
 			"clinical",
@@ -68,6 +68,9 @@ describe("A4 — the registry contains every global dialect", () => {
 			"timaeus",
 			"gallery",
 			"night",
+			"ledger",
+			"estate",
+			"foundry",
 		]);
 		expect(DIALECTS.gallery).toBe(DEFAULT_DIALECT);
 		expect(DIALECTS.clinical).toBe(clinical);
