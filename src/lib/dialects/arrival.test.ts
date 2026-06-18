@@ -1,11 +1,13 @@
 /**
- * ARRIVAL ATTRIBUTION tests (Lemma 4 / τ_frame) — `?cohort=` selects the dialect.
+ * ARRIVAL ATTRIBUTION tests (Lemma 4 / τ_frame) — `?dialect=` selects the dialect.
  *
  * `resolveArrivalDialect` is the pure precedence rule behind DESIGN.md §9's
- * cohort wiring: valid landing param > persisted choice > null (leave the
- * default). These pin its contract:
+ * arrival wiring: valid landing param > persisted choice > null (leave the
+ * default). The raw dialect param is `?dialect=`; `?cohort=` selects a COHORT
+ * (which in turn supplies a dialect — an app concern, tested in
+ * `src/app/site/cohort-arrival.test.ts`). These pin the pure rule's contract:
  *
- *   C1  A VALID `?cohort=` param wins over the persisted choice — attribution
+ *   C1  A VALID `?dialect=` param wins over the persisted choice — attribution
  *       is a statement about THIS arrival.
  *   C2  An UNKNOWN/garbage param is ignored (never throws, never resets): the
  *       persisted choice stands exactly as if the param were absent.
@@ -14,7 +16,7 @@
  *   C4  Ids are EXACT-MATCH (case-sensitive): `Clinical` is not `clinical`.
  *   C5  Arrival-sequence sanity: driving the layout's exact mount sequence
  *       against the REAL global store with a mocked landing URL of
- *       `?cohort=clinical` ends with `clinical` active — and an unknown cohort
+ *       `?dialect=clinical` ends with `clinical` active — and an unknown id
  *       leaves the selection alone (`setById`'s registry guard composes).
  *
  * Each store-touching test restores the default afterward so module-level
@@ -78,42 +80,44 @@ describe("C4 — ids are exact-match (case-sensitive)", () => {
 	});
 });
 
-describe("C5 — arrival-sequence sanity against the real store", () => {
+describe("C5 — arrival-sequence sanity against the real store (?dialect=)", () => {
 	/**
-	 * The layout's mount effect, verbatim (URL mocked, localStorage as a value):
-	 * read `?cohort=`, resolve, and apply via `setById` when non-null.
+	 * The dialect half of the layout's mount sequence (URL mocked, localStorage as
+	 * a value): read `?dialect=`, resolve, and apply via `setById` when non-null.
+	 * `?cohort=` selects a COHORT (app concern) — that sequence is covered in
+	 * `src/app/site/cohort-arrival.test.ts`, where app→lib is the correct import.
 	 */
 	function arrive(href: string, persisted: string | null): void {
-		const cohort = new URL(href).searchParams.get("cohort");
-		const resolved = resolveArrivalDialect(cohort, persisted, DIALECT_IDS);
+		const dialect = new URL(href).searchParams.get("dialect");
+		const resolved = resolveArrivalDialect(dialect, persisted, DIALECT_IDS);
 		if (resolved !== null) activeDialect.setById(resolved);
 	}
 
-	it("?cohort=clinical lands with clinical active", () => {
-		arrive("https://sokrates.example/?cohort=clinical", null);
+	it("?dialect=clinical lands with clinical active", () => {
+		arrive("https://sokrates.example/?dialect=clinical", null);
 		expect(activeDialect.current).toBe(clinical);
 		expect(activeDialect.id).toBe("clinical");
 	});
 
-	it("a valid cohort outranks the persisted choice", () => {
-		arrive("https://sokrates.example/?cohort=reykjavik-registry", "clinical");
+	it("a valid ?dialect= outranks the persisted choice", () => {
+		arrive("https://sokrates.example/?dialect=reykjavik-registry", "clinical");
 		expect(activeDialect.id).toBe("reykjavik-registry");
 	});
 
-	it("no cohort param restores the persisted choice", () => {
+	it("no ?dialect= param restores the persisted choice", () => {
 		arrive("https://sokrates.example/", "clinical");
 		expect(activeDialect.id).toBe("clinical");
 	});
 
-	it("an unknown cohort with no persistence leaves the default active", () => {
-		arrive("https://sokrates.example/?cohort=banana", null);
+	it("an unknown ?dialect= with no persistence leaves the default active", () => {
+		arrive("https://sokrates.example/?dialect=banana", null);
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
 	});
 
-	it("an unknown cohort with a STALE persisted id still leaves the selection intact", () => {
+	it("an unknown ?dialect= with a STALE persisted id still leaves the selection intact", () => {
 		// The helper passes the stale id through; setById's registry guard
 		// makes it a no-op rather than a reset — the two guards compose.
-		arrive("https://sokrates.example/?cohort=banana", "long-retired-dialect");
+		arrive("https://sokrates.example/?dialect=banana", "long-retired-dialect");
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
 	});
 });

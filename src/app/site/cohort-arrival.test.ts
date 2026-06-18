@@ -1,0 +1,53 @@
+/**
+ * COHORT ARRIVAL — the app-level resolution sequence the layout runs: a cohort
+ * supplies the dialect baseline, an explicit `?dialect=` (or a persisted explicit
+ * toggle) overrides it, and an explicit choice always wins on return. This test
+ * legitimately spans $lib (the dialect store) and $site (the cohort registry) —
+ * the app→lib direction is the correct one (the inverse would break layering).
+ */
+
+import { afterEach, describe, expect, it } from "vitest";
+import { activeDialect, DEFAULT_DIALECT, DIALECT_IDS, resolveArrivalDialect } from "$lib";
+import { COHORT_IDS, getCohort, resolveArrivalCohort } from "$site";
+
+afterEach(() => activeDialect.set(DEFAULT_DIALECT));
+
+/** The layout's dialect mount sequence, verbatim. */
+function arrive(
+	href: string,
+	persistedCohort: string | null,
+	persistedDialect: string | null,
+): void {
+	const url = new URL(href);
+	const cohort = resolveArrivalCohort(url.searchParams.get("cohort"), persistedCohort, COHORT_IDS);
+	const cohortDialect = cohort !== null ? (getCohort(cohort)?.dialect ?? null) : null;
+	const explicit = resolveArrivalDialect(
+		url.searchParams.get("dialect"),
+		persistedDialect,
+		DIALECT_IDS,
+	);
+	const target = explicit !== null ? explicit : cohortDialect;
+	if (target !== null) activeDialect.setById(target);
+}
+
+describe("cohort → dialect resolution", () => {
+	it("?cohort=pharma-sovereign lands on the clinical dialect", () => {
+		arrive("https://sokrates.example/?cohort=pharma-sovereign", null, null);
+		expect(activeDialect.id).toBe("clinical");
+	});
+
+	it("an explicit ?dialect= overrides the cohort's dialect", () => {
+		arrive("https://sokrates.example/?cohort=pharma-sovereign&dialect=night", null, null);
+		expect(activeDialect.id).toBe("night");
+	});
+
+	it("a persisted explicit dialect outranks the cohort's dialect on return", () => {
+		arrive("https://sokrates.example/?cohort=pharma-sovereign", null, "night");
+		expect(activeDialect.id).toBe("night");
+	});
+
+	it("an unknown cohort with no persistence leaves the default active", () => {
+		arrive("https://sokrates.example/?cohort=banana", null, null);
+		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
+	});
+});
