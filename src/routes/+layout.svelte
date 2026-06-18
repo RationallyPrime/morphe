@@ -18,6 +18,7 @@ import {
 	activeCohort,
 	COHORT_IDS,
 	getCohort,
+	pageCopy,
 	persistableCohort,
 	registerSiteCohorts,
 	resolveArrivalCohort,
@@ -53,6 +54,10 @@ let arrivalResolved = false;
 // so flipping the dialect on /substrate re-themes everything live; SSR renders the
 // default dialect (activeDialect.current is the default until client hydration).
 const shellStyle = $derived(dialectStyle(applyDialect(activeDialect.current)));
+
+// The nav CTA follows the active cohort (SSR-resolved from `?cohort=`); the store
+// wins post-hydration, like every page's copy. `pageCopy` is SSR-safe.
+const navCta = $derived(pageCopy(data.cohortId).nav.cta);
 
 // CLIENT-ONLY arrival resolution + persistence. `$effect` never runs during SSR,
 // so the server always renders the DEFAULT dialect (SSR-safe, no hydration crash).
@@ -122,7 +127,7 @@ $effect(() => {
 
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell" style={shellStyle}>
-	<Nav />
+	<Nav cta={navCta} />
 	<main id="main" class="shell__main">
 		{@render children?.()}
 	</main>

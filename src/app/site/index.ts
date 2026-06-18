@@ -36,8 +36,21 @@ export {
 	SiteValueProp,
 } from "./compounds.js";
 // The copy deck — targetable marketing copy as data; base + per-cohort overlay.
-export type { CohortCopyOverlay, FaqEntry, SiteCopy } from "./copy.js";
-export { BASE_COPY, resolveCopy } from "./copy.js";
+export type {
+	CohortCopyOverlay,
+	ContactCopy,
+	FaqEntry,
+	IntentCopy,
+	NavCopy,
+	SiteCopy,
+} from "./copy.js";
+export {
+	BASE_CONTACT_COPY,
+	BASE_COPY,
+	BASE_INTENT_COPY,
+	BASE_NAV_COPY,
+	resolveCopy,
+} from "./copy.js";
 // The onboarding dossier (KRA-370) — the intake as a typed record, plus the
 // first real mid-loop delegate.
 export type { DossierDraft, DossierOpts, DossierStep } from "./dossier.js";

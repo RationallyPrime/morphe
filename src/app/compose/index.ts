@@ -34,6 +34,10 @@ export {
 	registerComposeCompounds,
 	SurfaceEvidence,
 } from "./compounds.js";
+// Copy — the composer's control-surface strings as data (the cohort-targetable
+// contract; owned here, aggregated by $site's copy deck).
+export type { ComposerCopy } from "./copy.js";
+export { BASE_COMPOSER_COPY } from "./copy.js";
 // Corpus — the 45 grounded capabilities + the corpus envelope.
 export { CAPABILITIES, COMPOSE_CORPUS } from "./corpus.js";
 // Document text — the shared embed/rerank representation of a capability (no drift).

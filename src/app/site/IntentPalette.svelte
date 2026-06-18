@@ -13,6 +13,7 @@
 	 */
 
 	import { goto } from "$app/navigation";
+	import { BASE_INTENT_COPY, type IntentCopy } from "./copy.js";
 	import { intentEngine } from "./intent-engine.svelte.js";
 	import {
 		intentRegistry,
@@ -20,6 +21,8 @@
 		registerSiteIntents,
 		type SiteIntent,
 	} from "./intents.js";
+
+	let { copy = BASE_INTENT_COPY }: { copy?: IntentCopy } = $props();
 
 	// Idempotent — safe under HMR and repeat mounts.
 	registerSiteIntents();
@@ -73,7 +76,7 @@
 <dialog
 	bind:this={dialog}
 	class="palette"
-	aria-label="State your interest"
+	aria-label={copy.paletteAriaLabel}
 	onclose={() => {
 		query = "";
 		activeIndex = 0;
@@ -87,8 +90,8 @@
 			aria-expanded="true"
 			aria-controls="intent-options"
 			aria-activedescendant={active ? `intent-option-${active.id}` : undefined}
-			aria-label="State your interest"
-			placeholder="What would you like to know?"
+			aria-label={copy.paletteAriaLabel}
+			placeholder={copy.palettePlaceholder}
 			autocomplete="off"
 			spellcheck="false"
 			bind:value={query}
@@ -109,7 +112,7 @@
 				data-active={i === activeIndex}
 			>
 				<button type="button" tabindex="-1" onclick={() => run(intent)}>
-					{intent.label}
+					{copy.labels?.[intent.id] ?? intent.label}
 				</button>
 			</li>
 		{:else}

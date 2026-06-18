@@ -113,7 +113,7 @@ $effect(() => {
 -->
 <section class="s-section recessed" id="composer">
 	<div class="s-wrap--wide">
-		<Composer />
+		<Composer copy={copy.composer} />
 	</div>
 </section>
 
@@ -127,14 +127,14 @@ $effect(() => {
 -->
 <section class="s-section s-section--tight">
 	<div class="s-wrap">
-		<IntentChips />
+		<IntentChips copy={copy.intent} />
 		<div class="intent-stage">
 			<MorpheRoot tree={stageEnvelope.tree} choices={intentEngine.choices ?? stageEnvelope.choices} />
 		</div>
 	</div>
 </section>
 
-<IntentPalette />
+<IntentPalette copy={copy.intent} />
 
 <!--
   The close — the one conversion path (#contact). An asymmetric band: the closing
@@ -149,7 +149,7 @@ $effect(() => {
 		<div class="s-close__copy">
 			<MorpheRoot tree={ctaTree} />
 			<div class="contact__form">
-				<ContactForm />
+				<ContactForm copy={copy.contact} />
 			</div>
 			<p class="s-whisper">
 				<a href="mailto:hakon@sokrates.is">hakon@sokrates.is</a>

@@ -10,15 +10,59 @@
  * Svelte, no I/O. (CONTEXT.md: a cohort selects a dialect AND a copy variant.)
  */
 
+import { BASE_COMPOSER_COPY, type ComposerCopy } from "$compose";
+
 /** One FAQ entry — atomic: a cohort supplies a complete pair, never a half. */
 export interface FaqEntry {
 	readonly q: string;
 	readonly a: string;
 }
 
+/** The nav chrome's one quiet CTA (Nav.svelte). */
+export interface NavCopy {
+	/** The always-visible secondary CTA label (routes to #contact). */
+	readonly cta: string;
+}
+
+/** The contact form's control-surface strings (ContactForm.svelte). */
+export interface ContactCopy {
+	readonly nameLabel: string;
+	readonly emailLabel: string;
+	readonly operationLabel: string;
+	readonly operationPlaceholder: string;
+	/** The submit button's idle / in-flight labels (the close conversion beacon). */
+	readonly submitLabel: string;
+	readonly submittingLabel: string;
+	readonly hint: string;
+	/** The post-submit acknowledgement (title + body). */
+	readonly ackTitle: string;
+	readonly ackBody: string;
+	/** The delivery-failure line around the mailto fallback (lead is never lost). */
+	readonly errorLead: string;
+	readonly errorTail: string;
+}
+
+/**
+ * The intent engine's FRAMING copy (IntentChips + IntentPalette). The intent
+ * VOCABULARY (labels/order) stays in the gated registry (`intents.ts`); `labels`
+ * here is an optional PRESENTATION overlay a cohort may apply over a chip's text
+ * (by intent id) without mutating the registry — the no-JS `href` ground truth is
+ * untouched.
+ */
+export interface IntentCopy {
+	/** The chip row's accessible name / the question it answers. */
+	readonly prompt: string;
+	/** The Cmd/Ctrl+K palette's input placeholder. */
+	readonly palettePlaceholder: string;
+	/** The palette input's accessible name. */
+	readonly paletteAriaLabel: string;
+	/** Optional per-intent chip-label overrides (intent id -> label). */
+	readonly labels?: Readonly<Record<string, string>>;
+}
+
 /** The full set of copy slots a cohort may target. */
 export interface SiteCopy {
-	/** The home page <head> (applied client-side in v1). */
+	/** The home page <head> (SSR-resolved from `?cohort=`). */
 	readonly meta: { readonly title: string; readonly description: string };
 	/** The home hero (SiteHero title + lede). */
 	readonly hero: { readonly title: string; readonly lede: string };
@@ -29,12 +73,20 @@ export interface SiteCopy {
 		readonly entries: Readonly<Record<string, FaqEntry>>;
 		readonly order: readonly string[];
 	};
+	/** The nav chrome CTA. */
+	readonly nav: NavCopy;
+	/** The composer control surface (owned by `$compose`, aggregated here). */
+	readonly composer: ComposerCopy;
+	/** The contact form control surface (the conversion close). */
+	readonly contact: ContactCopy;
+	/** The intent engine's framing copy. */
+	readonly intent: IntentCopy;
 }
 
 /**
  * A cohort's partial statement over SiteCopy. Each level is optional; FaqEntry
- * stays atomic and `faq.order` replaces wholesale — so `resolveCopy` is always
- * total and sound (never a half-built entry).
+ * stays atomic, `faq.order` replaces wholesale, and `intent.labels` merges by key
+ * — so `resolveCopy` is always total and sound (never a half-built entry).
  */
 export interface CohortCopyOverlay {
 	readonly meta?: Partial<SiteCopy["meta"]>;
@@ -44,9 +96,47 @@ export interface CohortCopyOverlay {
 		readonly entries?: Readonly<Record<string, FaqEntry>>;
 		readonly order?: readonly string[];
 	};
+	readonly nav?: Partial<NavCopy>;
+	readonly composer?: Partial<ComposerCopy>;
+	readonly contact?: Partial<ContactCopy>;
+	readonly intent?: {
+		readonly prompt?: string;
+		readonly palettePlaceholder?: string;
+		readonly paletteAriaLabel?: string;
+		readonly labels?: Readonly<Record<string, string>>;
+	};
 }
 
-/** The canonical copy — lifted verbatim from present.ts + the home <head>. */
+/** The canonical nav CTA — lifted verbatim from Nav.svelte. */
+export const BASE_NAV_COPY: NavCopy = {
+	cta: "Talk to us",
+};
+
+/** The canonical contact copy — lifted verbatim from ContactForm.svelte. */
+export const BASE_CONTACT_COPY: ContactCopy = {
+	nameLabel: "Your name",
+	emailLabel: "Email",
+	operationLabel: "What runs your operation today?",
+	operationPlaceholder:
+		"e.g. dkPlus for finance, Humanity for shifts, and a lot of spreadsheets in between.",
+	submitLabel: "Talk to us",
+	submittingLabel: "Sending…",
+	hint: "Hákon replies by hand, usually within 48 hours.",
+	ackTitle: "Received. Thank you.",
+	ackBody:
+		"Hákon reads every one and replies by hand, usually within 48 hours. The reply starts with the work itself.",
+	errorLead: "Something went wrong sending that. Email",
+	errorTail: "directly and we will pick it up.",
+};
+
+/** The canonical intent framing — lifted verbatim from IntentChips + IntentPalette. */
+export const BASE_INTENT_COPY: IntentCopy = {
+	prompt: "What would you like to know?",
+	palettePlaceholder: "What would you like to know?",
+	paletteAriaLabel: "State your interest",
+};
+
+/** The canonical copy — lifted verbatim from present.ts + the components. */
 export const BASE_COPY: SiteCopy = {
 	meta: {
 		title: "Sókrates — Your AI Department",
@@ -86,13 +176,17 @@ export const BASE_COPY: SiteCopy = {
 		},
 		order: ["chatgpt-diff", "what-if-wrong", "data-residency", "exit", "mid-migration"],
 	},
+	nav: BASE_NAV_COPY,
+	composer: BASE_COMPOSER_COPY,
+	contact: BASE_CONTACT_COPY,
+	intent: BASE_INTENT_COPY,
 };
 
 /**
  * Merge an optional cohort overlay onto the base copy. Total and explicit:
- * meta/hero/closingCta merge field-by-field; faq.entries merge by key;
- * faq.order is replaced when supplied. Returns BASE_COPY unchanged when the
- * overlay is absent or empty.
+ * meta/hero/closingCta/nav/composer/contact merge field-by-field; faq.entries and
+ * intent.labels merge by key; faq.order is replaced when supplied. Returns
+ * BASE_COPY unchanged when the overlay is absent or empty.
  */
 export function resolveCopy(overlay?: CohortCopyOverlay): SiteCopy {
 	if (overlay === undefined) return BASE_COPY;
@@ -103,6 +197,18 @@ export function resolveCopy(overlay?: CohortCopyOverlay): SiteCopy {
 		faq: {
 			entries: { ...BASE_COPY.faq.entries, ...overlay.faq?.entries },
 			order: overlay.faq?.order ?? BASE_COPY.faq.order,
+		},
+		nav: { ...BASE_COPY.nav, ...overlay.nav },
+		composer: { ...BASE_COPY.composer, ...overlay.composer },
+		contact: { ...BASE_COPY.contact, ...overlay.contact },
+		intent: {
+			...BASE_COPY.intent,
+			...overlay.intent,
+			// labels merge by key (a cohort overrides one chip's text, inherits the rest).
+			labels:
+				overlay.intent?.labels === undefined
+					? BASE_COPY.intent.labels
+					: { ...BASE_COPY.intent.labels, ...overlay.intent.labels },
 		},
 	};
 }
