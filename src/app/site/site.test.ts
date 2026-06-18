@@ -19,7 +19,9 @@
 import { describe, expect, it } from "vitest";
 import type { Node } from "$lib";
 import { CompoundRegistry, childrenOf } from "$lib";
+import { getCohort } from "./cohorts.js";
 import { registerSiteCompounds, SITE_COMPOUNDS } from "./compounds.js";
+import { BASE_COPY, resolveCopy } from "./copy.js";
 import { homeIntentStage } from "./morph-stage.js";
 import {
 	architectureBody,
@@ -33,13 +35,13 @@ import {
 } from "./present.js";
 
 const PRESENTERS: ReadonlyArray<readonly [string, () => Node]> = [
-	["closingCta", closingCta],
-	["homeHero", homeHero],
+	["closingCta", () => closingCta(BASE_COPY)],
+	["homeHero", () => homeHero(BASE_COPY)],
 	["homeIntentStage", homeIntentStage],
 	["timaeusTease", timaeusTease],
 	["howItWorksHero", howItWorksHero],
-	["howItWorksBody", howItWorksBody],
-	["faqSection", faqSection],
+	["howItWorksBody", () => howItWorksBody(BASE_COPY)],
+	["faqSection", () => faqSection(BASE_COPY)],
 	["architectureHero", architectureHero],
 	["architectureBody", architectureBody],
 ];
@@ -163,4 +165,18 @@ describe("S5 — the public copy respects the Trajectory exclusion (KRA-324)", (
 			}
 		});
 	}
+});
+
+describe("S7 — cohort copy re-pitches the targetable presenters", () => {
+	const pharma = resolveCopy(getCohort("pharma-sovereign")?.copy);
+	it("homeHero(pharma) carries the cohort hero, not the base hero", () => {
+		const json = JSON.stringify(homeHero(pharma));
+		expect(json).toContain("sovereign AI department for drug development");
+		expect(json).not.toContain(BASE_COPY.hero.title);
+	});
+	it("faqSection(pharma) leads with the IP question and renders new entries", () => {
+		const json = JSON.stringify(faqSection(pharma));
+		expect(json).toContain("stay in-house");
+		expect(json).toContain("Could a model trained elsewhere");
+	});
 });

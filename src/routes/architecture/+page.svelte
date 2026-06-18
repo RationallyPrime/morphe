@@ -5,14 +5,21 @@
 	 * influencer who gates on architecture.
 	 */
 	import { MorpheRoot } from "$lib/components";
-	import { architectureBody, architectureHero, closingCta, registerSiteCompounds } from "$site";
+	import {
+		activeCopy,
+		architectureBody,
+		architectureHero,
+		closingCta,
+		registerSiteCompounds,
+	} from "$site";
 	import CtaLink from "$site/CtaLink.svelte";
 
 	registerSiteCompounds();
 
 	const heroTree = architectureHero();
 	const bodyTree = architectureBody();
-	const ctaTree = closingCta();
+	// The close follows the active cohort; the deep-cut hero/body stay base (v1).
+	const ctaTree = $derived(closingCta(activeCopy.current));
 </script>
 
 <svelte:head>

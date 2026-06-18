@@ -18,6 +18,7 @@
  */
 
 import type { Node } from "$lib";
+import type { SiteCopy } from "./copy.js";
 
 /* ---------------------------------------------------------------------------
  * Leaf helpers — keep the trees readable and the registers consistent.
@@ -61,20 +62,14 @@ function plateSrcset(slug: string, format: "avif" | "webp"): string {
  * A reusable closing CTA copy band (SiteCtaBanner). The page wraps it in a
  * native section and renders the contact / onboarding buttons beside it.
  */
-export function closingCta(): Node {
+export function closingCta(copy: SiteCopy): Node {
 	return {
 		kind: "compound",
 		name: "SiteCtaBanner",
 		emphasis: "strong",
 		args: {
-			heading: t("One conversation is usually enough.", "heading", {
-				emphasis: "strong",
-			}),
-			sub: t(
-				"Bring one workflow that keeps crossing systems. Thirty minutes is usually enough to find the first useful question.",
-				"body",
-				{ emphasis: "muted" },
-			),
+			heading: t(copy.closingCta.heading, "heading", { emphasis: "strong" }),
+			sub: t(copy.closingCta.sub, "body", { emphasis: "muted" }),
 		},
 	};
 }
@@ -91,20 +86,14 @@ export function closingCta(): Node {
  * (DESIGN §9), no lede paragraph, no CTA row — the old multi-sentence preamble is
  * exactly what buried the product, and stripping it is the point.
  */
-export function homeHero(): Node {
+export function homeHero(copy: SiteCopy): Node {
 	return {
 		kind: "compound",
 		name: "SiteHero",
 		emphasis: "strong",
 		args: {
-			title: t("You now have an AI department.", "display", {
-				emphasis: "strong",
-			}),
-			lede: t(
-				"Tell Sókrates what actually runs your operation, and see what it can take on.",
-				"body",
-				{ emphasis: "muted" },
-			),
+			title: t(copy.hero.title, "display", { emphasis: "strong" }),
+			lede: t(copy.hero.lede, "body", { emphasis: "muted" }),
 		},
 	};
 }
@@ -334,7 +323,7 @@ function actBreak(act: string, title: string, sub: string): Node {
 	};
 }
 
-export function howItWorksBody(): Node {
+export function howItWorksBody(copy: SiteCopy): Node {
 	return {
 		kind: "frame",
 		role: "page",
@@ -426,50 +415,27 @@ export function howItWorksBody(): Node {
 			// --- FAQ -------------------------------------------------------------
 			// The honest exit interview survives the retelling: the plates explain
 			// how it runs; the FAQ answers what a buyer actually asks next.
-			faqSection(),
+			faqSection(copy),
 		],
 	};
 }
 
 /* ---------------------------------------------------------------------------
  * FAQ — direct Disclosure nodes (the question is the summary STRING, which the
- * factory can't parameterise, so these are authored directly).
+ * factory can't parameterise). The entries are data in `copy.ts` (so a cohort
+ * can re-answer or append by key); `faqSection` paints them in `copy.faq.order`.
  * ------------------------------------------------------------------------- */
 
-interface FaqEntry {
-	readonly q: string;
-	readonly a: string;
-}
-
-const FAQ: readonly FaqEntry[] = [
-	{
-		q: "How is this different from just using ChatGPT?",
-		a: "A substrate, not a chatbot. Sókrates reasons over a verified, typed map of your systems and cites the rows behind every answer. It asks the model to operate over what is true, and every action carries an authority record you can inspect.",
-	},
-	{
-		q: "What happens if it gets something wrong?",
-		a: "Human approval is the default trust posture. Every action is a typed process with a named owner and an authority record, auditable as a single record. You authorise classes of work; you can revoke them.",
-	},
-	{
-		q: "Our data can't leave the country, or our network.",
-		a: "The appliance is installed on your premises. The Sovereign configuration uses local inference only.",
-	},
-	{
-		q: "What if we want to leave?",
-		a: "Clean exit, no hostage-taking. The hardware is yours; your operational data is yours. We deliver a portable custody export of your extracts, operating map, rule contracts, evidence and approval history. What ends is the managed department, not your ownership.",
-	},
-	{
-		q: "We're mid-migration. We can't take on another project.",
-		a: "The migration is the wedge. Sókrates provides semantic continuity across it: the same operational questions, the same evidence posture, before, during and after cutover.",
-	},
-];
-
-export function faqSection(): Node {
-	const items: Node[] = FAQ.map((entry) => ({
-		kind: "disclosure",
-		summary: entry.q,
-		children: [t(entry.a, "body", { emphasis: "muted" })],
-	}));
+export function faqSection(copy: SiteCopy): Node {
+	const items: Node[] = copy.faq.order.map((id) => {
+		const entry = copy.faq.entries[id];
+		if (entry === undefined) throw new Error(`faqSection: unknown faq id in order: ${id}`);
+		return {
+			kind: "disclosure",
+			summary: entry.q,
+			children: [t(entry.a, "body", { emphasis: "muted" })],
+		};
+	});
 	return {
 		kind: "stack",
 		role: "section",

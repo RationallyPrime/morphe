@@ -10,12 +10,25 @@ import {
 	DEFAULT_DIALECT_ID,
 	DIALECT_IDS,
 	dialectStyle,
+	hasDialect,
 	persistableDialect,
 	resolveArrivalDialect,
 } from "$lib";
+import {
+	activeCohort,
+	COHORT_IDS,
+	getCohort,
+	persistableCohort,
+	registerSiteCohorts,
+	resolveArrivalCohort,
+} from "$site";
 import Nav from "$site/Nav.svelte";
 
 let { children } = $props();
+
+// The cohorts a landing `?cohort=` may select (idempotent; the registry module
+// also self-registers, so COHORT_IDS is populated before the mount effect runs).
+registerSiteCohorts();
 
 /*
  * Dialect persistence, v2. The v1 key ("mo-dialect") was written back
@@ -27,6 +40,7 @@ let { children } = $props();
  */
 const DIALECT_STORAGE_KEY = "mo-dialect.v2";
 const LEGACY_DIALECT_STORAGE_KEY = "mo-dialect";
+const COHORT_STORAGE_KEY = "mo-cohort";
 
 // Guards the write-back from racing the restore on mount: until arrival
 // resolution has run, nothing is persisted.
@@ -53,17 +67,45 @@ $effect(() => {
 	if (typeof localStorage === "undefined") return;
 	// One-time amnesty: drop the v1 key entirely (default-polluted, see above).
 	localStorage.removeItem(LEGACY_DIALECT_STORAGE_KEY);
-	const cohort = untrack(() => page.url.searchParams.get("cohort"));
-	const persisted = localStorage.getItem(DIALECT_STORAGE_KEY);
-	const resolved = resolveArrivalDialect(cohort, persisted, DIALECT_IDS);
-	if (resolved !== null) activeDialect.setById(resolved);
+
+	// COHORT first — it drives the copy AND supplies the dialect baseline. A valid
+	// `?cohort=` param outranks the persisted cohort; an unknown value is ignored.
+	const cohortParam = untrack(() => page.url.searchParams.get("cohort"));
+	const resolvedCohort = resolveArrivalCohort(
+		cohortParam,
+		localStorage.getItem(COHORT_STORAGE_KEY),
+		COHORT_IDS,
+	);
+	if (resolvedCohort !== null) activeCohort.setById(resolvedCohort);
+	const cohortDialect = resolvedCohort !== null ? (getCohort(resolvedCohort)?.dialect ?? null) : null;
+
+	// DIALECT — an explicit `?dialect=` or a persisted explicit toggle wins; else
+	// the cohort's dialect; else leave the default. A stale persisted id falls
+	// through to the cohort's dialect (setById guards either way).
+	const dialectParam = untrack(() => page.url.searchParams.get("dialect"));
+	const persistedDialect = localStorage.getItem(DIALECT_STORAGE_KEY);
+	const explicit = resolveArrivalDialect(dialectParam, persistedDialect, DIALECT_IDS);
+	const target = explicit !== null && hasDialect(explicit) ? explicit : cohortDialect;
+	if (target !== null) activeDialect.setById(target);
+
 	arrivalResolved = true;
 });
 $effect(() => {
 	const id = activeDialect.id; // reactive read first: subscribe on every run
 	if (!arrivalResolved || typeof localStorage === "undefined") return;
-	const value = persistableDialect(id, localStorage.getItem(DIALECT_STORAGE_KEY), DEFAULT_DIALECT_ID);
+	// The baseline is the cohort's dialect (or the shipped default), so a
+	// cohort-derived palette is NEVER persisted as a standalone dialect choice —
+	// only an explicit `?dialect=`/`/substrate` move away from it persists.
+	const cohortId = activeCohort.current;
+	const baseline = cohortId !== null ? (getCohort(cohortId)?.dialect ?? DEFAULT_DIALECT_ID) : DEFAULT_DIALECT_ID;
+	const value = persistableDialect(id, localStorage.getItem(DIALECT_STORAGE_KEY), baseline);
 	if (value !== null) localStorage.setItem(DIALECT_STORAGE_KEY, value);
+});
+$effect(() => {
+	const cohortId = activeCohort.current; // reactive read first
+	if (!arrivalResolved || typeof localStorage === "undefined") return;
+	const value = persistableCohort(cohortId, localStorage.getItem(COHORT_STORAGE_KEY));
+	if (value !== null) localStorage.setItem(COHORT_STORAGE_KEY, value);
 });
 </script>
 

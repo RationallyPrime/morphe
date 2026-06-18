@@ -16,6 +16,7 @@ import { page } from "$app/state";
 import Composer from "$compose/Composer.svelte";
 import { MorpheRoot } from "$lib/components";
 import {
+	activeCopy,
 	closingCta,
 	homeHero,
 	homeIntentStageEnvelope,
@@ -31,9 +32,17 @@ import IntentPalette from "$site/IntentPalette.svelte";
 // Register the site compounds through the factory gate. Idempotent.
 registerSiteCompounds();
 
-const heroTree = homeHero();
-const ctaTree = closingCta();
+const INTENT_STORAGE_KEY = "mo-intent";
+
+// Copy follows the active cohort (set by the layout's arrival effect); the trees
+// re-derive when it resolves. SSR renders BASE_COPY (no cohort on the server).
+const copy = $derived(activeCopy.current);
+const heroTree = $derived(homeHero(copy));
+const ctaTree = $derived(closingCta(copy));
 const stageEnvelope = homeIntentStageEnvelope();
+
+// Guards the intent write-back from racing the restore on mount.
+let stageArrivalResolved = false;
 
 // Register the gated vocabulary before arrival resolution (idempotent; the
 // chips/palette register too, but this page must not depend on child order).
@@ -41,23 +50,31 @@ registerSiteIntents();
 
 $effect(() => {
 	intentEngine.setStage(stageEnvelope);
-	// ARRIVAL INTENT (KRA-376): a valid `?intent=` landing param opens its
-	// stage morph through the same execute() path the chips ride. The URL
-	// read is untrack'd, so this applies ONCE on arrival (the layout's
-	// `?cohort=` idiom) and never fights a later chip click. SSR renders the
-	// default branch; resolution is client-only by $effect discipline.
-	const arrival = resolveArrivalIntent(untrack(() => page.url.searchParams.get("intent")));
+	// ARRIVAL INTENT (KRA-376) + persistence: a valid `?intent=` param, else the
+	// persisted morph, opens through the same execute() path the chips ride. The
+	// URL read is untrack'd, so this applies ONCE on arrival and never fights a
+	// later chip click. SSR renders the default branch (client-only by $effect).
+	const param = untrack(() => page.url.searchParams.get("intent"));
+	const persisted =
+		typeof localStorage !== "undefined" ? localStorage.getItem(INTENT_STORAGE_KEY) : null;
+	const arrival = resolveArrivalIntent(param ?? persisted);
 	if (arrival !== null) intentEngine.execute(arrival);
+	stageArrivalResolved = true;
 	return () => intentEngine.setStage(null);
+});
+// Persist the open morph: a returning visitor re-lands on it; closing it (the
+// engine returning to default) clears it. An in-session chip/close always wins.
+$effect(() => {
+	const open = intentEngine.openIntentId; // reactive read first
+	if (!stageArrivalResolved || typeof localStorage === "undefined") return;
+	if (open === null) localStorage.removeItem(INTENT_STORAGE_KEY);
+	else localStorage.setItem(INTENT_STORAGE_KEY, open);
 });
 </script>
 
 <svelte:head>
-	<title>Sókrates — Your AI Department</title>
-	<meta
-		name="description"
-		content="Software waits for instructions. Sókrates looks for friction. An on-premises AI department for the cross-system work that keeps landing on one senior person."
-	/>
+	<title>{copy.meta.title}</title>
+	<meta name="description" content={copy.meta.description} />
 </svelte:head>
 
 <!-- Intro — a brief ease-in: one display line + a single hand-off sentence on the
