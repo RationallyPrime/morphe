@@ -11,7 +11,12 @@
  */
 
 import { hasDialect } from "$lib";
+import { SITE_COHORTS } from "./cohort-defs.js";
 import type { CohortCopyOverlay } from "./copy.js";
+
+// The shipped cohort DATA lives in cohort-defs.ts (the open/closed seam); this
+// module is the machinery. Re-export so `$site` consumers keep one import surface.
+export { SITE_COHORTS };
 
 /** A marketing cohort: an id, the dialect it wears, and its copy overlay. */
 export interface Cohort {
@@ -90,61 +95,9 @@ export function persistableCohort(active: string | null, stored: string | null):
 }
 
 /* ------------------------------------------------------------------------- *
- * The shipped cohorts.
+ * The registry instance + the public helpers (the shipped cohort DATA is in
+ * cohort-defs.ts, re-exported above).
  * ------------------------------------------------------------------------- */
-
-/**
- * pharma-sovereign — regulated drug-development companies that mandate Sovereign
- * deployment for IP reasons. Wears the `clinical` dialect (the regulated/GxP
- * console register). Copy leads with the IP/sovereignty pitch: local inference
- * only, no outbound inference calls; the rest of the site copy is inherited.
- */
-export const PHARMA_SOVEREIGN: Cohort = {
-	id: "pharma-sovereign",
-	dialect: "clinical",
-	copy: {
-		meta: {
-			title: "Sókrates — A sovereign AI department for drug development",
-			description:
-				"An on-premises AI department for regulated drug development. Local inference only, no outbound inference calls: your pipeline IP is reasoned over where it lives and never sent to a cloud model. Every act on a signed, auditable record.",
-		},
-		hero: {
-			title: "A sovereign AI department for drug development.",
-			lede: "Sókrates runs your cross-system operational work on a Sovereign appliance on your premises, on local inference — no outbound inference calls, ever. Your compounds, assays and trial data are read and acted on where they already live, and never sent to a model in the cloud. Tell it what runs your operation, and see what it takes on.",
-		},
-		closingCta: {
-			sub: "Bring the workflow your IP constraints have kept off every cloud tool. Thirty minutes is enough to see Sókrates run it without your data leaving the building.",
-		},
-		faq: {
-			entries: {
-				"data-residency": {
-					q: "Can our IP — compounds, assays, trial data — stay in-house?",
-					a: "It never leaves. The appliance is installed inside your network and runs on local inference only — no outbound inference calls at all. A roughly 200-billion-parameter model runs on the box itself; your data is reasoned over where it already lives. No cloud model ever sees your pipeline.",
-				},
-				"no-shared-model": {
-					q: "Could a model trained elsewhere ever see our pipeline?",
-					a: "Never. The Sovereign appliance calls no externally hosted model, and nothing from your environment trains a shared one. The weights live on the box; your data stays on the box.",
-				},
-				"validation-audit": {
-					q: "How does it hold up to validation and an audit?",
-					a: "Every action is a typed act with a named owner and a signed authority record, and the full causal tree of each act is preserved as one auditable record: who did what, under whose authorization, with what data, in what order. The audit trail is the substrate itself, not a report bolted on after — built for the evidence standard your validation and QA teams already work to.",
-				},
-			},
-			order: [
-				"data-residency",
-				"no-shared-model",
-				"validation-audit",
-				"what-if-wrong",
-				"exit",
-				"chatgpt-diff",
-				"mid-migration",
-			],
-		},
-	},
-};
-
-/** The shipped cohorts. Adding a cohort = add its module here. */
-export const SITE_COHORTS: readonly Cohort[] = [PHARMA_SOVEREIGN];
 
 /** The module-level default registry the layout resolves arrivals against. */
 export const cohortRegistry = new CohortRegistry();

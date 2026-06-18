@@ -13,17 +13,20 @@
 	 */
 	import { applyDialect, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
-	import { activeCopy, closingCta, howItWorksBody, howItWorksHero, registerSiteCompounds } from "$site";
+	import { closingCta, howItWorksBody, howItWorksHero, pageCopy, registerSiteCompounds } from "$site";
 	import CtaLink from "$site/CtaLink.svelte";
+
+	let { data } = $props();
 
 	registerSiteCompounds();
 
 	const timaeus = getDialect("timaeus");
 	const timaeusStyle = dialectStyle(applyDialect(timaeus));
 
-	// Copy follows the active cohort (the FAQ + close re-pitch); the page stays
-	// pinned to the timaeus dialect per-surface — copy varies, the world does not.
-	const copy = $derived(activeCopy.current);
+	// Copy follows the active cohort (the FAQ + close re-pitch), SSR-resolved from
+	// `?cohort=`; the page stays pinned to the timaeus dialect per-surface — copy
+	// varies, the world does not.
+	const copy = $derived(pageCopy(data.cohortId));
 	const heroTree = howItWorksHero();
 	const bodyTree = $derived(howItWorksBody(copy));
 	const ctaTree = $derived(closingCta(copy));

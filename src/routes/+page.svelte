@@ -16,11 +16,11 @@ import { page } from "$app/state";
 import Composer from "$compose/Composer.svelte";
 import { MorpheRoot } from "$lib/components";
 import {
-	activeCopy,
 	closingCta,
 	homeHero,
 	homeIntentStageEnvelope,
 	intentEngine,
+	pageCopy,
 	registerSiteCompounds,
 	registerSiteIntents,
 	resolveArrivalIntent,
@@ -29,14 +29,17 @@ import ContactForm from "$site/ContactForm.svelte";
 import IntentChips from "$site/IntentChips.svelte";
 import IntentPalette from "$site/IntentPalette.svelte";
 
+let { data } = $props();
+
 // Register the site compounds through the factory gate. Idempotent.
 registerSiteCompounds();
 
 const INTENT_STORAGE_KEY = "mo-intent";
 
-// Copy follows the active cohort (set by the layout's arrival effect); the trees
-// re-derive when it resolves. SSR renders BASE_COPY (no cohort on the server).
-const copy = $derived(activeCopy.current);
+// Copy follows the active cohort. SSR resolves it from `?cohort=` (data.cohortId),
+// so a paid landing serves the cohort's copy + meta in the first response; an
+// in-session/persisted selection (the client store) then wins post-hydration.
+const copy = $derived(pageCopy(data.cohortId));
 const heroTree = $derived(homeHero(copy));
 const ctaTree = $derived(closingCta(copy));
 const stageEnvelope = homeIntentStageEnvelope();

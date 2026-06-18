@@ -8,7 +8,8 @@
  */
 
 // The app-wide active cohort + the reactive resolved copy the presenters read.
-export { activeCohort, activeCopy } from "./active-cohort.svelte.js";
+// `pageCopy` is the SSR-safe page entry (store wins; else the request-scoped id).
+export { activeCohort, activeCopy, pageCopy } from "./active-cohort.svelte.js";
 // The cohort registry — a cohort selects a dialect AND a copy overlay (CONTEXT.md).
 export type { Cohort } from "./cohorts.js";
 export {

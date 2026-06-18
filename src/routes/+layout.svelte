@@ -24,7 +24,7 @@ import {
 } from "$site";
 import Nav from "$site/Nav.svelte";
 
-let { children } = $props();
+let { children, data } = $props();
 
 // The cohorts a landing `?cohort=` may select (idempotent; the registry module
 // also self-registers, so COHORT_IDS is populated before the mount effect runs).
@@ -68,11 +68,14 @@ $effect(() => {
 	// One-time amnesty: drop the v1 key entirely (default-polluted, see above).
 	localStorage.removeItem(LEGACY_DIALECT_STORAGE_KEY);
 
-	// COHORT first — it drives the copy AND supplies the dialect baseline. A valid
-	// `?cohort=` param outranks the persisted cohort; an unknown value is ignored.
-	const cohortParam = untrack(() => page.url.searchParams.get("cohort"));
+	// COHORT first — it drives the copy AND supplies the dialect baseline. The server
+	// load already resolved the `?cohort=` param into `data.cohortId` (a registered
+	// id, else null) and SSR'd its copy; here we combine it with the PERSISTED cohort
+	// (the half the server can't see), preserving param > persisted. `untrack` keeps
+	// this a once-on-mount arrival, not a re-run on every later `data` change.
+	const arrivalCohort = untrack(() => data.cohortId);
 	const resolvedCohort = resolveArrivalCohort(
-		cohortParam,
+		arrivalCohort,
 		localStorage.getItem(COHORT_STORAGE_KEY),
 		COHORT_IDS,
 	);
@@ -108,6 +111,14 @@ $effect(() => {
 	if (value !== null) localStorage.setItem(COHORT_STORAGE_KEY, value);
 });
 </script>
+
+<!-- The DEFAULT title — a fallback for any title-less route (e.g. the redirect
+     stubs). Pages set their own in <svelte:head>; SvelteKit dedupes <title> across
+     layout + page, emitting ONE tag with the page's value. Lives here, not in
+     app.html, so it never ships as a duplicate ahead of the route's real title. -->
+<svelte:head>
+	<title>Sókrates — Your AI Department</title>
+</svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell" style={shellStyle}>

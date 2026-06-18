@@ -21,6 +21,7 @@ import {
 	persistableCohort,
 	registerSiteCohorts,
 	resolveArrivalCohort,
+	SITE_COHORTS,
 } from "./cohorts.js";
 import { resolveCopy } from "./copy.js";
 
@@ -98,7 +99,7 @@ describe("K5 — persistence: no-cohort is not a choice", () => {
 	});
 });
 
-describe("K6 — resolved pharma copy stays out of doctrine/Trajectory register", () => {
+describe("K6 — every cohort's resolved copy stays out of doctrine/Trajectory register", () => {
 	const BANNED = ["under governance", "read-only", "Read-only", "by construction", "AUTHORIZES"];
 	const FORBIDDEN: readonly RegExp[] = [
 		/\bINV-\d/,
@@ -106,8 +107,52 @@ describe("K6 — resolved pharma copy stays out of doctrine/Trajectory register"
 		new RegExp(["fly", "wheel"].join(""), "i"),
 	];
 	it("carries no banned or excluded token", () => {
-		const json = JSON.stringify(resolveCopy(getCohort("pharma-sovereign")?.copy));
-		for (const p of BANNED) expect(json, p).not.toContain(p);
-		for (const r of FORBIDDEN) expect(json).not.toMatch(r);
+		for (const c of SITE_COHORTS) {
+			const json = JSON.stringify(resolveCopy(c.copy));
+			for (const p of BANNED) expect(json, `${c.id}: ${p}`).not.toContain(p);
+			for (const r of FORBIDDEN) expect(json, c.id).not.toMatch(r);
+		}
+	});
+});
+
+describe("K7 — the six audience cohorts register, gate-clean, on real dialects", () => {
+	const SIX = [
+		"finance-controls",
+		"public-sector-sovereign",
+		"healthcare-operations",
+		"industrial-quality",
+		"rollup-integration",
+		"midmarket-ops",
+	];
+	it("each is registered and passes the gate", () => {
+		for (const id of SIX) {
+			const c = getCohort(id);
+			expect(c, id).toBeDefined();
+			if (c === undefined) continue;
+			expect(cohortGateFailure(c), id).toBeNull();
+		}
+	});
+	it("each selects a registered dialect", () => {
+		for (const id of SIX) {
+			expect(hasDialect(getCohort(id)?.dialect ?? ""), id).toBe(true);
+		}
+	});
+	it("COHORT_IDS carries pharma + the six (seven shipped)", () => {
+		expect(COHORT_IDS).toContain("pharma-sovereign");
+		for (const id of SIX) expect(COHORT_IDS, id).toContain(id);
+		expect(COHORT_IDS).toHaveLength(7);
+	});
+});
+
+describe("K8 — every shipped cohort resolves to render-safe copy", () => {
+	// faqSection() THROWS on an order id with no entry (present.ts) — so a dangling
+	// `faq.order` key would crash the page at render. Guard it here, at test time.
+	it("no faq.order id is dangling in any cohort", () => {
+		for (const c of SITE_COHORTS) {
+			const copy = resolveCopy(c.copy);
+			for (const id of copy.faq.order) {
+				expect(copy.faq.entries[id], `${c.id}: ${id}`).toBeDefined();
+			}
+		}
 	});
 });

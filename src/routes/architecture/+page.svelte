@@ -6,20 +6,23 @@
 	 */
 	import { MorpheRoot } from "$lib/components";
 	import {
-		activeCopy,
 		architectureBody,
 		architectureHero,
 		closingCta,
+		pageCopy,
 		registerSiteCompounds,
 	} from "$site";
 	import CtaLink from "$site/CtaLink.svelte";
+
+	let { data } = $props();
 
 	registerSiteCompounds();
 
 	const heroTree = architectureHero();
 	const bodyTree = architectureBody();
-	// The close follows the active cohort; the deep-cut hero/body stay base (v1).
-	const ctaTree = $derived(closingCta(activeCopy.current));
+	// The close follows the active cohort (SSR-resolved from `?cohort=`); the
+	// deep-cut hero/body stay base (v1).
+	const ctaTree = $derived(closingCta(pageCopy(data.cohortId)));
 </script>
 
 <svelte:head>
