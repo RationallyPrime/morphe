@@ -7,6 +7,20 @@
  * touches a scale, a pixel or a hex.
  */
 
+// The cohort registry — a cohort selects a dialect AND a copy overlay (CONTEXT.md).
+export type { Cohort } from "./cohorts.js";
+export {
+	COHORT_IDS,
+	CohortRegistry,
+	cohortGateFailure,
+	cohortRegistry,
+	getCohort,
+	hasCohort,
+	persistableCohort,
+	registerSiteCohorts,
+	resolveArrivalCohort,
+	SITE_COHORTS,
+} from "./cohorts.js";
 // Compounds — the six editorial compounds + idempotent registration.
 export {
 	registerSiteCompounds,
