@@ -26,8 +26,11 @@ import { registry as compoundRegistry } from "../compounds/factory.js";
 import type { Node } from "../grammar/types.js";
 import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
 import { CLINICAL_SURFACES, clinical } from "./clinical.js";
+import { ESTATE_SURFACES, estate } from "./estate.js";
+import { FOUNDRY_SURFACES, foundry } from "./foundry.js";
 import { GALLERY_SURFACES, gallery } from "./gallery.js";
 import { ARCHIVE_SURFACES, icelandicArchive } from "./icelandic-archive.js";
+import { LEDGER_SURFACES, ledger } from "./ledger.js";
 import { NIGHT_SURFACES, night } from "./night.js";
 import { applyDialect, unknownIntentsIn } from "./provider.svelte.js";
 import {
@@ -65,6 +68,9 @@ const SURFACE_STACKS: Readonly<Record<string, Readonly<Record<string, string>>>>
 	timaeus: TIMAEUS_SURFACES,
 	gallery: GALLERY_SURFACES,
 	night: NIGHT_SURFACES,
+	ledger: LEDGER_SURFACES,
+	estate: ESTATE_SURFACES,
+	foundry: FOUNDRY_SURFACES,
 };
 
 /**
@@ -465,6 +471,49 @@ describe("timaeus — the plates' blue-constellation world (KRA-326)", () => {
 			const v = TIMAEUS_SURFACES[`--mo-intent-surface-${key}`];
 			expect(v, `timaeus surface ${key}`).toContain("--mo-cobalt-700");
 		}
+	});
+});
+
+describe("the cohort registers — ledger / estate / foundry (six-cohort expansion)", () => {
+	// What is UNIQUE to this trio: they exist to give three previously-colliding
+	// cohorts their OWN beacon hue (finance/roll-up/industrial were tripled up on
+	// reykjavik/clinical). The parity suite above already proves keyset completeness;
+	// here we prove the DIFFERENTIATION actually landed — each beacon rides its own
+	// minted scale, distinct from the others, and the substrate carries that hue.
+	const REGISTERS = [
+		{ dialect: ledger, accent: "teal", surfaces: LEDGER_SURFACES },
+		{ dialect: estate, accent: "copper", surfaces: ESTATE_SURFACES },
+		{ dialect: foundry, accent: "steel", surfaces: FOUNDRY_SURFACES },
+	] as const;
+
+	for (const { dialect, accent, surfaces } of REGISTERS) {
+		it(`${dialect.id}: the beacon rides the ${accent} scale on every channel`, () => {
+			const vars = applyDialect(dialect).vars;
+			expect(vars[intentVar("primary-action", "surface")]).toBe(`var(--mo-${accent}-500)`);
+			for (const channel of CHANNELS) {
+				const v = vars[intentVar("primary-action", channel)];
+				expect(v, `${dialect.id}.primary-action.${channel}`).toContain(`--mo-${accent}-`);
+			}
+		});
+
+		it(`${dialect.id}: its substrate carries the ${accent} cast (grounds mix the 700 tone)`, () => {
+			for (const key of ["base", "raised", "overlay"] as const) {
+				const v = surfaces[`--mo-intent-surface-${key}`];
+				expect(v, `${dialect.id} surface ${key}`).toContain(`--mo-${accent}-700`);
+			}
+		});
+
+		it(`${dialect.id}: keeps the semantic families (caution red, success green)`, () => {
+			expect(dialect.intents.caution?.surface).toContain("--mo-red-");
+			expect(dialect.intents.success?.surface).toContain("--mo-green-");
+		});
+	}
+
+	it("the three registers are mutually distinct beacons (no shared identity hue)", () => {
+		const beaconOf = (d: (typeof REGISTERS)[number]["dialect"]): string | undefined =>
+			applyDialect(d).vars[intentVar("primary-action", "surface")];
+		const beacons = [beaconOf(ledger), beaconOf(estate), beaconOf(foundry)];
+		expect(new Set(beacons).size, beacons.join(" / ")).toBe(3);
 	});
 });
 

@@ -21,8 +21,11 @@
  */
 
 import { clinical } from "./clinical.js";
+import { estate } from "./estate.js";
+import { foundry } from "./foundry.js";
 import { gallery } from "./gallery.js";
 import { icelandicArchive } from "./icelandic-archive.js";
+import { ledger } from "./ledger.js";
 import { night } from "./night.js";
 import { reykjavikRegistry } from "./reykjavik-registry.js";
 import { timaeus } from "./timaeus.js";
@@ -39,6 +42,12 @@ export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[timaeus.id]: timaeus,
 	[gallery.id]: gallery,
 	[night.id]: night,
+	// The cohort registers (KRA — six-cohort expansion): teal ledger (financial
+	// controls), copper estate (roll-up/platform), steel foundry (industrial
+	// quality). Each is a full §8-parity dialect; the parity suite holds them to it.
+	[ledger.id]: ledger,
+	[estate.id]: estate,
+	[foundry.id]: foundry,
 });
 
 /**

@@ -9,10 +9,12 @@
  * only what it names and inherits the rest; FaqEntry stays atomic and `faq.order`
  * replaces wholesale, so `resolveCopy` is always total.
  *
- * Dialect assignments reuse the six shipped dialects — six cohorts over three
- * registers (registry / clinical / gallery), since a cohort is a STANCE, not a
- * look (many cohorts may wear one dialect). New registers land as dialects first
- * (CONTRACT.md §8), then a cohort may select them here.
+ * Dialect assignments span six registers so the six cohorts read as six places,
+ * not three (a cohort is a STANCE, but identical looks blur distinct audiences).
+ * Three were minted for this expansion — `ledger` (teal), `estate` (copper),
+ * `foundry` (steel) — alongside the shipped `reykjavik-registry`, `clinical`, and
+ * default `gallery`. New registers land as dialects first (CONTRACT.md §8), then a
+ * cohort selects them here.
  */
 
 import type { Cohort } from "./cohorts.js";
@@ -68,13 +70,14 @@ export const PHARMA_SOVEREIGN: Cohort = {
 };
 
 /**
- * finance-controls — CFO / controller / risk buyer. Wears the `reykjavik-registry`
- * dialect. Stance: governed finance operations, audit evidence, a read-by-default
- * posture that opens write-side action only under named authority.
+ * finance-controls — CFO / controller / risk buyer. Wears the `ledger` dialect (the
+ * teal financial-controls register). Stance: governed finance operations, audit
+ * evidence, a read-by-default posture that opens write-side action only under named
+ * authority.
  */
 export const FINANCE_CONTROLS: Cohort = {
 	id: "finance-controls",
-	dialect: "reykjavik-registry",
+	dialect: "ledger",
 	copy: {
 		meta: {
 			title: "Sókrates for financial controls",
@@ -224,13 +227,13 @@ export const HEALTHCARE_OPERATIONS: Cohort = {
 };
 
 /**
- * industrial-quality — manufacturing / quality / maintenance. Wears the `clinical`
- * dialect. Stance: deviations, shortages, CAPA-like workflows, QMS-adjacent evidence
- * without pretending to replace the QMS.
+ * industrial-quality — manufacturing / quality / maintenance. Wears the `foundry`
+ * dialect (the steel industrial register). Stance: deviations, shortages, CAPA-like
+ * workflows, QMS-adjacent evidence without pretending to replace the QMS.
  */
 export const INDUSTRIAL_QUALITY: Cohort = {
 	id: "industrial-quality",
-	dialect: "clinical",
+	dialect: "foundry",
 	copy: {
 		meta: {
 			title: "Sókrates for industrial quality",
@@ -275,12 +278,13 @@ export const INDUSTRIAL_QUALITY: Cohort = {
 
 /**
  * rollup-integration — PE / platform / acquisition-heavy operators. Wears the
- * `reykjavik-registry` dialect. Stance: one governed operating map across inherited
- * systems, before / during / after migration — migration is the wedge, not the bill.
+ * `estate` dialect (the copper roll-up/holdings register). Stance: one governed
+ * operating map across inherited systems, before / during / after migration —
+ * migration is the wedge, not the bill.
  */
 export const ROLLUP_INTEGRATION: Cohort = {
 	id: "rollup-integration",
-	dialect: "reykjavik-registry",
+	dialect: "estate",
 	copy: {
 		meta: {
 			title: "Sókrates for roll-up integration",
