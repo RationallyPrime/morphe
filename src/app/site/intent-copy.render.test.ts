@@ -15,7 +15,8 @@
 
 import { render } from "svelte/server";
 import { describe, expect, it } from "vitest";
-import { BASE_INTENT_COPY, type IntentCopy } from "./copy.js";
+import { FINANCE_CONTROLS } from "./cohort-defs.js";
+import { BASE_INTENT_COPY, type IntentCopy, resolveCopy } from "./copy.js";
 import IntentChips from "./IntentChips.svelte";
 import IntentPalette from "./IntentPalette.svelte";
 
@@ -55,5 +56,17 @@ describe("intent-label overrides survive the render path (copy.intent.labels)", 
 		const html = render(IntentPalette, { props: { copy: BASE_INTENT_COPY } }).body;
 		expect(html).toContain(DEFAULT_LABEL);
 		expect(html).not.toContain(OVERRIDE_LABEL);
+	});
+
+	// Integration: the SAME path the home route ships — a REAL cohort's overlay
+	// through resolveCopy into the chip row. Reads the override off the resolved
+	// copy (not a hard-coded string) so it locks the wiring, not the wording.
+	it("a shipped cohort's resolved override lands in the chip row (finance-controls)", () => {
+		const intent = resolveCopy(FINANCE_CONTROLS.copy).intent;
+		const override = intent.labels?.["governance-story"];
+		expect(override, "finance-controls overrides governance-story").toBeDefined();
+		const html = render(IntentChips, { props: { copy: intent } }).body;
+		expect(html).toContain(override ?? "");
+		expect(html).not.toContain("How is it governed?"); // the base label it replaces
 	});
 });
