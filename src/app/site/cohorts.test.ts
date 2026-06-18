@@ -24,6 +24,7 @@ import {
 	SITE_COHORTS,
 } from "./cohorts.js";
 import { BASE_COPY, resolveCopy } from "./copy.js";
+import { intentRegistry, registerSiteIntents } from "./intents.js";
 
 describe("K1 — the gate", () => {
 	it("rejects a non-kebab id", () => {
@@ -193,6 +194,28 @@ describe("K9 — every shipped cohort tailors the conversion surfaces", () => {
 			);
 			// inheritance still holds — an un-overridden field falls back to base.
 			expect(copy.composer.title).toBe(BASE_COPY.composer.title);
+		}
+	});
+});
+
+describe("K10 — cohort chip-label overrides target real intents", () => {
+	// A cohort may relabel a home chip by intent id (copy.intent.labels), merged by
+	// key over the gated registry. A key that names NO registered intent would
+	// silently never render (the chip keeps its default) — the quiet failure the
+	// merge-by-key design invites. Guard that every override key resolves to a real
+	// intent AND actually diverges from the registry label it claims to replace.
+	registerSiteIntents();
+	const registryLabel = new Map(intentRegistry.list().map((i) => [i.id, i.label]));
+
+	it("every override key names a registered intent and changes its label", () => {
+		for (const c of SITE_COHORTS) {
+			const labels = c.copy.intent?.labels;
+			if (labels === undefined) continue;
+			for (const [id, label] of Object.entries(labels)) {
+				const base = registryLabel.get(id);
+				expect(base, `${c.id}: "${id}" names no registered intent`).toBeDefined();
+				expect(label, `${c.id}: "${id}" override equals the registry label`).not.toBe(base);
+			}
 		}
 	});
 });

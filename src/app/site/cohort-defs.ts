@@ -39,6 +39,7 @@ export const PHARMA_SOVEREIGN: Cohort = {
 			operationPlaceholder:
 				"e.g. a LIMS for assays, an ELN for studies, and a validated QMS that can't go to the cloud.",
 		},
+		intent: { labels: { "governance-story": "How does it hold up to audit?" } },
 		meta: {
 			title: "Sókrates — A sovereign AI department for drug development",
 			description:
@@ -99,6 +100,7 @@ export const FINANCE_CONTROLS: Cohort = {
 			operationPlaceholder:
 				"e.g. an ERP for the ledger, a bank portal for statements, and spreadsheets for the close.",
 		},
+		intent: { labels: { "governance-story": "How are the controls kept?" } },
 		meta: {
 			title: "Sókrates for financial controls",
 			description:
@@ -159,6 +161,7 @@ export const PUBLIC_SECTOR_SOVEREIGN: Cohort = {
 			operationPlaceholder:
 				"e.g. a casework system, a finance ledger, and a procurement tool — all kept on-premises.",
 		},
+		intent: { labels: { "governance-story": "How is the record kept?" } },
 		meta: {
 			title: "Sókrates for sovereign public operations",
 			description:
@@ -219,6 +222,7 @@ export const HEALTHCARE_OPERATIONS: Cohort = {
 			operationPlaceholder:
 				"e.g. a scheduling system, an HR and rota tool, a billing system, and records requests in between.",
 		},
+		intent: { labels: { "governance-story": "How does approval work?" } },
 		meta: {
 			title: "Sókrates for healthcare operations",
 			description:
@@ -285,6 +289,7 @@ export const INDUSTRIAL_QUALITY: Cohort = {
 			operationPlaceholder:
 				"e.g. a QMS for deviations, an ERP for inventory, an MES on the line, and a maintenance log.",
 		},
+		intent: { labels: { "governance-story": "How is the evidence chain held?" } },
 		meta: {
 			title: "Sókrates for industrial quality",
 			description:
@@ -346,6 +351,7 @@ export const ROLLUP_INTEGRATION: Cohort = {
 			operationPlaceholder:
 				"e.g. three inherited ERPs, two CRMs, and the spreadsheets holding the platform together.",
 		},
+		intent: { labels: { "governance-story": "How do controls work per company?" } },
 		meta: {
 			title: "Sókrates for roll-up integration",
 			description:
