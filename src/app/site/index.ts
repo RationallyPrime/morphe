@@ -18,6 +18,9 @@ export {
 	SiteStep,
 	SiteValueProp,
 } from "./compounds.js";
+// The copy deck — targetable marketing copy as data; base + per-cohort overlay.
+export type { CohortCopyOverlay, FaqEntry, SiteCopy } from "./copy.js";
+export { BASE_COPY, resolveCopy } from "./copy.js";
 // The onboarding dossier (KRA-370) — the intake as a typed record, plus the
 // first real mid-loop delegate.
 export type { DossierDraft, DossierOpts, DossierStep } from "./dossier.js";
@@ -37,7 +40,6 @@ export {
 	DOSSIER_STEP_PATH,
 } from "./dossier-midloop.js";
 export type { IntentOutcome } from "./intent-engine.svelte.js";
-
 // The intent engine (ADR-0006) — the registered morph vocabulary (data), the
 // single execution path (mechanism), and the palette matcher.
 export { intentEngine } from "./intent-engine.svelte.js";
