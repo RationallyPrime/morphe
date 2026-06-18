@@ -54,7 +54,7 @@ existing public surface — no new coupling into the library.
 
 | Module | Responsibility |
 |---|---|
-| `$site/copy.ts` | `SiteCopy` type, `BASE_COPY`, `DeepPartial`, `deepMerge`, `resolveCopy(overlay?)`. Pure data + one merge function. No Svelte, no I/O. |
+| `$site/copy.ts` | `SiteCopy` type, `FaqEntry`, `CohortCopyOverlay` (an explicit, sound overlay type — *not* a generic `DeepPartial`: FAQ entries stay atomic, `faq.order` is replaced wholesale), `BASE_COPY` (today's strings extracted **verbatim** from `present.ts` + `+page.svelte`'s head), `resolveCopy(overlay?)` (total field-merge). Pure data + one merge function. No Svelte, no I/O. |
 | `$site/cohorts.ts` | `Cohort` type (`{ id, dialect, copy: DeepPartial<SiteCopy> }`), gate (`cohortGateFailure`), `CohortRegistry` (gate + idempotent register + lookup, mirrors `IntentRegistry`), the `pharma-sovereign` cohort, `cohortRegistry` default + `registerSiteCohorts()`. |
 | `$site/active-cohort.svelte.ts` | `activeCohort` store — one module-level `$state<string \| null>` behind a tiny read/`setById` API, guarded by the registry (unknown id = no-op, never a reset). SSR-safe (touches no `window`/`localStorage` at module scope), mirrors `active.svelte.ts`. Exposes reactive `activeCopy` deriving `resolveCopy(cohort?.copy)`. |
 | `present.ts` (edit) | Targetable presenters take the resolved copy: `homeHero(copy)`, `closingCta(copy)`, and `faqSection(copy)` (threaded through `howItWorksBody(copy)`, which calls it). FAQ refactored from a positional array to **keyed** (`Record<id, FaqEntry>` + `order: string[]`) so an overlay can override one answer and append entries. Non-targetable presenters (architecture hero/body, plate beats) are unchanged and keep their no-arg signatures. |
@@ -74,12 +74,14 @@ interface SiteCopy {
 interface FaqEntry { readonly q: string; readonly a: string }
 ```
 
-`deepMerge` is a small, total, typed recursive merge over plain objects: overlay
-scalars/strings win, nested objects merge, `faq.entries` merge by key, `faq.order`
-(an array) is **replaced wholesale** when the overlay supplies one (arrays are
-replaced, not concatenated — predictable, no positional ambiguity). `meta`,
-`hero`, `closingCta` merge field-by-field, so an overlay may set just
-`closingCta.sub` and inherit `closingCta.heading`.
+`resolveCopy` is total and explicit (no generic recursion): `meta`/`hero`/
+`closingCta` merge field-by-field (`{ ...BASE_COPY.x, ...overlay.x }`), so an
+overlay may set just `closingCta.sub` and inherit `closingCta.heading`;
+`faq.entries` merge by key (`{ ...base, ...overlay.faq?.entries }`) so an overlay
+overrides one answer and appends new ones; `faq.order` (an array) is **replaced
+wholesale** when the overlay supplies one. `CohortCopyOverlay` makes each level
+optional but keeps `FaqEntry` atomic (a cohort supplies a complete `{ q, a }`,
+never a half-entry), so `resolveCopy` always returns a sound, total `SiteCopy`.
 
 `meta` is applied client-side by `+page.svelte` (`document.title` + the
 description `<meta>`), since v1 is a client-only swap; SSR renders `BASE_COPY.meta`.
