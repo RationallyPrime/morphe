@@ -35,6 +35,28 @@ describe("K1 — the gate", () => {
 	it("passes a clean def", () => {
 		expect(cohortGateFailure({ id: "ok-id", dialect: "clinical", copy: {} })).toBeNull();
 	});
+	it("rejects a faq.order that names an entry no overlay or base provides", () => {
+		// faqSection THROWS on a dangling order id — the gate rejects it at registration
+		// so render stays total by construction (parity with the intent/compound gates).
+		const failure = cohortGateFailure({
+			id: "ok-id",
+			dialect: "clinical",
+			copy: { faq: { order: ["no-such-entry"] } },
+		});
+		expect(failure).not.toBeNull();
+		expect(failure).toContain("no-such-entry");
+	});
+	it("passes a faq.order that names only base + overlay entries", () => {
+		expect(
+			cohortGateFailure({
+				id: "ok-id",
+				dialect: "clinical",
+				copy: {
+					faq: { entries: { custom: { q: "Q?", a: "A." } }, order: ["custom", "exit"] },
+				},
+			}),
+		).toBeNull();
+	});
 });
 
 describe("K2 — registration is gated, idempotent, ordered", () => {

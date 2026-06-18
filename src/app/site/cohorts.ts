@@ -12,7 +12,7 @@
 
 import { hasDialect } from "$lib";
 import { SITE_COHORTS } from "./cohort-defs.js";
-import type { CohortCopyOverlay } from "./copy.js";
+import { type CohortCopyOverlay, resolveCopy } from "./copy.js";
 
 // The shipped cohort DATA lives in cohort-defs.ts (the open/closed seam); this
 // module is the machinery. Re-export so `$site` consumers keep one import surface.
@@ -34,6 +34,16 @@ const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 export function cohortGateFailure(def: Cohort): string | null {
 	if (!ID_PATTERN.test(def.id)) return `id "${def.id}" is not kebab-case`;
 	if (!hasDialect(def.dialect)) return `${def.id}: unknown dialect "${def.dialect}"`;
+	// Render totality at the gate, not at render: `faqSection` THROWS on a faq.order
+	// id with no resolved entry (present.ts), so a dangling order would crash the
+	// page. Reject it here — same posture as the intent/compound gates (a failing def
+	// is never added; render stays total by construction, not by test discipline).
+	const resolved = resolveCopy(def.copy);
+	for (const id of resolved.faq.order) {
+		if (resolved.faq.entries[id] === undefined) {
+			return `${def.id}: faq.order references unknown entry "${id}"`;
+		}
+	}
 	return null;
 }
 

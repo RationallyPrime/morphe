@@ -91,7 +91,7 @@ export const FINANCE_CONTROLS: Cohort = {
 	copy: {
 		nav: { cta: "Discuss controls" },
 		composer: {
-			lede: "Name the finance friction and the systems behind it. Sókrates returns the cross-system moves that fit — read by default, every act on an audit record.",
+			lede: "Name the finance friction and the systems behind it. Sókrates returns the cross-system moves that fit — it cites the rows behind every answer and waits for authority before it posts.",
 			painPlaceholder:
 				"e.g. month-end reconciliation crosses the ERP, the bank file and three spreadsheets, and one controller carries it",
 		},
@@ -106,7 +106,7 @@ export const FINANCE_CONTROLS: Cohort = {
 		},
 		hero: {
 			title: "A governed AI department for financial operations.",
-			lede: "Sókrates reads the systems behind close, billing, collections and approvals, then turns recurring finance questions into cited answers and controlled workflows. Read by default. Propose with evidence. Act only under authority.",
+			lede: "Sókrates reads the systems behind close, billing, collections and approvals, then turns recurring finance questions into cited answers and controlled workflows. It shows the source rows, proposes the move, and waits at the approval gate before anything posts.",
 		},
 		closingCta: {
 			heading: "Bring one financial control that still lives in a person.",
@@ -177,15 +177,15 @@ export const PUBLIC_SECTOR_SOVEREIGN: Cohort = {
 			entries: {
 				"citizen-data": {
 					q: "Does citizen or agency data leave our network?",
-					a: "This cohort assumes the sovereign configuration: the appliance is installed on your premises and uses local inference. Sensitive records are not sent to a generic cloud model to make the system useful.",
+					a: "No. The appliance is installed on your premises and runs on local inference; sensitive records are never sent to a generic cloud model to make the system useful.",
 				},
 				"public-record": {
 					q: "Can the result become part of the public record?",
-					a: "Sókrates is designed to keep the answer tied to its source evidence, actor, approval and action history. That gives a records team something inspectable instead of an unsupported model transcript.",
+					a: "Sókrates keeps the answer tied to its source evidence, actor, approval and action history — so a records team has something inspectable, not an unsupported model transcript.",
 				},
 				"procurement-control": {
 					q: "Can it work inside procurement constraints?",
-					a: "The right wedge is not a broad automation programme. Start with one recurring operational question and keep action behind human approval until the authority model is proven.",
+					a: "Start narrow, not with a broad automation programme: one recurring operational question, with action kept behind human approval until the authority model is proven.",
 				},
 				"what-if-wrong": {
 					q: "What happens if it gets something wrong?",
@@ -243,11 +243,11 @@ export const HEALTHCARE_OPERATIONS: Cohort = {
 			entries: {
 				"not-clinical-decision": {
 					q: "Does Sókrates make clinical decisions?",
-					a: "No. This cohort should keep the boundary explicit: operational workflows only. Diagnosis, treatment, triage and clinical judgement stay outside the marketing promise.",
+					a: "No. The boundary is explicit: operational workflows only. Diagnosis, treatment, triage and clinical judgement stay outside what Sókrates does.",
 				},
 				"patient-data": {
 					q: "What happens to patient data?",
-					a: "The sovereign posture keeps the appliance on your premises and uses local inference. The working assumption is that sensitive records stay under your custody.",
+					a: "The sovereign posture keeps the appliance on your premises and uses local inference, so sensitive records stay under your custody.",
 				},
 				"approval-gates": {
 					q: "Can it act without approval?",
@@ -311,7 +311,7 @@ export const INDUSTRIAL_QUALITY: Cohort = {
 				},
 				"evidence-chain": {
 					q: "Can it preserve the evidence chain?",
-					a: "That is the point. The answer should carry source records, reasoned path, approval and resulting action together, so the next person is not reconstructing the story from chat and screenshots.",
+					a: "Preserving it is the point. The answer carries source records, reasoned path, approval and resulting action together, so the next person is not reconstructing the story from chat and screenshots.",
 				},
 				"data-residency": {
 					q: "Can this run inside our environment?",

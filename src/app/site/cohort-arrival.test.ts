@@ -7,12 +7,18 @@
  */
 
 import { afterEach, describe, expect, it } from "vitest";
-import { activeDialect, DEFAULT_DIALECT, DIALECT_IDS, resolveArrivalDialect } from "$lib";
+import {
+	activeDialect,
+	DEFAULT_DIALECT,
+	DIALECT_IDS,
+	hasDialect,
+	resolveArrivalDialect,
+} from "$lib";
 import { COHORT_IDS, getCohort, resolveArrivalCohort } from "$site";
 
 afterEach(() => activeDialect.set(DEFAULT_DIALECT));
 
-/** The layout's dialect mount sequence, verbatim. */
+/** The layout's dialect mount sequence, verbatim (+layout.svelte). */
 function arrive(
 	href: string,
 	persistedCohort: string | null,
@@ -26,7 +32,11 @@ function arrive(
 		persistedDialect,
 		DIALECT_IDS,
 	);
-	const target = explicit !== null ? explicit : cohortDialect;
+	// resolveArrivalDialect returns the PERSISTED value unvalidated, so `explicit` may
+	// be a stale/garbage id — the layout guards it with `&& hasDialect` (+layout.svelte),
+	// falling back to the cohort dialect. The helper must mirror that or it tests a path
+	// the code never takes.
+	const target = explicit !== null && hasDialect(explicit) ? explicit : cohortDialect;
 	if (target !== null) activeDialect.setById(target);
 }
 
@@ -49,5 +59,12 @@ describe("cohort → dialect resolution", () => {
 	it("an unknown cohort with no persistence leaves the default active", () => {
 		arrive("https://sokrates.example/?cohort=banana", null, null);
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
+	});
+
+	it("a STALE persisted dialect falls back to the cohort's dialect (not the stale id)", () => {
+		// The guarded path: a persisted id that no longer names a dialect must not win
+		// over the cohort's dialect. pharma-sovereign → clinical, despite the garbage.
+		arrive("https://sokrates.example/?cohort=pharma-sovereign", null, "not-a-dialect");
+		expect(activeDialect.id).toBe("clinical");
 	});
 });
