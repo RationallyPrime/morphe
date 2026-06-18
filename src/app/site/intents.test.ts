@@ -372,3 +372,31 @@ describe("I6 — arrival intents: ?intent= resolves through the registry (KRA-37
 		expect(intentEngine.announcement).toContain("How it is held");
 	});
 });
+
+describe("I7 — the engine tracks the open morph id (intent persistence)", () => {
+	const reg = new IntentRegistry();
+	registerSiteIntents(reg);
+
+	it("opening a stage morph sets openIntentId; closing it returns it to null", () => {
+		intentEngine.setStage(homeIntentStageEnvelope());
+
+		const open = resolveArrivalIntent("governance-story", reg) as SiteIntent;
+		intentEngine.execute(open);
+		expect(intentEngine.openIntentId).toBe("governance-story");
+
+		// re-invoking the open intent closes it (toggle) → back to null
+		intentEngine.execute(open);
+		expect(intentEngine.openIntentId).toBeNull();
+	});
+
+	it("a flip-dialect intent never touches openIntentId", () => {
+		intentEngine.setStage(homeIntentStageEnvelope());
+		const open = resolveArrivalIntent("technical-version", reg) as SiteIntent;
+		intentEngine.execute(open);
+		expect(intentEngine.openIntentId).toBe("technical-version");
+
+		const flip = reg.get("flip-the-lights") as SiteIntent;
+		intentEngine.execute(flip);
+		expect(intentEngine.openIntentId).toBe("technical-version"); // unchanged
+	});
+});

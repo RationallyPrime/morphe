@@ -67,6 +67,9 @@ let stage = $state<EmissionEnvelope | null>(null);
 /** The last morph's polite announcement (rendered into an aria-live region). */
 let announcement = $state("");
 
+/** The id of the stage morph currently open, or null (intent persistence). */
+let openIntentId = $state<string | null>(null);
+
 export const intentEngine = {
 	/** The live stage envelope (reactive); null when no stage is installed. */
 	get stage(): EmissionEnvelope | null {
@@ -81,6 +84,11 @@ export const intentEngine = {
 	/** The current live-region line (reactive). */
 	get announcement(): string {
 		return announcement;
+	},
+
+	/** The id of the open stage morph (reactive); null when the stage is at default. */
+	get openIntentId(): string | null {
+		return openIntentId;
 	},
 
 	/** Install (or re-emit) the stage envelope. Client-only by discipline. */
@@ -133,6 +141,7 @@ export const intentEngine = {
 				}
 				stage = outcome.envelope;
 				announcement = closing ? "Closed." : (intent.announce ?? `${intent.label} — shown below.`);
+				openIntentId = closing ? null : intent.id;
 				return { kind: "morphed" };
 			}
 		}
