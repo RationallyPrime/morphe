@@ -33,9 +33,10 @@ never sees an epoch. That is the point. The home page's intent engine is the
 first production consumer of that machinery: a visitor-stated interest becomes
 a hand-authored Delta through the same gate.
 
-The grammar is mirrored in Pydantic (`py/morphe_grammar`) with a committed,
-byte-stable JSON Schema artifact — the seed of one schema driving three jobs:
-TypeScript types, Python validation, and decoder masking for model-emitted UI.
+The grammar is canonical in Pydantic (`py/morphe_grammar`) and emits the
+committed contract artifacts: JSON Schema, TypeScript grammar types, wire
+schemas, and decoder masks. `just schema-check` is the drift gate; `just
+schema-write` regenerates the artifacts after a grammar or wire-model change.
 
 ## Quick start
 
@@ -48,6 +49,25 @@ just hooks     # install the prek git hooks (once per checkout)
 
 Stack: SvelteKit + Svelte 5 (runes) · TypeScript strict · bun · Biome ·
 Vitest · uv + ruff + ty on the Python side · prek hooks · GitHub Actions.
+
+## Adaptive sidecar
+
+`py/morphe_agent` is the optional live decision sidecar for the substrate lab.
+It serves `POST /v1/morphe/decision` and always returns a schema-valid `Node`:
+without live credentials it uses the deterministic fallback, and with live
+credentials it routes through Pydantic AI Gateway.
+
+```bash
+MORPHE_AGENT_LIVE=1 \
+MORPHE_AGENT_MODEL=gpt-5.2 \
+PYDANTIC_AI_GATEWAY_API_KEY=... \
+uv run uvicorn morphe_agent.app:app --host 127.0.0.1 --port 8042
+
+MORPHE_AGENT_BASE_URL=http://127.0.0.1:8042 just dev
+```
+
+`MORPHE_AGENT_GATEWAY_BASE_URL` can override the default OpenAI-compatible
+Pydantic Gateway proxy. CI and local gates never require a live model call.
 
 ## Reading order
 

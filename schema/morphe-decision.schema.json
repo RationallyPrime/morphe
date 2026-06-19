@@ -234,6 +234,32 @@
       ],
       "type": "string"
     },
+    "ContextDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "events": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TierEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "signals": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Signals",
+          "type": "object"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "ContextDigest",
+      "type": "object"
+    },
     "ControlLabel": {
       "discriminator": {
         "mapping": {
@@ -263,6 +289,75 @@
         "info"
       ],
       "type": "string"
+    },
+    "DecisionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "dialect_id": {
+          "title": "Dialect Id",
+          "type": "string"
+        },
+        "digest": {
+          "$ref": "#/$defs/ContextDigest"
+        },
+        "event": {
+          "$ref": "#/$defs/TierEvent"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        },
+        "task_state": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Task State",
+          "type": "object"
+        }
+      },
+      "required": [
+        "task_state",
+        "event",
+        "digest",
+        "dialect_id",
+        "surface_id"
+      ],
+      "title": "DecisionRequest",
+      "type": "object"
+    },
+    "DecisionResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostics": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "live",
+            "fallback"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "tree": {
+          "$ref": "#/$defs/Node"
+        }
+      },
+      "required": [
+        "source",
+        "tree"
+      ],
+      "title": "DecisionResponse",
+      "type": "object"
     },
     "DecorativeIconA11y": {
       "additionalProperties": false,
@@ -1463,6 +1558,37 @@
       "title": "Text",
       "type": "object"
     },
+    "TierEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "payload": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Payload",
+          "type": "object"
+        },
+        "tier": {
+          "enum": [
+            "slow",
+            "mid",
+            "fast"
+          ],
+          "title": "Tier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tier",
+        "name"
+      ],
+      "title": "TierEvent",
+      "type": "object"
+    },
     "Toggle": {
       "additionalProperties": false,
       "properties": {
@@ -1613,120 +1739,20 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "discriminator": {
-    "mapping": {
-      "badge": "#/$defs/Badge",
-      "button": "#/$defs/Button",
-      "cluster": "#/$defs/Cluster",
-      "compound": "#/$defs/CompoundRef",
-      "dialog": "#/$defs/Dialog",
-      "disclosure": "#/$defs/Disclosure",
-      "field": "#/$defs/Field",
-      "frame": "#/$defs/Frame",
-      "grid": "#/$defs/Grid",
-      "icon": "#/$defs/Icon",
-      "inline-alert": "#/$defs/InlineAlert",
-      "link": "#/$defs/Link",
-      "media": "#/$defs/Media",
-      "number": "#/$defs/NumberNode",
-      "param-ref": "#/$defs/ParamRef",
-      "popover": "#/$defs/Popover",
-      "progress": "#/$defs/Progress",
-      "range": "#/$defs/Range",
-      "select": "#/$defs/Select",
-      "slot": "#/$defs/Slot",
-      "spacer": "#/$defs/Spacer",
-      "stack": "#/$defs/Stack",
-      "status": "#/$defs/Status",
-      "text": "#/$defs/Text",
-      "toggle": "#/$defs/Toggle",
-      "vary": "#/$defs/Vary",
-      "within": "#/$defs/Within"
+  "additionalProperties": false,
+  "description": "Contract wrapper for the adaptive decision sidecar: request and response schemas live in one artifact for OpenAPI/source-binding ingestion.",
+  "properties": {
+    "request": {
+      "$ref": "#/$defs/DecisionRequest"
     },
-    "propertyName": "kind"
-  },
-  "oneOf": [
-    {
-      "$ref": "#/$defs/Stack"
-    },
-    {
-      "$ref": "#/$defs/Grid"
-    },
-    {
-      "$ref": "#/$defs/Cluster"
-    },
-    {
-      "$ref": "#/$defs/Frame"
-    },
-    {
-      "$ref": "#/$defs/Spacer"
-    },
-    {
-      "$ref": "#/$defs/Text"
-    },
-    {
-      "$ref": "#/$defs/NumberNode"
-    },
-    {
-      "$ref": "#/$defs/Badge"
-    },
-    {
-      "$ref": "#/$defs/Icon"
-    },
-    {
-      "$ref": "#/$defs/Media"
-    },
-    {
-      "$ref": "#/$defs/Field"
-    },
-    {
-      "$ref": "#/$defs/Select"
-    },
-    {
-      "$ref": "#/$defs/Toggle"
-    },
-    {
-      "$ref": "#/$defs/Range"
-    },
-    {
-      "$ref": "#/$defs/Progress"
-    },
-    {
-      "$ref": "#/$defs/Status"
-    },
-    {
-      "$ref": "#/$defs/InlineAlert"
-    },
-    {
-      "$ref": "#/$defs/Button"
-    },
-    {
-      "$ref": "#/$defs/Link"
-    },
-    {
-      "$ref": "#/$defs/Dialog"
-    },
-    {
-      "$ref": "#/$defs/Popover"
-    },
-    {
-      "$ref": "#/$defs/Disclosure"
-    },
-    {
-      "$ref": "#/$defs/Slot"
-    },
-    {
-      "$ref": "#/$defs/ParamRef"
-    },
-    {
-      "$ref": "#/$defs/Vary"
-    },
-    {
-      "$ref": "#/$defs/Within"
-    },
-    {
-      "$ref": "#/$defs/CompoundRef"
+    "response": {
+      "$ref": "#/$defs/DecisionResponse"
     }
+  },
+  "required": [
+    "request",
+    "response"
   ],
-  "title": "Morphe Grammar Node"
+  "title": "Morphe Adaptive Decision Contract",
+  "type": "object"
 }

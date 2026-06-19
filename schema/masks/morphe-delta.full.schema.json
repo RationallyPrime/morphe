@@ -1,0 +1,35 @@
+{
+  "$defs": {
+    "NumberValue": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "choice": {
+      "$ref": "#/$defs/NumberValue"
+    },
+    "epoch": {
+      "$ref": "#/$defs/NumberValue"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "choice",
+    "epoch"
+  ],
+  "title": "Morphe Delta Full Decoder Mask",
+  "type": "object"
+}

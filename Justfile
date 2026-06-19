@@ -53,13 +53,13 @@ py-lint:
 py-types:
 	env -u PYTHONPATH uv run ty check
 
-# committed schema artifact must equal a fresh emission (parity-gate seed)
+# committed schema artifacts must equal a fresh emission (Python -> JSON Schema + TS + masks)
 schema-check:
-	env -u PYTHONPATH uv run python -m morphe_grammar.schema | diff - schema/morphe-grammar.schema.json
+	env -u PYTHONPATH uv run python -m morphe_grammar.artifacts --check
 
-# regenerate the committed schema artifact (after a py/ grammar change)
+# regenerate committed contract artifacts (after a py/ grammar/wire change)
 schema-write:
-	env -u PYTHONPATH uv run python -m morphe_grammar.schema > schema/morphe-grammar.schema.json
+	env -u PYTHONPATH uv run python -m morphe_grammar.artifacts --write
 
 # --- composed ----------------------------------------------------------
 

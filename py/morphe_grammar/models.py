@@ -16,6 +16,7 @@ from pydantic import Field as PydanticField
 
 type NumberValue = StrictInt | StrictFloat
 type JsonValue = None | bool | NumberValue | str | list[JsonValue] | dict[str, JsonValue]
+type ParamValue = JsonValue | Node
 
 type ContainerRole = Literal[
     "page",
@@ -380,7 +381,7 @@ class Within(GrammarModel):
 class CompoundRef(GrammarModel):
     kind: Literal["compound"]
     name: StrictStr
-    args: dict[str, JsonValue]
+    args: dict[str, ParamValue]
     emphasis: EmphasisClaim | None = None
     slots: dict[str, tuple[Node, ...]] | None = None
 
@@ -435,6 +436,7 @@ MODEL_TYPES: tuple[type[GrammarModel], ...] = (
     DecorativeIconA11y,
     ImageIconA11y,
     Icon,
+    MediaSource,
     Media,
     Field,
     SelectOption,
@@ -460,7 +462,7 @@ MODEL_TYPES: tuple[type[GrammarModel], ...] = (
 
 
 def rebuild_models() -> None:
-    types_namespace = {"JsonValue": JsonValue, "Node": Node}
+    types_namespace = {"JsonValue": JsonValue, "Node": Node, "ParamValue": ParamValue}
     for model_type in MODEL_TYPES:
         model_type.model_rebuild(_types_namespace=types_namespace)
 

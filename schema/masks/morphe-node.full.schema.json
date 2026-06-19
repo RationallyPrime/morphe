@@ -1728,5 +1728,5 @@
       "$ref": "#/$defs/CompoundRef"
     }
   ],
-  "title": "Morphe Grammar Node"
+  "title": "Morphe Node Full Decoder Mask"
 }

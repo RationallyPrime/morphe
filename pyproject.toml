@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Pydantic v2 mirror of the Morphe Node grammar."
 requires-python = ">=3.12"
 dependencies = [
+	"fastapi>=0.124.0",
+	"httpx>=0.28.0",
 	"pydantic>=2.12.0",
+	"pydantic-ai-slim[openai]>=1.0.0",
+	"pydantic-settings>=2.12.0",
+	"uvicorn>=0.38.0",
 ]
 
 [dependency-groups]
@@ -26,7 +31,7 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-root = "py"
-module-name = "morphe_grammar"
+module-name = ["morphe_grammar", "morphe_agent"]
 
 [tool.pytest.ini_options]
 testpaths = ["py/tests"]
@@ -58,4 +63,4 @@ quote-style = "double"
 line-ending = "lf"
 
 [tool.ty.src]
-include = ["py/morphe_grammar", "py/tests"]
+include = ["py/morphe_grammar", "py/morphe_agent", "py/tests"]
