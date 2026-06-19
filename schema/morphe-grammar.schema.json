@@ -89,6 +89,10 @@
           "title": "Icon",
           "type": "string"
         },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
         "intent": {
           "$ref": "#/$defs/IntentRef"
         },
@@ -483,6 +487,13 @@
           "title": "Children",
           "type": "array"
         },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/GridColumn"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
         "emphasis": {
           "$ref": "#/$defs/EmphasisClaim"
         },
@@ -502,6 +513,10 @@
         },
         "role": {
           "$ref": "#/$defs/ContainerRole"
+        },
+        "ruled": {
+          "title": "Ruled",
+          "type": "boolean"
         }
       },
       "required": [
@@ -511,6 +526,13 @@
       ],
       "title": "Grid",
       "type": "object"
+    },
+    "GridColumn": {
+      "enum": [
+        "flexible",
+        "content"
+      ],
+      "type": "string"
     },
     "Icon": {
       "additionalProperties": false,
@@ -1311,6 +1333,9 @@
         "emphasis": {
           "$ref": "#/$defs/EmphasisClaim"
         },
+        "indent": {
+          "$ref": "#/$defs/NumberValue"
+        },
         "kind": {
           "const": "stack",
           "title": "Kind",
@@ -1402,6 +1427,18 @@
         "kind": {
           "const": "text",
           "title": "Kind",
+          "type": "string"
+        },
+        "numeric": {
+          "title": "Numeric",
+          "type": "boolean"
+        },
+        "polarity": {
+          "enum": [
+            "positive",
+            "negative"
+          ],
+          "title": "Polarity",
           "type": "string"
         },
         "value": {

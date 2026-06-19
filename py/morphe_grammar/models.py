@@ -29,6 +29,7 @@ type ContainerRole = Literal[
 ]
 type Density = Literal["compact", "regular", "spacious"]
 type EmphasisClaim = Literal["muted", "normal", "strong", "critical"]
+type GridColumn = Literal["flexible", "content"]
 type CoreIntent = Literal[
     "primary-action",
     "neutral",
@@ -99,6 +100,7 @@ class Stack(GrammarModel):
     kind: Literal["stack"]
     role: ContainerRole
     direction: Literal["block", "inline", "auto"] | None = None
+    indent: NumberValue | None = None
     emphasis: EmphasisClaim | None = None
     children: tuple[Node, ...]
 
@@ -107,6 +109,8 @@ class Grid(GrammarModel):
     kind: Literal["grid"]
     role: ContainerRole
     minTrack: Literal["narrow", "regular", "wide"] | None = None
+    columns: tuple[GridColumn, ...] | None = None
+    ruled: StrictBool | None = None
     emphasis: EmphasisClaim | None = None
     children: tuple[Node, ...]
 
@@ -144,6 +148,8 @@ class Text(GrammarModel):
     emphasis: EmphasisClaim | None = None
     intent: IntentRef | None = None
     clamp: NumberValue | None = None
+    numeric: StrictBool | None = None
+    polarity: Literal["positive", "negative"] | None = None
 
 
 class NumberNode(GrammarModel):
@@ -295,6 +301,7 @@ class Button(GrammarModel):
     busy: StrictBool | None = None
     action: StrictStr | None = None
     icon: StrictStr | None = None
+    id: StrictStr | None = None
     label: StrictStr | None = None
     a11y: ControlLabel | None = None
 

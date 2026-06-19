@@ -39,6 +39,25 @@ def test_icon_only_unlabelled_button_fails_validation() -> None:
         validate_node({"kind": "button", "icon": "close", "variant": "ghost"})
 
 
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {"kind": "stack", "role": "list", "indent": 2, "children": []},
+        {
+            "kind": "grid",
+            "role": "list",
+            "columns": ["flexible", "content"],
+            "ruled": True,
+            "children": [],
+        },
+        {"kind": "text", "value": "(1,250)", "numeric": True, "polarity": "negative"},
+        {"kind": "button", "id": "ledger-help", "label": "Open ledger help"},
+    ],
+)
+def test_live_typescript_grammar_affordance_fields_validate(tree: NodeFixture) -> None:
+    validate_node(tree)
+
+
 def test_unknown_kind_fails_validation() -> None:
     with pytest.raises(ValidationError):
         validate_node({"kind": "clickable-div", "children": []})

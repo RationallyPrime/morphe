@@ -10,12 +10,29 @@ from morphe_grammar.schema import schema_document
 SCHEMA_PATH = Path("schema/morphe-grammar.schema.json")
 
 
+def schema_properties(model_name: str) -> set[object]:
+    defs = schema_document()["$defs"]
+    assert isinstance(defs, dict)
+    model_schema = defs[model_name]
+    assert isinstance(model_schema, dict)
+    properties = model_schema["properties"]
+    assert isinstance(properties, dict)
+    return set(properties)
+
+
 def test_schema_document_names_node_root() -> None:
     schema = schema_document()
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["title"] == "Morphe Grammar Node"
     assert "discriminator" in schema
+
+
+def test_schema_exposes_live_typescript_grammar_affordance_fields() -> None:
+    assert {"indent"} <= schema_properties("Stack")
+    assert {"columns", "ruled"} <= schema_properties("Grid")
+    assert {"numeric", "polarity"} <= schema_properties("Text")
+    assert {"id"} <= schema_properties("Button")
 
 
 def test_committed_schema_artifact_is_byte_stable() -> None:
