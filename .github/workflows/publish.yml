@@ -1,17 +1,7 @@
 name: Publish package
 
 on:
-  push:
-    tags:
-      - "v*"
-  pull_request:
-    paths:
-      - ".github/workflows/publish.yml"
-      - "PACKAGING.md"
-      - "bun.lock"
-      - "package.json"
-      - "scripts/pack-verify.ts"
-      - "src/lib/**"
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -6,12 +6,7 @@
 		<link rel="alternate icon" href="%sveltekit.assets%/favicon.ico" sizes="any" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="theme-color" content="#efebe3" />
-		<!-- No static <title> here: it would render BEFORE %sveltekit.head% and ship a
-		     SECOND title tag on every page (base first, the route's title second). A
-		     browser honours the last, but crawlers/OG scrapers often read the first —
-		     which would serve BASE copy on every paid `?cohort=` URL and defeat the SSR
-		     cohort title. The default lives in the root +layout.svelte's <svelte:head>,
-		     where SvelteKit dedupes it against a page's title (one tag, the page wins). -->
+		<!-- Title is owned by route/layout head so cohort pages SSR exactly one title. -->
 		<!-- The Icelandic Archive type system: Spectral (display — a humanist old-style
 		     serif in the Garamond/Plantin lineage; the philosophy-press / archive
 		     register, sturdy not glam) + Hanken Grotesk (body) + Fragment Mono (folio /
