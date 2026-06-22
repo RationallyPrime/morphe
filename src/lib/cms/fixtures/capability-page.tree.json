@@ -1,0 +1,177 @@
+{
+	"kind": "frame",
+	"role": "page",
+	"surface": "base",
+	"children": [
+		{
+			"kind": "stack",
+			"role": "section",
+			"children": [
+				{
+					"kind": "text",
+					"value": "Capability",
+					"as": "caption",
+					"intent": "accession"
+				},
+				{
+					"kind": "text",
+					"value": "Workflow automation that stays accountable",
+					"as": "display",
+					"emphasis": "strong",
+					"intent": "evidence"
+				},
+				{
+					"kind": "text",
+					"value": "Morphe encodes operational workflows as adaptive, auditable interfaces.",
+					"as": "body"
+				},
+				{
+					"kind": "text",
+					"value": "The interface changes register and emphasis without escaping the grammar.",
+					"as": "body",
+					"emphasis": "muted"
+				}
+			]
+		},
+		{
+			"kind": "stack",
+			"role": "list",
+			"children": [
+				{
+					"kind": "stack",
+					"role": "inline",
+					"children": [
+						{
+							"kind": "badge",
+							"label": "Typed",
+							"intent": "evidence"
+						},
+						{
+							"kind": "text",
+							"value": "Every artifact is validated before it reaches the renderer.",
+							"as": "body"
+						}
+					]
+				},
+				{
+					"kind": "stack",
+					"role": "inline",
+					"children": [
+						{
+							"kind": "badge",
+							"label": "Adaptive",
+							"intent": "info"
+						},
+						{
+							"kind": "text",
+							"value": "Variation happens inside authorized Morphe envelopes.",
+							"as": "body"
+						}
+					]
+				}
+			]
+		},
+		{
+			"kind": "stack",
+			"role": "section",
+			"children": [
+				{
+					"kind": "stack",
+					"role": "section",
+					"children": [
+						{
+							"kind": "text",
+							"value": "The problem",
+							"as": "heading",
+							"emphasis": "strong"
+						},
+						{
+							"kind": "text",
+							"value": "Most workflow UIs collapse when operational context changes.",
+							"as": "body",
+							"intent": "caution"
+						},
+						{
+							"kind": "text",
+							"value": "Different roles need different levels of detail.",
+							"as": "body",
+							"emphasis": "muted"
+						},
+						{
+							"kind": "text",
+							"value": "Operational states change faster than static frontend releases.",
+							"as": "body",
+							"emphasis": "muted"
+						}
+					]
+				},
+				{
+					"kind": "stack",
+					"role": "section",
+					"children": [
+						{
+							"kind": "text",
+							"value": "How it works",
+							"as": "heading",
+							"emphasis": "strong"
+						},
+						{
+							"kind": "stack",
+							"role": "list",
+							"children": [
+								{
+									"kind": "stack",
+									"role": "inline",
+									"children": [
+										{
+											"kind": "badge",
+											"label": "1"
+										},
+										{
+											"kind": "text",
+											"value": "Model the operation",
+											"as": "subheading",
+											"emphasis": "strong"
+										},
+										{
+											"kind": "text",
+											"value": "Define the domain objects, actions, and transitions.",
+											"as": "body"
+										}
+									]
+								},
+								{
+									"kind": "stack",
+									"role": "inline",
+									"children": [
+										{
+											"kind": "badge",
+											"label": "2"
+										},
+										{
+											"kind": "text",
+											"value": "Compile the interface",
+											"as": "subheading",
+											"emphasis": "strong"
+										},
+										{
+											"kind": "text",
+											"value": "Render the workflow through grammar + dialect.",
+											"as": "body"
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"kind": "button",
+			"label": "See the workflow",
+			"action": "open_composer",
+			"intent": "primary-action"
+		}
+	]
+}

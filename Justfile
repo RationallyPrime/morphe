@@ -61,10 +61,18 @@ schema-check:
 schema-write:
 	env -u PYTHONPATH uv run python -m morphe_grammar.artifacts --write
 
+# regenerate committed CMS contract schemas (after a py/morphe_cms contract change)
+cms-schema-write:
+	env -u PYTHONPATH uv run python -m morphe_cms.schema --write
+
+# committed CMS schemas must equal a fresh emission
+cms-schema-check:
+	env -u PYTHONPATH uv run python -m morphe_cms.schema --check
+
 # --- composed ----------------------------------------------------------
 
 # every gate CI runs, both stacks — green here means CI goes green
-gates: lint check test build py-test py-lint py-types schema-check
+gates: lint check test build py-test py-lint py-types schema-check cms-schema-check
 
 # install the prek git hooks (once per checkout)
 hooks:

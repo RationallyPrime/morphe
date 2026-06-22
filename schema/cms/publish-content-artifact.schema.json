@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "pattern": "^capability-page\\.[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "channel": {
+      "default": "site",
+      "enum": [
+        "site",
+        "preview",
+        "campaign"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "revision_id": {
+      "pattern": "^rev-\\d{3}$",
+      "title": "Revision Id",
+      "type": "string"
+    },
+    "slug": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "title": "Slug",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "revision_id",
+    "slug"
+  ],
+  "title": "PublishContentArtifactInput",
+  "type": "object"
+}

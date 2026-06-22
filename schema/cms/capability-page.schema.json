@@ -1,0 +1,785 @@
+{
+  "$defs": {
+    "CTA": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Id"
+        },
+        "href": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Href"
+        },
+        "intent": {
+          "default": "primary-action",
+          "enum": [
+            "primary-action",
+            "neutral",
+            "provenance",
+            "evidence",
+            "accession",
+            "caution",
+            "success",
+            "info"
+          ],
+          "title": "Intent",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 48,
+          "minLength": 2,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "title": "CTA",
+      "type": "object"
+    },
+    "CaseProofSection": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "maxLength": 240,
+          "minLength": 8,
+          "title": "After",
+          "type": "string"
+        },
+        "before": {
+          "maxLength": 240,
+          "minLength": 8,
+          "title": "Before",
+          "type": "string"
+        },
+        "company_shape": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Company Shape"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "enum": [
+                "primary-action",
+                "neutral",
+                "provenance",
+                "evidence",
+                "accession",
+                "caution",
+                "success",
+                "info"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "kind": {
+          "const": "caseProof",
+          "title": "Kind",
+          "type": "string"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "maxItems": 4,
+          "title": "Metrics",
+          "type": "array"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "before",
+        "after"
+      ],
+      "title": "CaseProofSection",
+      "type": "object"
+    },
+    "FAQItem": {
+      "additionalProperties": false,
+      "properties": {
+        "answer": {
+          "maxLength": 420,
+          "minLength": 12,
+          "title": "Answer",
+          "type": "string"
+        },
+        "question": {
+          "maxLength": 140,
+          "minLength": 8,
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "question",
+        "answer"
+      ],
+      "title": "FAQItem",
+      "type": "object"
+    },
+    "FAQSection": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "enum": [
+                "primary-action",
+                "neutral",
+                "provenance",
+                "evidence",
+                "accession",
+                "caution",
+                "success",
+                "info"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/FAQItem"
+          },
+          "maxItems": 8,
+          "minItems": 2,
+          "title": "Items",
+          "type": "array"
+        },
+        "kind": {
+          "const": "faq",
+          "title": "Kind",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "items"
+      ],
+      "title": "FAQSection",
+      "type": "object"
+    },
+    "HeroBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "kicker": {
+          "anyOf": [
+            {
+              "maxLength": 48,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kicker"
+        },
+        "supporting_claim": {
+          "anyOf": [
+            {
+              "maxLength": 220,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supporting Claim"
+        },
+        "thesis": {
+          "maxLength": 320,
+          "minLength": 20,
+          "title": "Thesis",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "thesis"
+      ],
+      "title": "HeroBlock",
+      "type": "object"
+    },
+    "HeroVariant": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "enum": [
+            "governance",
+            "speed",
+            "cost",
+            "trust",
+            "technical"
+          ],
+          "title": "Angle",
+          "type": "string"
+        },
+        "thesis": {
+          "maxLength": 320,
+          "minLength": 20,
+          "title": "Thesis",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "angle",
+        "title",
+        "thesis"
+      ],
+      "title": "HeroVariant",
+      "type": "object"
+    },
+    "HeroVariation": {
+      "additionalProperties": false,
+      "properties": {
+        "objective": {
+          "default": "salience",
+          "enum": [
+            "salience",
+            "density",
+            "compactness"
+          ],
+          "title": "Objective",
+          "type": "string"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/$defs/HeroVariant"
+          },
+          "maxItems": 5,
+          "minItems": 2,
+          "title": "Variants",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variants"
+      ],
+      "title": "HeroVariation",
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": false,
+      "properties": {
+        "explanation": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Explanation"
+        },
+        "label": {
+          "maxLength": 64,
+          "minLength": 2,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "title": "Metric",
+      "type": "object"
+    },
+    "MorpheControls": {
+      "additionalProperties": false,
+      "properties": {
+        "dialect": {
+          "default": "gallery",
+          "enum": [
+            "gallery",
+            "night",
+            "icelandic-archive",
+            "clinical",
+            "reykjavik-registry",
+            "timaeus",
+            "ledger",
+            "estate",
+            "foundry"
+          ],
+          "title": "Dialect",
+          "type": "string"
+        },
+        "emphasis": {
+          "default": "normal",
+          "enum": [
+            "muted",
+            "normal",
+            "strong",
+            "critical"
+          ],
+          "title": "Emphasis",
+          "type": "string"
+        },
+        "primary_intent": {
+          "default": "evidence",
+          "enum": [
+            "primary-action",
+            "neutral",
+            "provenance",
+            "evidence",
+            "accession",
+            "caution",
+            "success",
+            "info"
+          ],
+          "title": "Primary Intent",
+          "type": "string"
+        },
+        "surface": {
+          "default": "base",
+          "enum": [
+            "base",
+            "raised",
+            "sunken"
+          ],
+          "title": "Surface",
+          "type": "string"
+        }
+      },
+      "title": "MorpheControls",
+      "type": "object"
+    },
+    "ProblemFrameSection": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "maxLength": 280,
+          "minLength": 12,
+          "title": "Claim",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "maxLength": 220,
+            "minLength": 4,
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "enum": [
+                "primary-action",
+                "neutral",
+                "provenance",
+                "evidence",
+                "accession",
+                "caution",
+                "success",
+                "info"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "kind": {
+          "const": "problemFrame",
+          "title": "Kind",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "claim"
+      ],
+      "title": "ProblemFrameSection",
+      "type": "object"
+    },
+    "ProofPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "maxLength": 240,
+          "minLength": 8,
+          "title": "Claim",
+          "type": "string"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "enum": [
+                "primary-action",
+                "neutral",
+                "provenance",
+                "evidence",
+                "accession",
+                "caution",
+                "success",
+                "info"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "label": {
+          "maxLength": 64,
+          "minLength": 2,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "claim"
+      ],
+      "title": "ProofPoint",
+      "type": "object"
+    },
+    "WorkflowMapSection": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "enum": [
+                "primary-action",
+                "neutral",
+                "provenance",
+                "evidence",
+                "accession",
+                "caution",
+                "success",
+                "info"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "kind": {
+          "const": "workflowMap",
+          "title": "Kind",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/WorkflowStep"
+          },
+          "maxItems": 7,
+          "minItems": 2,
+          "title": "Steps",
+          "type": "array"
+        },
+        "title": {
+          "maxLength": 96,
+          "minLength": 4,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "steps"
+      ],
+      "title": "WorkflowMapSection",
+      "type": "object"
+    },
+    "WorkflowStep": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 220,
+          "minLength": 8,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "maxLength": 220,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
+        },
+        "label": {
+          "maxLength": 64,
+          "minLength": 2,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "description"
+      ],
+      "title": "WorkflowStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "audience": {
+      "enum": [
+        "founder",
+        "operator",
+        "cto",
+        "cfo",
+        "operations_lead",
+        "developer",
+        "buyer"
+      ],
+      "title": "Audience",
+      "type": "string"
+    },
+    "cta": {
+      "$ref": "#/$defs/CTA"
+    },
+    "hero": {
+      "$ref": "#/$defs/HeroBlock"
+    },
+    "hero_variation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HeroVariation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "morphe": {
+      "$ref": "#/$defs/MorpheControls"
+    },
+    "proof_points": {
+      "items": {
+        "$ref": "#/$defs/ProofPoint"
+      },
+      "maxItems": 6,
+      "title": "Proof Points",
+      "type": "array"
+    },
+    "sections": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "caseProof": "#/$defs/CaseProofSection",
+            "faq": "#/$defs/FAQSection",
+            "problemFrame": "#/$defs/ProblemFrameSection",
+            "workflowMap": "#/$defs/WorkflowMapSection"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ProblemFrameSection"
+          },
+          {
+            "$ref": "#/$defs/WorkflowMapSection"
+          },
+          {
+            "$ref": "#/$defs/CaseProofSection"
+          },
+          {
+            "$ref": "#/$defs/FAQSection"
+          }
+        ]
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Sections",
+      "type": "array"
+    },
+    "slug": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "title": "Slug",
+      "type": "string"
+    },
+    "source_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "title": "Source Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "slug",
+    "audience",
+    "hero",
+    "sections",
+    "cta"
+  ],
+  "title": "CapabilityPageDraft",
+  "type": "object"
+}
