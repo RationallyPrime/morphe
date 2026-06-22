@@ -64,4 +64,4 @@ quote-style = "double"
 line-ending = "lf"
 
 [tool.ty.src]
-include = ["py/morphe_grammar", "py/morphe_agent", "py/tests"]
+include = ["py/morphe_grammar", "py/morphe_agent", "py/morphe_cms", "py/tests"]

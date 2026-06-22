@@ -7,6 +7,9 @@ from pydantic import Field
 from morphe_cms.contracts.capability_page import CapabilityPageDraft  # noqa: TC001
 from morphe_cms.contracts.shared import CmsModel, DialectName, Slug
 
+_ARTIFACT_ID = r"^capability-page\.[a-z0-9]+(?:-[a-z0-9]+)*$"
+_REVISION_ID = r"^rev-\d{3}$"
+
 
 class CreateCapabilityPageInput(CmsModel):
     draft: CapabilityPageDraft
@@ -20,17 +23,23 @@ class ToolResult(CmsModel):
     diagnostics: list[dict[str, Any]] = Field(default_factory=list)
 
 
+class ValidateContentArtifactResult(CmsModel):
+    ok: bool
+    compiled_tree_id: str | None = None
+    diagnostics: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class ValidateContentArtifactInput(CmsModel):
-    artifact_id: str
-    revision_id: str
+    artifact_id: Annotated[str, Field(pattern=_ARTIFACT_ID)]
+    revision_id: Annotated[str, Field(pattern=_REVISION_ID)]
     # Reserved: not enforced in v0 (no warning-severity rules exist to relax yet). Kept
     # for PRD §9.3 tool-contract parity; wire when a strict/lenient distinction is real.
     strict: bool = True
 
 
 class RenderPreviewInput(CmsModel):
-    artifact_id: str
-    revision_id: str
+    artifact_id: Annotated[str, Field(pattern=_ARTIFACT_ID)]
+    revision_id: Annotated[str, Field(pattern=_REVISION_ID)]
     viewport: Literal["mobile", "desktop"] = "desktop"
     dialect: DialectName | None = None
 
@@ -42,7 +51,7 @@ class RenderPreviewResult(CmsModel):
 
 
 class PublishContentArtifactInput(CmsModel):
-    artifact_id: str
-    revision_id: str
+    artifact_id: Annotated[str, Field(pattern=_ARTIFACT_ID)]
+    revision_id: Annotated[str, Field(pattern=_REVISION_ID)]
     slug: Slug
     channel: Literal["site", "preview", "campaign"] = "site"

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -79,3 +81,17 @@ def test_has_validated_revision(tmp_path: Path) -> None:
     assert store.has_validated_revision("demo", "rev-001") is False
     store.write_compiled("demo", "rev-001", _compiled("rev-001"))
     assert store.has_validated_revision("demo", "rev-001") is True
+
+
+def test_next_revision_id_is_gap_tolerant(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    store.write_compiled("demo", "rev-001", _compiled("rev-001"))
+    store.write_compiled("demo", "rev-003", _compiled("rev-003"))
+    assert store.next_revision_id("demo") == "rev-004"
+
+
+def test_revision_writes_are_immutable(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    store.write_compiled("demo", "rev-001", _compiled("rev-001"))
+    with pytest.raises(FileExistsError):
+        store.write_compiled("demo", "rev-001", _compiled("rev-001"))

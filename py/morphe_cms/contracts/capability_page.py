@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Self, Union
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, HttpUrl, model_validator
 
@@ -92,12 +92,7 @@ class FAQSection(CmsModel):
 
 
 CapabilitySection = Annotated[
-    Union[  # noqa: UP007 - discriminated union needs Annotated[Union[...], Field(...)]
-        ProblemFrameSection,
-        WorkflowMapSection,
-        CaseProofSection,
-        FAQSection,
-    ],
+    ProblemFrameSection | WorkflowMapSection | CaseProofSection | FAQSection,
     Field(discriminator="kind"),
 ]
 

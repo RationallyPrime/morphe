@@ -38,38 +38,61 @@ class FileStore:
     def _dump(model: ArtifactEnvelope | CompiledTree | Publication) -> str:
         return model.model_dump_json(indent=2) + "\n"
 
+    def _guard(self, path: Path) -> Path:
+        resolved = path.resolve()
+        root = self._root.resolve()
+        if not resolved.is_relative_to(root):
+            msg = f"path escapes store root: {path}"
+            raise ValueError(msg)
+        return resolved
+
     def next_revision_id(self, slug: str) -> str:
-        content = self._content_dir(slug)
-        compiled = self._compiled_dir(slug)
-        existing: set[str] = set()
-        for d in (content, compiled):
+        nums: list[int] = []
+        for d in (self._content_dir(slug), self._compiled_dir(slug)):
             if d.exists():
-                existing |= {p.stem.split(".")[0] for p in d.glob("rev-*")}
-        n = len(existing) + 1
+                for p in d.glob("rev-*"):
+                    suffix = p.stem.split(".")[0].removeprefix("rev-")
+                    if suffix.isdigit():
+                        nums.append(int(suffix))
+        n = (max(nums) + 1) if nums else 1
         return f"rev-{n:03d}"
 
     def write_artifact(self, slug: str, revision_id: str, envelope: ArtifactEnvelope) -> None:
-        self._atomic_write(self._content_dir(slug) / f"{revision_id}.json", self._dump(envelope))
+        path = self._content_dir(slug) / f"{revision_id}.json"
+        if path.exists():
+            msg = f"revision already written (immutable): {path}"
+            raise FileExistsError(msg)
+        self._atomic_write(self._guard(path), self._dump(envelope))
 
     def read_artifact(self, slug: str, revision_id: str) -> ArtifactEnvelope:
-        path = self._content_dir(slug) / f"{revision_id}.json"
+        path = self._guard(self._content_dir(slug) / f"{revision_id}.json")
         return ArtifactEnvelope.model_validate_json(path.read_text(encoding="utf-8"))
 
     def write_diagnostics(self, slug: str, revision_id: str, diagnostics: list[Diagnostic]) -> None:
+        path = self._content_dir(slug) / f"{revision_id}.diagnostics.json"
+        if path.exists():
+            msg = f"revision already written (immutable): {path}"
+            raise FileExistsError(msg)
         payload = json.dumps([d.model_dump() for d in diagnostics], indent=2) + "\n"
-        self._atomic_write(self._content_dir(slug) / f"{revision_id}.diagnostics.json", payload)
+        self._atomic_write(self._guard(path), payload)
 
     def write_compiled(self, slug: str, revision_id: str, compiled: CompiledTree) -> None:
-        self._atomic_write(
-            self._compiled_dir(slug) / f"{revision_id}.tree.json", self._dump(compiled)
-        )
+        path = self._compiled_dir(slug) / f"{revision_id}.tree.json"
+        if path.exists():
+            msg = f"revision already written (immutable): {path}"
+            raise FileExistsError(msg)
+        self._atomic_write(self._guard(path), self._dump(compiled))
 
     def read_compiled(self, slug: str, revision_id: str) -> CompiledTree:
-        path = self._compiled_dir(slug) / f"{revision_id}.tree.json"
+        path = self._guard(self._compiled_dir(slug) / f"{revision_id}.tree.json")
         return CompiledTree.model_validate_json(path.read_text(encoding="utf-8"))
 
     def has_validated_revision(self, slug: str, revision_id: str) -> bool:
-        return (self._compiled_dir(slug) / f"{revision_id}.tree.json").exists()
+        try:
+            path = self._guard(self._compiled_dir(slug) / f"{revision_id}.tree.json")
+        except ValueError:
+            return False
+        return path.exists()
 
     def read_publications(self) -> dict[str, Publication]:
         path = self._publications_path()

@@ -16,6 +16,7 @@ from morphe_cms.tools.models import (  # noqa: TC001
     RenderPreviewResult,
     ToolResult,
     ValidateContentArtifactInput,
+    ValidateContentArtifactResult,
 )
 from morphe_cms.tools.service import (
     create_capability_page,
@@ -53,7 +54,7 @@ def build_app(root: Path | None = None) -> FastAPI:
         return create_capability_page(body, store, now=_now())
 
     @app.post("/tools/validate_content_artifact", operation_id="validateContentArtifact")
-    def _validate(body: ValidateContentArtifactInput) -> ToolResult:
+    def _validate(body: ValidateContentArtifactInput) -> ValidateContentArtifactResult:
         return validate_content_artifact(body, store)
 
     @app.post("/tools/render_preview", operation_id="renderPreview")

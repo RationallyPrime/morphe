@@ -3,6 +3,9 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
+import pytest
+from pydantic import ValidationError
+
 from morphe_cms.contracts.capability_page import CapabilityPageDraft
 
 if TYPE_CHECKING:
@@ -157,3 +160,48 @@ def test_publish_rejects_slug_mismatch(tmp_path: Path) -> None:
     )
     assert pub.ok is False
     assert any(d["code"] == "SLUG_MISMATCH" for d in pub.diagnostics)
+
+
+def test_traversal_revision_id_rejected_by_contract() -> None:
+    with pytest.raises(ValidationError):
+        ValidateContentArtifactInput(
+            artifact_id="capability-page.demo", revision_id="../../../../outside"
+        )
+
+
+def test_traversal_artifact_id_rejected_by_contract() -> None:
+    with pytest.raises(ValidationError):
+        ValidateContentArtifactInput(artifact_id="capability-page.evil/../x", revision_id="rev-001")
+
+
+def test_validate_returns_compiled_tree_id(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    artifact_id, revision_id = _create(store, VALID_DRAFT)
+    result = validate_content_artifact(
+        ValidateContentArtifactInput(artifact_id=artifact_id, revision_id=revision_id), store
+    )
+    assert result.ok is True
+    assert result.compiled_tree_id == f"{artifact_id}@{revision_id}"
+
+
+def test_validate_missing_revision_returns_diagnostic_not_crash(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    _create(store, VALID_DRAFT)
+    result = validate_content_artifact(
+        ValidateContentArtifactInput(
+            artifact_id="capability-page.workflow-automation", revision_id="rev-999"
+        ),
+        store,
+    )
+    assert result.ok is False
+    assert any(d["code"] == "REVISION_NOT_FOUND" for d in result.diagnostics)
+
+
+def test_render_preview_url_includes_dialect(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    artifact_id, revision_id = _create(store, VALID_DRAFT)
+    preview = render_preview(
+        RenderPreviewInput(artifact_id=artifact_id, revision_id=revision_id, dialect="night"),
+        store,
+    )
+    assert preview.preview_url == f"/preview/{artifact_id}/{revision_id}?dialect=night"

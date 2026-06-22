@@ -2,6 +2,7 @@
   "additionalProperties": false,
   "properties": {
     "artifact_id": {
+      "pattern": "^capability-page\\.[a-z0-9]+(?:-[a-z0-9]+)*$",
       "title": "Artifact Id",
       "type": "string"
     },
@@ -16,6 +17,7 @@
       "type": "string"
     },
     "revision_id": {
+      "pattern": "^rev-\\d{3}$",
       "title": "Revision Id",
       "type": "string"
     },

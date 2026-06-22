@@ -12,6 +12,7 @@ from morphe_cms.tools.models import (
     RenderPreviewResult,
     ToolResult,
     ValidateContentArtifactInput,
+    ValidateContentArtifactResult,
 )
 from morphe_cms.validation.gate import compile_and_gate
 
@@ -64,17 +65,32 @@ def create_capability_page(
 
 def validate_content_artifact(
     payload: ValidateContentArtifactInput, store: FileStore
-) -> ToolResult:
+) -> ValidateContentArtifactResult:
     slug = payload.artifact_id.removeprefix("capability-page.")
-    envelope = store.read_artifact(slug, payload.revision_id)
+    try:
+        envelope = store.read_artifact(slug, payload.revision_id)
+    except (FileNotFoundError, ValueError):
+        return ValidateContentArtifactResult(
+            ok=False,
+            diagnostics=[
+                {
+                    "code": "REVISION_NOT_FOUND",
+                    "severity": "error",
+                    "path": "revision_id",
+                    "message": "No stored revision for this artifact_id/revision_id.",
+                }
+            ],
+        )
     draft = CapabilityPageDraft.model_validate(envelope.data)
     compiled, diagnostics = compile_and_gate(
         draft, artifact_id=payload.artifact_id, revision_id=payload.revision_id
     )
-    return ToolResult(
+    compiled_tree_id = (
+        f"{payload.artifact_id}@{payload.revision_id}" if compiled is not None else None
+    )
+    return ValidateContentArtifactResult(
         ok=compiled is not None,
-        artifact_id=payload.artifact_id,
-        revision_id=payload.revision_id,
+        compiled_tree_id=compiled_tree_id,
         diagnostics=[d.model_dump() for d in diagnostics],
     )
 
@@ -93,9 +109,10 @@ def render_preview(payload: RenderPreviewInput, store: FileStore) -> RenderPrevi
                 }
             ],
         )
-    return RenderPreviewResult(
-        ok=True, preview_url=f"/preview/{payload.artifact_id}/{payload.revision_id}"
-    )
+    url = f"/preview/{payload.artifact_id}/{payload.revision_id}"
+    if payload.dialect is not None:
+        url = f"{url}?dialect={payload.dialect}"
+    return RenderPreviewResult(ok=True, preview_url=url)
 
 
 def publish_content_artifact(
