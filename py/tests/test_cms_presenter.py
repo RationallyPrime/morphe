@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from morphe_cms.contracts.capability_page import CTA, HeroBlock, ProofPoint
+from morphe_cms.contracts.capability_page import CTA, CapabilityPageDraft, HeroBlock, ProofPoint
 from morphe_cms.contracts.shared import MorpheControls
 from morphe_cms.presenter.capability_page import (
+    present_capability_page,
     present_cta,
     present_hero,
     present_proof_points,
+    present_section,
 )
 from morphe_grammar import validate_node
+from morphe_grammar import validate_node as _vn
+
+from .cms_fixtures import VALID_DRAFT
 
 
 def test_hero_emits_valid_stack() -> None:
@@ -47,3 +52,72 @@ def test_proof_points_emit_valid_list() -> None:
 
 def test_empty_proof_points_returns_none() -> None:
     assert present_proof_points([]) is None
+
+
+def test_each_section_kind_compiles() -> None:
+    for section in CapabilityPageDraft.model_validate(VALID_DRAFT).sections:
+        node = present_section(section)
+        assert node["kind"] == "stack"
+        _vn(node)
+
+
+def test_faq_section_uses_disclosure() -> None:
+    draft = CapabilityPageDraft.model_validate(
+        {
+            **VALID_DRAFT,
+            "sections": [
+                {
+                    "kind": "faq",
+                    "title": "Questions",
+                    "items": [
+                        {"question": "Is it typed?", "answer": "Yes, every artifact is validated."},
+                        {"question": "Can it re-theme?", "answer": "Yes, by swapping the dialect."},
+                    ],
+                }
+            ],
+        }
+    )
+    node = present_section(draft.sections[0])
+    kinds = [c["kind"] for c in node["children"]]
+    assert "disclosure" in kinds
+
+
+def test_full_page_compiles_and_is_valid() -> None:
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+    tree = present_capability_page(draft)
+    assert tree["kind"] == "frame"
+    assert tree["role"] == "page"
+    assert tree["surface"] == "base"
+    _vn(tree)
+
+
+def test_presenter_is_deterministic() -> None:
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+    assert present_capability_page(draft) == present_capability_page(draft)
+
+
+def test_hero_variation_emits_vary() -> None:
+    draft = CapabilityPageDraft.model_validate(
+        {
+            **VALID_DRAFT,
+            "hero_variation": {
+                "objective": "salience",
+                "variants": [
+                    {
+                        "angle": "governance",
+                        "title": "Accountable automation",
+                        "thesis": "Stay on the record while moving fast.",
+                    },
+                    {
+                        "angle": "speed",
+                        "title": "Faster operational loops",
+                        "thesis": "Cut release latency without losing control.",
+                    },
+                ],
+            },
+        }
+    )
+    tree = present_capability_page(draft)
+    vary_nodes = [c for c in tree["children"] if c.get("kind") == "vary"]
+    assert vary_nodes and vary_nodes[0]["default"] == 0  # noqa: PT018
+    _vn(tree)
