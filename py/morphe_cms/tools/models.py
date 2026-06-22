@@ -23,6 +23,8 @@ class ToolResult(CmsModel):
 class ValidateContentArtifactInput(CmsModel):
     artifact_id: str
     revision_id: str
+    # Reserved: not enforced in v0 (no warning-severity rules exist to relax yet). Kept
+    # for PRD §9.3 tool-contract parity; wire when a strict/lenient distinction is real.
     strict: bool = True
 
 

@@ -101,8 +101,19 @@ def render_preview(payload: RenderPreviewInput, store: FileStore) -> RenderPrevi
 def publish_content_artifact(
     payload: PublishContentArtifactInput, store: FileStore, *, now: str
 ) -> ToolResult:
-    slug = payload.slug
-    if not store.has_validated_revision(slug, payload.revision_id):
+    artifact_slug = payload.artifact_id.removeprefix("capability-page.")
+    if payload.slug != artifact_slug:
+        msg = f"slug '{payload.slug}' does not match artifact_id '{payload.artifact_id}'."
+        return ToolResult(
+            ok=False,
+            artifact_id=payload.artifact_id,
+            revision_id=payload.revision_id,
+            diagnostics=[
+                {"code": "SLUG_MISMATCH", "severity": "error", "path": "slug", "message": msg}
+            ],
+        )
+    if not store.has_validated_revision(artifact_slug, payload.revision_id):
+        msg = "Publish requires a revision with a stored, gate-passing compiled tree."
         return ToolResult(
             ok=False,
             artifact_id=payload.artifact_id,
@@ -112,16 +123,14 @@ def publish_content_artifact(
                     "code": "REVISION_NOT_VALIDATED",
                     "severity": "error",
                     "path": "revision_id",
-                    "message": (
-                        "Publish requires a revision with a stored, gate-passing compiled tree."
-                    ),
+                    "message": msg,
                 }
             ],
         )
     store.publish(
-        slug,
+        artifact_slug,
         Publication(
-            slug=slug,
+            slug=artifact_slug,
             artifact_id=payload.artifact_id,
             revision_id=payload.revision_id,
             channel=payload.channel,
