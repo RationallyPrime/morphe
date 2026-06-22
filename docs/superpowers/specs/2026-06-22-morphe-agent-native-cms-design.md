@@ -149,10 +149,12 @@ A FastAPI app mounts `fastapi-mcp`, exposing four tools. Each is a typed functio
 
 **Tool input stays typed** (`CreateCapabilityPageInput`, etc.) so fastapi-mcp advertises the full JSON Schema to the agent — that is the constrained-generation benefit from PRD §3, which an untyped `dict` input would forfeit. Consequence: FastAPI validates *shape* before the tool body runs. So:
 
-- **Schema-invalid calls** are rejected by the framework. A custom `RequestValidationError` handler **converts Pydantic's `ValidationError` into our `Diagnostic` shape** (PRD §22) so the agent still gets repairable, `path`-keyed errors. **These are not persisted** — no artifact revision is created.
-- **Shape-valid but policy/grammar-invalid** drafts *are* persisted, as a `draft`-status revision with a diagnostics record, so the agent can iterate against a stored artifact.
+- **Schema-invalid calls** (wrong shape / unknown literal) are rejected before the tool body runs and **are not persisted**. The error surface is **transport-dependent** (verified empirically against fastapi-mcp 0.4.0 in the verification pass):
+  - **Direct REST path:** a custom `RequestValidationError` handler converts Pydantic's `ValidationError` into our `Diagnostic` shape (PRD §22) — repairable, `path`-keyed, status 422. The fully-structured envelope is always available here.
+  - **MCP transport (the agent path):** more limited. The MCP server pre-validates against the advertised JSON Schema and surfaces closed-literal/shape violations as a plain MCP error string (`isError`) *before* the REST handler runs; pydantic-only violations (model-validators, patterns) reach the handler but fastapi-mcp re-wraps the 422 body as an exception string. So over MCP the **constrained-generation schema is the primary repair mechanism** — the advertised enums/patterns (incl. the closed `IntentRef`/`DialectName` and the `revision_id`/`artifact_id` patterns) stop most bad emissions at the source. Clean structured `Diagnostic`s over MCP are guaranteed for **policy/business** failures (next bullet), not for raw shape violations. Owning the tool dispatch to also structure shape errors over MCP is a future iteration (out of v0 scope).
+- **Shape-valid but policy/grammar-invalid** drafts *are* persisted, as a `draft`-status revision with a diagnostics record, and returned as a **200 `ToolResult{ok:false, diagnostics}`** — which passes through cleanly over **both** REST and MCP — so the agent can iterate against a stored artifact.
 
-This is the explicit resolution of "failed artifacts save as draft": *shape* failures return diagnostics only; *policy/grammar* failures save as draft.
+This is the explicit resolution of "failed artifacts save as draft": *shape* failures return diagnostics only (structured on REST; schema-constrained-at-source + string-surfaced over MCP); *policy/grammar* failures save as draft and return structured diagnostics on both transports.
 
 Deferred to iteration 2: **`reviseContentArtifact`** (decision) and **`proposeCompound`** (PRD §26.5).
 
