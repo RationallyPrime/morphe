@@ -25,3 +25,7 @@ src/app/compose/generated/
 # local conversation exports (personal source material, never repo content)
 /Contextually aware adaptive UI design system.json
 /Dynamic adaptive UI with Pydantic FastUI.json
+# CMS runtime artifacts (local/dev; schema/cms/ and src/lib/cms/fixtures/ ARE committed)
+/content/
+/compiled/
+/publications.json
