@@ -8,6 +8,9 @@ import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
 import type { PageServerLoad } from "./$types";
 
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const REV_RE = /^rev-\d{3}$/;
+
 interface PublicationFile {
 	revision_id: string;
 }
@@ -29,6 +32,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	}
 	const pub = publications[params.slug];
 	if (!pub) throw error(404, `No publication for ${params.slug}`);
+	if (!SLUG_RE.test(params.slug) || !REV_RE.test(pub.revision_id)) {
+		throw error(404, "Invalid publication pointer");
+	}
 
 	const path = join(
 		root,

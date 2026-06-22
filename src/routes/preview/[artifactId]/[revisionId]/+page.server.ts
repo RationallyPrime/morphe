@@ -10,13 +10,20 @@ import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
 import type { PageServerLoad } from "./$types";
 
+const ARTIFACT_PREFIX = /^capability-page\./;
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const REV_RE = /^rev-\d{3}$/;
+
 interface CompiledTreeFile {
 	tree: Node;
 	render_hints: { dialect: string };
 }
 
 export const load: PageServerLoad = async ({ params, url }) => {
-	const slug = params.artifactId.replace(/^capability-page\./, "");
+	const slug = params.artifactId.replace(ARTIFACT_PREFIX, "");
+	if (!SLUG_RE.test(slug) || !REV_RE.test(params.revisionId)) {
+		throw error(404, "Invalid artifact reference");
+	}
 	const path = join(
 		process.cwd(),
 		"compiled",
