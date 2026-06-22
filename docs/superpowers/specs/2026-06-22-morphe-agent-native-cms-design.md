@@ -79,14 +79,14 @@ tool call
   → CMS policy validation (PRD §13)
   → presenter compile (draft → Node dict)
   → validate_node  ◄── the grammar gate; fail-closed
-  → store compiled tree + mark revision validated
+  → write revision (status frozen) + compiled tree (atomically)
 ```
 
-**Key insight — render totality makes a runtime render-smoke redundant.** The Morphe renderer is *total*: unknown compounds render-nothing, no node kind throws (verified in recon; CONTRACT R0.2). Therefore any tree that passes `validate_node` **cannot crash the renderer**. So:
+**Key insight — render totality makes a runtime render-smoke unnecessary.** The Morphe renderer is *total*: unknown compounds render-nothing, no node kind throws (verified in recon; CONTRACT R0.2). So any tree that passes `validate_node` **should not crash the renderer because of authored tree shape**. That is a claim about *tree shape only* — it deliberately does **not** cover renderer bugs, TS↔Python schema drift, file corruption, or unsupported runtime assumptions. Those residual risks are real, which is exactly why the SSR smoke stays. So:
 
-- **Runtime gate (inside each MCP tool):** pydantic → policy → `validate_node`. Pure Python, fail-closed, zero cross-language hop.
+- **Runtime gate (inside each MCP tool):** pydantic → policy → `validate_node`. Pure Python, fail-closed, zero cross-language hop. This guarantees *authored-shape* validity, nothing more.
 - **Render-smoke** moves out of the runtime path (a deliberate deviation from PRD §12, approved): it lives as
-  1. a **Vitest SSR test** (TS) that imports `MorpheRoot`, renders committed compiled-tree fixtures, and asserts no throw — belt-and-suspenders proof of totality on real fixtures; and
+  1. a **Vitest SSR test** (TS) that imports `MorpheRoot`, renders committed compiled-tree fixtures, and asserts no throw — catching the residual risks above (drift, renderer regressions) on real fixtures; and
   2. the live `/preview` route as the human visual smoke.
 
 Failures save as draft (PRD §12) and never publish. Policy returns repairable diagnostics (PRD §13/§22 `Diagnostic` model) keyed by `path` with `repair_hint`.
@@ -95,7 +95,7 @@ Failures save as draft (PRD §12) and never publish. Policy returns repairable d
 
 ## 4. Presenter
 
-`present_capability_page(draft: CapabilityPageDraft) -> dict` — pure, deterministic, no clock/RNG/IO. It emits **grammar primitives directly** (`{"kind":"text","value":...,"as":"heading","intent":...}`), *not* compounds, because the substrate's hard constraint forbids interpolating string fields through compound params — and a CapabilityPage is almost entirely strings (titles, claims, labels). Small section-presenter helpers compose into the page frame.
+`present_capability_page(draft: CapabilityPageDraft) -> dict` — pure, deterministic, no clock/RNG/IO. v0 **emits grammar primitives directly** (`{"kind":"text","value":...,"as":"heading","intent":...}`) because a CapabilityPage is string-heavy (titles, claims, labels) and direct primitive emission avoids the ergonomics of compound *param interpolation*: the substrate's hard constraint is that string fields can't be threaded through `ParamRef` params — compounds carry strings fine when authored in the template, they just can't be *parameterised* by them. Repeated section forms can graduate to compounds later. Small section-presenter helpers compose into the page frame.
 
 Conceptual mapping (corrected from PRD §11/§21):
 
@@ -124,8 +124,16 @@ publications.json                                    # slug → {artifact_id, re
 ```
 
 - `artifact_id = capability-page.<slug>`; `revision_id = rev-NNN` (zero-padded, per artifact).
-- **Append-only.** No in-place mutation of any revision.
-- **Publish = pointer move** in `publications.json`. **Rollback = repoint** to an earlier revision. Publish **fails closed** unless that exact revision has a stored, validated compiled tree.
+- **`CompiledTree` carries `render_hints`** so it is self-sufficient to render — the route reads **one file**:
+  ```python
+  class CompiledTree(BaseModel):   # extends PRD §7.2
+      ...
+      render_hints: RenderHints     # {"dialect": draft.morphe.dialect}
+  ```
+  The dialect lives here (a render hint), **not** in the `tree` (content⊥presentation, §2).
+- **Immutability (resolves append-only vs "mark validated"):** a revision file is **written exactly once and never mutated**. Its `status` is frozen at write time — `draft` if the gate failed, `validated` if it passed — and never changes afterward. **"Published" is not a revision-file status; it is the existence of a pointer in `publications.json`.** Equivalently: a revision is *validated* iff a matching compiled tree exists with ok diagnostics; *published* iff a publication pointer references it. Per-revision diagnostics are written once alongside the revision (`content/.../rev-NNN.diagnostics.json`), never edited.
+- **Publish = pointer move** in `publications.json`. **Rollback = repoint** to an earlier revision. Publish **fails closed** unless that exact revision has a stored, gate-passing compiled tree.
+- **Single-writer (v0):** v0 assumes a single writer. All file writes use temp-file + atomic rename (`os.replace`). Revision-number allocation and `publications.json` pointer moves are **not** concurrency-safe; concurrent revision creation is out of scope (no locking in v0).
 - v0 is **local/dev file-backed** (PRD §18). Production-on-Vercel persistence (compiled trees readable by serverless render routes) is the explicit later-DB step (PRD §15) — out of scope for v0.
 
 ---
@@ -139,15 +147,22 @@ A FastAPI app mounts `fastapi-mcp`, exposing four tools. Each is a typed functio
 3. **`renderPreview`** — returns a `/preview/<artifact>/<rev>` URL (+ optional dialect/viewport).
 4. **`publishContentArtifact`** — pointer move to a validated revision. Fails unless that revision passed the gate.
 
+**Tool input stays typed** (`CreateCapabilityPageInput`, etc.) so fastapi-mcp advertises the full JSON Schema to the agent — that is the constrained-generation benefit from PRD §3, which an untyped `dict` input would forfeit. Consequence: FastAPI validates *shape* before the tool body runs. So:
+
+- **Schema-invalid calls** are rejected by the framework. A custom `RequestValidationError` handler **converts Pydantic's `ValidationError` into our `Diagnostic` shape** (PRD §22) so the agent still gets repairable, `path`-keyed errors. **These are not persisted** — no artifact revision is created.
+- **Shape-valid but policy/grammar-invalid** drafts *are* persisted, as a `draft`-status revision with a diagnostics record, so the agent can iterate against a stored artifact.
+
+This is the explicit resolution of "failed artifacts save as draft": *shape* failures return diagnostics only; *policy/grammar* failures save as draft.
+
 Deferred to iteration 2: **`reviseContentArtifact`** (decision) and **`proposeCompound`** (PRD §26.5).
 
 ---
 
 ## 7. Render surface (SvelteKit)
 
-- `src/routes/preview/[artifactId]/[revisionId]/+page.server.ts` — reads the compiled tree JSON, parses, passes to `MorpheRoot` with the artifact's `dialect` hint (overridable by `?dialect=`).
-- `src/routes/p/[slug]/+page.server.ts` — resolves `publications.json` → revision → compiled tree → `MorpheRoot`.
-- Both are thin: read JSON, render. No business logic. The TS side trusts the Python gate (the JSON is already `validate_node`-valid; the TS grammar mirror is kept in sync).
+- `src/routes/preview/[artifactId]/[revisionId]/+page.server.ts` — reads the **one** compiled-tree file, passes `tree` to `MorpheRoot` and `render_hints.dialect` as the dialect (overridable by `?dialect=`).
+- `src/routes/p/[slug]/+page.server.ts` — resolves `publications.json` → compiled-tree file → `MorpheRoot` (dialect from `render_hints`).
+- Both are thin: read one JSON file, render. No business logic, no second file to join. The TS side trusts the Python gate (the JSON is already `validate_node`-valid; the TS grammar mirror is kept in sync).
 
 ---
 
@@ -190,7 +205,11 @@ Committed. These are the wire/tool contracts; TS consumer types, if needed later
 
 1. **Runtime home:** Python owns all CMS runtime; SvelteKit is render-only. Boundary = validated Node JSON file.
 2. **Tool transport:** fastapi-mcp MCP server from day one.
-3. **Render-smoke:** gate on `validate_node` at tool-runtime (justified by renderer totality); render-smoke is a Vitest test + the preview route — not a runtime step.
+3. **Render-smoke:** runtime gate is `validate_node` only — it guarantees authored-tree-shape validity, *not* freedom from renderer bugs/drift/corruption; render-smoke (Vitest SSR + preview route) stays to cover that residual risk.
 4. **Intents:** closed 8-intent `Literal`; full freedom on all fields; CTA defaults to `primary-action`; no beacon-scarcity type restriction.
 5. **Revise/propose:** deferred to iteration 2.
 6. **Stale-Literal corrections:** intents, dialects (9), surface (`base/raised/sunken`), emphasis (`muted/normal/strong/critical`) all reconciled to `morphe_grammar/models.py`.
+7. **Render hints:** `CompiledTree.render_hints.dialect` makes a compiled tree self-sufficient to render; routes read one file; dialect never enters the `tree`.
+8. **Persistence on failure:** schema-invalid → `Diagnostic`-shaped repair errors, *not persisted*; shape-valid but policy/grammar-invalid → saved as `draft` with diagnostics.
+9. **Immutability:** revision files written once, `status` frozen at write (`draft`|`validated`); "published" is pointer existence, not a file field.
+10. **Concurrency:** v0 single-writer; temp-file + atomic rename; concurrent creation out of scope.
