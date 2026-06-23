@@ -8,6 +8,20 @@
 
 ## The adaptation tower
 
+- **Morphe** — the product module: a typed adaptive-UI substrate plus its
+  agent-native content compiler. It is not the Sókrates website; the website
+  consumes Morphe.
+- **Morphe CMS** — the Morphe-local content compiler that turns typed content
+  artifacts into validated Morphe node trees and publication pointers.
+- **Host application** — an application that consumes Morphe and owns its own
+  copy, routes, native control surfaces, side effects, and deployment.
+- **Playground** — Morphe's own full-featured demonstration host, used to prove
+  and inspect the substrate by exercising its authored-tree, dialect, variation,
+  CMS, and adaptive seams. It contains no Sókrates-specific content.
+- **Demo asset set** — the neutral visual material the Playground uses to
+  showcase Morphe's media, dialect, and adaptation capabilities. It is authored
+  for Morphe itself, not inherited from a host application's brand narrative.
+
 - **Stratum** — a timescale class of adaptation (τ_frame, τ_slow, τ_mid,
   τ_fast), each served by its own actor under a typed envelope. See
   `VISION.md` Definition 4.
