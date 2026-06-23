@@ -123,7 +123,9 @@ function fallbackResult(
 }
 
 function errorName(error: unknown): string {
-	if (error instanceof DOMException && error.name) return error.name;
+	if (typeof DOMException !== "undefined" && error instanceof DOMException && error.name) {
+		return error.name;
+	}
 	if (error instanceof Error && error.name) return error.name;
 	return "unknown";
 }

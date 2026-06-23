@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { FALLBACK_LOCAL_ADAPTIVE_DRAFT } from "./fallback.js";
 import type { PromptLanguageModelApi } from "./local-ai.js";
 import { generateLocalAdaptiveDraft } from "./local-ai.js";
@@ -27,7 +27,25 @@ function fakeApi(
 	};
 }
 
+function fakeSessionApi(session: {
+	readonly prompt: () => Promise<string>;
+	readonly destroy: () => void;
+}): PromptLanguageModelApi {
+	return {
+		async availability() {
+			return "available" as const;
+		},
+		async create() {
+			return session;
+		},
+	};
+}
+
 describe("local AI provider", () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
 	it("falls back when no LanguageModel adapter is available", async () => {
 		const result = await generateLocalAdaptiveDraft(promptInput, { api: undefined });
 
@@ -64,6 +82,27 @@ describe("local AI provider", () => {
 		expect(result.diagnostics).toEqual(["chrome-live"]);
 	});
 
+	it("destroys a successful live session", async () => {
+		const destroy = vi.fn();
+
+		await generateLocalAdaptiveDraft(promptInput, {
+			api: fakeSessionApi({
+				async prompt() {
+					return JSON.stringify({
+						title: "Live local draft",
+						summary: "Gemini Nano produced a bounded semantic draft.",
+						tone: "success",
+						badges: ["chrome", "validated"],
+						nextActionLabel: "Use draft",
+					});
+				},
+				destroy,
+			}),
+		});
+
+		expect(destroy).toHaveBeenCalledOnce();
+	});
+
 	it("falls back on invalid JSON", async () => {
 		const result = await generateLocalAdaptiveDraft(promptInput, {
 			api: fakeApi("available", "{not-json"),
@@ -74,6 +113,21 @@ describe("local AI provider", () => {
 		expect(result.diagnostics[0]).toContain("chrome-error:invalid-json");
 	});
 
+	it("destroys sessions that return invalid JSON", async () => {
+		const destroy = vi.fn();
+
+		await generateLocalAdaptiveDraft(promptInput, {
+			api: fakeSessionApi({
+				async prompt() {
+					return "{not-json";
+				},
+				destroy,
+			}),
+		});
+
+		expect(destroy).toHaveBeenCalledOnce();
+	});
+
 	it("falls back on schema-invalid draft output", async () => {
 		const result = await generateLocalAdaptiveDraft(promptInput, {
 			api: fakeApi("available", JSON.stringify({ title: "Missing fields" })),
@@ -81,6 +135,21 @@ describe("local AI provider", () => {
 
 		expect(result.source).toBe("fallback");
 		expect(result.diagnostics.join(" ")).toContain("draft-invalid");
+	});
+
+	it("destroys sessions that return schema-invalid drafts", async () => {
+		const destroy = vi.fn();
+
+		await generateLocalAdaptiveDraft(promptInput, {
+			api: fakeSessionApi({
+				async prompt() {
+					return JSON.stringify({ title: "Missing fields" });
+				},
+				destroy,
+			}),
+		});
+
+		expect(destroy).toHaveBeenCalledOnce();
 	});
 
 	it("falls back when create or prompt throws", async () => {
@@ -97,5 +166,35 @@ describe("local AI provider", () => {
 
 		expect(result.source).toBe("fallback");
 		expect(result.diagnostics).toContain("chrome-error:NotAllowedError");
+	});
+
+	it("falls back when prompt throws", async () => {
+		const result = await generateLocalAdaptiveDraft(promptInput, {
+			api: fakeSessionApi({
+				async prompt() {
+					throw new Error("prompt failed");
+				},
+				destroy() {},
+			}),
+		});
+
+		expect(result.source).toBe("fallback");
+		expect(result.diagnostics).toContain("chrome-error:Error");
+	});
+
+	it("falls back when DOMException is unavailable in the runtime", async () => {
+		vi.stubGlobal("DOMException", undefined);
+
+		const result = await generateLocalAdaptiveDraft(promptInput, {
+			api: fakeSessionApi({
+				async prompt() {
+					throw new Error("prompt failed");
+				},
+				destroy() {},
+			}),
+		});
+
+		expect(result.source).toBe("fallback");
+		expect(result.diagnostics).toContain("chrome-error:Error");
 	});
 });
