@@ -1,11 +1,6 @@
 <script lang="ts">
 	import type { ActionMap, ChoiceMap, JsonRecord } from "$lib";
-	import {
-		activeDialect,
-		createInMemoryMorpheStore,
-		DEFAULT_DIALECT_ID,
-		getDialect,
-	} from "$lib";
+	import { activeDialect, createInMemoryMorpheStore, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
 	import { FALLBACK_LOCAL_ADAPTIVE_DRAFT, fallbackDiagnostics } from "../_playground/fallback.js";
@@ -22,7 +17,6 @@
 
 	let activeExhibit = $state<ExhibitId>("grammar");
 	let grammarVariant = $state<GrammarVariant>("layout");
-	let selectedDialectId = $state(DEFAULT_DIALECT_ID);
 	let selectedVaryChoice = $state(0);
 	let actionLog = $state<readonly string[]>([]);
 	let localGoal = $state("Review an exception queue");
@@ -72,7 +66,6 @@
 
 	function setDialect(event: Event): void {
 		const value = (event.currentTarget as HTMLSelectElement).value;
-		selectedDialectId = value;
 		activeDialect.setById(value);
 	}
 
@@ -82,14 +75,21 @@
 
 	async function runLocalAi(): Promise<void> {
 		localBusy = true;
-		const result = await generateLocalAdaptiveDraft({
-			goal: localGoal,
-			dialectId: activeDialect.id,
-		});
-		localDraft = result.draft;
-		localSource = result.source;
-		localDiagnostics = result.diagnostics;
-		localBusy = false;
+		try {
+			const result = await generateLocalAdaptiveDraft({
+				goal: localGoal,
+				dialectId: activeDialect.id,
+			});
+			localDraft = result.draft;
+			localSource = result.source;
+			localDiagnostics = result.diagnostics;
+		} catch {
+			localDraft = FALLBACK_LOCAL_ADAPTIVE_DRAFT;
+			localSource = "fallback";
+			localDiagnostics = fallbackDiagnostics("provider-threw");
+		} finally {
+			localBusy = false;
+		}
 	}
 
 	function resetLocalAi(): void {
@@ -111,7 +111,7 @@
 	<header class="workbench__mast">
 		<p class="workbench__eyebrow">Morphe Workbench</p>
 		<h1>Substrate under live pressure</h1>
-		<p>
+		<p class="workbench__intro">
 			One neutral playground for authored UI as data, dialects, context algebra, state
 			sockets, variation, CMS publication, and adaptive providers.
 		</p>
@@ -151,14 +151,17 @@
 			{:else if activeExhibit === "dialects"}
 				<label class="field" for="dialect-select">
 					<span>Global dialect</span>
-					<select id="dialect-select" value={selectedDialectId} onchange={setDialect}>
+					<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
 						{#each DIALECT_OPTIONS as dialectId (dialectId)}
 							<option value={dialectId}>{dialectId}</option>
 						{/each}
 					</select>
 				</label>
 			{:else if activeExhibit === "state"}
-				<p class="control-copy">Use the rendered Morphe inputs and buttons in the preview.</p>
+				<p class="control-copy">
+					Goal: {String(storeSnapshot["playground.goal"])} · Reviewed:
+					{String(storeSnapshot["playground.reviewed"])}
+				</p>
 			{:else if activeExhibit === "vary"}
 				<label class="field" for="vary-choice">
 					<span>Choice demo.mode</span>
@@ -240,7 +243,7 @@
 		font-size: clamp(var(--mo-type-7), 6vw, var(--mo-type-9));
 		line-height: var(--mo-leading-tight);
 	}
-	.workbench__mast p:last-child {
+	.workbench__intro {
 		max-inline-size: 64ch;
 		margin: var(--mo-space-3) 0 0;
 		font-size: var(--mo-type-4);

@@ -16,5 +16,9 @@ describe("/substrate coherent playground", () => {
 		expect(html).toContain("Proof rail");
 		expect(html).toContain("Chrome local AI unavailable");
 		expect(html).toContain("Preview capability-page.demo/rev-001");
+		expect(html).toContain('class="mo-root');
+		expect(html).toContain('data-mo-dialect="gallery"');
+		expect(html).toContain("Node families are authored data, not components.");
+		expect(html).toContain("Selected Node JSON");
 	});
 });
