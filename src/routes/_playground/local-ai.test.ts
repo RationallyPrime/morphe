@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FALLBACK_LOCAL_ADAPTIVE_DRAFT } from "./fallback.js";
-import type { PromptLanguageModelApi } from "./local-ai.js";
+import type { PromptAvailability, PromptLanguageModelApi } from "./local-ai.js";
 import { generateLocalAdaptiveDraft } from "./local-ai.js";
+import { LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT } from "./validation.js";
 
 const promptInput = {
 	goal: "Review an exception queue",
@@ -54,6 +55,43 @@ describe("local AI provider", () => {
 		expect(result.diagnostics).toContain("chrome-unavailable:LanguageModel");
 	});
 
+	it.each([
+		{
+			availability: "unavailable",
+			source: "chrome-unavailable",
+			diagnostic: "chrome-unavailable:availability",
+		},
+		{
+			availability: "downloadable",
+			source: "chrome-downloading",
+			diagnostic: "chrome-downloading:downloadable",
+		},
+		{
+			availability: "downloading",
+			source: "chrome-downloading",
+			diagnostic: "chrome-downloading:downloading",
+		},
+	] as const)("returns deterministic fallback when availability is $availability", async ({
+		availability,
+		source,
+		diagnostic,
+	}) => {
+		const create = vi.fn();
+		const api: PromptLanguageModelApi = {
+			async availability(): Promise<PromptAvailability> {
+				return availability;
+			},
+			create,
+		};
+
+		const result = await generateLocalAdaptiveDraft(promptInput, { api });
+
+		expect(result.source).toBe(source);
+		expect(result.draft).toEqual(FALLBACK_LOCAL_ADAPTIVE_DRAFT);
+		expect(result.diagnostics).toContain(diagnostic);
+		expect(create).not.toHaveBeenCalled();
+	});
+
 	it("keeps deterministic preview active during model download states", async () => {
 		const result = await generateLocalAdaptiveDraft(promptInput, {
 			api: fakeApi("downloadable", "{}"),
@@ -80,6 +118,43 @@ describe("local AI provider", () => {
 		expect(result.source).toBe("chrome-live");
 		expect(result.draft.title).toBe("Live local draft");
 		expect(result.diagnostics).toEqual(["chrome-live"]);
+	});
+
+	it("passes the response constraint to prompt instead of create", async () => {
+		let createOptions: unknown;
+		let promptOptions: unknown;
+
+		const result = await generateLocalAdaptiveDraft(promptInput, {
+			api: {
+				async availability() {
+					return "available" as const;
+				},
+				async create(options) {
+					createOptions = options;
+					return {
+						async prompt(_input, options) {
+							promptOptions = options;
+							return JSON.stringify({
+								title: "Live local draft",
+								summary: "Gemini Nano produced a bounded semantic draft.",
+								tone: "success",
+								badges: ["chrome", "validated"],
+								nextActionLabel: "Use draft",
+							});
+						},
+						destroy() {},
+					};
+				},
+			},
+		});
+
+		expect(result.source).toBe("chrome-live");
+		expect(createOptions).not.toMatchObject({
+			responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
+		});
+		expect(promptOptions).toMatchObject({
+			responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
+		});
 	});
 
 	it("destroys a successful live session", async () => {

@@ -13,14 +13,18 @@ export interface PromptDownloadMonitor {
 }
 
 export interface PromptSession {
-	prompt(input: string): Promise<string>;
+	prompt(
+		input: string,
+		options?: {
+			readonly responseConstraint?: unknown;
+		},
+	): Promise<string>;
 	destroy?(): void;
 }
 
 export interface PromptLanguageModelApi {
 	availability(): Promise<PromptAvailability> | PromptAvailability;
 	create(options?: {
-		readonly responseConstraint?: unknown;
 		readonly monitor?: (monitor: PromptDownloadMonitor) => void;
 	}): Promise<PromptSession>;
 }
@@ -68,14 +72,15 @@ export async function generateLocalAdaptiveDraft(
 		}
 
 		const session = await api.create({
-			responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
 			monitor(monitor) {
 				monitor.addEventListener("downloadprogress", () => {});
 			},
 		});
 
 		try {
-			const raw = await session.prompt(buildPrompt(input));
+			const raw = await session.prompt(buildPrompt(input), {
+				responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
+			});
 			let parsed: unknown;
 			try {
 				parsed = JSON.parse(raw);
