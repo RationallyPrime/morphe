@@ -1,56 +1,57 @@
 <script lang="ts">
-
 	/*
-	 * The DIGNITY TEST (Corollary 1).
-	 *
-	 * One hand-authored Node tree (no agent), rendered through the Morphe core, and
-	 * a dialect toggle that re-themes the WHOLE page WITHOUT changing the tree —
-	 * the on-screen proof of the Lemma-3 fixed point.
-	 *
-	 * This component touches the library through MorpheRoot + the public barrel
-	 * only. The authored data (tree, compound, second dialect) lives in ./tree.ts.
-	 * The three brand fonts (Newsreader / Hanken Grotesk / IBM Plex Mono) and the
-	 * Material Symbols icon font are wired into the `--font-*` host vars the core
-	 * already references — the only CDN dependency, exactly as the Archive spec
-	 * allows. It is mounted by both `/` and `/dignity`.
+	 * Morphe neutral playground host. The authored interface lives in ./tree.ts;
+	 * this component supplies the frame-level live pieces: dialect, choice map,
+	 * store, and action map.
 	 */
 
-	import type { Dialect } from "$lib";
-	import { activeDialect, DIALECT_IDS, DIALECTS } from "$lib";
+	import type { ActionMap, ChoiceMap, Dialect } from "$lib";
+	import { activeDialect, commitTier1, createInMemoryMorpheStore, DIALECT_IDS, DIALECTS } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { dignityTree, registerDemoCompounds } from "./tree.js";
 
-	// Register the CatalogueEntry compound through the factory gate. Idempotent —
-	// safe under HMR. Done at module-eval so the registry is ready before render.
 	registerDemoCompounds();
 
-	// The dialect list is the GLOBAL registry — all shipped dialects, in order — not
-	// a list owned by this demo. The toggle DRIVES the global active-dialect store;
-	// reading `activeDialect.id` reflects it back. Because MorpheRoot below omits the
-	// `dialect` prop, flipping the toggle re-themes the whole app, not just the demo.
 	const dialects: readonly Dialect[] = DIALECT_IDS.map((id) => DIALECTS[id] as Dialect);
+	const demoStore = createInMemoryMorpheStore({
+		"demo.goal": "Review an exception queue",
+		"demo.note": "Keep the explanation short and evidence-led.",
+		"demo.mode": "triage",
+		"demo.detail": 3,
+		"demo.reviewed": false,
+	});
+
+	let choiceIndex = $state(0);
+	let actionCount = $state(0);
+	let lastAction = $state("ready");
+
+	const choices = $derived({ "demo.mode": choiceIndex } satisfies ChoiceMap);
+	const actions: ActionMap = {
+		"demo.rotate": () => {
+			choiceIndex = (choiceIndex + 1) % 3;
+			actionCount += 1;
+			lastAction = `mode-${choiceIndex + 1}`;
+			commitTier1(demoStore, "demo.mode-choice", "selection", choiceIndex);
+		},
+		"demo.review": () => {
+			actionCount += 1;
+			lastAction = "reviewed";
+			commitTier1(demoStore, "demo.reviewed", "selection", true);
+		},
+	};
 </script>
 
 <div class="page">
-	<!--
-	  The toggle is OUTSIDE the rendered tree — it is the τ_frame control surface,
-	  not part of the authored content. Flipping it swaps the dialect handed to
-	  MorpheRoot; the `tree` prop is byte-for-byte identical across both states.
-	-->
 	<header class="control">
 		<div class="control__brand">
-			<span class="control__glyph material-symbols-outlined" aria-hidden="true">brightness_alert</span>
+			<span class="control__glyph material-symbols-outlined" aria-hidden="true">hub</span>
 			<div class="control__id">
-				<p class="control__title">Morphe · Dignity Test</p>
-				<p class="control__sub">Corollary&nbsp;1 — one tree, two dialects, no agent.</p>
+				<p class="control__title">Morphe Playground</p>
+				<p class="control__sub">One authored tree, all shipped dialects, live host wires.</p>
 			</div>
 		</div>
 
-		<div
-			class="toggle"
-			role="radiogroup"
-			aria-label="Active dialect"
-		>
+		<div class="toggle" role="radiogroup" aria-label="Active dialect">
 			{#each dialects as d (d.id)}
 				<button
 					type="button"
@@ -70,22 +71,23 @@
 	<p class="proof" aria-live="polite">
 		Active dialect:&nbsp;<strong>{activeDialect.current.label}</strong>
 		<span class="proof__sep">·</span>
-		the authored tree below is unchanged — only the intent layer was remapped.
+		vary branch:&nbsp;<strong>{choiceIndex + 1}</strong>
+		<span class="proof__sep">·</span>
+		last action:&nbsp;<strong>{lastAction}</strong>
+		<span class="proof__sep">·</span>
+		actions:&nbsp;<strong>{actionCount}</strong>
 	</p>
 
 	<main class="surface">
 		{#key activeDialect.id}
-			<MorpheRoot tree={dignityTree} />
+			<MorpheRoot tree={dignityTree} store={demoStore} {actions} choices={choices} />
 		{/key}
 	</main>
 </div>
 
 <style>
 	/*
-	 * Page chrome only. The rendered content gets ALL its styling from the core's
-	 * tokens via MorpheRoot; this shell deliberately reads from the same `--mo-*`
-	 * vars so the frame around the demo stays consistent with whichever dialect is
-	 * active (the swatches and the surface tone shift with the toggle too).
+	 * Page chrome only. Rendered content gets its styling from MorpheRoot.
 	 */
 	.page {
 		max-width: 1080px;
@@ -172,12 +174,6 @@
 		outline: 2px solid var(--mo-intent-primary-action-ring);
 		outline-offset: 2px;
 	}
-	/*
-	 * The swatch previews each dialect's accent without ever naming a hex: it
-	 * resolves the same intent var the dialect remaps, so the dot literally is the
-	 * dialect's accent. (Inactive dialect's swatch reads its declared accent via a
-	 * scale var so both dots differ before you toggle.)
-	 */
 	.toggle__swatch {
 		inline-size: 0.7rem;
 		block-size: 0.7rem;
@@ -203,6 +199,15 @@
 	}
 	.toggle__swatch[data-dialect="night"] {
 		background: var(--mo-cobalt-700);
+	}
+	.toggle__swatch[data-dialect="ledger"] {
+		background: var(--mo-teal-500);
+	}
+	.toggle__swatch[data-dialect="estate"] {
+		background: var(--mo-copper-500);
+	}
+	.toggle__swatch[data-dialect="foundry"] {
+		background: var(--mo-steel-500);
 	}
 
 	.proof {

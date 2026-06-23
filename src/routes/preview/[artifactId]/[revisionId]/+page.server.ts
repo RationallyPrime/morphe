@@ -8,6 +8,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
+import { DEMO_DIALECT_ID, demoArtifactTree, isDemoPreview } from "../../../_demo/artifact.js";
 import type { PageServerLoad } from "./$types";
 
 const ARTIFACT_PREFIX = /^capability-page\./;
@@ -36,6 +37,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	try {
 		parsed = JSON.parse(await readFile(path, "utf-8")) as CompiledTreeFile;
 	} catch {
+		if (isDemoPreview(params.artifactId, params.revisionId)) {
+			return {
+				tree: demoArtifactTree,
+				dialectId: url.searchParams.get("dialect") ?? DEMO_DIALECT_ID,
+			};
+		}
 		throw error(404, `No compiled tree for ${params.artifactId}/${params.revisionId}`);
 	}
 

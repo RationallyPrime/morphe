@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+	<title id="title">Neutral signal map</title>
+	<desc id="desc">A branching signal map showing a typed state moving through panels.</desc>
+	<rect width="1280" height="720" fill="#111827" />
+	<g opacity="0.24" stroke="#cbd8e6" stroke-width="1">
+		<path d="M0 120h1280M0 240h1280M0 360h1280M0 480h1280M0 600h1280" />
+		<path d="M160 0v720M320 0v720M480 0v720M640 0v720M800 0v720M960 0v720M1120 0v720" />
+	</g>
+	<g fill="#f8fafc" opacity="0.08">
+		<rect x="86" y="86" width="260" height="160" rx="20" />
+		<rect x="510" y="86" width="260" height="160" rx="20" />
+		<rect x="934" y="86" width="260" height="160" rx="20" />
+		<rect x="300" y="432" width="260" height="160" rx="20" />
+		<rect x="720" y="432" width="260" height="160" rx="20" />
+	</g>
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M346 166h164" stroke="#2dd4bf" stroke-width="10" />
+		<path d="M770 166h164" stroke="#7b9cba" stroke-width="10" />
+		<path d="M216 246c0 160 214 64 214 186" stroke="#2563eb" stroke-width="10" />
+		<path d="M1064 246c0 160-214 64-214 186" stroke="#d2924f" stroke-width="10" />
+	</g>
+	<g fill="#f8fafc">
+		<circle cx="216" cy="166" r="28" />
+		<circle cx="640" cy="166" r="28" />
+		<circle cx="1064" cy="166" r="28" />
+		<circle cx="430" cy="512" r="28" />
+		<circle cx="850" cy="512" r="28" />
+	</g>
+	<g fill="#f8fafc" opacity="0.72">
+		<rect x="132" y="198" width="168" height="14" rx="7" />
+		<rect x="556" y="198" width="168" height="14" rx="7" />
+		<rect x="980" y="198" width="168" height="14" rx="7" />
+		<rect x="346" y="544" width="168" height="14" rx="7" />
+		<rect x="766" y="544" width="168" height="14" rx="7" />
+	</g>
+</svg>

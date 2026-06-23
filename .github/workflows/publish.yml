@@ -2,6 +2,16 @@ name: Publish package
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - "package.json"
+      - "bun.lock"
+      - "src/lib/**"
+      - "scripts/pack-verify.ts"
+      - ".github/workflows/publish.yml"
 
 permissions:
   contents: read

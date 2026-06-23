@@ -1,60 +1,34 @@
 /**
- * The DIGNITY-TEST data — hand-authored, no agent.
+ * Neutral Morphe playground data.
  *
- * This module is the proof of Corollary 1: "No agent: hand-authored trees render
- * through the same grammar, algebra, and tokens — Morphe must stand as a good
- * design system before any model touches it, and a human authoring trees by hand
- * should find it pleasant." Everything here is DATA: a Node tree, a compound
- * definition registered through the factory, and a second dialect.
- *
- * The whole file lives under src/routes/ (authored/demo space). It touches the
- * library through its PUBLIC barrel only and never reaches into the core — an
- * authored tree references INTENTS and ROLES, never a scale or a raw value. That
- * is exactly what makes the dialect toggle a Lemma-3 fixed point: the SAME tree
- * below renders under both dialects with zero edits.
+ * Everything exported here is authored data: one compound definition and one
+ * Node tree. The Svelte host provides live choices, actions, and a store.
  */
 
 import type { CompoundDef, Node } from "$lib";
 import { registry } from "$lib";
 
-/* ===========================================================================
- * 1. A COMPOUND, as DATA (Lemma 1 — algebraic closure).
- *
- * `CatalogueEntry` is the recurring shape of an archive record: a raised panel
- * with an accession line (folio code + a "catalogued" status), a record title,
- * a provenance caption, and a `body` Slot the call site fills (notes, badges,
- * sub-records — anything). It is `createCompoundComponent` lifted from code to
- * DATA:
- *   - ParamRef leaves are HYGIENIC — they resolve only against THIS compound's
- *     own args (folio / title / provenance), never the call site;
- *   - the `body` Slot fills from the call site's `slots.body`.
- *
- * `folio` is a string param (coerced to a Text node by the expander); `title`
- * and `provenance` are NODE params, so the call site authors them as Text nodes
- * and keeps full control of their register (`as` / `intent`) while staying
- * hygienic. Registering the compound runs the validation gate (expand with
- * default args, grammar type-check, acyclicity, depth bound). A failing compound
- * is simply not added — render stays total.
- * ========================================================================= */
-
-export const CatalogueEntry: CompoundDef = {
-	name: "CatalogueEntry",
+export const SignalCard: CompoundDef = {
+	name: "SignalCard",
 	version: "1.0.0",
 	grammarVersion: "0.1.0",
 	params: {
 		type: "object",
 		properties: {
-			folio: { type: "string", required: true, description: "Accession / folio code." },
-			title: { type: "node", required: true, description: "Record title (a Text node)." },
-			provenance: {
+			kicker: {
 				type: "node",
-				default: {
-					kind: "text",
-					value: "Provenance unrecorded.",
-					as: "caption",
-					emphasis: "muted",
-				},
-				description: "Provenance / date caption (a Text node).",
+				required: true,
+				description: "Small register heading for the card.",
+			},
+			title: {
+				type: "node",
+				required: true,
+				description: "Card title as an authored Text node.",
+			},
+			measure: {
+				type: "node",
+				default: { kind: "number", value: 0, format: "integer", intent: "neutral" },
+				description: "A numeric or textual measure node.",
 			},
 		},
 	},
@@ -66,49 +40,23 @@ export const CatalogueEntry: CompoundDef = {
 			{
 				kind: "stack",
 				role: "panel",
-				direction: "block",
 				children: [
-					// Accession line: folio code (left) + a "catalogued" status (right).
 					{
 						kind: "cluster",
 						role: "toolbar",
 						justify: "between",
 						align: "center",
 						children: [
-							{
-								kind: "cluster",
-								role: "inline",
-								align: "center",
-								children: [
-									{
-										kind: "icon",
-										name: "folder_open",
-										a11y: { role: "decorative" },
-										intent: "accession",
-									},
-									// folio code: a hygienic ParamRef -> coerced to a Text node.
-									{ kind: "param-ref", param: "folio" },
-								],
-							},
-							{
-								kind: "status",
-								tone: "neutral",
-								signal: { text: "Catalogued", icon: "verified" },
-							},
+							{ kind: "param-ref", param: "kicker" },
+							{ kind: "status", tone: "success", signal: { text: "Ready", icon: "check_circle" } },
 						],
 					},
-					// Title + provenance: NODE ParamRefs spliced in with the call site's
-					// chosen register.
 					{ kind: "param-ref", param: "title" },
-					{ kind: "param-ref", param: "provenance" },
-					{ kind: "spacer", size: "xs" },
-					// The call site fills the body.
+					{ kind: "param-ref", param: "measure" },
 					{
 						kind: "slot",
 						name: "body",
-						fallback: [
-							{ kind: "text", value: "No notes on file.", as: "caption", emphasis: "muted" },
-						],
+						fallback: [{ kind: "text", value: "No body supplied.", as: "caption" }],
 					},
 				],
 			},
@@ -116,37 +64,13 @@ export const CatalogueEntry: CompoundDef = {
 	},
 };
 
-/**
- * Register the demo compound through the factory gate. Guarded so HMR / repeated
- * imports don't error on a duplicate name; we assert the first registration
- * succeeded so an authoring mistake surfaces loudly instead of silently.
- */
 export function registerDemoCompounds(): void {
-	if (registry.has(CatalogueEntry.name)) return;
-	const result = registry.register(CatalogueEntry);
+	if (registry.has(SignalCard.name)) return;
+	const result = registry.register(SignalCard);
 	if (!result.ok) {
-		throw new Error(`CatalogueEntry failed registration: ${result.errors.join("; ")}`);
+		throw new Error(`SignalCard failed registration: ${result.errors.join("; ")}`);
 	}
 }
-
-/* ===========================================================================
- * 2. THE SECOND DIALECT — now promoted to the library.
- *
- * `reykjavik-registry` used to be defined inline here. It now lives in the
- * library (`$lib` → `dialects/reykjavik-registry.ts`) and is registered in
- * the global dialect registry, so the demo sources it from the registry like any
- * other shipped dialect rather than owning it locally. The fixed-point claim is
- * unchanged: toggling to it re-themes the page without touching the authored tree.
- * ========================================================================= */
-
-/* ===========================================================================
- * 3. THE AUTHORED TREE — read top-to-bottom, hand-written, pleasant by hand.
- *
- * An archive accession sheet: a masthead, a two-up catalogue of CatalogueEntry
- * compounds (each with a filled body), an intake form (Field + Select + Range +
- * Toggle, all a11y-required), a feedback band (Status / InlineAlert / Progress),
- * and a colophon. The SAME tree is what re-themes under the dialect toggle.
- * ========================================================================= */
 
 export const dignityTree: Node = {
 	kind: "frame",
@@ -154,7 +78,6 @@ export const dignityTree: Node = {
 	surface: "base",
 	budget: 4,
 	children: [
-		// --- Masthead -------------------------------------------------------
 		{
 			kind: "stack",
 			role: "section",
@@ -167,15 +90,20 @@ export const dignityTree: Node = {
 					justify: "between",
 					align: "baseline",
 					children: [
-						{ kind: "text", value: "Skjalasafn", as: "caption", intent: "accession" },
-						{ kind: "text", value: "Fol. MMXXVI · 07", as: "caption", emphasis: "muted" },
+						{ kind: "text", value: "Morphe Workbench", as: "caption", intent: "accession" },
+						{ kind: "text", value: "grammar v0.1", as: "caption", emphasis: "muted" },
 					],
 				},
-				{ kind: "text", value: "The Accession Sheet", as: "display", emphasis: "strong" },
+				{
+					kind: "text",
+					value: "A complete interface, authored as data",
+					as: "display",
+					emphasis: "strong",
+				},
 				{
 					kind: "text",
 					value:
-						"A hand-authored record tree, rendered through Morphe's grammar, context algebra, and three-layer tokens — no agent in the loop. The unexamined workflow is not worth automating.",
+						"One tree exercises layout, content, media, input, feedback, action, overlay, compound, bind, and vary surfaces through the public renderer.",
 					as: "body",
 					emphasis: "muted",
 				},
@@ -184,9 +112,10 @@ export const dignityTree: Node = {
 					role: "inline",
 					align: "center",
 					children: [
-						{ kind: "badge", label: "Svelte 5", intent: "provenance", icon: "bolt" },
-						{ kind: "badge", label: "Hand-authored", intent: "accession", icon: "edit_note" },
-						{ kind: "badge", label: "Corollary 1", intent: "success", icon: "check_circle" },
+						{ kind: "badge", label: "Node grammar", intent: "provenance", icon: "account_tree" },
+						{ kind: "badge", label: "Dialect safe", intent: "accession", icon: "palette" },
+						{ kind: "badge", label: "Bound controls", intent: "evidence", icon: "input" },
+						{ kind: "badge", label: "Action ids", intent: "success", icon: "bolt" },
 					],
 				},
 			],
@@ -194,170 +123,292 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
-		// --- Catalogue: two CatalogueEntry compounds, bodies filled ---------
 		{
-			kind: "stack",
-			role: "section",
-			direction: "block",
+			kind: "grid",
+			role: "list",
+			minTrack: "regular",
 			children: [
-				{ kind: "text", value: "Catalogue", as: "heading" },
 				{
-					kind: "grid",
-					role: "list",
-					minTrack: "regular",
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: {
+							kind: "text",
+							value: "context",
+							as: "caption",
+							intent: "provenance",
+						},
+						title: { kind: "text", value: "Algebra budget", as: "subheading" },
+						measure: {
+							kind: "number",
+							value: 4,
+							format: "integer",
+							intent: "accession",
+							emphasis: "strong",
+						},
+					},
+					slots: {
+						body: [
+							{
+								kind: "text",
+								value:
+									"Frames re-root context, surface, scale, and emphasis budget; children inherit the new local rules.",
+								as: "body",
+								emphasis: "muted",
+							},
+						],
+					},
+				},
+				{
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: {
+							kind: "text",
+							value: "tokens",
+							as: "caption",
+							intent: "evidence",
+						},
+						title: { kind: "text", value: "Intent channels", as: "subheading" },
+						measure: {
+							kind: "number",
+							value: 8,
+							format: "integer",
+							intent: "evidence",
+							emphasis: "strong",
+						},
+					},
+					slots: {
+						body: [
+							{
+								kind: "text",
+								value:
+									"Authored nodes name semantic intents; dialects remap the intent layer without changing the tree.",
+								as: "body",
+								emphasis: "muted",
+							},
+						],
+					},
+				},
+				{
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: {
+							kind: "text",
+							value: "state",
+							as: "caption",
+							intent: "success",
+						},
+						title: { kind: "text", value: "Tier-1 commits", as: "subheading" },
+						measure: {
+							kind: "number",
+							value: 32,
+							format: "integer",
+							intent: "success",
+							emphasis: "strong",
+						},
+					},
+					slots: {
+						body: [
+							{
+								kind: "text",
+								value:
+									"Bound primitives write through a root-provided store and keep a bounded recent-event window.",
+								as: "body",
+								emphasis: "muted",
+							},
+						],
+					},
+				},
+			],
+		},
+
+		{ kind: "spacer", size: "md" },
+
+		{
+			kind: "grid",
+			role: "section",
+			minTrack: "regular",
+			children: [
+				{
+					kind: "frame",
+					role: "panel",
+					surface: "sunken",
 					children: [
 						{
-							kind: "compound",
-							name: "CatalogueEntry",
-							args: {
-								folio: "AM 132 fol.",
-								title: {
-									kind: "text",
-									value: "Möðruvallabók",
-									as: "subheading",
-									intent: "accession",
-								},
-								provenance: {
-									kind: "text",
-									value: "Provenance: Möðruvellir, Hörgárdalur · c. 1330–1370",
-									as: "caption",
-									emphasis: "muted",
-								},
-							},
-							slots: {
-								body: [
-									{
-										kind: "text",
-										value:
-											"The largest surviving medieval compendium of Icelandic family sagas. Eleven sagas, one hand, one vellum.",
-										as: "body",
+							kind: "stack",
+							role: "form",
+							children: [
+								{ kind: "text", value: "Bound input surface", as: "heading" },
+								{
+									kind: "field",
+									a11y: {
+										id: "demo-goal",
+										label: { mode: "visible", text: "Interface goal" },
+										required: true,
 									},
-									{
-										kind: "cluster",
-										role: "inline",
-										align: "center",
-										children: [
-											{ kind: "badge", label: "Vellum", intent: "provenance" },
-											{ kind: "badge", label: "11 sagas", intent: "neutral" },
-										],
-									},
-								],
-							},
-						},
-						{
-							kind: "compound",
-							name: "CatalogueEntry",
-							args: {
-								folio: "GKS 2365 4to",
-								title: {
-									kind: "text",
-									value: "Codex Regius",
-									as: "subheading",
-									intent: "accession",
+									inputType: "text",
+									bind: "demo.goal",
+									placeholder: "Review an exception queue",
+									hint: "Committed on native change through the Morphe store.",
 								},
-								provenance: {
-									kind: "text",
-									value: "Provenance: acquired 1662 · Brynjólfur Sveinsson",
-									as: "caption",
-									emphasis: "muted",
+								{
+									kind: "field",
+									a11y: {
+										id: "demo-notes",
+										label: { mode: "visible", text: "Operator note" },
+									},
+									multiline: true,
+									rows: 3,
+									bind: "demo.note",
+									placeholder: "Keep the explanation short and evidence-led.",
+									hint: "Multiline is a capability of Field, not a separate primitive.",
 								},
-							},
-							slots: {
-								body: [
-									{
-										kind: "text",
-										value:
-											"The sole source for most of the Poetic Edda. Returned to Iceland in 1971 aboard the Vædderen, under naval escort.",
-										as: "body",
+								{
+									kind: "select",
+									a11y: {
+										id: "demo-mode",
+										label: { mode: "visible", text: "Review mode" },
 									},
-									{
-										kind: "status",
-										tone: "info",
-										signal: { text: "Digitisation pending", icon: "hourglass_top" },
+									options: [
+										{ value: "triage", label: "Triage" },
+										{ value: "approval", label: "Approval" },
+										{ value: "audit", label: "Audit trail" },
+									],
+									bind: "demo.mode",
+									variant: "radiogroup",
+								},
+								{
+									kind: "range",
+									a11y: {
+										id: "demo-density",
+										label: { mode: "visible", text: "Detail level" },
 									},
-								],
-							},
+									min: 1,
+									max: 5,
+									step: 1,
+									bind: "demo.detail",
+								},
+								{
+									kind: "toggle",
+									a11y: {
+										id: "demo-reviewed",
+										label: { mode: "visible", text: "Mark panel reviewed" },
+									},
+									bind: "demo.reviewed",
+									variant: "switch",
+								},
+							],
 						},
 					],
 				},
-			],
-		},
-
-		{ kind: "spacer", size: "md" },
-
-		// --- Intake form: every input a11y-required -------------------------
-		{
-			kind: "frame",
-			role: "panel",
-			surface: "sunken",
-			children: [
 				{
 					kind: "stack",
-					role: "form",
-					direction: "block",
+					role: "section",
 					children: [
-						{ kind: "text", value: "Request access", as: "subheading" },
 						{
-							kind: "text",
-							value: "Reading-room requests are reviewed by the duty registrar.",
-							as: "caption",
-							emphasis: "muted",
+							kind: "media",
+							src: "/images/demo/signal-map.svg",
+							alt: "A neutral signal map with branching paths and annotated interface panels.",
+							aspect: "video",
+							width: 1280,
+							height: 720,
 						},
 						{
-							kind: "field",
-							a11y: {
-								id: "intake-name",
-								label: { mode: "visible", text: "Researcher name" },
-								required: true,
-							},
-							inputType: "text",
-							placeholder: "e.g. Hákon Freyr",
-							hint: "As it appears on your institutional credential.",
-						},
-						{
-							kind: "field",
-							a11y: {
-								id: "intake-email",
-								label: { mode: "visible", text: "Contact email" },
-								required: true,
-							},
-							inputType: "email",
-							placeholder: "name@institution.is",
-						},
-						{
-							kind: "select",
-							a11y: {
-								id: "intake-collection",
-								label: { mode: "visible", text: "Collection" },
-								required: true,
-							},
+							kind: "vary",
+							id: "demo.mode",
+							default: 0,
+							objective: "salience",
 							options: [
-								{ value: "manuscripts", label: "Manuscripts (fol.)" },
-								{ value: "charters", label: "Charters & diplomas" },
-								{ value: "maps", label: "Maps & sea-charts" },
-								{ value: "restricted", label: "Restricted — registrar approval", disabled: true },
+								{
+									kind: "frame",
+									role: "panel",
+									surface: "raised",
+									children: [
+										{
+											kind: "stack",
+											role: "panel",
+											children: [
+												{ kind: "badge", label: "mode 1", intent: "provenance" },
+												{ kind: "text", value: "Compact triage", as: "heading" },
+												{
+													kind: "text",
+													value:
+														"The variation picks a short, scannable surface when the goal is quick sorting.",
+													as: "body",
+													emphasis: "muted",
+												},
+											],
+										},
+									],
+								},
+								{
+									kind: "frame",
+									role: "panel",
+									surface: "raised",
+									children: [
+										{
+											kind: "stack",
+											role: "panel",
+											children: [
+												{ kind: "badge", label: "mode 2", intent: "evidence" },
+												{ kind: "text", value: "Evidence review", as: "heading" },
+												{
+													kind: "text",
+													value:
+														"The same slot can widen into evidence, diagnostics, and status without leaving the grammar.",
+													as: "body",
+													emphasis: "muted",
+												},
+											],
+										},
+									],
+								},
+								{
+									kind: "frame",
+									role: "panel",
+									surface: "raised",
+									children: [
+										{
+											kind: "stack",
+											role: "panel",
+											children: [
+												{ kind: "badge", label: "mode 3", intent: "success" },
+												{ kind: "text", value: "Decision close", as: "heading" },
+												{
+													kind: "text",
+													value:
+														"Actions stay declarative: buttons name host-owned action ids, not handlers.",
+													as: "body",
+													emphasis: "muted",
+												},
+											],
+										},
+									],
+								},
 							],
-							hint: "Restricted holdings require separate clearance.",
 						},
 						{
-							kind: "range",
-							a11y: {
-								id: "intake-days",
-								label: { mode: "visible", text: "Requested reading days" },
-							},
-							min: 1,
-							max: 14,
-							step: 1,
-							hint: "Reading-room sittings, 1–14 days.",
-						},
-						{
-							kind: "toggle",
-							a11y: {
-								id: "intake-handling",
-								label: { mode: "visible", text: "I have completed handling training" },
-								required: true,
-							},
-							hint: "Required for direct contact with vellum originals.",
+							kind: "cluster",
+							role: "toolbar",
+							align: "center",
+							children: [
+								{
+									kind: "button",
+									label: "Rotate mode",
+									action: "demo.rotate",
+									icon: "sync",
+								},
+								{
+									kind: "button",
+									label: "Record review",
+									variant: "outline",
+									intent: "success",
+									action: "demo.review",
+									icon: "done",
+								},
+							],
 						},
 					],
 				},
@@ -366,13 +417,11 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
-		// --- Feedback band ---------------------------------------------------
 		{
 			kind: "stack",
 			role: "section",
-			direction: "block",
 			children: [
-				{ kind: "text", value: "Reading-room status", as: "heading" },
+				{ kind: "text", value: "Feedback and disclosure", as: "heading" },
 				{
 					kind: "grid",
 					role: "list",
@@ -381,66 +430,49 @@ export const dignityTree: Node = {
 						{
 							kind: "status",
 							tone: "success",
-							signal: { text: "Reading room open", icon: "lock_open" },
+							signal: { text: "Grammar resolved", icon: "check_circle" },
 						},
-						{
-							kind: "status",
-							tone: "caution",
-							signal: { text: "Conservation lab closed today", icon: "construction" },
-						},
-						{
-							kind: "status",
-							tone: "info",
-							signal: { text: "3 requests ahead of yours", icon: "groups" },
-						},
+						{ kind: "status", tone: "info", signal: { text: "Store connected", icon: "database" } },
+						{ kind: "status", tone: "caution", signal: { text: "Fallback active", icon: "info" } },
 					],
 				},
 				{
 					kind: "inline-alert",
 					tone: "info",
-					title: "Climate hold in effect",
+					title: "Render remains total",
 					detail:
-						"Vellum originals are released only when the room holds 18 °C and 50% RH. Digital surrogates remain available.",
+						"Unknown actions, missing CMS files, and unavailable sidecars degrade to visible fallback states instead of breaking the tree.",
 					live: "polite",
 				},
 				{
 					kind: "progress",
-					value: 0.62,
-					label: "Digitisation of the Árni Magnússon collection",
-					intent: "provenance",
+					value: 0.84,
+					label: "Surface coverage in this demo",
+					intent: "evidence",
 				},
-			],
-		},
-
-		{ kind: "spacer", size: "md" },
-
-		// --- Colophon --------------------------------------------------------
-		{
-			kind: "frame",
-			role: "panel",
-			surface: "raised",
-			children: [
 				{
-					kind: "stack",
-					role: "panel",
-					direction: "block",
+					kind: "disclosure",
+					summary: "Primitive inventory",
 					children: [
-						{ kind: "text", value: "Colophon", as: "subheading", intent: "accession" },
-						{
-							kind: "text",
-							value:
-								"Composed by hand as a Node tree, set in Newsreader, Hanken Grotesk and IBM Plex Mono. Rendered total through Morphe — Phase 0 keystone. The same tree above re-themes under a second dialect without a single node changed.",
-							as: "body",
-							emphasis: "muted",
-						},
 						{
 							kind: "cluster",
 							role: "inline",
-							justify: "between",
-							align: "baseline",
 							children: [
-								{ kind: "text", value: "Morphe · μορφή", as: "caption", intent: "accession" },
-								{ kind: "text", value: "Reykjavík · MMXXVI", as: "caption", emphasis: "muted" },
+								{ kind: "badge", label: "Frame" },
+								{ kind: "badge", label: "Stack" },
+								{ kind: "badge", label: "Grid" },
+								{ kind: "badge", label: "Cluster" },
+								{ kind: "badge", label: "Media" },
+								{ kind: "badge", label: "Field" },
+								{ kind: "badge", label: "Select" },
+								{ kind: "badge", label: "Range" },
+								{ kind: "badge", label: "Toggle" },
+								{ kind: "badge", label: "Status" },
+								{ kind: "badge", label: "Alert" },
+								{ kind: "badge", label: "Button" },
+								{ kind: "badge", label: "Link" },
+								{ kind: "badge", label: "Vary" },
+								{ kind: "badge", label: "Compound" },
 							],
 						},
 					],

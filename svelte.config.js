@@ -9,14 +9,6 @@ const config = {
 		// explicit function runtime, so the build-image Node version can't break the
 		// adapt step (adapter-auto's on-the-fly install choked on the Node 24 builder).
 		adapter: adapter({ runtime: "nodejs22.x" }),
-		alias: {
-			$compose: "src/app/compose",
-			"$compose/*": "src/app/compose/*",
-			$serverlib: "src/app/server",
-			"$serverlib/*": "src/app/server/*",
-			$site: "src/app/site",
-			"$site/*": "src/app/site/*",
-		},
 	},
 };
 

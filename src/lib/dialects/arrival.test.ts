@@ -3,9 +3,9 @@
  *
  * `resolveArrivalDialect` is the pure precedence rule behind DESIGN.md §9's
  * arrival wiring: valid landing param > persisted choice > null (leave the
- * default). The raw dialect param is `?dialect=`; `?cohort=` selects a COHORT
- * (which in turn supplies a dialect — an app concern, tested in
- * `src/app/site/cohort-arrival.test.ts`). These pin the pure rule's contract:
+ * default). The raw dialect param is `?dialect=`; higher-level arrival concepts
+ * that map cohorts or campaigns to dialects are consumer-app concerns. These
+ * pin the pure rule's contract:
  *
  *   C1  A VALID `?dialect=` param wins over the persisted choice — attribution
  *       is a statement about THIS arrival.
@@ -84,8 +84,8 @@ describe("C5 — arrival-sequence sanity against the real store (?dialect=)", ()
 	/**
 	 * The dialect half of the layout's mount sequence (URL mocked, localStorage as
 	 * a value): read `?dialect=`, resolve, and apply via `setById` when non-null.
-	 * `?cohort=` selects a COHORT (app concern) — that sequence is covered in
-	 * `src/app/site/cohort-arrival.test.ts`, where app→lib is the correct import.
+	 * Consumer apps can layer campaign/cohort resolution above this rule without
+	 * importing app-specific vocabulary back into the package.
 	 */
 	function arrive(href: string, persisted: string | null): void {
 		const dialect = new URL(href).searchParams.get("dialect");
@@ -94,30 +94,30 @@ describe("C5 — arrival-sequence sanity against the real store (?dialect=)", ()
 	}
 
 	it("?dialect=clinical lands with clinical active", () => {
-		arrive("https://sokrates.example/?dialect=clinical", null);
+		arrive("https://morphe.example/?dialect=clinical", null);
 		expect(activeDialect.current).toBe(clinical);
 		expect(activeDialect.id).toBe("clinical");
 	});
 
 	it("a valid ?dialect= outranks the persisted choice", () => {
-		arrive("https://sokrates.example/?dialect=reykjavik-registry", "clinical");
+		arrive("https://morphe.example/?dialect=reykjavik-registry", "clinical");
 		expect(activeDialect.id).toBe("reykjavik-registry");
 	});
 
 	it("no ?dialect= param restores the persisted choice", () => {
-		arrive("https://sokrates.example/", "clinical");
+		arrive("https://morphe.example/", "clinical");
 		expect(activeDialect.id).toBe("clinical");
 	});
 
 	it("an unknown ?dialect= with no persistence leaves the default active", () => {
-		arrive("https://sokrates.example/?dialect=banana", null);
+		arrive("https://morphe.example/?dialect=banana", null);
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
 	});
 
 	it("an unknown ?dialect= with a STALE persisted id still leaves the selection intact", () => {
 		// The helper passes the stale id through; setById's registry guard
 		// makes it a no-op rather than a reset — the two guards compose.
-		arrive("https://sokrates.example/?dialect=banana", "long-retired-dialect");
+		arrive("https://morphe.example/?dialect=banana", "long-retired-dialect");
 		expect(activeDialect.current).toBe(DEFAULT_DIALECT);
 	});
 });

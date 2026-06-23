@@ -1,87 +1,93 @@
 <script lang="ts">
 	import type { Node } from "$lib";
 	import { activeDialect, getDialect } from "$lib";
-	/*
-	 * /substrate — the engine, demoted from /. The whole marketing site is rendered
-	 * through Morphe; this page exposes the substrate itself: one hand-authored Node
-	 * tree, re-themed live by the dialect toggle, with no agent in the loop (the
-	 * Corollary-1 dignity test). A short native intro frames why it is here, then the
-	 * demo carries the proof.
-	 */
 	import { MorpheRoot } from "$lib/components";
-	import { registerSiteCompounds } from "$site";
-	import CtaLink from "$site/CtaLink.svelte";
 	import DignityDemo from "../_demo/DignityDemo.svelte";
 
-	// Registers SiteHero (and the rest) through the factory gate, so the intro tree's
-	// `name: "SiteHero"` resolves.
-	registerSiteCompounds();
-
 	const intro: Node = {
-		kind: "compound",
-		name: "SiteHero",
-		emphasis: "strong",
-		args: {
-			eyebrow: { kind: "text", value: "Built on Morphe", as: "caption", intent: "accession" },
-			title: { kind: "text", value: "The whole site is data.", as: "display", emphasis: "strong" },
-			lede: {
-				kind: "text",
-				value:
-					"Every surface you have seen is a typed Node tree rendered through one grammar, one context algebra and one token system. Flip the dialect below and watch the same tree re-theme without a single node changing. That fixed point is the substrate Sókrates renders through.",
-				as: "body",
-				emphasis: "muted",
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		budget: 3,
+		children: [
+			{
+				kind: "grid",
+				role: "section",
+				minTrack: "regular",
+				children: [
+					{
+						kind: "stack",
+						role: "section",
+						children: [
+							{ kind: "badge", label: "morphe playground", intent: "provenance", icon: "science" },
+							{
+								kind: "text",
+								value: "The substrate under live pressure",
+								as: "display",
+								emphasis: "strong",
+							},
+							{
+								kind: "text",
+								value:
+									"A neutral playground for the design system and CMS substrate: shipped dialects, typed Node trees, actions, bindings, variation choices, compiled previews, and adaptive fallback rendering.",
+								as: "body",
+								emphasis: "muted",
+							},
+							{
+								kind: "cluster",
+								role: "inline",
+								children: [
+									{ kind: "link", href: "/preview/capability-page.demo/rev-001", label: "Preview route" },
+									{ kind: "link", href: "/p/demo", label: "Published route" },
+								],
+							},
+						],
+					},
+					{
+						kind: "media",
+						src: "/images/demo/content-gate.svg",
+						alt: "A neutral content gate diagram with a validated tree flowing into themed render surfaces.",
+						aspect: "square",
+						width: 960,
+						height: 960,
+						eager: true,
+					},
+				],
 			},
-		},
+		],
 	};
 
-	/*
-	 * THE VITRINE (ADR-0005 rough-in, KRA-349). The plates are self-luminous
-	 * artwork: under the gallery dialect they sit in dark wells and glow against
-	 * the calm paper ground. The well is not a special CSS treatment — it is the
-	 * `night` dialect pinned at a subtree boundary, the exact mechanism the rest
-	 * of this page demonstrates with a toggle. Whatever ground the toggle picks,
-	 * the plate keeps its own darkness.
-	 */
-	const vitrineIntro: Node = {
+	const pinnedIntro: Node = {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "The vitrine", as: "heading", emphasis: "strong" },
+			{ kind: "text", value: "Pinned dialect boundary", as: "heading" },
 			{
 				kind: "text",
 				value:
-					"The narrative plates keep their own ground under every dialect: the dark well around this one is the night dialect pinned at a subtree boundary — a second fixed-point proof, this time in the other direction.",
+					"The shell follows the global dialect. This nested root stays on the night dialect, proving subtree boundaries can carry their own intent map without mutating the authored tree.",
 				as: "body",
 				emphasis: "muted",
 			},
 		],
 	};
 
-	const plateSlug = "b7-philosopher-king-reasons";
-	const plateSrcset = (format: "avif" | "webp"): string =>
-		[640, 960, 1440].map((w) => `/images/plates/${plateSlug}-${w}.${format} ${w}w`).join(", ");
-
-	const vitrinePlate: Node = {
+	const pinnedAsset: Node = {
 		kind: "frame",
 		role: "panel",
 		surface: "sunken",
 		children: [
 			{
 				kind: "media",
-				src: `/images/plates/${plateSlug}-960.png`,
-				alt: "Timaeus plate B7 — the Philosopher-King reasons: a luminous cobalt wireframe figure weighing a governed decision on a blue-black ground.",
-				aspect: "portrait",
-				width: 960,
-				height: 1280,
-				sizes: "(min-width: 48rem) 26rem, 86vw",
-				sources: [
-					{ type: "image/avif", srcset: plateSrcset("avif") },
-					{ type: "image/webp", srcset: plateSrcset("webp") },
-				],
+				src: "/images/demo/interface-lab.svg",
+				alt: "A neutral interface lab asset pinned inside a nested night dialect root.",
+				aspect: "video",
+				width: 1280,
+				height: 720,
 			},
 			{
 				kind: "text",
-				value: "Plate B7 · The Philosopher-King reasons",
+				value: "Subtree dialect: night",
 				as: "caption",
 				intent: "folio",
 			},
@@ -109,14 +115,14 @@
 					{ kind: "badge", label: "fallback-ready", intent: "provenance" },
 					{
 						kind: "text",
-						value: "Adaptive lab surface",
+						value: "Adaptive render surface",
 						as: "heading",
 						emphasis: "strong",
 					},
 					{
 						kind: "text",
 						value:
-							"Submit a task state and Morphe will either render the live model's schema-valid Node or the deterministic fallback.",
+							"Submit a task state. Morphe renders either the live sidecar's schema-valid Node or the deterministic fallback.",
 						as: "body",
 						emphasis: "muted",
 					},
@@ -130,8 +136,8 @@
 		],
 	};
 
-	let taskGoal = $state("Inspect ERP exception workflow");
-	let eventName = $state("substrate.lab.requested");
+	let taskGoal = $state("Review an exception queue");
+	let eventName = $state("morphe.playground.requested");
 	let digestSummary = $state("Operator wants a compact, evidence-led panel.");
 	let adaptiveTree = $state<Node>(initialAdaptiveTree);
 	let adaptiveStatus = $state<AdaptiveStatus>("idle");
@@ -144,15 +150,15 @@
 			task_state: {
 				goal: taskGoal,
 				lead: {
-					company: "Northwind Controls",
-					vertical: "industrial quality",
-					size_signal: "multi-site operations",
+					company: "Demo Systems",
+					vertical: "operations",
+					size_signal: "multi-team workflow",
 				},
 			},
 			event: {
 				tier: "mid",
 				name: eventName,
-				payload: { intent: "proof", requested_at: "client" },
+				payload: { intent: "playground", requested_at: "client" },
 			},
 			digest: {
 				summary: digestSummary,
@@ -160,7 +166,7 @@
 				events: [{ tier: "fast", name: "dialect.current", payload: { id: activeDialect.current.id } }],
 			},
 			dialect_id: activeDialect.current.id,
-			surface_id: "substrate-lab",
+			surface_id: "morphe-playground",
 		};
 	}
 
@@ -191,31 +197,28 @@
 </script>
 
 <svelte:head>
-	<title>The substrate — Sókrates · Morphe</title>
+	<title>Morphe Playground</title>
 	<meta
 		name="description"
-		content="The Morphe substrate the Sókrates site is rendered through: one hand-authored Node tree, re-themed live by a dialect toggle, no agent in the loop."
+		content="A neutral Morphe playground for typed Node rendering, dialect switching, CMS preview routes, and adaptive fallback rendering."
 	/>
 </svelte:head>
 
-<section class="s-section">
-	<div class="s-wrap">
+<section class="section">
+	<div class="wrap">
 		<MorpheRoot tree={intro} />
-		<div class="s-cta-row">
-			<CtaLink href="/" label="Back to the composer" variant="secondary" />
-		</div>
 	</div>
 </section>
 
-<div class="s-wrap--wide substrate-demo">
+<div class="wide">
 	<DignityDemo />
 </div>
 
-<section class="s-section adaptive-lab" id="adaptive-lab">
-	<div class="s-wrap adaptive-lab__grid">
+<section class="section adaptive-lab" id="adaptive-lab">
+	<div class="wrap adaptive-lab__grid">
 		<form class="adaptive-lab__controls" onsubmit={runAdaptive}>
 			<div>
-				<p class="adaptive-lab__eyebrow">Live adaptive loop</p>
+				<p class="adaptive-lab__eyebrow">Adaptive loop</p>
 				<h2 class="adaptive-lab__title">Agent-rendered Node</h2>
 			</div>
 			<label class="adaptive-field" for="adaptive-goal">
@@ -246,28 +249,32 @@
 	</div>
 </section>
 
-<section class="s-section">
-	<div class="s-wrap">
-		<MorpheRoot tree={vitrineIntro} />
-		<div class="vitrine">
-			<MorpheRoot tree={vitrinePlate} dialect={getDialect("night")} />
+<section class="section">
+	<div class="wrap">
+		<MorpheRoot tree={pinnedIntro} />
+		<div class="pinned">
+			<MorpheRoot tree={pinnedAsset} dialect={getDialect("night")} />
 		</div>
 	</div>
 </section>
 
 <style>
-	/* The demo owns its own inner padding; just cap and center it like a work surface. */
-	.substrate-demo {
-		padding-inline: clamp(1rem, 4vw, 2.5rem);
+	.section {
+		padding: clamp(var(--mo-space-6), 7vw, var(--mo-space-9))
+			clamp(var(--mo-space-4), 5vw, var(--mo-space-8));
 	}
-
-	/*
-	 * The vitrine chrome: cap and center the night-pinned subtree like a hung
-	 * work. The dark well itself is painted by the pinned dialect's surface
-	 * stack (never by this wrapper); the margin is the only thing owned here.
-	 */
-	.vitrine {
-		max-inline-size: 30rem;
+	.wrap {
+		max-inline-size: 78rem;
+		margin-inline: auto;
+	}
+	.wide {
+		padding-inline: clamp(var(--mo-space-4), 4vw, var(--mo-space-7));
+	}
+	.section :global(.mo-root) {
+		background: transparent;
+	}
+	.pinned {
+		max-inline-size: 48rem;
 		margin-block-start: var(--mo-space-7);
 		margin-inline: auto;
 		border-radius: var(--mo-radius-3);
@@ -275,7 +282,6 @@
 		outline: 1px solid var(--mo-intent-outline);
 		outline-offset: -1px;
 	}
-
 	.adaptive-lab {
 		background: var(--mo-intent-surface-sunken);
 	}

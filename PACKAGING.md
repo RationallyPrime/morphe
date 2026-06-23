@@ -1,10 +1,10 @@
 # Morphe Packaging
 
 Morphe publishes the reusable adaptive-UI substrate as the private GitHub Packages
-npm package `@rationallyprime/morphe`. This repository remains the development
-playground: the Sókrates marketing app imports the same package-facing seams a
-consumer app imports, while app-specific site/compose/server code stays outside
-the package root.
+npm package `@rationallyprime/morphe`. This repository owns the package source,
+local CMS/tooling, adaptive sidecar contract, and a neutral development
+playground. Consumer applications, including the Sókrates website, import the
+package-facing seams from their own repositories.
 
 ## Boundary
 
@@ -26,25 +26,30 @@ The package root is `src/lib`. It contains the reusable core only.
 - `tokens/` — intent vocabulary, slot helpers, and token CSS.
 - `styles.css` — public CSS import for scales + intents.
 
-**APP-ONLY**
+**DEMO HOST**
 
-- `src/routes/` — SvelteKit app routes and API endpoints.
-- `src/app/site/` — Sókrates marketing presenters, intent engine, onboarding UI, site chrome.
-- `src/app/compose/` — composer corpus, ranking, embeddings, generated API models.
-- `src/app/server/` — Postmark, ntfy, magic-link, receipt helpers.
-- `scripts/`, `data/`, `py/`, `scratch/` — repo tooling, evidence data, Python schema seed, scratch.
+- `src/routes/` — neutral SvelteKit playground, CMS preview/publication routes, and adaptive API bridge.
+- `static/images/demo/` — neutral demo assets. Consumer brand assets live in the consumer repo.
+
+**TOOLING**
+
+- `py/morphe_grammar/` — Pydantic grammar models, schema emission, TS codegen, and masks.
+- `py/morphe_cms/` — local CMS contracts, validation, presenter, store, tools, and MCP surface.
+- `py/morphe_agent/` — adaptive sidecar contract and deterministic fallback.
+- `scripts/pack-verify.ts` — package tarball/registry consumer proof.
+- `scratch/` — local scratch only, never part of the package.
 
 ## Inversions
 
-- App-only imports no longer live under `src/lib`; routes use `$site`, `$compose`, and
-  `$serverlib` for playground code.
-- The playground imports Morphe through `$lib` and `$lib/components`, matching the
-  package exports instead of deep paths.
+- Consumer app imports no longer live in this repo; app-specific presenters, ranking,
+  generated clients, email/env access, and route handlers stay in the consumer app.
+- The neutral playground imports Morphe through `$lib` and `$lib/components`, matching
+  the package exports instead of deep paths.
 - Library dev/prod conditionals use `esm-env`, not SvelteKit or Vite app globals.
 - Token CSS is explicit: apps import `@rationallyprime/morphe/styles.css`. The engine
   entry has no global CSS side effect, so type-only/server consumers do not paint a page.
-- Static corpus data, generated Orval clients, email/env access, and route handlers stay
-  app-side. A future consumer supplies those through its own host configuration.
+- Local CMS and adaptive routes consume the package surface the same way a downstream
+  app does: validated `Node` data crosses the boundary, then `MorpheRoot` renders it.
 
 ## Exports
 

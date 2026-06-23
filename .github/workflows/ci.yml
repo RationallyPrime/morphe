@@ -55,7 +55,7 @@ jobs:
       - name: Build (vite, adapter-vercel)
         run: bun run build
 
-      - name: SSR route smoke (every page renders, no 500s)
+      - name: SSR route smoke (Morphe host renders, no 500s)
         run: |
           bun run dev --port 4173 &
           for i in $(seq 1 30); do
@@ -63,16 +63,20 @@ jobs:
             sleep 1
           done
           fail=0
-          for route in / /substrate /how-it-works /architecture /onboarding; do
+          for route in / /substrate /preview/capability-page.demo/rev-001 /p/demo; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4173$route")
             echo "$route -> $code"
             [ "$code" = "200" ] || fail=1
           done
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4173/dignity")
+          echo "/dignity -> $code"
+          [ "$code" = "308" ] || fail=1
           # Content markers: an error page can still be a 200 shell; assert the
           # real SSR'd copy is present.
-          curl -s http://localhost:4173/substrate | grep -q "The whole site is data" || fail=1
-          curl -s http://localhost:4173/ | grep -q "AI department" || fail=1
-          curl -s http://localhost:4173/how-it-works | grep -q "There is no done, only sharper." || fail=1
+          curl -s http://localhost:4173/ | grep -q "A typed adaptive-interface workbench" || fail=1
+          curl -s http://localhost:4173/substrate | grep -q "The substrate under live pressure" || fail=1
+          curl -s http://localhost:4173/preview/capability-page.demo/rev-001 | grep -q "Published as data" || fail=1
+          curl -s http://localhost:4173/p/demo | grep -q "Published as data" || fail=1
           exit $fail
 
   python:
@@ -97,7 +101,7 @@ jobs:
       - name: Types (ty)
         run: uv run ty check
 
-      - name: Schema artifact is byte-stable (proto parity gate, R3.2 seed)
+      - name: Schema artifacts are byte-stable
         run: |
-          uv run python -m morphe_grammar.schema > /tmp/morphe-grammar.schema.json
-          diff /tmp/morphe-grammar.schema.json schema/morphe-grammar.schema.json
+          uv run python -m morphe_grammar.artifacts --check
+          uv run python -m morphe_cms.schema --check

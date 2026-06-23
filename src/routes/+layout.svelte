@@ -1,133 +1,79 @@
 <script lang="ts">
-import { untrack } from "svelte";
-import { page } from "$app/state";
-import "$lib/styles.css";
-import "../app.css";
-import "$site/site.css";
-import {
-	activeDialect,
-	applyDialect,
-	DEFAULT_DIALECT_ID,
-	DIALECT_IDS,
-	dialectStyle,
-	hasDialect,
-	persistableDialect,
-	resolveArrivalDialect,
-} from "$lib";
-import {
-	activeCohort,
-	COHORT_IDS,
-	getCohort,
-	pageCopy,
-	persistableCohort,
-	registerSiteCohorts,
-	resolveArrivalCohort,
-} from "$site";
-import Nav from "$site/Nav.svelte";
+	import { untrack } from "svelte";
+	import { page } from "$app/state";
+	import "$lib/styles.css";
+	import "../app.css";
+	import {
+		activeDialect,
+		applyDialect,
+		DEFAULT_DIALECT_ID,
+		DIALECT_IDS,
+		dialectStyle,
+		hasDialect,
+		persistableDialect,
+		resolveArrivalDialect,
+	} from "$lib";
 
-let { children, data } = $props();
+	let { children } = $props();
 
-// The cohorts a landing `?cohort=` may select (idempotent; the registry module
-// also self-registers, so COHORT_IDS is populated before the mount effect runs).
-registerSiteCohorts();
+	const DIALECT_STORAGE_KEY = "mo-dialect.v2";
+	const LEGACY_DIALECT_STORAGE_KEY = "mo-dialect";
 
-/*
- * Dialect persistence, v2. The v1 key ("mo-dialect") was written back
- * UNCONDITIONALLY on boot, so the then-default (icelandic-archive) was stored
- * for every visitor as if they had chosen it — and the ADR-0005 gallery flip
- * could never reach a returning visitor. v2 persists only EXPLICIT moves
- * (persistableDialect); the key bump is the one-time amnesty for the polluted
- * v1 values, which are removed on sight.
- */
-const DIALECT_STORAGE_KEY = "mo-dialect.v2";
-const LEGACY_DIALECT_STORAGE_KEY = "mo-dialect";
-const COHORT_STORAGE_KEY = "mo-cohort";
+	let arrivalResolved = false;
 
-// Guards the write-back from racing the restore on mount: until arrival
-// resolution has run, nothing is persisted.
-let arrivalResolved = false;
+	const shellStyle = $derived(dialectStyle(applyDialect(activeDialect.current)));
+	const navItems = [
+		{ href: "/", label: "Workbench" },
+		{ href: "/substrate", label: "Playground" },
+		{ href: "/preview/capability-page.demo/rev-001", label: "Preview" },
+		{ href: "/p/demo", label: "Published" },
+	] as const;
 
-// Apply the active dialect's intent vars at the SHELL boundary so the WHOLE site
-// re-themes as one — the native chrome (nav, footer, CTAs, forms) and every
-// MorpheRoot together. Without this, only the Morphe trees would follow a dialect
-// flip and the chrome would stay on the static :root archive defaults. Reactive,
-// so flipping the dialect on /substrate re-themes everything live; SSR renders the
-// default dialect (activeDialect.current is the default until client hydration).
-const shellStyle = $derived(dialectStyle(applyDialect(activeDialect.current)));
+	$effect(() => {
+		if (typeof localStorage === "undefined") return;
+		localStorage.removeItem(LEGACY_DIALECT_STORAGE_KEY);
 
-// The nav CTA follows the active cohort (SSR-resolved from `?cohort=`); the store
-// wins post-hydration, like every page's copy. `pageCopy` is SSR-safe.
-const navCta = $derived(pageCopy(data.cohortId).nav.cta);
-
-// CLIENT-ONLY arrival resolution + persistence. `$effect` never runs during SSR,
-// so the server always renders the DEFAULT dialect (SSR-safe, no hydration crash).
-// On first client run we resolve the arrival: a VALID `?cohort=` landing param
-// (τ_frame attribution, DESIGN.md §9) outranks the persisted choice; an unknown
-// param is ignored and the persisted choice stands. The URL read is `untrack`ed
-// and localStorage is non-reactive, so this effect runs ONCE on mount — arrival
-// attribution applies once and never fights a later in-session toggle, which the
-// write-back effect below persists as usual. `setById` ignores unknown ids, so a
-// stale persisted value can never clobber the selection.
-$effect(() => {
-	if (typeof localStorage === "undefined") return;
-	// One-time amnesty: drop the v1 key entirely (default-polluted, see above).
-	localStorage.removeItem(LEGACY_DIALECT_STORAGE_KEY);
-
-	// COHORT first — it drives the copy AND supplies the dialect baseline. The server
-	// load already resolved the `?cohort=` param into `data.cohortId` (a registered
-	// id, else null) and SSR'd its copy; here we combine it with the PERSISTED cohort
-	// (the half the server can't see), preserving param > persisted. `untrack` keeps
-	// this a once-on-mount arrival, not a re-run on every later `data` change.
-	const arrivalCohort = untrack(() => data.cohortId);
-	const resolvedCohort = resolveArrivalCohort(
-		arrivalCohort,
-		localStorage.getItem(COHORT_STORAGE_KEY),
-		COHORT_IDS,
-	);
-	if (resolvedCohort !== null) activeCohort.setById(resolvedCohort);
-	const cohortDialect = resolvedCohort !== null ? (getCohort(resolvedCohort)?.dialect ?? null) : null;
-
-	// DIALECT — an explicit `?dialect=` or a persisted explicit toggle wins; else
-	// the cohort's dialect; else leave the default. A stale persisted id falls
-	// through to the cohort's dialect (setById guards either way).
-	const dialectParam = untrack(() => page.url.searchParams.get("dialect"));
-	const persistedDialect = localStorage.getItem(DIALECT_STORAGE_KEY);
-	const explicit = resolveArrivalDialect(dialectParam, persistedDialect, DIALECT_IDS);
-	const target = explicit !== null && hasDialect(explicit) ? explicit : cohortDialect;
-	if (target !== null) activeDialect.setById(target);
-
-	arrivalResolved = true;
-});
-$effect(() => {
-	const id = activeDialect.id; // reactive read first: subscribe on every run
-	if (!arrivalResolved || typeof localStorage === "undefined") return;
-	// The baseline is the cohort's dialect (or the shipped default), so a
-	// cohort-derived palette is NEVER persisted as a standalone dialect choice —
-	// only an explicit `?dialect=`/`/substrate` move away from it persists.
-	const cohortId = activeCohort.current;
-	const baseline = cohortId !== null ? (getCohort(cohortId)?.dialect ?? DEFAULT_DIALECT_ID) : DEFAULT_DIALECT_ID;
-	const value = persistableDialect(id, localStorage.getItem(DIALECT_STORAGE_KEY), baseline);
-	if (value !== null) localStorage.setItem(DIALECT_STORAGE_KEY, value);
-});
-$effect(() => {
-	const cohortId = activeCohort.current; // reactive read first
-	if (!arrivalResolved || typeof localStorage === "undefined") return;
-	const value = persistableCohort(cohortId, localStorage.getItem(COHORT_STORAGE_KEY));
-	if (value !== null) localStorage.setItem(COHORT_STORAGE_KEY, value);
-});
+		const dialectParam = untrack(() => page.url.searchParams.get("dialect"));
+		const persistedDialect = localStorage.getItem(DIALECT_STORAGE_KEY);
+		const resolved = resolveArrivalDialect(dialectParam, persistedDialect, DIALECT_IDS);
+		if (resolved !== null && hasDialect(resolved)) activeDialect.setById(resolved);
+		arrivalResolved = true;
+	});
+	$effect(() => {
+		const id = activeDialect.id;
+		if (!arrivalResolved || typeof localStorage === "undefined") return;
+		const value = persistableDialect(
+			id,
+			localStorage.getItem(DIALECT_STORAGE_KEY),
+			DEFAULT_DIALECT_ID,
+		);
+		if (value !== null) localStorage.setItem(DIALECT_STORAGE_KEY, value);
+	});
 </script>
 
-<!-- The DEFAULT title — a fallback for any title-less route (e.g. the redirect
-     stubs). Pages set their own in <svelte:head>; SvelteKit dedupes <title> across
-     layout + page, emitting ONE tag with the page's value. Lives here, not in
-     app.html, so it never ships as a duplicate ahead of the route's real title. -->
 <svelte:head>
-	<title>Sókrates — Your AI Department</title>
+	<title>Morphe Workbench</title>
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell" style={shellStyle}>
-	<Nav cta={navCta} />
+	<header class="nav">
+		<a class="nav__brand" href="/" aria-label="Morphe workbench home">
+			<span class="nav__mark" aria-hidden="true"></span>
+			<span>Morphe</span>
+		</a>
+		<nav class="nav__links" aria-label="Morphe surfaces">
+			{#each navItems as item (item.href)}
+				<a
+					href={item.href}
+					data-active={page.url.pathname === item.href ||
+						(item.href !== "/" && page.url.pathname.startsWith(item.href))}
+				>
+					{item.label}
+				</a>
+			{/each}
+		</nav>
+	</header>
 	<main id="main" class="shell__main">
 		{@render children?.()}
 	</main>
@@ -138,18 +84,82 @@ $effect(() => {
 		display: flex;
 		flex-direction: column;
 		min-block-size: 100vh;
-		/* The shell PAINTS the active dialect's ground. The body's background
-		   resolves from the static :root (gallery) block and never sees the
-		   shell's inline vars — so without this paint, flipping to a dark
-		   dialect leaves bone showing through every transparent band and the
-		   night text lands illegible on the gallery paper. */
 		background: var(--mo-intent-surface-base);
 	}
 	.shell__main {
 		flex: 1 1 auto;
 	}
-
-	/* Accessible skip link — visible only on keyboard focus. */
+	.nav {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 30;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-4);
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--mo-space-3) clamp(var(--mo-space-4), 5vw, var(--mo-space-8));
+		border-block-end: 1px solid var(--mo-intent-outline);
+		background: color-mix(in oklab, var(--mo-intent-surface-base) 92%, transparent);
+		backdrop-filter: blur(16px);
+	}
+	.nav__brand {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--mo-space-3);
+		color: var(--mo-intent-on-surface);
+		font-family: var(--mo-font-display);
+		font-size: var(--mo-type-5);
+		font-weight: 700;
+		text-decoration: none;
+	}
+	.nav__mark {
+		inline-size: 1rem;
+		block-size: 1rem;
+		border: 1px solid var(--mo-intent-primary-action-surface);
+		border-radius: 50%;
+		background:
+			linear-gradient(
+				90deg,
+				transparent 47%,
+				var(--mo-intent-primary-action-surface) 47% 53%,
+				transparent 53%
+			),
+			linear-gradient(
+				0deg,
+				transparent 47%,
+				var(--mo-intent-primary-action-surface) 47% 53%,
+				transparent 53%
+			),
+			var(--mo-intent-surface-raised);
+		box-shadow: 0 0 0 0.25rem
+			color-mix(in oklab, var(--mo-intent-primary-action-surface) 16%, transparent);
+	}
+	.nav__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-1);
+		justify-content: flex-end;
+	}
+	.nav__links a {
+		padding: var(--mo-space-2) var(--mo-space-3);
+		border-radius: var(--mo-radius-2);
+		color: var(--mo-intent-on-surface-muted);
+		font-family: var(--mo-font-body);
+		font-size: var(--mo-type-3);
+		font-weight: 650;
+		text-decoration: none;
+	}
+	.nav__links a:hover,
+	.nav__links a[data-active="true"] {
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface);
+	}
+	.nav__links a:focus-visible,
+	.nav__brand:focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
+	}
 	.skip {
 		position: absolute;
 		inset-inline-start: var(--mo-space-3);

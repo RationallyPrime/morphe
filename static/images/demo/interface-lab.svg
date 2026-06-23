@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960" role="img" aria-labelledby="title desc">
+	<title id="title">Neutral interface lab</title>
+	<desc id="desc">Panels, token channels, and branching state paths on a quiet neutral ground.</desc>
+	<defs>
+		<linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#f4f1ea" />
+			<stop offset="1" stop-color="#dfe6ea" />
+		</linearGradient>
+		<linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#2dd4bf" />
+			<stop offset="0.52" stop-color="#2563eb" />
+			<stop offset="1" stop-color="#7b9cba" />
+		</linearGradient>
+	</defs>
+	<rect width="960" height="960" fill="url(#ground)" />
+	<rect x="86" y="92" width="788" height="776" rx="34" fill="#fbfaf7" stroke="#1f2a44" stroke-opacity="0.16" />
+	<g fill="none" stroke="#1f2a44" stroke-opacity="0.22" stroke-width="2">
+		<path d="M174 236h612M174 358h612M174 480h612M174 602h612M174 724h612" />
+		<path d="M298 166v626M480 166v626M662 166v626" />
+	</g>
+	<g fill="#1f2a44">
+		<rect x="150" y="150" width="230" height="134" rx="18" fill-opacity="0.92" />
+		<rect x="418" y="150" width="392" height="134" rx="18" fill-opacity="0.08" />
+		<rect x="150" y="334" width="300" height="252" rx="22" fill-opacity="0.08" />
+		<rect x="504" y="334" width="306" height="252" rx="22" fill-opacity="0.08" />
+		<rect x="150" y="642" width="660" height="126" rx="22" fill-opacity="0.08" />
+	</g>
+	<g fill="url(#accent)">
+		<circle cx="222" cy="214" r="24" />
+		<circle cx="294" cy="214" r="24" opacity="0.74" />
+		<circle cx="366" cy="214" r="24" opacity="0.5" />
+		<rect x="548" y="386" width="210" height="24" rx="12" />
+		<rect x="548" y="440" width="158" height="24" rx="12" opacity="0.76" />
+		<rect x="548" y="494" width="238" height="24" rx="12" opacity="0.5" />
+		<path d="M230 700h128c54 0 78-78 132-78h72" stroke="url(#accent)" stroke-width="18" stroke-linecap="round" fill="none" />
+	</g>
+	<g fill="#fbfaf7">
+		<rect x="190" y="382" width="220" height="20" rx="10" />
+		<rect x="190" y="430" width="164" height="20" rx="10" opacity="0.7" />
+		<rect x="190" y="478" width="196" height="20" rx="10" opacity="0.46" />
+	</g>
+</svg>

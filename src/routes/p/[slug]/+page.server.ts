@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
+import { DEMO_DIALECT_ID, DEMO_PUBLICATION_SLUG, demoArtifactTree } from "../../_demo/artifact.js";
 import type { PageServerLoad } from "./$types";
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -28,10 +29,24 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			PublicationFile
 		>;
 	} catch {
+		if (params.slug === DEMO_PUBLICATION_SLUG) {
+			return {
+				tree: demoArtifactTree,
+				dialectId: url.searchParams.get("dialect") ?? DEMO_DIALECT_ID,
+			};
+		}
 		throw error(404, "No publications");
 	}
 	const pub = publications[params.slug];
-	if (!pub) throw error(404, `No publication for ${params.slug}`);
+	if (!pub) {
+		if (params.slug === DEMO_PUBLICATION_SLUG) {
+			return {
+				tree: demoArtifactTree,
+				dialectId: url.searchParams.get("dialect") ?? DEMO_DIALECT_ID,
+			};
+		}
+		throw error(404, `No publication for ${params.slug}`);
+	}
 	if (!SLUG_RE.test(params.slug) || !REV_RE.test(pub.revision_id)) {
 		throw error(404, "Invalid publication pointer");
 	}
