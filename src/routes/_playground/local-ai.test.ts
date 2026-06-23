@@ -157,6 +157,41 @@ describe("local AI provider", () => {
 		});
 	});
 
+	it("passes the same prompt options to availability and prompt", async () => {
+		let availabilityOptions: unknown;
+		let promptOptions: unknown;
+
+		const result = await generateLocalAdaptiveDraft(promptInput, {
+			api: {
+				async availability(options) {
+					availabilityOptions = options;
+					return "available" as const;
+				},
+				async create() {
+					return {
+						async prompt(_input, options) {
+							promptOptions = options;
+							return JSON.stringify({
+								title: "Live local draft",
+								summary: "Gemini Nano produced a bounded semantic draft.",
+								tone: "success",
+								badges: ["chrome", "validated"],
+								nextActionLabel: "Use draft",
+							});
+						},
+						destroy() {},
+					};
+				},
+			},
+		});
+
+		expect(result.source).toBe("chrome-live");
+		expect(availabilityOptions).toBe(promptOptions);
+		expect(promptOptions).toMatchObject({
+			responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
+		});
+	});
+
 	it("destroys a successful live session", async () => {
 		const destroy = vi.fn();
 

@@ -12,22 +12,25 @@ export interface PromptDownloadMonitor {
 	addEventListener(type: "downloadprogress", listener: (event: Event) => void): void;
 }
 
+export interface PromptOptions {
+	readonly responseConstraint?: unknown;
+}
+
 export interface PromptSession {
-	prompt(
-		input: string,
-		options?: {
-			readonly responseConstraint?: unknown;
-		},
-	): Promise<string>;
+	prompt(input: string, options?: PromptOptions): Promise<string>;
 	destroy?(): void;
 }
 
 export interface PromptLanguageModelApi {
-	availability(): Promise<PromptAvailability> | PromptAvailability;
+	availability(options?: PromptOptions): Promise<PromptAvailability> | PromptAvailability;
 	create(options?: {
 		readonly monitor?: (monitor: PromptDownloadMonitor) => void;
 	}): Promise<PromptSession>;
 }
+
+const LOCAL_ADAPTIVE_DRAFT_PROMPT_OPTIONS: PromptOptions = {
+	responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
+};
 
 export interface LocalAiPromptInput {
 	readonly goal: string;
@@ -63,7 +66,7 @@ export async function generateLocalAdaptiveDraft(
 	}
 
 	try {
-		const availability = await api.availability();
+		const availability = await api.availability(LOCAL_ADAPTIVE_DRAFT_PROMPT_OPTIONS);
 		if (availability === "unavailable") {
 			return fallbackResult("chrome-unavailable", ["chrome-unavailable:availability"]);
 		}
@@ -78,9 +81,7 @@ export async function generateLocalAdaptiveDraft(
 		});
 
 		try {
-			const raw = await session.prompt(buildPrompt(input), {
-				responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
-			});
+			const raw = await session.prompt(buildPrompt(input), LOCAL_ADAPTIVE_DRAFT_PROMPT_OPTIONS);
 			let parsed: unknown;
 			try {
 				parsed = JSON.parse(raw);
