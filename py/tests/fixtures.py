@@ -220,7 +220,11 @@ VALID_TREES: tuple[NodeFixture, ...] = (
                 "intent": "provenance",
                 "external": "auto",
             },
-            {"kind": "media", "src": "/images/the-box.png", "alt": "The Sokrates appliance."},
+            {
+                "kind": "media",
+                "src": "/images/demo/content-gate.svg",
+                "alt": "A neutral content gate diagram.",
+            },
             {"kind": "number", "value": 0.62, "format": "percent", "intent": "evidence"},
             {"kind": "icon", "name": "folder_open", "a11y": {"role": "decorative"}},
             {

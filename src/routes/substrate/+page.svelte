@@ -1,198 +1,101 @@
 <script lang="ts">
-	import type { Node } from "$lib";
-	import { activeDialect, getDialect } from "$lib";
+	import type { ActionMap, ChoiceMap, JsonRecord } from "$lib";
+	import { activeDialect, createInMemoryMorpheStore, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
-	import DignityDemo from "../_demo/DignityDemo.svelte";
+	import { DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
+	import { FALLBACK_LOCAL_ADAPTIVE_DRAFT, fallbackDiagnostics } from "../_playground/fallback.js";
+	import { generateLocalAdaptiveDraft } from "../_playground/local-ai.js";
+	import { presentPinnedDialectProof, presentPlayground } from "../_playground/presenters.js";
+	import type { ExhibitId, GrammarVariant, ProviderSource } from "../_playground/types.js";
+	import { GRAMMAR_VARIANTS } from "../_playground/types.js";
+	import type { LocalAdaptiveDraft } from "../_playground/validation.js";
 
-	const intro: Node = {
-		kind: "frame",
-		role: "page",
-		surface: "base",
-		budget: 3,
-		children: [
-			{
-				kind: "grid",
-				role: "section",
-				minTrack: "regular",
-				children: [
-					{
-						kind: "stack",
-						role: "section",
-						children: [
-							{ kind: "badge", label: "morphe playground", intent: "provenance", icon: "science" },
-							{
-								kind: "text",
-								value: "The substrate under live pressure",
-								as: "display",
-								emphasis: "strong",
-							},
-							{
-								kind: "text",
-								value:
-									"A neutral playground for the design system and CMS substrate: shipped dialects, typed Node trees, actions, bindings, variation choices, compiled previews, and adaptive fallback rendering.",
-								as: "body",
-								emphasis: "muted",
-							},
-							{
-								kind: "cluster",
-								role: "inline",
-								children: [
-									{ kind: "link", href: "/preview/capability-page.demo/rev-001", label: "Preview route" },
-									{ kind: "link", href: "/p/demo", label: "Published route" },
-								],
-							},
-						],
-					},
-					{
-						kind: "media",
-						src: "/images/demo/content-gate.svg",
-						alt: "A neutral content gate diagram with a validated tree flowing into themed render surfaces.",
-						aspect: "square",
-						width: 960,
-						height: 960,
-						eager: true,
-					},
-				],
-			},
-		],
-	};
+	const store = createInMemoryMorpheStore({
+		"playground.goal": "Review an exception queue",
+		"playground.reviewed": false,
+	});
 
-	const pinnedIntro: Node = {
-		kind: "stack",
-		role: "section",
-		children: [
-			{ kind: "text", value: "Pinned dialect boundary", as: "heading" },
-			{
-				kind: "text",
-				value:
-					"The shell follows the global dialect. This nested root stays on the night dialect, proving subtree boundaries can carry their own intent map without mutating the authored tree.",
-				as: "body",
-				emphasis: "muted",
-			},
-		],
-	};
+	let activeExhibit = $state<ExhibitId>("grammar");
+	let grammarVariant = $state<GrammarVariant>("layout");
+	let selectedVaryChoice = $state(0);
+	let actionLog = $state<readonly string[]>([]);
+	let localGoal = $state("Review an exception queue");
+	let localDraft = $state<LocalAdaptiveDraft>(FALLBACK_LOCAL_ADAPTIVE_DRAFT);
+	let localSource = $state<ProviderSource>("chrome-unavailable");
+	let localDiagnostics = $state<readonly string[]>(["chrome-unavailable:LanguageModel"]);
+	let localBusy = $state(false);
 
-	const pinnedAsset: Node = {
-		kind: "frame",
-		role: "panel",
-		surface: "sunken",
-		children: [
-			{
-				kind: "media",
-				src: "/images/demo/interface-lab.svg",
-				alt: "A neutral interface lab asset pinned inside a nested night dialect root.",
-				aspect: "video",
-				width: 1280,
-				height: 720,
-			},
-			{
-				kind: "text",
-				value: "Subtree dialect: night",
-				as: "caption",
-				intent: "folio",
-			},
-		],
-	};
+	const choices = $derived<ChoiceMap>({ "demo.mode": selectedVaryChoice });
+	const actions = $derived<ActionMap>({
+		"demo.rotate": () => {
+			selectedVaryChoice = (selectedVaryChoice + 1) % 3;
+			recordAction("demo.rotate");
+		},
+		"demo.review": () => recordAction("demo.review"),
+		"local-ai.next": () => recordAction("local-ai.next"),
+	});
+	const storeSnapshot = $derived<JsonRecord>(store.snapshot());
+	const presentation = $derived(
+		presentPlayground({
+			activeExhibit,
+			grammarVariant,
+			activeDialectId: activeDialect.id,
+			selectedVaryChoice,
+			actionLog,
+			storeSnapshot,
+			localDraft,
+			localSource,
+			localDiagnostics,
+		}),
+	);
 
-	type AdaptiveStatus = "idle" | "loading" | "ready" | "error";
-
-	interface AdaptiveDecisionResponse {
-		readonly source: "live" | "fallback";
-		readonly model?: string;
-		readonly tree: Node;
-		readonly diagnostics: readonly string[];
+	function recordAction(id: string): void {
+		actionLog = [id, ...actionLog].slice(0, 8);
 	}
 
-	const initialAdaptiveTree: Node = {
-		kind: "frame",
-		role: "panel",
-		surface: "raised",
-		children: [
-			{
-				kind: "stack",
-				role: "section",
-				children: [
-					{ kind: "badge", label: "fallback-ready", intent: "provenance" },
-					{
-						kind: "text",
-						value: "Adaptive render surface",
-						as: "heading",
-						emphasis: "strong",
-					},
-					{
-						kind: "text",
-						value:
-							"Submit a task state. Morphe renders either the live sidecar's schema-valid Node or the deterministic fallback.",
-						as: "body",
-						emphasis: "muted",
-					},
-					{
-						kind: "status",
-						tone: "info",
-						signal: { text: "No sidecar required for the first render" },
-					},
-				],
-			},
-		],
-	};
-
-	let taskGoal = $state("Review an exception queue");
-	let eventName = $state("morphe.playground.requested");
-	let digestSummary = $state("Operator wants a compact, evidence-led panel.");
-	let adaptiveTree = $state<Node>(initialAdaptiveTree);
-	let adaptiveStatus = $state<AdaptiveStatus>("idle");
-	let adaptiveSource = $state<"live" | "fallback">("fallback");
-	let adaptiveModel = $state<string | undefined>(undefined);
-	let adaptiveDiagnostics = $state<readonly string[]>(["not-requested"]);
-
-	function adaptiveRequest(): Record<string, unknown> {
-		return {
-			task_state: {
-				goal: taskGoal,
-				lead: {
-					company: "Demo Systems",
-					vertical: "operations",
-					size_signal: "multi-team workflow",
-				},
-			},
-			event: {
-				tier: "mid",
-				name: eventName,
-				payload: { intent: "playground", requested_at: "client" },
-			},
-			digest: {
-				summary: digestSummary,
-				signals: { risk: "medium", evidence: "operator-supplied" },
-				events: [{ tier: "fast", name: "dialect.current", payload: { id: activeDialect.current.id } }],
-			},
-			dialect_id: activeDialect.current.id,
-			surface_id: "morphe-playground",
-		};
+	function selectExhibit(id: ExhibitId): void {
+		activeExhibit = id;
 	}
 
-	async function runAdaptive(event: SubmitEvent): Promise<void> {
-		event.preventDefault();
-		adaptiveStatus = "loading";
-		try {
-			const response = await fetch("/api/adaptive/decision", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(adaptiveRequest()),
-			});
-			if (!response.ok) throw new Error(`decision-${response.status}`);
-			const payload = (await response.json()) as AdaptiveDecisionResponse;
-			adaptiveTree = payload.tree;
-			adaptiveSource = payload.source;
-			adaptiveModel = payload.model;
-			adaptiveDiagnostics = payload.diagnostics;
-			adaptiveStatus = "ready";
-		} catch {
-			adaptiveTree = initialAdaptiveTree;
-			adaptiveSource = "fallback";
-			adaptiveModel = undefined;
-			adaptiveDiagnostics = ["browser-request-failed"];
-			adaptiveStatus = "error";
+	function setGrammarVariant(event: Event): void {
+		const value = (event.currentTarget as HTMLSelectElement).value;
+		if ((GRAMMAR_VARIANTS as readonly string[]).includes(value)) {
+			grammarVariant = value as GrammarVariant;
 		}
+	}
+
+	function setDialect(event: Event): void {
+		const value = (event.currentTarget as HTMLSelectElement).value;
+		activeDialect.setById(value);
+	}
+
+	function setVaryChoice(event: Event): void {
+		selectedVaryChoice = Number((event.currentTarget as HTMLInputElement).value);
+	}
+
+	async function runLocalAi(): Promise<void> {
+		localBusy = true;
+		try {
+			const result = await generateLocalAdaptiveDraft({
+				goal: localGoal,
+				dialectId: activeDialect.id,
+			});
+			localDraft = result.draft;
+			localSource = result.source;
+			localDiagnostics = result.diagnostics;
+		} catch {
+			localDraft = FALLBACK_LOCAL_ADAPTIVE_DRAFT;
+			localSource = "fallback";
+			localDiagnostics = fallbackDiagnostics("provider-threw");
+		} finally {
+			localBusy = false;
+		}
+	}
+
+	function resetLocalAi(): void {
+		localDraft = FALLBACK_LOCAL_ADAPTIVE_DRAFT;
+		localSource = "fallback";
+		localDiagnostics = fallbackDiagnostics("manual-reset");
 	}
 </script>
 
@@ -200,191 +103,317 @@
 	<title>Morphe Playground</title>
 	<meta
 		name="description"
-		content="A neutral Morphe playground for typed Node rendering, dialect switching, CMS preview routes, and adaptive fallback rendering."
+		content="A neutral Morphe workbench for typed Node rendering, dialect switching, CMS preview routes, actions, bindings, variation choices, and local adaptive fallback rendering."
 	/>
 </svelte:head>
 
-<section class="section">
-	<div class="wrap">
-		<MorpheRoot tree={intro} />
-	</div>
-</section>
-
-<div class="wide">
-	<DignityDemo />
-</div>
-
-<section class="section adaptive-lab" id="adaptive-lab">
-	<div class="wrap adaptive-lab__grid">
-		<form class="adaptive-lab__controls" onsubmit={runAdaptive}>
-			<div>
-				<p class="adaptive-lab__eyebrow">Adaptive loop</p>
-				<h2 class="adaptive-lab__title">Agent-rendered Node</h2>
-			</div>
-			<label class="adaptive-field" for="adaptive-goal">
-				<span>Task state</span>
-				<textarea id="adaptive-goal" rows="3" bind:value={taskGoal}></textarea>
-			</label>
-			<label class="adaptive-field" for="adaptive-event">
-				<span>Event</span>
-				<input id="adaptive-event" type="text" bind:value={eventName} />
-			</label>
-			<label class="adaptive-field" for="adaptive-digest">
-				<span>Context digest</span>
-				<textarea id="adaptive-digest" rows="4" bind:value={digestSummary}></textarea>
-			</label>
-			<button class="adaptive-submit" type="submit" disabled={adaptiveStatus === "loading"}>
-				{adaptiveStatus === "loading" ? "Rendering..." : "Render"}
-			</button>
-		</form>
-
-		<div class="adaptive-lab__result" aria-live="polite">
-			<MorpheRoot tree={adaptiveTree} />
-			<p class="adaptive-lab__meta">
-				<span>{adaptiveSource}</span>
-				{#if adaptiveModel}<span>{adaptiveModel}</span>{/if}
-				{#each adaptiveDiagnostics as item (item)}<span>{item}</span>{/each}
-			</p>
+<main class="workbench">
+	<header class="workbench__mast">
+		<p class="workbench__eyebrow">Morphe Workbench</p>
+		<h1>Substrate under live pressure</h1>
+		<p class="workbench__intro">
+			One neutral playground for authored UI as data, dialects, context algebra, state
+			sockets, variation, CMS publication, and adaptive providers.
+		</p>
+		<div class="workbench__mast-links" aria-label="Workbench proof links">
+			<a href="/preview/capability-page.demo/rev-001">Preview capability-page.demo/rev-001</a>
+			<a href="/p/demo">Published pointer /p/demo</a>
+			<span>Chrome local AI unavailable</span>
 		</div>
-	</div>
-</section>
+	</header>
 
-<section class="section">
-	<div class="wrap">
-		<MorpheRoot tree={pinnedIntro} />
-		<div class="pinned">
-			<MorpheRoot tree={pinnedAsset} dialect={getDialect("night")} />
-		</div>
+	<div class="workbench__grid">
+		<nav class="workbench__nav" aria-label="Playground exhibits">
+			{#each EXHIBITS as exhibit (exhibit.id)}
+				<button
+					type="button"
+					class:active={activeExhibit === exhibit.id}
+					aria-current={activeExhibit === exhibit.id ? "page" : undefined}
+					onclick={() => selectExhibit(exhibit.id)}
+				>
+					<span>{exhibit.label}</span>
+					<small>{exhibit.summary}</small>
+				</button>
+			{/each}
+		</nav>
+
+		<section class="workbench__controls" aria-label="Exhibit controls">
+			<h2>Controls</h2>
+			{#if activeExhibit === "grammar"}
+				<label class="field" for="grammar-variant">
+					<span>Primitive family</span>
+					<select id="grammar-variant" value={grammarVariant} onchange={setGrammarVariant}>
+						{#each GRAMMAR_VARIANTS as variant (variant)}
+							<option value={variant}>{variant}</option>
+						{/each}
+					</select>
+				</label>
+			{:else if activeExhibit === "dialects"}
+				<label class="field" for="dialect-select">
+					<span>Global dialect</span>
+					<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
+						{#each DIALECT_OPTIONS as dialectId (dialectId)}
+							<option value={dialectId}>{dialectId}</option>
+						{/each}
+					</select>
+				</label>
+			{:else if activeExhibit === "state"}
+				<p class="control-copy">
+					Goal: {String(storeSnapshot["playground.goal"])} · Reviewed:
+					{String(storeSnapshot["playground.reviewed"])}
+				</p>
+			{:else if activeExhibit === "vary"}
+				<label class="field" for="vary-choice">
+					<span>Choice demo.mode</span>
+					<input
+						id="vary-choice"
+						type="range"
+						min="0"
+						max="2"
+						step="1"
+						value={selectedVaryChoice}
+						oninput={setVaryChoice}
+					/>
+				</label>
+			{:else if activeExhibit === "cms"}
+				<div class="link-stack">
+					<a href="/preview/capability-page.demo/rev-001">Preview route</a>
+					<a href="/p/demo">Published route</a>
+				</div>
+			{:else if activeExhibit === "local-ai"}
+				<label class="field" for="local-goal">
+					<span>Prompt goal</span>
+					<textarea id="local-goal" rows="4" bind:value={localGoal}></textarea>
+				</label>
+				<div class="button-row">
+					<button type="button" onclick={runLocalAi} disabled={localBusy}>
+						{localBusy ? "Checking..." : "Try Chrome local AI"}
+					</button>
+					<button type="button" onclick={resetLocalAi}>Reset fallback</button>
+				</div>
+				<p class="control-copy">Chrome local AI unavailable unless the browser exposes LanguageModel.</p>
+			{/if}
+		</section>
+
+		<section class="workbench__preview" aria-label="Morphe preview">
+			<MorpheRoot tree={presentation.tree} {store} {actions} {choices} />
+			{#if activeExhibit === "dialects"}
+				<div class="pinned">
+					<MorpheRoot tree={presentPinnedDialectProof()} dialect={getDialect("night")} />
+				</div>
+			{/if}
+		</section>
+
+		<aside class="workbench__proof" aria-label="Proof rail">
+			<h2>Proof rail</h2>
+			<dl>
+				{#each presentation.proof as item (item.label)}
+					<div>
+						<dt>{item.label}</dt>
+						<dd>{item.value}</dd>
+					</div>
+				{/each}
+			</dl>
+		</aside>
 	</div>
-</section>
+</main>
 
 <style>
-	.section {
-		padding: clamp(var(--mo-space-6), 7vw, var(--mo-space-9))
-			clamp(var(--mo-space-4), 5vw, var(--mo-space-8));
+	.workbench {
+		min-block-size: 100vh;
+		background: var(--mo-intent-surface-base);
+		color: var(--mo-intent-on-surface);
 	}
-	.wrap {
-		max-inline-size: 78rem;
+	.workbench__mast {
+		padding: clamp(var(--mo-space-6), 6vw, var(--mo-space-9))
+			clamp(var(--mo-space-4), 5vw, var(--mo-space-8)) var(--mo-space-5);
+		max-inline-size: 82rem;
 		margin-inline: auto;
 	}
-	.wide {
-		padding-inline: clamp(var(--mo-space-4), 4vw, var(--mo-space-7));
-	}
-	.section :global(.mo-root) {
-		background: transparent;
-	}
-	.pinned {
-		max-inline-size: 48rem;
-		margin-block-start: var(--mo-space-7);
-		margin-inline: auto;
-		border-radius: var(--mo-radius-3);
-		overflow: clip;
-		outline: 1px solid var(--mo-intent-outline);
-		outline-offset: -1px;
-	}
-	.adaptive-lab {
-		background: var(--mo-intent-surface-sunken);
-	}
-	.adaptive-lab :global(.mo-root) {
-		background: transparent;
-	}
-	.adaptive-lab__grid {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: clamp(var(--mo-space-6), 5vw, var(--mo-space-8));
-		align-items: start;
-	}
-	.adaptive-lab__controls {
-		display: grid;
-		gap: var(--mo-space-4);
-		padding: var(--mo-space-5);
-		border: 1px solid var(--mo-intent-outline);
-		border-radius: var(--mo-radius-3);
-		background: var(--mo-intent-surface-raised);
-		box-shadow: var(--mo-shadow-1);
-	}
-	.adaptive-lab__eyebrow {
-		margin: 0 0 var(--mo-space-1);
+	.workbench__eyebrow {
+		margin: 0 0 var(--mo-space-2);
 		font-family: var(--mo-font-mono);
 		font-size: var(--mo-type-2);
-		letter-spacing: 0.02em;
 		color: var(--mo-intent-accession-on);
 	}
-	.adaptive-lab__title {
+	.workbench__mast h1 {
 		margin: 0;
+		max-inline-size: 14ch;
 		font-family: var(--mo-font-display);
-		font-size: var(--mo-type-6);
+		font-size: clamp(var(--mo-type-7), 6vw, var(--mo-type-9));
 		line-height: var(--mo-leading-tight);
-		color: var(--mo-intent-on-surface);
 	}
-	.adaptive-field {
+	.workbench__intro {
+		max-inline-size: 64ch;
+		margin: var(--mo-space-3) 0 0;
+		font-size: var(--mo-type-4);
+		line-height: var(--mo-leading-normal);
+		color: var(--mo-intent-on-surface-muted);
+	}
+	.workbench__mast-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--mo-space-2);
+		margin-block-start: var(--mo-space-4);
+	}
+	.workbench__mast-links a,
+	.workbench__mast-links span {
+		box-sizing: border-box;
+		max-inline-size: 100%;
+		border: 1px solid var(--mo-intent-outline);
+		border-radius: var(--mo-radius-2);
+		padding: var(--mo-space-2) var(--mo-space-3);
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface);
+		font-size: var(--mo-type-2);
+		overflow-wrap: anywhere;
+		text-decoration: none;
+	}
+	.workbench__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--mo-space-4);
+		padding: 0 clamp(var(--mo-space-4), 5vw, var(--mo-space-8))
+			clamp(var(--mo-space-6), 6vw, var(--mo-space-9));
+		max-inline-size: 96rem;
+		margin-inline: auto;
+	}
+	.workbench__nav,
+	.workbench__controls,
+	.workbench__proof {
+		border: 1px solid var(--mo-intent-outline);
+		border-radius: var(--mo-radius-2);
+		background: var(--mo-intent-surface-raised);
+	}
+	.workbench__nav {
+		display: grid;
+		align-content: start;
+		overflow: clip;
+	}
+	.workbench__nav button {
+		display: grid;
+		gap: var(--mo-space-1);
+		inline-size: 100%;
+		border: 0;
+		border-block-end: 1px solid var(--mo-intent-outline);
+		padding: var(--mo-space-3);
+		background: transparent;
+		color: inherit;
+		text-align: start;
+		font: inherit;
+		cursor: pointer;
+	}
+	.workbench__nav button:last-child {
+		border-block-end: 0;
+	}
+	.workbench__nav button:hover,
+	.workbench__nav button.active {
+		background: var(--mo-intent-surface-sunken);
+	}
+	.workbench__nav span {
+		font-weight: 750;
+	}
+	.workbench__nav small,
+	.control-copy,
+	.workbench__proof dd {
+		color: var(--mo-intent-on-surface-muted);
+	}
+	.workbench__controls,
+	.workbench__proof {
+		padding: var(--mo-space-4);
+	}
+	.workbench__controls h2,
+	.workbench__proof h2 {
+		margin: 0 0 var(--mo-space-3);
+		font-size: var(--mo-type-4);
+	}
+	.field {
 		display: grid;
 		gap: var(--mo-space-2);
-		font-family: var(--mo-font-body);
 		font-size: var(--mo-type-3);
-		font-weight: 650;
-		color: var(--mo-intent-on-surface);
+		font-weight: 700;
 	}
-	.adaptive-field input,
-	.adaptive-field textarea {
-		inline-size: 100%;
+	.field select,
+	.field input,
+	.field textarea,
+	.button-row button,
+	.link-stack a {
 		box-sizing: border-box;
+		inline-size: 100%;
 		border: 1px solid var(--mo-intent-outline);
 		border-radius: var(--mo-radius-2);
 		padding: var(--mo-space-3);
 		background: var(--mo-intent-surface-base);
 		color: var(--mo-intent-on-surface);
 		font: inherit;
-		font-weight: 450;
-		line-height: var(--mo-leading-normal);
 	}
-	.adaptive-field textarea {
+	.field textarea {
 		resize: vertical;
 	}
-	.adaptive-field input:focus-visible,
-	.adaptive-field textarea:focus-visible {
-		outline: 2px solid var(--mo-intent-primary-action-ring);
-		outline-offset: 2px;
+	.button-row,
+	.link-stack {
+		display: grid;
+		gap: var(--mo-space-2);
 	}
-	.adaptive-submit {
-		justify-self: start;
-		border: 1px solid var(--mo-intent-outline);
-		border-radius: var(--mo-radius-2);
-		padding: var(--mo-space-3) var(--mo-space-5);
-		background: var(--mo-intent-surface-base);
-		color: var(--mo-intent-on-surface);
-		font-family: var(--mo-font-body);
-		font-size: var(--mo-type-3);
-		font-weight: 700;
+	.button-row button {
 		cursor: pointer;
+		font-weight: 750;
 	}
-	.adaptive-submit:hover {
-		border-color: var(--mo-intent-accession-on);
-	}
-	.adaptive-submit:disabled {
+	.button-row button:disabled {
 		cursor: wait;
 		opacity: 0.64;
 	}
-	.adaptive-lab__result {
+	.link-stack a {
+		text-decoration: none;
+	}
+	.workbench__preview {
 		min-inline-size: 0;
 	}
-	.adaptive-lab__meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--mo-space-2);
-		margin: var(--mo-space-4) 0 0;
+	.workbench__preview :global(.mo-root) {
+		min-block-size: 100%;
+	}
+	.pinned {
+		margin-block-start: var(--mo-space-4);
+		border: 1px solid var(--mo-intent-outline);
+		border-radius: var(--mo-radius-2);
+		overflow: clip;
+	}
+	.workbench__proof dl {
+		display: grid;
+		gap: var(--mo-space-3);
+		margin: 0;
+	}
+	.workbench__proof div {
+		display: grid;
+		gap: var(--mo-space-1);
+		padding-block-end: var(--mo-space-3);
+		border-block-end: 1px solid var(--mo-intent-outline);
+	}
+	.workbench__proof div:last-child {
+		padding-block-end: 0;
+		border-block-end: 0;
+	}
+	.workbench__proof dt {
 		font-family: var(--mo-font-mono);
 		font-size: var(--mo-type-2);
-		color: var(--mo-intent-on-surface-muted);
+		color: var(--mo-intent-accession-on);
 	}
-	.adaptive-lab__meta span {
-		padding: 0.15rem 0.45rem;
-		border: 1px solid var(--mo-intent-outline);
-		border-radius: var(--mo-radius-1);
+	.workbench__proof dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+		font-size: var(--mo-type-2);
 	}
-	@media (min-width: 58rem) {
-		.adaptive-lab__grid {
-			grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1fr);
+	@media (min-width: 72rem) {
+		.workbench__grid {
+			grid-template-columns: minmax(15rem, 0.8fr) minmax(16rem, 0.9fr) minmax(0, 2.4fr)
+				minmax(14rem, 0.8fr);
+			align-items: start;
+		}
+		.workbench__nav,
+		.workbench__controls,
+		.workbench__proof {
+			position: sticky;
+			inset-block-start: var(--mo-space-4);
 		}
 	}
 </style>
