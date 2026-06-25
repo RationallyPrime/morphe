@@ -2,41 +2,39 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
-# Closed Literal mirror of morphe_grammar CoreIntent (CONTRACT.md §8). Closed (not
-# the grammar's open `CoreIntent | str`) so the exported JSON Schema constrains agent
-# generation to known intents.
-IntentRef = Literal[
-    "primary-action",
-    "neutral",
-    "provenance",
-    "evidence",
-    "accession",
-    "caution",
-    "success",
-    "info",
+# The substrate-generic primitives live in morphe_contracts (the thin base shared with
+# morphe_surface). cms re-exports them so existing `from ...contracts.shared import X`
+# call sites keep working while the honest home is the base package.
+from morphe_contracts import (
+    ContractModel,
+    Diagnostic,
+    DialectName,
+    EmphasisClaim,
+    IntentRef,
+    MorpheControls,
+    RenderHints,
+    SurfaceRef,
+)
+
+__all__ = [
+    "Audience",
+    "CmsModel",
+    "Diagnostic",
+    "DialectName",
+    "EmphasisClaim",
+    "IntentRef",
+    "MorpheControls",
+    "RenderHints",
+    "Slug",
+    "SurfaceRef",
 ]
 
-# The nine registered dialect ids (src/lib/dialects/registry.ts).
-DialectName = Literal[
-    "gallery",
-    "night",
-    "icelandic-archive",
-    "clinical",
-    "reykjavik-registry",
-    "timaeus",
-    "ledger",
-    "estate",
-    "foundry",
-]
+# Back-compat alias for existing cms imports (the cms base IS the contract base).
+CmsModel = ContractModel
 
-# Frame.surface in the grammar is exactly these three.
-SurfaceRef = Literal["base", "raised", "sunken"]
-
-# EmphasisClaim in the grammar.
-EmphasisClaim = Literal["muted", "normal", "strong", "critical"]
-
+# Genuinely cms-specific — these stay here, never promoted.
 Audience = Literal[
     "founder",
     "operator",
@@ -48,27 +46,3 @@ Audience = Literal[
 ]
 
 Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")]
-
-
-class CmsModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-
-class MorpheControls(CmsModel):
-    # `dialect` is a RENDER HINT only — never emitted into the tree (content ⊥ presentation).
-    dialect: DialectName = "gallery"
-    primary_intent: IntentRef = "evidence"
-    surface: SurfaceRef = "base"
-    emphasis: EmphasisClaim = "normal"
-
-
-class RenderHints(CmsModel):
-    dialect: DialectName = "gallery"
-
-
-class Diagnostic(CmsModel):
-    code: str
-    severity: Literal["error", "warning", "info"]
-    path: str
-    message: str
-    repair_hint: str | None = None

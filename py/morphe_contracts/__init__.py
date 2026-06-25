@@ -1,0 +1,100 @@
+"""Thin substrate-contract base shared by morphe_cms and morphe_surface.
+
+Holds the generic primitives both pipelines need — the Affordance-Substrate
+``Diagnostic`` shape, the closed grammar-mirror enums, render hints, and the
+``CompiledArtifact`` envelope — so neither sibling has to depend on the other. Depends
+only on Pydantic; never imports morphe_cms, morphe_surface, or morphe_grammar.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+# Closed Literal mirror of morphe_grammar CoreIntent (CONTRACT.md §8). Closed (not the
+# grammar's open ``CoreIntent | str``) so exported JSON Schema constrains agent generation.
+IntentRef = Literal[
+    "primary-action",
+    "neutral",
+    "provenance",
+    "evidence",
+    "accession",
+    "caution",
+    "success",
+    "info",
+]
+
+# Frame.surface in the grammar is exactly these three.
+SurfaceRef = Literal["base", "raised", "sunken"]
+
+# EmphasisClaim in the grammar.
+EmphasisClaim = Literal["muted", "normal", "strong", "critical"]
+
+# The nine registered dialect ids (src/lib/dialects/registry.ts).
+DialectName = Literal[
+    "gallery",
+    "night",
+    "icelandic-archive",
+    "clinical",
+    "reykjavik-registry",
+    "timaeus",
+    "ledger",
+    "estate",
+    "foundry",
+]
+
+
+class ContractModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class Diagnostic(ContractModel):
+    code: str
+    severity: Literal["error", "warning", "info"]
+    path: str
+    message: str
+    repair_hint: str | None = None
+
+
+class RenderHints(ContractModel):
+    dialect: DialectName = "gallery"
+
+
+class MorpheControls(ContractModel):
+    # `dialect` is a RENDER HINT only — never emitted into the tree (content ⊥ presentation).
+    dialect: DialectName = "gallery"
+    primary_intent: IntentRef = "evidence"
+    surface: SurfaceRef = "base"
+    emphasis: EmphasisClaim = "normal"
+
+
+class ArtifactProvenance(ContractModel):
+    created_by: Literal["agent", "human", "migration"]
+    prompt_id: str | None = None
+    source_ids: list[str] = Field(default_factory=list)
+    created_at: str
+
+
+class CompiledArtifact(ContractModel):
+    """Versioned, deterministic compiled-tree envelope. Timestamps/versions are passed in."""
+
+    tree: dict[str, Any]
+    grammar_version: str
+    producer_version: str
+    diagnostics: list[Diagnostic] = Field(default_factory=list)
+    produced_at: str
+
+
+__all__ = [
+    "ArtifactProvenance",
+    "CompiledArtifact",
+    "ContractModel",
+    "Diagnostic",
+    "DialectName",
+    "EmphasisClaim",
+    "IntentRef",
+    "MorpheControls",
+    "RenderHints",
+    "SurfaceRef",
+]

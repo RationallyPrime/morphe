@@ -32,7 +32,7 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-root = "py"
-module-name = ["morphe_grammar", "morphe_agent", "morphe_cms"]
+module-name = ["morphe_grammar", "morphe_agent", "morphe_cms", "morphe_contracts"]
 
 [tool.pytest.ini_options]
 testpaths = ["py/tests"]
@@ -64,4 +64,10 @@ quote-style = "double"
 line-ending = "lf"
 
 [tool.ty.src]
-include = ["py/morphe_grammar", "py/morphe_agent", "py/morphe_cms", "py/tests"]
+include = [
+	"py/morphe_grammar",
+	"py/morphe_agent",
+	"py/morphe_cms",
+	"py/morphe_contracts",
+	"py/tests",
+]
