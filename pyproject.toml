@@ -32,7 +32,7 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-root = "py"
-module-name = ["morphe_grammar", "morphe_agent", "morphe_cms", "morphe_contracts"]
+module-name = ["morphe_grammar", "morphe_agent", "morphe_cms", "morphe_contracts", "morphe_surface"]
 
 [tool.pytest.ini_options]
 testpaths = ["py/tests"]
@@ -58,6 +58,11 @@ ignore = [
 	"S101",
 ]
 
+[tool.ruff.lint.flake8-type-checking]
+# Pydantic evaluates field annotations at runtime (model_rebuild), so imports used in a
+# model's annotations are runtime-required and must NOT move into a TYPE_CHECKING block.
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "morphe_contracts.ContractModel"]
+
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "double"
@@ -69,5 +74,6 @@ include = [
 	"py/morphe_agent",
 	"py/morphe_cms",
 	"py/morphe_contracts",
+	"py/morphe_surface",
 	"py/tests",
 ]
