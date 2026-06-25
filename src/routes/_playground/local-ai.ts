@@ -12,7 +12,22 @@ export interface PromptDownloadMonitor {
 	addEventListener(type: "downloadprogress", listener: (event: Event) => void): void;
 }
 
-export interface PromptOptions {
+/**
+ * A multimodal language attestation for the Prompt API. Chrome warns and
+ * degrades safety attestation when a request omits an output language, so we
+ * declare languages explicitly. Supported codes today: de, en, es, fr, ja.
+ */
+export interface LanguageExpectation {
+	readonly type: "text" | "image" | "audio";
+	readonly languages: readonly string[];
+}
+
+export interface SessionConfig {
+	readonly expectedInputs?: readonly LanguageExpectation[];
+	readonly expectedOutputs?: readonly LanguageExpectation[];
+}
+
+export interface PromptOptions extends SessionConfig {
 	readonly responseConstraint?: unknown;
 }
 
@@ -21,14 +36,25 @@ export interface PromptSession {
 	destroy?(): void;
 }
 
-export interface PromptLanguageModelApi {
-	availability(options?: PromptOptions): Promise<PromptAvailability> | PromptAvailability;
-	create(options?: {
-		readonly monitor?: (monitor: PromptDownloadMonitor) => void;
-	}): Promise<PromptSession>;
+export interface PromptCreateOptions extends SessionConfig {
+	readonly monitor?: (monitor: PromptDownloadMonitor) => void;
 }
 
+export interface PromptLanguageModelApi {
+	availability(options?: PromptOptions): Promise<PromptAvailability> | PromptAvailability;
+	create(options?: PromptCreateOptions): Promise<PromptSession>;
+}
+
+// English attestation, shared verbatim across availability(), create(), and
+// prompt() — the Prompt API requires the same options on availability() that a
+// request uses, and an explicit output language to avoid the safety warning.
+const LOCAL_ADAPTIVE_SESSION_OPTIONS: SessionConfig = {
+	expectedInputs: [{ type: "text", languages: ["en"] }],
+	expectedOutputs: [{ type: "text", languages: ["en"] }],
+};
+
 const LOCAL_ADAPTIVE_DRAFT_PROMPT_OPTIONS: PromptOptions = {
+	...LOCAL_ADAPTIVE_SESSION_OPTIONS,
 	responseConstraint: LOCAL_ADAPTIVE_DRAFT_RESPONSE_CONSTRAINT,
 };
 
@@ -75,6 +101,7 @@ export async function generateLocalAdaptiveDraft(
 		}
 
 		const session = await api.create({
+			...LOCAL_ADAPTIVE_SESSION_OPTIONS,
 			monitor(monitor) {
 				monitor.addEventListener("downloadprogress", () => {});
 			},

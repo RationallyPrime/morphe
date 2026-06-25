@@ -192,6 +192,40 @@ describe("local AI provider", () => {
 		});
 	});
 
+	it("declares an English output language on availability and create", async () => {
+		let availabilityOptions: unknown;
+		let createOptions: unknown;
+
+		const result = await generateLocalAdaptiveDraft(promptInput, {
+			api: {
+				async availability(options) {
+					availabilityOptions = options;
+					return "available" as const;
+				},
+				async create(options) {
+					createOptions = options;
+					return {
+						async prompt() {
+							return JSON.stringify({
+								title: "Live local draft",
+								summary: "Gemini Nano produced a bounded semantic draft.",
+								tone: "success",
+								badges: ["chrome", "validated"],
+								nextActionLabel: "Use draft",
+							});
+						},
+						destroy() {},
+					};
+				},
+			},
+		});
+
+		const english = [{ type: "text", languages: ["en"] }];
+		expect(result.source).toBe("chrome-live");
+		expect(availabilityOptions).toMatchObject({ expectedOutputs: english });
+		expect(createOptions).toMatchObject({ expectedInputs: english, expectedOutputs: english });
+	});
+
 	it("destroys a successful live session", async () => {
 		const destroy = vi.fn();
 
