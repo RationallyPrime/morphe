@@ -41,10 +41,11 @@ def compile_and_gate(
         artifact_id=artifact_id,
         revision_id=revision_id,
         grammar_version=GRAMMAR_VERSION,
+        producer_version=PRESENTER_VERSION,
         presenter_version=PRESENTER_VERSION,
         tree=tree,
         render_hints=RenderHints(dialect=draft.morphe.dialect),
         diagnostics=diagnostics,
-        compiled_at=compiled_at,
+        produced_at=compiled_at,
     )
     return compiled, diagnostics

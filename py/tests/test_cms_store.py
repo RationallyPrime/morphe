@@ -34,10 +34,11 @@ def _compiled(rev: str) -> CompiledTree:
         artifact_id="capability-page.demo",
         revision_id=rev,
         grammar_version="0.1.0",
+        producer_version="0.1.0",
         presenter_version="0.1.0",
         tree={"kind": "frame", "role": "page", "children": []},
         render_hints=RenderHints(dialect="gallery"),
-        compiled_at="2026-06-22T00:00:00Z",
+        produced_at="2026-06-22T00:00:00Z",
     )
 
 

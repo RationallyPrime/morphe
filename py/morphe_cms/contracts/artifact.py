@@ -2,9 +2,19 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import Field
+from morphe_contracts import ArtifactProvenance, CompiledArtifact
 
-from .shared import CmsModel, Diagnostic, RenderHints
+from .shared import CmsModel, RenderHints
+
+# ArtifactProvenance now lives in morphe_contracts; re-exported here (it is referenced as
+# an ArtifactEnvelope field) so `from ...contracts.artifact import ArtifactProvenance` holds.
+__all__ = [
+    "ArtifactEnvelope",
+    "ArtifactProvenance",
+    "ArtifactType",
+    "CompiledTree",
+    "Publication",
+]
 
 ArtifactType = Literal[
     "landingPage",
@@ -14,13 +24,6 @@ ArtifactType = Literal[
     "article",
     "campaignPage",
 ]
-
-
-class ArtifactProvenance(CmsModel):
-    created_by: Literal["agent", "human", "migration"]
-    prompt_id: str | None = None
-    source_ids: list[str] = Field(default_factory=list)
-    created_at: str
 
 
 class ArtifactEnvelope(CmsModel):
@@ -35,15 +38,14 @@ class ArtifactEnvelope(CmsModel):
     provenance: ArtifactProvenance
 
 
-class CompiledTree(CmsModel):
+class CompiledTree(CompiledArtifact):
+    # Editorial specialization of the shared CompiledArtifact envelope. `presenter_version`
+    # is the cms domain term for the producer (mirrors ArtifactEnvelope.presenter_version);
+    # `producer_version`/`produced_at`/`tree`/`grammar_version`/`diagnostics` are inherited.
     artifact_id: str
     revision_id: str
-    grammar_version: str
     presenter_version: str
-    tree: dict[str, Any]
     render_hints: RenderHints
-    diagnostics: list[Diagnostic] = Field(default_factory=list)
-    compiled_at: str
 
 
 class Publication(CmsModel):
