@@ -5,6 +5,7 @@ node_modules
 .venv
 .pytest_cache/
 .ruff_cache/
+.vitest-tmp/
 __pycache__/
 *.py[cod]
 .DS_Store
