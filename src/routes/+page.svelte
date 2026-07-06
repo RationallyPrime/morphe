@@ -137,6 +137,29 @@
 					},
 				],
 			},
+			{
+				kind: "frame",
+				role: "panel",
+				surface: "raised",
+				children: [
+					{
+						kind: "stack",
+						role: "panel",
+						children: [
+							{ kind: "badge", label: "media", intent: "info", icon: "image" },
+							{ kind: "text", value: "Plate Proof", as: "heading" },
+							{
+								kind: "text",
+								value:
+									"A generated demo plate exercises responsive sources, explicit dimensions, and the stable fallback path.",
+								as: "body",
+								emphasis: "muted",
+							},
+							{ kind: "link", href: "/plate-proof", label: "Open plate proof" },
+						],
+					},
+				],
+			},
 		],
 	};
 </script>

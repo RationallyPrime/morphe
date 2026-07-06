@@ -27,6 +27,10 @@ test:
 build:
 	bun run build
 
+# regenerate the committed responsive Timaeus plate derivatives
+plates:
+	bun run plates
+
 # biome lint + format check
 lint:
 	bunx biome check .
