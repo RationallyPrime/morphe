@@ -15,6 +15,7 @@ class SurfaceNode(ContractModel):
     intent: IntentRef | None = None
     href: str | None = None
     collapse: bool | None = None
+    # Record fields — or, on a "table" node, the column heads (label + optional intent).
     children: tuple[SurfaceNode, ...] = ()
     items: tuple[SurfaceNode, ...] = ()
     diagnostics: tuple[Diagnostic, ...] = ()

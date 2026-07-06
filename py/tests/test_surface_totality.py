@@ -12,19 +12,27 @@ from morphe_surface.emit import emit_node
 _leaf = st.fixed_dictionaries({"type": st.sampled_from(["string", "integer", "boolean"])})
 _schema = st.recursive(
     _leaf | st.just({"enum": ["a", "b"]}) | st.just({"type": "null"}) | st.just({}),
-    lambda children: st.fixed_dictionaries(
-        {
-            "type": st.just("object"),
-            "properties": st.dictionaries(st.text(min_size=1, max_size=6), children, max_size=4),
-        },
+    lambda children: st.one_of(
+        st.fixed_dictionaries(
+            {
+                "type": st.just("object"),
+                "properties": st.dictionaries(
+                    st.text(min_size=1, max_size=6), children, max_size=4
+                ),
+            },
+        ),
+        st.fixed_dictionaries({"type": st.just("array"), "items": children}),
     ),
     max_leaves=8,
 )
+_row = st.dictionaries(st.text(max_size=6), st.integers(), max_size=2)
 
 
 @given(
     schema=_schema,
-    data=st.none() | st.dictionaries(st.text(), st.integers(), max_size=3),
+    data=st.none()
+    | st.dictionaries(st.text(), st.integers(), max_size=3)
+    | st.lists(st.none() | st.integers() | _row, max_size=3),
 )
 def test_compiler_is_total_and_valid(schema: dict[str, Any], data: object) -> None:
     # ADR-0014 D8: arbitrary schema + data never raises and always emits a valid tree.
