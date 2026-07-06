@@ -7,7 +7,7 @@
 	<title>Plate Proof | Morphe</title>
 	<meta
 		name="description"
-		content="Responsive Timaeus plate derivative proof rendered through the Morphe Media primitive."
+		content="Responsive plate-derivative proof rendered through the Morphe Media primitive."
 	/>
 </svelte:head>
 

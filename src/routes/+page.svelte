@@ -151,7 +151,7 @@
 							{
 								kind: "text",
 								value:
-									"One Timaeus plate exercises responsive sources, explicit dimensions, and the stable fallback path.",
+									"A generated demo plate exercises responsive sources, explicit dimensions, and the stable fallback path.",
 								as: "body",
 								emphasis: "muted",
 							},

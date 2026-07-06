@@ -5,9 +5,9 @@ import { describe, expect, it } from "vitest";
 import { derivePlates, type PlateSpec } from "./derive-plates.js";
 
 const PLATE: PlateSpec = {
-	slug: "b1-boot-on-premises",
-	source: "b1-boot-on-premises.png",
-	alt: "Timaeus plate B1.",
+	slug: "demo-plate",
+	source: "demo-plate.png",
+	alt: "Neutral demo plate.",
 };
 
 describe("derivePlates", () => {
@@ -25,42 +25,58 @@ describe("derivePlates", () => {
 
 		expect(derivatives).toEqual([
 			{
-				slug: "b1-boot-on-premises",
-				source: "b1-boot-on-premises.png",
+				slug: "demo-plate",
+				source: "demo-plate.png",
 				width: 80,
 				height: 120,
 				outputs: [
-					"b1-boot-on-premises-32.avif",
-					"b1-boot-on-premises-32.webp",
-					"b1-boot-on-premises-64.avif",
-					"b1-boot-on-premises-64.webp",
-					"b1-boot-on-premises-64.png",
+					"demo-plate-32.avif",
+					"demo-plate-32.webp",
+					"demo-plate-64.avif",
+					"demo-plate-64.webp",
+					"demo-plate-64.png",
 				],
 			},
 		]);
 		await expect(readdir(dirs.outputDir)).resolves.toEqual([
-			"b1-boot-on-premises-32.avif",
-			"b1-boot-on-premises-32.webp",
-			"b1-boot-on-premises-64.avif",
-			"b1-boot-on-premises-64.png",
-			"b1-boot-on-premises-64.webp",
+			"demo-plate-32.avif",
+			"demo-plate-32.webp",
+			"demo-plate-64.avif",
+			"demo-plate-64.png",
+			"demo-plate-64.webp",
 		]);
 	});
 
-	it("rejects private trajectory and raw working assets before writing output", async ({
-		task,
-	}) => {
-		const dirs = await fixtureDirs(task.id);
-		await writeFixturePng(path.join(dirs.sourceDir, "t1-flywheel.png"));
+	it("rejects private trajectory and raw working assets before writing output", async () => {
+		const forbidden = ["t1-flywheel.png", "b1-raw.png", "plate.raw.png", "raw-export.png"];
+		for (const name of forbidden) {
+			const dirs = await fixtureDirs(`forbidden-${name}`);
+			await writeFixturePng(path.join(dirs.sourceDir, name));
+
+			await expect(
+				derivePlates({
+					sourceDir: dirs.sourceDir,
+					outputDir: dirs.outputDir,
+					plates: [PLATE],
+					widths: [32],
+				}),
+			).rejects.toThrow("private or working plate asset");
+		}
+	});
+
+	it("does not reject legitimate names merely containing the raw substring", async () => {
+		const dirs = await fixtureDirs("legit-raw-substring");
+		const plate: PlateSpec = { slug: "strawberry", source: "strawberry.png", alt: "Berry." };
+		await writeFixturePng(path.join(dirs.sourceDir, plate.source));
 
 		await expect(
 			derivePlates({
 				sourceDir: dirs.sourceDir,
 				outputDir: dirs.outputDir,
-				plates: [PLATE],
+				plates: [plate],
 				widths: [32],
 			}),
-		).rejects.toThrow("private or working plate asset");
+		).resolves.toHaveLength(1);
 	});
 });
 

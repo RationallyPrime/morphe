@@ -24,51 +24,14 @@ type DeriveOptions = {
 	readonly fallbackWidth?: number;
 };
 
+// Neutral demo plates only (ADR-0011): consumer brand/story assets live in the consumer
+// repo and run this same pipeline there. The committed source is rasterized from the
+// playground's own neutral demo SVG set.
 export const PLATES: readonly PlateSpec[] = [
 	{
-		slug: "b1-boot-on-premises",
-		source: "b1-boot-on-premises.png",
-		alt: "Timaeus plate B1 showing the customer appliance booting on premises.",
-	},
-	{
-		slug: "b2-bind-the-sources",
-		source: "b2-bind-the-sources.png",
-		alt: "Timaeus plate B2 showing operational sources bound to the appliance.",
-	},
-	{
-		slug: "b3-information-flows-in",
-		source: "b3-information-flows-in.png",
-		alt: "Timaeus plate B3 showing information flowing into the local system.",
-	},
-	{
-		slug: "b4-aristotle-authors",
-		source: "b4-aristotle-authors.png",
-		alt: "Timaeus plate B4 showing Aristotle authoring the operational law.",
-	},
-	{
-		slug: "b5-plato-smiths",
-		source: "b5-plato-smiths.png",
-		alt: "Timaeus plate B5 showing Plato smithing a capability from the law.",
-	},
-	{
-		slug: "b6-a-trigger",
-		source: "b6-a-trigger.png",
-		alt: "Timaeus plate B6 showing a trigger entering the governed workflow.",
-	},
-	{
-		slug: "b7-philosopher-king-reasons",
-		source: "b7-philosopher-king-reasons.png",
-		alt: "Timaeus plate B7 showing the philosopher king reasoning over evidence.",
-	},
-	{
-		slug: "b8-governed-workflow",
-		source: "b8-governed-workflow.png",
-		alt: "Timaeus plate B8 showing a governed workflow executing on the record.",
-	},
-	{
-		slug: "b9-on-the-record",
-		source: "b9-on-the-record.png",
-		alt: "Timaeus plate B9 showing the completed act on the record.",
+		slug: "signal-map",
+		source: "signal-map.png",
+		alt: "Abstract demo plate: a signal map of nodes and routed connections on a dark field.",
 	},
 ] as const;
 
@@ -76,7 +39,7 @@ const DEFAULT_SOURCE_DIR = "assets/plates";
 const DEFAULT_OUTPUT_DIR = "static/images/plates";
 const DEFAULT_WIDTHS = [640, 960] as const;
 const DEFAULT_FALLBACK_WIDTH = 960;
-const FORBIDDEN_SOURCE_PATTERNS = [/\.raw\./i, /^t1-/i, /flywheel/i];
+const FORBIDDEN_SOURCE_PATTERNS = [/(^|[-._])raw([-._]|$)/i, /^t1-/i, /flywheel/i];
 
 export async function derivePlates(options: DeriveOptions = {}): Promise<PlateDerivative[]> {
 	const sourceDir = path.resolve(options.sourceDir ?? DEFAULT_SOURCE_DIR);
