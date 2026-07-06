@@ -31,6 +31,28 @@ build:
 plates:
 	bun run plates
 
+# --- viewer (the stripped box-viewer app, KRA-648) ----------------------
+
+# viewer dev server
+viewer-dev:
+	bun run viewer:dev
+
+# svelte-check over the viewer app (same 0/0 bar)
+viewer-check:
+	bun run viewer:check
+
+# viewer production build (adapter-vercel default)
+viewer-build:
+	bun run viewer:build
+
+# viewer appliance build (adapter-node, what the image ships)
+viewer-build-node:
+	bun run viewer:build:node
+
+# build the distroless box-viewer image (from repo root context)
+viewer-image:
+	docker build -f viewer/Dockerfile -t morphe-viewer .
+
 # biome lint + format check
 lint:
 	bunx biome check .
@@ -72,7 +94,7 @@ cms-schema-check:
 # --- composed ----------------------------------------------------------
 
 # every gate CI runs, both stacks — green here means CI goes green
-gates: lint check test build py-test py-lint py-types schema-check cms-schema-check
+gates: lint check test build viewer-check viewer-build-node py-test py-lint py-types schema-check cms-schema-check
 
 # install the prek git hooks (once per checkout)
 hooks:

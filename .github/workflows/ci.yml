@@ -79,6 +79,50 @@ jobs:
           curl -s http://localhost:4173/p/demo | grep -q "Published as data" || fail=1
           exit $fail
 
+      - name: Viewer types (svelte-check, 0 errors / 0 warnings)
+        run: bun run viewer:check
+
+      - name: Viewer build (adapter-node, the appliance shape)
+        run: bun run viewer:build:node
+
+      - name: Viewer SSR smoke (stripped app · fail-closed grammar gate)
+        run: |
+          node scripts/stub-artifact-store.mjs &
+          PORT=4174 MORPHE_ARTIFACT_BASE_URL=http://127.0.0.1:4399/api/v1/surfaces \
+            node viewer/build/index.js &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:4174/healthz && break
+            sleep 1
+          done
+          fail=0
+          # /healthz reports the supported grammar_version (deploy-to-box asserts this).
+          curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.1.0"' || fail=1
+          # A real artifact SSRs (200 + the SSR'd copy, not just a 200 shell).
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42")
+          echo "/surfaces/run-42 -> $code"
+          [ "$code" = "200" ] || fail=1
+          curl -s "http://localhost:4174/surfaces/surface:capability-page:run-42" | grep -q "Served from the artifact store" || fail=1
+          # ?dialect= override stays a 200 render.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42?dialect=night")
+          echo "/surfaces/run-42?dialect=night -> $code"
+          [ "$code" = "200" ] || fail=1
+          # Unsupported grammar_version fails CLOSED: 409 diagnostic naming both versions.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-drift")
+          echo "/surfaces/run-drift -> $code"
+          [ "$code" = "409" ] || fail=1
+          drift=$(curl -s "http://localhost:4174/surfaces/surface:capability-page:run-drift")
+          echo "$drift" | grep -q "Unsupported grammar version" || fail=1
+          echo "$drift" | grep -q "9.9.9" || fail=1
+          echo "$drift" | grep -q "0.1.0" || fail=1
+          # Unknown artifact is a 404, and the playground's adaptive surface is ABSENT.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:missing:one")
+          echo "/surfaces/missing -> $code"
+          [ "$code" = "404" ] || fail=1
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:4174/api/adaptive/decision)
+          echo "/api/adaptive/decision -> $code (must be 404: stripped image)"
+          [ "$code" = "404" ] || fail=1
+          exit $fail
+
   python:
     name: python (pytest · ruff · ty · schema stability)
     runs-on: ubuntu-latest
