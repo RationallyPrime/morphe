@@ -90,7 +90,7 @@ jobs:
         with:
           enable-cache: true
 
-      - run: uv sync --dev
+      - run: uv sync --dev --extra service
 
       - name: Tests (pytest)
         run: uv run pytest

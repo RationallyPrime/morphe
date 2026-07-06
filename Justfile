@@ -43,31 +43,31 @@ format:
 
 # pytest over py/
 py-test:
-	env -u PYTHONPATH uv run pytest
+	env -u PYTHONPATH uv run --extra service pytest
 
 # ruff (the uv.lock-pinned one — the arbiter, never uvx)
 py-lint:
-	env -u PYTHONPATH uv run ruff check
+	env -u PYTHONPATH uv run --extra service ruff check
 
 # ty (pinned, same rule as ruff)
 py-types:
-	env -u PYTHONPATH uv run ty check
+	env -u PYTHONPATH uv run --extra service ty check
 
 # committed schema artifacts must equal a fresh emission (Python -> JSON Schema + TS + masks)
 schema-check:
-	env -u PYTHONPATH uv run python -m morphe_grammar.artifacts --check
+	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --check
 
 # regenerate committed contract artifacts (after a py/ grammar/wire change)
 schema-write:
-	env -u PYTHONPATH uv run python -m morphe_grammar.artifacts --write
+	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --write
 
 # regenerate committed CMS contract schemas (after a py/morphe_cms contract change)
 cms-schema-write:
-	env -u PYTHONPATH uv run python -m morphe_cms.schema --write
+	env -u PYTHONPATH uv run --extra service python -m morphe_cms.schema --write
 
 # committed CMS schemas must equal a fresh emission
 cms-schema-check:
-	env -u PYTHONPATH uv run python -m morphe_cms.schema --check
+	env -u PYTHONPATH uv run --extra service python -m morphe_cms.schema --check
 
 # --- composed ----------------------------------------------------------
 
