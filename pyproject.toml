@@ -1,16 +1,20 @@
 [project]
 name = "morphe-grammar"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pydantic v2 mirror of the Morphe Node grammar."
 requires-python = ">=3.12"
 dependencies = [
-	"fastapi>=0.124.0",
-	"httpx>=0.28.0",
 	"pydantic>=2.12.0",
+]
+
+[project.optional-dependencies]
+service = [
+	"fastapi>=0.124.0",
+	"fastapi-mcp>=0.1.0",
+	"httpx>=0.28.0",
 	"pydantic-ai-slim[openai]>=1.0.0",
 	"pydantic-settings>=2.12.0",
 	"uvicorn>=0.38.0",
-	"fastapi-mcp>=0.1.0",
 ]
 
 [dependency-groups]
