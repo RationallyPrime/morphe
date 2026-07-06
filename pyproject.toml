@@ -1,6 +1,6 @@
 [project]
 name = "morphe-grammar"
-version = "0.2.0"
+version = "0.2.1"
 description = "Pydantic v2 mirror of the Morphe Node grammar."
 requires-python = ">=3.12"
 dependencies = [
