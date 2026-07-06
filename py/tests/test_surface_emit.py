@@ -23,6 +23,29 @@ WORKER = {
     },
 }
 DATA = {"name": "Ada", "status": "active", "address": {"city": "Rvk"}}
+BALANCE_REPORT = {
+    "type": "object",
+    "title": "Balance report",
+    "properties": {
+        "balances": {
+            "type": "array",
+            "title": "Balances",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "account": {"type": "string", "title": "Account"},
+                    "amount": {"type": "number", "title": "Amount"},
+                },
+            },
+        },
+    },
+}
+BALANCE_DATA = {
+    "balances": [
+        {"account": "Cash", "amount": 100.0},
+        {"account": "Receivables", "amount": 42.5},
+    ],
+}
 
 
 def _find(node: object, pred: Callable[[dict[str, Any]], bool]) -> dict[str, Any] | None:
@@ -70,4 +93,28 @@ def test_collapsed_section_emits_within_collapse() -> None:
     addr = _find(node, lambda n: n.get("kind") == "within")
     assert addr is not None
     assert addr["dimension"] == "collapse"
+    validate_node(node)
+
+
+def test_flat_record_list_emits_tabular_grid_with_text_header() -> None:
+    node = emit_node(build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT))
+    grid = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+
+    assert grid is not None
+    assert grid["role"] == "list"
+    assert grid["columns"] == ["flexible", "flexible"]
+
+    header = grid["children"][0]
+    assert header["kind"] == "grid"
+    assert [cell["kind"] for cell in header["children"]] == ["text", "text"]
+    assert [cell["value"] for cell in header["children"]] == ["Account", "Amount"]
+
+    rows = grid["children"][1:]
+    assert [[cell["value"] for cell in row["children"]] for row in rows] == [
+        ["Cash", "100.0"],
+        ["Receivables", "42.5"],
+    ]
+    assert (
+        _find(node, lambda n: n.get("kind") == "within" and n.get("id") == "$.balances[0]") is None
+    )
     validate_node(node)

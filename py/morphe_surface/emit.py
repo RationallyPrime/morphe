@@ -23,7 +23,9 @@ def emit_node(spec: SurfaceNode) -> Node:
         return _leaf(spec)
     if spec.strategy == "collapsed-section":
         return _collapsible(spec)
-    if spec.strategy in {"table", "card-stack"}:
+    if spec.strategy == "table":
+        return _table(spec)
+    if spec.strategy == "card-stack":
         return _section(spec, [_field(item) for item in spec.items])
     return _frame(spec)  # record-card
 
@@ -61,6 +63,48 @@ def _collapsible(spec: SurfaceNode) -> Node:
     }
     inner = _section(spec, [_field(child) for child in spec.children])
     return {"kind": "stack", "role": "section", "children": [socket, inner]}
+
+
+def _table(spec: SurfaceNode) -> Node:
+    columns = spec.children or _columns_from_rows(spec.items)
+    rows = [_table_header(columns), *[_table_row(item, len(columns)) for item in spec.items]]
+    grid: Node = {"kind": "grid", "role": "list", "children": rows}
+    if columns:
+        grid["columns"] = ["flexible" for _ in columns]
+        grid["ruled"] = True
+    return _section(spec, [grid])
+
+
+def _columns_from_rows(rows: tuple[SurfaceNode, ...]) -> tuple[SurfaceNode, ...]:
+    return rows[0].children if rows else ()
+
+
+def _table_header(columns: tuple[SurfaceNode, ...]) -> Node:
+    return {
+        "kind": "grid",
+        "role": "inline",
+        "children": [
+            {"kind": "text", "value": column.label, "as": "caption", "intent": "neutral"}
+            for column in columns
+        ],
+    }
+
+
+def _table_row(row: SurfaceNode, column_count: int) -> Node:
+    cells = [_table_cell(cell) for cell in row.children]
+    if column_count > len(cells):
+        cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
+    return {"kind": "grid", "role": "inline", "children": cells[:column_count] or cells}
+
+
+def _table_cell(spec: SurfaceNode) -> Node:
+    if spec.strategy in _CONTAINER:
+        return emit_node(spec)
+    return _leaf(spec)
+
+
+def _empty_cell() -> Node:
+    return {"kind": "text", "value": "", "as": "body"}
 
 
 def _section(spec: SurfaceNode, children: list[Node]) -> Node:

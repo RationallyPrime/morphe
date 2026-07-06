@@ -135,10 +135,32 @@ def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     items_schema = plan.resolved.get("items")
     items_schema = items_schema if isinstance(items_schema, dict) else {}
     rows = data if isinstance(data, list) else []
+    columns = _table_columns(items_schema, ctx) if plan.strategy == "table" else ()
     items = tuple(_build(items_schema, row, ctx.item(i, plan.label)) for i, row in enumerate(rows))
     return SurfaceNode(
-        path=ctx.path, label=plan.label, strategy=plan.strategy, items=items, diagnostics=plan.diags
+        path=ctx.path,
+        label=plan.label,
+        strategy=plan.strategy,
+        children=columns,
+        items=items,
+        diagnostics=plan.diags,
     )
+
+
+def _table_columns(items_schema: dict[str, Any], ctx: _Ctx) -> tuple[SurfaceNode, ...]:
+    resolved = resolve_ref(items_schema, ctx.root)
+    props = resolved.get("properties")
+    pairs = props.items() if isinstance(props, dict) else ()
+    return tuple(
+        _table_column(str(key), sub if isinstance(sub, dict) else {}, ctx) for key, sub in pairs
+    )
+
+
+def _table_column(key: str, schema: dict[str, Any], ctx: _Ctx) -> SurfaceNode:
+    resolved = resolve_ref(schema, ctx.root)
+    hint = parse_hint(schema) if "x-morphe" in schema else parse_hint(resolved)
+    label = _label(resolved, hint.label, key)
+    return SurfaceNode(path=f"{ctx.path}.{key}", label=label, strategy="scalar", value=label)
 
 
 def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:

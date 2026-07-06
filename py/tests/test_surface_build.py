@@ -86,6 +86,7 @@ def test_object_list_is_table_with_rows() -> None:
     spec = _build(SCHEDULE, {"assignments": [{"worker": "Ada"}, {"worker": "Bo"}], "tags": []})
     a = next(c for c in spec.children if c.path == "$.assignments")
     assert a.strategy == "table"
+    assert [column.label for column in a.children] == ["worker"]
     assert [row.children[0].value for row in a.items] == ["Ada", "Bo"]
 
 
