@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+from morphe_contracts import Diagnostic
 from morphe_grammar import validate_node
 from morphe_surface.build import build_surface
 from morphe_surface.emit import emit_node
+from morphe_surface.spec import SurfaceNode
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -117,4 +119,49 @@ def test_flat_record_list_emits_tabular_grid_with_text_header() -> None:
     assert (
         _find(node, lambda n: n.get("kind") == "within" and n.get("id") == "$.balances[0]") is None
     )
+    validate_node(node)
+
+
+def _diag(path: str, code: str) -> Diagnostic:
+    return Diagnostic(code=code, severity="warning", path=path, message="probe")
+
+
+def test_table_cell_diagnostics_stay_visible() -> None:
+    diags = {"$.balances[0].amount": [_diag("$.balances[0].amount", "CELL")]}
+    spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
+    node = emit_node(spec)
+    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "CELL")
+    assert alert is not None
+    validate_node(node)
+
+
+def test_table_row_diagnostics_stay_visible() -> None:
+    diags = {"$.balances[0]": [_diag("$.balances[0]", "ROW")]}
+    spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
+    node = emit_node(spec)
+    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "ROW")
+    assert alert is not None
+    validate_node(node)
+
+
+def test_non_record_table_row_renders_itself_not_blank() -> None:
+    # A D9 backstop row (linked-ref) must keep its link instead of padding to blanks.
+    row = SurfaceNode(path="$.rows[0]", label="Row 0", strategy="linked-ref", href="#acc")
+    table = SurfaceNode(path="$.rows", label="Rows", strategy="table", items=(row,))
+    node = emit_node(table)
+    link = _find(node, lambda n: n.get("kind") == "link" and n.get("href") == "#acc")
+    assert link is not None
+    validate_node(node)
+
+
+def test_table_hint_on_scalar_array_keeps_values() -> None:
+    schema = {
+        "type": "array",
+        "title": "Tags",
+        "x-morphe": {"strategy": "table"},
+        "items": {"type": "string"},
+    }
+    node = emit_node(build_surface(schema, ["a", "b"], root={}))
+    for value in ("a", "b"):
+        assert _find(node, lambda n, v=value: n.get("value") == v) is not None
     validate_node(node)

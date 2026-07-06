@@ -67,7 +67,8 @@ def _collapsible(spec: SurfaceNode) -> Node:
 
 def _table(spec: SurfaceNode) -> Node:
     columns = spec.children or _columns_from_rows(spec.items)
-    rows = [_table_header(columns), *[_table_row(item, len(columns)) for item in spec.items]]
+    body = [_table_row(item, len(columns)) for item in spec.items]
+    rows = [_table_header(columns), *body] if columns else body
     grid: Node = {"kind": "grid", "role": "list", "children": rows}
     if columns:
         grid["columns"] = ["flexible" for _ in columns]
@@ -80,27 +81,38 @@ def _columns_from_rows(rows: tuple[SurfaceNode, ...]) -> tuple[SurfaceNode, ...]
 
 
 def _table_header(columns: tuple[SurfaceNode, ...]) -> Node:
-    return {
-        "kind": "grid",
-        "role": "inline",
-        "children": [
-            {"kind": "text", "value": column.label, "as": "caption", "intent": "neutral"}
-            for column in columns
-        ],
-    }
+    return {"kind": "grid", "role": "inline", "children": [_header_cell(c) for c in columns]}
+
+
+def _header_cell(column: SurfaceNode) -> Node:
+    cell = _caption(column.label)
+    if column.intent is not None:
+        cell["intent"] = column.intent
+    return cell
 
 
 def _table_row(row: SurfaceNode, column_count: int) -> Node:
-    cells = [_table_cell(cell) for cell in row.children]
-    if column_count > len(cells):
-        cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
-    return {"kind": "grid", "role": "inline", "children": cells[:column_count] or cells}
+    # A row without fields (D9 linked-ref backstop, scalar items under a table hint)
+    # renders itself as the leading cell instead of vanishing into blank padding.
+    cells = [_table_cell(cell) for cell in row.children] if row.children else [_table_cell(row)]
+    cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
+    grid: Node = {"kind": "grid", "role": "inline", "children": cells}
+    # Row-level diagnostics stay visible (D8); a diagnostic-node row already IS its alert.
+    alerts = [] if row.strategy == "diagnostic-node" else [_alert(d) for d in row.diagnostics]
+    if not alerts:
+        return grid
+    return {"kind": "stack", "role": "section", "children": [grid, *alerts]}
 
 
 def _table_cell(spec: SurfaceNode) -> Node:
     if spec.strategy in _CONTAINER:
         return emit_node(spec)
-    return _leaf(spec)
+    inner = _leaf(spec)
+    # Cell-level diagnostics stay visible (D8); a diagnostic-node cell already IS its alert.
+    alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
+    if not alerts:
+        return inner
+    return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
 
 
 def _empty_cell() -> Node:

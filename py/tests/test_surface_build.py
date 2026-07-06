@@ -95,3 +95,49 @@ def test_scalar_list_is_card_stack() -> None:
     t = next(c for c in spec.children if c.path == "$.tags")
     assert t.strategy == "card-stack"
     assert [i.value for i in t.items] == ["x", "y"]
+
+
+def test_nested_record_list_keeps_disclosures_not_grid() -> None:
+    # KRA-640 flatness gate: rows with nested structure stay on the per-row disclosure path.
+    schema = {
+        "type": "object",
+        "properties": {
+            "entries": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "label": {"type": "string"},
+                        "detail": {"type": "object", "properties": {"note": {"type": "string"}}},
+                    },
+                },
+            },
+        },
+    }
+    spec = _build(schema, {"entries": [{"label": "x", "detail": {"note": "n"}}]})
+    entries = next(c for c in spec.children if c.path == "$.entries")
+    assert entries.strategy == "card-stack"
+
+
+def test_ref_items_flat_record_list_is_table() -> None:
+    # Pydantic emits `tuple[BalanceLine, ...]` as items: {"$ref": "#/$defs/BalanceLine"}.
+    schema = {
+        "type": "object",
+        "properties": {
+            "balances": {"type": "array", "items": {"$ref": "#/$defs/BalanceLine"}},
+        },
+        "$defs": {
+            "BalanceLine": {
+                "type": "object",
+                "properties": {
+                    "account": {"type": "string", "title": "Account"},
+                    "quantity": {"type": "string", "title": "Quantity"},
+                },
+            },
+        },
+    }
+    spec = _build(schema, {"balances": [{"account": "Cash", "quantity": "150000"}]})
+    balances = next(c for c in spec.children if c.path == "$.balances")
+    assert balances.strategy == "table"
+    assert [column.label for column in balances.children] == ["Account", "Quantity"]
+    assert [cell.value for cell in balances.items[0].children] == ["Cash", "150000"]

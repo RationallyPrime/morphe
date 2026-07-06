@@ -25,9 +25,23 @@ def test_object_resolves_record_card() -> None:
     assert s == "record-card"
 
 
-def test_array_of_objects_resolves_table() -> None:
-    s = resolve_strategy({"type": "array", "items": {"type": "object"}}, hint=MorpheHint())
+def test_array_of_flat_records_resolves_table() -> None:
+    items = {"type": "object", "properties": {"name": {"type": "string"}}}
+    s = resolve_strategy({"type": "array", "items": items}, hint=MorpheHint())
     assert s == "table"
+
+
+def test_array_of_ref_items_resolves_table_through_root() -> None:
+    s = resolve_strategy(
+        {"type": "array", "items": {"$ref": "#/$defs/Addr"}}, hint=MorpheHint(), root=ROOT
+    )
+    assert s == "table"
+
+
+def test_array_of_shapeless_objects_resolves_card_stack() -> None:
+    # No properties -> no columns -> no grid to lower to (KRA-640 flatness gate).
+    s = resolve_strategy({"type": "array", "items": {"type": "object"}}, hint=MorpheHint())
+    assert s == "card-stack"
 
 
 def test_enum_resolves_badge() -> None:

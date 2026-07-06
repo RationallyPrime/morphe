@@ -90,12 +90,11 @@ def _build(schema: dict[str, Any], data: object, ctx: _Ctx) -> SurfaceNode:
 
 def _plan(schema: dict[str, Any], ctx: _Ctx) -> _Plan:
     resolved = resolve_ref(schema, ctx.root)
-    # A field's own x-morphe overrides the referenced target's (call site owns the register).
-    hint = parse_hint(schema) if "x-morphe" in schema else parse_hint(resolved)
+    hint = _hint_for(schema, resolved)
     label = _label(resolved, hint.label, ctx.label or _segment(ctx.path))
     return _Plan(
         resolved=resolved,
-        strategy=resolve_strategy(resolved, hint),
+        strategy=resolve_strategy(resolved, hint, root=ctx.root),
         label=label,
         hint=hint,
         diags=tuple(ctx.diagnostics.get(ctx.path, ())),
@@ -158,9 +157,16 @@ def _table_columns(items_schema: dict[str, Any], ctx: _Ctx) -> tuple[SurfaceNode
 
 def _table_column(key: str, schema: dict[str, Any], ctx: _Ctx) -> SurfaceNode:
     resolved = resolve_ref(schema, ctx.root)
-    hint = parse_hint(schema) if "x-morphe" in schema else parse_hint(resolved)
+    hint = _hint_for(schema, resolved)
     label = _label(resolved, hint.label, key)
-    return SurfaceNode(path=f"{ctx.path}.{key}", label=label, strategy="scalar", value=label)
+    return SurfaceNode(
+        path=f"{ctx.path}.{key}", label=label, strategy="scalar", value=label, intent=hint.role
+    )
+
+
+def _hint_for(schema: dict[str, Any], resolved: dict[str, Any]) -> MorpheHint:
+    # A field's own x-morphe overrides the referenced target's (call site owns the register).
+    return parse_hint(schema) if "x-morphe" in schema else parse_hint(resolved)
 
 
 def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
