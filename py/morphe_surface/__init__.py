@@ -13,13 +13,12 @@ from .artifact import CompiledSurface
 from .compile import GRAMMAR_VERSION, compile_surface
 from .hints import MorpheHint, parse_hint
 from .spec import SurfaceNode
-from .strategies import Priority, Strategy
+from .strategies import Strategy
 
 __all__ = [
     "GRAMMAR_VERSION",
     "CompiledSurface",
     "MorpheHint",
-    "Priority",
     "Strategy",
     "SurfaceNode",
     "compile_surface",

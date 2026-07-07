@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 # Pinned like the cms gate's GRAMMAR_VERSION/PRESENTER_VERSION; bump on a breaking change.
 GRAMMAR_VERSION = "0.1.0"
-COMPILER_VERSION = "0.1.0"
+COMPILER_VERSION = "0.2.0"
 
 
 def compile_surface(

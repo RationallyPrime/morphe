@@ -119,6 +119,91 @@ def test_nested_record_list_keeps_disclosures_not_grid() -> None:
     assert entries.strategy == "card-stack"
 
 
+def test_hidden_field_is_omitted_from_record() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "payload_hash": {"type": "string", "x-morphe": {"hidden": True}},
+        },
+    }
+    spec = _build(schema, {"name": "Ada", "payload_hash": "abc"})
+    assert [c.path for c in spec.children] == ["$.name"]
+
+
+def test_hidden_field_on_ref_target_is_omitted() -> None:
+    schema = {
+        "type": "object",
+        "properties": {"meta": {"$ref": "#/$defs/Meta"}, "name": {"type": "string"}},
+        "$defs": {
+            "Meta": {
+                "type": "object",
+                "x-morphe": {"hidden": True},
+                "properties": {"key": {"type": "string"}},
+            },
+        },
+    }
+    spec = _build(schema, {"meta": {"key": "k"}, "name": "Ada"})
+    assert [c.path for c in spec.children] == ["$.name"]
+
+
+def test_hidden_column_is_omitted_from_table_and_rows() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "rows": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "account": {"type": "string", "title": "Account"},
+                        "opened_sequence": {"type": "integer", "x-morphe": {"hidden": True}},
+                    },
+                },
+            },
+        },
+    }
+    spec = _build(schema, {"rows": [{"account": "Cash", "opened_sequence": 7}]})
+    rows = next(c for c in spec.children if c.path == "$.rows")
+    assert [column.label for column in rows.children] == ["Account"]
+    assert [cell.path for cell in rows.items[0].children] == ["$.rows[0].account"]
+
+
+def test_ref_container_is_labelled_by_field_key_not_class_title() -> None:
+    # A $defs target's title is a Pydantic class name, never a label (KRA-677 R1).
+    schema = {
+        "type": "object",
+        "properties": {"book": {"$ref": "#/$defs/BookResponse"}},
+        "$defs": {
+            "BookResponse": {
+                "type": "object",
+                "title": "BookResponse",
+                "properties": {"name": {"type": "string"}},
+            },
+        },
+    }
+    spec = _build(schema, {"book": {"name": "Ledger"}})
+    book = next(c for c in spec.children if c.path == "$.book")
+    assert book.label == "book"
+
+
+def test_inline_property_title_still_labels() -> None:
+    spec = _build(SCHEDULE, {"assignments": [], "tags": []})
+    a = next(c for c in spec.children if c.path == "$.assignments")
+    assert a.label == "Assignments"
+
+
+def test_heading_false_hint_threads_to_spec() -> None:
+    schema = {
+        "type": "object",
+        "title": "BookOverviewSurface",
+        "x-morphe": {"heading": False},
+        "properties": {"name": {"type": "string"}},
+    }
+    spec = _build(schema, {"name": "Ledger"})
+    assert spec.heading is False
+
+
 def test_ref_items_flat_record_list_is_table() -> None:
     # Pydantic emits `tuple[BalanceLine, ...]` as items: {"$ref": "#/$defs/BalanceLine"}.
     schema = {

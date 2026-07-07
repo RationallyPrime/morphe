@@ -15,6 +15,8 @@ class SurfaceNode(ContractModel):
     intent: IntentRef | None = None
     href: str | None = None
     collapse: bool | None = None
+    # Containers self-head by default; ``x-morphe: {heading: false}`` suppresses it (KRA-677).
+    heading: bool = True
     # Record fields — or, on a "table" node, the column heads (label + optional intent).
     children: tuple[SurfaceNode, ...] = ()
     items: tuple[SurfaceNode, ...] = ()
