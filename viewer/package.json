@@ -1,0 +1,7 @@
+{
+	"name": "@rationallyprime/morphe-viewer",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"description": "Stripped box-viewer app (KRA-648/MO-D3): one SSR route + /healthz over the shared Morphe $lib. Tooling and dependencies live in the repo root."
+}

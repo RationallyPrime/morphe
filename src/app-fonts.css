@@ -1,0 +1,24 @@
+/*
+ * Demo-host typography, self-hosted (air-gap/on-prem forcing function —
+ * MIGRATION.md "Self-host fonts"; the box viewer image must render with no
+ * outbound network). Mirrors the weights the old Google CDN links carried:
+ * Spectral 400–700 + 400/500 italic, Hanken Grotesk 400–700, Fragment Mono
+ * 400 + italic, and the Material Symbols Outlined variable font that
+ * `.material-symbols-outlined` (Icon primitive) depends on.
+ *
+ * App-level, deliberately NOT part of the published package: consumers own
+ * their font pipeline; the substrate only references font-family tokens.
+ */
+@import "@fontsource/spectral/400.css";
+@import "@fontsource/spectral/500.css";
+@import "@fontsource/spectral/600.css";
+@import "@fontsource/spectral/700.css";
+@import "@fontsource/spectral/400-italic.css";
+@import "@fontsource/spectral/500-italic.css";
+@import "@fontsource/hanken-grotesk/400.css";
+@import "@fontsource/hanken-grotesk/500.css";
+@import "@fontsource/hanken-grotesk/600.css";
+@import "@fontsource/hanken-grotesk/700.css";
+@import "@fontsource/fragment-mono/400.css";
+@import "@fontsource/fragment-mono/400-italic.css";
+@import "material-symbols/outlined.css";

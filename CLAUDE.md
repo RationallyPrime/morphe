@@ -51,6 +51,11 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 - `/dignity` — compatibility redirect to `/substrate`.
 - `/api/adaptive/decision` — adaptive sidecar bridge. Calls `MORPHE_AGENT_BASE_URL` when configured and otherwise returns a deterministic schema-valid fallback tree.
 - Static demo assets live under `static/images/demo/`. Consumer brand assets, marketing pages, contact/onboarding endpoints, and corpus/rerank pipelines live in the consumer repo.
+- Fonts are self-hosted (`src/app-fonts.css`, fontsource + material-symbols packages) — never reintroduce CDN font links; the box viewer ships to air-gapped appliances.
+
+## The box viewer (`viewer/`, KRA-648 / MO-D3)
+
+A second, STRIPPED SvelteKit app sharing the same `$lib` (`kit.files.lib = "../src/lib"`): exactly one route (`/surfaces/[artifactId]`, SSR-fetches a compiled artifact from `MORPHE_ARTIFACT_BASE_URL/{id}` — the topos read route) plus `/healthz` (reports the supported `grammar_version`). It exists because the playground app ships an unauthenticated outbound-capable `/api/adaptive/decision` and is therefore not appliance-shippable. Fail-closed grammar gate: an artifact stamped with an unsupported `grammar_version` renders a 409 diagnostic naming both versions (`GRAMMAR_VERSION` in `src/lib/grammar/version.ts` mirrors `py/morphe_surface/compile.py`; a vitest pins parity). Adapter is env-switched in `viewer/svelte.config.js` (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless image, `viewer/Dockerfile`, built from repo root). Never give the viewer more routes; host-level controls stay out.
 
 ## Adding things (the right way)
 

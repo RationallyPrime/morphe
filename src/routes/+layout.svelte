@@ -2,6 +2,7 @@
 	import { untrack } from "svelte";
 	import { page } from "$app/state";
 	import "$lib/styles.css";
+	import "../app-fonts.css";
 	import "../app.css";
 	import {
 		activeDialect,

@@ -2,6 +2,9 @@ node_modules
 /.svelte-kit
 /build
 /dist
+/viewer/.svelte-kit
+/viewer/build
+/viewer/.vercel
 .venv
 .pytest_cache/
 .ruff_cache/

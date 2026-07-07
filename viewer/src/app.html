@@ -5,13 +5,11 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="theme-color" content="#efebe3" />
-		<!-- Title is owned by route/layout head so pages SSR exactly one title. -->
-		<!-- Demo host typography (Spectral display, Hanken Grotesk body, Fragment Mono
-		     labels, Material Symbols icons) is self-hosted via src/app-fonts.css,
-		     imported by the root layout — no CDN, so on-prem/air-gapped renders hold. -->
+		<!-- Fonts are self-hosted via src/app-fonts.css (imported by the layout).
+		     The viewer ships to on-prem/air-gapped boxes: no CDN, no outbound. -->
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<body>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

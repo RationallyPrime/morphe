@@ -1,0 +1,34 @@
+# Viewer image build context (viewer/Dockerfile, built from repo root).
+# Keep the context to what the build actually reads: package manifests, src/,
+# static/, viewer/, and the one py file the grammar-parity test mirrors.
+node_modules
+.git
+.svelte-kit
+viewer/.svelte-kit
+viewer/build
+build
+dist
+.venv
+.pytest_cache
+.ruff_cache
+.vitest-tmp
+__pycache__
+*.py[cod]
+.env
+.env.*
+.vercel
+.claude
+.impeccable
+scratch
+assets
+docs
+generated
+schema
+scripts
+compiled
+content
+publications.json
+*.log
+*.md
+Contextually aware adaptive UI design system.json
+Dynamic adaptive UI with Pydantic FastUI.json
