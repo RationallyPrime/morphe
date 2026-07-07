@@ -15,5 +15,3 @@ Strategy = Literal[
     "card-stack",
     "diagnostic-node",
 ]
-
-Priority = Literal["hero", "primary", "secondary"]

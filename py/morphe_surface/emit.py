@@ -36,7 +36,11 @@ def _leaf(spec: SurfaceNode) -> Node:
     if spec.strategy == "badge":
         return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
     if spec.strategy == "linked-ref":
-        return {"kind": "link", "href": spec.href or "#", "label": spec.label}
+        if not spec.href:
+            # An absent/empty relation is not a link — render an empty region, never a
+            # dead ``href="#"`` (KRA-677 R3). Backstop degrades keep their caption via _field.
+            return {"kind": "text", "value": "", "as": "body"}
+        return {"kind": "link", "href": spec.href, "label": spec.label}
     # diagnostic-node — an unrenderable region renders AS its diagnostic (totality, D8).
     return {
         "kind": "inline-alert",
@@ -120,9 +124,11 @@ def _empty_cell() -> Node:
 
 
 def _section(spec: SurfaceNode, children: list[Node]) -> Node:
-    head = {"kind": "text", "value": spec.label, "as": "heading"}
+    head: list[Node] = (
+        [{"kind": "text", "value": spec.label, "as": "heading"}] if spec.heading else []
+    )
     alerts = [_alert(d) for d in spec.diagnostics]
-    return {"kind": "stack", "role": "section", "children": [head, *alerts, *children]}
+    return {"kind": "stack", "role": "section", "children": [*head, *alerts, *children]}
 
 
 def _field(spec: SurfaceNode) -> Node:

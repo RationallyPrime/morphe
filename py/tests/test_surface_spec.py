@@ -18,20 +18,33 @@ def test_parse_hint_reads_x_morphe_block() -> None:
     hint = parse_hint(
         {
             "x-morphe": {
-                "section": "Compliance",
-                "priority": "secondary",
                 "collapse": True,
                 "strategy": "table",
+                "hidden": True,
+                "heading": False,
             }
         },
     )
-    assert hint.section == "Compliance"
-    assert hint.priority == "secondary"
     assert hint.collapse is True
     assert hint.strategy == "table"
+    assert hint.hidden is True
+    assert hint.heading is False
 
 
 def test_parse_hint_defaults_when_absent() -> None:
     hint = parse_hint({"type": "string"})
     assert hint.strategy is None
-    assert hint.priority == "primary"
+    assert hint.hidden is False
+    assert hint.heading is True
+
+
+def test_parse_hint_ignores_unknown_keys() -> None:
+    # The vocabulary is forward-open across pinned revs (KRA-677): retired keys such as
+    # priority/section — or keys from a newer compiler — must not crash the parse.
+    hint = parse_hint({"x-morphe": {"priority": "hero", "section": "Meta", "hidden": True}})
+    assert hint.hidden is True
+
+
+def test_parse_hint_degrades_on_invalid_values() -> None:
+    hint = parse_hint({"x-morphe": {"strategy": "not-a-strategy"}})
+    assert hint == parse_hint({})

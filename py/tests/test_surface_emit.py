@@ -154,6 +154,30 @@ def test_non_record_table_row_renders_itself_not_blank() -> None:
     validate_node(node)
 
 
+def test_heading_false_suppresses_section_heading() -> None:
+    schema = {
+        "type": "object",
+        "title": "BookOverviewSurface",
+        "x-morphe": {"heading": False},
+        "properties": {"name": {"type": "string", "title": "Name"}},
+    }
+    node = emit_node(build_surface(schema, {"name": "Ledger"}, root=schema))
+    heading = _find(node, lambda n: n.get("as") == "heading")
+    assert heading is None
+    validate_node(node)
+
+
+def test_empty_href_linked_ref_emits_blank_text_not_dead_link() -> None:
+    # KRA-677 R3: an absent relation must not render as a dead href="#" link.
+    schema = {
+        "type": "object",
+        "properties": {"reverses": {"type": "string", "x-morphe": {"strategy": "linked-ref"}}},
+    }
+    node = emit_node(build_surface(schema, {"reverses": ""}, root=schema))
+    assert _find(node, lambda n: n.get("kind") == "link") is None
+    validate_node(node)
+
+
 def test_table_hint_on_scalar_array_keeps_values() -> None:
     schema = {
         "type": "array",
