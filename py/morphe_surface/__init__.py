@@ -10,12 +10,13 @@ from __future__ import annotations
 
 from .adapters import from_envelope, from_pydantic, surface_from_model
 from .artifact import CompiledSurface
-from .compile import compile_surface
+from .compile import GRAMMAR_VERSION, compile_surface
 from .hints import MorpheHint, parse_hint
 from .spec import SurfaceNode
 from .strategies import Priority, Strategy
 
 __all__ = [
+    "GRAMMAR_VERSION",
     "CompiledSurface",
     "MorpheHint",
     "Priority",
