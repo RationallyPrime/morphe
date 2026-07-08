@@ -92,6 +92,12 @@
 		min-inline-size: 0;
 	}
 
+	.mo-frame[data-role="page"] {
+		inline-size: 100%;
+		max-inline-size: 72rem;
+		margin-inline: auto;
+	}
+
 	/*
 	 * A base frame sits on the base surface with no surface step, so it draws no
 	 * box — sectioning is by background tone alone (the Archive rule: no 1px borders

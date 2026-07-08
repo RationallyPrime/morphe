@@ -32,7 +32,7 @@
  * and the exact mistake this layer exists to never repeat.
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -154,13 +154,13 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 /* ------------------------------------------------------------------------- *
  * Archive-REGISTER extensions (vertical discourse roles). These are the
  * intent-layer vocabulary the editorial/archive register needs beyond the core
- * eight — the proof that a dialect EXTENDS the intent set (never the scale set).
+ * eight — the shared register tier in the closed authorable keyset.
  * Each is still a pure neutral-scale mapping. Authored trees opt into them by
  * name (`intent: "folio"`); they degrade to their `, fallback` in `slot()` when
  * a non-Archive dialect is active, so portability is preserved.
  * ------------------------------------------------------------------------- */
 
-const ARCHIVE_REGISTER: Readonly<Record<string, IntentDefinition>> = {
+const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 	/** Folio / page-number register — the quietest label tone (mono, dim). */
 	folio: {
 		surface: "transparent",

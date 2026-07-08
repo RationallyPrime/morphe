@@ -141,7 +141,8 @@ type EmphasisClaim  = "muted" | "normal" | "strong" | "critical";   // a CLAIM; 
 type CoreIntent =
   "primary-action" | "neutral" | "provenance" | "evidence" | "accession"
   | "caution" | "success" | "info";
-type IntentRef      = CoreIntent | (string & {});                   // dialect intents widen
+type RegisterIntent = "folio" | "marginalia" | "seal";
+type IntentRef      = CoreIntent | RegisterIntent;                  // closed authorable keyset
 ```
 
 ### A11y types (REQUIRED on inputs — an inaccessible tree is unrepresentable)
@@ -445,8 +446,9 @@ fixed point.
 - **intents.ts** — `intentVar(intent, channel)` → `--mo-intent-<intent>-<channel>`;
   channels are `surface | on | hover | border | ring | active | disabled`.
   (`active` = pressed state, `disabled` = disabled surface; both added for the
-  ACTION family per the seed's `IntentThemeEntry`.) `CORE_INTENTS` is the iterable
-  list. `SURFACE_VARS` names the non-intent surface vars, now including
+  ACTION family per the seed's `IntentThemeEntry`.) `CORE_INTENTS`,
+  `REGISTER_INTENTS`, and `INTENT_REFS` are the iterable, closed authorable
+  intent vocabulary. `SURFACE_VARS` names the non-intent surface vars, now including
   `overlay` (`--mo-intent-surface-overlay`, the floating-panel tier) and `scrim`
   (`--mo-scrim`, the modal backdrop — the one overlay token that is a translucent
   fill, since no tonal-layering substitute for a backdrop exists).
@@ -466,8 +468,10 @@ fixed point.
 **Core intents** (vertical-neutral): `primary-action` (the amber beacon, used
 sparingly), `neutral`, `provenance` (lineage/citation blue), `evidence` (the
 document register), `accession` (the catalog accent), `caution`, `success`,
-`info`. A dialect EXTENDS this set with vertical discourse roles; it never
-renames the core set.
+`info`. **Register intents** (shared discourse roles): `folio`, `marginalia`,
+`seal`. The authored intent namespace is closed: adding another intent tier is a
+grammar/contract change, and every shipped dialect must cover it. Dialects
+re-read the keyset; they do not accept arbitrary extra intent strings.
 
 ---
 
@@ -504,7 +508,7 @@ renames the core set.
 ```ts
 interface Dialect {
   id:string; label:string; persona?:{vertical:string; role?:string};
-  intents: Record<string, Partial<Record<IntentChannel,string>>>;  // values MUST be var(--mo-…scale…), never hex
+  intents: Record<IntentRef, Partial<Record<IntentChannel,string>>>;  // values MUST be var(--mo-…scale…), never hex
   priors: { rootDensity?:Density; rootScaleTier?:ScaleTier; rootBudget?:number };
   compounds: string[];   // render-gated allowlist (G|D): empty = unrestricted; see §5
 }
@@ -519,18 +523,22 @@ The default is `icelandic-archive`. Priors are clamped (budget 1..6, scaleTier
 2..4) so Lemma 2's laws survive any dialect.
 
 **The intent keyset is a FIXED POINT across dialects.** All shipped dialects
-(`icelandic-archive`, `clinical`, `reykjavik-registry`) define the SAME intent
-names AND, for the core intents, the SAME channel set — all SEVEN channels
-including `active`/`disabled`, plus the `--mo-intent-surface-overlay` /
-`--mo-scrim` surface additions. The `dialects.test.ts` parity tests
-(`applyDialect().vars` keysets must be equal between dialects) enforce this.
+define the SAME grammar-declared `IntentRef` names (`CORE_INTENTS` +
+`REGISTER_INTENTS`) AND, for the core intents, the SAME channel set — all SEVEN
+channels including `active`/`disabled`, plus the
+`--mo-intent-surface-overlay` / `--mo-scrim` surface additions. The
+`dialects.test.ts` parity tests (`INTENT_REFS` equals the default dialect
+keyset, and `applyDialect().vars` keysets must be equal between dialects)
+enforce this.
 **When you add a channel, add it to EVERY dialect and to `intents.css`, or the
 fixed-point breaks.**
 
-`MorpheRoot` dev-builds walk the authored tree against the active dialect's
-intent record and warn for any unknown `intent` ref; dialect tests also require
-every shipped intent/surface value to be a `var(--mo-...)`, `color-mix(...)`, or
-`transparent` expression, never a raw color.
+The grammar, Pydantic mirror, generated JSON Schema, and generated TypeScript
+types all reject unknown `intent` refs. `MorpheRoot` dev-builds still walk
+external/untyped authored data against the active dialect's intent record and
+warn for any unknown `intent` ref; dialect tests also require every shipped
+intent/surface value to be a `var(--mo-...)`, `color-mix(...)`, or `transparent`
+expression, never a raw color.
 
 ---
 

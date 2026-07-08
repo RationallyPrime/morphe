@@ -11,7 +11,7 @@
  */
 
 import type { ScaleTier } from "../context/algebra.js";
-import type { Density } from "../grammar/types.js";
+import type { Density, IntentRef } from "../grammar/types.js";
 import type { IntentChannel } from "../tokens/intents.js";
 
 /**
@@ -23,12 +23,11 @@ import type { IntentChannel } from "../tokens/intents.js";
 export type IntentDefinition = Readonly<Partial<Record<IntentChannel, string>>>;
 
 /**
- * The intent dialect: a map of intent name -> channel definitions. May extend
- * the core set with vertical discourse roles (e.g. `batch-release`) and may
- * override core intents' channel values, but (by the Lemma-4 refinement rule)
- * never renames core intents.
+ * The intent dialect: the exact map of authorable intent name -> channel
+ * definitions. Extending the vocabulary is a grammar/contract change: add a new
+ * grouped intent union, then every shipped dialect must cover it.
  */
-export type IntentDialect = Readonly<Record<string, IntentDefinition>>;
+export type IntentDialect = Readonly<Record<IntentRef, IntentDefinition>>;
 
 /**
  * Bounded algebra priors: the root context a dialect installs, plus bounded

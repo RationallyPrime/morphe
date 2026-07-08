@@ -26,13 +26,22 @@ def emit_node(spec: SurfaceNode) -> Node:
     if spec.strategy == "table":
         return _table(spec)
     if spec.strategy == "card-stack":
-        return _section(spec, [_field(item) for item in spec.items])
+        return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
     return _frame(spec)  # record-card
 
 
 def _leaf(spec: SurfaceNode) -> Node:
     if spec.strategy == "scalar":
-        return {"kind": "text", "value": _str(spec.value), "as": "body"}
+        node: Node = {"kind": "text", "value": _str(spec.value), "as": spec.text_as or "body"}
+        if spec.emphasis is not None:
+            node["emphasis"] = spec.emphasis
+        if spec.intent is not None:
+            node["intent"] = spec.intent
+        if spec.numeric:
+            node["numeric"] = True
+        if spec.polarity is not None:
+            node["polarity"] = spec.polarity
+        return node
     if spec.strategy == "badge":
         return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
     if spec.strategy == "linked-ref":
@@ -51,7 +60,7 @@ def _leaf(spec: SurfaceNode) -> Node:
 
 
 def _frame(spec: SurfaceNode) -> Node:
-    body = _section(spec, [_field(child) for child in spec.children])
+    body = _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
 
 
@@ -65,11 +74,13 @@ def _collapsible(spec: SurfaceNode) -> Node:
         "range": [0, 1],
         "default": 1 if spec.collapse else 0,
     }
-    inner = _section(spec, [_field(child) for child in spec.children])
+    inner = _section(spec, _fields(spec.children))
     return {"kind": "stack", "role": "section", "children": [socket, inner]}
 
 
 def _table(spec: SurfaceNode) -> Node:
+    if not spec.items:
+        return _section(spec, [_empty_collection(spec)])
     columns = spec.children or _columns_from_rows(spec.items)
     body = [_table_row(item, len(columns)) for item in spec.items]
     rows = [_table_header(columns), *body] if columns else body
@@ -124,11 +135,59 @@ def _empty_cell() -> Node:
 
 
 def _section(spec: SurfaceNode, children: list[Node]) -> Node:
-    head: list[Node] = (
-        [{"kind": "text", "value": spec.label, "as": "heading"}] if spec.heading else []
-    )
+    head: list[Node] = [_heading(spec.label, spec.emphasis)] if spec.heading else []
     alerts = [_alert(d) for d in spec.diagnostics]
     return {"kind": "stack", "role": "section", "children": [*head, *alerts, *children]}
+
+
+def _heading(label: str, emphasis: str | None) -> Node:
+    node: Node = {"kind": "text", "value": label, "as": "heading"}
+    if emphasis is not None:
+        node["emphasis"] = emphasis
+    return node
+
+
+def _fields(specs: tuple[SurfaceNode, ...]) -> list[Node]:
+    nodes: list[Node] = []
+    pending: list[SurfaceNode] = []
+    for spec in specs:
+        if _definition_candidate(spec):
+            pending.append(spec)
+            continue
+        _flush_definitions(nodes, pending)
+        nodes.append(_field(spec))
+    _flush_definitions(nodes, pending)
+    return nodes
+
+
+def _flush_definitions(nodes: list[Node], pending: list[SurfaceNode]) -> None:
+    if pending:
+        nodes.append(_definition_grid(pending))
+        pending.clear()
+
+
+def _definition_candidate(spec: SurfaceNode) -> bool:
+    return spec.strategy in _LEAF and spec.strategy != "diagnostic-node" and spec.text_as is None
+
+
+def _definition_grid(specs: list[SurfaceNode]) -> Node:
+    children: list[Node] = []
+    for spec in specs:
+        children.extend((_caption(spec.label), _definition_value(spec)))
+    return {
+        "kind": "grid",
+        "role": "field-group",
+        "columns": ["content", "flexible"],
+        "children": children,
+    }
+
+
+def _definition_value(spec: SurfaceNode) -> Node:
+    inner = _leaf(spec)
+    alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
+    if not alerts:
+        return inner
+    return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
 
 
 def _field(spec: SurfaceNode) -> Node:
@@ -137,10 +196,24 @@ def _field(spec: SurfaceNode) -> Node:
         return inner  # containers self-head and render their own diagnostics
     # A diagnostic-node already renders its issue; other leaves carry a caption + any alerts.
     alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
+    if spec.text_as is not None:
+        if not alerts:
+            return inner
+        return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
     return {
         "kind": "stack",
         "role": "field-group",
         "children": [_caption(spec.label), inner, *alerts],
+    }
+
+
+def _empty_collection(spec: SurfaceNode) -> Node:
+    label = spec.label.strip().lower()
+    return {
+        "kind": "text",
+        "value": f"No {label or 'items'}.",
+        "as": "caption",
+        "intent": "neutral",
     }
 
 

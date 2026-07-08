@@ -40,7 +40,7 @@
  * re-dialects exactly that subtree via the cascade — the subtree-boundary swap.
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -172,7 +172,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * different scale mapping — the fixed-point demonstration at the extension tier.
  * ------------------------------------------------------------------------- */
 
-const CLINICAL_REGISTER: Readonly<Record<string, IntentDefinition>> = {
+const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 	/** Folio → row/record-id register: a cold mono label tone. */
 	folio: {
 		surface: "transparent",

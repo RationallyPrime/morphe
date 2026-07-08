@@ -947,14 +947,15 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
  * different bounded priors. `clinical` is not yet wired into the barrel, so it is
  * imported directly from its module (as core.test.ts imports the default).
  *
- * A deliberately out-of-bounds dialect (`rogue`) is constructed as test data to
- * prove priors are CLAMPED — a dialect can never escape the design system's
- * range, which is what keeps Lemma 2's laws true under any dialect (Lemma 4).
+ * A deliberately out-of-bounds prior set (`rogue`) is constructed as test data
+ * against the closed default intent map to prove priors are CLAMPED — a dialect
+ * can never escape the design system's range, which is what keeps Lemma 2's
+ * laws true under any dialect (Lemma 4).
  */
 const ROGUE_DIALECT: Dialect = {
 	id: "rogue",
 	label: "Rogue",
-	intents: {},
+	intents: DEFAULT_DIALECT.intents,
 	priors: { rootBudget: 9999, rootScaleTier: 0 as ScaleTier },
 	compounds: [],
 };

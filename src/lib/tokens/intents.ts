@@ -3,10 +3,9 @@
  *
  * Intents are the ONLY token vocabulary authored trees touch. They are
  * domain-semantic names mapped onto neutral scales. The core set below is
- * vertical-NEUTRAL; a dialect (Lemma 4) EXTENDS it with vertical discourse roles
- * (e.g. a legal dialect contributes `judicial-crimson` as an intent mapping onto
- * the neutral `red` scale — NOT as a scale name). Intents never rename the core
- * set; refinement may only extend it.
+ * vertical-NEUTRAL; the register tier adds the shared discourse roles every
+ * shipped dialect re-reads. The namespace is closed at the grammar boundary:
+ * adding another tier is a contract change, not an arbitrary string escape.
  *
  * Each intent resolves to a small, fixed set of channels. Slots (slots.ts) bind
  * component-facing roles to these channels. Re-theming / re-dialecting is a
@@ -17,9 +16,9 @@
  * properties this contract names).
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, IntentRef, RegisterIntent } from "../grammar/types.js";
 
-export type { CoreIntent };
+export type { CoreIntent, IntentRef, RegisterIntent };
 
 /**
  * The channels every intent must provide. CSS var names derive from these.
@@ -45,6 +44,12 @@ export const CORE_INTENTS: readonly CoreIntent[] = [
 	"info",
 ] as const;
 
+/** Shared register-extension names every shipped dialect re-reads. */
+export const REGISTER_INTENTS: readonly RegisterIntent[] = ["folio", "marginalia", "seal"] as const;
+
+/** Every authorable intent ref, as a runtime list for tests and validators. */
+export const INTENT_REFS: readonly IntentRef[] = [...CORE_INTENTS, ...REGISTER_INTENTS] as const;
+
 /**
  * The CSS custom-property name for an intent channel, e.g.
  * `intentVar("caution", "surface")` -> `--mo-intent-caution-surface`.
@@ -53,7 +58,7 @@ export const CORE_INTENTS: readonly CoreIntent[] = [
  * dialect provider. A primitive should reference SLOTS, but the chain bottoms
  * out at these var names.
  */
-export function intentVar(intent: string, channel: IntentChannel): string {
+export function intentVar(intent: IntentRef, channel: IntentChannel): string {
 	return `--mo-intent-${intent}-${channel}`;
 }
 

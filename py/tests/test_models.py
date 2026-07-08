@@ -58,6 +58,15 @@ def test_live_typescript_grammar_affordance_fields_validate(tree: NodeFixture) -
     validate_node(tree)
 
 
+def test_register_intent_validates() -> None:
+    validate_node({"kind": "text", "value": "p. 12", "as": "caption", "intent": "folio"})
+
+
+def test_unknown_intent_fails_validation() -> None:
+    with pytest.raises(ValidationError):
+        validate_node({"kind": "text", "value": "typo", "intent": "provenence"})
+
+
 def test_unknown_kind_fails_validation() -> None:
     with pytest.raises(ValidationError):
         validate_node({"kind": "clickable-div", "children": []})

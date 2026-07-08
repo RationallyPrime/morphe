@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from morphe_contracts import Diagnostic
 
@@ -12,6 +13,7 @@ from .spec import SurfaceNode
 
 if TYPE_CHECKING:
     from .hints import MorpheHint
+    from .spec import Polarity
     from .strategies import Strategy
 
 # D9 backstop: a re-entered schema id OR this depth bound degrades a record to a link, so
@@ -20,6 +22,10 @@ MAX_DEPTH = 6
 
 _RECORD = {"record-card", "collapsed-section"}
 _COLLECTION = {"table", "card-stack"}
+_IDENTITY_KEYS = ("name", "title")
+_NUMERIC_TEXT = re.compile(r"^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$")
+
+type _Presentation = Literal["identity", "primary-collection"] | None
 
 
 @dataclass(frozen=True)
@@ -32,16 +38,26 @@ class _Ctx:
     label: str
     depth: int
     seen: frozenset[str]
+    presentation: _Presentation = None
 
-    def child(self, key: str, *, schema_id: str | None) -> _Ctx:
+    def child(self, key: str, *, schema_id: str | None, presentation: _Presentation = None) -> _Ctx:
         seen = self.seen | ({schema_id} if schema_id else frozenset())
         return replace(
-            self, path=f"{self.path}.{key}", label=str(key), depth=self.depth + 1, seen=seen
+            self,
+            path=f"{self.path}.{key}",
+            label=str(key),
+            depth=self.depth + 1,
+            seen=seen,
+            presentation=presentation,
         )
 
     def item(self, index: int, base_label: str) -> _Ctx:
         return replace(
-            self, path=f"{self.path}[{index}]", label=f"{base_label} {index}", depth=self.depth + 1
+            self,
+            path=f"{self.path}[{index}]",
+            label=f"{base_label} {index}",
+            depth=self.depth + 1,
+            presentation=None,
         )
 
 
@@ -112,15 +128,25 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         else "collapsed-section"
     )
     props = plan.resolved.get("properties", {})
-    pairs = props.items() if isinstance(props, dict) else ()
+    prop_items = props.items() if isinstance(props, dict) else ()
+    pairs = tuple(
+        (str(key), sub if isinstance(sub, dict) else {})
+        for key, sub in prop_items
+        if not _hidden(sub, ctx.root)
+    )
+    identity_key = _identity_key(pairs, plan.resolved, ctx) if ctx.depth == 0 else None
+    primary_collection_key = _primary_collection_key(pairs, ctx) if ctx.depth == 0 else None
     children = tuple(
         _build(
-            sub if isinstance(sub, dict) else {},
+            sub,
             _get(data, key),
-            ctx.child(key, schema_id=plan.sid),
+            ctx.child(
+                key,
+                schema_id=plan.sid,
+                presentation=_child_presentation(key, identity_key, primary_collection_key),
+            ),
         )
         for key, sub in pairs
-        if not _hidden(sub, ctx.root)
     )
     collapse = (plan.hint.collapse is not False) if eff == "collapsed-section" else None
     return SurfaceNode(
@@ -145,6 +171,7 @@ def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         label=plan.label,
         strategy=plan.strategy,
         heading=plan.hint.heading,
+        emphasis="strong" if ctx.presentation == "primary-collection" else None,
         children=columns,
         items=items,
         diagnostics=plan.diags,
@@ -187,10 +214,10 @@ def _hidden(schema: object, root: dict[str, Any]) -> bool:
 
 def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     if plan.strategy == "linked-ref":
-        href = data if isinstance(data, str) else None
+        label, href = _linked_ref(plan.label, data)
         return SurfaceNode(
             path=ctx.path,
-            label=plan.label,
+            label=label,
             strategy="linked-ref",
             href=href,
             diagnostics=plan.diags,
@@ -205,12 +232,20 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             value=why,
             diagnostics=(*plan.diags, diag),
         )
+    value = _as_scalar(data)
+    numeric, polarity = _numeric_presentation(value)
     return SurfaceNode(
         path=ctx.path,
         label=plan.label,
         strategy=plan.strategy,
-        value=_as_scalar(data),
+        value=value,
         intent=plan.hint.role,
+        text_as="display" if ctx.presentation == "identity" and plan.strategy == "scalar" else None,
+        emphasis="critical"
+        if ctx.presentation == "identity" and plan.strategy == "scalar"
+        else None,
+        numeric=numeric if plan.strategy == "scalar" else None,
+        polarity=polarity if plan.strategy == "scalar" else None,
         diagnostics=plan.diags,
     )
 
@@ -235,6 +270,82 @@ def _get(data: object, key: str) -> object:
     if isinstance(data, dict):
         return cast("dict[str, Any]", data).get(key)
     return None
+
+
+def _child_presentation(
+    key: str,
+    identity_key: str | None,
+    primary_collection_key: str | None,
+) -> _Presentation:
+    if key == identity_key:
+        return "identity"
+    if key == primary_collection_key:
+        return "primary-collection"
+    return None
+
+
+def _identity_key(
+    pairs: tuple[tuple[str, dict[str, Any]], ...],
+    schema: dict[str, Any],
+    ctx: _Ctx,
+) -> str | None:
+    for key in _IDENTITY_KEYS:
+        match = next((schema for candidate, schema in pairs if candidate == key), None)
+        if match is not None and _scalarish(match, ctx):
+            return key
+
+    required = schema.get("required")
+    required_keys = required if isinstance(required, list) else []
+    for key in required_keys:
+        if not isinstance(key, str):
+            continue
+        match = next((schema for candidate, schema in pairs if candidate == key), None)
+        if match is not None and _scalarish(match, ctx):
+            return key
+    return None
+
+
+def _primary_collection_key(
+    pairs: tuple[tuple[str, dict[str, Any]], ...],
+    ctx: _Ctx,
+) -> str | None:
+    return next((key for key, schema in pairs if _strategy_for(schema, ctx) in _COLLECTION), None)
+
+
+def _scalarish(schema: dict[str, Any], ctx: _Ctx) -> bool:
+    return _strategy_for(schema, ctx) == "scalar"
+
+
+def _strategy_for(schema: dict[str, Any], ctx: _Ctx) -> Strategy:
+    resolved = resolve_ref(schema, ctx.root)
+    return resolve_strategy(resolved, _hint_for(schema, resolved), root=ctx.root)
+
+
+def _linked_ref(fallback_label: str, data: object) -> tuple[str, str | None]:
+    if isinstance(data, dict):
+        payload = cast("dict[str, Any]", data)
+        label = _string_or_none(payload.get("label")) or fallback_label
+        return label, _string_or_none(payload.get("href"))
+    if isinstance(data, str):
+        return fallback_label, data
+    return fallback_label, None
+
+
+def _string_or_none(value: object) -> str | None:
+    return value if isinstance(value, str) else None
+
+
+def _numeric_presentation(value: object) -> tuple[bool | None, Polarity | None]:
+    if isinstance(value, bool) or value is None:
+        return None, None
+    if isinstance(value, int | float):
+        return True, "negative" if value < 0 else "positive"
+    if not isinstance(value, str):
+        return None, None
+    text = value.strip()
+    if not text or _NUMERIC_TEXT.fullmatch(text) is None:
+        return None, None
+    return True, "negative" if text.startswith(("-", "(")) else "positive"
 
 
 def _as_scalar(data: object) -> str | int | float | bool | None:

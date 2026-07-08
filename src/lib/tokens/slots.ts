@@ -17,6 +17,7 @@
  * cascade.
  */
 
+import type { CoreIntent, IntentRef } from "../grammar/types.js";
 import { type IntentChannel, intentVar } from "./intents.js";
 
 /**
@@ -25,12 +26,12 @@ import { type IntentChannel, intentVar } from "./intents.js";
  *
  *   style:background={slot(node.intent ?? "neutral", "surface")}
  *
- * @param intent  an intent name (core or dialect-contributed)
+ * @param intent  a grammar-declared intent name
  * @param channel which channel of that intent to read
  * @param fallback optional CSS fallback if the var is unset (defense for unknown
  *                 dialect intents)
  */
-export function slot(intent: string, channel: IntentChannel, fallback?: string): string {
+export function slot(intent: IntentRef, channel: IntentChannel, fallback?: string): string {
 	const name = intentVar(intent, channel);
 	return fallback ? `var(${name}, ${fallback})` : `var(${name})`;
 }
@@ -59,16 +60,16 @@ export const SLOTS = {
 	 * chosen intent so the same slot group backs any intent the author picks.
 	 */
 	action: {
-		surface: (intent: string = "primary-action"): string => slot(intent, "surface"),
-		on: (intent: string = "primary-action"): string => slot(intent, "on"),
-		hover: (intent: string = "primary-action"): string => slot(intent, "hover"),
-		border: (intent: string = "primary-action"): string => slot(intent, "border"),
-		ring: (intent: string = "primary-action"): string => slot(intent, "ring"),
+		surface: (intent: IntentRef = "primary-action"): string => slot(intent, "surface"),
+		on: (intent: IntentRef = "primary-action"): string => slot(intent, "on"),
+		hover: (intent: IntentRef = "primary-action"): string => slot(intent, "hover"),
+		border: (intent: IntentRef = "primary-action"): string => slot(intent, "border"),
+		ring: (intent: IntentRef = "primary-action"): string => slot(intent, "ring"),
 		/** Pressed state — falls back to hover if a dialect omits the channel. */
-		active: (intent: string = "primary-action"): string =>
+		active: (intent: IntentRef = "primary-action"): string =>
 			slot(intent, "active", slot(intent, "hover")),
 		/** Disabled surface — falls back to the surface channel if a dialect omits it. */
-		disabled: (intent: string = "primary-action"): string =>
+		disabled: (intent: IntentRef = "primary-action"): string =>
 			slot(intent, "disabled", slot(intent, "surface")),
 	},
 	/**
@@ -81,11 +82,11 @@ export const SLOTS = {
 	 * carries an EXPLICIT non-provenance intent still reads that intent's channels.
 	 */
 	link: {
-		on: (intent: string = "provenance"): string =>
+		on: (intent: IntentRef = "provenance"): string =>
 			intent === "provenance" ? `var(--mo-link-on)` : slot(intent, "on"),
-		hover: (intent: string = "provenance"): string =>
+		hover: (intent: IntentRef = "provenance"): string =>
 			intent === "provenance" ? `var(--mo-link-hover)` : slot(intent, "hover"),
-		ring: (intent: string = "provenance"): string => slot(intent, "ring"),
+		ring: (intent: IntentRef = "provenance"): string => slot(intent, "ring"),
 	},
 	/**
 	 * Overlay (Dialog/Popover) chrome. The floating panel surface, the modal
@@ -110,7 +111,7 @@ export const SLOTS = {
 	 * §7) without hardcoding pixels.
 	 */
 	focus: {
-		ring: (intent: string = "primary-action"): string => slot(intent, "ring"),
+		ring: (intent: IntentRef = "primary-action"): string => slot(intent, "ring"),
 		width: (): string => `var(--mo-ring-width)`,
 		offset: (): string => `var(--mo-ring-offset)`,
 	},
@@ -127,6 +128,6 @@ export const SLOTS = {
  * Map a Feedback `tone` to the intent that backs it. Keeps the
  * tone→intent decision in the token layer, not scattered across primitives.
  */
-export function toneIntent(tone: "success" | "caution" | "info" | "neutral"): string {
+export function toneIntent(tone: "success" | "caution" | "info" | "neutral"): CoreIntent {
 	return tone;
 }

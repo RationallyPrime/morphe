@@ -48,13 +48,13 @@ The PRD's shared types (§8.1) were written against an older snapshot. Corrected
 
 | PRD | Live reality | v0 contract |
 |---|---|---|
-| `IntentRef` includes `"action"`, omits `provenance` | `CoreIntent = primary-action, neutral, provenance, evidence, accession, caution, success, info` | Closed `Literal` of the **real 8**. Used on every intent field. No CTA-only restriction — agents may use any intent anywhere (per decision: beacon-scarcity-as-type was too restrictive). CTA merely **defaults** to `primary-action`. |
+| `IntentRef` includes `"action"`, omits `provenance` | `IntentRef = CoreIntent \| RegisterIntent`; core = `primary-action, neutral, provenance, evidence, accession, caution, success, info`; register = `folio, marginalia, seal` | Closed grouped literal of the **real 11**. Used on every intent field. No CTA-only restriction — agents may use any registered intent anywhere (per decision: beacon-scarcity-as-type was too restrictive). CTA merely **defaults** to `primary-action`. |
 | 6 dialects | 9 registered | `DialectName = gallery, night, icelandic-archive, clinical, reykjavik-registry, timaeus, ledger, estate, foundry` |
 | `SurfaceRef = default/raised/sunken/inset/scrim` | `Frame.surface ∈ base/raised/sunken` | `SurfaceRef = base \| raised \| sunken` |
 | `EmphasisLevel = low/normal/high` | `EmphasisClaim ∈ muted/normal/strong/critical` | `EmphasisClaim = muted \| normal \| strong \| critical` |
 | `Audience` | (no substrate constraint) | keep PRD list: `founder, operator, cto, cfo, operations_lead, developer, buyer` |
 
-`IntentRef` is intentionally a **closed `Literal`** in the CMS contract (not the grammar's open `CoreIntent | StrictStr`) so the exported JSON Schema constrains agent generation to known intents.
+`IntentRef` is intentionally a **closed grouped `Literal`** in the CMS contract and the grammar mirror so the exported JSON Schema constrains agent generation to known intents.
 
 **`dialect` is a render hint, not content.** Per content⊥presentation, the presenter does **not** emit dialect into the tree. `MorpheControls.dialect` is carried on the artifact and passed to `MorpheRoot` at the preview/publication route. `primary_intent`, `surface`, and `emphasis` genuinely shape the tree, so they stay authoring-side in `MorpheControls`:
 
