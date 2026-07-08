@@ -45,7 +45,7 @@
  * without touching one authored node.
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -179,7 +179,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * plate number ("B7") as a folio mark in the lattice blue.
  * ------------------------------------------------------------------------- */
 
-const TIMAEUS_REGISTER: Readonly<Record<string, IntentDefinition>> = {
+const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 	/** Folio → the plate-number register: a dim lattice-blue mono label. */
 	folio: {
 		surface: "transparent",

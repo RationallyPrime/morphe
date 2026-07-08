@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { registry as compoundRegistry } from "../compounds/factory.js";
 import type { Node } from "../grammar/types.js";
-import { CORE_INTENTS, intentVar } from "../tokens/intents.js";
+import { CORE_INTENTS, INTENT_REFS, intentVar, REGISTER_INTENTS } from "../tokens/intents.js";
 import { CLINICAL_SURFACES, clinical } from "./clinical.js";
 import { ESTATE_SURFACES, estate } from "./estate.js";
 import { FOUNDRY_SURFACES, foundry } from "./foundry.js";
@@ -46,7 +46,7 @@ import { TIMAEUS_SURFACES, timaeus } from "./timaeus.js";
 import type { Dialect } from "./types.js";
 
 /** Shared register-extension names every shipped dialect re-reads (FP3). */
-const REGISTER_EXTENSIONS = ["folio", "marginalia", "seal"] as const;
+const REGISTER_EXTENSIONS = REGISTER_INTENTS;
 const CHANNELS = ["surface", "on", "hover", "border", "ring"] as const;
 
 /**
@@ -214,8 +214,12 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 		}
 	});
 
+	it("the grammar-declared intent refs equal the fixed dialect keyset", () => {
+		expect([...INTENT_REFS].sort()).toEqual(Object.keys(DEFAULT_DIALECT.intents).sort());
+	});
+
 	it("unknownIntentsIn reports typo'd intent refs and ignores valid refs", () => {
-		const tree: Node = {
+		const tree = {
 			kind: "stack",
 			role: "section",
 			children: [
@@ -223,7 +227,7 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 				{ kind: "badge", label: "bad", intent: "provenence" },
 				{ kind: "status", tone: "caution", signal: { text: "closed union tone" } },
 			],
-		};
+		} as unknown as Node;
 		expect(unknownIntentsIn(tree, DEFAULT_DIALECT.intents)).toEqual(["provenence"]);
 		expect(
 			unknownIntentsIn(
@@ -236,7 +240,7 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 	it("unknownIntentsIn walks a CompoundRef's authored surface: slot fills and node args", () => {
 		// childrenOf returns [] for a compound, so without the explicit walk the
 		// CALL SITE's authored intents would escape the dev warning entirely.
-		const tree: Node = {
+		const tree = {
 			kind: "stack",
 			role: "section",
 			children: [
@@ -256,7 +260,7 @@ describe("FP3 — every shipped dialect covers the full intent vocabulary author
 					},
 				},
 			],
-		};
+		} as unknown as Node;
 		expect(unknownIntentsIn(tree, DEFAULT_DIALECT.intents).sort()).toEqual([
 			"acession",
 			"evidense",

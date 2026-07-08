@@ -40,7 +40,7 @@
  * authored node.
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -171,7 +171,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * resolving), different scale mapping — the fixed point at the extension tier.
  * ------------------------------------------------------------------------- */
 
-const GALLERY_REGISTER: Readonly<Record<string, IntentDefinition>> = {
+const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 	/** Folio → the catalogue number: dim ink, mono, the quietest mark on the wall. */
 	folio: {
 		surface: "transparent",

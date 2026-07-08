@@ -441,10 +441,11 @@ describe("compound lifecycle + dialect restriction (L1 minting / L4 G|D)", () =>
 describe("dialect application (Lemma 4)", () => {
 	it("clamps priors into the design system's bounds", async () => {
 		const { applyDialect } = await import("./dialects/provider.svelte.js");
+		const { DEFAULT_DIALECT } = await import("./dialects/registry.js");
 		const applied = applyDialect({
 			id: "rogue",
 			label: "Rogue",
-			intents: {},
+			intents: DEFAULT_DIALECT.intents,
 			priors: { rootBudget: 999, rootScaleTier: 4 },
 			compounds: [],
 		});

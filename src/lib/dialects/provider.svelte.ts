@@ -15,7 +15,7 @@
 
 import { childrenOf } from "../compounds/factory.js";
 import { type MorpheContext, ROOT_CONTEXT, type ScaleTier } from "../context/algebra.js";
-import type { Node } from "../grammar/types.js";
+import type { IntentRef, Node } from "../grammar/types.js";
 import { intentVar } from "../tokens/intents.js";
 import type { Dialect } from "./types.js";
 
@@ -104,7 +104,7 @@ export function applyDialect(dialect: Dialect): AppliedDialect {
 	for (const [intent, def] of Object.entries(dialect.intents)) {
 		for (const [channel, value] of Object.entries(def)) {
 			if (value !== undefined) {
-				vars[intentVar(intent, channel as Parameters<typeof intentVar>[1])] = value;
+				vars[intentVar(intent as IntentRef, channel as Parameters<typeof intentVar>[1])] = value;
 			}
 		}
 	}

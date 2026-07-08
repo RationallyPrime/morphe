@@ -31,7 +31,7 @@
  *     the instrument-panel reading too, instead of staying Archive-warm.
  */
 
-import type { CoreIntent } from "../grammar/types.js";
+import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -166,7 +166,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * to the warm Archive register while the rest of the page reads cool.
  * ------------------------------------------------------------------------- */
 
-const LEDGER_REGISTER: Readonly<Record<string, IntentDefinition>> = {
+const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 	/** Folio → account-number/reference register: a teal-toned mono label. */
 	folio: {
 		surface: "transparent",

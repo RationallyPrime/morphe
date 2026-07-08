@@ -32,19 +32,8 @@
           "title": "Href"
         },
         "intent": {
-          "default": "primary-action",
-          "enum": [
-            "primary-action",
-            "neutral",
-            "provenance",
-            "evidence",
-            "accession",
-            "caution",
-            "success",
-            "info"
-          ],
-          "title": "Intent",
-          "type": "string"
+          "$ref": "#/$defs/IntentRef",
+          "default": "primary-action"
         },
         "label": {
           "maxLength": 48,
@@ -103,24 +92,13 @@
         "intent": {
           "anyOf": [
             {
-              "enum": [
-                "primary-action",
-                "neutral",
-                "provenance",
-                "evidence",
-                "accession",
-                "caution",
-                "success",
-                "info"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/IntentRef"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Intent"
+          "default": null
         },
         "kind": {
           "const": "caseProof",
@@ -150,6 +128,19 @@
       ],
       "title": "CaseProofSection",
       "type": "object"
+    },
+    "CoreIntent": {
+      "enum": [
+        "primary-action",
+        "neutral",
+        "provenance",
+        "evidence",
+        "accession",
+        "caution",
+        "success",
+        "info"
+      ],
+      "type": "string"
     },
     "FAQItem": {
       "additionalProperties": false,
@@ -193,24 +184,13 @@
         "intent": {
           "anyOf": [
             {
-              "enum": [
-                "primary-action",
-                "neutral",
-                "provenance",
-                "evidence",
-                "accession",
-                "caution",
-                "success",
-                "info"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/IntentRef"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Intent"
+          "default": null
         },
         "items": {
           "items": {
@@ -354,6 +334,16 @@
       "title": "HeroVariation",
       "type": "object"
     },
+    "IntentRef": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CoreIntent"
+        },
+        {
+          "$ref": "#/$defs/RegisterIntent"
+        }
+      ]
+    },
     "Metric": {
       "additionalProperties": false,
       "properties": {
@@ -421,19 +411,8 @@
           "type": "string"
         },
         "primary_intent": {
-          "default": "evidence",
-          "enum": [
-            "primary-action",
-            "neutral",
-            "provenance",
-            "evidence",
-            "accession",
-            "caution",
-            "success",
-            "info"
-          ],
-          "title": "Primary Intent",
-          "type": "string"
+          "$ref": "#/$defs/IntentRef",
+          "default": "evidence"
         },
         "surface": {
           "default": "base",
@@ -484,24 +463,13 @@
         "intent": {
           "anyOf": [
             {
-              "enum": [
-                "primary-action",
-                "neutral",
-                "provenance",
-                "evidence",
-                "accession",
-                "caution",
-                "success",
-                "info"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/IntentRef"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Intent"
+          "default": null
         },
         "kind": {
           "const": "problemFrame",
@@ -548,24 +516,13 @@
         "intent": {
           "anyOf": [
             {
-              "enum": [
-                "primary-action",
-                "neutral",
-                "provenance",
-                "evidence",
-                "accession",
-                "caution",
-                "success",
-                "info"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/IntentRef"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Intent"
+          "default": null
         },
         "label": {
           "maxLength": 64,
@@ -580,6 +537,14 @@
       ],
       "title": "ProofPoint",
       "type": "object"
+    },
+    "RegisterIntent": {
+      "enum": [
+        "folio",
+        "marginalia",
+        "seal"
+      ],
+      "type": "string"
     },
     "WorkflowMapSection": {
       "additionalProperties": false,
@@ -600,24 +565,13 @@
         "intent": {
           "anyOf": [
             {
-              "enum": [
-                "primary-action",
-                "neutral",
-                "provenance",
-                "evidence",
-                "accession",
-                "caution",
-                "success",
-                "info"
-              ],
-              "type": "string"
+              "$ref": "#/$defs/IntentRef"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Intent"
+          "default": null
         },
         "kind": {
           "const": "workflowMap",

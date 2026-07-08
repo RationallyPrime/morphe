@@ -109,6 +109,7 @@ export type {
 	Popover,
 	Progress,
 	Range,
+	RegisterIntent,
 	Select,
 	SelectOption,
 	Slot,
@@ -180,5 +181,11 @@ export {
 } from "./state/store.svelte.js";
 export type { IntentChannel } from "./tokens/intents.js";
 // Tokens
-export { CORE_INTENTS, intentVar, SURFACE_VARS } from "./tokens/intents.js";
+export {
+	CORE_INTENTS,
+	INTENT_REFS,
+	intentVar,
+	REGISTER_INTENTS,
+	SURFACE_VARS,
+} from "./tokens/intents.js";
 export { SLOTS, slot, toneIntent } from "./tokens/slots.js";

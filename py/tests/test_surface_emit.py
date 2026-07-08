@@ -25,6 +25,16 @@ WORKER = {
     },
 }
 DATA = {"name": "Ada", "status": "active", "address": {"city": "Rvk"}}
+LEDGER_HEADER = {
+    "type": "object",
+    "title": "Ledger header",
+    "properties": {
+        "title": {"type": "string", "title": "Title"},
+        "status": {"type": "string", "title": "Status"},
+        "amount": {"type": "string", "title": "Amount"},
+    },
+}
+LEDGER_HEADER_DATA = {"title": "Krates Main Ledger", "status": "open", "amount": "-42.5"}
 BALANCE_REPORT = {
     "type": "object",
     "title": "Balance report",
@@ -82,6 +92,17 @@ def test_scalar_emits_text() -> None:
     validate_node(node)
 
 
+def test_root_identity_scalar_emits_display_critical_without_caption() -> None:
+    node = emit_node(build_surface(LEDGER_HEADER, LEDGER_HEADER_DATA, root=LEDGER_HEADER))
+    display = _find(node, lambda n: n.get("as") == "display")
+
+    assert display is not None
+    assert display["value"] == "Krates Main Ledger"
+    assert display["emphasis"] == "critical"
+    assert _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "Title") is None
+    validate_node(node)
+
+
 def test_enum_emits_badge() -> None:
     spec = build_surface({"enum": ["active"], "title": "Status"}, "active", root={})
     node = emit_node(spec)
@@ -119,6 +140,34 @@ def test_flat_record_list_emits_tabular_grid_with_text_header() -> None:
     assert (
         _find(node, lambda n: n.get("kind") == "within" and n.get("id") == "$.balances[0]") is None
     )
+    validate_node(node)
+
+
+def test_record_scalars_emit_two_column_definition_grid() -> None:
+    node = emit_node(build_surface(LEDGER_HEADER, LEDGER_HEADER_DATA, root=LEDGER_HEADER))
+    grid = _find(
+        node,
+        lambda n: (
+            n.get("kind") == "grid"
+            and n.get("role") == "field-group"
+            and n.get("columns") == ["content", "flexible"]
+        ),
+    )
+
+    assert grid is not None
+    assert [cell["value"] for cell in grid["children"]] == ["Status", "open", "Amount", "-42.5"]
+    amount = grid["children"][3]
+    assert amount["numeric"] is True
+    assert amount["polarity"] == "negative"
+    validate_node(node)
+
+
+def test_primary_collection_heading_emits_strong_claim() -> None:
+    node = emit_node(build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT))
+    heading = _find(node, lambda n: n.get("as") == "heading" and n.get("value") == "Balances")
+
+    assert heading is not None
+    assert heading["emphasis"] == "strong"
     validate_node(node)
 
 
@@ -175,6 +224,34 @@ def test_empty_href_linked_ref_emits_blank_text_not_dead_link() -> None:
     }
     node = emit_node(build_surface(schema, {"reverses": ""}, root=schema))
     assert _find(node, lambda n: n.get("kind") == "link") is None
+    validate_node(node)
+
+
+def test_linked_ref_pair_emits_payload_label() -> None:
+    schema = {
+        "type": "object",
+        "properties": {"manager": {"type": "string", "x-morphe": {"strategy": "linked-ref"}}},
+    }
+    node = emit_node(
+        build_surface(
+            schema,
+            {"manager": {"label": "Grace Hopper", "href": "/workers/w-9"}},
+            root=schema,
+        )
+    )
+    link = _find(node, lambda n: n.get("kind") == "link")
+
+    assert link is not None
+    assert link["label"] == "Grace Hopper"
+    assert link["href"] == "/workers/w-9"
+    validate_node(node)
+
+
+def test_empty_collection_emits_empty_state_caption() -> None:
+    node = emit_node(build_surface(BALANCE_REPORT, {"balances": []}, root=BALANCE_REPORT))
+    empty = _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "No balances.")
+
+    assert empty is not None
     validate_node(node)
 
 

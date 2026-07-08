@@ -41,7 +41,8 @@ type CoreIntent = Literal[
     "success",
     "info",
 ]
-type IntentRef = CoreIntent | StrictStr
+type RegisterIntent = Literal["folio", "marginalia", "seal"]
+type IntentRef = CoreIntent | RegisterIntent
 
 
 class GrammarModel(BaseModel):

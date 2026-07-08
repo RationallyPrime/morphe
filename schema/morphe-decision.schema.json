@@ -767,7 +767,7 @@
           "$ref": "#/$defs/CoreIntent"
         },
         {
-          "type": "string"
+          "$ref": "#/$defs/RegisterIntent"
         }
       ]
     },
@@ -1292,6 +1292,14 @@
       ],
       "title": "Range",
       "type": "object"
+    },
+    "RegisterIntent": {
+      "enum": [
+        "folio",
+        "marginalia",
+        "seal"
+      ],
+      "type": "string"
     },
     "Select": {
       "additionalProperties": false,

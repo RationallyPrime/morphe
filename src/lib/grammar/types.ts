@@ -39,7 +39,9 @@ export type CoreIntent =
 	| "success"
 	| "info";
 
-export type IntentRef = CoreIntent | (string & {});
+export type RegisterIntent = "folio" | "marginalia" | "seal";
+
+export type IntentRef = CoreIntent | RegisterIntent;
 
 export type VaryId = string & { readonly __morpheVaryId?: never };
 

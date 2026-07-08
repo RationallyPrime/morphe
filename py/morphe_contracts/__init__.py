@@ -12,9 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-# Closed Literal mirror of morphe_grammar CoreIntent (CONTRACT.md §8). Closed (not the
-# grammar's open ``CoreIntent | str``) so exported JSON Schema constrains agent generation.
-IntentRef = Literal[
+type CoreIntent = Literal[
     "primary-action",
     "neutral",
     "provenance",
@@ -24,6 +22,13 @@ IntentRef = Literal[
     "success",
     "info",
 ]
+
+type RegisterIntent = Literal["folio", "marginalia", "seal"]
+
+# Closed Literal mirror of morphe_grammar IntentRef (CONTRACT.md §8): core intents plus
+# the shared register tier. Exported JSON Schema constrains agent generation instead of
+# accepting arbitrary strings.
+type IntentRef = CoreIntent | RegisterIntent
 
 # Frame.surface in the grammar is exactly these three.
 SurfaceRef = Literal["base", "raised", "sunken"]
@@ -90,11 +95,13 @@ __all__ = [
     "ArtifactProvenance",
     "CompiledArtifact",
     "ContractModel",
+    "CoreIntent",
     "Diagnostic",
     "DialectName",
     "EmphasisClaim",
     "IntentRef",
     "MorpheControls",
+    "RegisterIntent",
     "RenderHints",
     "SurfaceRef",
 ]

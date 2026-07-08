@@ -205,10 +205,9 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-# Closed Literal mirror of morphe_grammar CoreIntent (CONTRACT.md §8). Closed (not
-# the grammar's open `CoreIntent | str`) so the exported JSON Schema constrains agent
-# generation to known intents.
-IntentRef = Literal[
+# Closed grouped Literal mirror of morphe_grammar IntentRef (CONTRACT.md §8), so the
+# exported JSON Schema constrains agent generation to known intents.
+CoreIntent = Literal[
     "primary-action",
     "neutral",
     "provenance",
@@ -218,6 +217,8 @@ IntentRef = Literal[
     "success",
     "info",
 ]
+RegisterIntent = Literal["folio", "marginalia", "seal"]
+IntentRef = CoreIntent | RegisterIntent
 
 # The nine registered dialect ids (src/lib/dialects/registry.ts).
 DialectName = Literal[
