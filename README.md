@@ -1,65 +1,140 @@
 # Morphe
 
-**UI as data.** A user interface here is not a pile of components — it is a
-typed tree, authored the way you would author a document, rendered through a
-fixed grammar, and re-themed by swapping a single layer without touching a
-node. Morphe is the substrate that makes that sentence true, and the Sókrates
-marketing site (`src/routes/`) is the first thing standing on it.
+**Morphe is a stratified adaptive-UI substrate.** UI is authored as data: a typed
+`Node` tree rendered through a fixed grammar, a context algebra, a three-layer
+token system, and a swappable dialect. The authored tree says "role, priority,
+intent"; it never says pixels, hex values, or framework component trivia.
 
-## The idea in one breath
+This repository owns the reusable package, the local CMS/tooling surface, the
+adaptive sidecar contract, a neutral playground, and the stripped appliance
+viewer. The Sókrates website is a downstream consumer in a separate repository
+and imports Morphe through the package seams.
 
-Authored trees emit **roles, priorities, and intents** — never geometry. No
-pixel values, no scale names, no hex. The renderer is a total function from
-tree to DOM; the context algebra decides what "a heading inside a panel inside
-a section" means; the token strata decide what `primary-action` looks like
-*today, in this dialect, for this visitor*. Swap the dialect and every surface
-re-themes; the tree never knew.
-
-Four lemmas carry the weight, all enforced in code rather than convention:
-
-| Lemma | Claim | Where it lives |
-|---|---|---|
-| **1 — Grammar** | UI is a discriminated `Node` union; an unlabelled input or a clickable `<div>` is *unrepresentable* | `src/lib/grammar/types.ts` |
-| **2 — Context algebra** | A child's rendering context is a pure function of (parent context, role); `Frame` is the only reset | `src/lib/context/` |
-| **3 — Fixed point** | The same authored tree is byte-identical under every dialect | `dialects.test.ts` |
-| **4 — Dialects** | A dialect remaps the intent layer and bounded priors — and nothing else | `src/lib/dialects/` |
-
-On top of those, the substrate already carries the **Lemma 5/6 seams**: a
-client store with typed event tiers and a replayable `ContextDigest`, and
-bounded delegation — variation points (`Vary`/`Within`) that a future mid-loop
-model may move *within slow-loop-authorized ranges*, validated by a pure
-`applyDelta` that rejects stale epochs before anything renders. The renderer
-never sees an epoch. That is the point. The home page's intent engine is the
-first production consumer of that machinery: a visitor-stated interest becomes
-a hand-authored Delta through the same gate.
-
-The grammar is canonical in Pydantic (`py/morphe_grammar`) and emits the
-committed contract artifacts: JSON Schema, TypeScript grammar types, wire
-schemas, and decoder masks. `just schema-check` is the drift gate; `just
-schema-write` regenerates the artifacts after a grammar or wire-model change.
-
-## Quick start
+## Quick Start
 
 ```bash
 bun install
-just gates     # every gate CI runs, both stacks — green here means CI goes green
-just dev       # http://localhost:5173/
-just hooks     # install the prek git hooks (once per checkout)
+just gates     # every gate CI runs, across the web, viewer, and Python stacks
+just dev       # neutral playground at http://localhost:5173/
+just hooks     # install the prek git hooks once per checkout
 ```
 
-Stack: SvelteKit + Svelte 5 (runes) · TypeScript strict · bun · Biome ·
-Vitest · uv + ruff + ty on the Python side · prek hooks · GitHub Actions.
+Useful focused gates:
 
-## Adaptive sidecar
+```bash
+bun run check          # svelte-check
+bun run test           # vitest + DOM vitest config
+bun run build          # SvelteKit/Vercel build for the playground host
+just viewer-build-node # stripped adapter-node viewer build
+just py-test           # pytest over py/
+just schema-check      # committed grammar artifacts equal fresh emission
+```
 
-`py/morphe_agent` is the optional live decision sidecar for the substrate lab.
-It serves `POST /v1/morphe/decision` and always returns a schema-valid `Node`:
-without live credentials it uses the deterministic fallback, and with live
-credentials it routes through Pydantic AI Gateway.
+Stack: SvelteKit + Svelte 5 runes, Vite, TypeScript strict, bun, Biome, Vitest,
+uv, ruff, ty, Pydantic v2, FastAPI, and prek.
+
+## The Package
+
+Morphe publishes as the private GitHub Packages package
+`@rationallyprime/morphe`. The package root is `src/lib`; consumer apps import
+only the public seams:
+
+- `@rationallyprime/morphe` — grammar, context, compounds, dialects,
+  delegation, state, render contracts, token helper types.
+- `@rationallyprime/morphe/components` — `MorpheRoot`, `RenderNode`, and
+  primitive Svelte components for harnesses and inspection.
+- `@rationallyprime/morphe/tokens` — intent constants and slot helpers.
+- `@rationallyprime/morphe/styles.css` — public token CSS.
+
+Typical consumer use:
+
+```svelte
+<script lang="ts">
+	import "@rationallyprime/morphe/styles.css";
+	import type { Node } from "@rationallyprime/morphe";
+	import { MorpheRoot } from "@rationallyprime/morphe/components";
+
+	const tree: Node = {
+		kind: "frame",
+		role: "section",
+		children: [{ kind: "text", value: "Hello Morphe", as: "heading" }],
+	};
+</script>
+
+<MorpheRoot {tree} />
+```
+
+Package publication and registry proof live in [`PACKAGING.md`](PACKAGING.md).
+
+## The Algebra
+
+Four foundation lemmas carry the substrate, and the code treats them as gates,
+not as vibes:
+
+| Lemma | Claim | Canonical source |
+|---|---|---|
+| **1 — Grammar** | UI is a discriminated `Node` union; inaccessible inputs and fake clickable divs are unrepresentable. | `src/lib/grammar/types.ts` |
+| **2 — Context algebra** | Child context is a pure function of parent context and role; `Frame` is the only reset. | `src/lib/context/` |
+| **3 — Fixed point** | The same authored tree survives dialect swaps unchanged. | `src/lib/dialects/dialects.test.ts` |
+| **4 — Dialects** | A dialect remaps the intent layer and bounded priors, and nothing else. | `src/lib/dialects/` |
+
+The current tower also wires the reserved sockets that make adaptation
+stratified instead of ad hoc: `bind` paths flow through the client store,
+`Button.action` ids resolve at `MorpheRoot.actions`, and `Vary` choices flow
+through `MorpheRoot.choices` plus the Delta machinery. The renderer never sees
+epochs or handlers. The tree stays declarative.
+
+Nine dialects ship: `gallery` (default), `night`, `icelandic-archive`,
+`clinical`, `reykjavik-registry`, `timaeus`, `ledger`, `estate`, and `foundry`.
+Every shipped dialect preserves the contract keyset.
+
+## Repository Map
+
+| Path | Purpose |
+|---|---|
+| `src/lib/grammar` | The typed `Node` union and grammar version. |
+| `src/lib/context` | Context algebra, emphasis budget, and Svelte context boundary. |
+| `src/lib/compounds` | Compound definitions as data, plus the validation gate. |
+| `src/lib/dialects` | Dialect data, registry, active dialect store, and arrival resolution. |
+| `src/lib/delegation` | Envelope, epoch, Delta, `Vary`, and mid-loop seams. |
+| `src/lib/state` | Store, tiered events, actions, digest, and escalation. |
+| `src/lib/render` | Recursive renderer and package component entry points. |
+| `src/lib/primitives` | Svelte implementations of the grammar primitives. |
+| `src/lib/tokens` | Scales, intents, slot helpers, and public token CSS. |
+| `py/morphe_grammar` | Pydantic grammar mirror, JSON Schema, TS codegen, and masks. |
+| `py/morphe_cms` | Local CMS contracts, presenter, validation, store, tools, and MCP surface. |
+| `py/morphe_agent` | Optional adaptive decision sidecar and deterministic fallback. |
+| `py/morphe_surface` | Surface compiler contracts used by the viewer path. |
+| `src/routes` | Neutral playground, CMS preview/publication routes, and adaptive API bridge. |
+| `viewer` | Stripped SvelteKit viewer for appliance surfaces. |
+| `schema` | Committed contract artifacts generated from the Python grammar/CMS models. |
+
+## Demo Host
+
+The root app is a neutral proof host, not a consumer marketing site:
+
+- `/` — Morphe workbench index.
+- `/substrate` — full playground with all dialects, actions, bind paths,
+  choices, neutral assets, adaptive fallback rendering, and nested dialect proof.
+- `/preview/[artifactId]/[revisionId]` — local CMS compiled-tree preview.
+- `/p/[slug]` — publication pointer route.
+- `/dignity` — compatibility redirect to `/substrate`.
+- `/api/adaptive/decision` — bridge to `MORPHE_AGENT_BASE_URL`, with a
+  deterministic schema-valid fallback when no sidecar is configured.
+
+Static demo assets live under `static/images/demo/`. Consumer brand assets and
+consumer-specific pages belong in the consumer repo.
+
+## Adaptive Sidecar
+
+`py/morphe_agent` serves `POST /v1/morphe/decision` and always returns a
+schema-valid decision response. Without live credentials it uses the
+deterministic fallback. With live settings it routes through the Pydantic AI
+Gateway.
 
 ```bash
 MORPHE_AGENT_LIVE=1 \
-MORPHE_AGENT_MODEL=gpt-5.2 \
+MORPHE_AGENT_MODEL=... \
 PYDANTIC_AI_GATEWAY_API_KEY=... \
 uv run uvicorn morphe_agent.app:app --host 127.0.0.1 --port 8042
 
@@ -67,26 +142,44 @@ MORPHE_AGENT_BASE_URL=http://127.0.0.1:8042 just dev
 ```
 
 `MORPHE_AGENT_GATEWAY_BASE_URL` can override the default OpenAI-compatible
-Pydantic Gateway proxy. CI and local gates never require a live model call.
+Pydantic Gateway proxy. CI and local gates do not require a live model call.
 
-## Reading order
+## Box Viewer
+
+`viewer/` is a stripped SvelteKit app for appliance rendering. It shares the
+same `src/lib` substrate, exposes `/surfaces/[artifactId]` plus `/healthz`, and
+fetches compiled artifacts from `MORPHE_ARTIFACT_BASE_URL`. It exists so the
+playground's outbound-capable adaptive bridge does not ship into the box image.
+
+```bash
+just viewer-build-node
+docker build -f viewer/Dockerfile -t morphe-viewer .
+```
+
+## Reading Order
 
 | Document | What it answers |
 |---|---|
-| [`VISION.md`](VISION.md) | *Why* — the stratified adaptive tower this is Phase 0 of |
-| [`CONTRACT.md`](CONTRACT.md) | *What, precisely* — the substrate contract, gates, reserved seams |
-| [`PRODUCT.md`](PRODUCT.md) / [`DESIGN.md`](DESIGN.md) | The Sókrates strategy and the visual canon |
-| [`STATUS.md`](STATUS.md) | The rolling verified snapshot |
-| [`docs/adr/`](docs/adr/) | The decisions, with their reasons attached |
+| [`CONTEXT.md`](CONTEXT.md) | Canonical domain vocabulary. |
+| [`VISION.md`](VISION.md) | Why the stratified adaptive tower exists. |
+| [`CONTRACT.md`](CONTRACT.md) | What the locked Phase 0 substrate guarantees. |
+| [`DESIGN.md`](DESIGN.md) | The design-system frame and dialect craft rules. |
+| [`PACKAGING.md`](PACKAGING.md) | Package boundary, exports, and publication proof. |
+| [`STATUS.md`](STATUS.md) | Last verified status snapshot. |
+| [`docs/adr/`](docs/adr/) | Architectural decisions and their reasons. |
 
-## The site
+## Working Rules
 
-`/` is the stage home: the composer, then an intent engine (a chip row and a
-Cmd/Ctrl+K palette) whose morphs reshape the page in place through the
-substrate's own gates; `/substrate` is the dignity demo where the six-way
-dialect toggle lives; `/how-it-works`, `/architecture`, and `/onboarding` are
-authored as Morphe trees. The default ground is the plate-derived `gallery`
-dialect (light paper, ink-navy, one cobalt beacon); "Flip the lights" swaps it
-for `night`. Deployed on Vercel. Interactive controls are native elements
-styled by the same tokens — the tree carries content and intent, the page owns
-the wires.
+- Library code under `src/lib/**` uses `.js` extensions on relative imports and
+  `import type` for types.
+- Authored trees emit roles, priorities, and intents only. Do not hardcode
+  colors, scale names, geometry, or event handlers into tree data.
+- Interactive chrome and host controls live outside the Morphe tree as native
+  elements styled by `--mo-*` tokens. `MorpheRoot` renders the authored/result
+  tree.
+- Compounds vary through node params and slots only. Raw string fields such as
+  `Badge.label`, `Link.href`, `Button.label`, `Media.src`, and input labels are
+  authored directly in presenters.
+- App-specific presenters, routes, brand assets, outbound integrations, and
+  product copy belong in consumer repositories unless they are neutral
+  playground/CMS proofs.
