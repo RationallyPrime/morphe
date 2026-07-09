@@ -1,11 +1,16 @@
 # ADR-0006 — The stage home and the intent engine (morphs as governed Deltas)
 
-- **Status:** Accepted
+- **Status:** Accepted — superseded in scope by ADR-0008/ADR-0012
 - **Date:** 2026-06-10
 - **Deciders:** Hákon (founder), D7–D10/D12 of the site-reconstruction grill
 - **Related:** VISION.md (the adaptive tower), CONTRACT.md (Delta/envelope, render
   totality, factory gate), ADR-0002 (retrieve→rerank), ADR-0005 (dialect pair),
   docs/redesign-plan.md (D1–D5)
+
+> **Superseded:** the stage-home/intent-engine surface this ADR describes
+> moved to the `sokrates-website` repo in the 2026-06-23 decoupling
+> (ADR-0008, ADR-0012) and no longer lives in this repo. Kept as historical
+> record.
 
 ## Context
 

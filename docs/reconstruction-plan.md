@@ -6,6 +6,11 @@
 > the site shipping green at every step. Sibling plan: `MIGRATION.md` (the
 > monorepo landing — R3 here feeds it).
 
+> **Status update:** R0, R1, and R2 exit criteria are met — verified in code
+> (see per-item notes below). Consistent with `CONTRACT.md` §12: no known R0
+> substrate-integrity gaps remain. R4.1 also shipped. R3.2/R3.3/R3.4 (the
+> monorepo landing) remain genuinely open. R4.2 is superseded — see its entry.
+
 ## Principles
 
 1. **The site never breaks.** Every workstream lands check-clean, tests-green,
@@ -30,7 +35,7 @@ Sizes: S (hours), M (a day), L (days).
 Independent of each other; each is a small, complete, separately-landable PR.
 No behavior change for any currently-valid tree.
 
-- **R0.1 (M) Budget law × expansion commutation** — *the one hole in the
+- **R0.1 (M, ✔ shipped) Budget law × expansion commutation** — *the one hole in the
   headline theorem* (VISION open problem 8). Grammar: optional
   `emphasis?: EmphasisClaim` on `CompoundRef` (hygienic — the call site claims
   on behalf of the expansion; mirrors how slots/args already flow).
@@ -39,21 +44,21 @@ No behavior change for any currently-valid tree.
   *renormalization is invariant under wrapping any child in a single-node
   compound* — wrap/unwrap fuzzing in `lemmas.property.test.ts`.
   Files: `grammar/types.ts` (owner), `context/algebra.ts`, CONTRACT §3/§12.
-- **R0.2 (S) Render totality at unknown compounds.** `Node.svelte`: guard the
+- **R0.2 (S, ✔ shipped) Render totality at unknown compounds.** `Node.svelte`: guard the
   `registry.expand()` call — unknown name renders nothing + a dev-mode
   `console.warn` (never throws). Test: a tree with a bogus `CompoundRef`
   renders its siblings. Files: `render/Node.svelte` (owner), test.
-- **R0.3 (S) Child keying.** Replace object-identity keys `(c)` with index keys
+- **R0.3 (S, ✔ shipped) Child keying.** Replace object-identity keys `(c)` with index keys
   in every container primitive (trees are immutable per `<Node>` instance —
   identity keying buys nothing and forbids structural sharing). Test: a tree
   with the same node instance as two siblings renders. Files: layout/overlay
   primitives, CONTRACT §12 note removal.
-- **R0.4 (S) Intent-ref validation.** Dev-mode tree walk in `MorpheRoot`
+- **R0.4 (S, ✔ shipped) Intent-ref validation.** Dev-mode tree walk in `MorpheRoot`
   warning on any `intent` not in the active dialect's intent set; dialect test
   asserting every channel value matches
   `^(var\(--mo-|color-mix\(|transparent)` (no hex can ever land in a dialect).
   Files: `render/MorpheRoot.svelte` (owner), `dialects.test.ts`.
-- **R0.5 (S) Cleanups.** The no-op `.mo-stack[data-emphasis]` gap rule (make
+- **R0.5 (S, ✔ shipped) Cleanups.** The no-op `.mo-stack[data-emphasis]` gap rule (make
   emphasis-spacing real or delete the placeholder); decide the public-barrel
   question (export `clinical`/`reykjavik-registry`/`dialects/registry` from
   `index.ts` — owner call recorded in CONTRACT).
@@ -67,27 +72,27 @@ No behavior change for any currently-valid tree.
 
 The order matters: store before events, events before digest.
 
-- **R1.1 (L) Client store + bindings.** A single typed store keyed by
+- **R1.1 (L, ✔ shipped) Client store + bindings.** A single typed store keyed by
   `store_path`; input/overlay primitives with `bind` read initial state from
   and commit tier-1 changes to it (tier-0 stays component-local `$state`).
   DI at `MorpheRoot` (a store prop, defaulting to an in-memory one) — no
   global singleton. Architecture test: no component reads the store outside
   its declared bindings.
-- **R1.2 (M) Event tiers.** The typed event taxonomy: tier-1 events flow into
+- **R1.2 (M, ✔ shipped) Event tiers.** The typed event taxonomy: tier-1 events flow into
   the store's recent-event window; a tier-2 event type (`submit`, task
   transition, "this view isn't working") that surfaces as a typed callback at
   the `MorpheRoot` boundary. The site's composer/contact forms stay native —
   this wires the *Morphe-tree* side only.
-- **R1.3 (M) ContextDigest + replay harness.** The digest type (tier-1
+- **R1.3 (M, ✔ shipped) ContextDigest + replay harness.** The digest type (tier-1
   snapshot + recent-event window); a recorder; snapshot tests replaying
   recorded digests against presenter emissions. This is Corollary 2's
   log-format landing early.
-- **R1.4 (M) Action binding.** An `actions: Record<string, handler>` map
+- **R1.4 (M, ✔ shipped) Action binding.** An `actions: Record<string, handler>` map
   passed to `MorpheRoot`; a Morphe `Button` with an `action` id fires the
   mapped handler (tier-2 typed event if unmapped → dev warning). The
   native-control-surface idiom survives: page chrome keeps native controls;
   this gives *in-tree* buttons their declared wire.
-- **R1.5 (M) Compound lifecycle + dialect gating.** `candidate`/`promoted`
+- **R1.5 (M, ✔ shipped) Compound lifecycle + dialect gating.** `candidate`/`promoted`
   states in `CompoundRegistry`; `dialect.compounds[]` becomes render-real: a
   dialect restricts expansion to its subset (G|D's compound half, Lemma 4).
   Parity test: every shipped dialect's compound list resolves.
@@ -101,17 +106,17 @@ flip to ✔; Lemma 5's proof obligation (replay determinism) is a passing test.
 
 Everything here is pure TS — no model required; A4 masking comes with R3.
 
-- **R2.1 (M) Grammar: `Within`, epochs, VaryId.** Add `Within` (continuous
+- **R2.1 (M, ✔ shipped) Grammar: `Within`, epochs, VaryId.** Add `Within` (continuous
   delta: `density`/`emphasis`/`collapse` over a bounded range); brand `VaryId`;
   an `epoch` on the emission envelope (a wrapper type around a root `Node`, not
   a Node field — trees stay pure). Owner-gated; CONTRACT §3 update; fixed-point
   preserved (all optional).
-- **R2.2 (M) Delta semantics.** `applyDelta(envelope, delta): envelope` — pure,
+- **R2.2 (M, ✔ shipped) Delta semantics.** `applyDelta(envelope, delta): envelope` — pure,
   total: rejects stale epochs and dead VaryIds at the type level where
   possible, at validation otherwise. Adversarial fuzz: arbitrary deltas against
   arbitrary envelopes never produce an invalid tree (Lemma 6's proof
   obligation).
-- **R2.3 (S) Renderer: live choice.** `Node.svelte` renders `Vary` from the
+- **R2.3 (S, ✔ shipped) Renderer: live choice.** `Node.svelte` renders `Vary` from the
   envelope's current choice map instead of bare `default` (falling back to
   `default` — Corollary 1). The mid-loop *interface* (something that proposes
   deltas) is a DI seam; its first implementation can be a trivial heuristic to
@@ -163,14 +168,17 @@ one; tuning improves only quality").
 
 ## R4 — τ_frame on the site (independent; revenue-relevant; can run anytime)
 
-- **R4.1 (M) Attribution → dialect.** Read `?cohort=` / ValueTrack-style
+- **R4.1 (M, ✔ shipped) Attribution → dialect.** Read `?cohort=` / ValueTrack-style
   params (campaign/adgroup, geo, device — deterministic, consent-clean) in
   `+layout.svelte` and set `activeDialect` on arrival; precedence over the
   persisted choice, never over an explicit toggle. The dialect mechanism needs
-  zero changes — this is pure wiring at the τ_frame seam.
-- **R4.2 (blocked) Per-cohort copy.** Branch `$site/present.ts` copy per
-  cohort. **Waits on founder input**: which cohorts, which pitches, and the
-  Icelandic copy is the user's. Do not invent pitches.
+  zero changes — this is pure wiring at the τ_frame seam. Implemented as
+  `src/lib/dialects/arrival.ts` (`resolveArrivalDialect`); cohort→dialect
+  mapping itself is left to consumer apps.
+- **R4.2 (superseded) Per-cohort copy.** Branch `$site/present.ts` copy per
+  cohort. **Superseded**: its target, `src/app/site/present.ts`, moved to the
+  `sokrates-website` repo per ADR-0008/ADR-0012 — this workstream no longer
+  applies in this repo.
 
 ---
 

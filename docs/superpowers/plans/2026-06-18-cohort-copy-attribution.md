@@ -1,5 +1,8 @@
 # Cohort copy + URL-param attribution — Implementation Plan
 
+> **Status: superseded, not built in this repo** — overtaken by the
+> sokrates-website decoupling (ADR-0008/ADR-0012) before implementation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Give each marketing cohort its own copy (not just its own dialect), selected by a landing `?cohort=` param and persisted to localStorage, with `?dialect=`/`?intent=` as siblings — and ship the first cohort, `pharma-sovereign`.

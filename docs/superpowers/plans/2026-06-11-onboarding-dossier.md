@@ -1,5 +1,8 @@
 # Onboarding Dossier Implementation Plan
 
+> **Status: superseded, not built in this repo** — overtaken by the
+> sokrates-website decoupling (ADR-0008/ADR-0012) before implementation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** As a visitor fills the onboarding intake, a Morphe tree beside the wizard builds their typed dossier live; on submit the dossier morphs to a sealed, accession-numbered record — and the systems section is reshaped by the first real `MidLoopDelegate`, closing the slow-loop → digest → mid-loop → delta circle for the first time anywhere.

@@ -1,9 +1,13 @@
 # ADR-0002 — Two-stage retrieve-then-rerank ranking pipeline for the composer
 
-- **Status:** Accepted
+- **Status:** Accepted — superseded in scope by ADR-0008/ADR-0012
 - **Date:** 2026-06-09
 - **Deciders:** Hákon (founder), grill session on KRA-274 (extends D4/D5)
 - **Related:** `docs/redesign-plan.md` (WS6, WS9), `src/app/compose/*`, `/api/rerank`, ADR-0001
+
+> **Superseded:** the composer/ranking pipeline this ADR describes moved to
+> the `sokrates-website` repo in the 2026-06-23 decoupling (ADR-0008,
+> ADR-0012) and no longer lives in this repo. Kept as historical record.
 
 ## Context
 

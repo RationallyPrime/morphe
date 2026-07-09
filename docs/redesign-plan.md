@@ -1,5 +1,11 @@
 # Home Redesign Plan — composer-first landing
 
+> **Moved out of this repo (2026-06-23):** this plan's entire subject — the
+> Sókrates composer/onboarding/home (`src/app/site`, `src/app/compose`,
+> `/api/rerank`) — was relocated to the `sokrates-website` repo per
+> ADR-0008 and ADR-0012. This document is kept as historical record only;
+> none of it describes code that lives in this repo anymore.
+
 > Status: planning. Captured 2026-06-09 from direct feedback on the live site.
 > Goal: replace the current "editorial wall + form" landing with a brief intro
 > that hands straight to the Composer as the interactive centerpiece, and fix the

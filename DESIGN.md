@@ -49,8 +49,8 @@ enforced in code (`CONTRACT.md` is canon):
   Input (`field`/`select`/`toggle`/`range` — a11y is a *required typed field*),
   Feedback (`progress`/`status`/`inline-alert` — color never the only signal),
   Action (`button` does something / `link` goes somewhere), Overlay (`dialog`/
-  `popover`/`disclosure` — platform top layer), Meta (`slot`/`param-ref`/`vary`),
-  `compound`. Source of truth: `src/lib/grammar/types.ts`. **Locked.**
+  `popover`/`disclosure` — platform top layer), Meta (`slot`/`param-ref`/`vary`/
+  `within`), `compound`. Source of truth: `src/lib/grammar/types.ts`. **Locked.**
 - **Context algebra (Lemma 2).** Containers carry a compositional `role` (`page`/
   `section`/`panel`/`toolbar`/`list`/`form`/`field-group`/`inline`); a child's
   context is `f(parent ctx, role)`. Four laws: Locality, Stability, Monotone-depth,
@@ -215,13 +215,14 @@ Craft constraints:
 
 ## 6. Components & idioms
 
-- **Site compounds** (`src/app/site/compounds.ts`): editorial building blocks
+- **Site compounds** (historical: `src/app/site/compounds.ts`, moved to the
+  `sokrates-website` repo along with the site itself): editorial building blocks
   (`SiteHero`, `SiteValueProp`, `SitePullquote`, `SiteStep`, `SiteFeatureSplit`,
-  `SiteCtaBanner`, `SiteEntry`, `TimaeusPlate`). Variability rides
+  `SiteCtaBanner`, `SiteEntry`, `TimaeusPlate`). Variability rode
   as **node params + slots** only — the factory does not interpolate string fields
   (no parameterised `Disclosure.summary`, `Badge.label`, `Link.label`, etc.); those
-  are authored directly in the presenter. These are revisable; rebuild them for
-  craft.
+  were authored directly in the presenter. The idiom still applies to any compound
+  built in this repo or the consumer.
 - **The vitrine idiom (ADR-0005).** The plates are self-luminous dark artwork:
   they keep their own ground under every dialect by pinning `night` at a subtree
   boundary (`<MorpheRoot tree={...} dialect={getDialect("night")} />`) — a dark
@@ -266,9 +267,11 @@ Craft constraints:
 Brand register **requires** committed imagery; a near-text-only page reads as
 incomplete, not restrained. The aesthetic is the *physical artifact*: high-res
 stone, paper, brushed metal, architectural detail, the appliance itself — grayscale
-+ contrast bumps allowed, treated as part of the interface. Real assets live in
-`static/images/` (`the-box.png`, `sokrates-mark.svg`, `reykjavik-arch.png`),
-and the committed imagery is the nine **Timaeus plate** derivatives in
++ contrast bumps allowed, treated as part of the interface. The consumer-brand
+assets (`the-box.png`, `sokrates-mark.svg`, `reykjavik-arch.png`) have moved with
+the site to the `sokrates-website` repo; this repo now carries only the neutral
+demo assets (`static/images/demo/`) and the committed imagery that is genuinely
+substrate canon: the nine **Timaeus plate** derivatives in
 `static/images/plates/` (byte-deterministic AVIF/WebP/PNG rungs via `bun run
 plates`; the public canon is the nine beats B1–B9 — `t1-*`/raw inputs are
 excluded by test and CI gate, never shipped). Alt text is part of the voice
@@ -295,12 +298,12 @@ which are the *system* (not cows to kill):
 - Priors are clamped (budget 1..6, scaleTier 2..4) so Lemma 2's laws survive any
   dialect.
 
-### The six shipped dialects are pulled apart at the loudest signals
+### The nine shipped dialects are pulled apart at the loudest signals
 
 A dialect swap must be legible at a glance, and the place a viewer reads first is
 the **beacon (the one primary action) and the surface temperature** — not the
 secondary citation/record hues. So the shipped dialects are deliberately
-separated *there*:
+separated *there*. The original six:
 
 | Dialect | Beacon (`primary-action`) | Surface | Authority mark (`seal`) |
 |---|---|---|---|
@@ -310,6 +313,14 @@ separated *there*:
 | `clinical` | **steel-blue** `--mo-blue-500` | cool slate (neutral × blue-700) | green sign-off |
 | `reykjavik-registry` | **amethyst** `--mo-violet-500` | violet-cooled (neutral × violet-700) | amethyst stamp |
 | `timaeus` | **lattice cobalt** `--mo-cobalt-500` | cobalt-cooled graphite | dim lattice |
+
+Plus the three later register-expansion dialects (`src/lib/dialects/{ledger,estate,foundry}.ts`), same mechanism, same six-row bar cleared:
+
+| Dialect | Beacon (`primary-action`) | Surface | Authority mark (`seal`) |
+|---|---|---|---|
+| `ledger` | **teal** `--mo-teal-500` | teal-cooled graphite (neutral × teal-700) | deep teal stamp |
+| `estate` | **copper** `--mo-copper-500` | copper-warmed graphite (neutral × copper-700) | deep copper stamp |
+| `foundry` | **steel** `--mo-steel-500` | steel-cooled graphite (neutral × steel-700) | deep steel stamp |
 
 The ramp lineage: `violet` was minted as a third chromatic family (green/red
 are reserved for success/caution; amber/blue were spent), `cobalt` as a fourth
@@ -357,7 +368,7 @@ than being invented here.
 - **1px ghost-border inputs / side-stripe borders / ambient drop shadows / gradient
   text / repeating-stripe backgrounds / sketchy SVG.** All banned.
 - **SaaS jargon, logo walls, hero-metric template, pricing tiers, em dashes in
-  copy.** See `marketing-context.md` §9–10 and PRODUCT.md.
+  copy.** See PRODUCT.md (the voice canon itself now lives in the `sokrates-website` repo).
 
 ## 10. Verify
 

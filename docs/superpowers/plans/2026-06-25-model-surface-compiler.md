@@ -1,5 +1,8 @@
 # Model Surface Compiler Implementation Plan
 
+> **Status: shipped** — implemented in `py/morphe_surface/**` and
+> `py/morphe_contracts`; see ADR-0014.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build `morphe_surface`, a read-only compiler that renders a JSON Schema (+ optional data instance) into a validated Morphe `Node` tree, parallel to the editorial `morphe_cms`.

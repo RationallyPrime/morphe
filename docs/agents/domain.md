@@ -5,8 +5,9 @@ the codebase. **Layout: single-context** (one project, no `CONTEXT-MAP.md`).
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root — if it exists. (It does not yet; `/grill-with-docs`
-  creates it lazily when terms actually get resolved.)
+- **`CONTEXT.md`** at the repo root — the populated canonical domain glossary. It
+  exists and is the term-of-record on vocabulary conflicts; `/grill-with-docs`
+  keeps it updated as new terms get resolved.
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in.
 - This repo also carries a **formal design corpus** that functions as domain doctrine —
   read whichever is relevant before design/architecture work:
@@ -20,14 +21,16 @@ the codebase. **Layout: single-context** (one project, no `CONTEXT-MAP.md`).
   - **`PRODUCT.md`** — product strategy / positioning.
   - **`DESIGN.md`** — the visual system (the Sókrates identity the default theme realizes).
   - **`CLAUDE.md`** — the working contract for agents in this repo (overrides defaults).
-  - **`docs/redesign-plan.md`** — the live home-redesign design narrative.
+  - **`docs/redesign-plan.md`** — historical home-redesign design narrative;
+    its subject (the Sókrates composer/onboarding/home) moved to the
+    `sokrates-website` repo per ADR-0008/ADR-0012 and no longer lives here.
   - **`docs/reconstruction-plan.md`** — the phased plan aligning code with the vision.
   - **`MIGRATION.md`** — the monorepo landing plan (Morphe as Projection M of Eidos;
     the Pydantic schema lift).
 
-If `CONTEXT.md` / `docs/adr/` don't exist, **proceed silently.** Don't flag their absence or
-suggest creating them upfront — the producer skill (`/grill-with-docs`) creates them lazily
-when terms or decisions actually get resolved.
+If `docs/adr/` doesn't exist, **proceed silently.** Don't flag its absence or suggest
+creating it upfront — the producer skill (`/grill-with-docs`) creates ADRs lazily when
+decisions actually get resolved.
 
 ## Use the established vocabulary
 

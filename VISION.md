@@ -390,7 +390,7 @@ frame stratum today, for visitor cohorts rather than directory-supplied roles:
 ad-click attribution (campaign taxonomy, geo, device — deterministic URL
 parameters, consent-clean) selects the dialect at the `MorpheRoot` boundary,
 and the same authored marketing tree re-poses itself per cohort. Palette
-differentiation is shipped (six dialects pulled apart at the beacon and the
+differentiation is shipped (nine dialects pulled apart at the beacon and the
 ground), and so
 is the `?cohort=` arrival wiring (a valid landing param selects the dialect
 once, on arrival; an explicit toggle always wins afterward). Per-cohort copy is
@@ -692,11 +692,14 @@ incomplete) · **○ reserved** (typed socket in the grammar, no live loop) ·
 | `Vary` nodes (render default option) | L6 | grammar + `Node.svelte`, `MorpheRoot.choices` | ✔ |
 | `Within`, epochs, VaryId/delta typing | L6 | `grammar/types.ts`, `delegation/`, `MorpheRoot.choices` | ✔ |
 | Mid-loop model (appliance-resident, A4-constrained) | L7 | — | ✗ (Phase 2) |
-| One schema, three jobs (Pydantic source + TS codegen + mask) | L1 | TS-first today | ✗ (the Eidos lift, `MIGRATION.md`) |
+| One schema, three jobs (Pydantic source + TS codegen + mask) | L1 | `py/morphe_grammar/models.py` → `grammar/types.ts` | ✔ (Pydantic source + TS codegen shipped, gated by `just schema-check`; the constrained-decode mask is still ✗, Phase 2) |
 | Slow loop (agent emitting trees) | A1 | hand-authored presenters today | ✗ (post-lift) |
 | Dignity test (Corollary 1 exit criterion) | C1 | the Sókrates site itself | ✔ |
 
-The site (`src/routes/`, `src/app/site/`, `src/app/compose/`) is Phase 0's
-proving ground: every page is hand-authored trees through the full pipeline,
-which is exactly Corollary 1's "no agent" degradation — the system standing as
-a good design system before any model touches it.
+The site was Phase 0's proving ground: every page was hand-authored trees
+through the full pipeline, which is exactly Corollary 1's "no agent"
+degradation — the system standing as a good design system before any model
+touches it. That proving ground now lives in the separate `sokrates-website`
+repo (the Sókrates marketing site is a consumer of `@rationallyprime/morphe`,
+not part of this repo); this repo's own proving ground is the neutral
+playground at `src/routes/`.

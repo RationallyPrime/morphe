@@ -1,9 +1,13 @@
 # ADR-0001 — Onboarding behind a stateless magic-link; Postmark for transactional email
 
-- **Status:** Accepted
+- **Status:** Accepted — superseded in scope by ADR-0008/ADR-0012
 - **Date:** 2026-06-09
 - **Deciders:** Hákon (founder), grill session on KRA-274 / D1
 - **Related:** `docs/redesign-plan.md` (D1, WS8), PRODUCT.md (buyers, sovereignty), CLAUDE.md (native-control-surface idiom)
+
+> **Superseded:** the onboarding/magic-link mechanism this ADR describes moved
+> to the `sokrates-website` repo in the 2026-06-23 decoupling (ADR-0008,
+> ADR-0012) and no longer lives in this repo. Kept as historical record.
 
 ## Context
 

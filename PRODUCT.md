@@ -1,5 +1,10 @@
 # Product
 
+*Scope note: this brief describes the Sókrates marketing website, which is now
+built in the separate `sokrates-website` repo (ADR-0008/0012) and consumes
+Morphe as `@rationallyprime/morphe`. It is kept here as the canonical brief —
+the site's product thinking, not this repo's.*
+
 ## Register
 
 brand
@@ -21,7 +26,8 @@ influence on the deal (lead with the first, arm the second, satisfy the third):
   system did and why.
 - **Technical Influencer** — IT lead, CTO, head of data, migration lead. Gates on
   architecture. Wants data sovereignty, integration cost, no lock-in, and a story
-  that survives scrutiny. Reads `/architecture`.
+  that survives scrutiny. Reads `/architecture` (a `sokrates-website` repo
+  route, not one of this repo's).
 
 Context of use: a founder-led sale, one honest conversation, not a 12-slide
 discovery. The site is bilingual (EN/IS), `html lang="is"`. **Not** the audience:
@@ -60,7 +66,7 @@ who has clearly done the work — and that the artifact in front of them was
 *curated, not generated*. The site must itself practice the product's posture:
 governed, precise, evidence-bearing, unhurried.
 
-Hard voice rules (full canon in `marketing-context.md` §10): no exclamation marks,
+Hard voice rules (full canon lives in the `sokrates-website` repo): no exclamation marks,
 ever. No SaaS jargon (synergy/leverage/transform/seamless/unlock/empower/
 next-generation/AI-first). No em-dash-free aphorism-spam. No "trusted by" logo
 walls, no fake testimonials, no emoji. Sentence case headlines. "Sókrates" always
