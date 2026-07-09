@@ -89,6 +89,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "@rationallyprime/morphe@${VERSION}" version >/dev/null 2>&1; then
+            echo "::notice::@rationallyprime/morphe@${VERSION} is already on npmjs; skipping publish."
+            exit 0
+          fi
           cat > .npmrc <<'NPMRC'
           //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
           NPMRC
