@@ -55,7 +55,7 @@ jobs:
 
   publish:
     name: publish v-tag
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -64,6 +64,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: package.json
+
+      # OIDC trusted publishing needs npm >= 11.5.1; Node 24 bundles it.
+      # (Never `npm install -g npm` in-place — it corrupts the running npm.)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Cache bun install cache
         uses: actions/cache@v4
@@ -92,6 +98,5 @@ jobs:
             echo "::notice::@rationallyprime/morphe@${VERSION} is already on npmjs; skipping publish."
             exit 0
           fi
-          # OIDC trusted publishing requires npm >= 11.5.1; runners bundle an older npm.
-          npm install -g npm@latest
+          npm --version
           npm publish --access public
