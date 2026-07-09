@@ -1,7 +1,7 @@
 # Morphe Packaging
 
-Morphe publishes the reusable adaptive-UI substrate as the private GitHub Packages
-npm package `@rationallyprime/morphe`. This repository owns the package source,
+Morphe publishes the reusable adaptive-UI substrate as the public npm package
+`@rationallyprime/morphe` (MIT, registry.npmjs.org). This repository owns the package source,
 local CMS/tooling, adaptive sidecar contract, and a neutral development
 playground. Consumer applications, including the Sókrates website, import the
 package-facing seams from their own repositories.
@@ -69,15 +69,16 @@ seed remains repo tooling until the Eidos lift makes schema generation canonical
 
 ## Consumer Install
 
-For local development against the private GitHub Packages registry:
+The package is public on npmjs — no registry configuration, tokens, or `.npmrc`
+required anywhere (local, CI, or Vercel):
 
-```toml
-[install.scopes]
-"@rationallyprime" = { url = "https://npm.pkg.github.com", token = "$GITHUB_PACKAGES_TOKEN" }
+```bash
+bun add @rationallyprime/morphe
 ```
 
-Set `GITHUB_PACKAGES_TOKEN` to a classic PAT with `read:packages`. On Vercel, set the same
-environment variable in the project settings before install/build.
+Versions published to GitHub Packages before the npm cutover (≤ 0.3.2) remain
+installable there with the old scoped-registry + PAT configuration, but all new
+versions publish to npmjs only.
 
 Typical use in a SvelteKit consumer:
 
@@ -119,17 +120,17 @@ bun run pack:verify
 consumer under `/tmp`, imports the public seams, builds the client mount, builds an SSR
 entry, and asserts that the rendered surface contains the expected Morphe output.
 
-After a version is published, the same verifier can install from GitHub Packages instead
+After a version is published, the same verifier can install from npmjs instead
 of the local tarball:
 
 ```bash
-GITHUB_PACKAGES_TOKEN=... bun run registry:verify
+bun run registry:verify
 ```
 
 `registry:verify` reads `package.json`'s current version by default. Set
-`MORPHE_VERIFY_PACKAGE=0.1.0` to verify a specific published version. The
-`Verify published package` workflow runs this registry proof with the repository
-`GITHUB_TOKEN` and `packages: read`.
+`MORPHE_VERIFY_PACKAGE=0.4.0` to verify a specific published version. No token is
+needed — the package is public. The `Verify published package` workflow runs the
+same registry proof.
 
 ## Publishing
 
@@ -146,13 +147,15 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-The `Publish package` workflow runs on `v*` tags with `packages: write`, rebuilds the
-package with `svelte-package`, and publishes to `https://npm.pkg.github.com` using the
-workflow `GITHUB_TOKEN`. Pull requests touching `package.json`, `bun.lock`, `src/lib/**`,
+The `Publish package` workflow runs on `v*` tags, rebuilds the package with
+`svelte-package`, and publishes to npmjs with `npm publish --provenance --access public`,
+authenticating with the `NPM_TOKEN` repository secret (a granular npmjs automation token
+scoped to the package). Provenance requires the workflow's `id-token: write` permission,
+which is already set. Pull requests touching `package.json`, `bun.lock`, `src/lib/**`,
 the verifier, or the workflow run the same gates and a publish dry-run.
 
 Run the manual `Verify published package` workflow after the tag publish to prove that
-the private package can be installed from the registry in the throwaway consumer scaffold.
+the package can be installed from npmjs in the throwaway consumer scaffold.
 
 No changesets yet. Until Morphe has multiple consumers, cut releases by bumping
 `package.json`, tagging `vX.Y.Z`, and letting CI publish.

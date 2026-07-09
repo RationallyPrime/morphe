@@ -4,12 +4,14 @@
 	"type": "module",
 	"packageManager": "bun@1.3.11",
 	"description": "Morphe — a stratified adaptive-UI core. Phase 0 keystone.",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/RationallyPrime/morphe.git"
 	},
 	"publishConfig": {
-		"registry": "https://npm.pkg.github.com"
+		"registry": "https://registry.npmjs.org",
+		"access": "public"
 	},
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",

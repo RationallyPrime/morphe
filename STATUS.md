@@ -150,7 +150,7 @@ own test file(s):
   adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the
   distroless image, `viewer/Dockerfile`, built from repo root).
 
-Package published to GitHub Packages as `@rationallyprime/morphe` (tags
+Package published to npmjs as the public `@rationallyprime/morphe` (tags
 `v0.3.2` / `py-v0.4.0` and others — see `git tag`). The neutral demo host can
 deploy to Vercel project `sokrates-spunagreind/morphe`; the Sókrates website
 deploys from the separate website repo/project, not from this repository.

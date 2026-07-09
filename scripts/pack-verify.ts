@@ -62,10 +62,6 @@ function packageVersionFromManifest(): string {
 	return version;
 }
 
-function registryToken(): string | undefined {
-	return process.env.GITHUB_PACKAGES_TOKEN || process.env.NODE_AUTH_TOKEN;
-}
-
 try {
 	mkdirSync(runtimeDir, { recursive: true });
 	mkdirSync(join(scaffold, "src"), { recursive: true });
@@ -75,20 +71,7 @@ try {
 
 	if (verifyRegistry) {
 		const packageVersion = process.env.MORPHE_VERIFY_PACKAGE || packageVersionFromManifest();
-		const token = registryToken();
-		if (!token) {
-			throw new Error(
-				"Registry verification requires GITHUB_PACKAGES_TOKEN or NODE_AUTH_TOKEN with read:packages.",
-			);
-		}
 		dependencySource = packageVersion;
-		write(
-			join(scaffold, "bunfig.toml"),
-			`
-				[install.scopes]
-				"@rationallyprime" = { url = "https://npm.pkg.github.com", token = ${JSON.stringify(token)} }
-			`,
-		);
 	} else {
 		const packed = run({
 			cmd: "bun",

@@ -66,7 +66,7 @@ A second, STRIPPED SvelteKit app sharing the same `$lib` (`kit.files.lib = "../s
 
 ## Deploy
 
-Package publication goes through GitHub Packages as `@rationallyprime/morphe`; see `PACKAGING.md`. The neutral demo host can deploy to Vercel project `sokrates-spunagreind/morphe` (`adapter-vercel`, `nodejs22.x`) when needed. The Sókrates website deploys from the separate website repo/project, not from this repository. Pushing to the repo is the user's call — never `git push` without an explicit request.
+Package publication goes through the public npm registry as `@rationallyprime/morphe` (MIT); see `PACKAGING.md`. The neutral demo host can deploy to Vercel project `sokrates-spunagreind/morphe` (`adapter-vercel`, `nodejs22.x`) when needed. The Sókrates website deploys from the separate website repo/project, not from this repository. Pushing to the repo is the user's call — never `git push` without an explicit request.
 
 ## Agent skills
 

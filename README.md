@@ -35,8 +35,8 @@ uv, ruff, ty, Pydantic v2, FastAPI, and prek.
 
 ## The Package
 
-Morphe publishes as the private GitHub Packages package
-`@rationallyprime/morphe`. The package root is `src/lib`; consumer apps import
+Morphe publishes as the public npm package `@rationallyprime/morphe`
+(MIT, registry.npmjs.org). The package root is `src/lib`; consumer apps import
 only the public seams:
 
 - `@rationallyprime/morphe` — grammar, context, compounds, dialects,

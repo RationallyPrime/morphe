@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  packages: read
 
 jobs:
   verify:
@@ -36,5 +35,4 @@ jobs:
       - name: Install and render published package
         env:
           MORPHE_VERIFY_PACKAGE: ${{ inputs.version }}
-          NODE_AUTH_TOKEN: ${{ github.token }}
         run: bun run registry:verify
