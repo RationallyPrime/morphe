@@ -148,11 +148,13 @@ git push origin v0.1.0
 ```
 
 The `Publish package` workflow runs on `v*` tags, rebuilds the package with
-`svelte-package`, and publishes to npmjs with `npm publish --provenance --access public`,
-authenticating with the `NPM_TOKEN` repository secret (a granular npmjs automation token
-scoped to the package). Provenance requires the workflow's `id-token: write` permission,
-which is already set. Pull requests touching `package.json`, `bun.lock`, `src/lib/**`,
-the verifier, or the workflow run the same gates and a publish dry-run.
+`svelte-package`, and publishes to npmjs via **trusted publishing** (OIDC): npmjs is
+configured to trust this repo's `publish.yml`, so CI holds no token or secret at all,
+and provenance attestation comes with it. The exchange needs npm ≥ 11.5.1 (the workflow
+upgrades npm in the publish step) and the `id-token: write` permission, which is set.
+If the tagged version is already on the registry (e.g. published manually), the workflow
+skips the publish and stays green. Pull requests touching `package.json`, `bun.lock`,
+`src/lib/**`, the verifier, or the workflow run the same gates and a publish dry-run.
 
 Run the manual `Verify published package` workflow after the tag publish to prove that
 the package can be installed from npmjs in the throwaway consumer scaffold.

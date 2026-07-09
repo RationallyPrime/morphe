@@ -85,16 +85,13 @@ jobs:
       - name: Build package
         run: bun run package
 
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm (trusted publishing, no token)
         run: |
           VERSION="$(node -p "require('./package.json').version")"
           if npm view "@rationallyprime/morphe@${VERSION}" version >/dev/null 2>&1; then
             echo "::notice::@rationallyprime/morphe@${VERSION} is already on npmjs; skipping publish."
             exit 0
           fi
-          cat > .npmrc <<'NPMRC'
-          //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
-          NPMRC
-          npm publish --provenance --access public
+          # OIDC trusted publishing requires npm >= 11.5.1; runners bundle an older npm.
+          npm install -g npm@latest
+          npm publish --access public
