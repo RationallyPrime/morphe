@@ -45,6 +45,9 @@ only the public seams:
   primitive Svelte components for harnesses and inspection.
 - `@rationallyprime/morphe/tokens` — intent constants and slot helpers.
 - `@rationallyprime/morphe/styles.css` — public token CSS.
+- `@rationallyprime/morphe/schemas/*` — the generated JSON Schema artifacts
+  (grammar, decision, delta, constrained-decode masks, CMS), pinned to the
+  installed grammar version.
 
 Typical consumer use:
 

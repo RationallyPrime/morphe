@@ -214,6 +214,16 @@ try {
 			if (!body.includes("${surfaceText}")) {
 				throw new Error(\`expected rendered package surface, got: \${body}\`);
 			}
+
+			// The schemas seam: the JSON Schema artifacts resolve through the export
+			// map and carry the grammar's discriminated union.
+			const grammarSchema = (await import(
+				"@rationallyprime/morphe/schemas/morphe-grammar.schema.json"
+			)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+			const schemaRoot = grammarSchema.default ?? grammarSchema;
+			if (!schemaRoot || typeof schemaRoot !== "object" || !("$defs" in schemaRoot)) {
+				throw new Error("expected morphe-grammar.schema.json to expose $defs through ./schemas/*");
+			}
 		`,
 	);
 

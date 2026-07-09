@@ -1,6 +1,6 @@
 {
 	"name": "@rationallyprime/morphe",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"type": "module",
 	"packageManager": "bun@1.3.11",
 	"description": "Morphe — a stratified adaptive-UI core. Phase 0 keystone.",
@@ -20,6 +20,7 @@
 	],
 	"files": [
 		"dist",
+		"schema",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*",
 		"PACKAGING.md",
@@ -44,6 +45,7 @@
 			"svelte": "./dist/tokens/index.js",
 			"default": "./dist/tokens/index.js"
 		},
+		"./schemas/*": "./schema/*",
 		"./styles.css": "./dist/styles.css",
 		"./tokens/scales.css": "./dist/tokens/scales.css",
 		"./tokens/intents.css": "./dist/tokens/intents.css",
