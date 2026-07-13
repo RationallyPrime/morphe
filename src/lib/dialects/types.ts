@@ -2,8 +2,9 @@
  * Morphe DIALECTS — Lemma 4 ("the persona stratum"), the type layer.
  *
  * A dialect is the τ_frame injection: an intent extension + bounded algebra
- * priors (+ a compound subset, which arrives with Phase 1's registry; the type
- * carries it now so the shape is stable). Re-dialecting is a fixed point for
+ * priors (+ a compound subset, generated from py/morphe_grammar/dialects.py as
+ * DIALECT_COMPOUND_CONSTRAINTS — clinical carries the first live allowlist).
+ * Re-dialecting is a fixed point for
  * anything authored (Lemma 3): authored trees reference intents, never scales,
  * so swapping the dialect only remaps the intent layer.
  *
@@ -44,7 +45,7 @@ export interface AlgebraPriors {
 	readonly rootBudget?: number;
 }
 
-/** A compound-subset reference by name (Phase 1 wires the registry to this). */
+/** A dialect's package-generated compound-subset reference by name. */
 export type CompoundDialect = readonly string[];
 
 export interface Dialect {
@@ -67,6 +68,6 @@ export interface Dialect {
 	readonly surfaces?: Readonly<Record<string, string>>;
 	/** Bounded algebra priors. */
 	readonly priors: AlgebraPriors;
-	/** Allowed compound subset (empty in Phase 0). */
+	/** Allowed compound subset; an empty list preserves unrestricted compatibility. */
 	readonly compounds: CompoundDialect;
 }

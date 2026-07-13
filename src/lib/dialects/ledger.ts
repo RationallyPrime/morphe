@@ -32,6 +32,7 @@
  */
 
 import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
+import { DIALECT_COMPOUND_CONSTRAINTS } from "./constraints.generated.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -219,7 +220,6 @@ export const ledger: Dialect = {
 		rootScaleTier: 3,
 		rootBudget: 3,
 	},
-	// The compounds field is inert (Phase 0); the library must not reference a
-	// demo-coupled compound, so this dialect declares none.
-	compounds: [],
+	// Explicit unrestricted compatibility policy, generated from the catalog authority.
+	compounds: DIALECT_COMPOUND_CONSTRAINTS.ledger.compounds,
 };

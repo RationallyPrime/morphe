@@ -75,6 +75,10 @@ py-lint:
 py-types:
 	env -u PYTHONPATH uv run --extra service ty check
 
+# build wheel + sdist and prove installed decoder-mask resources load in isolation
+py-pack-verify:
+	env -u PYTHONPATH uv run --extra service python scripts/verify-python-package.py
+
 # committed schema artifacts must equal a fresh emission (Python -> JSON Schema + TS + masks)
 schema-check:
 	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --check
@@ -96,7 +100,7 @@ cms-schema-check:
 # --- composed ----------------------------------------------------------
 
 # every gate CI runs, both stacks — green here means CI goes green
-gates: lint check test build viewer-check viewer-build-node py-test py-lint py-types schema-check cms-schema-check
+gates: lint check test build viewer-check viewer-build-node py-test py-lint py-types schema-check cms-schema-check py-pack-verify
 
 # install the prek git hooks (once per checkout)
 hooks:

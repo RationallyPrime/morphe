@@ -306,8 +306,7 @@
       "additionalProperties": false,
       "properties": {
         "dialect_id": {
-          "title": "Dialect Id",
-          "type": "string"
+          "$ref": "#/$defs/DialectId"
         },
         "digest": {
           "$ref": "#/$defs/ContextDigest"
@@ -391,6 +390,20 @@
         "compact",
         "regular",
         "spacious"
+      ],
+      "type": "string"
+    },
+    "DialectId": {
+      "enum": [
+        "icelandic-archive",
+        "clinical",
+        "reykjavik-registry",
+        "timaeus",
+        "gallery",
+        "night",
+        "ledger",
+        "estate",
+        "foundry"
       ],
       "type": "string"
     },

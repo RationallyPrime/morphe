@@ -27,6 +27,7 @@ bun run build          # SvelteKit/Vercel build for the playground host
 just viewer-build-node # stripped adapter-node viewer build
 just py-test           # pytest over py/
 just schema-check      # committed grammar artifacts equal fresh emission
+just py-pack-verify    # wheel/sdist carry verified dialect masks
 ```
 
 Stack: SvelteKit + Svelte 5 runes, Vite, TypeScript strict, bun, Biome, Vitest,
@@ -89,6 +90,9 @@ epochs or handlers. The tree stays declarative.
 Nine dialects ship: `gallery` (default), `night`, `icelandic-archive`,
 `clinical`, `reykjavik-registry`, `timaeus`, `ledger`, `estate`, and `foundry`.
 Every shipped dialect preserves the contract keyset.
+`clinical` additionally restricts the promoted compound vocabulary to `SignalCard`; generated
+decoder masks make every dialect's explicit structural policy available through both package
+distributions.
 
 ## Repository Map
 
@@ -132,7 +136,9 @@ consumer-specific pages belong in the consumer repo.
 `py/morphe_agent` serves `POST /v1/morphe/decision` and always returns a
 schema-valid decision response. Without live credentials it uses the
 deterministic fallback. With live settings it routes through the Pydantic AI
-Gateway.
+Gateway and constrains structured output with the exact installed schema for
+the requested dialect. Validation failures retry through the model protocol
+and ultimately fall back without breaking the render path.
 
 ```bash
 MORPHE_AGENT_LIVE=1 \

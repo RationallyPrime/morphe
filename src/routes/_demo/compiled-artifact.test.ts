@@ -57,4 +57,75 @@ describe("parseLocalCompiledTree", () => {
 			),
 		).toEqual({ ok: false, reason: "compiled artifact has an unknown dialect" });
 	});
+
+	it("rejects inherited object properties as dialect metadata", () => {
+		expect(
+			parseLocalCompiledTree(
+				{ ...valid, render_hints: { dialect: "toString" } },
+				"capability-page.demo",
+				"rev-001",
+			),
+		).toEqual({ ok: false, reason: "compiled artifact has an unknown dialect" });
+	});
+
+	it("rejects a tree outside its declared dialect grammar", () => {
+		const result = parseLocalCompiledTree(
+			{
+				...valid,
+				render_hints: { dialect: "clinical" },
+				tree: { kind: "compound", name: "consumer-private-card", args: {} },
+			},
+			"capability-page.demo",
+			"rev-001",
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason: 'compound "consumer-private-card" is not permitted by dialect "clinical"',
+		});
+	});
+
+	it("fully validates known compound arguments under an unrestricted dialect", () => {
+		const result = parseLocalCompiledTree(
+			{
+				...valid,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "text" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+			"capability-page.demo",
+			"rev-001",
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("rejects malformed recursive compound args without throwing", () => {
+		const result = parseLocalCompiledTree(
+			{
+				...valid,
+				render_hints: { dialect: "clinical" },
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "compound", name: "SignalCard" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+			"capability-page.demo",
+			"rev-001",
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
 });

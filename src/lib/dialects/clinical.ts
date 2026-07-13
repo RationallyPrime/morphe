@@ -41,6 +41,7 @@
  */
 
 import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
+import { DIALECT_COMPOUND_CONSTRAINTS } from "./constraints.generated.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -226,5 +227,5 @@ export const clinical: Dialect = {
 		rootScaleTier: 3,
 		rootBudget: 5,
 	},
-	compounds: [],
+	compounds: DIALECT_COMPOUND_CONSTRAINTS.clinical.compounds,
 };

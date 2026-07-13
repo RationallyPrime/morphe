@@ -1,0 +1,1791 @@
+{
+  "$defs": {
+    "AriaControlLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "aria-label",
+          "title": "Mode",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "text"
+      ],
+      "title": "AriaControlLabel",
+      "type": "object"
+    },
+    "AriaLabelRelation": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "aria-label",
+          "title": "Mode",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "text"
+      ],
+      "title": "AriaLabelRelation",
+      "type": "object"
+    },
+    "Badge": {
+      "additionalProperties": false,
+      "properties": {
+        "icon": {
+          "title": "Icon",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "badge",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "label"
+      ],
+      "title": "Badge",
+      "type": "object"
+    },
+    "Button": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "a11y"
+          ]
+        }
+      ],
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/ControlLabel"
+        },
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "busy": {
+          "title": "Busy",
+          "type": "boolean"
+        },
+        "disabled": {
+          "title": "Disabled",
+          "type": "boolean"
+        },
+        "icon": {
+          "title": "Icon",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "button",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "button",
+            "submit",
+            "reset"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "variant": {
+          "enum": [
+            "solid",
+            "outline",
+            "ghost"
+          ],
+          "title": "Variant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Button",
+      "type": "object"
+    },
+    "Cluster": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "baseline"
+          ],
+          "title": "Align",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "justify": {
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "between"
+          ],
+          "title": "Justify",
+          "type": "string"
+        },
+        "kind": {
+          "const": "cluster",
+          "title": "Kind",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ContainerRole"
+        }
+      },
+      "required": [
+        "kind",
+        "role",
+        "children"
+      ],
+      "title": "Cluster",
+      "type": "object"
+    },
+    "CompoundRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CompoundRef_SignalCard"
+        }
+      ],
+      "title": "clinical CompoundRef"
+    },
+    "CompoundRef_SignalCard": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "kicker": {
+              "$ref": "#/$defs/Node",
+              "description": "Small register heading for the card."
+            },
+            "measure": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "format": "integer",
+                "intent": "neutral",
+                "kind": "number",
+                "value": 0
+              },
+              "description": "A numeric or textual measure node."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "Card title as an authored node."
+            }
+          },
+          "required": [
+            "kicker",
+            "title"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "SignalCard",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "body": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "SignalCard",
+      "type": "object"
+    },
+    "ContainerRole": {
+      "enum": [
+        "page",
+        "section",
+        "panel",
+        "toolbar",
+        "list",
+        "form",
+        "field-group",
+        "inline"
+      ],
+      "type": "string"
+    },
+    "ControlLabel": {
+      "discriminator": {
+        "mapping": {
+          "aria-label": "#/$defs/AriaControlLabel",
+          "labelledby": "#/$defs/LabelledByControlLabel"
+        },
+        "propertyName": "mode"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AriaControlLabel"
+        },
+        {
+          "$ref": "#/$defs/LabelledByControlLabel"
+        }
+      ]
+    },
+    "CoreIntent": {
+      "enum": [
+        "primary-action",
+        "neutral",
+        "provenance",
+        "evidence",
+        "accession",
+        "caution",
+        "success",
+        "info"
+      ],
+      "type": "string"
+    },
+    "DecorativeIconA11y": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "const": "decorative",
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "DecorativeIconA11y",
+      "type": "object"
+    },
+    "Density": {
+      "enum": [
+        "compact",
+        "regular",
+        "spacious"
+      ],
+      "type": "string"
+    },
+    "Dialog": {
+      "additionalProperties": false,
+      "properties": {
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "dismissable": {
+          "title": "Dismissable",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "dialog",
+          "title": "Kind",
+          "type": "string"
+        },
+        "open": {
+          "title": "Open",
+          "type": "boolean"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "children"
+      ],
+      "title": "Dialog",
+      "type": "object"
+    },
+    "Disclosure": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "group": {
+          "title": "Group",
+          "type": "string"
+        },
+        "kind": {
+          "const": "disclosure",
+          "title": "Kind",
+          "type": "string"
+        },
+        "open": {
+          "title": "Open",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "summary",
+        "children"
+      ],
+      "title": "Disclosure",
+      "type": "object"
+    },
+    "EmphasisClaim": {
+      "enum": [
+        "muted",
+        "normal",
+        "strong",
+        "critical"
+      ],
+      "type": "string"
+    },
+    "Field": {
+      "additionalProperties": false,
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/InputA11y"
+        },
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "error": {
+          "title": "Error",
+          "type": "string"
+        },
+        "hint": {
+          "title": "Hint",
+          "type": "string"
+        },
+        "inputType": {
+          "enum": [
+            "text",
+            "email",
+            "password",
+            "number",
+            "search",
+            "tel",
+            "url"
+          ],
+          "title": "Inputtype",
+          "type": "string"
+        },
+        "kind": {
+          "const": "field",
+          "title": "Kind",
+          "type": "string"
+        },
+        "multiline": {
+          "title": "Multiline",
+          "type": "boolean"
+        },
+        "placeholder": {
+          "title": "Placeholder",
+          "type": "string"
+        },
+        "resizable": {
+          "title": "Resizable",
+          "type": "boolean"
+        },
+        "rows": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "kind",
+        "a11y"
+      ],
+      "title": "Field",
+      "type": "object"
+    },
+    "Frame": {
+      "additionalProperties": false,
+      "properties": {
+        "budget": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "density": {
+          "$ref": "#/$defs/Density"
+        },
+        "kind": {
+          "const": "frame",
+          "title": "Kind",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ContainerRole"
+        },
+        "surface": {
+          "enum": [
+            "base",
+            "raised",
+            "sunken"
+          ],
+          "title": "Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "role",
+        "children"
+      ],
+      "title": "Frame",
+      "type": "object"
+    },
+    "Grid": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/GridColumn"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "grid",
+          "title": "Kind",
+          "type": "string"
+        },
+        "minTrack": {
+          "enum": [
+            "narrow",
+            "regular",
+            "wide"
+          ],
+          "title": "Mintrack",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ContainerRole"
+        },
+        "ruled": {
+          "title": "Ruled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "role",
+        "children"
+      ],
+      "title": "Grid",
+      "type": "object"
+    },
+    "GridColumn": {
+      "enum": [
+        "flexible",
+        "content"
+      ],
+      "type": "string"
+    },
+    "Icon": {
+      "additionalProperties": false,
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/IconA11y"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "icon",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "a11y"
+      ],
+      "title": "Icon",
+      "type": "object"
+    },
+    "IconA11y": {
+      "discriminator": {
+        "mapping": {
+          "decorative": "#/$defs/DecorativeIconA11y",
+          "img": "#/$defs/ImageIconA11y"
+        },
+        "propertyName": "role"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/DecorativeIconA11y"
+        },
+        {
+          "$ref": "#/$defs/ImageIconA11y"
+        }
+      ]
+    },
+    "ImageIconA11y": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "role": {
+          "const": "img",
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "label"
+      ],
+      "title": "ImageIconA11y",
+      "type": "object"
+    },
+    "InlineAlert": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "kind": {
+          "const": "inline-alert",
+          "title": "Kind",
+          "type": "string"
+        },
+        "live": {
+          "enum": [
+            "polite",
+            "assertive"
+          ],
+          "title": "Live",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "tone": {
+          "enum": [
+            "success",
+            "caution",
+            "info"
+          ],
+          "title": "Tone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "tone",
+        "title"
+      ],
+      "title": "InlineAlert",
+      "type": "object"
+    },
+    "InputA11y": {
+      "additionalProperties": false,
+      "properties": {
+        "describedBy": {
+          "title": "Describedby",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "$ref": "#/$defs/LabelRelation"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "InputA11y",
+      "type": "object"
+    },
+    "IntentRef": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CoreIntent"
+        },
+        {
+          "$ref": "#/$defs/RegisterIntent"
+        }
+      ]
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/$defs/NumberValue"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "LabelRelation": {
+      "discriminator": {
+        "mapping": {
+          "aria-label": "#/$defs/AriaLabelRelation",
+          "labelledby": "#/$defs/LabelledByRelation",
+          "visible": "#/$defs/VisibleLabelRelation"
+        },
+        "propertyName": "mode"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/VisibleLabelRelation"
+        },
+        {
+          "$ref": "#/$defs/AriaLabelRelation"
+        },
+        {
+          "$ref": "#/$defs/LabelledByRelation"
+        }
+      ]
+    },
+    "LabelledByControlLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "mode": {
+          "const": "labelledby",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "id"
+      ],
+      "title": "LabelledByControlLabel",
+      "type": "object"
+    },
+    "LabelledByRelation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "mode": {
+          "const": "labelledby",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "id"
+      ],
+      "title": "LabelledByRelation",
+      "type": "object"
+    },
+    "Link": {
+      "additionalProperties": false,
+      "properties": {
+        "external": {
+          "enum": [
+            "auto",
+            "force",
+            "hide"
+          ],
+          "title": "External",
+          "type": "string"
+        },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "link",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "href",
+        "label"
+      ],
+      "title": "Link",
+      "type": "object"
+    },
+    "Media": {
+      "additionalProperties": false,
+      "properties": {
+        "alt": {
+          "title": "Alt",
+          "type": "string"
+        },
+        "aspect": {
+          "enum": [
+            "square",
+            "video",
+            "portrait",
+            "auto"
+          ],
+          "title": "Aspect",
+          "type": "string"
+        },
+        "eager": {
+          "title": "Eager",
+          "type": "boolean"
+        },
+        "height": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "kind": {
+          "const": "media",
+          "title": "Kind",
+          "type": "string"
+        },
+        "sizes": {
+          "title": "Sizes",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/MediaSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "src": {
+          "title": "Src",
+          "type": "string"
+        },
+        "width": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "kind",
+        "src",
+        "alt"
+      ],
+      "title": "Media",
+      "type": "object"
+    },
+    "MediaSource": {
+      "additionalProperties": false,
+      "properties": {
+        "srcset": {
+          "title": "Srcset",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "srcset"
+      ],
+      "title": "MediaSource",
+      "type": "object"
+    },
+    "Node": {
+      "discriminator": {
+        "mapping": {
+          "badge": "#/$defs/Badge",
+          "button": "#/$defs/Button",
+          "cluster": "#/$defs/Cluster",
+          "compound": "#/$defs/CompoundRef",
+          "dialog": "#/$defs/Dialog",
+          "disclosure": "#/$defs/Disclosure",
+          "field": "#/$defs/Field",
+          "frame": "#/$defs/Frame",
+          "grid": "#/$defs/Grid",
+          "icon": "#/$defs/Icon",
+          "inline-alert": "#/$defs/InlineAlert",
+          "link": "#/$defs/Link",
+          "media": "#/$defs/Media",
+          "number": "#/$defs/NumberNode",
+          "param-ref": "#/$defs/ParamRef",
+          "popover": "#/$defs/Popover",
+          "progress": "#/$defs/Progress",
+          "range": "#/$defs/Range",
+          "select": "#/$defs/Select",
+          "slot": "#/$defs/Slot",
+          "spacer": "#/$defs/Spacer",
+          "stack": "#/$defs/Stack",
+          "status": "#/$defs/Status",
+          "text": "#/$defs/Text",
+          "toggle": "#/$defs/Toggle",
+          "vary": "#/$defs/Vary",
+          "within": "#/$defs/Within"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Stack"
+        },
+        {
+          "$ref": "#/$defs/Grid"
+        },
+        {
+          "$ref": "#/$defs/Cluster"
+        },
+        {
+          "$ref": "#/$defs/Frame"
+        },
+        {
+          "$ref": "#/$defs/Spacer"
+        },
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "$ref": "#/$defs/NumberNode"
+        },
+        {
+          "$ref": "#/$defs/Badge"
+        },
+        {
+          "$ref": "#/$defs/Icon"
+        },
+        {
+          "$ref": "#/$defs/Media"
+        },
+        {
+          "$ref": "#/$defs/Field"
+        },
+        {
+          "$ref": "#/$defs/Select"
+        },
+        {
+          "$ref": "#/$defs/Toggle"
+        },
+        {
+          "$ref": "#/$defs/Range"
+        },
+        {
+          "$ref": "#/$defs/Progress"
+        },
+        {
+          "$ref": "#/$defs/Status"
+        },
+        {
+          "$ref": "#/$defs/InlineAlert"
+        },
+        {
+          "$ref": "#/$defs/Button"
+        },
+        {
+          "$ref": "#/$defs/Link"
+        },
+        {
+          "$ref": "#/$defs/Dialog"
+        },
+        {
+          "$ref": "#/$defs/Popover"
+        },
+        {
+          "$ref": "#/$defs/Disclosure"
+        },
+        {
+          "$ref": "#/$defs/Slot"
+        },
+        {
+          "$ref": "#/$defs/ParamRef"
+        },
+        {
+          "$ref": "#/$defs/Vary"
+        },
+        {
+          "$ref": "#/$defs/Within"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef"
+        }
+      ]
+    },
+    "NumberNode": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "format": {
+          "enum": [
+            "plain",
+            "integer",
+            "currency",
+            "percent",
+            "compact"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "number",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "NumberNode",
+      "type": "object"
+    },
+    "NumberValue": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "ParamRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "param-ref",
+          "title": "Kind",
+          "type": "string"
+        },
+        "param": {
+          "title": "Param",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "param"
+      ],
+      "title": "ParamRef",
+      "type": "object"
+    },
+    "ParamValue": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JsonValue"
+        },
+        {
+          "$ref": "#/$defs/Node"
+        }
+      ]
+    },
+    "Popover": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "title": "Anchor",
+          "type": "string"
+        },
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "popover",
+          "title": "Kind",
+          "type": "string"
+        },
+        "open": {
+          "title": "Open",
+          "type": "boolean"
+        },
+        "placement": {
+          "enum": [
+            "top",
+            "bottom",
+            "start",
+            "end"
+          ],
+          "title": "Placement",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "tooltip",
+            "menu",
+            "listbox"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "anchor",
+        "id",
+        "children"
+      ],
+      "title": "Popover",
+      "type": "object"
+    },
+    "Progress": {
+      "additionalProperties": false,
+      "properties": {
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "progress",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "kind",
+        "label"
+      ],
+      "title": "Progress",
+      "type": "object"
+    },
+    "Range": {
+      "additionalProperties": false,
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/InputA11y"
+        },
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "hint": {
+          "title": "Hint",
+          "type": "string"
+        },
+        "kind": {
+          "const": "range",
+          "title": "Kind",
+          "type": "string"
+        },
+        "max": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "min": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "step": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "kind",
+        "a11y",
+        "min",
+        "max"
+      ],
+      "title": "Range",
+      "type": "object"
+    },
+    "RegisterIntent": {
+      "enum": [
+        "folio",
+        "marginalia",
+        "seal"
+      ],
+      "type": "string"
+    },
+    "Select": {
+      "additionalProperties": false,
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/InputA11y"
+        },
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "error": {
+          "title": "Error",
+          "type": "string"
+        },
+        "hint": {
+          "title": "Hint",
+          "type": "string"
+        },
+        "kind": {
+          "const": "select",
+          "title": "Kind",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/SelectOption"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "variant": {
+          "enum": [
+            "dropdown",
+            "radiogroup"
+          ],
+          "title": "Variant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "a11y",
+        "options"
+      ],
+      "title": "Select",
+      "type": "object"
+    },
+    "SelectOption": {
+      "additionalProperties": false,
+      "properties": {
+        "disabled": {
+          "title": "Disabled",
+          "type": "boolean"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "title": "SelectOption",
+      "type": "object"
+    },
+    "Slot": {
+      "additionalProperties": false,
+      "properties": {
+        "fallback": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Fallback",
+          "type": "array"
+        },
+        "kind": {
+          "const": "slot",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name"
+      ],
+      "title": "Slot",
+      "type": "object"
+    },
+    "Spacer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "spacer",
+          "title": "Kind",
+          "type": "string"
+        },
+        "size": {
+          "enum": [
+            "xs",
+            "sm",
+            "md",
+            "lg",
+            "xl"
+          ],
+          "title": "Size",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Spacer",
+      "type": "object"
+    },
+    "Stack": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "direction": {
+          "enum": [
+            "block",
+            "inline",
+            "auto"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "indent": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "kind": {
+          "const": "stack",
+          "title": "Kind",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ContainerRole"
+        }
+      },
+      "required": [
+        "kind",
+        "role",
+        "children"
+      ],
+      "title": "Stack",
+      "type": "object"
+    },
+    "Status": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "status",
+          "title": "Kind",
+          "type": "string"
+        },
+        "signal": {
+          "$ref": "#/$defs/StatusSignal"
+        },
+        "tone": {
+          "enum": [
+            "success",
+            "caution",
+            "info",
+            "neutral"
+          ],
+          "title": "Tone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "tone",
+        "signal"
+      ],
+      "title": "Status",
+      "type": "object"
+    },
+    "StatusSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "icon": {
+          "title": "Icon",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "StatusSignal",
+      "type": "object"
+    },
+    "Text": {
+      "additionalProperties": false,
+      "properties": {
+        "as": {
+          "enum": [
+            "display",
+            "heading",
+            "subheading",
+            "body",
+            "caption"
+          ],
+          "title": "As",
+          "type": "string"
+        },
+        "clamp": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "text",
+          "title": "Kind",
+          "type": "string"
+        },
+        "numeric": {
+          "title": "Numeric",
+          "type": "boolean"
+        },
+        "polarity": {
+          "enum": [
+            "positive",
+            "negative"
+          ],
+          "title": "Polarity",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "Text",
+      "type": "object"
+    },
+    "Toggle": {
+      "additionalProperties": false,
+      "properties": {
+        "a11y": {
+          "$ref": "#/$defs/InputA11y"
+        },
+        "bind": {
+          "title": "Bind",
+          "type": "string"
+        },
+        "hint": {
+          "title": "Hint",
+          "type": "string"
+        },
+        "indeterminate": {
+          "title": "Indeterminate",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "toggle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "variant": {
+          "enum": [
+            "switch",
+            "checkbox"
+          ],
+          "title": "Variant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "a11y"
+      ],
+      "title": "Toggle",
+      "type": "object"
+    },
+    "Vary": {
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "vary",
+          "title": "Kind",
+          "type": "string"
+        },
+        "objective": {
+          "enum": [
+            "salience",
+            "density",
+            "compactness"
+          ],
+          "title": "Objective",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "options"
+      ],
+      "title": "Vary",
+      "type": "object"
+    },
+    "VisibleLabelRelation": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "visible",
+          "title": "Mode",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "text"
+      ],
+      "title": "VisibleLabelRelation",
+      "type": "object"
+    },
+    "Within": {
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/NumberValue"
+        },
+        "dimension": {
+          "enum": [
+            "density",
+            "emphasis",
+            "collapse"
+          ],
+          "title": "Dimension",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "within",
+          "title": "Kind",
+          "type": "string"
+        },
+        "range": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/NumberValue"
+            },
+            {
+              "$ref": "#/$defs/NumberValue"
+            }
+          ],
+          "title": "Range",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "dimension",
+        "range",
+        "default"
+      ],
+      "title": "Within",
+      "type": "object"
+    }
+  },
+  "$id": "urn:morphe:grammar:node:dialect:clinical",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "discriminator": {
+    "mapping": {
+      "badge": "#/$defs/Badge",
+      "button": "#/$defs/Button",
+      "cluster": "#/$defs/Cluster",
+      "compound": "#/$defs/CompoundRef",
+      "dialog": "#/$defs/Dialog",
+      "disclosure": "#/$defs/Disclosure",
+      "field": "#/$defs/Field",
+      "frame": "#/$defs/Frame",
+      "grid": "#/$defs/Grid",
+      "icon": "#/$defs/Icon",
+      "inline-alert": "#/$defs/InlineAlert",
+      "link": "#/$defs/Link",
+      "media": "#/$defs/Media",
+      "number": "#/$defs/NumberNode",
+      "param-ref": "#/$defs/ParamRef",
+      "popover": "#/$defs/Popover",
+      "progress": "#/$defs/Progress",
+      "range": "#/$defs/Range",
+      "select": "#/$defs/Select",
+      "slot": "#/$defs/Slot",
+      "spacer": "#/$defs/Spacer",
+      "stack": "#/$defs/Stack",
+      "status": "#/$defs/Status",
+      "text": "#/$defs/Text",
+      "toggle": "#/$defs/Toggle",
+      "vary": "#/$defs/Vary",
+      "within": "#/$defs/Within"
+    },
+    "propertyName": "kind"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Stack"
+    },
+    {
+      "$ref": "#/$defs/Grid"
+    },
+    {
+      "$ref": "#/$defs/Cluster"
+    },
+    {
+      "$ref": "#/$defs/Frame"
+    },
+    {
+      "$ref": "#/$defs/Spacer"
+    },
+    {
+      "$ref": "#/$defs/Text"
+    },
+    {
+      "$ref": "#/$defs/NumberNode"
+    },
+    {
+      "$ref": "#/$defs/Badge"
+    },
+    {
+      "$ref": "#/$defs/Icon"
+    },
+    {
+      "$ref": "#/$defs/Media"
+    },
+    {
+      "$ref": "#/$defs/Field"
+    },
+    {
+      "$ref": "#/$defs/Select"
+    },
+    {
+      "$ref": "#/$defs/Toggle"
+    },
+    {
+      "$ref": "#/$defs/Range"
+    },
+    {
+      "$ref": "#/$defs/Progress"
+    },
+    {
+      "$ref": "#/$defs/Status"
+    },
+    {
+      "$ref": "#/$defs/InlineAlert"
+    },
+    {
+      "$ref": "#/$defs/Button"
+    },
+    {
+      "$ref": "#/$defs/Link"
+    },
+    {
+      "$ref": "#/$defs/Dialog"
+    },
+    {
+      "$ref": "#/$defs/Popover"
+    },
+    {
+      "$ref": "#/$defs/Disclosure"
+    },
+    {
+      "$ref": "#/$defs/Slot"
+    },
+    {
+      "$ref": "#/$defs/ParamRef"
+    },
+    {
+      "$ref": "#/$defs/Vary"
+    },
+    {
+      "$ref": "#/$defs/Within"
+    },
+    {
+      "$ref": "#/$defs/CompoundRef"
+    }
+  ],
+  "title": "Morphe Node Decoder Mask \u2014 clinical",
+  "x-morphe-compound-policy": {
+    "compounds": [
+      "SignalCard"
+    ],
+    "mode": "allowlist"
+  },
+  "x-morphe-dialect": "clinical"
+}

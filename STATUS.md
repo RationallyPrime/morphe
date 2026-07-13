@@ -1,7 +1,7 @@
 # Morphe — Status
 
-**Date:** 2026-07-09
-**Verdict: GREEN.** Types clean, all tests pass, production build succeeds.
+**Date:** 2026-07-13
+**Verdict: GREEN.** The complete web, viewer, Python, schema, build, and package gate passes.
 
 This is the rolling status snapshot. The deeper ledger — every vision mechanism
 mapped to its implementation state — lives in `VISION.md` §15; the scheduled
@@ -15,80 +15,18 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 | Step | Command | Result |
 |---|---|---|
-| Types | `bun run check` (`svelte-kit sync && svelte-check`) | **0 errors, 0 warnings** |
-| Tests | `bun run test` (`vitest run` + the dom config) | **329/329 passing** across 21 files |
-| Build | `bun run build` (`vite build`) | **Success** (adapter-vercel, `nodejs22.x`) |
-| Package | `bun run pack:verify` | **Success** (tarball installed into throwaway Vite + Svelte 5 consumer) |
+| Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
+| Web tests | `bun run test` | **376 + 1 DOM passing** across 24 files |
+| Python tests | `pytest` | **173 passing** |
+| Builds | root Vercel + stripped adapter-node viewer | **Success** |
+| Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
+| npm package | `bun run pack:verify` | **Installed consumer, exports, masks, client and SSR pass** |
+| Python package | `just py-pack-verify` | **Wheel + sdist, 10 resources, 9 isolated mask loads pass** |
 
-### Test breakdown (329 total, 21 files)
-
-The former consumer application subtree no longer exists — the 2026-06-23
-decoupling (`f0c76b4`) removed it wholesale; what remains is the substrate
-package, the neutral demo host, and the stripped viewer, each with its own test
-file(s):
-
-- `src/lib/dialects/dialects.test.ts` — 107 (Lemma-4 fixed-point parity
-  across all nine dialects + no-raw-color channel guard + compound-subset
-  resolution + CompoundRef authored-surface intent walk + the timaeus
-  beacon/grounds suite + the gallery/night plate-derived-pair suite
-  (ADR-0005) + the data ⇄ CSS agreement suite (each static `intents.css`
-  block equals its dialect's data, selector-aware) + FP7: surface stacks ride
-  `applyDialect`, so a boundary swap repaints the ground it stands on).
-- `src/lib/primitives.render.test.ts` — 61 (SSR render totality + a11y for
-  all primitive kinds incl. Action/Overlay, input modes, unknown compounds,
-  shared node instances, bound-primitive store seeding, dialect
-  compound-gating at render, and Vary rendering from the root choice map with
-  clamped fallback).
-- `src/lib/core.test.ts` — 28 (law + factory + dialect smoke, incl. the
-  compound-gate template-root-claim rejection and the R1.5 lifecycle +
-  dialect-restriction suite).
-- `src/lib/lemmas.property.test.ts` — 29 (lemmas-as-property-tests,
-  in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
-  compound-wrapping commutation and the Lemma 6 bounded-delegation suite:
-  adversarial deltas, epoch invalidation, liveVaryIds through CompoundRef
-  slot fills/args, and `Within` typed-value resolution that is not yet applied
-  to a rendered target).
-- `viewer/src/envelope.test.ts` — 20 (stripped-viewer artifact-id + surface-envelope
-  parsing/validation — the artifact read-route contract).
-- `src/lib/dialects/arrival.test.ts` — 18 (τ_frame arrival attribution:
-  `?dialect=` precedence + arrival sequence against the real store).
-- `src/routes/_playground/local-ai.test.ts` — 17 (local adaptive-draft
-  generation over the Prompt API surface: availability states, fallback
-  draft on unavailable/error, response-constraint enforcement).
-- `src/lib/state/store.test.ts` — 12 (ADR-0003 client-store contract:
-  layered ownership, full JSON values, replace-on-write + notify-on-set,
-  dev-freeze; R1.2 event tiers: atomic commit+record, bounded FIFO window,
-  injected clock, tier unforgeability, and the architecture scans — store
-  reads stay inside declared-bind primitives, no primitive touches the
-  escalation context).
-- `src/lib/media.render.test.ts` — 6 (the responsive `<picture>` Media
-  extension: the no-sources fixed point renders the bare `<img>` unchanged;
-  sources/width/height/eager render the candidate sets with pinned dimensions).
-- `src/lib/dialects/active.test.ts` — 5 (global dialect rune store).
-- `src/routes/_playground/validation.test.ts` — 5 (local adaptive draft
-  response-constraint validation).
-- `src/lib/state/actions.test.ts` — 3 (R1.4 action lookup: mapped id
-  fires, unmapped id dev-warns and no-ops, missing id never looks up).
-- `src/lib/state/digest.test.ts` — 3 (R1.3 ContextDigest: versioned
-  JSON-round-trippable snapshot, escalation wrapping captures the
-  point-in-time digest).
-- `src/routes/api/adaptive/decision/decision.test.ts` — 3 (the adaptive
-  sidecar bridge: calls `MORPHE_AGENT_BASE_URL` when configured, otherwise
-  returns the deterministic schema-valid fallback tree).
-- `src/routes/_playground/presenters.test.ts` — 3 (neutral playground demo
-  presenters emit only resolvable compound refs).
-- `scripts/derive-plates.test.ts` — 3 (the plate derivative plan: rungs ×
-  formats + PNG fallback per source).
-- `src/lib/grammar/version.test.ts` — 2 (`GRAMMAR_VERSION` parity guard).
-- `src/lib/delegation/envelope.test.ts` — 1 (ADR-0004 envelope/Delta
-  typing wraps a pure tree without touching the grammar).
-- `src/routes/substrate/substrate-page.render.test.ts` — 1 (the `/substrate`
-  playground page renders without throwing).
-- `src/routes/plate-proof/tree.test.ts` — 1 (the `/plate-proof` demo tree
-  renders without throwing).
-- `src/test-fixtures/cms/render-smoke.test.ts` — 1 (runs under the separate
-  jsdom `vitest.dom.config.ts`: a CMS-compiled tree renders in the DOM
-  without throwing).
+The high-value suites cover all nine dialects, the algebra/property laws, factory and render
+totality, generated artifact trust, dialect-constrained ingress, the stripped viewer, state and
+delegation seams, Pydantic grammar/compiler/CMS contracts, and exact installed-mask structured
+emission with retry/fail-closed behavior.
 
 ---
 
@@ -102,7 +40,6 @@ file(s):
   compound factory with its validation gate; nine dialects (`gallery` — the
   museum-paper light ground, **default** per ADR-0005 — `night`,
   `icelandic-archive` (the retired-as-default amber identity), `clinical`,
-  `reykjavik-registry`, `timaeus`, and the three register-expansion dialects
   `ledger`, `estate`, `foundry`)
   pulled apart at the beacon and the ground, all passing the intent-keyset
   fixed-point tests and the data ⇄ CSS agreement suite,
@@ -118,8 +55,10 @@ file(s):
   versioned `ContextDigest`; typed tier-2 vocabulary + `MorpheRoot.onEscalate`
   records); the R1.4 declarative action wire (`MorpheRoot.actions` binds
   in-tree `Button.action` ids without putting handlers in the tree); the R1.5 compound lifecycle
-  (`candidate`/`promoted` through one gate) with `Dialect.compounds[]`
-  render-gating via the `restrictCompounds` view; the R2 bounded-delegation
+  (`candidate`/`promoted` through one gate), the Pydantic-owned promoted
+  `SignalCard` catalog, and generated `Dialect.compounds[]` render-gating via
+  the `restrictCompounds` view (`clinical` is restricted; eight dialects remain
+  explicitly unrestricted); the R2 bounded-delegation
   surface (ADR-0004: `Within`/`VaryId` in the grammar, the emission envelope +
   pure/total `applyDelta` in `delegation/`, `MorpheRoot.choices?` as the only
   renderer contract change — epochs never reach the renderer), with the `py/`
@@ -145,9 +84,17 @@ file(s):
   SvelteKit app sharing the same `$lib`, exactly one route
   (`/surfaces/[artifactId]`, SSR-fetches a compiled artifact from
   `MORPHE_ARTIFACT_BASE_URL/{id}`) plus `/healthz`; fail-closed
-  `grammar_version` gate (a mismatched artifact renders a 409 diagnostic);
+  generated artifact-schema and dialect-policy ingress gates (malformed,
+  mismatched, or out-of-dialect artifacts fail closed before rendering);
   adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the
   distroless image, `viewer/Dockerfile`, built from repo root).
+- **Projection M artifacts and structured-emission lab:** one authoritative
+  Pydantic grammar/catalog generates TypeScript, full schemas, the decision
+  wire, and nine genuine per-dialect `G|D` masks. The npm and Python packages
+  carry the masks with a versioned SHA-256 manifest. The Pydantic-AI lab injects
+  the exact installed per-request mask, retries dialect-invalid output, and
+  falls back without breaking the render path. This is package proof, not a
+  claim that a production slow-loop host is deployed.
 
 Package published to npmjs as the public `@rationallyprime/morphe` (tags
 `v0.3.2` / `py-v0.4.0` and others — see `git tag`). Deployment ownership and
@@ -183,7 +130,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 329/329 passing
+bun run test       # vitest run (+ dom config)       → 376 + 1 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)

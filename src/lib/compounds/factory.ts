@@ -24,6 +24,8 @@
  */
 
 import type { CompoundRef, Node, NodeKind, ParamRef, Slot } from "../grammar/types.js";
+import { GRAMMAR_VERSION } from "../grammar/version.js";
+import { PROMOTED_COMPOUNDS } from "./catalog.generated.js";
 
 /* ---------------------------------------------------------------------------
  * Params schema — a minimal, structural JSON-Schema subset.
@@ -61,6 +63,19 @@ export interface CompoundDef {
 export type RegistrationResult =
 	| { readonly ok: true; readonly name: string }
 	| { readonly ok: false; readonly name: string; readonly errors: readonly string[] };
+
+/** Structured failure for a schema-valid `CompoundRef` that violates its registered definition. */
+export class CompoundReferenceError extends Error {
+	readonly compound: string;
+	readonly issues: readonly string[];
+
+	constructor(compound: string, issues: readonly string[]) {
+		super(`Invalid compound reference "${compound}": ${issues.join("; ")}`);
+		this.name = "CompoundReferenceError";
+		this.compound = compound;
+		this.issues = issues;
+	}
+}
 
 /**
  * The L1 minting lifecycle. Three producers mint compounds through ONE
@@ -165,12 +180,20 @@ export class CompoundRegistry implements CompoundResolver {
 		if (!def) {
 			throw new Error(`Unknown compound: ${ref.name}`);
 		}
+		const issues = this.#referenceIssues(def, ref);
+		if (issues.length > 0) throw new CompoundReferenceError(ref.name, issues);
 		const args = this.#withDefaults(def.params, ref.args);
 		return this.#expandNode(def.template, {
 			args,
 			slots: ref.slots ?? {},
 			depth: 0,
 		});
+	}
+
+	/** Validate one call against the registered definition without expanding it. */
+	referenceIssues(ref: CompoundRef): readonly string[] {
+		const def = this.#defs.get(ref.name);
+		return def ? this.#referenceIssues(def, ref) : [`unknown compound "${ref.name}"`];
 	}
 
 	/* ---- validation gate --------------------------------------------------- */
@@ -180,10 +203,31 @@ export class CompoundRegistry implements CompoundResolver {
 		if (this.#defs.has(def.name)) {
 			errors.push(`Compound "${def.name}" is already registered.`);
 		}
-		if ("emphasis" in def.template && def.template.emphasis !== undefined) {
+		if (def.grammarVersion !== GRAMMAR_VERSION) {
+			errors.push(
+				`Compound "${def.name}" targets grammar ${def.grammarVersion}; runtime grammar is ${GRAMMAR_VERSION}.`,
+			);
+		}
+		if (
+			Object.hasOwn(def.template, "emphasis") &&
+			Reflect.get(def.template, "emphasis") !== undefined
+		) {
 			errors.push(
 				"Template root must not carry an emphasis claim; claim at the call site (CompoundRef.emphasis).",
 			);
+		}
+		for (const [name, spec] of Object.entries(def.params.properties)) {
+			if (spec.required === true && spec.default !== undefined) {
+				errors.push(`Parameter "${name}" cannot be both required and defaulted.`);
+			}
+			if (spec.default !== undefined && !valueMatchesParamType(spec.default, spec.type)) {
+				errors.push(`Default for parameter "${name}" is not a valid ${spec.type}.`);
+			}
+		}
+		for (const param of paramRefsIn(def.template)) {
+			if (!Object.hasOwn(def.params.properties, param)) {
+				errors.push(`Template ParamRef "${param}" has no declared parameter.`);
+			}
 		}
 
 		// Acyclicity: the closure of compound references reachable from this
@@ -198,7 +242,7 @@ export class CompoundRegistry implements CompoundResolver {
 		// avoid infinite expansion.
 		if (!cycle) {
 			try {
-				const args = this.#withDefaults(def.params, {});
+				const args = this.#registrationArgs(def.params);
 				const expanded = this.#expandNode(def.template, {
 					args,
 					slots: {},
@@ -213,6 +257,43 @@ export class CompoundRegistry implements CompoundResolver {
 		}
 
 		return errors;
+	}
+
+	#registrationArgs(schema: ParamsSchema): Record<string, unknown> {
+		const args: Record<string, unknown> = {};
+		for (const [name, spec] of Object.entries(schema.properties)) {
+			args[name] = spec.default ?? defaultForType(spec.type);
+		}
+		return args;
+	}
+
+	#referenceIssues(def: CompoundDef, ref: CompoundRef): string[] {
+		const issues: string[] = [];
+		const args = isRecord(ref.args) ? ref.args : {};
+		if (!isRecord(ref.args)) issues.push("arguments must be an object");
+		for (const name of Object.keys(args)) {
+			if (!Object.hasOwn(def.params.properties, name)) issues.push(`unknown argument "${name}"`);
+		}
+		for (const [name, spec] of Object.entries(def.params.properties)) {
+			if (!Object.hasOwn(args, name)) {
+				if (spec.required === true) issues.push(`missing required argument "${name}"`);
+				continue;
+			}
+			if (!valueMatchesParamType(args[name], spec.type)) {
+				issues.push(`argument "${name}" must be ${spec.type}`);
+			}
+		}
+
+		const declaredSlots = new Set(slotNamesIn(def.template));
+		const slots = ref.slots === undefined || isRecord(ref.slots) ? (ref.slots ?? {}) : {};
+		if (ref.slots !== undefined && !isRecord(ref.slots)) issues.push("slots must be an object");
+		for (const [name, fill] of Object.entries(slots)) {
+			if (!declaredSlots.has(name)) issues.push(`unknown slot "${name}"`);
+			if (!Array.isArray(fill) || !fill.every(isNodeLike)) {
+				issues.push(`slot "${name}" must contain only nodes`);
+			}
+		}
+		return issues;
 	}
 
 	/** DFS over the compound-reference graph to find a cycle through `def`. */
@@ -269,7 +350,7 @@ export class CompoundRegistry implements CompoundResolver {
 	): Record<string, unknown> {
 		const out: Record<string, unknown> = {};
 		for (const [key, spec] of Object.entries(schema.properties)) {
-			if (key in args) out[key] = args[key];
+			if (Object.hasOwn(args, key)) out[key] = args[key];
 			else if (spec.default !== undefined) out[key] = spec.default;
 			else out[key] = defaultForType(spec.type);
 		}
@@ -295,6 +376,8 @@ export class CompoundRegistry implements CompoundResolver {
 				// Nested compound: expand it (deeper), threading depth.
 				const nested = this.#defs.get(node.name);
 				if (!nested) throw new Error(`Unknown nested compound: ${node.name}`);
+				const issues = this.#referenceIssues(nested, node);
+				if (issues.length > 0) throw new CompoundReferenceError(node.name, issues);
 				const nestedArgs = this.#withDefaults(nested.params, node.args);
 				return this.#expandNode(nested.template, {
 					args: nestedArgs,
@@ -308,8 +391,14 @@ export class CompoundRegistry implements CompoundResolver {
 				if (kids.length === 0) return node;
 				const expandedKids: Node[] = [];
 				for (const kid of kids) {
+					const paramValue = kid.kind === "param-ref" ? env.args[kid.param] : undefined;
 					if (kid.kind === "slot") {
 						expandedKids.push(...this.#fillSlot(kid, env));
+					} else if (kid.kind === "param-ref" && Array.isArray(paramValue)) {
+						if (!paramValue.every(isNodeLike)) {
+							throw new Error(`Node-list parameter "${kid.param}" contains a non-node value.`);
+						}
+						expandedKids.push(...paramValue.map((item) => this.#expandNode(item, env)));
 					} else {
 						expandedKids.push(this.#expandNode(kid, env));
 					}
@@ -332,9 +421,6 @@ export class CompoundRegistry implements CompoundResolver {
 	}
 }
 
-/** Process-wide default registry (singleton; a dialect may carry its own). */
-export const registry = new CompoundRegistry();
-
 /* ---------------------------------------------------------------------------
  * Dialect-restricted view — G|D's compound half (Lemma 4).
  * ------------------------------------------------------------------------- */
@@ -342,7 +428,7 @@ export const registry = new CompoundRegistry();
 export interface RestrictOptions {
 	/**
 	 * The dialect's allowed compound subset (`Dialect.compounds`). EMPTY means
-	 * unrestricted — today's behavior, Corollary 1: a dialect that declares no
+	 * unrestricted — the compatibility policy: a dialect that declares no
 	 * subset sees every promoted compound. Non-empty means a name outside the
 	 * list is treated as UNKNOWN (renders nothing + dev-warns via the renderer's
 	 * existing totality guard; never throws).
@@ -367,8 +453,8 @@ export interface RestrictOptions {
  *     allowlist (an explicit opt-in) or `showCandidates` is set
  *   - otherwise               → visible
  *
- * With an empty allowlist and only promoted compounds (everything shipped
- * today) the view is behavior-identical to the base.
+ * With an empty allowlist and only promoted compounds the view is
+ * behavior-identical to the base.
  */
 export function restrictCompounds(
 	base: CompoundRegistry,
@@ -489,6 +575,28 @@ function compoundRefsIn(node: Node): string[] {
 	return names;
 }
 
+/** Collect template parameter references, including refs nested in containers. */
+function paramRefsIn(node: Node): string[] {
+	const names: string[] = [];
+	const walk = (current: Node): void => {
+		if (current.kind === "param-ref") names.push(current.param);
+		for (const child of childrenOf(current)) walk(child);
+	};
+	walk(node);
+	return names;
+}
+
+/** Collect the declared slot vocabulary of a compound template. */
+function slotNamesIn(node: Node): string[] {
+	const names: string[] = [];
+	const walk = (current: Node): void => {
+		if (current.kind === "slot") names.push(current.name);
+		for (const child of childrenOf(current)) walk(child);
+	};
+	walk(node);
+	return names;
+}
+
 /**
  * Resolve a ParamRef against the compound's bound args. If the bound value is a
  * Node, it is spliced; otherwise it is coerced to a Text node so the result is
@@ -496,10 +604,38 @@ function compoundRefsIn(node: Node): string[] {
  */
 function resolveParamRef(ref: ParamRef, args: Readonly<Record<string, unknown>>): Node {
 	const value = args[ref.param];
-	if (value !== null && typeof value === "object" && "kind" in (value as object)) {
+	if (Array.isArray(value)) {
+		throw new Error(`Node-list parameter "${ref.param}" must appear in a child list.`);
+	}
+	if (value !== null && typeof value === "object" && Object.hasOwn(value, "kind")) {
 		return value as Node;
 	}
 	return { kind: "text", value: value === undefined ? "" : String(value) };
+}
+
+function isNodeLike(value: unknown): value is Node {
+	if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+	const kind = Reflect.get(value, "kind");
+	return typeof kind === "string" && KNOWN_KINDS.has(kind as NodeKind);
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+	return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function valueMatchesParamType(value: unknown, type: ParamType): boolean {
+	switch (type) {
+		case "string":
+			return typeof value === "string";
+		case "number":
+			return typeof value === "number" && Number.isFinite(value);
+		case "boolean":
+			return typeof value === "boolean";
+		case "node":
+			return isNodeLike(value);
+		case "node-list":
+			return Array.isArray(value) && value.every(isNodeLike);
+	}
 }
 
 function defaultForType(type: ParamType): unknown {
@@ -514,5 +650,16 @@ function defaultForType(type: ParamType): unknown {
 			return { kind: "text", value: "" } satisfies Node;
 		case "node-list":
 			return [];
+	}
+}
+
+/** Process-wide default registry, seeded from the Pydantic-owned promoted catalog. */
+export const registry = new CompoundRegistry();
+for (const definition of PROMOTED_COMPOUNDS) {
+	const result = registry.register(definition);
+	if (!result.ok) {
+		throw new Error(
+			`Generated promoted compound "${definition.name}" failed registration: ${result.errors.join("; ")}`,
+		);
 	}
 }

@@ -5,6 +5,7 @@
  */
 
 // Compound factory (Lemma 1)
+export { PROMOTED_COMPOUNDS } from "./compounds/catalog.generated.js";
 export type {
 	CompoundDef,
 	CompoundLifecycle,
@@ -17,6 +18,7 @@ export type {
 	RestrictOptions,
 } from "./compounds/factory.js";
 export {
+	CompoundReferenceError,
 	CompoundRegistry,
 	childrenOf,
 	registry,
@@ -54,6 +56,13 @@ export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js"
 export { activeDialect } from "./dialects/active.svelte.js";
 export { persistableDialect, resolveArrivalDialect } from "./dialects/arrival.js";
 export { clinical } from "./dialects/clinical.js";
+export type {
+	DialectId,
+	DialectNodeValidationIssue,
+	DialectNodeValidationOptions,
+	DialectNodeValidationResult,
+} from "./dialects/constraints.js";
+export { validateNodeForDialect } from "./dialects/constraints.js";
 export { gallery } from "./dialects/gallery.js";
 export { icelandicArchive } from "./dialects/icelandic-archive.js";
 export { night } from "./dialects/night.js";

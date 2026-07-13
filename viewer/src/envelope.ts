@@ -6,7 +6,12 @@
  */
 
 import type { Node } from "$lib";
-import { formatArtifactValidationIssue, validateSurfaceArtifact } from "$lib/artifacts";
+import { getDialect, validateNodeForDialect } from "$lib";
+import {
+	formatArtifactValidationIssue,
+	validateNodeDocument,
+	validateSurfaceArtifact,
+} from "$lib/artifacts";
 
 export const MAX_SURFACE_ENVELOPE_BYTES = 2 * 1024 * 1024;
 
@@ -89,6 +94,21 @@ export function parseSurfaceEnvelope(
 			// viewer does not support" (409) from a genuinely malformed artifact (502):
 			// a breaking-grammar tree fails the schema pass before any version check runs.
 			rawGrammarVersion: rawGrammarVersionOf(body),
+		};
+	}
+	// Mask enforcement follows what will actually render: getDialect is total, so an
+	// unknown hint resolves to the default dialect and the tree is validated against
+	// that dialect's compound policy. A tree violating a KNOWN declared dialect's
+	// policy still fails closed (the G|D emission contract).
+	const effectiveDialectId = getDialect(dialectHint).id;
+	const dialectValidation = validateNodeForDialect(artifact.value.tree, effectiveDialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (!dialectValidation.ok) {
+		const issue = dialectValidation.issues[0];
+		return {
+			ok: false,
+			reason: issue?.message ?? "artifact tree violates its dialect constraint",
 		};
 	}
 

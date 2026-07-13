@@ -42,9 +42,7 @@ export const DIALECTS: Readonly<Record<string, Dialect>> = Object.freeze({
 	[timaeus.id]: timaeus,
 	[gallery.id]: gallery,
 	[night.id]: night,
-	// The cohort registers (KRA — six-cohort expansion): teal ledger (financial
-	// controls), copper estate (roll-up/platform), steel foundry (industrial
-	// quality). Each is a full §8-parity dialect; the parity suite holds them to it.
+	// Register extensions. Each is a full §8-parity dialect; the parity suite holds them to it.
 	[ledger.id]: ledger,
 	[estate.id]: estate,
 	[foundry.id]: foundry,
@@ -72,8 +70,8 @@ export const DIALECT_IDS: readonly string[] = Object.keys(DIALECTS);
  * so a stray/legacy id can never make the renderer non-total (Definition 1).
  */
 export function getDialect(id: string | undefined): Dialect {
-	if (id !== undefined && id in DIALECTS) {
-		// `in` guard above guarantees the index is present.
+	if (id !== undefined && Object.hasOwn(DIALECTS, id)) {
+		// The own-property guard above guarantees the index is present.
 		return DIALECTS[id] as Dialect;
 	}
 	return DEFAULT_DIALECT;
@@ -81,5 +79,5 @@ export function getDialect(id: string | undefined): Dialect {
 
 /** Whether an id names a registered dialect (without falling back). */
 export function hasDialect(id: string): boolean {
-	return id in DIALECTS;
+	return Object.hasOwn(DIALECTS, id);
 }

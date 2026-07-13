@@ -7,12 +7,10 @@ from morphe_cms.contracts.shared import Diagnostic, RenderHints
 from morphe_cms.presenter.capability_page import PRESENTER_VERSION, present_capability_page
 from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
 from morphe_cms.validation.policy import policy_diagnostics
-from morphe_grammar import validate_node
+from morphe_grammar import GRAMMAR_VERSION, validate_node
 
 if TYPE_CHECKING:
     from morphe_cms.contracts.capability_page import CapabilityPageDraft
-
-GRAMMAR_VERSION = "0.1.0"
 
 
 def compile_and_gate(

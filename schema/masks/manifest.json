@@ -1,0 +1,80 @@
+{
+  "dialects": {
+    "clinical": {
+      "compound_policy": {
+        "compounds": [
+          "SignalCard"
+        ],
+        "mode": "allowlist"
+      },
+      "schema": "dialects/morphe-node.clinical.schema.json",
+      "sha256": "3441047e691c82b674876e9371e2595f7183f56bc15b0e934ef045250fe7ca6f"
+    },
+    "estate": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.estate.schema.json",
+      "sha256": "63f9bffc294067d9b51876b7e567da765724af79c20529b8ce72db22d7ac63f7"
+    },
+    "foundry": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.foundry.schema.json",
+      "sha256": "4a21357eebd141a7b1658008fc5e165c55ff04088381a8abde5604e0b06988bd"
+    },
+    "gallery": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.gallery.schema.json",
+      "sha256": "e84bdb364b8e9056882b0d89922594ece0e5653c56d9c902aaa9495f2b4f8ad2"
+    },
+    "icelandic-archive": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.icelandic-archive.schema.json",
+      "sha256": "a8ce6e7622bf94cf0359c45e8832abf1d46fca7c260102123f43edf08dbd8636"
+    },
+    "ledger": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.ledger.schema.json",
+      "sha256": "9213414457482c8bea3ecdace50b3f5d189a4f92bce18e80db027eb985c2ff59"
+    },
+    "night": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.night.schema.json",
+      "sha256": "4244c1859252cb7abc096bde7a8a16d7916e77ec6e5da681d03ae7753bc7d91e"
+    },
+    "reykjavik-registry": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.reykjavik-registry.schema.json",
+      "sha256": "9c82c1e165aa768e5f003dc22fd8eb97c18c2d52ba639279f43b8d057db36ee0"
+    },
+    "timaeus": {
+      "compound_policy": {
+        "compounds": [],
+        "mode": "unrestricted"
+      },
+      "schema": "dialects/morphe-node.timaeus.schema.json",
+      "sha256": "259172859ba1fcf369f9ffc3f48ac4c5be6ac429928e410606393b4474714c45"
+    }
+  },
+  "format_version": 1,
+  "grammar_version": "0.1.0"
+}

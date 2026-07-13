@@ -197,7 +197,11 @@ try {
 		join(scaffold, "src", "entry-server.ts"),
 		`
 			import { render } from "svelte/server";
+			import { DIALECT_IDS, GRAMMAR_VERSION } from "@rationallyprime/morphe";
 			import App from "./App.svelte";
+
+			export const installedDialectIds = DIALECT_IDS;
+			export const installedGrammarVersion = GRAMMAR_VERSION;
 
 			export function renderSurface(): string {
 				return render(App).body;
@@ -207,7 +211,15 @@ try {
 	write(
 		join(scaffold, "src", "verify-built.ts"),
 		`
-			const { renderSurface } = await import("../.ssr/entry-server.js") as {
+			import { createHash } from "node:crypto";
+			import { readFileSync } from "node:fs";
+			import { fileURLToPath } from "node:url";
+
+			const { installedDialectIds, installedGrammarVersion, renderSurface } = await import(
+				"../.ssr/entry-server.js"
+			) as {
+				installedDialectIds: readonly string[];
+				installedGrammarVersion: string;
 				renderSurface: () => string;
 			};
 			const body = renderSurface();
@@ -223,6 +235,65 @@ try {
 			const schemaRoot = grammarSchema.default ?? grammarSchema;
 			if (!schemaRoot || typeof schemaRoot !== "object" || !("$defs" in schemaRoot)) {
 				throw new Error("expected morphe-grammar.schema.json to expose $defs through ./schemas/*");
+			}
+
+			const maskManifestModule = (await import(
+				"@rationallyprime/morphe/schemas/masks/manifest.json"
+			)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+			const maskManifest = maskManifestModule.default ?? maskManifestModule;
+			if (maskManifest.format_version !== 1) {
+				throw new Error("expected decoder-mask manifest format_version 1");
+			}
+			if (maskManifest.grammar_version !== installedGrammarVersion) {
+				throw new Error("installed decoder-mask manifest and runtime grammar disagree");
+			}
+			const dialectEntries = maskManifest.dialects;
+			if (!dialectEntries || typeof dialectEntries !== "object" || Array.isArray(dialectEntries)) {
+				throw new Error("expected installed decoder-mask manifest dialect entries");
+			}
+			const manifestDialectIds = Object.keys(dialectEntries).sort();
+			const runtimeDialectIds = [...installedDialectIds].sort();
+			if (JSON.stringify(manifestDialectIds) !== JSON.stringify(runtimeDialectIds)) {
+				throw new Error("installed decoder-mask manifest and runtime dialect registry disagree");
+			}
+			for (const [dialectId, rawEntry] of Object.entries(dialectEntries)) {
+				if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) {
+					throw new Error(\`invalid decoder-mask manifest entry for \${dialectId}\`);
+				}
+				const entry = rawEntry as Record<string, unknown>;
+				const schemaPath = entry.schema;
+				if (typeof schemaPath !== "string") {
+					throw new Error(\`decoder-mask entry for \${dialectId} has no schema path\`);
+				}
+				const expectedDigest = entry.sha256;
+				if (typeof expectedDigest !== "string" || !/^[0-9a-f]{64}$/.test(expectedDigest)) {
+					throw new Error(\`decoder-mask entry for \${dialectId} has no valid SHA-256\`);
+				}
+				const schemaSpecifier = \`@rationallyprime/morphe/schemas/masks/\${schemaPath}\`;
+				const maskModule = (await import(
+					schemaSpecifier
+				)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+				const mask = maskModule.default ?? maskModule;
+				if (mask["x-morphe-dialect"] !== dialectId || !("$defs" in mask)) {
+					throw new Error(\`installed decoder mask for \${dialectId} is malformed\`);
+				}
+				const installedPath = fileURLToPath(import.meta.resolve(schemaSpecifier));
+				const actualDigest = createHash("sha256")
+					.update(readFileSync(installedPath))
+					.digest("hex");
+				if (actualDigest !== expectedDigest) {
+					throw new Error(\`installed decoder mask for \${dialectId} failed SHA-256 verification\`);
+				}
+			}
+			const clinicalEntry = (dialectEntries as Record<string, Record<string, unknown>>).clinical;
+			const clinicalPolicy = clinicalEntry?.compound_policy;
+			if (
+				!clinicalPolicy ||
+				typeof clinicalPolicy !== "object" ||
+				(clinicalPolicy as Record<string, unknown>).mode !== "allowlist" ||
+				JSON.stringify((clinicalPolicy as Record<string, unknown>).compounds) !== '["SignalCard"]'
+			) {
+				throw new Error("expected installed clinical mask to allow only SignalCard");
 			}
 
 			const { validateSurfaceArtifact } = await import("@rationallyprime/morphe/artifacts");

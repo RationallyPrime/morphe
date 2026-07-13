@@ -79,6 +79,98 @@ describe("parseSurfaceEnvelope", () => {
 		expect(result.rawGrammarVersion).toBe("9.9.9");
 	});
 
+	it("treats inherited object properties as unknown hints (prototype-safe fallback)", () => {
+		// "toString" is an inherited property of every object literal: a naive
+		// DIALECTS[hint] lookup would resolve it to Object.prototype.toString. The
+		// Object.hasOwn-guarded getDialect must treat it as merely unknown — soft
+		// fallback to the default dialect, never a prototype-derived "dialect".
+		const result = parseSurfaceEnvelope({ ...validBody, dialect_hint: "toString" });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.envelope.dialectHint).toBe("toString");
+	});
+
+	it("rejects a tree outside its declared dialect grammar", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: { kind: "compound", name: "consumer-private-card", args: {} },
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'compound "consumer-private-card" is not permitted by dialect "clinical"',
+		});
+	});
+
+	it("fully validates node-valued compound arguments at dialect ingress", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "text" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("rejects malformed recursive compound args without throwing", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "frame" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("fully validates known compound arguments under an unrestricted dialect", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "gallery",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "text" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
 	it("rejects a lifted grammar stamp that diverges from the artifact", () => {
 		const drifted = {
 			...validBody,

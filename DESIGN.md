@@ -115,10 +115,11 @@ The invariant is that every dialect:
 - keeps algebra priors inside their bounds;
 - leaves the authored tree untouched.
 
-Today the shipped dialects provide distinct intent maps, surface stacks, and priors. The registry
-can restrict compounds, but all shipped compound allowlists are currently empty. Do not claim
-that the package already ships structurally different dialect vocabularies or true per-dialect
-`G|D` decoder masks. Those are completion work.
+The shipped dialects provide distinct intent maps, surface stacks, and priors. Their compound
+policies are explicit and generated from the Python catalog: `clinical` permits the promoted
+`SignalCard`, while the other eight remain unrestricted for compatibility. Every dialect ships a
+versioned `G|D` decoder mask. Appearance still comes only from intents and bounded priors; a
+compound policy narrows structural vocabulary and never licenses geometry or consumer data.
 
 ## 7. Operational surfaces
 

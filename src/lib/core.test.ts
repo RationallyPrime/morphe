@@ -6,7 +6,11 @@
 
 import { describe, expect, it } from "vitest";
 import type { CompoundDef } from "./compounds/factory.js";
-import { CompoundRegistry, restrictCompounds } from "./compounds/factory.js";
+import {
+	CompoundReferenceError,
+	CompoundRegistry,
+	restrictCompounds,
+} from "./compounds/factory.js";
 import {
 	densityForCount,
 	emphasisToStrokeStep,
@@ -173,6 +177,17 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		expect(reg.has("labeled-stat")).toBe(true);
 	});
 
+	it("rejects a compound stamped for a different grammar version", () => {
+		const reg = new CompoundRegistry();
+		const result = reg.register({ ...labeledStat, name: "stale-stat", grammarVersion: "9.0.0" });
+		expect(result.ok).toBe(false);
+		if (result.ok) throw new Error("expected registration to fail");
+		expect(result.errors).toContain(
+			'Compound "stale-stat" targets grammar 9.0.0; runtime grammar is 0.1.0.',
+		);
+		expect(reg.has("stale-stat")).toBe(false);
+	});
+
 	it("expands hygienically: ParamRefs resolve, Slots fill from the call site", () => {
 		const reg = new CompoundRegistry();
 		reg.register(labeledStat);
@@ -261,6 +276,106 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 			args: {},
 		});
 		expect(expanded.kind).toBe("stack");
+	});
+
+	it("enforces exact required args, types, and slot names at expansion", () => {
+		const reg = new CompoundRegistry();
+		const result = reg.register({
+			name: "strict-card",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: {
+				type: "object",
+				properties: {
+					title: { type: "node", required: true },
+					count: { type: "number", default: 0 },
+				},
+			},
+			template: {
+				kind: "stack",
+				role: "panel",
+				children: [
+					{ kind: "param-ref", param: "title" },
+					{ kind: "param-ref", param: "count" },
+					{ kind: "slot", name: "body" },
+				],
+			},
+		});
+		expect(result.ok).toBe(true);
+
+		expect(() => reg.expand({ kind: "compound", name: "strict-card", args: {} })).toThrow(
+			CompoundReferenceError,
+		);
+		expect(() =>
+			reg.expand({
+				kind: "compound",
+				name: "strict-card",
+				args: { title: { kind: "text", value: "Title" }, count: "many" },
+			}),
+		).toThrow('argument "count" must be number');
+		expect(() =>
+			reg.expand({
+				kind: "compound",
+				name: "strict-card",
+				args: { title: { kind: "text", value: "Title" }, surprise: true },
+				slots: { footer: [] },
+			}),
+		).toThrow('unknown argument "surprise"; unknown slot "footer"');
+	});
+
+	it("splices node-list params only at child-list positions", () => {
+		const reg = new CompoundRegistry();
+		expect(
+			reg.register({
+				name: "node-list",
+				version: "1.0.0",
+				grammarVersion: "0.1.0",
+				params: {
+					type: "object",
+					properties: { items: { type: "node-list", required: true } },
+				},
+				template: {
+					kind: "stack",
+					role: "list",
+					children: [{ kind: "param-ref", param: "items" }],
+				},
+			}).ok,
+		).toBe(true);
+		const expanded = reg.expand({
+			kind: "compound",
+			name: "node-list",
+			args: {
+				items: [
+					{ kind: "text", value: "first" },
+					{ kind: "text", value: "second" },
+				],
+			},
+		});
+		expect(expanded.kind).toBe("stack");
+		if (expanded.kind !== "stack") throw new Error("expected a stack root");
+		expect(expanded.children).toHaveLength(2);
+	});
+
+	it("rejects internally contradictory parameter definitions", () => {
+		const reg = new CompoundRegistry();
+		const contradictory = reg.register({
+			name: "contradictory",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: {
+				type: "object",
+				properties: { title: { type: "string", required: true, default: "Title" } },
+			},
+			template: { kind: "param-ref", param: "missing" },
+		});
+		expect(contradictory.ok).toBe(false);
+		if (contradictory.ok) throw new Error("expected registration to fail");
+		expect(contradictory.errors).toContain(
+			'Parameter "title" cannot be both required and defaulted.',
+		);
+		expect(contradictory.errors).toContain(
+			'Template ParamRef "missing" has no declared parameter.',
+		);
 	});
 
 	it("registers + fills slots in newer Action/Overlay kinds (totality of KNOWN_KINDS)", () => {
