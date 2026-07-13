@@ -54,7 +54,12 @@ def canonical_surface_artifact_bytes(artifact: CompiledSurface) -> bytes:
 
 
 def surface_artifact_digest(artifact: CompiledSurface) -> str:
-    """Return the stable SHA-256 content address for a compiled surface."""
+    """Return the stable SHA-256 content address for a compiled surface.
+
+    Identity, not authenticity — and currently a forward capability: no ingress
+    verifies this digest yet (no store lookup, no TS-side equivalent). Do not
+    assume content-addressing is enforced anywhere until a consumer wires it.
+    """
     digest = hashlib.sha256(
         canonical_surface_artifact_bytes(artifact), usedforsecurity=False
     ).hexdigest()

@@ -238,6 +238,16 @@ function structuralNodeChildren(node: Record<string, unknown>): readonly Structu
 	}
 }
 
+/**
+ * Load-bearing compensation for a zod `fromJSONSchema` gap: the generated Button
+ * schema enforces its accessible name via a top-level `anyOf` (label OR a11y),
+ * which `fromJSONSchema` silently drops — schema validation alone accepts a bare
+ * `{kind: "button"}`. This walk is therefore the ONLY enforcer of that invariant
+ * on the TS ingress ("schema-complete" really means schema + this walk). If
+ * py/morphe_grammar ever emits another cross-field constraint, it must be
+ * mirrored here; surface.test.ts pins the gap so a zod fix surfaces as a
+ * failing test rather than a silently redundant walk.
+ */
 function semanticNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValidationIssue | null {
 	const pending: Array<{ readonly node: unknown; readonly path: ValidationPath }> = [
 		{ node: root, path: prefix },
