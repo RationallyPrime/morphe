@@ -23,9 +23,14 @@
 	 * Agent edits ONLY this file. grammar/types.ts, registry, tokens, context: locked.
 	 */
 
-	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
-	import { boundaryStyle, descend } from "../../context/Context.svelte.js";
+	import { emphasisToStrokeStep, transform } from "../../context/algebra.js";
+	import {
+		boundaryStyle,
+		provideReactiveMorpheContext,
+	} from "../../context/Context.svelte.js";
 	import type { Stack } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 
@@ -37,20 +42,20 @@
 
 	let { node, ctx }: PrimitiveProps<Stack> = $props();
 
-	// A server-driven tree is immutable per <Node> instance: a changed tree mounts
-	// new keyed components, so the one-time context descent (which MUST run during
-	// init, because setContext does) reads `node` directly. It descends from the
-	// explicit `ctx` PROP (the prop chain is the real carrier — correct on SSR and
-	// the first client render) and seeds the context channel as a fallback. Values
-	// consumed in the template stay $derived for reactivity.
-	// svelte-ignore state_referenced_locally
-	const child = descend(node.role, { childCount: node.children.length }, ctx);
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+
+	// The explicit ctx prop is authoritative and can now change when a targeted
+	// Within adapts this Stack. Keep the transform reactive while seeding a live
+	// fallback context view during init (setContext itself cannot run later).
+	const child = $derived(transform(ctx, node.role, { childCount: node.children.length }));
+	provideReactiveMorpheContext(() => child);
 
 	// Budget-Conservation, WIRED (Lemma 2, law 4): renormalize the children's
 	// claims against the budget B available to them and grant each child its
 	// rendered emphasis below. The parent is the only place the whole sibling set
 	// and B are both in scope, so the law runs HERE — not as a per-node self-claim.
-	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
+	const grants = $derived(resolveChildEmphasisGrants(child.emphasisBudget, node.children, choices));
 
 	const dir = $derived(node.direction ?? defaultDirectionForRole(node.role));
 	// This Stack renders at the emphasis its OWN parent granted it (carried on the

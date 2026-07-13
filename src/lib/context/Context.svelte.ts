@@ -8,7 +8,8 @@
  * visible flex in container queries.
  *
  * Svelte 5 runes only. `getContext`/`setContext` must run during component
- * init; primitives call `useMorpheContext()` at the top of their <script>.
+ * init; reactive providers therefore install a getter-backed view once and let
+ * the explicit context prop carry the authoritative current record.
  */
 
 import { getContext, hasContext, setContext } from "svelte";
@@ -36,11 +37,41 @@ export function useMorpheContext(): MorpheContext {
 }
 
 /**
- * Provide a context to descendants. Call at the top of a Layout primitive's
- * <script> AFTER computing the child context with `transform`/`enterFrame`.
+ * Provide a fixed context to descendants. Use the reactive provider below when
+ * the record can change without remounting.
  */
 export function provideMorpheContext(ctx: MorpheContext): void {
 	setContext(KEY, ctx);
+}
+
+/**
+ * Provide a live context view while still obeying Svelte's init-time
+ * `setContext` constraint. Layouts derive their child context from reactive
+ * props, then give this function a getter. Descendants that use the fallback
+ * context channel see the current record through property getters; the explicit
+ * `ctx` prop remains the authoritative carrier through the renderer.
+ */
+export function provideReactiveMorpheContext(current: () => MorpheContext): void {
+	setContext<MorpheContext>(KEY, {
+		get depth() {
+			return current().depth;
+		},
+		get density() {
+			return current().density;
+		},
+		get scaleTier() {
+			return current().scaleTier;
+		},
+		get emphasisBudget() {
+			return current().emphasisBudget;
+		},
+		get surface() {
+			return current().surface;
+		},
+		get renderedEmphasis() {
+			return current().renderedEmphasis;
+		},
+	});
 }
 
 /**

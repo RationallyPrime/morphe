@@ -26,12 +26,18 @@
 	 * current ctx.
 	 */
 
+	import { emphasisToStrokeStep } from "../../context/algebra.js";
 	import type { Disclosure } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Disclosure> = $props();
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+	const grants = $derived(resolveChildEmphasisGrants(ctx.emphasisBudget, node.children, choices));
 
 	// Focus affordance: the ring COLOR is the per-intent channel, the geometry is
 	// neutral (CONTRACT §7). Both flow through SLOTS so a dialect can re-point them
@@ -54,6 +60,7 @@
 	style:--mo-disc-ring-width={ringWidth}
 	style:--mo-disc-ring-offset={ringOffset}
 	style:--mo-disc-on={onColor}
+	style:--mo-ctx-stroke={emphasisToStrokeStep(ctx.renderedEmphasis ?? "normal")}
 >
 	<summary class="mo-disclosure__summary">
 		<span class="mo-disclosure__marker material-symbols-outlined" aria-hidden="true"
@@ -63,7 +70,7 @@
 	</summary>
 	<div class="mo-disclosure__body">
 		{#each node.children as child, i (i)}
-			<Node node={child} {ctx} />
+			<Node node={child} ctx={{ ...ctx, renderedEmphasis: grants[i] }} />
 		{/each}
 	</div>
 </details>
