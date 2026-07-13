@@ -24,6 +24,7 @@ import {
 	transform,
 } from "./context/algebra.js";
 import type { Node } from "./grammar/types.js";
+import { GRAMMAR_VERSION } from "./grammar/version.js";
 
 describe("context algebra — the four laws", () => {
 	it("MONOTONE-DEPTH: scaleTier is non-increasing through non-Frame transforms", () => {
@@ -150,7 +151,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 	const labeledStat: CompoundDef = {
 		name: "labeled-stat",
 		version: "1.0.0",
-		grammarVersion: "0.1.0",
+		grammarVersion: GRAMMAR_VERSION,
 		params: {
 			type: "object",
 			properties: {
@@ -183,7 +184,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		expect(result.ok).toBe(false);
 		if (result.ok) throw new Error("expected registration to fail");
 		expect(result.errors).toContain(
-			'Compound "stale-stat" targets grammar 9.0.0; runtime grammar is 0.1.0.',
+			`Compound "stale-stat" targets grammar 9.0.0; runtime grammar is ${GRAMMAR_VERSION}.`,
 		);
 		expect(reg.has("stale-stat")).toBe(false);
 	});
@@ -211,7 +212,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const selfRef: CompoundDef = {
 			name: "loop",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",
@@ -229,7 +230,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const result = reg.register({
 			name: "claimed-root",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",
@@ -252,7 +253,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const card: CompoundDef = {
 			name: "stat-card",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "frame",
@@ -283,7 +284,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const result = reg.register({
 			name: "strict-card",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: {
 				type: "object",
 				properties: {
@@ -329,7 +330,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 			reg.register({
 				name: "node-list",
 				version: "1.0.0",
-				grammarVersion: "0.1.0",
+				grammarVersion: GRAMMAR_VERSION,
 				params: {
 					type: "object",
 					properties: { items: { type: "node-list", required: true } },
@@ -361,7 +362,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const contradictory = reg.register({
 			name: "contradictory",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: {
 				type: "object",
 				properties: { title: { type: "string", required: true, default: "Title" } },
@@ -383,7 +384,7 @@ describe("compound factory — algebraic closure (Lemma 1)", () => {
 		const panelWithDisclosure: CompoundDef = {
 			name: "panel-with-disclosure",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "frame",
@@ -442,7 +443,7 @@ describe("compound lifecycle + dialect restriction (L1 minting / L4 G|D)", () =>
 	const def = (name: string): CompoundDef => ({
 		name,
 		version: "1.0.0",
-		grammarVersion: "0.1.0",
+		grammarVersion: GRAMMAR_VERSION,
 		params: { type: "object", properties: {} },
 		template: {
 			kind: "stack",

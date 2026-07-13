@@ -78,6 +78,40 @@ describe("generated dialect constraints", () => {
 		);
 	});
 
+	it("enforces the dialect policy inside a targeted Within", () => {
+		const result = validateNodeForDialect(
+			{
+				kind: "within",
+				id: "bounded-region",
+				dimension: "density",
+				range: [0, 2],
+				default: 1,
+				target: { kind: "compound", name: "consumer-private-card", args: {} },
+			},
+			"clinical",
+		);
+		expect(result.ok).toBe(false);
+		if (result.ok) throw new Error("expected dialect validation to fail");
+		expect(result.issues).toContainEqual(
+			expect.objectContaining({
+				code: "compound-policy",
+				path: ["target", "name"],
+			}),
+		);
+	});
+
+	it("keeps a targetless Within as a policy-neutral leaf", () => {
+		const targetless: Node = {
+			kind: "within",
+			id: "legacy-density-leaf",
+			dimension: "density",
+			range: [0, 2],
+			default: 1,
+		};
+
+		expect(validateNodeForDialect(targetless, "clinical")).toEqual({ ok: true });
+	});
+
 	it("rejects malformed promoted calls even when the name is permitted", () => {
 		const result = validateNodeForDialect(
 			{ kind: "compound", name: "SignalCard", args: {} },

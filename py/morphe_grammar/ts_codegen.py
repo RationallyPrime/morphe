@@ -189,6 +189,49 @@ def _button_type() -> str:
     )
 
 
+def _within_type() -> str:
+    base_lines = ["interface WithinBase {"]
+    for name, field in models.Within.model_fields.items():
+        if name in {"dimension", "target", "summary"}:
+            continue
+        base_lines.append(
+            _interface_field(
+                _field_name(name, field.alias),
+                field.annotation,
+                required=field.is_required(),
+            )
+        )
+    base_lines.append("}")
+    return "\n".join(
+        [
+            *base_lines,
+            "",
+            "interface TargetlessWithin extends WithinBase {",
+            '\treadonly dimension: "density" | "emphasis" | "collapse";',
+            "\treadonly target?: undefined;",
+            "\treadonly summary?: undefined;",
+            "}",
+            "",
+            "interface TargetedContextWithin extends WithinBase {",
+            '\treadonly dimension: "density" | "emphasis";',
+            "\treadonly target: Node;",
+            "\treadonly summary?: undefined;",
+            "}",
+            "",
+            "interface TargetedCollapseWithin extends WithinBase {",
+            '\treadonly dimension: "collapse";',
+            "\treadonly target: Node;",
+            "\treadonly summary: string;",
+            "}",
+            "",
+            (
+                "export type Within = TargetlessWithin | TargetedContextWithin | "
+                "TargetedCollapseWithin;"
+            ),
+        ],
+    )
+
+
 def _node_names() -> tuple[str, ...]:
     annotated = models.Node.__value__
     union_type = get_args(annotated)[0]
@@ -200,6 +243,8 @@ def _model_blocks() -> list[str]:
     for model_type in MODEL_TYPES:
         if model_type is models.Button:
             blocks.append(_button_type())
+        elif model_type is models.Within:
+            blocks.append(_within_type())
         else:
             blocks.append(_interface_for_model(model_type))
     return blocks

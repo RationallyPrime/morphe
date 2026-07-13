@@ -300,7 +300,7 @@ try {
 			const artifact = {
 				artifact_version: "1.0.0",
 				tree: { kind: "frame", role: "page", children: [] },
-				grammar_version: "0.1.0",
+				grammar_version: "0.2.0",
 				producer_version: "0.2.0",
 				compiler_version: "0.2.0",
 				diagnostics: [],

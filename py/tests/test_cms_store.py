@@ -15,7 +15,7 @@ from morphe_cms.contracts.artifact import (
 )
 from morphe_cms.contracts.shared import RenderHints
 from morphe_cms.store.files import FileStore
-from morphe_grammar import validate_node
+from morphe_grammar import GRAMMAR_VERSION, validate_node
 
 
 def _envelope() -> ArtifactEnvelope:
@@ -34,7 +34,7 @@ def _compiled(rev: str) -> CompiledTree:
     return CompiledTree(
         artifact_id="capability-page.demo",
         revision_id=rev,
-        grammar_version="0.1.0",
+        grammar_version=GRAMMAR_VERSION,
         producer_version="0.1.0",
         presenter_version="0.1.0",
         tree=validate_node({"kind": "frame", "role": "page", "children": []}),
@@ -91,7 +91,7 @@ def test_corrupt_compiled_tree_is_not_a_validated_revision(tmp_path: Path) -> No
     path.parent.mkdir(parents=True)
     path.write_text(
         '{"artifact_id":"capability-page.demo","revision_id":"rev-001",'
-        '"grammar_version":"0.1.0","producer_version":"0.1.0",'
+        f'"grammar_version":"{GRAMMAR_VERSION}","producer_version":"0.1.0",'
         '"presenter_version":"0.1.0","tree":{"kind":"text"},'
         '"render_hints":{"dialect":"gallery"},"produced_at":""}',
         encoding="utf-8",

@@ -86,6 +86,6 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.1.0",
+		grammarVersion: "0.2.0",
 	},
 ] as const satisfies readonly CompoundDef[];

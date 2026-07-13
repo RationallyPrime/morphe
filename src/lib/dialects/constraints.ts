@@ -1,5 +1,5 @@
-import { registry } from "../compounds/factory.js";
-import type { CompoundRef, Node, NodeKind } from "../grammar/types.js";
+import { isNodeLike, registry } from "../compounds/factory.js";
+import type { CompoundRef, Node } from "../grammar/types.js";
 import { DIALECT_COMPOUND_CONSTRAINTS, type DialectConstraintId } from "./constraints.generated.js";
 
 export type DialectId = DialectConstraintId;
@@ -19,45 +19,9 @@ export interface DialectNodeValidationOptions {
 	readonly validateNodeValue?: (value: unknown) => boolean;
 }
 
-function isNode(value: unknown): value is Node {
-	if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
-	const kind = Reflect.get(value, "kind");
-	return typeof kind === "string" && NODE_KINDS.has(kind as NodeKind);
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === "object" && !Array.isArray(value);
 }
-
-const NODE_KINDS: ReadonlySet<NodeKind> = new Set([
-	"stack",
-	"grid",
-	"cluster",
-	"frame",
-	"spacer",
-	"text",
-	"number",
-	"badge",
-	"icon",
-	"media",
-	"field",
-	"select",
-	"toggle",
-	"range",
-	"progress",
-	"status",
-	"inline-alert",
-	"button",
-	"link",
-	"dialog",
-	"popover",
-	"disclosure",
-	"slot",
-	"param-ref",
-	"vary",
-	"within",
-	"compound",
-]);
 
 function dialectId(value: string): DialectId | null {
 	return Object.hasOwn(DIALECT_COMPOUND_CONSTRAINTS, value) ? (value as DialectId) : null;
@@ -73,7 +37,7 @@ function indexedChildren(values: unknown, field: string): readonly ChildEntry[] 
 	const children: ChildEntry[] = [];
 	for (let index = 0; index < values.length; index += 1) {
 		const value = values[index];
-		if (isNode(value)) children.push({ node: value, path: [field, index] });
+		if (isNodeLike(value)) children.push({ node: value, path: [field, index] });
 	}
 	return children;
 }
@@ -82,11 +46,11 @@ function compoundChildren(node: CompoundRef): readonly ChildEntry[] {
 	const children: ChildEntry[] = [];
 	if (isRecord(node.args)) {
 		for (const [name, value] of Object.entries(node.args)) {
-			if (isNode(value)) children.push({ node: value, path: ["args", name] });
+			if (isNodeLike(value)) children.push({ node: value, path: ["args", name] });
 			if (Array.isArray(value)) {
 				for (let index = 0; index < value.length; index += 1) {
 					const item = value[index];
-					if (isNode(item)) children.push({ node: item, path: ["args", name, index] });
+					if (isNodeLike(item)) children.push({ node: item, path: ["args", name, index] });
 				}
 			}
 		}
@@ -118,6 +82,8 @@ function children(node: Node): readonly ChildEntry[] {
 			return indexedChildren(node.options, "options");
 		case "slot":
 			return indexedChildren(node.fallback ?? [], "fallback");
+		case "within":
+			return node.target === undefined ? [] : [{ node: node.target, path: ["target"] }];
 		case "compound":
 			return compoundChildren(node);
 		default:

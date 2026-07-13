@@ -8,13 +8,13 @@ import {
 
 const validBody = {
 	artifact_id: "surface:demo:revision-42",
-	grammar_version: "0.1.0",
+	grammar_version: "0.2.0",
 	compiler_version: "0.1.0",
 	dialect_hint: "ledger",
 	artifact: {
 		artifact_version: "1.0.0",
 		tree: { kind: "frame", role: "page", surface: "base", children: [] },
-		grammar_version: "0.1.0",
+		grammar_version: "0.2.0",
 		producer_version: "0.1.0",
 		diagnostics: [],
 		produced_at: "2026-07-06T00:00:00Z",
@@ -28,7 +28,7 @@ describe("parseSurfaceEnvelope", () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.envelope.artifactId).toBe("surface:demo:revision-42");
-		expect(result.envelope.grammarVersion).toBe("0.1.0");
+		expect(result.envelope.grammarVersion).toBe("0.2.0");
 		expect(result.envelope.artifactVersion).toBe("1.0.0");
 		expect(result.envelope.dialectHint).toBe("ledger");
 		expect(result.envelope.tree.kind).toBe("frame");
@@ -39,7 +39,7 @@ describe("parseSurfaceEnvelope", () => {
 		["missing artifact_id", { ...validBody, artifact_id: undefined }],
 		["missing dialect_hint", { ...validBody, dialect_hint: undefined }],
 		["missing artifact", { ...validBody, artifact: undefined }],
-		["artifact without tree", { ...validBody, artifact: { grammar_version: "0.1.0" } }],
+		["artifact without tree", { ...validBody, artifact: { grammar_version: "0.2.0" } }],
 		["tree without kind", { ...validBody, artifact: { tree: { role: "page" } } }],
 		["empty grammar_version", { ...validBody, grammar_version: "" }],
 	])("rejects %s", (_label, body) => {

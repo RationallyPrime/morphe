@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .catalog import catalog_typescript_document
 from .dialects import DIALECT_IDS, constraints_typescript_document
+from .labels import labels_typescript_document
 from .masks import (
     DIALECT_MASK_PATHS,
     PACKAGE_DIALECT_MASK_PATHS,
@@ -30,6 +31,7 @@ _BASE_ARTIFACT_PATHS: tuple[str, ...] = (
     "schema/masks/morphe-node.full.schema.json",
     "schema/masks/morphe-delta.full.schema.json",
     "src/lib/grammar/types.ts",
+    "src/lib/grammar/labels.ts",
     "src/lib/grammar/version.ts",
     "src/lib/compounds/catalog.generated.ts",
     "src/lib/dialects/constraints.generated.ts",
@@ -67,6 +69,7 @@ def artifact_documents() -> dict[str, str]:
             _mask_document(delta_schema, "Morphe Delta Full Decoder Mask"),
         ),
         "src/lib/grammar/types.ts": typescript_document(),
+        "src/lib/grammar/labels.ts": labels_typescript_document(),
         "src/lib/grammar/version.ts": version_typescript_document(),
         "src/lib/compounds/catalog.generated.ts": catalog_typescript_document(),
         "src/lib/dialects/constraints.generated.ts": constraints_typescript_document(),

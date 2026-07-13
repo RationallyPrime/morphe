@@ -4,7 +4,7 @@ import { parseLocalCompiledTree } from "./compiled-artifact.js";
 const valid = {
 	artifact_id: "capability-page.demo",
 	revision_id: "rev-001",
-	grammar_version: "0.1.0",
+	grammar_version: "0.2.0",
 	producer_version: "0.1.0",
 	presenter_version: "0.1.0",
 	tree: { kind: "frame", role: "page", children: [{ kind: "spacer" }] },

@@ -70,3 +70,119 @@ def test_unknown_intent_fails_validation() -> None:
 def test_unknown_kind_fails_validation() -> None:
     with pytest.raises(ValidationError):
         validate_node({"kind": "clickable-div", "children": []})
+
+
+def test_legacy_targetless_within_remains_valid() -> None:
+    validate_node(
+        {
+            "kind": "within",
+            "id": "legacy-density",
+            "dimension": "density",
+            "range": [0, 1],
+            "default": 0.5,
+        }
+    )
+
+
+@pytest.mark.parametrize("dimension", ["density", "emphasis"])
+def test_context_within_accepts_single_target(dimension: str) -> None:
+    validate_node(
+        {
+            "kind": "within",
+            "id": f"targeted-{dimension}",
+            "dimension": dimension,
+            "range": [0, 1],
+            "default": 0.5,
+            "target": {"kind": "text", "value": "Adapt me"},
+        }
+    )
+
+
+def test_collapse_within_accepts_accessibly_named_target() -> None:
+    validate_node(
+        {
+            "kind": "within",
+            "id": "targeted-collapse",
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1,
+            "summary": "More detail",
+            "target": {"kind": "text", "value": "Adapt me"},
+        }
+    )
+
+
+@pytest.mark.parametrize("summary", ["\u0085", "\u200b", "\u2800", "\ufe0f", "\ufeff"])
+def test_collapse_within_rejects_invisible_only_summary(summary: str) -> None:
+    with pytest.raises(ValidationError):
+        validate_node(
+            {
+                "kind": "within",
+                "id": "invisible-collapse",
+                "dimension": "collapse",
+                "range": [0, 1],
+                "default": 1,
+                "summary": summary,
+                "target": {"kind": "text", "value": "Adapt me"},
+            }
+        )
+
+
+@pytest.mark.parametrize("summary", ["Ítarlegri upplýsingar", "詳細", "©", "😀", "❤️"])
+def test_collapse_within_accepts_visible_unicode_summary(summary: str) -> None:
+    validate_node(
+        {
+            "kind": "within",
+            "id": "unicode-collapse",
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1,
+            "summary": summary,
+            "target": {"kind": "text", "value": "Adapt me"},
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {
+            "kind": "within",
+            "id": "unnamed-collapse",
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1,
+            "target": {"kind": "text", "value": "Adapt me"},
+        },
+        {
+            "kind": "within",
+            "id": "empty-summary",
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1,
+            "summary": "",
+            "target": {"kind": "text", "value": "Adapt me"},
+        },
+        {
+            "kind": "within",
+            "id": "blank-summary",
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1,
+            "summary": "  \t",
+            "target": {"kind": "text", "value": "Adapt me"},
+        },
+        {
+            "kind": "within",
+            "id": "irrelevant-summary",
+            "dimension": "density",
+            "range": [0, 1],
+            "default": 0.5,
+            "summary": "Unused",
+            "target": {"kind": "text", "value": "Adapt me"},
+        },
+    ],
+)
+def test_within_rejects_inaccessible_or_irrelevant_summary(tree: NodeFixture) -> None:
+    with pytest.raises(ValidationError):
+        validate_node(tree)

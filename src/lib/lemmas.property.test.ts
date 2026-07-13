@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { CompoundDef } from "./compounds/factory.js";
-import { CompoundRegistry, childrenOf } from "./compounds/factory.js";
+import { CompoundRegistry, childrenOf, isNodeLike } from "./compounds/factory.js";
 import {
 	densityForCount,
 	enterFrame,
@@ -46,6 +46,7 @@ import { applyDialect } from "./dialects/provider.svelte.js";
 import { DEFAULT_DIALECT } from "./dialects/registry.js";
 import type { Dialect } from "./dialects/types.js";
 import type { ContainerRole, Density, EmphasisClaim, Node, NodeKind } from "./grammar/types.js";
+import { GRAMMAR_VERSION } from "./grammar/version.js";
 import type { ContextDigest } from "./state/digest.js";
 import { CONTEXT_DIGEST_VERSION } from "./state/digest.js";
 
@@ -279,12 +280,36 @@ const RENDERABLE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
  * ========================================================================= */
 
 describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the grammar", () => {
+	it("node-like detection accepts only own, shipped kind discriminants", () => {
+		expect(isNodeLike({ kind: "text", value: "Owned discriminant" })).toBe(true);
+		expect(isNodeLike({ kind: "invented", value: "Unknown discriminant" })).toBe(false);
+		expect(isNodeLike(Object.create({ kind: "text" }))).toBe(false);
+		const accessor = Object.defineProperty({}, "kind", {
+			get: () => {
+				throw new Error("must not run an untrusted getter");
+			},
+		});
+		expect(isNodeLike(accessor)).toBe(false);
+		expect(
+			isNodeLike(
+				new Proxy(
+					{},
+					{
+						getOwnPropertyDescriptor: () => {
+							throw new Error("hostile descriptor trap");
+						},
+					},
+				),
+			),
+		).toBe(false);
+	});
+
 	/** Build a compound whose template is a fuzzed schema-valid tree + leaves. */
 	function genCompound(rng: () => number, name: string): CompoundDef {
 		return {
 			name,
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: {
 				type: "object",
 				properties: {
@@ -352,29 +377,144 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 		});
 	});
 
-	it("Within leaves pass the compound registration gate", () => {
+	it("targetless Within remains a leaf and passes the compound registration gate", () => {
 		const reg = new CompoundRegistry();
 		const def: CompoundDef = {
 			name: "within-gate-probe",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
-				kind: "stack",
-				role: "panel",
-				children: [
-					{
-						kind: "within",
-						id: "density-panel",
-						dimension: "density",
-						range: [0, 2],
-						default: 1,
-					},
-				],
+				kind: "within",
+				id: "density-panel",
+				dimension: "density",
+				range: [0, 2],
+				default: 1,
 			},
 		};
 
+		expect(childrenOf(def.template)).toEqual([]);
 		expect(reg.register(def).ok).toBe(true);
+		expect(reg.expand({ kind: "compound", name: "within-gate-probe", args: {} })).toEqual(
+			def.template,
+		);
+	});
+
+	it("targeted Within expands its one target and preserves its authority fields", () => {
+		const reg = new CompoundRegistry();
+		const def: CompoundDef = {
+			name: "targeted-within-probe",
+			version: "1.0.0",
+			grammarVersion: GRAMMAR_VERSION,
+			params: {
+				type: "object",
+				properties: { content: { type: "node", required: true } },
+			},
+			template: {
+				kind: "within",
+				id: "density-panel",
+				dimension: "density",
+				range: [0, 2],
+				default: 1,
+				target: { kind: "param-ref", param: "content" },
+			},
+		};
+
+		expect(childrenOf(def.template)).toEqual([{ kind: "param-ref", param: "content" }]);
+		expect(reg.register(def)).toEqual({ ok: true, name: "targeted-within-probe" });
+		expect(
+			reg.expand({
+				kind: "compound",
+				name: "targeted-within-probe",
+				args: { content: { kind: "text", value: "Expanded target", as: "body" } },
+			}),
+		).toEqual({
+			kind: "within",
+			id: "density-panel",
+			dimension: "density",
+			range: [0, 2],
+			default: 1,
+			target: { kind: "text", value: "Expanded target", as: "body" },
+		});
+	});
+
+	it("rejects a slot expansion that would turn one Within target into siblings", () => {
+		const reg = new CompoundRegistry();
+		expect(
+			reg.register({
+				name: "singular-within-target",
+				version: "1.0.0",
+				grammarVersion: GRAMMAR_VERSION,
+				params: { type: "object", properties: {} },
+				template: {
+					kind: "within",
+					id: "one-target",
+					dimension: "density",
+					range: [0, 2],
+					default: 1,
+					target: {
+						kind: "slot",
+						name: "target",
+						fallback: [{ kind: "text", value: "Fallback" }],
+					},
+				},
+			}).ok,
+		).toBe(true);
+		expect(() =>
+			reg.expand({
+				kind: "compound",
+				name: "singular-within-target",
+				args: {},
+				slots: {
+					target: [
+						{ kind: "text", value: "First" },
+						{ kind: "text", value: "Second" },
+					],
+				},
+			}),
+		).toThrow("Within target expansion must produce exactly one node; received 2.");
+	});
+
+	it("compound registration gates traverse a targeted Within", () => {
+		const undeclared = new CompoundRegistry().register({
+			name: "within-param-gate",
+			version: "1.0.0",
+			grammarVersion: GRAMMAR_VERSION,
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "within",
+				id: "density-panel",
+				dimension: "density",
+				range: [0, 2],
+				default: 1,
+				target: { kind: "param-ref", param: "missing" },
+			},
+		});
+		expect(undeclared).toEqual({
+			ok: false,
+			name: "within-param-gate",
+			errors: ['Template ParamRef "missing" has no declared parameter.'],
+		});
+
+		const cyclic = new CompoundRegistry().register({
+			name: "within-cycle-gate",
+			version: "1.0.0",
+			grammarVersion: GRAMMAR_VERSION,
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "within",
+				id: "density-panel",
+				dimension: "density",
+				range: [0, 2],
+				default: 1,
+				target: { kind: "compound", name: "within-cycle-gate", args: {} },
+			},
+		});
+		expect(cyclic).toEqual({
+			ok: false,
+			name: "within-cycle-gate",
+			errors: ["Cyclic compound reference: within-cycle-gate -> within-cycle-gate"],
+		});
 	});
 
 	it("compounds reference compounds — vocabulary is OPEN under composition", () => {
@@ -385,7 +525,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 				reg.register({
 					name: "leaf",
 					version: "1.0.0",
-					grammarVersion: "0.1.0",
+					grammarVersion: GRAMMAR_VERSION,
 					params: { type: "object", properties: { v: { type: "string", default: "L" } } },
 					template: {
 						kind: "stack",
@@ -398,7 +538,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 				reg.register({
 					name: "mid",
 					version: "1.0.0",
-					grammarVersion: "0.1.0",
+					grammarVersion: GRAMMAR_VERSION,
 					params: { type: "object", properties: {} },
 					template: {
 						kind: "frame",
@@ -410,7 +550,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 			const top: CompoundDef = {
 				name: "top",
 				version: "1.0.0",
-				grammarVersion: "0.1.0",
+				grammarVersion: GRAMMAR_VERSION,
 				params: { type: "object", properties: {} },
 				template: {
 					kind: "stack",
@@ -434,7 +574,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 		const selfRef: CompoundDef = {
 			name: "loop",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",
@@ -452,7 +592,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 		const a: CompoundDef = {
 			name: "a",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",
@@ -464,7 +604,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 		const b: CompoundDef = {
 			name: "b",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",
@@ -491,7 +631,7 @@ describe("Lemma 1 (CLOSURE): compound expansion terminates and lands in the gram
 			const def: CompoundDef = {
 				name: `c${i}`,
 				version: "1.0.0",
-				grammarVersion: "0.1.0",
+				grammarVersion: GRAMMAR_VERSION,
 				params: { type: "object", properties: {} },
 				template:
 					i === 0
@@ -670,7 +810,7 @@ describe("Lemma 2 (CONTEXT LAWS): the algebra satisfies its four laws over fuzze
 			const def: CompoundDef = {
 				name,
 				version: "1.0.0",
-				grammarVersion: "0.1.0",
+				grammarVersion: GRAMMAR_VERSION,
 				params: { type: "object", properties: {} },
 				template: {
 					kind: "stack",
@@ -722,12 +862,19 @@ function variationBounds(tree: Node): ReadonlyMap<string, readonly Bounds[]> {
 }
 
 function validChoiceForAll(bounds: readonly Bounds[], choice: number): boolean {
-	return Number.isInteger(choice) && bounds.every(([lo, hi]) => choice >= lo && choice <= hi);
+	return (
+		Number.isInteger(choice) &&
+		bounds.every(([first, second]) => {
+			const lo = Math.min(first, second);
+			const hi = Math.max(first, second);
+			return choice >= lo && choice <= hi;
+		})
+	);
 }
 
 function validChoiceFor(bounds: readonly Bounds[]): number {
-	const lo = Math.max(...bounds.map(([min]) => min));
-	const hi = Math.min(...bounds.map(([, max]) => max));
+	const lo = Math.max(...bounds.map(([first, second]) => Math.min(first, second)));
+	const hi = Math.min(...bounds.map(([first, second]) => Math.max(first, second)));
 	return lo <= hi ? lo : Number.NaN;
 }
 
@@ -756,6 +903,62 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 		});
 	});
 
+	it("liveVaryIds and applyDelta traverse variation nested under a targeted Within", () => {
+		const tree: Node = {
+			kind: "within",
+			id: "outer-density",
+			dimension: "density",
+			range: [0, 2],
+			default: 1,
+			target: {
+				kind: "vary",
+				id: "nested-variant",
+				options: [
+					{ kind: "text", value: "Compact", as: "body" },
+					{
+						kind: "within",
+						id: "nested-emphasis",
+						dimension: "emphasis",
+						range: [0, 3],
+						default: 1,
+						target: { kind: "text", value: "Emphasized", as: "body" },
+					},
+				],
+				default: 0,
+			},
+		};
+
+		expect(liveVaryIds(tree)).toEqual(
+			new Set(["outer-density", "nested-variant", "nested-emphasis"]),
+		);
+		for (const delta of [
+			{ id: "outer-density", choice: 2, epoch: 1 },
+			{ id: "nested-variant", choice: 1, epoch: 1 },
+			{ id: "nested-emphasis", choice: 3, epoch: 1 },
+		] satisfies readonly Delta[]) {
+			const result = applyDelta(envelopeFor(tree), delta);
+			expect(result.result).toBe("applied");
+			expect(result.envelope.choices[delta.id]).toBe(delta.choice);
+		}
+	});
+
+	it("applies choices against the same normalized Within range the renderer resolves", () => {
+		const tree: Node = {
+			kind: "within",
+			id: "reversed-range",
+			dimension: "density",
+			range: [2, 0],
+			default: 1,
+			target: { kind: "text", value: "Still bounded" },
+		};
+		expect(
+			applyDelta(envelopeFor(tree), { id: "reversed-range", choice: 0, epoch: 1 }).result,
+		).toBe("applied");
+		expect(
+			applyDelta(envelopeFor(tree), { id: "reversed-range", choice: 3, epoch: 1 }).result,
+		).toBe("out-of-range");
+	});
+
 	it("liveVaryIds sees Vary/Within inside CompoundRef slot fills and args (the renderer honors them after expansion)", () => {
 		const tree: Node = {
 			kind: "stack",
@@ -771,6 +974,15 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 							dimension: "density",
 							range: [0, 2],
 							default: 1,
+							target: {
+								kind: "vary",
+								id: "arg-target-vary",
+								options: [
+									{ kind: "text", value: "a", as: "body" },
+									{ kind: "text", value: "b", as: "body" },
+								],
+								default: 0,
+							},
 						},
 					},
 					slots: {
@@ -793,6 +1005,7 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 		const live = liveVaryIds(tree);
 		expect(live.has("slot-vary")).toBe(true);
 		expect(live.has("arg-within")).toBe(true);
+		expect(live.has("arg-target-vary")).toBe(true);
 
 		const applied = applyDelta(envelopeFor(tree), { id: "slot-vary", choice: 1, epoch: 1 });
 		expect(applied.result).toBe("applied");

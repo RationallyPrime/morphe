@@ -10,6 +10,11 @@ from .dialects import (
     dialect_constraint,
     validate_node_for_dialect,
 )
+from .labels import (
+    VISIBLE_LABEL_PATTERN,
+    has_visible_label_text,
+    normalize_visible_label_text,
+)
 from .masks import dialect_mask_document, load_dialect_mask, load_mask_manifest
 from .models import (
     NODE_ADAPTER,
@@ -64,6 +69,7 @@ __all__ = [
     "NODE_ADAPTER",
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",
+    "VISIBLE_LABEL_PATTERN",
     "Badge",
     "Button",
     "Cluster",
@@ -110,8 +116,10 @@ __all__ = [
     "Within",
     "dialect_constraint",
     "dialect_mask_document",
+    "has_visible_label_text",
     "load_dialect_mask",
     "load_mask_manifest",
+    "normalize_visible_label_text",
     "validate_node",
     "validate_node_for_dialect",
 ]

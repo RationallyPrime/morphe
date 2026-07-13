@@ -180,7 +180,42 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function structuralNodeChildren(node: Record<string, unknown>): readonly unknown[] {
+interface StructuralNodeChild {
+	readonly node: unknown;
+	readonly path: ValidationPath;
+}
+
+function indexedStructuralChildren(
+	values: unknown,
+	path: ValidationPath,
+): readonly StructuralNodeChild[] {
+	if (!Array.isArray(values)) return [];
+	return values.map((node, index) => ({ node, path: [...path, index] }));
+}
+
+function compoundStructuralChildren(node: Record<string, unknown>): readonly StructuralNodeChild[] {
+	const children: StructuralNodeChild[] = [];
+	if (isRecord(node.args)) {
+		for (const [name, value] of Object.entries(node.args)) {
+			if (isRecord(value)) children.push({ node: value, path: ["args", name] });
+			if (Array.isArray(value)) {
+				children.push(
+					...indexedStructuralChildren(value, ["args", name]).filter((child) =>
+						isRecord(child.node),
+					),
+				);
+			}
+		}
+	}
+	if (isRecord(node.slots)) {
+		for (const [name, slot] of Object.entries(node.slots)) {
+			children.push(...indexedStructuralChildren(slot, ["slots", name]));
+		}
+	}
+	return children;
+}
+
+function structuralNodeChildren(node: Record<string, unknown>): readonly StructuralNodeChild[] {
 	switch (node.kind) {
 		case "stack":
 		case "grid":
@@ -189,15 +224,15 @@ function structuralNodeChildren(node: Record<string, unknown>): readonly unknown
 		case "dialog":
 		case "popover":
 		case "disclosure":
-			return Array.isArray(node.children) ? node.children : [];
+			return indexedStructuralChildren(node.children, ["children"]);
 		case "vary":
-			return Array.isArray(node.options) ? node.options : [];
+			return indexedStructuralChildren(node.options, ["options"]);
 		case "slot":
-			return Array.isArray(node.fallback) ? node.fallback : [];
-		case "compound": {
-			if (!isRecord(node.slots)) return [];
-			return Object.values(node.slots).flatMap((slot) => (Array.isArray(slot) ? slot : []));
-		}
+			return indexedStructuralChildren(node.fallback, ["fallback"]);
+		case "within":
+			return node.target === undefined ? [] : [{ node: node.target, path: ["target"] }];
+		case "compound":
+			return compoundStructuralChildren(node);
 		default:
 			return [];
 	}
@@ -223,7 +258,9 @@ function semanticNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValid
 		}
 		const children = structuralNodeChildren(current.node);
 		for (let index = children.length - 1; index >= 0; index -= 1) {
-			pending.push({ node: children[index], path: [...current.path, "children", index] });
+			const child = children[index];
+			if (!child) continue;
+			pending.push({ node: child.node, path: [...current.path, ...child.path] });
 		}
 	}
 	return null;

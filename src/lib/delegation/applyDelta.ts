@@ -1,4 +1,4 @@
-import { childrenOf } from "../compounds/factory.js";
+import { childrenOf, isNodeLike } from "../compounds/factory.js";
 import type { Node, VaryId } from "../grammar/types.js";
 import type { Delta, EmissionEnvelope } from "./envelope.js";
 
@@ -50,8 +50,6 @@ function choiceBoundsFor(tree: Node): ReadonlyMap<VaryId, readonly ChoiceBounds[
 	const push = (id: VaryId, next: ChoiceBounds): void => {
 		bounds.set(id, [...(bounds.get(id) ?? []), next]);
 	};
-	const isNode = (v: unknown): v is Node =>
-		v !== null && typeof v === "object" && "kind" in (v as object);
 	const walk = (node: Node): void => {
 		switch (node.kind) {
 			case "vary":
@@ -66,10 +64,19 @@ function choiceBoundsFor(tree: Node): ReadonlyMap<VaryId, readonly ChoiceBounds[
 			// out: applyDelta is pure and registry-free.
 			case "compound":
 				for (const fills of Object.values(node.slots ?? {})) {
-					for (const fill of fills) walk(fill);
+					if (!Array.isArray(fills)) continue;
+					for (const fill of fills) {
+						if (isNodeLike(fill)) walk(fill);
+					}
 				}
 				for (const arg of Object.values(node.args)) {
-					if (isNode(arg)) walk(arg);
+					if (isNodeLike(arg)) {
+						walk(arg);
+					} else if (Array.isArray(arg)) {
+						for (const item of arg) {
+							if (isNodeLike(item)) walk(item);
+						}
+					}
 				}
 				break;
 		}
@@ -80,5 +87,12 @@ function choiceBoundsFor(tree: Node): ReadonlyMap<VaryId, readonly ChoiceBounds[
 }
 
 function choiceFitsAll(bounds: readonly ChoiceBounds[], choice: number): boolean {
-	return Number.isInteger(choice) && bounds.every(([lo, hi]) => choice >= lo && choice <= hi);
+	return (
+		Number.isInteger(choice) &&
+		bounds.every(([first, second]) => {
+			const lo = Math.min(first, second);
+			const hi = Math.max(first, second);
+			return choice >= lo && choice <= hi;
+		})
+	);
 }

@@ -540,7 +540,7 @@ export function childrenOf(node: Node): readonly Node[] {
 		case "slot":
 			return node.fallback ?? [];
 		case "within":
-			return [];
+			return node.target === undefined ? [] : [node.target];
 		default:
 			return [];
 	}
@@ -559,6 +559,16 @@ function withChildren(node: Node, children: Node[]): Node {
 			return { ...node, children };
 		case "vary":
 			return { ...node, options: children };
+		case "within": {
+			if (node.target === undefined) return node;
+			const [target] = children;
+			if (children.length !== 1 || target === undefined) {
+				throw new Error(
+					`Within target expansion must produce exactly one node; received ${children.length}.`,
+				);
+			}
+			return { ...node, target };
+		}
 		default:
 			return node;
 	}
@@ -613,10 +623,15 @@ function resolveParamRef(ref: ParamRef, args: Readonly<Record<string, unknown>>)
 	return { kind: "text", value: value === undefined ? "" : String(value) };
 }
 
-function isNodeLike(value: unknown): value is Node {
+export function isNodeLike(value: unknown): value is Node {
 	if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
-	const kind = Reflect.get(value, "kind");
-	return typeof kind === "string" && KNOWN_KINDS.has(kind as NodeKind);
+	try {
+		const descriptor = Object.getOwnPropertyDescriptor(value, "kind");
+		if (!descriptor || !("value" in descriptor)) return false;
+		return typeof descriptor.value === "string" && KNOWN_KINDS.has(descriptor.value as NodeKind);
+	} catch {
+		return false;
+	}
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
