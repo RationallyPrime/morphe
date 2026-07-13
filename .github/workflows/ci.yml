@@ -78,7 +78,7 @@ jobs:
           # Content markers: an error page can still be a 200 shell; assert the
           # real SSR'd copy is present.
           curl -s http://localhost:4173/ | grep -q "A typed adaptive-interface workbench" || fail=1
-          curl -s http://localhost:4173/substrate | grep -q "The substrate under live pressure" || fail=1
+          curl -s http://localhost:4173/substrate | grep -q "Substrate under live pressure" || fail=1
           curl -s http://localhost:4173/preview/capability-page.demo/rev-001 | grep -q "Published as data" || fail=1
           curl -s http://localhost:4173/p/demo | grep -q "Published as data" || fail=1
           exit $fail
