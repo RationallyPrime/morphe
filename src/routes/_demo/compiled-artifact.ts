@@ -1,5 +1,5 @@
 import type { Node } from "$lib";
-import { GRAMMAR_VERSION, hasDialect } from "$lib";
+import { GRAMMAR_VERSION, hasDialect, validateNodeForDialect } from "$lib";
 import { formatArtifactValidationIssue, validateNodeDocument } from "$lib/artifacts";
 
 export interface LocalCompiledTree {
@@ -43,6 +43,16 @@ export function parseLocalCompiledTree(
 		return {
 			ok: false,
 			reason: issue ? formatArtifactValidationIssue(issue) : "compiled tree is invalid",
+		};
+	}
+	const dialectValidation = validateNodeForDialect(tree.value, dialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (!dialectValidation.ok) {
+		return {
+			ok: false,
+			reason:
+				dialectValidation.issues[0]?.message ?? "compiled tree violates its dialect constraint",
 		};
 	}
 	return { ok: true, value: { tree: tree.value, dialectId } };

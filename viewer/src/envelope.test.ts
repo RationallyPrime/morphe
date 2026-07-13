@@ -68,6 +68,94 @@ describe("parseSurfaceEnvelope", () => {
 		});
 	});
 
+	it("rejects inherited object properties as dialect hints", () => {
+		expect(parseSurfaceEnvelope({ ...validBody, dialect_hint: "toString" })).toEqual({
+			ok: false,
+			reason: "unknown dialect_hint",
+		});
+	});
+
+	it("rejects a tree outside its declared dialect grammar", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: { kind: "compound", name: "consumer-private-card", args: {} },
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'compound "consumer-private-card" is not permitted by dialect "clinical"',
+		});
+	});
+
+	it("fully validates node-valued compound arguments at dialect ingress", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "text" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("rejects malformed recursive compound args without throwing", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "clinical",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "frame" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("fully validates known compound arguments under an unrestricted dialect", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			dialect_hint: "gallery",
+			artifact: {
+				...validBody.artifact,
+				tree: {
+					kind: "compound",
+					name: "SignalCard",
+					args: {
+						kicker: { kind: "text" },
+						title: { kind: "text", value: "Valid title" },
+					},
+				},
+			},
+		});
+		expect(result).toEqual({
+			ok: false,
+			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
 	it("rejects a lifted grammar stamp that diverges from the artifact", () => {
 		const drifted = {
 			...validBody,

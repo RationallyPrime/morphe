@@ -6,8 +6,12 @@
  */
 
 import type { Node } from "$lib";
-import { hasDialect } from "$lib";
-import { formatArtifactValidationIssue, validateSurfaceArtifact } from "$lib/artifacts";
+import { hasDialect, validateNodeForDialect } from "$lib";
+import {
+	formatArtifactValidationIssue,
+	validateNodeDocument,
+	validateSurfaceArtifact,
+} from "$lib/artifacts";
 
 export const MAX_SURFACE_ENVELOPE_BYTES = 2 * 1024 * 1024;
 
@@ -72,6 +76,16 @@ export function parseSurfaceEnvelope(
 			reason: firstIssue
 				? formatArtifactValidationIssue(firstIssue)
 				: "artifact failed generated-schema validation",
+		};
+	}
+	const dialectValidation = validateNodeForDialect(artifact.value.tree, dialectHint, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (!dialectValidation.ok) {
+		const issue = dialectValidation.issues[0];
+		return {
+			ok: false,
+			reason: issue?.message ?? "artifact tree violates its dialect constraint",
 		};
 	}
 
