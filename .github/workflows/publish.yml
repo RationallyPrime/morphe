@@ -9,8 +9,14 @@ on:
     paths:
       - "package.json"
       - "bun.lock"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "Justfile"
+      - "schema/**"
+      - "py/morphe_grammar/**"
       - "src/lib/**"
       - "scripts/pack-verify.ts"
+      - "scripts/verify-python-package.py"
       - ".github/workflows/publish.yml"
 
 permissions:

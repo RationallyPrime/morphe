@@ -17,6 +17,10 @@ name: CI
 
 on:
   workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -148,4 +152,8 @@ jobs:
       - name: Schema artifacts are byte-stable
         run: |
           uv run python -m morphe_grammar.artifacts --check
+          uv run python -m morphe_surface.artifacts --check
           uv run python -m morphe_cms.schema --check
+
+      - name: Python package carries installed decoder masks
+        run: uv run python scripts/verify-python-package.py
