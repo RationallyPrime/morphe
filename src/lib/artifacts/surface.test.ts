@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { fromJSONSchema } from "zod";
 import { validateNodeDocument, validateSurfaceArtifact } from "./surface.js";
+import { SURFACE_ARTIFACT_JSON_SCHEMA } from "./surface-schema.generated.js";
 
 const validArtifact = {
 	artifact_version: "1.0.0",
@@ -33,6 +35,20 @@ describe("validateSurfaceArtifact", () => {
 
 	it("preserves the Pydantic button accessible-name invariant", () => {
 		expect(validateSurfaceArtifact({ ...validArtifact, tree: { kind: "button" } }).ok).toBe(false);
+	});
+
+	it("button invariant is walk-enforced: zod drops the generated top-level anyOf", () => {
+		// Pins the zod `fromJSONSchema` gap that makes semanticNodeIssue load-bearing:
+		// the schema alone ACCEPTS a bare button (the accessible-name anyOf is silently
+		// dropped), while the composite gate rejects it. If zod ever honors the anyOf,
+		// this test fails — revisit whether the walk is still the sole enforcer.
+		const schemaAlone = fromJSONSchema({
+			$schema: SURFACE_ARTIFACT_JSON_SCHEMA.$schema,
+			$ref: "#/$defs/Node",
+			$defs: SURFACE_ARTIFACT_JSON_SCHEMA.$defs,
+		} as Parameters<typeof fromJSONSchema>[0]);
+		expect(schemaAlone.safeParse({ kind: "button" }).success).toBe(true);
+		expect(validateNodeDocument({ kind: "button" }).ok).toBe(false);
 	});
 
 	it("rejects producer metadata drift", () => {

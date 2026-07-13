@@ -6,7 +6,7 @@
  */
 
 import type { Node } from "$lib";
-import { hasDialect, validateNodeForDialect } from "$lib";
+import { getDialect, validateNodeForDialect } from "$lib";
 import {
 	formatArtifactValidationIssue,
 	validateNodeDocument,
@@ -26,7 +26,7 @@ export interface SurfaceEnvelope {
 
 export type EnvelopeResult =
 	| { readonly ok: true; readonly envelope: SurfaceEnvelope }
-	| { readonly ok: false; readonly reason: string };
+	| { readonly ok: false; readonly reason: string; readonly rawGrammarVersion?: string };
 
 export interface EnvelopeParseOptions {
 	readonly expectedArtifactId?: string;
@@ -39,6 +39,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function stringField(source: Record<string, unknown>, key: string): string | null {
 	const value = source[key];
 	return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function rawGrammarVersionOf(body: Record<string, unknown>): string | undefined {
+	const lifted = stringField(body, "grammar_version");
+	if (lifted !== null) return lifted;
+	if (isRecord(body.artifact)) {
+		const nested = stringField(body.artifact, "grammar_version");
+		if (nested !== null) return nested;
+	}
+	return undefined;
 }
 
 function mismatch(
@@ -64,9 +74,13 @@ export function parseSurfaceEnvelope(
 	if (options.expectedArtifactId && artifactId !== options.expectedArtifactId) {
 		return { ok: false, reason: "artifact_id does not match the requested artifact" };
 	}
+	// An unknown dialect name is NOT rejected here: dialect is soft presentation
+	// metadata, not a trust property — the tree is fully validated regardless, and
+	// render-time getDialect is total (unknown names fall back to the default
+	// dialect). Hard-rejecting would brick older viewers on artifacts that merely
+	// name a newer dialect, since dialect additions do not bump GRAMMAR_VERSION.
 	const dialectHint = stringField(body, "dialect_hint");
 	if (dialectHint === null) return { ok: false, reason: "missing dialect_hint" };
-	if (!hasDialect(dialectHint)) return { ok: false, reason: "unknown dialect_hint" };
 
 	const artifact = validateSurfaceArtifact(body.artifact);
 	if (!artifact.ok) {
@@ -76,9 +90,18 @@ export function parseSurfaceEnvelope(
 			reason: firstIssue
 				? formatArtifactValidationIssue(firstIssue)
 				: "artifact failed generated-schema validation",
+			// Surfaced raw so the route can distinguish "compiled under a grammar this
+			// viewer does not support" (409) from a genuinely malformed artifact (502):
+			// a breaking-grammar tree fails the schema pass before any version check runs.
+			rawGrammarVersion: rawGrammarVersionOf(body),
 		};
 	}
-	const dialectValidation = validateNodeForDialect(artifact.value.tree, dialectHint, {
+	// Mask enforcement follows what will actually render: getDialect is total, so an
+	// unknown hint resolves to the default dialect and the tree is validated against
+	// that dialect's compound policy. A tree violating a KNOWN declared dialect's
+	// policy still fails closed (the G|D emission contract).
+	const effectiveDialectId = getDialect(dialectHint).id;
+	const dialectValidation = validateNodeForDialect(artifact.value.tree, effectiveDialectId, {
 		validateNodeValue: (value) => validateNodeDocument(value).ok,
 	});
 	if (!dialectValidation.ok) {
