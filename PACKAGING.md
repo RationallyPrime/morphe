@@ -3,8 +3,8 @@
 Morphe publishes the reusable adaptive-UI substrate as the public npm package
 `@rationallyprime/morphe` (MIT, registry.npmjs.org). This repository owns the package source,
 local CMS/tooling, adaptive sidecar contract, and a neutral development
-playground. Consumer applications, including the Sókrates website, import the
-package-facing seams from their own repositories.
+playground. Consumer applications import the package-facing seams from their own
+repositories.
 
 ## Boundary
 

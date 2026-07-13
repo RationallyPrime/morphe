@@ -1,24 +1,29 @@
 # Reconstruction Plan — aligning the code with the vision
 
 > Status: adopted 2026-06-09. Owner: contract owner (Hákon).
-> The vision is `VISION.md` (v0.6); the shipped state is `VISION.md` §15 +
+> The vision is `VISION.md` (v0.7); the shipped state is `VISION.md` §15 +
 > `STATUS.md`. This plan closes the gaps between them, in an order that keeps
-> the site shipping green at every step. Sibling plan: `MIGRATION.md` (the
-> monorepo landing — R3 here feeds it).
+> the package and both hosts shipping green at every step.
 
-> **Status update:** R0, R1, and R2 exit criteria are met — verified in code
-> (see per-item notes below). Consistent with `CONTRACT.md` §12: no known R0
-> substrate-integrity gaps remain. R4.1 also shipped. R3.2/R3.3/R3.4 (the
-> monorepo landing) remain genuinely open. R4.2 is superseded — see its entry.
+> **Status update:** R0 and R1 exit criteria are met. R2's discrete `Vary`
+> path and epoch validation have shipped, but the phase remains partial because
+> `Within` has no render-owning target and there is no production mid loop.
+> Consistent with `CONTRACT.md` §12: no known R0
+> substrate-integrity gaps remain. The Pydantic source, generated TypeScript,
+> schema parity gate, public package, and stripped viewer have shipped. The old
+> monorepo landing is retired: Morphe remains an independent package while
+> serving as Projection M of Eidos. True dialect-restricted decoding and the
+> adaptive circuit remain open. R4.2 is superseded — see its entry.
 
 ## Principles
 
-1. **The site never breaks.** Every workstream lands check-clean, tests-green,
+1. **The package and hosts never break.** Every workstream lands check-clean, tests-green,
    build-passing, browser-verified. Corollary 1 (monotone degradation) is the
    safety argument: every phase below is additive structure the lower strata
    don't depend on.
 2. **Grammar changes are contract changes.** Anything touching
-   `grammar/types.ts` is owner-gated, lands with its CONTRACT.md §3 update, and
+   `py/morphe_grammar/models.py` is owner-gated, regenerates every TypeScript/JSON
+   Schema artifact, lands with its CONTRACT.md §3 update, and
    preserves the grammar fixed point (new fields optional + defaulted; every
    pre-existing authored tree stays valid and renders identically).
 3. **The lemmas are the test plan.** No workstream is done without its property
@@ -81,7 +86,7 @@ The order matters: store before events, events before digest.
 - **R1.2 (M, ✔ shipped) Event tiers.** The typed event taxonomy: tier-1 events flow into
   the store's recent-event window; a tier-2 event type (`submit`, task
   transition, "this view isn't working") that surfaces as a typed callback at
-  the `MorpheRoot` boundary. The site's composer/contact forms stay native —
+  the `MorpheRoot` boundary. Consumer-owned forms and host controls stay native —
   this wires the *Morphe-tree* side only.
 - **R1.3 (M, ✔ shipped) ContextDigest + replay harness.** The digest type (tier-1
   snapshot + recent-event window); a recorder; snapshot tests replaying
@@ -116,69 +121,52 @@ Everything here is pure TS — no model required; A4 masking comes with R3.
   possible, at validation otherwise. Adversarial fuzz: arbitrary deltas against
   arbitrary envelopes never produce an invalid tree (Lemma 6's proof
   obligation).
-- **R2.3 (S, ✔ shipped) Renderer: live choice.** `Node.svelte` renders `Vary` from the
+- **R2.3 (S, partial) Renderer: live choice.** `Node.svelte` renders `Vary` from the
   envelope's current choice map instead of bare `default` (falling back to
   `default` — Corollary 1). The mid-loop *interface* (something that proposes
   deltas) is a DI seam; its first implementation can be a trivial heuristic to
-  prove the loop.
+  prove the loop. The discrete path is shipped; continuous `Within` values still
+  have no render-owning target.
 
-**Exit:** Lemma 6 discharged as property tests; the mid loop is a plug-in
-surface waiting for a model, exactly as A4 intends ("well-formedness from day
-one; tuning improves only quality").
-
----
-
-## R3 — The Eidos lift (one schema, three jobs — `MIGRATION.md`)
-
-> **Re-sequenced 2026-06-10 (founder + review):** the monorepo landing moves
-> FORWARD — after R2, before the codegen/mask jobs. Rationale: R2.1 is the
-> last planned grammar mutation, so migrating after R2 means the grammar
-> arrives complete and the mirror is lifted once; and R3.2/R3.3 are exactly
-> the steps that want Eidos adjacency (the Pydantic provenance, capability
-> cards, the monorepo's robust CI) — building their pipeline in the sandbox
-> and then moving it is double work. Morphe also becomes the control-plane
-> UI substrate there, so the landing is a when, not an if. The sandbox repo
-> carries a thin interim CI (`.github/workflows/ci.yml`) for the remaining
-> window.
-
-- **R3.1 (L, ✔ shipped in-sandbox) Projection M source.** Pydantic v2 models
-  mirroring `grammar/types.ts` exactly (the file was kept logic-free for
-  precisely this); JSON Schema emission with the discriminator layout TS
-  codegen needs. Lives under `py/` until the landing; must be re-synced when
-  R2.1 extends the grammar.
-- **R3.2 (L, was R3.4) Monorepo landing.** Per `MIGRATION.md`: `src/lib/`
-  and `py/morphe_grammar` move next to Hyle/Eidos; TS/bun jobs grafted onto
-  the monorepo CI. Layer guards enforce downward-only deps on arrival.
-  **Owner decision needed first (grill-sized):** does the Sókrates site move
-  too, or stay behind consuming Morphe as a published package (bun workspaces
-  don't span repos)?
-- **R3.3 (M, was R3.2) Codegen + parity gate** — in the monorepo. Generate TS
-  types from the schema; CI gate: generated output is *type-compatible* with
-  the current hand-written `types.ts` (compile both against the whole
-  codebase) before the swap; then `types.ts` becomes generated, and the
-  hand-written file retires.
-- **R3.4 (M, was R3.3) The third job** — in the monorepo. The
-  constrained-decoding mask artifact (full grammar + per-dialect G|D
-  restrictions); a pydantic-ai structured-output demo emitting a valid tree
-  end-to-end — the slow loop's first real breath.
-
-**Exit:** "One schema, three jobs" is real; A1 stops being hypothetical.
+**Exit:** Not yet met. The discrete choice law is covered by property tests. The
+phase closes only when `Within` has explicit target semantics and a deterministic
+mid-loop adapter proves the complete bounded-delegation path.
 
 ---
 
-## R4 — τ_frame on the site (independent; revenue-relevant; can run anytime)
+## R3 — Independent Projection M (one schema, three jobs)
 
-- **R4.1 (M, ✔ shipped) Attribution → dialect.** Read `?cohort=` / ValueTrack-style
-  params (campaign/adgroup, geo, device — deterministic, consent-clean) in
-  `+layout.svelte` and set `activeDialect` on arrival; precedence over the
-  persisted choice, never over an explicit toggle. The dialect mechanism needs
-  zero changes — this is pure wiring at the τ_frame seam. Implemented as
-  `src/lib/dialects/arrival.ts` (`resolveArrivalDialect`); cohort→dialect
-  mapping itself is left to consumer apps.
-- **R4.2 (superseded) Per-cohort copy.** Branch `$site/present.ts` copy per
-  cohort. **Superseded**: its target, `src/app/site/present.ts`, moved to the
-  `sokrates-website` repo per ADR-0008/ADR-0012 — this workstream no longer
-  applies in this repo.
+> **Topology settled 2026-07-13:** Morphe is an independent, versioned package
+> and Projection M of Eidos. These statements answer different questions.
+> Package consumers depend on Morphe's published seams; Morphe does not move
+> into another repository or import consumer internals. The generated
+> schema is the integration boundary.
+
+- **R3.1 (L, ✔ shipped) Projection M source.** Pydantic v2 models in
+  `py/morphe_grammar/models.py` are authoritative and emit the discriminated
+  JSON Schema used by downstream compilers and validators.
+- **R3.2 (S, ✔ settled) Independent distribution boundary.** Public npm,
+  deliberately exported JSON Schemas, a separately versioned Python distribution,
+  and a stripped deployment viewer are the stable topology. Consumer repos pin
+  compatible releases; no source-tree or monorepo coupling is permitted.
+- **R3.3 (M, ✔ shipped) Codegen + parity gate.** `src/lib/grammar/types.ts` is
+  generated from Pydantic and `just schema-check` rejects drift.
+- **R3.4 (M, open) The third job.** Generate genuine per-dialect `G|D`
+  constrained-decoding artifacts, including promoted-compound restrictions,
+  and exercise one slow-loop producer through the installed package schemas.
+
+**Exit criterion:** "One schema, three jobs" becomes real and A1 stops being hypothetical.
+
+---
+
+## R4 — τ_frame at consumer boundaries
+
+- **R4.1 (M, ✔ shipped) Arrival → dialect.** `src/lib/dialects/arrival.ts`
+  resolves a valid explicit `?dialect=` value with persistence/default
+  precedence. Attribution, directory role, and account-persona mapping belong
+  in consumer hosts; they may select a dialect through the same boundary.
+- **R4.2 (retired) Consumer-specific copy.** Morphe owns structure and intent,
+  not application copy.
 
 ---
 
@@ -190,8 +178,9 @@ R0.1 R0.2 R0.3 R0.4 R0.5      (parallel, land first)
         R1.1 → R1.2 → R1.3
           └→ R1.4      └→ (R1.5 after R1.1)
                 R2.1 → R2.2 → R2.3
-                          └→ R3.1 → R3.2 → R3.3 → R3.4
-R4.1 (anytime)   R4.2 (blocked on founder)
+                          └→ R3.1 → R3.3
+                                  R3.2 (settled) → R3.4
+R4.1 (anytime)   R4.2 (retired)
 ```
 
 Tracking: Linear (`Krates-ehf` / Morphe, `KRA-###`) — one issue per workstream,

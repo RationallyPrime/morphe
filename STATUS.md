@@ -22,10 +22,10 @@ Package manager is **bun** (never npm/pnpm/yarn).
 
 ### Test breakdown (329 total, 21 files)
 
-`src/app/**` (compose/site/server) no longer exists — the sokrates-website
-decoupling (2026-06-23, `f0c76b4`) removed it wholesale; what remains is the
-substrate package, the neutral demo host, and the box viewer, each with its
-own test file(s):
+The former consumer application subtree no longer exists — the 2026-06-23
+decoupling (`f0c76b4`) removed it wholesale; what remains is the substrate
+package, the neutral demo host, and the stripped viewer, each with its own test
+file(s):
 
 - `src/lib/dialects/dialects.test.ts` — 107 (Lemma-4 fixed-point parity
   across all nine dialects + no-raw-color channel guard + compound-subset
@@ -46,9 +46,10 @@ own test file(s):
   in-repo seeded fuzzer, 200 cases/property, incl. BUDGET-CONSERVATION ×
   compound-wrapping commutation and the Lemma 6 bounded-delegation suite:
   adversarial deltas, epoch invalidation, liveVaryIds through CompoundRef
-  slot fills/args, Within resolution into algebra inputs).
-- `viewer/src/envelope.test.ts` — 20 (box-viewer artifact-id + surface-envelope
-  parsing/validation — the topos read-route contract).
+  slot fills/args, and `Within` typed-value resolution that is not yet applied
+  to a rendered target).
+- `viewer/src/envelope.test.ts` — 20 (stripped-viewer artifact-id + surface-envelope
+  parsing/validation — the artifact read-route contract).
 - `src/lib/dialects/arrival.test.ts` — 18 (τ_frame arrival attribution:
   `?dialect=` precedence + arrival sequence against the real store).
 - `src/routes/_playground/local-ai.test.ts` — 17 (local adaptive-draft
@@ -101,7 +102,7 @@ own test file(s):
   compound factory with its validation gate; nine dialects (`gallery` — the
   museum-paper light ground, **default** per ADR-0005 — `night`,
   `icelandic-archive` (the retired-as-default amber identity), `clinical`,
-  `reykjavik-registry`, `timaeus`, and the three register-expansion cohorts
+  `reykjavik-registry`, `timaeus`, and the three register-expansion dialects
   `ledger`, `estate`, `foundry`)
   pulled apart at the beacon and the ground, all passing the intent-keyset
   fixed-point tests and the data ⇄ CSS agreement suite,
@@ -123,9 +124,7 @@ own test file(s):
   pure/total `applyDelta` in `delegation/`, `MorpheRoot.choices?` as the only
   renderer contract change — epochs never reach the renderer), with the `py/`
   Pydantic mirror and committed schema re-synced to the now-complete grammar.
-- **The neutral demo host (this repo's own routes, proof surfaces only —
-  the Sókrates marketing site now lives in the separate `sokrates-website`
-  repo and imports Morphe as `@rationallyprime/morphe`):** `/` — the workbench
+- **The neutral demo host (this repo's own routes, proof surfaces only):** `/` — the workbench
   index linking the playground, CMS preview, and published-pointer proof;
   `/substrate` — the full-featured neutral playground: the nine-way dialect
   toggle over all shipped dialects, one authored demo tree, live `actions`,
@@ -142,7 +141,7 @@ own test file(s):
   returns a deterministic schema-valid fallback tree); τ_frame arrival
   attribution (`?dialect=` selects the dialect on landing — valid param >
   persisted choice, explicit toggle always wins afterward).
-- **The box viewer (`viewer/`, KRA-648 / MO-D3):** a second, stripped
+- **The stripped viewer (`viewer/`):** a second, stripped
   SvelteKit app sharing the same `$lib`, exactly one route
   (`/surfaces/[artifactId]`, SSR-fetches a compiled artifact from
   `MORPHE_ARTIFACT_BASE_URL/{id}`) plus `/healthz`; fail-closed
@@ -151,9 +150,8 @@ own test file(s):
   distroless image, `viewer/Dockerfile`, built from repo root).
 
 Package published to npmjs as the public `@rationallyprime/morphe` (tags
-`v0.3.2` / `py-v0.4.0` and others — see `git tag`). The neutral demo host can
-deploy to Vercel project `sokrates-spunagreind/morphe`; the Sókrates website
-deploys from the separate website repo/project, not from this repository.
+`v0.3.2` / `py-v0.4.0` and others — see `git tag`). Deployment ownership and
+private infrastructure details are intentionally outside this public snapshot.
 
 ---
 
@@ -175,8 +173,8 @@ Other standing notes:
 - Open-state `$effect`s (Dialog/Popover) are client-only; SSR emits CLOSED
   markup by design (no `window` on the server).
 - Fonts / Material Symbols are self-hosted (`src/app-fonts.css`, fontsource +
-  material-symbols packages) — the box viewer ships to air-gapped
-  appliances, so no CDN font links.
+  material-symbols packages) so the stripped viewer has no runtime font-network
+  dependency.
 
 ---
 

@@ -1,7 +1,6 @@
 /*
- * Demo-host typography, self-hosted (air-gap/on-prem forcing function —
- * MIGRATION.md "Self-host fonts"; the box viewer image must render with no
- * outbound network). Mirrors the weights the old Google CDN links carried:
+ * Demo-host typography, self-hosted so the stripped viewer image renders with
+ * no outbound network. Mirrors the weights the old Google CDN links carried:
  * Spectral 400–700 + 400/500 italic, Hanken Grotesk 400–700, Fragment Mono
  * 400 + italic, and the Material Symbols Outlined variable font that
  * `.material-symbols-outlined` (Icon primitive) depends on.
