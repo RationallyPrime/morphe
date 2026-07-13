@@ -83,9 +83,11 @@ not as vibes:
 
 The current tower also wires the reserved sockets that make adaptation
 stratified instead of ad hoc: `bind` paths flow through the client store,
-`Button.action` ids resolve at `MorpheRoot.actions`, and `Vary` choices flow
-through `MorpheRoot.choices` plus the Delta machinery. The renderer never sees
-epochs or handlers. The tree stays declarative.
+`Button.action` ids resolve at `MorpheRoot.actions`, and `Vary` / targeted
+`Within` choices flow through `MorpheRoot.choices` plus the Delta machinery.
+`Within` can adapt one owned subtree through typed density, budget-conserving
+emphasis, or native disclosure semantics. The renderer never sees epochs or
+handlers. The tree stays declarative.
 
 Nine dialects ship: `gallery` (default), `night`, `icelandic-archive`,
 `clinical`, `reykjavik-registry`, `timaeus`, `ledger`, `estate`, and `foundry`.

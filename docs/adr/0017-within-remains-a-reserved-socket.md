@@ -1,6 +1,6 @@
 # ADR-0017 — `Within` Remains a Reserved Socket
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0018
 - **Date:** 2026-07-13
 - **Supersedes:** ADR-0004's visible `Within` effect clauses and ADR-0014 D5/D9's
   context-free collapse claim

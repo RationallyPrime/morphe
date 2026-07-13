@@ -80,10 +80,10 @@ alongside the added mode.
   Continuous values flow through CSS custom properties; discrete decisions ride
   Svelte context. No drop shadows; depth is tonal surface layering. Functional
   color is never the only signal.
-- A value consumed in a component template is `$derived`; a one-time init
-  side-effect (e.g. `descend()` / `setContext`) reads props directly and carries
-  a `// svelte-ignore state_referenced_locally` because a server-driven tree is
-  immutable per `<Node>` instance.
+- A value consumed in a component template is `$derived`. `setContext` still runs
+  only during component initialization, but any context that can change in place
+  is installed as a getter-backed live view via `provideReactiveMorpheContext`;
+  do not freeze a reactive parent context into an init-time snapshot.
 
 ---
 
@@ -103,7 +103,7 @@ src/lib/
     slots.ts                  # component-facing slot helpers (slot(), SLOTS, toneIntent)
   context/
     algebra.ts                # MorpheContext + the four laws + transforms (pure)
-    Context.svelte.ts         # Svelte-context engine: descend / boundaryStyle etc.
+    Context.svelte.ts         # Svelte-context engine: live providers / boundaryStyle etc.
   compounds/factory.ts        # CompoundDef/Ref, registry, hygienic expansion, gate
   dialects/
     types.ts                  # Dialect type
@@ -314,8 +314,16 @@ VaryId  string (opaque, assignment-compatible branded id for variation points)
 Slot     { kind:"slot";      name:string; fallback?:Node[] }
 ParamRef { kind:"param-ref"; param:string }
 Vary     { kind:"vary";      id:VaryId; options:Node[]; default?:number; objective?:"salience"|"density"|"compactness" }
-Within   { kind:"within";    id:VaryId; dimension:"density"|"emphasis"|"collapse"; range:readonly [number,number]; default:number }
+Within   { kind:"within";    id:VaryId; dimension:"density"|"emphasis"|"collapse"; range:readonly [number,number]; default:number; target?:Node; summary?:string }
 ```
+
+`Within.target` is optional only for backward compatibility. Without it the node
+is inert. With it, the node owns exactly that subtree. A targeted collapse also
+requires a visibly non-blank `summary`, which becomes the native disclosure trigger;
+`summary` is invalid on the other dimensions. The Python validator, emitted JSON
+Schema, compiler normalizer, and renderer share one generated code-point
+predicate; a malformed direct-call tree with no visible label fails open instead
+of hiding its target behind an inaccessible control.
 
 ### Compound reference
 
@@ -332,7 +340,7 @@ Popover | Disclosure`.) `assertNever(x)` is the exhaustiveness helper for
 
 ## 4. The context engine API (Lemma 2)
 
-Record: `MorpheContext = { depth; density; scaleTier(0..4); emphasisBudget; surface }`.
+Record: `MorpheContext = { depth; density; scaleTier(0..4); emphasisBudget; surface; renderedEmphasis? }`.
 `ROOT_CONTEXT` is the default seed. The dialect's priors override it via
 `applyDialect`.
 
@@ -342,8 +350,10 @@ Record: `MorpheContext = { depth; density; scaleTier(0..4); emphasisBudget; surf
 |---|---|---|
 | `transform` | `(parent, role, {childCount?, claim?}) -> MorpheContext` | per-role child context; LOCALITY + MONOTONE-DEPTH |
 | `enterFrame` | `(parent, {surface?, density?, budget?}) -> MorpheContext` | the ONLY scale-tier reset |
+| `withDensity` | `(context, density) -> MorpheContext` | replace one targeted subtree's density input without structural descent |
 | `densityForCount` | `(parent, n) -> Density` | the ONLY sibling-count decision (STABILITY) |
 | `renormalizeBudget` | `(B, claims[]) -> RenderedEmphasis[]` | BUDGET-CONSERVATION: claims → rendered |
+| `renderedChildEmphasis` | `(B, children[], claimFor?) -> RenderedEmphasis[]` | normalize the claims a container's actual rendered children make |
 | `tierToTypeStep` | `(tier) -> "var(--mo-type-N)"` | scale tier → type CSS var |
 | `densityToSpaceStep` | `(density) -> "var(--mo-space-N)"` | density → space CSS var |
 
@@ -366,6 +376,7 @@ Constants: `THRESHOLDS = {densityCrowdAt:7, densityPackAt:13}`, `TOP_TIER_CAP = 
 ```ts
 useMorpheContext(): MorpheContext           // read; returns ROOT_CONTEXT if no provider
 provideMorpheContext(ctx): void             // setContext at init
+provideReactiveMorpheContext(get): void      // getter-backed live context at init
 descend(role, {childCount?, claim?}): MorpheContext       // compute child ctx + provide it
 descendFrame({surface?, density?, budget?}): MorpheContext // Frame reset variant
 boundaryVars(ctx): Record<string,string>    // continuous CSS vars for this boundary
@@ -375,7 +386,8 @@ boundaryStyle(ctx): string                  // same, as an inline style string
 **How a layout primitive uses it** (the locked stub pattern):
 
 ```svelte
-const child = descend(node.role, { childCount: node.children.length, claim: node.emphasis });
+const child = $derived(transform(ctx, node.role, { childCount: node.children.length }));
+provideReactiveMorpheContext(() => child);
 const childStyle = $derived(boundaryStyle(child));
 // ...
 <div style={childStyle}>{#each node.children as c (c)}<Node node={c} ctx={child} />{/each}</div>
@@ -563,10 +575,11 @@ expression, never a raw color.
 
 `render/Node.svelte` is the recursive total function. It: switches on `kind`;
 expands `CompoundRef` via the registry then recurses; renders `Vary` from the
-root-provided choice map, falling back to its authored default; resolves
-`Within` choices to their bounded typed value but, because the current node is a
-context-free leaf with no target subtree, renders no visible effect (ADR-0017);
-renders a bare `Slot`'s fallback; defensively renders a stray
+root-provided choice map, falling back to its authored default; applies a
+targeted `Within` choice to exactly its owned subtree (density as a local
+context input, emphasis as a claim normalized by the parent budget, collapse
+as a native labelled disclosure) while keeping targetless compatibility leaves
+inert (ADR-0018); renders a bare `Slot`'s fallback; defensively renders a stray
 `ParamRef`; and for every primitive kind looks up the component in
 `render/registry.ts` and hands it `{ node, ctx }`. Layout primitives own their
 own descent and recurse into `<Node>` with the child ctx. An unknown
@@ -660,7 +673,7 @@ as dead weight and proposing their removal. Each has a named owner-phase:
 |---|---|---|---|
 | Declarative actions | `Button.action` (an id, no live wire in the grammar) | wired at `MorpheRoot.actions`; the grammar emits intent, not logic | ✔ |
 | Binding paths | `Field/Select/Toggle/Range/Dialog/Popover .bind` (store-path strings) | wired to Lemma 5's client store: the tree carries `Binding(store_path)`, never live values | ✔ |
-| Variation points | `Vary` / `Within`, keyed by `VaryId`; `Vary.objective` | `Vary` is render-real; `Within` validates and resolves but awaits target semantics (ADR-0017) | `Vary` ✔ / `Within` partial |
+| Variation points | `Vary` / `Within`, keyed by `VaryId`; `Vary.objective` | both are render-real; `Within` owns one explicit target and preserves the emphasis budget (ADR-0018) | ✔ |
 | Dialect compound-gating | `Dialect.compounds[]` (render-gated via `restrictCompounds`) | wired to Lemma 4's compound dialect: a non-empty list restricts expansion; empty = unrestricted | ✔ |
 | Dialect personas | `Dialect.persona` | optional host-provided frame-selection metadata; Morphe does not infer it | 2 |
 

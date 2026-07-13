@@ -169,10 +169,11 @@ grammar -> dialect -> emitted tree -> live variation ids -> accepted choices
 `Vary` is operational: a host can provide choices, and epoch-checked deltas can update them before
 render. The authored default remains the total fallback.
 
-`Within` is not operationally complete. Its current leaf resolves a bounded number for density,
-emphasis, or collapse, but it owns no subtree and no rendered container consumes that result.
-Until a target/wrapper contract lands and is proven in the DOM, a `Within` node changes no visible
-layout. Do not build new surfaces that rely on it.
+`Within` owns at most one explicit target. Density changes that target's incoming algebra context;
+emphasis becomes the target's claim in its parent's bounded emphasis economy; collapse wraps the
+target in a native labelled disclosure. Choices remain numeric and bounded at the delegation
+boundary, then resolve into these typed substrate inputs rather than raw CSS. A targetless legacy
+`Within` renders nothing and never reaches across to a sibling.
 
 The adaptive sidecar and `/api/adaptive/decision` route are lab proofs. They demonstrate schema-
 valid output and deterministic fallback, not a production slow or mid loop.
@@ -219,7 +220,7 @@ must remain legible when all motion is removed.
 - color-only status and icon-only controls without accessible names;
 - consumer copy, assets, routes, or product strategy committed as Morphe doctrine;
 - direct source/storage calls from primitives, the renderer, or the stripped viewer;
-- claims that an empty socket (`Within`, tier-2 production, `G|D` masks) is a finished feature.
+- claims that a typed provider alone constitutes a finished tier-2 production circuit.
 
 ## 13. Verification
 

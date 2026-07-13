@@ -36,8 +36,9 @@
   was computed against. Valid only when its VaryId is live and its epoch
   current.
 - **Variation point** — a typed hole the slow loop authorizes the mid loop to
-  fill: `Vary` (discrete options) or `Within` (bounded movement along a named
-  dimension). The only places mid-loop authority exists.
+  fill: `Vary` (discrete options) or `Within` (bounded movement along one named
+  dimension over one explicit target). The only places mid-loop authority
+  exists. A targetless `Within` is a compatibility leaf and grants no authority.
 
 ## Host context
 
