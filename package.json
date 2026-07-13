@@ -40,6 +40,11 @@
 			"svelte": "./dist/components.js",
 			"default": "./dist/components.js"
 		},
+		"./artifacts": {
+			"types": "./dist/artifacts.d.ts",
+			"svelte": "./dist/artifacts.js",
+			"default": "./dist/artifacts.js"
+		},
 		"./tokens": {
 			"types": "./dist/tokens/index.d.ts",
 			"svelte": "./dist/tokens/index.js",
