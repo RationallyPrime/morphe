@@ -61,11 +61,22 @@ describe("parseSurfaceEnvelope", () => {
 		});
 	});
 
-	it("rejects an unknown dialect hint", () => {
-		expect(parseSurfaceEnvelope({ ...validBody, dialect_hint: "not-a-dialect" })).toEqual({
-			ok: false,
-			reason: "unknown dialect_hint",
+	it("accepts an unknown dialect hint as soft metadata (render falls back to default)", () => {
+		const result = parseSurfaceEnvelope({ ...validBody, dialect_hint: "not-a-dialect" });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.envelope.dialectHint).toBe("not-a-dialect");
+	});
+
+	it("surfaces the raw grammar stamp when a schema-invalid artifact names a foreign grammar", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			grammar_version: "9.9.9",
+			artifact: { grammar_version: "9.9.9", tree: { role: "page" } },
 		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
 	});
 
 	it("rejects a lifted grammar stamp that diverges from the artifact", () => {

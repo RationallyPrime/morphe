@@ -58,6 +58,18 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const parsed = await parseSurfaceResponse(response, { expectedArtifactId: params.artifactId });
 	if (!parsed.ok) {
+		// A breaking-grammar artifact fails the schema pass before any version check
+		// can run — surface the dedicated 409 naming both versions instead of a
+		// generic trust-gate 502 when the raw stamp says the grammar is foreign.
+		if (parsed.rawGrammarVersion && parsed.rawGrammarVersion !== GRAMMAR_VERSION) {
+			error(409, {
+				message: "This artifact was compiled under a grammar this viewer does not support.",
+				code: "grammar-mismatch",
+				artifactId: params.artifactId,
+				artifactVersion: parsed.rawGrammarVersion,
+				supportedVersion: GRAMMAR_VERSION,
+			});
+		}
 		error(502, {
 			message: `The artifact failed its trust gate: ${parsed.reason}.`,
 			code: "invalid-artifact",
