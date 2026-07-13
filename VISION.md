@@ -188,9 +188,10 @@ render remains total.
 This is closure under restriction. The same validation machinery that admits compounds also
 makes a narrower vocabulary safe.
 
-The shipped dialect registry currently proves intent, surface, and prior invariance. The
-compound-restriction mechanism exists, but all shipped allowlists are empty. True per-dialect
-`G|D` decoding therefore remains incomplete.
+The shipped dialect registry proves intent, surface, and prior invariance. It now also carries an
+explicit structural policy for every dialect: `clinical` permits the promoted `SignalCard`, while
+the other eight remain unrestricted for compatibility. Generated, integrity-stamped `G|D` masks
+make that same restriction available to structured producers and package consumers.
 
 ## 8. Lemma 5 — state purity
 
@@ -322,13 +323,14 @@ test. Shipped.
 
 ### Phase 1 — open vocabulary and state boundaries
 
-Compound lifecycle, store bindings, actions, event tiers, digest, replay seams. Mechanisms shipped;
-meaningful shipped compound restrictions and a live tier-2 producer remain incomplete.
+Compound lifecycle, store bindings, actions, event tiers, digest, replay seams, and the first
+meaningful shipped compound restriction. A live tier-2 producer remains incomplete.
 
 ### Phase 2 — constrained adaptation
 
 Epochs, variation ids, delta validation, per-dialect masks, slow and mid-loop adapters, objective
-strategies. Discrete `Vary` mechanics shipped; the rest is partial or future.
+strategies. Per-dialect masks, a schema-constrained slow-loop lab proof, and discrete `Vary`
+mechanics ship; the operational mid loop and objective policy remain partial or future.
 
 ### Phase 3 — learned quality
 
@@ -349,8 +351,8 @@ Legend: **shipped**, **partial**, **future**.
 | context algebra and property laws | shipped | `src/lib/context/` tests |
 | three token strata and fixed intent keyset | shipped | `src/lib/tokens/`, dialect parity tests |
 | nine intent/surface dialects | shipped | `src/lib/dialects/registry.ts` |
-| dialect compound restriction | partial | gate exists; shipped allowlists are empty |
-| true per-dialect `G|D` masks | future | full-schema artifact is not a restriction |
+| dialect compound restriction | shipped | generated policies; `clinical` permits `SignalCard` |
+| true per-dialect `G|D` masks | shipped | manifest + nine npm/Python package resources |
 | compound lifecycle and expansion gate | shipped | `src/lib/compounds/factory.ts` |
 | action map and tier-1 store binding | shipped | `MorpheRoot`, primitives, state tests |
 | tier-2 escalation | partial | provider/envelope exists; no producer |
@@ -358,9 +360,9 @@ Legend: **shipped**, **partial**, **future**.
 | `Within` visible behavior | partial | numeric resolution exists; target semantics do not |
 | schema/data surface compiler | shipped | `py/morphe_surface` |
 | local CMS compile/preview/publish tooling | shipped | `py/morphe_cms`, preview routes |
-| Pydantic-AI adaptive lab | partial | isolated sidecar/proxy proof |
+| Pydantic-AI adaptive lab | partial | installed-mask structured-output and retry proof; no production host path |
 | stripped viewer and grammar fail-closed gate | shipped | `viewer/` |
-| viewer runtime validation of untrusted trees | partial | shallow ingress check today |
+| viewer runtime validation of untrusted trees | shipped | generated artifact schema + dialect policy gate |
 | production slow loop | future | no operational host path in this package |
 | production mid-loop model | future | no deployed delegate in this package |
 
@@ -370,21 +372,16 @@ Legend: **shipped**, **partial**, **future**.
    emphasis, or collapse without context-free sibling magic.
 2. **Canonical adaptive wire.** Unify TypeScript digest/escalation and Python decision contracts
    from one generated source.
-3. **True dialect restriction.** Generate per-dialect masks and ship at least one meaningful
-   promoted compound vocabulary.
-4. **Compound completeness.** Strengthen parameter type/required-field validation and ensure live
-   variation discovery includes template-contained `Vary` nodes.
-5. **Artifact trust.** Validate fetched trees at viewer ingress, not only at compile time.
-6. **Objective policy.** Define a deterministic first strategy for `Vary.objective` before adding
+3. **Variation discovery.** Ensure live variation discovery includes template-contained `Vary`
+   nodes after compound expansion.
+4. **Objective policy.** Define a deterministic first strategy for `Vary.objective` before adding
    a learned delegate.
-7. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
+5. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
    are represented.
-8. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
+6. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
    durable automatic change.
-9. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
+7. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
    state commits, delta rerendering, and the stripped viewer boundary.
-10. **Automatic gates.** Run the complete gate on ordinary pull requests and pushes, not only
-    manual dispatch or package-specific paths.
 
 The immediate direction is depth, not breadth: complete one deterministic artifact-to-viewer and
 interaction circuit through the existing public seams before adding primitives, dialects, or

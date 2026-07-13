@@ -12,8 +12,9 @@
 > substrate-integrity gaps remain. The Pydantic source, generated TypeScript,
 > schema parity gate, public package, and stripped viewer have shipped. The old
 > monorepo landing is retired: Morphe remains an independent package while
-> serving as Projection M of Eidos. True dialect-restricted decoding and the
-> adaptive circuit remain open. R4.2 is superseded — see its entry.
+> serving as Projection M of Eidos. True dialect-restricted decoding has shipped;
+> the adaptive circuit remains partial at `Within` and the operational mid loop.
+> R4.2 is superseded — see its entry.
 
 ## Principles
 
@@ -151,9 +152,10 @@ mid-loop adapter proves the complete bounded-delegation path.
   compatible releases; no source-tree or monorepo coupling is permitted.
 - **R3.3 (M, ✔ shipped) Codegen + parity gate.** `src/lib/grammar/types.ts` is
   generated from Pydantic and `just schema-check` rejects drift.
-- **R3.4 (M, open) The third job.** Generate genuine per-dialect `G|D`
-  constrained-decoding artifacts, including promoted-compound restrictions,
-  and exercise one slow-loop producer through the installed package schemas.
+- **R3.4 (M, ✔ shipped) The third job.** The Python-owned catalog generates one
+  integrity-stamped `G|D` mask per dialect into both distributions; `clinical`
+  restricts emission to `SignalCard`, and the Pydantic-AI lab injects the exact
+  installed per-request mask with validator retry and fail-closed tests.
 
 **Exit criterion:** "One schema, three jobs" becomes real and A1 stops being hypothetical.
 
