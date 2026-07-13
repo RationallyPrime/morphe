@@ -100,7 +100,7 @@ jobs:
           done
           fail=0
           # /healthz reports the supported grammar_version (deploy-to-box asserts this).
-          curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.1.0"' || fail=1
+          curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.2.0"' || fail=1
           # A real artifact SSRs (200 + the SSR'd copy, not just a 200 shell).
           code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42")
           echo "/surfaces/run-42 -> $code"
@@ -117,7 +117,7 @@ jobs:
           drift=$(curl -s "http://localhost:4174/surfaces/surface:capability-page:run-drift")
           echo "$drift" | grep -q "Unsupported grammar version" || fail=1
           echo "$drift" | grep -q "9.9.9" || fail=1
-          echo "$drift" | grep -q "0.1.0" || fail=1
+          echo "$drift" | grep -q "0.2.0" || fail=1
           # Unknown artifact is a 404, and the playground's adaptive surface is ABSENT.
           code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:missing:one")
           echo "/surfaces/missing -> $code"

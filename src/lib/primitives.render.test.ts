@@ -29,6 +29,7 @@ import { clinical } from "./dialects/clinical.js";
 import { icelandicArchive } from "./dialects/icelandic-archive.js";
 import type { Dialect } from "./dialects/types.js";
 import type { Node } from "./grammar/types.js";
+import { GRAMMAR_VERSION } from "./grammar/version.js";
 import MorpheRoot from "./render/MorpheRoot.svelte";
 import { PRIMITIVES } from "./render/registry.js";
 import { createInMemoryMorpheStore, type MorpheStore } from "./state/store.svelte.js";
@@ -165,7 +166,7 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		registry.register({
 			name: "invalid-call-probe",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: {
 				type: "object",
 				properties: { content: { type: "node", required: true } },
@@ -221,7 +222,7 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		registry.register({
 			name: "render-gating-probe",
 			version: "1.0.0",
-			grammarVersion: "0.1.0",
+			grammarVersion: GRAMMAR_VERSION,
 			params: { type: "object", properties: {} },
 			template: {
 				kind: "stack",

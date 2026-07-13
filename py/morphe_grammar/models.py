@@ -14,6 +14,8 @@ from pydantic import (
 )
 from pydantic import Field as PydanticField
 
+from .labels import VISIBLE_LABEL_PATTERN
+
 type NumberValue = StrictInt | StrictFloat
 type JsonValue = None | bool | NumberValue | str | list[JsonValue] | dict[str, JsonValue]
 type ParamValue = JsonValue | Node
@@ -382,11 +384,100 @@ class Vary(GrammarModel):
 
 
 class Within(GrammarModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        json_schema_extra={
+            # Repeat the exact allowed object shapes instead of using if/then: the package's
+            # generated-schema runtime supports unions but deliberately rejects conditionals.
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {},
+                        "id": {},
+                        "dimension": {},
+                        "range": {},
+                        "default": {},
+                    },
+                    "required": ["kind", "id", "dimension", "range", "default"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {},
+                        "id": {},
+                        "dimension": {"const": "density"},
+                        "range": {},
+                        "default": {},
+                        "target": {"type": "object"},
+                    },
+                    "required": ["kind", "id", "dimension", "range", "default", "target"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {},
+                        "id": {},
+                        "dimension": {"const": "emphasis"},
+                        "range": {},
+                        "default": {},
+                        "target": {"type": "object"},
+                    },
+                    "required": ["kind", "id", "dimension", "range", "default", "target"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {},
+                        "id": {},
+                        "dimension": {"const": "collapse"},
+                        "range": {},
+                        "default": {},
+                        "target": {"type": "object"},
+                        "summary": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": VISIBLE_LABEL_PATTERN,
+                        },
+                    },
+                    "required": [
+                        "kind",
+                        "id",
+                        "dimension",
+                        "range",
+                        "default",
+                        "target",
+                        "summary",
+                    ],
+                    "additionalProperties": False,
+                },
+            ]
+        }
+    )
+
     kind: Literal["within"]
     id: StrictStr
     dimension: Literal["density", "emphasis", "collapse"]
     range: tuple[NumberValue, NumberValue]
     default: NumberValue
+    target: Node | None = None
+    summary: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+
+    @model_validator(mode="after")
+    def require_accessible_collapse_target(self) -> Self:
+        if self.target is not None and self.dimension == "collapse" and self.summary is None:
+            msg = "targeted collapse within requires a visibly non-blank summary"
+            raise ValueError(msg)
+        if self.summary is not None and (self.target is None or self.dimension != "collapse"):
+            msg = "within summary is only valid for a targeted collapse"
+            raise ValueError(msg)
+        return self
 
 
 class CompoundRef(GrammarModel):

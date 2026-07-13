@@ -327,13 +327,32 @@ export interface Vary {
 	readonly objective?: "salience" | "density" | "compactness";
 }
 
-export interface Within {
+interface WithinBase {
 	readonly kind: "within";
 	readonly id: string;
-	readonly dimension: "density" | "emphasis" | "collapse";
 	readonly range: readonly [NumberValue, NumberValue];
 	readonly default: NumberValue;
 }
+
+interface TargetlessWithin extends WithinBase {
+	readonly dimension: "density" | "emphasis" | "collapse";
+	readonly target?: undefined;
+	readonly summary?: undefined;
+}
+
+interface TargetedContextWithin extends WithinBase {
+	readonly dimension: "density" | "emphasis";
+	readonly target: Node;
+	readonly summary?: undefined;
+}
+
+interface TargetedCollapseWithin extends WithinBase {
+	readonly dimension: "collapse";
+	readonly target: Node;
+	readonly summary: string;
+}
+
+export type Within = TargetlessWithin | TargetedContextWithin | TargetedCollapseWithin;
 
 export interface CompoundRef {
 	readonly kind: "compound";

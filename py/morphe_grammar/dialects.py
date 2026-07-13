@@ -27,6 +27,7 @@ from .models import (
     Slot,
     Stack,
     Vary,
+    Within,
     validate_node,
 )
 
@@ -277,6 +278,8 @@ def _walk_node(node: Node, constraint: DialectCompoundConstraint, path: str) -> 
         _walk_children(node.children, constraint, f"{path}.children")
     elif isinstance(node, Vary):
         _walk_children(node.options, constraint, f"{path}.options")
+    elif isinstance(node, Within) and node.target is not None:
+        _walk_node(node.target, constraint, f"{path}.target")
     elif isinstance(node, Slot) and node.fallback is not None:
         _walk_children(node.fallback, constraint, f"{path}.fallback")
 

@@ -1627,6 +1627,104 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
     },
     "Within": {
       "additionalProperties": false,
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "default": {},
+            "dimension": {},
+            "id": {},
+            "kind": {},
+            "range": {}
+          },
+          "required": [
+            "kind",
+            "id",
+            "dimension",
+            "range",
+            "default"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "default": {},
+            "dimension": {
+              "const": "density"
+            },
+            "id": {},
+            "kind": {},
+            "range": {},
+            "target": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "dimension",
+            "range",
+            "default",
+            "target"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "default": {},
+            "dimension": {
+              "const": "emphasis"
+            },
+            "id": {},
+            "kind": {},
+            "range": {},
+            "target": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "dimension",
+            "range",
+            "default",
+            "target"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "default": {},
+            "dimension": {
+              "const": "collapse"
+            },
+            "id": {},
+            "kind": {},
+            "range": {},
+            "summary": {
+              "minLength": 1,
+              "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+              "type": "string"
+            },
+            "target": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "dimension",
+            "range",
+            "default",
+            "target",
+            "summary"
+          ],
+          "type": "object"
+        }
+      ],
       "properties": {
         "default": {
           "$ref": "#/$defs/NumberValue"
@@ -1662,6 +1760,15 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           ],
           "title": "Range",
           "type": "array"
+        },
+        "summary": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Summary",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/Node"
         }
       },
       "required": [

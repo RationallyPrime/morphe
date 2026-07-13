@@ -28,28 +28,36 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
-	import { boundaryStyle, descendFrame } from "../../context/Context.svelte.js";
+	import { emphasisToStrokeStep, enterFrame } from "../../context/algebra.js";
+	import {
+		boundaryStyle,
+		provideReactiveMorpheContext,
+	} from "../../context/Context.svelte.js";
 	import type { Frame } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Frame> = $props();
 
-	// Frame is the one context RESET. Computed once at init (setContext
-	// requirement); the tree is immutable per <Node> instance. Descend from the
-	// explicit `ctx` PROP (the prop chain is the real carrier — correct on SSR and
-	// the first client render, where MorpheRoot's seeded context is not yet visible
-	// to a child captured at init), seeding the context channel as a fallback.
-	// svelte-ignore state_referenced_locally
-	const child = descendFrame(
-		{
-			surface: node.surface,
-			density: node.density,
-			budget: node.budget,
-		},
-		ctx,
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+
+	// Frame remains the one context reset, but its result must follow a reactive
+	// parent ctx (for example a density-adapting Within) without rerunning
+	// setContext after init. The live fallback provider exposes the derived record.
+	const child = $derived(
+		enterFrame(
+			ctx,
+			{
+				surface: node.surface,
+				density: node.density,
+				budget: node.budget,
+			},
+		),
 	);
+	provideReactiveMorpheContext(() => child);
 
 	const surface = $derived(node.surface ?? "base");
 	const childStyle = $derived(boundaryStyle(child));
@@ -57,7 +65,7 @@
 	// A Frame RE-GRANTS the budget B, so it renormalizes its own children against
 	// that fresh budget (Budget-Conservation, WIRED) and grants each its rendered
 	// emphasis below — the reset point where a new emphasis economy begins.
-	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
+	const grants = $derived(resolveChildEmphasisGrants(child.emphasisBudget, node.children, choices));
 </script>
 
 <section

@@ -54,7 +54,7 @@ def _definitions(document: JsonSchema) -> dict[str, object]:
 def test_signal_card_is_a_neutral_promoted_compound() -> None:
     assert tuple(PROMOTED_COMPOUNDS) == ("SignalCard",)
     assert SIGNAL_CARD.lifecycle == "promoted"
-    assert SIGNAL_CARD.grammar_version == "0.1.0"
+    assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
     assert set(SIGNAL_CARD.params.properties) == {"kicker", "title", "measure"}
     assert SIGNAL_CARD.params.properties["kicker"].required is True
     assert SIGNAL_CARD.params.properties["title"].required is True
@@ -177,6 +177,20 @@ def test_dialect_validator_recurses_through_node_args_and_slot_fills() -> None:
             validate_node_for_dialect(node, "clinical")
 
 
+def test_dialect_validator_recurses_through_targeted_within() -> None:
+    node = {
+        "kind": "within",
+        "id": "restricted-target",
+        "dimension": "density",
+        "range": [0, 2],
+        "default": 1,
+        "target": {"kind": "compound", "name": "ConsumerOwned", "args": {}},
+    }
+
+    with pytest.raises(ValueError, match=r"DIALECT_COMPOUND_NOT_ALLOWED at \$\.target\.name"):
+        validate_node_for_dialect(node, "clinical")
+
+
 def test_dialect_validator_validates_structural_tree_only_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -272,7 +286,7 @@ def test_generated_typescript_data_is_catalog_owned() -> None:
 
     assert "PROMOTED_COMPOUNDS" in compounds
     assert 'name: "SignalCard"' in compounds
-    assert 'grammarVersion: "0.1.0"' in compounds
+    assert f'grammarVersion: "{GRAMMAR_VERSION}"' in compounds
     assert "DIALECT_COMPOUND_CONSTRAINTS" in constraints
     assert "clinical:" in constraints
     assert 'mode: "allowlist"' in constraints

@@ -33,6 +33,7 @@
 		useMorpheStore,
 	} from "../state/store.svelte.js";
 	import { provideChoices } from "./choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "./emphasis.js";
 	import Node from "./Node.svelte";
 	import { provideCompoundResolver } from "./resolver.svelte.js";
 
@@ -124,6 +125,14 @@
 		},
 	});
 
+	// The root is a logical single-child container. Grant the authored root against
+	// the dialect's root budget exactly as every recursive container grants its
+	// direct children, so a root-level authority socket is real without creating a
+	// budget escape hatch. This remains reactive to both dialect priors and choices.
+	const rootEmphasis = $derived(
+		resolveChildEmphasisGrants(applied.rootContext.emphasisBudget, [tree], choices)[0] ?? "normal",
+	);
+
 	// Lemma 5 client-store ownership: prop beats inherited context, inherited
 	// context beats the per-root in-memory default. The root provides the resolved
 	// instance synchronously so bound primitives can read their initial tier-1
@@ -157,7 +166,7 @@
 </script>
 
 <div class="mo-root" data-mo-dialect={applied.attr} style={dialectStyle(applied)}>
-	<Node node={tree} ctx={applied.rootContext} />
+	<Node node={tree} ctx={{ ...applied.rootContext, renderedEmphasis: rootEmphasis }} />
 </div>
 
 <style>

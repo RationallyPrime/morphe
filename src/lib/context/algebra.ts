@@ -174,6 +174,17 @@ export function enterFrame(
 	};
 }
 
+/**
+ * Apply a local density adaptation without changing any of the structural
+ * coordinates of the context. `Within(density)` is not a container descent or
+ * a Frame reset: it changes exactly one algebra input for its owned target and
+ * preserves depth, scale, surface, budget, and the emphasis granted by the
+ * target's parent.
+ */
+export function withDensity(ctx: MorpheContext, density: Density): MorpheContext {
+	return { ...ctx, density };
+}
+
 /** The rendered emphasis of a single child after renormalization. */
 export type RenderedEmphasis = "muted" | "normal" | "strong" | "critical";
 
@@ -288,12 +299,15 @@ export function explicitClaim(node: Node): EmphasisClaim | undefined {
  * budget (or a long list would starve a real claim) and must not be demoted
  * below baseline (or it would fall under the contrast floor). The claimed subset
  * keeps its relative order, so earlier claimants still win under a tight B.
+ * `claimFor` is the strategy seam for authority wrappers such as Vary/Within;
+ * the algebra owns normalization while the delegation layer owns choice lookup.
  */
 export function renderedChildEmphasis(
 	budget: number,
 	children: readonly Node[],
+	claimFor: (node: Node) => EmphasisClaim | undefined = explicitClaim,
 ): RenderedEmphasis[] {
-	const claims = children.map(explicitClaim);
+	const claims = children.map(claimFor);
 	const claimed = claims.filter((c): c is EmphasisClaim => c !== undefined);
 	const rendered = renormalizeBudget(budget, claimed);
 	let k = 0;

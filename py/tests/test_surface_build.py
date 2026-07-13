@@ -39,8 +39,8 @@ def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
     return build_surface(schema, data, root=schema)
 
 
-def test_kra_679_keeps_grammar_version_unchanged() -> None:
-    assert GRAMMAR_VERSION == "0.1.0"
+def test_surface_compiler_uses_current_grammar_version() -> None:
+    assert GRAMMAR_VERSION == "0.2.0"
 
 
 def test_record_card_has_scalar_child() -> None:

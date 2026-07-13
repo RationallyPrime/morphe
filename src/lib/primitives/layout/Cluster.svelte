@@ -6,8 +6,8 @@
 	 *
 	 * It lays children out in a row that WRAPS, with the inter-item gap riding the
 	 * density→space boundary var so a crowded cluster tightens automatically
-	 * (STABILITY: density steps only when childCount crosses a threshold, decided in
-	 * `descend`). `justify` and `align` are author intent mapped onto flexbox
+	 * (STABILITY: density steps only when childCount crosses a threshold, decided by
+	 * the context transform). `justify` and `align` are author intent mapped onto flexbox
 	 * alignment; the maps live here, not scattered, so the enum is exhaustive and a
 	 * new value would surface as a missing branch.
 	 *
@@ -17,24 +17,27 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
-	import { boundaryStyle, descend } from "../../context/Context.svelte.js";
+	import { emphasisToStrokeStep, transform } from "../../context/algebra.js";
+	import {
+		boundaryStyle,
+		provideReactiveMorpheContext,
+	} from "../../context/Context.svelte.js";
 	import type { Cluster } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Cluster> = $props();
 
-	// One-time structural descent at init (setContext requirement); the tree is
-	// immutable per <Node> instance. Descends from the explicit `ctx` PROP (the
-	// real carrier on SSR and first client render); seeds the context channel as a
-	// fallback. See Stack.svelte for the rule.
-	// svelte-ignore state_referenced_locally
-	const child = descend(node.role, { childCount: node.children.length }, ctx);
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+	const child = $derived(transform(ctx, node.role, { childCount: node.children.length }));
+	provideReactiveMorpheContext(() => child);
 
 	// Budget-Conservation, WIRED: renormalize the children's claims against B and
 	// grant each its rendered emphasis below (see Stack for the full rationale).
-	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
+	const grants = $derived(resolveChildEmphasisGrants(child.emphasisBudget, node.children, choices));
 
 	const justify = $derived(node.justify ?? "start");
 	const align = $derived(node.align ?? "center");

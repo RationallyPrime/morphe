@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from morphe_grammar import normalize_visible_label_text
+
 if TYPE_CHECKING:
     from morphe_contracts import Diagnostic
 
@@ -17,7 +19,7 @@ def emit_node(spec: SurfaceNode) -> Node:
     """Stage 2 (ADR-0014 D2): mechanically render a SurfaceNode into a grammar Node dict.
 
     Read-only only (D4): never emits Field/Select/Toggle/Range/Button. Every output is a
-    `validate_node`-valid tree; `Within(collapse)` is emitted as an adaptation socket (D5).
+    `validate_node`-valid tree; `Within(collapse)` owns the region it adapts (D5).
     """
     if spec.strategy in _LEAF:
         return _leaf(spec)
@@ -65,17 +67,20 @@ def _frame(spec: SurfaceNode) -> Node:
 
 
 def _collapsible(spec: SurfaceNode) -> Node:
-    # The Within socket carries no children (it is a context-free adaptation marker); the
-    # section content rides beside it so the region still renders at the socket's default.
-    socket = {
+    target = _section(spec, _fields(spec.children), include_heading=False)
+    if spec.emphasis is not None:
+        target["emphasis"] = spec.emphasis
+    return {
         "kind": "within",
         "id": spec.path,
         "dimension": "collapse",
         "range": [0, 1],
         "default": 1 if spec.collapse else 0,
+        "summary": _disclosure_summary(spec.label),
+        # The native disclosure summary already names the region. Repeating the section
+        # heading inside its target would announce and paint the same label twice when open.
+        "target": target,
     }
-    inner = _section(spec, _fields(spec.children))
-    return {"kind": "stack", "role": "section", "children": [socket, inner]}
 
 
 def _table(spec: SurfaceNode) -> Node:
@@ -89,6 +94,11 @@ def _table(spec: SurfaceNode) -> Node:
         grid["columns"] = ["flexible" for _ in columns]
         grid["ruled"] = True
     return _section(spec, [grid])
+
+
+def _disclosure_summary(label: str) -> str:
+    """Return a visible native-control label even for hostile/blank schema titles."""
+    return normalize_visible_label_text(label, fallback="Details")
 
 
 def _columns_from_rows(rows: tuple[SurfaceNode, ...]) -> tuple[SurfaceNode, ...]:
@@ -134,8 +144,10 @@ def _empty_cell() -> Node:
     return {"kind": "text", "value": "", "as": "body"}
 
 
-def _section(spec: SurfaceNode, children: list[Node]) -> Node:
-    head: list[Node] = [_heading(spec.label, spec.emphasis)] if spec.heading else []
+def _section(spec: SurfaceNode, children: list[Node], *, include_heading: bool = True) -> Node:
+    head: list[Node] = (
+        [_heading(spec.label, spec.emphasis)] if include_heading and spec.heading else []
+    )
     alerts = [_alert(d) for d in spec.diagnostics]
     return {"kind": "stack", "role": "section", "children": [*head, *alerts, *children]}
 

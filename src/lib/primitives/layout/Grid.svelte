@@ -19,24 +19,27 @@
 	 * Agent edits ONLY this file.
 	 */
 
-	import { emphasisToStrokeStep, renderedChildEmphasis } from "../../context/algebra.js";
-	import { boundaryStyle, descend } from "../../context/Context.svelte.js";
+	import { emphasisToStrokeStep, transform } from "../../context/algebra.js";
+	import {
+		boundaryStyle,
+		provideReactiveMorpheContext,
+	} from "../../context/Context.svelte.js";
 	import type { Grid } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 
 	let { node, ctx }: PrimitiveProps<Grid> = $props();
 
-	// One-time structural descent at init (setContext requirement); the tree is
-	// immutable per <Node> instance. Descends from the explicit `ctx` PROP (the
-	// real carrier on SSR and first client render); seeds the context channel as a
-	// fallback. See Stack.svelte for the rule.
-	// svelte-ignore state_referenced_locally
-	const child = descend(node.role, { childCount: node.children.length }, ctx);
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+	const child = $derived(transform(ctx, node.role, { childCount: node.children.length }));
+	provideReactiveMorpheContext(() => child);
 
 	// Budget-Conservation, WIRED: renormalize the children's claims against B and
 	// grant each its rendered emphasis below (see Stack for the full rationale).
-	const grants = $derived(renderedChildEmphasis(child.emphasisBudget, node.children));
+	const grants = $derived(resolveChildEmphasisGrants(child.emphasisBudget, node.children, choices));
 
 	const minTrack = $derived(node.minTrack ?? "regular");
 	// Rendered at the emphasis the parent granted this Grid, never a self-claim.

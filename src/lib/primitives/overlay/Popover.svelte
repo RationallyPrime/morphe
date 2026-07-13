@@ -35,7 +35,10 @@
 	 */
 
 	import type { Action } from "svelte/action";
+	import { emphasisToStrokeStep } from "../../context/algebra.js";
 	import type { Popover } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
@@ -43,6 +46,9 @@
 
 	let { node, ctx }: PrimitiveProps<Popover> = $props();
 	const store = useMorpheStore();
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+	const grants = $derived(resolveChildEmphasisGrants(ctx.emphasisBudget, node.children, choices));
 
 	const role = $derived(node.role ?? "tooltip");
 	const placement = $derived(node.placement ?? "bottom");
@@ -223,9 +229,10 @@
 	style:--mo-overlay-on={onColor}
 	style:--mo-overlay-border={borderColor}
 	style:--mo-anchor={anchorName}
+	style:--mo-ctx-stroke={emphasisToStrokeStep(ctx.renderedEmphasis ?? "normal")}
 >
 	{#each node.children as child, i (i)}
-		<Node node={child} {ctx} />
+		<Node node={child} ctx={{ ...ctx, renderedEmphasis: grants[i] }} />
 	{/each}
 </div>
 

@@ -5,15 +5,16 @@
 > `STATUS.md`. This plan closes the gaps between them, in an order that keeps
 > the package and both hosts shipping green at every step.
 
-> **Status update:** R0 and R1 exit criteria are met. R2's discrete `Vary`
-> path and epoch validation have shipped, but the phase remains partial because
-> `Within` has no render-owning target and there is no production mid loop.
+> **Status update:** R0 and R1 exit criteria are met. R2's `Vary`, targeted
+> `Within`, and epoch-validation paths have shipped, but the phase remains
+> partial because there is no deterministic operational mid loop.
 > Consistent with `CONTRACT.md` §12: no known R0
 > substrate-integrity gaps remain. The Pydantic source, generated TypeScript,
 > schema parity gate, public package, and stripped viewer have shipped. The old
 > monorepo landing is retired: Morphe remains an independent package while
-> serving as Projection M of Eidos. True dialect-restricted decoding has shipped;
-> the adaptive circuit remains partial at `Within` and the operational mid loop.
+> serving as Projection M of Eidos. True dialect-restricted decoding and bounded
+> target semantics have shipped; the adaptive circuit remains partial at the
+> operational mid loop.
 > R4.2 is superseded — see its entry.
 
 ## Principles
@@ -122,16 +123,17 @@ Everything here is pure TS — no model required; A4 masking comes with R3.
   possible, at validation otherwise. Adversarial fuzz: arbitrary deltas against
   arbitrary envelopes never produce an invalid tree (Lemma 6's proof
   obligation).
-- **R2.3 (S, partial) Renderer: live choice.** `Node.svelte` renders `Vary` from the
+- **R2.3 (S, ✔ shipped) Renderer: live choice.** `Node.svelte` renders `Vary` from the
   envelope's current choice map instead of bare `default` (falling back to
   `default` — Corollary 1). The mid-loop *interface* (something that proposes
   deltas) is a DI seam; its first implementation can be a trivial heuristic to
-  prove the loop. The discrete path is shipped; continuous `Within` values still
-  have no render-owning target.
+  prove the loop. `Within` owns one explicit target and resolves density into its
+  context, emphasis into its parent's budget, and collapse into a native labelled
+  disclosure; targetless compatibility leaves remain inert.
 
-**Exit:** Not yet met. The discrete choice law is covered by property tests. The
-phase closes only when `Within` has explicit target semantics and a deterministic
-mid-loop adapter proves the complete bounded-delegation path.
+**Exit:** Not yet met. Both variation forms are covered by property and DOM tests;
+the phase closes when a deterministic mid-loop adapter proves the complete
+bounded-delegation path.
 
 ---
 

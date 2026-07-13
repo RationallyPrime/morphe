@@ -28,7 +28,10 @@
 	 * through SLOTS -> intents -> scales; no raw scale or hex is named here.
 	 */
 
+	import { emphasisToStrokeStep } from "../../context/algebra.js";
 	import type { Dialog } from "../../grammar/types.js";
+	import { useChoices } from "../../render/choices.svelte.js";
+	import { resolveChildEmphasisGrants } from "../../render/emphasis.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { boundBoolean, commitTier1, useMorpheStore } from "../../state/store.svelte.js";
@@ -36,6 +39,9 @@
 
 	let { node, ctx }: PrimitiveProps<Dialog> = $props();
 	const store = useMorpheStore();
+	const providedChoices = useChoices();
+	const choices = $derived(providedChoices?.current);
+	const grants = $derived(resolveChildEmphasisGrants(ctx.emphasisBudget, node.children, choices));
 
 	// A deterministic id base (no Math.random — SSR/replay-safe). Derived from the
 	// title so the labelledby relationship is stable across re-emits.
@@ -122,6 +128,7 @@
 	style:--mo-overlay-ring={ringColor}
 	style:--mo-overlay-ring-width={ringWidth}
 	style:--mo-overlay-ring-offset={ringOffset}
+	style:--mo-ctx-stroke={emphasisToStrokeStep(ctx.renderedEmphasis ?? "normal")}
 >
 	<div class="mo-dialog__panel">
 		<header class="mo-dialog__header">
@@ -142,7 +149,7 @@
 		{/if}
 		<div class="mo-dialog__body">
 			{#each node.children as child, i (i)}
-				<Node node={child} {ctx} />
+				<Node node={child} ctx={{ ...ctx, renderedEmphasis: grants[i] }} />
 			{/each}
 		</div>
 	</div>

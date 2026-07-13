@@ -220,7 +220,7 @@ The slow actor may authorize discrete and continuous variation:
 
 ```text
 Vary(id, options, default, objective?)
-Within(id, dimension, range, default)
+Within(id, dimension, range, default, target?, summary?)
 ```
 
 An emission envelope carries an epoch, tree, and choice map. A delta carries an epoch, variation
@@ -231,9 +231,10 @@ renderer.
 **Lemma 6.** Accepted mid-loop changes are contained in the variation space authored by the
 current tree, and a new epoch invalidates in-flight work.
 
-`Vary` and epoch-checked discrete deltas are operational. `Within` is not: the current leaf
-resolves a number but owns no target subtree, and no rendered container consumes the result. It
-must gain an explicit target or wrapper contract before it can satisfy the lemma visibly.
+`Vary` and `Within` are operational under the same epoch-checked choice contract. A targeted
+`Within` owns exactly one subtree: density changes its incoming context, emphasis competes in the
+parent's bounded budget, and collapse becomes a native labelled disclosure. A targetless legacy
+leaf stays inert, so older trees remain total without granting implicit sibling authority.
 
 ## 10. Lemma 7 — venue feasibility
 
@@ -329,8 +330,8 @@ meaningful shipped compound restriction. A live tier-2 producer remains incomple
 ### Phase 2 — constrained adaptation
 
 Epochs, variation ids, delta validation, per-dialect masks, slow and mid-loop adapters, objective
-strategies. Per-dialect masks, a schema-constrained slow-loop lab proof, and discrete `Vary`
-mechanics ship; the operational mid loop and objective policy remain partial or future.
+strategies. Per-dialect masks, a schema-constrained slow-loop lab proof, and bounded `Vary` /
+`Within` mechanics ship; the operational mid loop and objective policy remain partial or future.
 
 ### Phase 3 — learned quality
 
@@ -357,7 +358,7 @@ Legend: **shipped**, **partial**, **future**.
 | action map and tier-1 store binding | shipped | `MorpheRoot`, primitives, state tests |
 | tier-2 escalation | partial | provider/envelope exists; no producer |
 | `Vary` choices and epoch-checked deltas | shipped | delegation tests, renderer choice boundary |
-| `Within` visible behavior | partial | numeric resolution exists; target semantics do not |
+| targeted `Within` behavior | shipped | explicit target; reactive density, budgeted emphasis, native collapse |
 | schema/data surface compiler | shipped | `py/morphe_surface` |
 | local CMS compile/preview/publish tooling | shipped | `py/morphe_cms`, preview routes |
 | Pydantic-AI adaptive lab | partial | installed-mask structured-output and retry proof; no production host path |
@@ -368,19 +369,17 @@ Legend: **shipped**, **partial**, **future**.
 
 ## 16. Open problems
 
-1. **`Within` ownership.** Choose a wrapper or explicit target contract that can alter density,
-   emphasis, or collapse without context-free sibling magic.
-2. **Canonical adaptive wire.** Unify TypeScript digest/escalation and Python decision contracts
+1. **Canonical adaptive wire.** Unify TypeScript digest/escalation and Python decision contracts
    from one generated source.
-3. **Variation discovery.** Ensure live variation discovery includes template-contained `Vary`
+2. **Variation discovery.** Ensure live variation discovery includes template-contained `Vary`
    nodes after compound expansion.
-4. **Objective policy.** Define a deterministic first strategy for `Vary.objective` before adding
+3. **Objective policy.** Define a deterministic first strategy for `Vary.objective` before adding
    a learned delegate.
-5. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
+4. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
    are represented.
-6. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
+5. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
    durable automatic change.
-7. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
+6. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
    state commits, delta rerendering, and the stripped viewer boundary.
 
 The immediate direction is depth, not breadth: complete one deterministic artifact-to-viewer and

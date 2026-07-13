@@ -16,8 +16,8 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **376 + 1 DOM passing** across 24 files |
-| Python tests | `pytest` | **173 passing** |
+| Web tests | `bun run test` | **474 server + 8 DOM passing** across 29 files |
+| Python tests | `pytest` | **271 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
 | npm package | `bun run pack:verify` | **Installed consumer, exports, masks, client and SSR pass** |
@@ -40,7 +40,7 @@ emission with retry/fail-closed behavior.
   compound factory with its validation gate; nine dialects (`gallery` — the
   museum-paper light ground, **default** per ADR-0005 — `night`,
   `icelandic-archive` (the retired-as-default amber identity), `clinical`,
-  `ledger`, `estate`, `foundry`)
+  `reykjavik-registry`, `timaeus`, `ledger`, `estate`, `foundry`)
   pulled apart at the beacon and the ground, all passing the intent-keyset
   fixed-point tests and the data ⇄ CSS agreement suite,
   each shipping a surface stack that `applyDialect` emits (FP7) so a
@@ -59,9 +59,11 @@ emission with retry/fail-closed behavior.
   `SignalCard` catalog, and generated `Dialect.compounds[]` render-gating via
   the `restrictCompounds` view (`clinical` is restricted; eight dialects remain
   explicitly unrestricted); the R2 bounded-delegation
-  surface (ADR-0004: `Within`/`VaryId` in the grammar, the emission envelope +
+  surface (ADR-0004/0018: `Within`/`VaryId` in the grammar, the emission envelope +
   pure/total `applyDelta` in `delegation/`, `MorpheRoot.choices?` as the only
-  renderer contract change — epochs never reach the renderer), with the `py/`
+  renderer contract change — epochs never reach the renderer), including an
+  explicit single-target `Within` contract with reactive density, parent-budgeted
+  emphasis, native labelled collapse, and target-aware traversal, with the `py/`
   Pydantic mirror and committed schema re-synced to the now-complete grammar.
 - **The neutral demo host (this repo's own routes, proof surfaces only):** `/` — the workbench
   index linking the playground, CMS preview, and published-pointer proof;
@@ -130,7 +132,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 376 + 1 DOM passing
+bun run test       # vitest run (+ dom config)       → 474 server + 8 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)

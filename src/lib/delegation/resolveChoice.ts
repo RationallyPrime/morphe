@@ -41,6 +41,34 @@ export function resolveWithin(node: Within, choices: ChoiceMap | undefined): Res
 	}
 }
 
+/**
+ * Resolve the claim a parent should budget for the child it actually renders.
+ * Vary delegates to its selected option. A targeted Within(emphasis) is itself
+ * the claim socket. Density preserves its target's claim. Collapse establishes
+ * a new visible disclosure boundary: its hidden target is budgeted locally by
+ * that disclosure and consumes nothing from the outer sibling economy. Legacy
+ * targetless Within leaves remain inert and claim nothing.
+ */
+export function resolveNodeEmphasisClaim(
+	node: Node,
+	choices: ChoiceMap | undefined,
+): EmphasisClaim | undefined {
+	if (node.kind === "vary") {
+		const selected = resolveVaryOption(node, choices);
+		return selected ? resolveNodeEmphasisClaim(selected, choices) : undefined;
+	}
+	if (node.kind === "within") {
+		if (!node.target) return undefined;
+		if (node.dimension === "collapse") return undefined;
+		if (node.dimension === "emphasis") {
+			const resolved = resolveWithin(node, choices);
+			return resolved.dimension === "emphasis" ? resolved.value : undefined;
+		}
+		return resolveNodeEmphasisClaim(node.target, choices);
+	}
+	return "emphasis" in node && node.emphasis ? node.emphasis : undefined;
+}
+
 function clampedIntegerChoice(
 	id: string,
 	fallback: number,
