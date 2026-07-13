@@ -26,6 +26,7 @@ const artifact = {
 	artifact_sequence: 1,
 	stored_at: "2026-07-06T00:00:01Z",
 	artifact: {
+		artifact_version: "1.0.0",
 		tree: {
 			kind: "frame",
 			role: "page",
@@ -58,6 +59,7 @@ const artifact = {
 const drifted = structuredClone(artifact);
 drifted.artifact_id = "surface:capability-page:run-drift";
 drifted.grammar_version = "9.9.9";
+drifted.artifact.grammar_version = "9.9.9";
 
 const PORT = Number(process.env.STUB_PORT ?? 4399);
 
