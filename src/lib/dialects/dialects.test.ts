@@ -594,8 +594,10 @@ describe("FP6 — every shipped dialect's compound subset resolves against the r
 	// G|D's compound half (Lemma 4): a dialect's `compounds[]` is an allowlist
 	// over the compound registry. A name that resolves to nothing would make the
 	// restriction silently hide content under exactly one dialect — the kind of
-	// drift this parity suite exists to catch. All shipped lists are EMPTY today
-	// (unrestricted, Corollary 1); this guards the day one is not.
+	// drift this parity suite exists to catch. Structural restriction is live:
+	// `clinical` ships the first real allowlist (["SignalCard"], generated from
+	// py/morphe_grammar/dialects.py); the other shipped dialects remain
+	// unrestricted with empty lists.
 	it("each declared compound name is registered", () => {
 		for (const d of Object.values(DIALECTS)) {
 			for (const name of d.compounds) {
