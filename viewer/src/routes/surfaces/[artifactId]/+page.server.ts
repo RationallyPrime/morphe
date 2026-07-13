@@ -1,15 +1,14 @@
 import { error } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
 import { GRAMMAR_VERSION, hasDialect } from "$lib";
-import { isValidArtifactId, parseSurfaceEnvelope } from "../../../envelope.js";
+import { isValidArtifactId, parseSurfaceResponse } from "../../../envelope.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
  * /surfaces/[artifactId] — the viewer container (KRA-648 / MO-D3).
  *
- * SSR-fetches the artifact JSON from the topos read route over the docker
- * bridge (`MORPHE_ARTIFACT_BASE_URL/{artifactId}`); the human's browser talks
- * only to this viewer, so topos stays in-net and CORS stays fail-closed.
+ * SSR-fetches artifact JSON from the configured read route. The browser talks
+ * only to this viewer, so the backing store stays private and CORS stays fail-closed.
  *
  * Fail-closed grammar gate (MO-D5): an unsupported grammar_version renders a
  * diagnostic page naming both versions — never a silent partial render.
@@ -57,22 +56,11 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		});
 	}
 
-	let body: unknown;
-	try {
-		body = await response.json();
-	} catch {
-		error(502, {
-			message: "The artifact store returned a non-JSON body.",
-			code: "upstream-unreachable",
-			artifactId: params.artifactId,
-		});
-	}
-
-	const parsed = parseSurfaceEnvelope(body);
+	const parsed = await parseSurfaceResponse(response, { expectedArtifactId: params.artifactId });
 	if (!parsed.ok) {
 		error(502, {
-			message: `The artifact envelope is malformed: ${parsed.reason}.`,
-			code: "upstream-unreachable",
+			message: `The artifact failed its trust gate: ${parsed.reason}.`,
+			code: "invalid-artifact",
 			artifactId: params.artifactId,
 		});
 	}
