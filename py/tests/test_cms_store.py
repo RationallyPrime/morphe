@@ -15,6 +15,7 @@ from morphe_cms.contracts.artifact import (
 )
 from morphe_cms.contracts.shared import RenderHints
 from morphe_cms.store.files import FileStore
+from morphe_grammar import validate_node
 
 
 def _envelope() -> ArtifactEnvelope:
@@ -36,7 +37,7 @@ def _compiled(rev: str) -> CompiledTree:
         grammar_version="0.1.0",
         producer_version="0.1.0",
         presenter_version="0.1.0",
-        tree={"kind": "frame", "role": "page", "children": []},
+        tree=validate_node({"kind": "frame", "role": "page", "children": []}),
         render_hints=RenderHints(dialect="gallery"),
         produced_at="2026-06-22T00:00:00Z",
     )
@@ -82,6 +83,21 @@ def test_has_validated_revision(tmp_path: Path) -> None:
     assert store.has_validated_revision("demo", "rev-001") is False
     store.write_compiled("demo", "rev-001", _compiled("rev-001"))
     assert store.has_validated_revision("demo", "rev-001") is True
+
+
+def test_corrupt_compiled_tree_is_not_a_validated_revision(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    path = tmp_path / "compiled" / "capability-pages" / "demo" / "rev-001.tree.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        '{"artifact_id":"capability-page.demo","revision_id":"rev-001",'
+        '"grammar_version":"0.1.0","producer_version":"0.1.0",'
+        '"presenter_version":"0.1.0","tree":{"kind":"text"},'
+        '"render_hints":{"dialect":"gallery"},"produced_at":""}',
+        encoding="utf-8",
+    )
+
+    assert store.has_validated_revision("demo", "rev-001") is False
 
 
 def test_next_revision_id_is_gap_tolerant(tmp_path: Path) -> None:

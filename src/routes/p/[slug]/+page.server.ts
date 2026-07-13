@@ -5,8 +5,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { error } from "@sveltejs/kit";
-import type { Node } from "$lib";
 import { DEMO_DIALECT_ID, DEMO_PUBLICATION_SLUG, demoArtifactTree } from "../../_demo/artifact.js";
+import { parseLocalCompiledTree } from "../../_demo/compiled-artifact.js";
 import type { PageServerLoad } from "./$types";
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -15,11 +15,6 @@ const REV_RE = /^rev-\d{3}$/;
 interface PublicationFile {
 	revision_id: string;
 }
-interface CompiledTreeFile {
-	tree: Node;
-	render_hints: { dialect: string };
-}
-
 export const load: PageServerLoad = async ({ params, url }) => {
 	const root = process.cwd();
 	let publications: Record<string, PublicationFile>;
@@ -58,13 +53,24 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		params.slug,
 		`${pub.revision_id}.tree.json`,
 	);
-	let parsed: CompiledTreeFile;
+	let source: string;
 	try {
-		parsed = JSON.parse(await readFile(path, "utf-8")) as CompiledTreeFile;
+		source = await readFile(path, "utf-8");
 	} catch {
 		throw error(404, `Missing compiled tree for ${params.slug}`);
 	}
+	let document: unknown;
+	try {
+		document = JSON.parse(source);
+	} catch {
+		throw error(500, "Published compiled artifact is not valid JSON");
+	}
+	const artifactId = `capability-page.${params.slug}`;
+	const parsed = parseLocalCompiledTree(document, artifactId, pub.revision_id);
+	if (!parsed.ok) {
+		throw error(500, `Published compiled artifact failed its trust gate: ${parsed.reason}`);
+	}
 
-	const dialectId = url.searchParams.get("dialect") ?? parsed.render_hints.dialect;
-	return { tree: parsed.tree, dialectId };
+	const dialectId = url.searchParams.get("dialect") ?? parsed.value.dialectId;
+	return { tree: parsed.value.tree, dialectId };
 };

@@ -69,6 +69,18 @@
     },
     "Button": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "a11y"
+          ]
+        }
+      ],
       "properties": {
         "a11y": {
           "$ref": "#/$defs/ControlLabel"

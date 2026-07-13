@@ -1,15 +1,14 @@
 import { error } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
 import { GRAMMAR_VERSION, hasDialect } from "$lib";
-import { isValidArtifactId, parseSurfaceEnvelope } from "../../../envelope.js";
+import { isValidArtifactId, parseSurfaceResponse } from "../../../envelope.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
  * /surfaces/[artifactId] — the viewer container (KRA-648 / MO-D3).
  *
- * SSR-fetches the artifact JSON from the topos read route over the docker
- * bridge (`MORPHE_ARTIFACT_BASE_URL/{artifactId}`); the human's browser talks
- * only to this viewer, so topos stays in-net and CORS stays fail-closed.
+ * SSR-fetches artifact JSON from the configured read route. The browser talks
+ * only to this viewer, so the backing store stays private and CORS stays fail-closed.
  *
  * Fail-closed grammar gate (MO-D5): an unsupported grammar_version renders a
  * diagnostic page naming both versions — never a silent partial render.
@@ -57,22 +56,23 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		});
 	}
 
-	let body: unknown;
-	try {
-		body = await response.json();
-	} catch {
-		error(502, {
-			message: "The artifact store returned a non-JSON body.",
-			code: "upstream-unreachable",
-			artifactId: params.artifactId,
-		});
-	}
-
-	const parsed = parseSurfaceEnvelope(body);
+	const parsed = await parseSurfaceResponse(response, { expectedArtifactId: params.artifactId });
 	if (!parsed.ok) {
+		// A breaking-grammar artifact fails the schema pass before any version check
+		// can run — surface the dedicated 409 naming both versions instead of a
+		// generic trust-gate 502 when the raw stamp says the grammar is foreign.
+		if (parsed.rawGrammarVersion && parsed.rawGrammarVersion !== GRAMMAR_VERSION) {
+			error(409, {
+				message: "This artifact was compiled under a grammar this viewer does not support.",
+				code: "grammar-mismatch",
+				artifactId: params.artifactId,
+				artifactVersion: parsed.rawGrammarVersion,
+				supportedVersion: GRAMMAR_VERSION,
+			});
+		}
 		error(502, {
-			message: `The artifact envelope is malformed: ${parsed.reason}.`,
-			code: "upstream-unreachable",
+			message: `The artifact failed its trust gate: ${parsed.reason}.`,
+			code: "invalid-artifact",
 			artifactId: params.artifactId,
 		});
 	}

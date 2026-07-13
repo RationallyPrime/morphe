@@ -7,7 +7,7 @@ declare global {
 		 */
 		interface Error {
 			message: string;
-			code?: "grammar-mismatch" | "upstream-unreachable" | "not-configured";
+			code?: "grammar-mismatch" | "invalid-artifact" | "upstream-unreachable" | "not-configured";
 			artifactId?: string;
 			artifactVersion?: string;
 			supportedVersion?: string;

@@ -34,9 +34,9 @@ def _drop_null_from_optional(schema: JsonSchema) -> JsonSchema:
     return replacement
 
 
-def _normalize_schema(value: JsonSchemaValue) -> JsonSchemaValue:
+def normalize_schema(value: JsonSchemaValue) -> JsonSchemaValue:
     if isinstance(value, list):
-        return [_normalize_schema(item) for item in value]
+        return [normalize_schema(item) for item in value]
     if not isinstance(value, dict):
         return value
 
@@ -44,7 +44,7 @@ def _normalize_schema(value: JsonSchemaValue) -> JsonSchemaValue:
     for key, item in value.items():
         if key == "default" and item is None:
             continue
-        normalized[key] = _normalize_schema(item)
+        normalized[key] = normalize_schema(item)
     return _drop_null_from_optional(normalized)
 
 
@@ -53,7 +53,7 @@ def schema_document() -> JsonSchema:
         "JsonSchema",
         NODE_ADAPTER.json_schema(ref_template="#/$defs/{model}", union_format="any_of"),
     )
-    normalized = cast("JsonSchema", _normalize_schema(raw_schema))
+    normalized = cast("JsonSchema", normalize_schema(raw_schema))
     defs = normalized.get("$defs")
     ref = normalized.get("$ref")
     if ref == "#/$defs/Node" and isinstance(defs, dict):

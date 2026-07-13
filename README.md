@@ -6,9 +6,8 @@ token system, and a swappable dialect. The authored tree says "role, priority,
 intent"; it never says pixels, hex values, or framework component trivia.
 
 This repository owns the reusable package, the local CMS/tooling surface, the
-adaptive sidecar contract, a neutral playground, and the stripped appliance
-viewer. The Sókrates website is a downstream consumer in a separate repository
-and imports Morphe through the package seams.
+adaptive sidecar contract, a neutral playground, and the stripped deployment
+viewer. Consumer applications import Morphe through its published package seams.
 
 ## Quick Start
 
@@ -109,7 +108,7 @@ Every shipped dialect preserves the contract keyset.
 | `py/morphe_agent` | Optional adaptive decision sidecar and deterministic fallback. |
 | `py/morphe_surface` | Surface compiler contracts used by the viewer path. |
 | `src/routes` | Neutral playground, CMS preview/publication routes, and adaptive API bridge. |
-| `viewer` | Stripped SvelteKit viewer for appliance surfaces. |
+| `viewer` | Stripped SvelteKit deployment viewer. |
 | `schema` | Committed contract artifacts generated from the Python grammar/CMS models. |
 
 ## Demo Host
@@ -147,12 +146,12 @@ MORPHE_AGENT_BASE_URL=http://127.0.0.1:8042 just dev
 `MORPHE_AGENT_GATEWAY_BASE_URL` can override the default OpenAI-compatible
 Pydantic Gateway proxy. CI and local gates do not require a live model call.
 
-## Box Viewer
+## Stripped Viewer
 
-`viewer/` is a stripped SvelteKit app for appliance rendering. It shares the
+`viewer/` is a stripped SvelteKit app for artifact rendering. It shares the
 same `src/lib` substrate, exposes `/surfaces/[artifactId]` plus `/healthz`, and
 fetches compiled artifacts from `MORPHE_ARTIFACT_BASE_URL`. It exists so the
-playground's outbound-capable adaptive bridge does not ship into the box image.
+playground's outbound-capable adaptive bridge does not ship in the deployment image.
 
 ```bash
 just viewer-build-node

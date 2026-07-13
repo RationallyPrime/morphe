@@ -11,22 +11,22 @@ the codebase. **Layout: single-context** (one project, no `CONTEXT-MAP.md`).
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in.
 - This repo also carries a **formal design corpus** that functions as domain doctrine —
   read whichever is relevant before design/architecture work:
-  - **`VISION.md`** — the proposal (v0.6, repo-canonical): the stratified adaptive tower
+  - **`VISION.md`** — the proposal (v0.7, repo-canonical): the stratified adaptive tower
     (seven lemmas, the theorem, the strata table), open problems, and the §15 status
     ledger mapping every mechanism to its implementation state. Read this before
     proposing architecture — it explains why "idle" grammar fields are reserved seams.
   - **`CONTRACT.md`** — the formal substrate contract (the grammar, context algebra, the
     three token strata, the dialect fixed point; §8 fixes the intent-keyset across
     dialects; §11 the reserved strata sockets; §12 the known, scheduled gaps).
-  - **`PRODUCT.md`** — product strategy / positioning.
-  - **`DESIGN.md`** — the visual system (the Sókrates identity the default theme realizes).
+  - **`DESIGN.md`** — Morphe's substrate-level visual, interaction, dialect, and
+    operational-surface doctrine. Consumer identities live in consumer repos.
+  - **`PACKAGING.md`** — the independent-package boundary and release topology.
   - **`CLAUDE.md`** — the working contract for agents in this repo (overrides defaults).
-  - **`docs/redesign-plan.md`** — historical home-redesign design narrative;
-    its subject (the Sókrates composer/onboarding/home) moved to the
-    `sokrates-website` repo per ADR-0008/ADR-0012 and no longer lives here.
-  - **`docs/reconstruction-plan.md`** — the phased plan aligning code with the vision.
-  - **`MIGRATION.md`** — the monorepo landing plan (Morphe as Projection M of Eidos;
-    the Pydantic schema lift).
+  - **`docs/reconstruction-plan.md`** — the living reconstruction/completion ledger,
+    reconciled with the independent-package decision and remaining work.
+
+Product integration details belong in their owning tracker or the active task context, not in
+this repository's doctrine.
 
 If `docs/adr/` doesn't exist, **proceed silently.** Don't flag its absence or suggest
 creating it upfront — the producer skill (`/grill-with-docs`) creates ADRs lazily when

@@ -36,7 +36,7 @@ class FileStore:
 
     @staticmethod
     def _dump(model: ArtifactEnvelope | CompiledTree | Publication) -> str:
-        return model.model_dump_json(indent=2) + "\n"
+        return model.model_dump_json(by_alias=True, exclude_none=True, indent=2) + "\n"
 
     def _guard(self, path: Path) -> Path:
         resolved = path.resolve()
@@ -89,10 +89,10 @@ class FileStore:
 
     def has_validated_revision(self, slug: str, revision_id: str) -> bool:
         try:
-            path = self._guard(self._compiled_dir(slug) / f"{revision_id}.tree.json")
-        except ValueError:
+            self.read_compiled(slug, revision_id)
+        except (FileNotFoundError, ValueError):
             return False
-        return path.exists()
+        return True
 
     def read_publications(self) -> dict[str, Publication]:
         path = self._publications_path()

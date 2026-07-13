@@ -14,7 +14,7 @@ def test_valid_draft_passes_gate() -> None:
     draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
     compiled, diagnostics = compile_and_gate(draft)
     assert compiled is not None
-    assert compiled.tree["kind"] == "frame"
+    assert compiled.tree.kind == "frame"
     assert compiled.render_hints.dialect == "gallery"
     assert [d for d in diagnostics if d.severity == "error"] == []
 

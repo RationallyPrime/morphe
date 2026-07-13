@@ -224,6 +224,31 @@ try {
 			if (!schemaRoot || typeof schemaRoot !== "object" || !("$defs" in schemaRoot)) {
 				throw new Error("expected morphe-grammar.schema.json to expose $defs through ./schemas/*");
 			}
+
+			const { validateSurfaceArtifact } = await import("@rationallyprime/morphe/artifacts");
+			const artifact = {
+				artifact_version: "1.0.0",
+				tree: { kind: "frame", role: "page", children: [] },
+				grammar_version: "0.1.0",
+				producer_version: "0.2.0",
+				compiler_version: "0.2.0",
+				diagnostics: [],
+				produced_at: "",
+			};
+			if (!validateSurfaceArtifact(artifact).ok) {
+				throw new Error("expected installed artifact trust gate to accept a valid surface");
+			}
+			if (validateSurfaceArtifact({ ...artifact, tree: { kind: "text" } }).ok) {
+				throw new Error("expected installed artifact trust gate to reject an invalid tree");
+			}
+
+			const surfaceSchema = (await import(
+				"@rationallyprime/morphe/schemas/morphe-surface-artifact.schema.json"
+			)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+			const surfaceSchemaRoot = surfaceSchema.default ?? surfaceSchema;
+			if (!surfaceSchemaRoot || surfaceSchemaRoot.title !== "Morphe Compiled Surface Artifact") {
+				throw new Error("expected the installed compiled-surface schema artifact");
+			}
 		`,
 	);
 

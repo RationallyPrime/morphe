@@ -1,6 +1,6 @@
 # CONTEXT — the Morphe glossary
 
-> Canonical meanings of domain terms, as resolved with the founder (grill
+> Canonical meanings of domain terms, as resolved with the contract owner (grill
 > sessions). A glossary and nothing else — implementation lives in code,
 > decisions in `docs/adr/`, the formal system in `VISION.md`/`CONTRACT.md`.
 > When a term here conflicts with usage elsewhere, this file wins; fix the
@@ -8,16 +8,16 @@
 
 ## The adaptation tower
 
-- **Morphe** — the product module: a typed adaptive-UI substrate plus its
-  agent-native content compiler. It is not the Sókrates website; the website
-  consumes Morphe.
+- **Morphe** — an independent, versioned adaptive-UI substrate plus its
+  agent-native content compiler. It serves as Projection M: typed structure to
+  perceivable UI. Projection M names an architectural role, not repository ownership.
 - **Morphe CMS** — the Morphe-local content compiler that turns typed content
   artifacts into validated Morphe node trees and publication pointers.
 - **Host application** — an application that consumes Morphe and owns its own
   copy, routes, native control surfaces, side effects, and deployment.
 - **Playground** — Morphe's own full-featured demonstration host, used to prove
   and inspect the substrate by exercising its authored-tree, dialect, variation,
-  CMS, and adaptive seams. It contains no Sókrates-specific content.
+  CMS, and adaptive seams. It contains no consumer-specific content.
 - **Demo asset set** — the neutral visual material the Playground uses to
   showcase Morphe's media, dialect, and adaptation capabilities. It is authored
   for Morphe itself, not inherited from a host application's brand narrative.
@@ -39,19 +39,14 @@
   fill: `Vary` (discrete options) or `Within` (bounded movement along a named
   dimension). The only places mid-loop authority exists.
 
-## People & audiences
+## Host context
 
-- **Persona** — the product-side typed pair (vertical, role) of the person at
-  the screen — e.g. hospitality CFO. Bootstrapped from deployment + directory
-  on the appliance; refined, never invented, by inference.
-- **Cohort** — the marketing-side audience segment, defined by the ad-campaign
-  taxonomy (it cannot be mined from a click; it is designed into campaigns).
-  A cohort *selects* a dialect and a copy variant; many cohorts may share one
-  dialect. The cohort is the funnel's shadow of the product's Persona — they
-  are distinct concepts.
+- **Persona** — optional `(vertical, role)` metadata describing the register a
+  specialized dialect was designed to serve. A host may use this metadata when
+  selecting a dialect; Morphe does not infer a user's identity or role.
 - **Dialect** — a presentation register: an intent-layer remap plus bounded
-  algebra priors (and, Phase 1+, a compound subset). NOT an audience — the
-  thing a cohort or persona selects, never the segment itself.
+  algebra priors and an optional compound subset. It changes presentation, not
+  authored meaning, application policy, or user identity.
 
 ## State & purity (Lemma 5 vocabulary)
 
