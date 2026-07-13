@@ -8,7 +8,7 @@ from pydantic import ConfigDict, StrictStr, TypeAdapter
 from pydantic import Field as PydanticField
 
 from .models import GrammarModel, JsonValue, Node, NumberValue
-from .schema import JsonSchema, _normalize_schema
+from .schema import JsonSchema, normalize_schema
 
 
 class TierEvent(GrammarModel):
@@ -92,7 +92,7 @@ def _schema_document(adapter: TypeAdapter[object], title: str) -> JsonSchema:
         "JsonSchema",
         adapter.json_schema(ref_template="#/$defs/{model}", union_format="any_of"),
     )
-    normalized = cast("JsonSchema", _normalize_schema(raw_schema))
+    normalized = cast("JsonSchema", normalize_schema(raw_schema))
     normalized["$schema"] = "https://json-schema.org/draft/2020-12/schema"
     normalized["title"] = title
     return normalized

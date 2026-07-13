@@ -47,6 +47,7 @@ type IntentRef = CoreIntent | RegisterIntent
 
 class GrammarModel(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(
+        allow_inf_nan=False,
         extra="forbid",
         frozen=True,
         populate_by_name=True,
@@ -295,6 +296,15 @@ type ControlLabel = Annotated[
 
 
 class Button(GrammarModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        json_schema_extra={
+            "anyOf": [
+                {"required": ["label"]},
+                {"required": ["a11y"]},
+            ]
+        }
+    )
+
     kind: Literal["button"]
     variant: Literal["solid", "outline", "ghost"] | None = None
     intent: IntentRef | None = None

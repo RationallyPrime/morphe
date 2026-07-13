@@ -32,7 +32,7 @@ def compile_and_gate(
 
     tree = present_capability_page(draft)
     try:
-        validate_node(tree)
+        validated_tree = validate_node(tree)
     except Exception as exc:  # noqa: BLE001 - convert any grammar failure to diagnostics
         diagnostics.extend(validation_error_to_diagnostics(exc))
         return None, diagnostics
@@ -43,7 +43,7 @@ def compile_and_gate(
         grammar_version=GRAMMAR_VERSION,
         producer_version=PRESENTER_VERSION,
         presenter_version=PRESENTER_VERSION,
-        tree=tree,
+        tree=validated_tree,
         render_hints=RenderHints(dialect=draft.morphe.dialect),
         diagnostics=diagnostics,
         produced_at=compiled_at,

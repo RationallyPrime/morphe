@@ -22,7 +22,7 @@ def test_contract_model_forbids_extra() -> None:
 
 
 def test_compiled_artifact_base_fields() -> None:
-    art = CompiledArtifact(
+    art = CompiledArtifact[dict[str, object]](
         tree={"kind": "spacer"},
         grammar_version="0.1.0",
         producer_version="0.1.0",

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from morphe_grammar import validate_node
 
-from .artifact import CompiledSurface
+from .artifact import SURFACE_ARTIFACT_VERSION, CompiledSurface
 from .build import build_surface
 from .emit import emit_node
 
@@ -31,11 +31,12 @@ def compile_surface(
     """
     spec = build_surface(schema, data, root=schema, diagnostics=diagnostics)
     tree = emit_node(spec)
-    validate_node(tree)  # gate: the emitted tree MUST be grammar-valid (raises if not)
+    validated_tree = validate_node(tree)  # gate and retain the typed trust-bearing value
     collected: list[Diagnostic] = []
     _collect(spec, collected)
     return CompiledSurface(
-        tree=tree,
+        artifact_version=SURFACE_ARTIFACT_VERSION,
+        tree=validated_tree,
         grammar_version=GRAMMAR_VERSION,
         producer_version=COMPILER_VERSION,
         compiler_version=COMPILER_VERSION,

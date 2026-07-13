@@ -78,10 +78,12 @@ py-types:
 # committed schema artifacts must equal a fresh emission (Python -> JSON Schema + TS + masks)
 schema-check:
 	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --check
+	env -u PYTHONPATH uv run --extra service python -m morphe_surface.artifacts --check
 
 # regenerate committed contract artifacts (after a py/ grammar/wire change)
 schema-write:
 	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --write
+	env -u PYTHONPATH uv run --extra service python -m morphe_surface.artifacts --write
 
 # regenerate committed CMS contract schemas (after a py/morphe_cms contract change)
 cms-schema-write:

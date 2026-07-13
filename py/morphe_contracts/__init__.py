@@ -8,7 +8,7 @@ only on Pydantic; never imports morphe_cms, morphe_surface, or morphe_grammar.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -51,7 +51,7 @@ DialectName = Literal[
 
 
 class ContractModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
 class Diagnostic(ContractModel):
@@ -81,10 +81,10 @@ class ArtifactProvenance(ContractModel):
     created_at: str
 
 
-class CompiledArtifact(ContractModel):
+class CompiledArtifact[TreeT](ContractModel):
     """Versioned, deterministic compiled-tree envelope. Timestamps/versions are passed in."""
 
-    tree: dict[str, Any]
+    tree: TreeT
     grammar_version: str
     producer_version: str
     diagnostics: list[Diagnostic] = Field(default_factory=list)
