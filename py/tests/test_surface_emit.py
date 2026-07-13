@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+import pytest
+
 from morphe_contracts import Diagnostic
 from morphe_grammar import validate_node
 from morphe_surface.build import build_surface
@@ -112,10 +114,35 @@ def test_enum_emits_badge() -> None:
 
 
 def test_collapsed_section_emits_within_collapse() -> None:
-    node = emit_node(build_surface(WORKER, DATA, root=WORKER))
-    addr = _find(node, lambda n: n.get("kind") == "within")
-    assert addr is not None
-    assert addr["dimension"] == "collapse"
+    surface = build_surface(WORKER, DATA, root=WORKER)
+    address = next(child for child in surface.children if child.path == "$.address")
+    address = address.model_copy(update={"emphasis": "critical"})
+    node = emit_node(address)
+
+    assert node["kind"] == "within"
+    assert node["dimension"] == "collapse"
+    assert node["summary"] == "Address"
+    assert node["target"]["kind"] == "stack"
+    assert node["target"]["role"] == "section"
+    assert node["target"]["emphasis"] == "critical"
+    assert [child["kind"] for child in node["target"]["children"]] == ["grid"]
+    assert _find(node["target"], lambda child: child.get("value") == "Address") is None
+    validate_node(node)
+
+
+@pytest.mark.parametrize("hostile_label", [" ", "\u0085", "\u200b", "\u2800", "\ufe0f", "\ufeff"])
+def test_collapsed_section_repairs_invisible_summary_to_keep_emission_total(
+    hostile_label: str,
+) -> None:
+    schema = {
+        "type": "object",
+        "properties": {"nested": {"type": "object", "title": hostile_label, "properties": {}}},
+    }
+    node = emit_node(build_surface(schema, {"nested": {}}, root=schema))
+    collapsed = _find(node, lambda child: child.get("kind") == "within")
+
+    assert collapsed is not None
+    assert collapsed["summary"] == "Details"
     validate_node(node)
 
 
