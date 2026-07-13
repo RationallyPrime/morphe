@@ -66,10 +66,18 @@
 	/** Expand a CompoundRef once, reactively. */
 	const expanded = $derived.by(() => {
 		if (node.kind !== "compound") return undefined;
-		if (resolver.has(node.name)) return resolver.expand(node);
-		if (DEV) {
-			console.warn(`Unknown Morphe compound "${node.name}" rendered as empty.`);
+		if (resolver.has(node.name)) {
+			try {
+				return resolver.expand(node);
+			} catch (error) {
+				if (DEV) {
+					const detail = error instanceof Error ? `: ${error.message}` : "";
+					console.warn(`Invalid Morphe compound "${node.name}" rendered as empty${detail}.`);
+				}
+				return undefined;
+			}
 		}
+		if (DEV) console.warn(`Unknown Morphe compound "${node.name}" rendered as empty.`);
 		return undefined;
 	});
 </script>

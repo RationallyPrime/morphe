@@ -44,7 +44,7 @@ export interface AlgebraPriors {
 	readonly rootBudget?: number;
 }
 
-/** A compound-subset reference by name (Phase 1 wires the registry to this). */
+/** A dialect's package-generated compound-subset reference by name. */
 export type CompoundDialect = readonly string[];
 
 export interface Dialect {
@@ -67,6 +67,6 @@ export interface Dialect {
 	readonly surfaces?: Readonly<Record<string, string>>;
 	/** Bounded algebra priors. */
 	readonly priors: AlgebraPriors;
-	/** Allowed compound subset (empty in Phase 0). */
+	/** Allowed compound subset; an empty list preserves unrestricted compatibility. */
 	readonly compounds: CompoundDialect;
 }

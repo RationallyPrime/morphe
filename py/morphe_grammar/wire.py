@@ -7,6 +7,7 @@ from typing import ClassVar, Literal, cast
 from pydantic import ConfigDict, StrictStr, TypeAdapter
 from pydantic import Field as PydanticField
 
+from .dialects import DialectId
 from .models import GrammarModel, JsonValue, Node, NumberValue
 from .schema import JsonSchema, normalize_schema
 
@@ -39,7 +40,7 @@ class DecisionRequest(GrammarModel):
     task_state: dict[str, JsonValue]
     event: TierEvent
     digest: ContextDigest
-    dialect_id: StrictStr
+    dialect_id: DialectId
     surface_id: StrictStr
 
 
@@ -68,7 +69,12 @@ class DecisionContract(GrammarModel):
 
 
 def rebuild_wire_models() -> None:
-    namespace = {"JsonValue": JsonValue, "Node": Node, "NumberValue": NumberValue}
+    namespace = {
+        "DialectId": DialectId,
+        "JsonValue": JsonValue,
+        "Node": Node,
+        "NumberValue": NumberValue,
+    }
     for model_type in (
         TierEvent,
         ContextDigest,

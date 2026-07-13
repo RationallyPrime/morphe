@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from morphe_grammar import validate_node
+from morphe_grammar import GRAMMAR_VERSION, validate_node
 
 from .artifact import SURFACE_ARTIFACT_VERSION, CompiledSurface
 from .build import build_surface
@@ -13,8 +13,6 @@ if TYPE_CHECKING:
 
     from .spec import SurfaceNode
 
-# Pinned like the cms gate's GRAMMAR_VERSION/PRESENTER_VERSION; bump on a breaking change.
-GRAMMAR_VERSION = "0.1.0"
 COMPILER_VERSION = "0.2.0"
 
 

@@ -161,6 +161,34 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(html).toContain("after");
 	});
 
+	it("renders known siblings around an invalid CompoundRef without throwing", () => {
+		registry.register({
+			name: "invalid-call-probe",
+			version: "1.0.0",
+			grammarVersion: "0.1.0",
+			params: {
+				type: "object",
+				properties: { content: { type: "node", required: true } },
+			},
+			template: { kind: "param-ref", param: "content" },
+		});
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "invalid-call-probe", args: {} },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
 	it("renders known siblings around a Within variation point without throwing", () => {
 		const tree: Node = {
 			kind: "stack",

@@ -33,6 +33,7 @@
  */
 
 import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
+import { DIALECT_COMPOUND_CONSTRAINTS } from "./constraints.generated.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -209,5 +210,5 @@ export const icelandicArchive: Dialect = {
 		rootScaleTier: 4,
 		rootBudget: 3,
 	},
-	compounds: [],
+	compounds: DIALECT_COMPOUND_CONSTRAINTS["icelandic-archive"].compounds,
 };

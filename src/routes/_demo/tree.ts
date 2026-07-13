@@ -6,69 +6,17 @@
  */
 
 import type { CompoundDef, Node } from "$lib";
-import { registry } from "$lib";
+import { PROMOTED_COMPOUNDS, registry } from "$lib";
 
-export const SignalCard: CompoundDef = {
-	name: "SignalCard",
-	version: "1.0.0",
-	grammarVersion: "0.1.0",
-	params: {
-		type: "object",
-		properties: {
-			kicker: {
-				type: "node",
-				required: true,
-				description: "Small register heading for the card.",
-			},
-			title: {
-				type: "node",
-				required: true,
-				description: "Card title as an authored Text node.",
-			},
-			measure: {
-				type: "node",
-				default: { kind: "number", value: 0, format: "integer", intent: "neutral" },
-				description: "A numeric or textual measure node.",
-			},
-		},
-	},
-	template: {
-		kind: "frame",
-		role: "panel",
-		surface: "raised",
-		children: [
-			{
-				kind: "stack",
-				role: "panel",
-				children: [
-					{
-						kind: "cluster",
-						role: "toolbar",
-						justify: "between",
-						align: "center",
-						children: [
-							{ kind: "param-ref", param: "kicker" },
-							{ kind: "status", tone: "success", signal: { text: "Ready", icon: "check_circle" } },
-						],
-					},
-					{ kind: "param-ref", param: "title" },
-					{ kind: "param-ref", param: "measure" },
-					{
-						kind: "slot",
-						name: "body",
-						fallback: [{ kind: "text", value: "No body supplied.", as: "caption" }],
-					},
-				],
-			},
-		],
-	},
-};
+const promotedSignalCard = PROMOTED_COMPOUNDS.find(
+	(definition) => definition.name === "SignalCard",
+);
+if (!promotedSignalCard) throw new Error("Generated promoted catalog is missing SignalCard.");
+export const SignalCard: CompoundDef = promotedSignalCard;
 
 export function registerDemoCompounds(): void {
-	if (registry.has(SignalCard.name)) return;
-	const result = registry.register(SignalCard);
-	if (!result.ok) {
-		throw new Error(`SignalCard failed registration: ${result.errors.join("; ")}`);
+	if (!registry.has(SignalCard.name)) {
+		throw new Error("Generated SignalCard was not registered by the package runtime.");
 	}
 }
 

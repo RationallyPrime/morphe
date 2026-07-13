@@ -1,5 +1,16 @@
 """Pydantic mirror of the Morphe grammar."""
 
+from .catalog import PROMOTED_COMPOUNDS, SIGNAL_CARD, CompoundDefinition
+from .dialects import (
+    DIALECT_CONSTRAINTS,
+    DIALECT_IDS,
+    DialectCompoundConstraint,
+    DialectId,
+    DialectNodeValidationError,
+    dialect_constraint,
+    validate_node_for_dialect,
+)
+from .masks import dialect_mask_document, load_dialect_mask, load_mask_manifest
 from .models import (
     NODE_ADAPTER,
     Badge,
@@ -44,17 +55,27 @@ from .models import (
     Within,
     validate_node,
 )
+from .version import GRAMMAR_VERSION
 
 __all__ = [
+    "DIALECT_CONSTRAINTS",
+    "DIALECT_IDS",
+    "GRAMMAR_VERSION",
     "NODE_ADAPTER",
+    "PROMOTED_COMPOUNDS",
+    "SIGNAL_CARD",
     "Badge",
     "Button",
     "Cluster",
+    "CompoundDefinition",
     "CompoundRef",
     "ContainerRole",
     "ControlLabel",
     "CoreIntent",
     "Density",
+    "DialectCompoundConstraint",
+    "DialectId",
+    "DialectNodeValidationError",
     "Dialog",
     "Disclosure",
     "EmphasisClaim",
@@ -87,5 +108,10 @@ __all__ = [
     "Toggle",
     "Vary",
     "Within",
+    "dialect_constraint",
+    "dialect_mask_document",
+    "load_dialect_mask",
+    "load_mask_manifest",
     "validate_node",
+    "validate_node_for_dialect",
 ]

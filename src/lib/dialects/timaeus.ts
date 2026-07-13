@@ -46,6 +46,7 @@
  */
 
 import type { CoreIntent, RegisterIntent } from "../grammar/types.js";
+import { DIALECT_COMPOUND_CONSTRAINTS } from "./constraints.generated.js";
 import type { Dialect, IntentDefinition } from "./types.js";
 
 /* ------------------------------------------------------------------------- *
@@ -236,5 +237,5 @@ export const timaeus: Dialect = {
 		rootScaleTier: 4,
 		rootBudget: 2,
 	},
-	compounds: [],
+	compounds: DIALECT_COMPOUND_CONSTRAINTS.timaeus.compounds,
 };
