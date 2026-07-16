@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from pydantic import field_serializer, model_validator
 
 from morphe_contracts import CompiledArtifact
 from morphe_grammar import NODE_ADAPTER, Node
+
+if TYPE_CHECKING:
+    from pydantic import GetJsonSchemaHandler
+    from pydantic_core import CoreSchema
 
 SURFACE_ARTIFACT_VERSION = "1.0.0"
 
@@ -27,6 +31,23 @@ class CompiledSurface(CompiledArtifact[Node]):
     @staticmethod
     def serialize_tree(tree: Node) -> object:
         return NODE_ADAPTER.dump_python(tree, mode="json", by_alias=True, exclude_none=True)
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler
+    ) -> dict[str, Any]:
+        # KRA-754: the ``-> object`` serializer above erases ``tree`` to the empty
+        # schema ``{}`` in SERIALIZATION mode, so every consumer's OpenAPI said the
+        # tree accepts any JSON. Annotating the serializer's return as ``Node`` is not
+        # an option — the function returns a pre-dumped dict, and Pydantic would then
+        # warn (and re-serialize) on every dump. Restore the union by generating the
+        # Node schema THROUGH the live handler (its defs register with the same
+        # generator); the runtime dump stays byte-identical.
+        document = handler(core_schema)
+        properties = document.get("properties")
+        if handler.mode == "serialization" and isinstance(properties, dict):
+            properties["tree"] = handler(NODE_ADAPTER.core_schema)
+        return document
 
     @model_validator(mode="after")
     def require_one_producer_version(self) -> Self:

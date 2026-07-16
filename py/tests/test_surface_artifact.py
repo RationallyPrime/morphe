@@ -99,3 +99,16 @@ def test_surface_artifact_schema_embeds_the_full_node_contract() -> None:
     assert frame["additionalProperties"] is False
     assert {"required": ["label"]} in any_of
     assert {"required": ["a11y"]} in any_of
+
+
+def test_serialization_schema_carries_the_node_union_not_the_empty_schema() -> None:
+    # KRA-754: the ``-> object`` field serializer erased ``tree`` to ``{}`` in every
+    # consumer's OpenAPI (serialization mode). The union must be on the wire contract
+    # in BOTH modes, and the serialization document must actually define it.
+    for mode in ("validation", "serialization"):
+        document = CompiledSurface.model_json_schema(mode=mode)  # type: ignore[arg-type]
+        tree = document["properties"]["tree"]
+        assert tree != {}, f"{mode}: tree is the empty schema"
+        assert tree == {"$ref": "#/$defs/Node"}
+        definitions = document["$defs"]
+        assert {"Frame", "Stack", "Text", "Node"} <= set(definitions)
