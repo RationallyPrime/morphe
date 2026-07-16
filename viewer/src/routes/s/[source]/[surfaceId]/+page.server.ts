@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { parseKernelSurfaceResponse, parseSurfaceResponse } from "../../../../envelope.js";
+import { rewriteKernelLinks } from "../../../../links.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
 import { loadGatedSurface } from "../../../../surface-load.server.js";
 import type { PageServerLoad } from "./$types.js";
@@ -11,7 +12,9 @@ import type { PageServerLoad } from "./$types.js";
  * undeclared surface id is a 404, never a proxied guess — the viewer is not an
  * open proxy onto the docker network. Store sources fetch a stored artifact by
  * its declared artifact_id; kernel sources fetch a declared route and lift the
- * bare CompiledSurface through the identical trust gate.
+ * bare CompiledSurface through the identical trust gate. Kernel trees then get
+ * their links rewired against the source's declared paths (viewer-navigable or
+ * degraded to text — never a dead in-viewer href).
  */
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
@@ -46,5 +49,10 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		parse: (response) => parseKernelSurfaceResponse(response, { artifactId, dialectHint }),
 		dialectOverride,
 	});
-	return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title };
+	return {
+		...surface,
+		tree: rewriteKernelLinks(surface.tree, source),
+		sourceTitle: source.title,
+		surfaceTitle: entry.title,
+	};
 };

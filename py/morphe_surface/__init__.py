@@ -15,8 +15,9 @@ from .artifact import (
     canonical_surface_artifact_bytes,
     surface_artifact_digest,
 )
+from .authoring import KpiCell, morphe_hint
 from .compile import GRAMMAR_VERSION, compile_surface
-from .hints import MorpheHint, parse_hint
+from .hints import MorpheHint, NumberFormat, parse_hint
 from .spec import SurfaceNode
 from .strategies import Strategy
 
@@ -24,13 +25,16 @@ __all__ = [
     "GRAMMAR_VERSION",
     "SURFACE_ARTIFACT_VERSION",
     "CompiledSurface",
+    "KpiCell",
     "MorpheHint",
+    "NumberFormat",
     "Strategy",
     "SurfaceNode",
     "canonical_surface_artifact_bytes",
     "compile_surface",
     "from_envelope",
     "from_pydantic",
+    "morphe_hint",
     "parse_hint",
     "surface_artifact_digest",
     "surface_from_model",

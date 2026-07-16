@@ -237,7 +237,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
 
     slots = _object(properties["slots"])
     assert slots["additionalProperties"] is False
-    assert set(_object(slots["properties"])) == {"body"}
+    assert set(_object(slots["properties"])) == {"body", "signal"}
 
     assert document["x-morphe-compound-policy"] == {
         "mode": "allowlist",

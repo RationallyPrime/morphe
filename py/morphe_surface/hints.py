@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import ConfigDict, ValidationError
 
-from morphe_contracts import ContractModel, IntentRef
+from morphe_contracts import ContractModel, EmphasisClaim, IntentRef
 
 from .strategies import Strategy
+
+type NumberFormat = Literal["plain", "integer", "currency", "percent", "compact"]
 
 
 class MorpheHint(ContractModel):
@@ -20,6 +24,15 @@ class MorpheHint(ContractModel):
     collapse: bool | None = None
     hidden: bool = False
     heading: bool = True
+    # 0.3.0 vocabulary. ``format``/``currency`` shape a ``number`` leaf (percent takes a
+    # 0..1 fraction — Intl multiplies). ``intents`` maps data VALUES to intents so one
+    # enum column can carry per-state color (badge: intent as-is; status: clamped to its
+    # tone subset). ``emphasis`` is a claim on scalar/number leaves — the renderer's
+    # budget renormalizes it, so an over-claiming producer degrades, never shouts.
+    format: NumberFormat | None = None
+    currency: str | None = None
+    intents: dict[str, IntentRef] | None = None
+    emphasis: EmphasisClaim | None = None
 
 
 def parse_hint(schema: dict[str, object]) -> MorpheHint:

@@ -46,6 +46,8 @@ export interface SourceConfig {
 	readonly baseUrl: string;
 	readonly tokenEnv?: string;
 	readonly dialectHint?: string;
+	/** Optional Material Symbol name shown on the index card (declared, never inferred). */
+	readonly icon?: string;
 	readonly surfaces: readonly SurfaceEntry[];
 }
 
@@ -102,6 +104,7 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	const title = stringField(raw, "title") ?? sourceId;
 	const tokenEnv = stringField(raw, "token_env") ?? undefined;
 	const dialectHint = stringField(raw, "dialect_hint") ?? undefined;
+	const icon = stringField(raw, "icon") ?? undefined;
 	const rawSurfaces = raw.surfaces ?? [];
 	if (!Array.isArray(rawSurfaces)) return `source ${sourceId}: surfaces must be an array`;
 	const surfaces: SurfaceEntry[] = [];
@@ -120,6 +123,7 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 		baseUrl: baseUrl.replace(/\/+$/, ""),
 		tokenEnv,
 		dialectHint,
+		icon,
 		surfaces,
 	};
 }

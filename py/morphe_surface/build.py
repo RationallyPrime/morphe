@@ -4,15 +4,18 @@ import re
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Literal, cast
 
+from pydantic import ValidationError
+
 from morphe_contracts import Diagnostic
 
-from .hints import parse_hint
+from .hints import MorpheHint, parse_hint
 from .refs import resolve_ref, schema_type
 from .resolve import resolve_strategy
 from .spec import SurfaceNode
 
 if TYPE_CHECKING:
-    from .hints import MorpheHint
+    from morphe_contracts import IntentRef
+
     from .spec import Polarity
     from .strategies import Strategy
 
@@ -21,7 +24,10 @@ if TYPE_CHECKING:
 MAX_DEPTH = 6
 
 _RECORD = {"record-card", "collapsed-section"}
-_COLLECTION = {"table", "card-stack"}
+_COLLECTION = {"table", "card-stack", "kpi-row"}
+# Only row-shaped collections compete for the depth-0 "primary collection" promotion —
+# a leading KPI row is a header, not the record's main body.
+_PROMOTABLE = {"table", "card-stack"}
 _IDENTITY_KEYS = ("name", "title")
 _NUMERIC_TEXT = re.compile(r"^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$")
 
@@ -161,6 +167,8 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
 
 
 def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    if plan.strategy == "kpi-row":
+        return _kpi_row(plan, data, ctx)
     items_schema = plan.resolved.get("items")
     items_schema = items_schema if isinstance(items_schema, dict) else {}
     rows = data if isinstance(data, list) else []
@@ -176,6 +184,61 @@ def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         items=items,
         diagnostics=plan.diags,
     )
+
+
+def _kpi_row(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    rows = data if isinstance(data, list) else []
+    items = tuple(_kpi_cell(row, ctx.item(i, plan.label)) for i, row in enumerate(rows))
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="kpi-row",
+        heading=plan.hint.heading,
+        items=items,
+        diagnostics=plan.diags,
+    )
+
+
+def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
+    """Lower one KpiCell-shaped record; anything else degrades in place (D8)."""
+    if not isinstance(row, dict):
+        why = "unrenderable: kpi-row item is not a record"
+        diag = Diagnostic(code="UNRENDERABLE", severity="warning", path=ctx.path, message=why)
+        return SurfaceNode(
+            path=ctx.path,
+            label=ctx.label,
+            strategy="diagnostic-node",
+            value=why,
+            diagnostics=(diag,),
+        )
+    cell = cast("dict[str, Any]", row)
+    presentation = _cell_presentation(cell)
+    number = _coerce_number(cell.get("value"))
+    return SurfaceNode(
+        path=ctx.path,
+        label=_string_or_none(cell.get("label")) or ctx.label,
+        strategy="number" if number is not None else "scalar",
+        value=number if number is not None else _as_scalar(cell.get("value")),
+        intent=presentation.role,
+        number_format=presentation.format,
+        currency=presentation.currency,
+        kicker=_string_or_none(cell.get("kicker")),
+    )
+
+
+def _cell_presentation(cell: dict[str, Any]) -> MorpheHint:
+    # Reuse the hint model as the validation gate for a cell's presentation keys — a
+    # malformed cell keeps its value and loses only the presentation (totality, D8).
+    try:
+        return MorpheHint.model_validate(
+            {
+                "role": cell.get("intent"),
+                "format": cell.get("format"),
+                "currency": cell.get("currency"),
+            }
+        )
+    except ValidationError:
+        return MorpheHint()
 
 
 def _table_columns(items_schema: dict[str, Any], ctx: _Ctx) -> tuple[SurfaceNode, ...]:
@@ -232,22 +295,110 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             value=why,
             diagnostics=(*plan.diags, diag),
         )
+    if plan.strategy == "number":
+        return _number_leaf(plan, data, ctx)
+    if plan.strategy == "progress":
+        return _progress_leaf(plan, data, ctx)
+    if plan.strategy == "status":
+        return _status_leaf(plan, data, ctx)
     value = _as_scalar(data)
     numeric, polarity = _numeric_presentation(value)
+    identity = ctx.presentation == "identity" and plan.strategy == "scalar"
     return SurfaceNode(
         path=ctx.path,
         label=plan.label,
         strategy=plan.strategy,
         value=value,
-        intent=plan.hint.role,
-        text_as="display" if ctx.presentation == "identity" and plan.strategy == "scalar" else None,
+        intent=_value_intent(plan.hint, value) if plan.strategy == "badge" else plan.hint.role,
+        text_as="display" if identity else None,
         emphasis="critical"
-        if ctx.presentation == "identity" and plan.strategy == "scalar"
-        else None,
+        if identity
+        else (plan.hint.emphasis if plan.strategy == "scalar" else None),
         numeric=numeric if plan.strategy == "scalar" else None,
         polarity=polarity if plan.strategy == "scalar" else None,
         diagnostics=plan.diags,
     )
+
+
+def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    number = _coerce_number(data)
+    if number is None:
+        # Totality (D8): a non-numeric value under a number hint keeps the scalar floor.
+        value = _as_scalar(data)
+        numeric, polarity = _numeric_presentation(value)
+        return SurfaceNode(
+            path=ctx.path,
+            label=plan.label,
+            strategy="scalar",
+            value=value,
+            intent=plan.hint.role,
+            emphasis=plan.hint.emphasis,
+            numeric=numeric,
+            polarity=polarity,
+            diagnostics=plan.diags,
+        )
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="number",
+        value=number,
+        intent=plan.hint.role,
+        emphasis=plan.hint.emphasis,
+        number_format=plan.hint.format,
+        currency=plan.hint.currency,
+        diagnostics=plan.diags,
+    )
+
+
+def _progress_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    number = _coerce_number(data)
+    # A non-numeric value renders an INDETERMINATE bar, not a lie about completion.
+    fraction = min(1.0, max(0.0, float(number))) if number is not None else None
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="progress",
+        value=fraction,
+        intent=plan.hint.role,
+        diagnostics=plan.diags,
+    )
+
+
+def _status_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    value = _as_scalar(data)
+    text = "" if value is None else str(value)
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="status",
+        value=text,
+        intent=_value_intent(plan.hint, text),
+        diagnostics=plan.diags,
+    )
+
+
+def _value_intent(hint: MorpheHint, value: object) -> IntentRef | None:
+    # Per-VALUE intent (the ``intents`` map) wins over the field-level role: one enum
+    # column carries state-dependent color without a bespoke presenter per state.
+    mapped = (hint.intents or {}).get("" if value is None else str(value))
+    return mapped or hint.role
+
+
+def _coerce_number(data: object) -> int | float | None:
+    if isinstance(data, bool):
+        return None
+    if isinstance(data, int | float):
+        return data
+    if isinstance(data, str):
+        text = data.strip()
+        try:
+            return int(text)
+        except ValueError:
+            try:
+                return float(text)
+            except ValueError:
+                return None
+    return None
 
 
 def _label(schema: dict[str, Any], hint_label: str | None, fallback: str) -> str:
@@ -309,7 +460,7 @@ def _primary_collection_key(
     pairs: tuple[tuple[str, dict[str, Any]], ...],
     ctx: _Ctx,
 ) -> str | None:
-    return next((key for key, schema in pairs if _strategy_for(schema, ctx) in _COLLECTION), None)
+    return next((key for key, schema in pairs if _strategy_for(schema, ctx) in _PROMOTABLE), None)
 
 
 def _scalarish(schema: dict[str, Any], ctx: _Ctx) -> bool:

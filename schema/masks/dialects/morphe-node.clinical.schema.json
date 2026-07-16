@@ -251,6 +251,12 @@
                 "$ref": "#/$defs/Node"
               },
               "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
             }
           },
           "type": "object"
