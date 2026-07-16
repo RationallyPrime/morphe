@@ -16,6 +16,7 @@ from .spec import SurfaceNode
 if TYPE_CHECKING:
     from morphe_contracts import IntentRef
 
+    from .hints import NumberFormat
     from .spec import Polarity
     from .strategies import Strategy
 
@@ -214,14 +215,15 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
     cell = cast("dict[str, Any]", row)
     presentation = _cell_presentation(cell)
     number = _coerce_number(cell.get("value"))
+    number_format, currency = _currency_presentation(presentation.format, presentation.currency)
     return SurfaceNode(
         path=ctx.path,
         label=_string_or_none(cell.get("label")) or ctx.label,
         strategy="number" if number is not None else "scalar",
         value=number if number is not None else _as_scalar(cell.get("value")),
         intent=presentation.role,
-        number_format=presentation.format,
-        currency=presentation.currency,
+        number_format=number_format,
+        currency=currency,
         kicker=_string_or_none(cell.get("kicker")),
     )
 
@@ -344,6 +346,7 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             polarity=polarity,
             diagnostics=plan.diags,
         )
+    number_format, currency = _currency_presentation(plan.hint.format, plan.hint.currency)
     return SurfaceNode(
         path=ctx.path,
         label=plan.label,
@@ -351,8 +354,8 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         value=number,
         intent=plan.hint.role,
         emphasis=plan.hint.emphasis,
-        number_format=plan.hint.format,
-        currency=plan.hint.currency,
+        number_format=number_format,
+        currency=currency,
         diagnostics=plan.diags,
     )
 
@@ -389,6 +392,26 @@ def _value_intent(hint: MorpheHint, value: object) -> IntentRef | None:
     # column carries state-dependent color without a bespoke presenter per state.
     mapped = (hint.intents or {}).get("" if value is None else str(value))
     return mapped or hint.role
+
+
+_WELL_FORMED_CURRENCY = re.compile(r"^[A-Za-z]{3}$")
+
+
+def _currency_presentation(
+    number_format: NumberFormat | None, currency: str | None
+) -> tuple[NumberFormat | None, str | None]:
+    """Keep malformed currency codes away from the renderer's Intl call.
+
+    ``Intl.NumberFormat`` RAISES on a non-ISO-4217-shaped code (e.g. a 4-letter
+    ticker) — one bad datum would take the pane down. The compiler degrades the
+    pair to a plain number instead (D8); the strict authoring helpers refuse the
+    code outright at authoring time.
+    """
+    if number_format == "currency" and (
+        currency is None or _WELL_FORMED_CURRENCY.fullmatch(currency) is None
+    ):
+        return "plain", None
+    return number_format, currency
 
 
 def _coerce_number(data: object) -> int | float | None:

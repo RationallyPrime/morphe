@@ -28,17 +28,30 @@
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 	const color = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
 
+	/**
+	 * Currency codes reach `Intl.NumberFormat` from AUTHORED DATA, and a malformed
+	 * one (e.g. a 4-letter ticker) throws a RangeError — a leaf must never take a
+	 * pane down over a bad code (renderer totality). Well-formed means the ISO-4217
+	 * shape: exactly three ASCII letters; anything else renders as a plain number.
+	 */
+	const WELL_FORMED_CURRENCY = /^[A-Za-z]{3}$/;
+
 	/** Locale-aware formatting. The default locale is the runtime's (host-driven). */
 	function format(n: NumberNode): string {
 		switch (n.format ?? "plain") {
 			case "integer":
 				return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n.value);
-			case "currency":
+			case "currency": {
+				const currency = n.currency ?? "ISK";
+				if (!WELL_FORMED_CURRENCY.test(currency)) {
+					return new Intl.NumberFormat(undefined).format(n.value);
+				}
 				return new Intl.NumberFormat(undefined, {
 					style: "currency",
-					currency: n.currency ?? "ISK",
+					currency,
 					currencyDisplay: "narrowSymbol",
 				}).format(n.value);
+			}
 			case "percent":
 				return new Intl.NumberFormat(undefined, {
 					style: "percent",
