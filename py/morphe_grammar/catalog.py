@@ -44,7 +44,7 @@ class CompoundDefinition(GrammarModel):
 SIGNAL_CARD = CompoundDefinition.model_validate(
     {
         "name": "SignalCard",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "grammar_version": GRAMMAR_VERSION,
         "lifecycle": "promoted",
         "params": {
@@ -88,11 +88,13 @@ SIGNAL_CARD = CompoundDefinition.model_validate(
                             "align": "center",
                             "children": [
                                 {"kind": "param-ref", "param": "kicker"},
-                                {
-                                    "kind": "status",
-                                    "tone": "success",
-                                    "signal": {"text": "Ready", "icon": "check_circle"},
-                                },
+                                # 1.1.0: the corner signal is a SLOT (a Status/Badge the
+                                # call site owns), not a hardcoded "Ready" — a KPI card
+                                # must not certify readiness it knows nothing about. The
+                                # factory can't parameterise Status.signal.text (string
+                                # fields never interpolate), so a slot is the only
+                                # grammar-lawful variability here.
+                                {"kind": "slot", "name": "signal", "fallback": []},
                             ],
                         },
                         {"kind": "param-ref", "param": "title"},

@@ -7,7 +7,7 @@ import type { CompoundDef } from "./factory.js";
 export const PROMOTED_COMPOUNDS = [
 	{
 		name: "SignalCard",
-		version: "1.0.0",
+		version: "1.1.0",
 		params: {
 			type: "object",
 			properties: {
@@ -54,12 +54,9 @@ export const PROMOTED_COMPOUNDS = [
 									param: "kicker",
 								},
 								{
-									kind: "status",
-									tone: "success",
-									signal: {
-										text: "Ready",
-										icon: "check_circle",
-									},
+									kind: "slot",
+									name: "signal",
+									fallback: [],
 								},
 							],
 						},

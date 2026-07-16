@@ -8,7 +8,7 @@
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "1e703f06ccebab3377a1401236454779cbadb59750eabb0b9cd3f250a534899c"
+      "sha256": "3382781c16e7abb88611b89021ff58cc4543c9a1fac281bfdb16aa2e6fbdc8cc"
     },
     "estate": {
       "compound_policy": {

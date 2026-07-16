@@ -5,14 +5,17 @@ from typing import TYPE_CHECKING, Any
 from morphe_grammar import normalize_visible_label_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from morphe_contracts import Diagnostic
 
     from .spec import SurfaceNode
 
 Node = dict[str, Any]
 
-_LEAF = {"scalar", "badge", "linked-ref", "diagnostic-node"}
-_CONTAINER = {"record-card", "collapsed-section", "table", "card-stack"}
+_LEAF = {"scalar", "badge", "linked-ref", "diagnostic-node", "number", "status", "progress"}
+_CONTAINER = {"record-card", "collapsed-section", "table", "card-stack", "kpi-row"}
+_STATUS_TONES = {"success", "caution", "info", "neutral"}
 
 
 def emit_node(spec: SurfaceNode) -> Node:
@@ -27,37 +30,132 @@ def emit_node(spec: SurfaceNode) -> Node:
         return _collapsible(spec)
     if spec.strategy == "table":
         return _table(spec)
+    if spec.strategy == "kpi-row":
+        return _kpi_row(spec)
     if spec.strategy == "card-stack":
         return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
     return _frame(spec)  # record-card
 
 
 def _leaf(spec: SurfaceNode) -> Node:
-    if spec.strategy == "scalar":
-        node: Node = {"kind": "text", "value": _str(spec.value), "as": spec.text_as or "body"}
-        if spec.emphasis is not None:
-            node["emphasis"] = spec.emphasis
-        if spec.intent is not None:
-            node["intent"] = spec.intent
-        if spec.numeric:
-            node["numeric"] = True
-        if spec.polarity is not None:
-            node["polarity"] = spec.polarity
-        return node
-    if spec.strategy == "badge":
-        return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
-    if spec.strategy == "linked-ref":
-        if not spec.href:
-            # An absent/empty relation is not a link — render an empty region, never a
-            # dead ``href="#"`` (KRA-677 R3). Backstop degrades keep their caption via _field.
-            return {"kind": "text", "value": "", "as": "body"}
-        return {"kind": "link", "href": spec.href, "label": spec.label}
+    # A lowering TABLE, not a branch ladder: the strategy vocabulary is closed, so the
+    # leaf emitters are enumerable data. Unknown strategies fall to the diagnostic
+    # emitter (totality, D8).
+    return _LEAF_EMITTERS.get(spec.strategy, _diagnostic)(spec)
+
+
+def _scalar(spec: SurfaceNode) -> Node:
+    node: Node = {"kind": "text", "value": _str(spec.value), "as": spec.text_as or "body"}
+    if spec.emphasis is not None:
+        node["emphasis"] = spec.emphasis
+    if spec.intent is not None:
+        node["intent"] = spec.intent
+    if spec.numeric:
+        node["numeric"] = True
+    if spec.polarity is not None:
+        node["polarity"] = spec.polarity
+    return node
+
+
+def _badge(spec: SurfaceNode) -> Node:
+    return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
+
+
+def _link(spec: SurfaceNode) -> Node:
+    if not spec.href:
+        # An absent/empty relation is not a link — render an empty region, never a
+        # dead ``href="#"`` (KRA-677 R3). Backstop degrades keep their caption via _field.
+        return {"kind": "text", "value": "", "as": "body"}
+    return {"kind": "link", "href": spec.href, "label": spec.label}
+
+
+def _status(spec: SurfaceNode) -> Node:
+    text = normalize_visible_label_text(_str(spec.value), fallback="—")
+    return {"kind": "status", "tone": _status_tone(spec.intent), "signal": {"text": text}}
+
+
+def _progress(spec: SurfaceNode) -> Node:
+    node: Node = {
+        "kind": "progress",
+        "label": normalize_visible_label_text(spec.label, fallback="Progress"),
+    }
+    if spec.value is not None:
+        node["value"] = spec.value
+    if spec.intent is not None:
+        node["intent"] = spec.intent
+    return node
+
+
+def _diagnostic(spec: SurfaceNode) -> Node:
     # diagnostic-node — an unrenderable region renders AS its diagnostic (totality, D8).
     return {
         "kind": "inline-alert",
         "tone": "caution",
         "title": spec.label,
         "detail": _str(spec.value),
+    }
+
+
+def _number(spec: SurfaceNode) -> Node:
+    node: Node = {"kind": "number", "value": spec.value}
+    if spec.number_format is not None:
+        node["format"] = spec.number_format
+    if spec.currency is not None:
+        node["currency"] = spec.currency
+    if spec.intent is not None:
+        node["intent"] = spec.intent
+    if spec.emphasis is not None:
+        node["emphasis"] = spec.emphasis
+    return node
+
+
+def _status_tone(intent: str | None) -> str:
+    # Status tones are the subset of intents a chip can carry; any richer intent
+    # (provenance, seal, primary-action, …) clamps to neutral rather than lying.
+    return intent if intent in _STATUS_TONES else "neutral"
+
+
+_LEAF_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
+    "scalar": _scalar,
+    "badge": _badge,
+    "linked-ref": _link,
+    "number": _number,
+    "status": _status,
+    "progress": _progress,
+    "diagnostic-node": _diagnostic,
+}
+
+
+def _kpi_row(spec: SurfaceNode) -> Node:
+    if not spec.items:
+        return _section(spec, [_empty_collection(spec)])
+    cards = [_signal_card(item) for item in spec.items]
+    # No ``columns`` means the auto-fit card grid; narrow tracks pack the KPI band.
+    grid: Node = {"kind": "grid", "role": "list", "minTrack": "narrow", "children": cards}
+    return _section(spec, [grid])
+
+
+def _signal_card(item: SurfaceNode) -> Node:
+    if item.strategy == "diagnostic-node":
+        return _leaf(item)
+    kicker: Node = {
+        "kind": "text",
+        "value": item.kicker or "",
+        "as": "caption",
+        "intent": "folio",
+    }
+    title: Node = {"kind": "text", "value": item.label, "as": "subheading"}
+    if item.strategy == "number":
+        measure: Node = _number(item)
+        measure["emphasis"] = "strong"
+    else:
+        measure = {"kind": "text", "value": _str(item.value), "as": "body", "emphasis": "strong"}
+        if item.intent is not None:
+            measure["intent"] = item.intent
+    return {
+        "kind": "compound",
+        "name": "SignalCard",
+        "args": {"kicker": kicker, "title": title, "measure": measure},
     }
 
 
@@ -179,7 +277,11 @@ def _flush_definitions(nodes: list[Node], pending: list[SurfaceNode]) -> None:
 
 
 def _definition_candidate(spec: SurfaceNode) -> bool:
-    return spec.strategy in _LEAF and spec.strategy != "diagnostic-node" and spec.text_as is None
+    # Progress self-labels (a11y-required label), so it never sits in a caption+value
+    # pair — it renders as its own full-width field.
+    if spec.strategy in {"diagnostic-node", "progress"}:
+        return False
+    return spec.strategy in _LEAF and spec.text_as is None
 
 
 def _definition_grid(specs: list[SurfaceNode]) -> Node:
@@ -208,7 +310,8 @@ def _field(spec: SurfaceNode) -> Node:
         return inner  # containers self-head and render their own diagnostics
     # A diagnostic-node already renders its issue; other leaves carry a caption + any alerts.
     alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
-    if spec.text_as is not None:
+    if spec.text_as is not None or spec.strategy == "progress":
+        # Self-labelled regions (identity text, progress) never double-caption.
         if not alerts:
             return inner
         return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
