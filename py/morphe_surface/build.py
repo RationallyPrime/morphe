@@ -278,11 +278,18 @@ def _hidden(schema: object, root: dict[str, Any]) -> bool:
 def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     if plan.strategy == "linked-ref":
         label, href = _linked_ref(plan.label, data)
+        # ``value`` carries the DATA-side display label only (None when the field
+        # label was the fallback): an href-less relation renders what the producer
+        # said — ``SurfaceRef(label="—")`` paints its em-dash — while the D9
+        # backstop degrades (no data label) stay blank.
+        data_label = _linked_ref_data_label(data)
         return SurfaceNode(
             path=ctx.path,
             label=label,
             strategy="linked-ref",
             href=href,
+            value=data_label,
+            intent=plan.hint.role,
             diagnostics=plan.diags,
         )
     if plan.strategy == "diagnostic-node":
@@ -480,6 +487,12 @@ def _linked_ref(fallback_label: str, data: object) -> tuple[str, str | None]:
     if isinstance(data, str):
         return fallback_label, data
     return fallback_label, None
+
+
+def _linked_ref_data_label(data: object) -> str | None:
+    if not isinstance(data, dict):
+        return None
+    return _string_or_none(cast("dict[str, Any]", data).get("label"))
 
 
 def _string_or_none(value: object) -> str | None:

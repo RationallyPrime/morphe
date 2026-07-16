@@ -1,7 +1,8 @@
 # Krepis surface style guide
 
 How a kernel authors a Morphe surface that reads as one product across the family.
-Written against `morphe-grammar` **py-v0.6.0** (grammar 0.2.0, compiler 0.3.0). The
+Written against `morphe-grammar` **py-v0.6.1** (grammar 0.2.0, compiler 0.3.1 — the
+floor for link-intent fidelity and producer-labelled absent relations). The
 authority order: the grammar (`py/morphe_grammar/models.py`) > this guide > per-kernel
 taste. If the guide fights the grammar, the grammar wins and the guide has a bug.
 
@@ -161,13 +162,16 @@ deduct/employer breakdown as collapsed sections; `result_hash` in footer as `sea
 filings table. ADD `payslip` (Auður): earning/deduction sides w/ signed numbers,
 garnishment/pension/union lines visible.
 
-**chreos** — `obligations`: standing tone map over the 9-state enum (active=success,
-expiring/breached=caution + Diagnostic on breached, pending_signature=caution,
-draft/terminated/withdrawn/expired/closed=neutral, adjudication=info); counterparty as
-linked-ref where PII allows, else "PII redacted" marginalia note. `horizon`:
-days-to-due as signed numbers (negative = overdue), urgency tone map, next-duty
-identity. `overview`: KPI band (total, active, expiring ≤30d, breached, open
-adjudications) + milestone status.
+**chreos** — `obligations`: standing tone map over the kernel's OWN Standing type
+(active=success, expiring/breached=caution + Diagnostic on breached,
+pending_signature=caution, draft/terminated/withdrawn/expired/closed=neutral —
+"expired" ran its course; the bad ending is "breached"); counterparty as linked-ref
+where PII allows, else "PII redacted" marginalia note. `horizon`: days-to-due as
+signed numbers (negative = overdue), urgency tone map, next-duty identity.
+`overview`: KPI band (total, active, expiring, breached, open adjudications) —
+"expiring" is the CLASSIFIER's count under the org's bound expiry_horizon rules,
+never a pane-invented window; a pane must not disagree with the kernel about the
+kernel's own word.
 
 **Obolos** — `treasury`: KPI band (net position, in-flight total, settled count,
 exceptions count); two ruled tables (exposure, buckets) w/ ISK number columns.
