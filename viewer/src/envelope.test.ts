@@ -408,3 +408,21 @@ describe("dialectGateReason", () => {
 		expect(dialectGateReason(frameTree, "no-such-dialect")).toBeNull();
 	});
 });
+
+describe("kernel lift sibling-metadata tolerance", () => {
+	it("ignores sibling renderer metadata beside the artifact fields (zygos dialectId shape)", () => {
+		const result = parseKernelSurfaceEnvelope(
+			{ ...validBody.artifact, dialectId: "ledger" },
+			{ artifactId: "zygos:books", dialectHint: "ledger" },
+		);
+		expect(result.ok).toBe(true);
+	});
+
+	it("still rejects extra properties INSIDE the artifact tree", () => {
+		const result = parseKernelSurfaceEnvelope(
+			{ ...validBody.artifact, tree: { kind: "spacer", style: "color: red" }, dialectId: "ledger" },
+			{ artifactId: "zygos:books", dialectHint: "ledger" },
+		);
+		expect(result.ok).toBe(false);
+	});
+});

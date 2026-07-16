@@ -180,6 +180,23 @@ export interface KernelLiftOptions {
 }
 
 /**
+ * The compiled-surface contract fields (py `morphe_surface.CompiledSurface`).
+ * A kernel-direct response may carry SIBLING renderer metadata beside these
+ * (e.g. zygos stamps `dialectId` for its own frontend) — the lift projects
+ * the body onto the contract before the strict schema pass, so sibling keys
+ * are ignored while anything INSIDE the artifact fields still fails closed.
+ */
+const KERNEL_ARTIFACT_FIELDS = [
+	"artifact_version",
+	"tree",
+	"grammar_version",
+	"producer_version",
+	"compiler_version",
+	"diagnostics",
+	"produced_at",
+] as const;
+
+/**
  * Wrapper-lift for kernel-direct sources (KRA-752 §4): a kernel serves a BARE
  * CompiledSurface with no store envelope, so the viewer synthesizes the
  * envelope identity (artifact id from the route, dialect hint from source
@@ -190,7 +207,11 @@ export function parseKernelSurfaceEnvelope(
 	options: KernelLiftOptions,
 ): EnvelopeResult {
 	if (!isRecord(body)) return { ok: false, reason: "response body is not an object" };
-	const artifact = validateArtifactForDialect(body, options.dialectHint);
+	const projected: Record<string, unknown> = {};
+	for (const field of KERNEL_ARTIFACT_FIELDS) {
+		if (field in body) projected[field] = body[field];
+	}
+	const artifact = validateArtifactForDialect(projected, options.dialectHint);
 	if ("failed" in artifact) {
 		return {
 			ok: false,
