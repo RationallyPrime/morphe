@@ -63,10 +63,17 @@ def _badge(spec: SurfaceNode) -> Node:
 
 def _link(spec: SurfaceNode) -> Node:
     if not spec.href:
-        # An absent/empty relation is not a link — render an empty region, never a
-        # dead ``href="#"`` (KRA-677 R3). Backstop degrades keep their caption via _field.
-        return {"kind": "text", "value": "", "as": "body"}
-    return {"kind": "link", "href": spec.href, "label": spec.label}
+        # An absent/empty relation is not a link — never a dead ``href="#"``
+        # (KRA-677 R3). It renders the producer's OWN display label when one was
+        # carried in the data (``SurfaceRef(label="—")`` paints its em-dash);
+        # backstop degrades (no data label) keep rendering an empty region.
+        return {"kind": "text", "value": _str(spec.value), "as": "body"}
+    node: Node = {"kind": "link", "href": spec.href, "label": spec.label}
+    if spec.intent is not None:
+        # The one drill-in per pane keeps its declared register — a
+        # ``primary-action`` linked-ref must not demote to a body link.
+        node["intent"] = spec.intent
+    return node
 
 
 def _status(spec: SurfaceNode) -> Node:
