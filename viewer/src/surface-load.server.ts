@@ -13,6 +13,7 @@ import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
 import { GRAMMAR_VERSION, hasDialect } from "$lib";
 import type { EnvelopeResult } from "./envelope.js";
+import { dialectGateReason } from "./envelope.js";
 
 const FETCH_TIMEOUT_MS = 4000;
 
@@ -96,6 +97,21 @@ export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<Ga
 		request.dialectOverride !== null && hasDialect(request.dialectOverride)
 			? request.dialectOverride
 			: parsed.envelope.dialectHint;
+
+	// A `?dialect=` override renders under a dialect the parse gate never saw —
+	// re-run the mask gate for the dialect that will ACTUALLY render, so an
+	// override can restyle a surface but never bypass a compound policy
+	// (a disallowed compound fails closed instead of silently dropping).
+	if (dialectId !== parsed.envelope.dialectHint) {
+		const reason = dialectGateReason(parsed.envelope.tree, dialectId);
+		if (reason !== null) {
+			error(502, {
+				message: `The artifact failed its trust gate under dialect "${dialectId}": ${reason}.`,
+				code: "invalid-artifact",
+				artifactId: request.artifactId,
+			});
+		}
+	}
 
 	return { artifactId: parsed.envelope.artifactId, tree: parsed.envelope.tree, dialectId };
 }

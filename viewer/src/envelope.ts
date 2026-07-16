@@ -6,7 +6,7 @@
  */
 
 import type { Node } from "$lib";
-import { getDialect, validateNodeForDialect } from "$lib";
+import { GRAMMAR_VERSION, getDialect, validateNodeForDialect } from "$lib";
 import {
 	formatArtifactValidationIssue,
 	validateNodeDocument,
@@ -92,7 +92,7 @@ export function parseSurfaceEnvelope(
 			// genuinely malformed artifact (502): a breaking-grammar tree fails the
 			// schema pass before any version check runs. A dialect-mask failure means
 			// the schema PASSED — the artifact is this grammar, and the stamp is noise.
-			...(artifact.failed === "schema" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
+			...(artifact.failed !== "dialect" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
 		};
 	}
 	const value = artifact.value;
@@ -132,7 +132,7 @@ type SurfaceArtifactValue = Extract<
  */
 type GateOutcome =
 	| { readonly value: SurfaceArtifactValue }
-	| { readonly failed: "schema" | "dialect"; readonly reason: string };
+	| { readonly failed: "schema" | "grammar" | "dialect"; readonly reason: string };
 
 function validateArtifactForDialect(raw: unknown, dialectHint: string): GateOutcome {
 	const artifact = validateSurfaceArtifact(raw);
@@ -145,18 +145,33 @@ function validateArtifactForDialect(raw: unknown, dialectHint: string): GateOutc
 				: "artifact failed generated-schema validation",
 		};
 	}
-	const effectiveDialectId = getDialect(dialectHint).id;
-	const dialectValidation = validateNodeForDialect(artifact.value.tree, effectiveDialectId, {
-		validateNodeValue: (value) => validateNodeDocument(value).ok,
-	});
-	if (!dialectValidation.ok) {
-		const issue = dialectValidation.issues[0];
+	// Foreign grammar is checked BEFORE the dialect mask: a schema-valid artifact
+	// from another grammar whose tree also violates the mask must surface as the
+	// grammar-mismatch 409 naming both versions, never as a generic dialect 502.
+	if (artifact.value.grammar_version !== GRAMMAR_VERSION) {
 		return {
-			failed: "dialect",
-			reason: issue?.message ?? "artifact tree violates its dialect constraint",
+			failed: "grammar",
+			reason: `artifact grammar_version ${artifact.value.grammar_version} is not supported`,
 		};
 	}
+	const reason = dialectGateReason(artifact.value.tree, dialectHint);
+	if (reason !== null) return { failed: "dialect", reason };
 	return { value: artifact.value };
+}
+
+/**
+ * Run the dialect-mask gate alone. Exposed so the SSR loader can re-validate a
+ * tree under a `?dialect=` override: the dialect that actually renders must be
+ * a dialect the gate validated, never a bypass (the G|D emission contract).
+ */
+export function dialectGateReason(tree: Node, dialectHint: string): string | null {
+	const effectiveDialectId = getDialect(dialectHint).id;
+	const dialectValidation = validateNodeForDialect(tree, effectiveDialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (dialectValidation.ok) return null;
+	const issue = dialectValidation.issues[0];
+	return issue?.message ?? "artifact tree violates its dialect constraint";
 }
 
 export interface KernelLiftOptions {
@@ -180,7 +195,7 @@ export function parseKernelSurfaceEnvelope(
 		return {
 			ok: false,
 			reason: artifact.reason,
-			...(artifact.failed === "schema" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
+			...(artifact.failed !== "dialect" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
 		};
 	}
 	return {

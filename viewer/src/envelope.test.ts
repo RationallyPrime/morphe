@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	dialectGateReason,
 	isValidArtifactId,
 	MAX_SURFACE_ENVELOPE_BYTES,
 	parseKernelSurfaceEnvelope,
@@ -356,5 +357,51 @@ describe("parseKernelSurfaceResponse", () => {
 			dialectHint: "ledger",
 		});
 		expect(result.ok).toBe(false);
+	});
+});
+
+describe("foreign-grammar precedence over dialect rejection", () => {
+	const foreignArtifact = {
+		...validBody.artifact,
+		grammar_version: "9.9.9",
+		tree: { kind: "compound", name: "consumer-private-card", args: {} },
+	};
+
+	it("kernel lift: surfaces the grammar stamp when a schema-valid foreign artifact also violates the mask", () => {
+		const result = parseKernelSurfaceEnvelope(foreignArtifact, {
+			artifactId: "taxis:roster",
+			dialectHint: "clinical",
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
+		expect(result.reason).toContain("grammar_version 9.9.9");
+	});
+
+	it("store path: surfaces the grammar stamp when a schema-valid foreign artifact also violates the mask", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			grammar_version: "9.9.9",
+			dialect_hint: "clinical",
+			artifact: foreignArtifact,
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
+	});
+});
+
+describe("dialectGateReason", () => {
+	it("returns null for a tree the dialect permits", () => {
+		expect(dialectGateReason(validBody.artifact.tree, "clinical")).toBeNull();
+	});
+
+	it("names the violation when the dialect forbids a compound", () => {
+		const tree = { kind: "compound", name: "consumer-private-card", args: {} };
+		expect(dialectGateReason(tree, "clinical")).toContain("not permitted");
+	});
+
+	it("validates under the total fallback for unknown dialect names", () => {
+		expect(dialectGateReason(validBody.artifact.tree, "no-such-dialect")).toBeNull();
 	});
 });
