@@ -64,12 +64,144 @@ export const DEFAULT_ARTIFACT_VALIDATION_LIMITS: ArtifactValidationLimits = Obje
 });
 
 const SCHEMA_ISSUE_LIMIT = 8;
-const surfaceArtifactSchema = fromJSONSchema(SURFACE_ARTIFACT_JSON_SCHEMA as JsonSchemaInput);
-const nodeSchema = fromJSONSchema({
-	$schema: SURFACE_ARTIFACT_JSON_SCHEMA.$schema,
-	$ref: "#/$defs/Node",
-	$defs: SURFACE_ARTIFACT_JSON_SCHEMA.$defs,
-} as JsonSchemaInput);
+
+/*
+ * DISCRIMINATOR DISPATCH — the load-bearing performance shape of this gate.
+ *
+ * The generated Node union is a 27-branch `oneOf` with a `discriminator` on
+ * `kind`. zod's `fromJSONSchema` ignores the discriminator keyword and
+ * evaluates EVERY branch at EVERY node — and because branches recurse into
+ * child Nodes, validation goes super-linear in tree size (a live 126-node
+ * kernel surface pinned the SSR event loop for minutes; probed 2026-07-16).
+ *
+ * So the gate compiles one SHALLOW schema per node kind — the variant's own
+ * fields, with every child-Node position replaced by a "record with a string
+ * kind" stub — and walks the tree itself, dispatching each node to its
+ * variant by `kind` and recursing via `structuralNodeChildren` (which mirrors
+ * exactly the child positions the grammar declares: children / options /
+ * fallback / target / slots / compound args). One schema pass per node:
+ * validation is linear in tree size, with unchanged semantics — anything
+ * invalid INSIDE a node still fails, and an unknown kind fails the dispatch
+ * exactly as it failed every oneOf branch before.
+ */
+
+const NODE_STUB_SCHEMA = {
+	type: "object",
+	properties: { kind: { type: "string" } },
+	required: ["kind"],
+} as const;
+
+function stubNodeRefs(schema: unknown): unknown {
+	if (Array.isArray(schema)) return schema.map(stubNodeRefs);
+	if (typeof schema !== "object" || schema === null) return schema;
+	const record = schema as Record<string, unknown>;
+	if (record.$ref === "#/$defs/Node") return NODE_STUB_SCHEMA;
+	const out: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(record)) out[key] = stubNodeRefs(value);
+	return out;
+}
+
+const GENERATED_DEFS = SURFACE_ARTIFACT_JSON_SCHEMA.$defs as Record<
+	string,
+	Record<string, unknown>
+>;
+const STUBBED_DEFS = stubNodeRefs(GENERATED_DEFS) as Record<string, unknown>;
+
+function shallowSchemaFor(ref: string) {
+	return fromJSONSchema({
+		$schema: SURFACE_ARTIFACT_JSON_SCHEMA.$schema,
+		$ref: ref,
+		$defs: STUBBED_DEFS,
+	} as JsonSchemaInput);
+}
+
+type ShallowSchema = ReturnType<typeof fromJSONSchema>;
+
+const nodeVariantByKind: ReadonlyMap<string, ShallowSchema> = (() => {
+	const union = GENERATED_DEFS.Node as { oneOf?: readonly { $ref?: string }[] };
+	const variants = union.oneOf ?? [];
+	const byKind = new Map<string, ShallowSchema>();
+	for (const variant of variants) {
+		const ref = variant.$ref;
+		if (!ref) throw new Error("generated Node union carries an inline variant");
+		const name = ref.split("/").at(-1) ?? "";
+		const definition = GENERATED_DEFS[name] as {
+			properties?: { kind?: { const?: string } };
+		};
+		const kind = definition?.properties?.kind?.const;
+		if (typeof kind !== "string") {
+			throw new Error(`generated Node variant ${name} does not pin a kind const`);
+		}
+		byKind.set(kind, shallowSchemaFor(ref));
+	}
+	return byKind;
+})();
+
+// The envelope schema with `tree` stubbed: envelope fields validate via zod,
+// the tree itself goes through the dispatching walk below.
+const shallowSurfaceArtifactSchema = fromJSONSchema(
+	stubNodeRefs({
+		...SURFACE_ARTIFACT_JSON_SCHEMA,
+		$defs: GENERATED_DEFS,
+	}) as JsonSchemaInput,
+);
+
+function indexedSlotChildren(node: Record<string, unknown>): readonly StructuralNodeChild[] {
+	if (!isRecord(node.slots)) return [];
+	const children: StructuralNodeChild[] = [];
+	for (const [name, slot] of Object.entries(node.slots)) {
+		children.push(...indexedStructuralChildren(slot, ["slots", name]));
+	}
+	return children;
+}
+
+function dispatchNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValidationIssue | null {
+	const pending: Array<{ readonly node: unknown; readonly path: ValidationPath }> = [
+		{ node: root, path: prefix },
+	];
+	while (pending.length > 0) {
+		const current = pending.pop();
+		if (!current) break;
+		if (!isRecord(current.node)) {
+			return { code: "schema", path: current.path, message: "node must be an object" };
+		}
+		const kind = current.node.kind;
+		if (typeof kind !== "string") {
+			return { code: "schema", path: [...current.path, "kind"], message: "node requires a kind" };
+		}
+		const variant = nodeVariantByKind.get(kind);
+		if (variant === undefined) {
+			return {
+				code: "schema",
+				path: [...current.path, "kind"],
+				message: `unknown node kind "${kind}"`,
+			};
+		}
+		const parsed = variant.safeParse(current.node);
+		if (!parsed.success) {
+			const issue = schemaIssues(parsed.error)[0];
+			return issue
+				? { ...issue, path: [...current.path, ...issue.path] }
+				: { code: "schema", path: current.path, message: "node failed its kind schema" };
+		}
+		// Compound ARGS are excluded from the schema walk on purpose: the generic
+		// grammar schema types args as free values, and their per-parameter node
+		// contracts are enforced by the DIALECT layer (validateNodeForDialect's
+		// validateNodeValue callback), which owns the specialized compound
+		// schemas — mirroring what the monolithic zod pass validated. Slots are
+		// generic node-lists and stay in this walk.
+		const children =
+			kind === "compound"
+				? indexedSlotChildren(current.node)
+				: structuralNodeChildren(current.node);
+		for (let index = children.length - 1; index >= 0; index -= 1) {
+			const child = children[index];
+			if (!child) continue;
+			pending.push({ node: child.node, path: [...current.path, ...child.path] });
+		}
+	}
+	return null;
+}
 
 function limitIssue(
 	code: ArtifactValidationIssueCode,
@@ -283,11 +415,11 @@ export function validateNodeDocument(
 ): ValidationResult<Node> {
 	const limit = inspectComplexity(value, limitsWith(limits));
 	if (limit) return { ok: false, issues: [limit] };
-	const parsed = nodeSchema.safeParse(value);
-	if (!parsed.success) return { ok: false, issues: schemaIssues(parsed.error) };
-	const semantic = semanticNodeIssue(parsed.data, []);
+	const dispatched = dispatchNodeIssue(value, []);
+	if (dispatched) return { ok: false, issues: [dispatched] };
+	const semantic = semanticNodeIssue(value, []);
 	if (semantic) return { ok: false, issues: [semantic] };
-	return { ok: true, value: parsed.data as Node };
+	return { ok: true, value: value as Node };
 }
 
 /** Validate and brand an untrusted compiled-surface document. */
@@ -297,9 +429,11 @@ export function validateSurfaceArtifact(
 ): ValidationResult<TrustedSurfaceArtifact> {
 	const limit = inspectComplexity(value, limitsWith(limits));
 	if (limit) return { ok: false, issues: [limit] };
-	const parsed = surfaceArtifactSchema.safeParse(value);
+	const parsed = shallowSurfaceArtifactSchema.safeParse(value);
 	if (!parsed.success) return { ok: false, issues: schemaIssues(parsed.error) };
 	const document = parsed.data as SurfaceArtifactDocument;
+	const dispatched = dispatchNodeIssue(document.tree, ["tree"]);
+	if (dispatched) return { ok: false, issues: [dispatched] };
 	const semantic = semanticNodeIssue(document.tree, ["tree"]);
 	if (semantic) return { ok: false, issues: [semantic] };
 	if (document.producer_version !== document.compiler_version) {
