@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { Node } from "$lib";
 import {
+	dialectGateReason,
 	isValidArtifactId,
 	MAX_SURFACE_ENVELOPE_BYTES,
+	parseKernelSurfaceEnvelope,
+	parseKernelSurfaceResponse,
 	parseSurfaceEnvelope,
 	parseSurfaceResponse,
 } from "./envelope.js";
@@ -282,5 +286,125 @@ describe("isValidArtifactId", () => {
 		"../escape",
 	])("rejects %s", (id) => {
 		expect(isValidArtifactId(id)).toBe(false);
+	});
+});
+
+describe("parseKernelSurfaceEnvelope", () => {
+	const liftOptions = { artifactId: "taxis:roster", dialectHint: "timaeus" };
+
+	it("lifts a bare CompiledSurface into the envelope contract", () => {
+		const result = parseKernelSurfaceEnvelope(validBody.artifact, liftOptions);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.envelope.artifactId).toBe("taxis:roster");
+		expect(result.envelope.dialectHint).toBe("timaeus");
+		expect(result.envelope.grammarVersion).toBe("0.2.0");
+		expect(result.envelope.artifactVersion).toBe("1.0.0");
+		expect(result.envelope.tree.kind).toBe("frame");
+	});
+
+	it("runs the identical dialect mask gate on lifted surfaces", () => {
+		const result = parseKernelSurfaceEnvelope(
+			{
+				...validBody.artifact,
+				tree: { kind: "compound", name: "consumer-private-card", args: {} },
+			},
+			{ artifactId: "taxis:roster", dialectHint: "clinical" },
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason: 'compound "consumer-private-card" is not permitted by dialect "clinical"',
+		});
+	});
+
+	it("surfaces the raw grammar stamp when a foreign-grammar bare surface fails the schema pass", () => {
+		const result = parseKernelSurfaceEnvelope(
+			{ grammar_version: "9.9.9", tree: { role: "page" } },
+			liftOptions,
+		);
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
+	});
+
+	it.each([
+		["non-object body", "nope"],
+		["missing tree", { ...validBody.artifact, tree: undefined }],
+	])("rejects %s", (_label, body) => {
+		expect(parseKernelSurfaceEnvelope(body, liftOptions).ok).toBe(false);
+	});
+});
+
+describe("parseKernelSurfaceResponse", () => {
+	it("lifts a valid HTTP kernel response", async () => {
+		const response = new Response(JSON.stringify(validBody.artifact), {
+			headers: { "content-type": "application/json" },
+		});
+		const result = await parseKernelSurfaceResponse(response, {
+			artifactId: "taxis:orgs",
+			dialectHint: "ledger",
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.envelope.artifactId).toBe("taxis:orgs");
+	});
+
+	it("keeps the byte budget on the kernel path", async () => {
+		const response = new Response("{}", {
+			headers: { "content-length": String(MAX_SURFACE_ENVELOPE_BYTES + 1) },
+		});
+		const result = await parseKernelSurfaceResponse(response, {
+			artifactId: "taxis:orgs",
+			dialectHint: "ledger",
+		});
+		expect(result.ok).toBe(false);
+	});
+});
+
+describe("foreign-grammar precedence over dialect rejection", () => {
+	const foreignArtifact = {
+		...validBody.artifact,
+		grammar_version: "9.9.9",
+		tree: { kind: "compound", name: "consumer-private-card", args: {} },
+	};
+
+	it("kernel lift: surfaces the grammar stamp when a schema-valid foreign artifact also violates the mask", () => {
+		const result = parseKernelSurfaceEnvelope(foreignArtifact, {
+			artifactId: "taxis:roster",
+			dialectHint: "clinical",
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
+		expect(result.reason).toContain("grammar_version 9.9.9");
+	});
+
+	it("store path: surfaces the grammar stamp when a schema-valid foreign artifact also violates the mask", () => {
+		const result = parseSurfaceEnvelope({
+			...validBody,
+			grammar_version: "9.9.9",
+			dialect_hint: "clinical",
+			artifact: foreignArtifact,
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.rawGrammarVersion).toBe("9.9.9");
+	});
+});
+
+describe("dialectGateReason", () => {
+	const frameTree = validBody.artifact.tree as unknown as Node;
+
+	it("returns null for a tree the dialect permits", () => {
+		expect(dialectGateReason(frameTree, "clinical")).toBeNull();
+	});
+
+	it("names the violation when the dialect forbids a compound", () => {
+		const tree = { kind: "compound", name: "consumer-private-card", args: {} } as unknown as Node;
+		expect(dialectGateReason(tree, "clinical")).toContain("not permitted");
+	});
+
+	it("validates under the total fallback for unknown dialect names", () => {
+		expect(dialectGateReason(frameTree, "no-such-dialect")).toBeNull();
 	});
 });

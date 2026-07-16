@@ -1,100 +1,41 @@
 import { error } from "@sveltejs/kit";
-import { env } from "$env/dynamic/private";
-import { GRAMMAR_VERSION, hasDialect } from "$lib";
 import { isValidArtifactId, parseSurfaceResponse } from "../../../envelope.js";
+import { bearerFor, loadSources } from "../../../sources.server.js";
+import { loadGatedSurface } from "../../../surface-load.server.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
  * /surfaces/[artifactId] — the viewer container (KRA-648 / MO-D3).
  *
- * SSR-fetches artifact JSON from the configured read route. The browser talks
- * only to this viewer, so the backing store stays private and CORS stays fail-closed.
+ * Addresses the DEFAULT store source by dynamic artifact id (the topos-shape
+ * store, whose ids are minted at publication time and cannot be declared in
+ * config). The default source is either the legacy MORPHE_ARTIFACT_BASE_URL
+ * or a MORPHE_SOURCES entry named "default" with kind "store".
  *
- * Fail-closed grammar gate (MO-D5): an unsupported grammar_version renders a
- * diagnostic page naming both versions — never a silent partial render.
- * Dialect: `?dialect=` override when it names a shipped dialect, else the
- * envelope's dialect_hint (getDialect in the page is total, so a stale hint
- * still renders under the default dialect).
+ * SSR-fetches artifact JSON from the configured read route. The browser talks
+ * only to this viewer, so the backing store stays private and CORS stays
+ * fail-closed. Trust gate + fail-closed grammar 409 live in loadGatedSurface.
  */
-
-const FETCH_TIMEOUT_MS = 4000;
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	if (!isValidArtifactId(params.artifactId)) error(404, { message: "Unknown artifact." });
 
-	const baseUrl = env.MORPHE_ARTIFACT_BASE_URL;
-	if (!baseUrl) {
+	const source = loadSources().get("default");
+	if (source === undefined || source.kind !== "store") {
 		error(503, {
-			message: "MORPHE_ARTIFACT_BASE_URL is not configured; the viewer has no artifact store.",
+			message:
+				"No default artifact store is configured; set MORPHE_ARTIFACT_BASE_URL or a " +
+				'MORPHE_SOURCES entry named "default" with kind "store".',
 			code: "not-configured",
 		});
 	}
 
-	let response: Response;
-	try {
-		response = await fetch(
-			`${baseUrl.replace(/\/+$/, "")}/${encodeURIComponent(params.artifactId)}`,
-			{
-				headers: { accept: "application/json" },
-				signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-			},
-		);
-	} catch {
-		error(502, {
-			message: "The artifact store is unreachable.",
-			code: "upstream-unreachable",
-			artifactId: params.artifactId,
-		});
-	}
-
-	if (response.status === 404) error(404, { message: "Unknown artifact." });
-	if (!response.ok) {
-		error(502, {
-			message: `The artifact store answered ${response.status}.`,
-			code: "upstream-unreachable",
-			artifactId: params.artifactId,
-		});
-	}
-
-	const parsed = await parseSurfaceResponse(response, { expectedArtifactId: params.artifactId });
-	if (!parsed.ok) {
-		// A breaking-grammar artifact fails the schema pass before any version check
-		// can run — surface the dedicated 409 naming both versions instead of a
-		// generic trust-gate 502 when the raw stamp says the grammar is foreign.
-		if (parsed.rawGrammarVersion && parsed.rawGrammarVersion !== GRAMMAR_VERSION) {
-			error(409, {
-				message: "This artifact was compiled under a grammar this viewer does not support.",
-				code: "grammar-mismatch",
-				artifactId: params.artifactId,
-				artifactVersion: parsed.rawGrammarVersion,
-				supportedVersion: GRAMMAR_VERSION,
-			});
-		}
-		error(502, {
-			message: `The artifact failed its trust gate: ${parsed.reason}.`,
-			code: "invalid-artifact",
-			artifactId: params.artifactId,
-		});
-	}
-
-	// Fail-closed grammar gate: no partial render, name both versions (MO-D5).
-	if (parsed.envelope.grammarVersion !== GRAMMAR_VERSION) {
-		error(409, {
-			message: "This artifact was compiled under a grammar this viewer does not support.",
-			code: "grammar-mismatch",
-			artifactId: params.artifactId,
-			artifactVersion: parsed.envelope.grammarVersion,
-			supportedVersion: GRAMMAR_VERSION,
-		});
-	}
-
-	const dialectParam = url.searchParams.get("dialect");
-	const dialectId =
-		dialectParam !== null && hasDialect(dialectParam) ? dialectParam : parsed.envelope.dialectHint;
-
-	return {
-		artifactId: parsed.envelope.artifactId,
-		tree: parsed.envelope.tree,
-		dialectId,
-	};
+	return loadGatedSurface({
+		fetch,
+		url: `${source.baseUrl}/${encodeURIComponent(params.artifactId)}`,
+		artifactId: params.artifactId,
+		bearer: bearerFor(source),
+		parse: (response) => parseSurfaceResponse(response, { expectedArtifactId: params.artifactId }),
+		dialectOverride: url.searchParams.get("dialect"),
+	});
 };

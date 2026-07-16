@@ -6,7 +6,7 @@
  */
 
 import type { Node } from "$lib";
-import { getDialect, validateNodeForDialect } from "$lib";
+import { GRAMMAR_VERSION, getDialect, validateNodeForDialect } from "$lib";
 import {
 	formatArtifactValidationIssue,
 	validateNodeDocument,
@@ -82,49 +82,130 @@ export function parseSurfaceEnvelope(
 	const dialectHint = stringField(body, "dialect_hint");
 	if (dialectHint === null) return { ok: false, reason: "missing dialect_hint" };
 
-	const artifact = validateSurfaceArtifact(body.artifact);
-	if (!artifact.ok) {
-		const firstIssue = artifact.issues[0];
+	const artifact = validateArtifactForDialect(body.artifact, dialectHint);
+	if ("failed" in artifact) {
 		return {
 			ok: false,
-			reason: firstIssue
-				? formatArtifactValidationIssue(firstIssue)
-				: "artifact failed generated-schema validation",
-			// Surfaced raw so the route can distinguish "compiled under a grammar this
-			// viewer does not support" (409) from a genuinely malformed artifact (502):
-			// a breaking-grammar tree fails the schema pass before any version check runs.
-			rawGrammarVersion: rawGrammarVersionOf(body),
+			reason: artifact.reason,
+			// Surfaced raw ONLY on a schema failure, so the route can distinguish
+			// "compiled under a grammar this viewer does not support" (409) from a
+			// genuinely malformed artifact (502): a breaking-grammar tree fails the
+			// schema pass before any version check runs. A dialect-mask failure means
+			// the schema PASSED — the artifact is this grammar, and the stamp is noise.
+			...(artifact.failed !== "dialect" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
 		};
 	}
-	// Mask enforcement follows what will actually render: getDialect is total, so an
-	// unknown hint resolves to the default dialect and the tree is validated against
-	// that dialect's compound policy. A tree violating a KNOWN declared dialect's
-	// policy still fails closed (the G|D emission contract).
-	const effectiveDialectId = getDialect(dialectHint).id;
-	const dialectValidation = validateNodeForDialect(artifact.value.tree, effectiveDialectId, {
-		validateNodeValue: (value) => validateNodeDocument(value).ok,
-	});
-	if (!dialectValidation.ok) {
-		const issue = dialectValidation.issues[0];
-		return {
-			ok: false,
-			reason: issue?.message ?? "artifact tree violates its dialect constraint",
-		};
-	}
+	const value = artifact.value;
 
-	const grammarMismatch = mismatch(body, "grammar_version", artifact.value.grammar_version);
+	const grammarMismatch = mismatch(body, "grammar_version", value.grammar_version);
 	if (grammarMismatch) return { ok: false, reason: grammarMismatch };
-	const compilerMismatch = mismatch(body, "compiler_version", artifact.value.compiler_version);
+	const compilerMismatch = mismatch(body, "compiler_version", value.compiler_version);
 	if (compilerMismatch) return { ok: false, reason: compilerMismatch };
 
 	return {
 		ok: true,
 		envelope: {
 			artifactId,
+			artifactVersion: value.artifact_version,
+			grammarVersion: value.grammar_version,
+			compilerVersion: value.compiler_version,
+			dialectHint,
+			tree: value.tree,
+		},
+	};
+}
+
+type SurfaceArtifactValue = Extract<
+	ReturnType<typeof validateSurfaceArtifact>,
+	{ ok: true }
+>["value"];
+
+/**
+ * The shared trust gate: generated-schema validation plus dialect-mask
+ * enforcement. Both the store-envelope path and the kernel-direct lift run the
+ * IDENTICAL gate — a kernel-direct source gets no weaker trust machinery.
+ *
+ * Mask enforcement follows what will actually render: getDialect is total, so an
+ * unknown hint resolves to the default dialect and the tree is validated against
+ * that dialect's compound policy. A tree violating a KNOWN declared dialect's
+ * policy still fails closed (the G|D emission contract).
+ */
+type GateOutcome =
+	| { readonly value: SurfaceArtifactValue }
+	| { readonly failed: "schema" | "grammar" | "dialect"; readonly reason: string };
+
+function validateArtifactForDialect(raw: unknown, dialectHint: string): GateOutcome {
+	const artifact = validateSurfaceArtifact(raw);
+	if (!artifact.ok) {
+		const firstIssue = artifact.issues[0];
+		return {
+			failed: "schema",
+			reason: firstIssue
+				? formatArtifactValidationIssue(firstIssue)
+				: "artifact failed generated-schema validation",
+		};
+	}
+	// Foreign grammar is checked BEFORE the dialect mask: a schema-valid artifact
+	// from another grammar whose tree also violates the mask must surface as the
+	// grammar-mismatch 409 naming both versions, never as a generic dialect 502.
+	if (artifact.value.grammar_version !== GRAMMAR_VERSION) {
+		return {
+			failed: "grammar",
+			reason: `artifact grammar_version ${artifact.value.grammar_version} is not supported`,
+		};
+	}
+	const reason = dialectGateReason(artifact.value.tree, dialectHint);
+	if (reason !== null) return { failed: "dialect", reason };
+	return { value: artifact.value };
+}
+
+/**
+ * Run the dialect-mask gate alone. Exposed so the SSR loader can re-validate a
+ * tree under a `?dialect=` override: the dialect that actually renders must be
+ * a dialect the gate validated, never a bypass (the G|D emission contract).
+ */
+export function dialectGateReason(tree: Node, dialectHint: string): string | null {
+	const effectiveDialectId = getDialect(dialectHint).id;
+	const dialectValidation = validateNodeForDialect(tree, effectiveDialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (dialectValidation.ok) return null;
+	const issue = dialectValidation.issues[0];
+	return issue?.message ?? "artifact tree violates its dialect constraint";
+}
+
+export interface KernelLiftOptions {
+	readonly artifactId: string;
+	readonly dialectHint: string;
+}
+
+/**
+ * Wrapper-lift for kernel-direct sources (KRA-752 §4): a kernel serves a BARE
+ * CompiledSurface with no store envelope, so the viewer synthesizes the
+ * envelope identity (artifact id from the route, dialect hint from source
+ * config) AFTER the body passes the same schema + dialect trust gate.
+ */
+export function parseKernelSurfaceEnvelope(
+	body: unknown,
+	options: KernelLiftOptions,
+): EnvelopeResult {
+	if (!isRecord(body)) return { ok: false, reason: "response body is not an object" };
+	const artifact = validateArtifactForDialect(body, options.dialectHint);
+	if ("failed" in artifact) {
+		return {
+			ok: false,
+			reason: artifact.reason,
+			...(artifact.failed !== "dialect" ? { rawGrammarVersion: rawGrammarVersionOf(body) } : {}),
+		};
+	}
+	return {
+		ok: true,
+		envelope: {
+			artifactId: options.artifactId,
 			artifactVersion: artifact.value.artifact_version,
 			grammarVersion: artifact.value.grammar_version,
 			compilerVersion: artifact.value.compiler_version,
-			dialectHint,
+			dialectHint: options.dialectHint,
 			tree: artifact.value.tree,
 		},
 	};
@@ -163,21 +244,39 @@ async function boundedResponseBytes(response: Response): Promise<Uint8Array | st
 	return bytes;
 }
 
+async function boundedResponseJson(
+	response: Response,
+): Promise<{ ok: true; body: unknown } | { ok: false; reason: string }> {
+	const bytes = await boundedResponseBytes(response);
+	if (typeof bytes === "string") return { ok: false, reason: bytes };
+	try {
+		return {
+			ok: true,
+			body: JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)),
+		};
+	} catch {
+		return { ok: false, reason: "artifact response is not valid JSON" };
+	}
+}
+
 /** Read, bound, decode, and validate an HTTP artifact response. */
 export async function parseSurfaceResponse(
 	response: Response,
 	options: EnvelopeParseOptions = {},
 ): Promise<EnvelopeResult> {
-	const bytes = await boundedResponseBytes(response);
-	if (typeof bytes === "string") return { ok: false, reason: bytes };
+	const decoded = await boundedResponseJson(response);
+	if (!decoded.ok) return { ok: false, reason: decoded.reason };
+	return parseSurfaceEnvelope(decoded.body, options);
+}
 
-	let body: unknown;
-	try {
-		body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
-	} catch {
-		return { ok: false, reason: "artifact response is not valid JSON" };
-	}
-	return parseSurfaceEnvelope(body, options);
+/** Read, bound, decode, and lift an HTTP kernel-direct surface response. */
+export async function parseKernelSurfaceResponse(
+	response: Response,
+	options: KernelLiftOptions,
+): Promise<EnvelopeResult> {
+	const decoded = await boundedResponseJson(response);
+	if (!decoded.ok) return { ok: false, reason: decoded.reason };
+	return parseKernelSurfaceEnvelope(decoded.body, options);
 }
 
 /** Artifact ids are bounded opaque identifiers safe for one encoded path segment. */
