@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Node } from "$lib";
 import {
 	dialectGateReason,
 	isValidArtifactId,
@@ -392,16 +393,18 @@ describe("foreign-grammar precedence over dialect rejection", () => {
 });
 
 describe("dialectGateReason", () => {
+	const frameTree = validBody.artifact.tree as unknown as Node;
+
 	it("returns null for a tree the dialect permits", () => {
-		expect(dialectGateReason(validBody.artifact.tree, "clinical")).toBeNull();
+		expect(dialectGateReason(frameTree, "clinical")).toBeNull();
 	});
 
 	it("names the violation when the dialect forbids a compound", () => {
-		const tree = { kind: "compound", name: "consumer-private-card", args: {} };
+		const tree = { kind: "compound", name: "consumer-private-card", args: {} } as unknown as Node;
 		expect(dialectGateReason(tree, "clinical")).toContain("not permitted");
 	});
 
 	it("validates under the total fallback for unknown dialect names", () => {
-		expect(dialectGateReason(validBody.artifact.tree, "no-such-dialect")).toBeNull();
+		expect(dialectGateReason(frameTree, "no-such-dialect")).toBeNull();
 	});
 });
