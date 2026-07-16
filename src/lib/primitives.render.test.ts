@@ -902,6 +902,19 @@ describe("Content leaves — inline color resolves to a CSS value in SSR, not a 
 		expect(html).toMatch(/color:\s*var\(--mo-intent-evidence-on\)/);
 	});
 
+	it("Number never throws on a malformed currency code — renders plain instead", () => {
+		// Currency codes are authored DATA; a 4-letter ticker must not RangeError
+		// the pane (renderer totality). It degrades to plain formatting.
+		const html = ssr({ kind: "number", value: 1250, format: "currency", currency: "USDT" });
+		expect(html).toContain("mo-number");
+		expect(html).not.toContain("USDT");
+	});
+
+	it("Number formats a well-formed currency code", () => {
+		const html = ssr({ kind: "number", value: 1250, format: "currency", currency: "ISK" });
+		expect(html).toContain("mo-number");
+	});
+
 	it("Icon emits its intent color as a var(), never a serialized function", () => {
 		const html = ssr({
 			kind: "icon",

@@ -292,3 +292,29 @@ def test_morphe_hint_is_strict_at_authoring_time() -> None:
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
     with pytest.raises(ValueError, match="strategy"):
         morphe_hint(strategy="nubmer")
+
+
+def test_malformed_currency_degrades_to_plain_number() -> None:
+    # Intl.NumberFormat RAISES on a non-ISO-4217-shaped code — the compiler must
+    # never emit one (renderer totality has a compiler-side twin, D8).
+    schema = {
+        "type": "object",
+        "properties": {
+            "n": {
+                "type": "integer",
+                "x-morphe": {"strategy": "number", "format": "currency", "currency": "USDT"},
+            }
+        },
+    }
+    spec = _build(schema, {"n": 1250})
+    cell = _child(spec, "$.n")
+    assert cell.strategy == "number"
+    assert cell.number_format == "plain"
+    assert cell.currency is None
+
+
+def test_kpi_cell_refuses_malformed_currency_at_authoring_time() -> None:
+    with pytest.raises(ValueError, match="ISO-4217"):
+        KpiCell(label="Net", value=100, format="currency", currency="USDT")
+    with pytest.raises(ValueError, match="ISO-4217"):
+        morphe_hint(strategy="number", format="currency", currency="USDT")

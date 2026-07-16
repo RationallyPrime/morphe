@@ -8,13 +8,16 @@ of silently rendering the floor in a customer deployment.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, model_validator
 
 from morphe_contracts import ContractModel, IntentRef
 
 from .hints import MorpheHint, NumberFormat
+
+_WELL_FORMED_CURRENCY = re.compile(r"^[A-Za-z]{3}$")
 
 
 def morphe_hint(**hint: Any) -> dict[str, Any]:  # noqa: ANN401 - kwargs mirror MorpheHint's fields
@@ -23,8 +26,19 @@ def morphe_hint(**hint: Any) -> dict[str, Any]:  # noqa: ANN401 - kwargs mirror 
     Raises on any key or value ``MorpheHint`` does not know — authoring-time strictness.
     """
     validated = MorpheHint.model_validate(hint)
+    _require_well_formed_currency(validated.currency)
     supplied = validated.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
     return {"x-morphe": supplied}
+
+
+def _require_well_formed_currency(currency: str | None) -> None:
+    # The renderer's Intl call RAISES on a non-ISO-4217-shaped code; the compiler
+    # degrades such a pair to a plain number at build time (D8). Authoring-side we
+    # refuse it outright — a producer typo should fail its test suite, not ship a
+    # silently-unformatted column.
+    if currency is not None and _WELL_FORMED_CURRENCY.fullmatch(currency) is None:
+        msg = f"currency must be a 3-letter ISO-4217 code, got {currency!r}"
+        raise ValueError(msg)
 
 
 class KpiCell(ContractModel):
@@ -43,3 +57,8 @@ class KpiCell(ContractModel):
     format: NumberFormat | None = None
     currency: str | None = None
     intent: IntentRef | None = None
+
+    @model_validator(mode="after")
+    def well_formed_currency(self) -> KpiCell:
+        _require_well_formed_currency(self.currency)
+        return self
