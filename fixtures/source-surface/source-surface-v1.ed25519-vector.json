@@ -1,0 +1,410 @@
+{
+  "algorithm": "Ed25519",
+  "artifact": {
+    "attestation": {
+      "algorithm": "Ed25519",
+      "key_id": "taxis-fixture-2026-01",
+      "signature": "Fg5BA9b7yyabo-4WJ5HIHTIMA38sjRE04UKFErx4UPkgqlC_mrPYDDmrdu4UCso_03_iOgl1SIoHD544oHQdAg"
+    },
+    "data": {
+      "coverage": 0.75,
+      "keyFigures": [
+        {
+          "currency": "ISK",
+          "format": "currency",
+          "intent": "evidence",
+          "kicker": "Window",
+          "label": "Scheduled payroll",
+          "value": 2450000
+        },
+        {
+          "currency": null,
+          "format": null,
+          "intent": null,
+          "kicker": "Operations",
+          "label": "Dispatch mode",
+          "value": "weather hold"
+        }
+      ],
+      "name": "Vestfir\u00f0ir \u2014 \"night\"\nroster",
+      "windowLabel": "2026-W29",
+      "workers": [
+        {
+          "allocation": 0.8,
+          "hourlyRate": 7950,
+          "name": "Arna K.",
+          "profile": {
+            "href": "/workers/wrk-001",
+            "label": "Open Arna"
+          },
+          "state": "active",
+          "workerId": "wrk-001"
+        },
+        {
+          "allocation": 0.45,
+          "hourlyRate": null,
+          "name": "Baldur R.",
+          "profile": {
+            "href": "/workers/wrk-002",
+            "label": "Open Baldur"
+          },
+          "state": "review",
+          "workerId": "wrk-002"
+        }
+      ]
+    },
+    "diagnostics": [
+      {
+        "code": "TAXIS_ROW_REVIEW",
+        "message": "The second worker needs roster review.",
+        "path": "$.workers[1]",
+        "repair_hint": "Confirm the allocation before dispatch.",
+        "severity": "warning"
+      },
+      {
+        "code": "TAXIS_ALLOCATION_SOURCE",
+        "message": "Allocation reflects the signed planning window.",
+        "path": "$.workers[0].allocation",
+        "repair_hint": null,
+        "severity": "info"
+      }
+    ],
+    "issuer": "taxis",
+    "kind": "morphe.source-surface",
+    "produced_at": "2026-07-17T12:00:00Z",
+    "required_capabilities": [],
+    "schema": {
+      "$defs": {
+        "CoreIntent": {
+          "enum": [
+            "primary-action",
+            "neutral",
+            "provenance",
+            "evidence",
+            "accession",
+            "caution",
+            "success",
+            "info"
+          ],
+          "type": "string"
+        },
+        "IntentRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CoreIntent"
+            },
+            {
+              "$ref": "#/$defs/RegisterIntent"
+            }
+          ]
+        },
+        "KpiCell": {
+          "additionalProperties": false,
+          "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.",
+          "properties": {
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Currency"
+            },
+            "format": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/NumberFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "intent": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/IntentRef"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "kicker": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Kicker"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Value"
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ],
+          "title": "KpiCell",
+          "type": "object"
+        },
+        "NumberFormat": {
+          "enum": [
+            "plain",
+            "integer",
+            "currency",
+            "percent",
+            "compact"
+          ],
+          "type": "string"
+        },
+        "RegisterIntent": {
+          "enum": [
+            "folio",
+            "marginalia",
+            "seal"
+          ],
+          "type": "string"
+        },
+        "_SurfaceLink": {
+          "additionalProperties": false,
+          "properties": {
+            "href": {
+              "title": "Href",
+              "type": "string"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "href"
+          ],
+          "title": "_SurfaceLink",
+          "type": "object"
+        },
+        "_TaxisRosterRow": {
+          "additionalProperties": false,
+          "properties": {
+            "allocation": {
+              "title": "Allocation",
+              "type": "number",
+              "x-morphe": {
+                "role": "info",
+                "strategy": "progress"
+              }
+            },
+            "hourlyRate": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Hourly rate",
+              "x-morphe": {
+                "currency": "ISK",
+                "format": "currency",
+                "strategy": "number"
+              }
+            },
+            "name": {
+              "title": "Worker",
+              "type": "string"
+            },
+            "profile": {
+              "$ref": "#/$defs/_SurfaceLink",
+              "title": "Worker profile",
+              "x-morphe": {
+                "role": "primary-action",
+                "strategy": "linked-ref"
+              }
+            },
+            "state": {
+              "enum": [
+                "active",
+                "review",
+                "paused"
+              ],
+              "title": "Roster state",
+              "type": "string",
+              "x-morphe": {
+                "intents": {
+                  "active": "success",
+                  "paused": "neutral",
+                  "review": "caution"
+                },
+                "strategy": "status"
+              }
+            },
+            "workerId": {
+              "title": "Worker ID",
+              "type": "string"
+            }
+          },
+          "required": [
+            "workerId",
+            "name",
+            "state",
+            "allocation",
+            "profile"
+          ],
+          "title": "_TaxisRosterRow",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "coverage": {
+          "title": "Window coverage",
+          "type": "number",
+          "x-morphe": {
+            "role": "info",
+            "strategy": "progress"
+          }
+        },
+        "keyFigures": {
+          "items": {
+            "$ref": "#/$defs/KpiCell"
+          },
+          "title": "Key figures",
+          "type": "array",
+          "x-morphe": {
+            "heading": false,
+            "strategy": "kpi-row"
+          }
+        },
+        "name": {
+          "title": "Roster",
+          "type": "string"
+        },
+        "windowLabel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window"
+        },
+        "workers": {
+          "items": {
+            "$ref": "#/$defs/_TaxisRosterRow"
+          },
+          "title": "Workers",
+          "type": "array",
+          "x-morphe": {
+            "strategy": "table"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "coverage",
+        "keyFigures",
+        "workers"
+      ],
+      "title": "_TaxisRoster",
+      "type": "object"
+    },
+    "seals": {
+      "content_sha256": "sha256:9c572343b9eb7a94855d076a0fcc79f4e0940f964bd5c6b5274088499e11dc76",
+      "schema_sha256": "sha256:aed1667ea43aa51adfaeb7e96a77098ef90197a714a0d2653d94a73060cbe97d",
+      "testimony_sha256": "sha256:a21460448cfe7f822d16d4c0a016bd78603881c3ff7ae3f7099c5a43e8bd40bc"
+    },
+    "source_revision": "taxis-fixture-rev-0001",
+    "surface_id": "taxis.roster:westfjords:2026-W29",
+    "valid_until": "2026-07-18T12:00:00Z",
+    "view_model": {
+      "hint_vocabulary": "0.3.0",
+      "id": "taxis.roster",
+      "revision": 1,
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "wire_version": "1.0"
+  },
+  "canonical": {
+    "content_jcs_hex": "7b2264617461223a7b22636f766572616765223a302e37352c226b657946696775726573223a5b7b2263757272656e6379223a2249534b222c22666f726d6174223a2263757272656e6379222c22696e74656e74223a2265766964656e6365222c226b69636b6572223a2257696e646f77222c226c6162656c223a225363686564756c656420706179726f6c6c222c2276616c7565223a323435303030307d2c7b2263757272656e6379223a6e756c6c2c22666f726d6174223a6e756c6c2c22696e74656e74223a6e756c6c2c226b69636b6572223a224f7065726174696f6e73222c226c6162656c223a224469737061746368206d6f6465222c2276616c7565223a227765617468657220686f6c64227d5d2c226e616d65223a2256657374666972c3b0697220e28094205c226e696768745c225c6e726f73746572222c2277696e646f774c6162656c223a22323032362d573239222c22776f726b657273223a5b7b22616c6c6f636174696f6e223a302e382c22686f75726c7952617465223a373935302c226e616d65223a2241726e61204b2e222c2270726f66696c65223a7b2268726566223a222f776f726b6572732f77726b2d303031222c226c6162656c223a224f70656e2041726e61227d2c227374617465223a22616374697665222c22776f726b65724964223a2277726b2d303031227d2c7b22616c6c6f636174696f6e223a302e34352c22686f75726c7952617465223a6e756c6c2c226e616d65223a2242616c64757220522e222c2270726f66696c65223a7b2268726566223a222f776f726b6572732f77726b2d303032222c226c6162656c223a224f70656e2042616c647572227d2c227374617465223a22726576696577222c22776f726b65724964223a2277726b2d303032227d5d7d2c22646961676e6f7374696373223a5b7b22636f6465223a2254415849535f524f575f524556494557222c226d657373616765223a22546865207365636f6e6420776f726b6572206e6565647320726f73746572207265766965772e222c2270617468223a22242e776f726b6572735b315d222c227265706169725f68696e74223a22436f6e6669726d2074686520616c6c6f636174696f6e206265666f72652064697370617463682e222c227365766572697479223a227761726e696e67227d2c7b22636f6465223a2254415849535f414c4c4f434154494f4e5f534f55524345222c226d657373616765223a22416c6c6f636174696f6e207265666c6563747320746865207369676e656420706c616e6e696e672077696e646f772e222c2270617468223a22242e776f726b6572735b305d2e616c6c6f636174696f6e222c227265706169725f68696e74223a6e756c6c2c227365766572697479223a22696e666f227d5d7d",
+    "schema_jcs_hex": "7b222464656673223a7b22436f7265496e74656e74223a7b22656e756d223a5b227072696d6172792d616374696f6e222c226e65757472616c222c2270726f76656e616e6365222c2265766964656e6365222c22616363657373696f6e222c2263617574696f6e222c2273756363657373222c22696e666f225d2c2274797065223a22737472696e67227d2c22496e74656e74526566223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f436f7265496e74656e74227d2c7b2224726566223a22232f24646566732f5265676973746572496e74656e74227d5d7d2c224b706943656c6c223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c226465736372697074696f6e223a224f6e65206361726420696e206120606073747261746567793d5c226b70692d726f775c22606020636f6c6c656374696f6e20e280942074686520747970656420726f7720636f6e74726163742e5c6e5c6e456d6265642060606c6973745b4b706943656c6c5d606020286f7220616e79206d6f64656c2077697468207468657365206669656c64206e616d65732920696e2061207375726661636520766965775c6e6d6f64656c3b2074686520636f6d70696c6572206c6f7765727320656163682063656c6c20746f20612070726f6d6f7465642060605369676e616c4361726460602e20606076616c75656060206d61792062655c6e7465787475616c20e280942061206e6f6e2d6e756d65726963206d6561737572652072656e64657273206173207465787420696e7374656164206f66206120666f726d6174746564206e756d6265722e222c2270726f70657274696573223a7b2263757272656e6379223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a2243757272656e6379227d2c22666f726d6174223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f4e756d626572466f726d6174227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c7d2c22696e74656e74223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f496e74656e74526566227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c7d2c226b69636b6572223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a224b69636b6572227d2c226c6162656c223a7b227469746c65223a224c6162656c222c2274797065223a22737472696e67227d2c2276616c7565223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a22696e7465676572227d2c7b2274797065223a226e756d626572227d5d2c227469746c65223a2256616c7565227d7d2c227265717569726564223a5b226c6162656c222c2276616c7565225d2c227469746c65223a224b706943656c6c222c2274797065223a226f626a656374227d2c224e756d626572466f726d6174223a7b22656e756d223a5b22706c61696e222c22696e7465676572222c2263757272656e6379222c2270657263656e74222c22636f6d70616374225d2c2274797065223a22737472696e67227d2c225265676973746572496e74656e74223a7b22656e756d223a5b22666f6c696f222c226d617267696e616c6961222c227365616c225d2c2274797065223a22737472696e67227d2c225f537572666163654c696e6b223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b2268726566223a7b227469746c65223a2248726566222c2274797065223a22737472696e67227d2c226c6162656c223a7b227469746c65223a224c6162656c222c2274797065223a22737472696e67227d7d2c227265717569726564223a5b226c6162656c222c2268726566225d2c227469746c65223a225f537572666163654c696e6b222c2274797065223a226f626a656374227d2c225f5461786973526f73746572526f77223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b22616c6c6f636174696f6e223a7b227469746c65223a22416c6c6f636174696f6e222c2274797065223a226e756d626572222c22782d6d6f72706865223a7b22726f6c65223a22696e666f222c227374726174656779223a2270726f6772657373227d7d2c22686f75726c7952617465223a7b22616e794f66223a5b7b2274797065223a22696e7465676572227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a22486f75726c792072617465222c22782d6d6f72706865223a7b2263757272656e6379223a2249534b222c22666f726d6174223a2263757272656e6379222c227374726174656779223a226e756d626572227d7d2c226e616d65223a7b227469746c65223a22576f726b6572222c2274797065223a22737472696e67227d2c2270726f66696c65223a7b2224726566223a22232f24646566732f5f537572666163654c696e6b222c227469746c65223a22576f726b65722070726f66696c65222c22782d6d6f72706865223a7b22726f6c65223a227072696d6172792d616374696f6e222c227374726174656779223a226c696e6b65642d726566227d7d2c227374617465223a7b22656e756d223a5b22616374697665222c22726576696577222c22706175736564225d2c227469746c65223a22526f73746572207374617465222c2274797065223a22737472696e67222c22782d6d6f72706865223a7b22696e74656e7473223a7b22616374697665223a2273756363657373222c22706175736564223a226e65757472616c222c22726576696577223a2263617574696f6e227d2c227374726174656779223a22737461747573227d7d2c22776f726b65724964223a7b227469746c65223a22576f726b6572204944222c2274797065223a22737472696e67227d7d2c227265717569726564223a5b22776f726b65724964222c226e616d65222c227374617465222c22616c6c6f636174696f6e222c2270726f66696c65225d2c227469746c65223a225f5461786973526f73746572526f77222c2274797065223a226f626a656374227d7d2c226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b22636f766572616765223a7b227469746c65223a2257696e646f7720636f766572616765222c2274797065223a226e756d626572222c22782d6d6f72706865223a7b22726f6c65223a22696e666f222c227374726174656779223a2270726f6772657373227d7d2c226b657946696775726573223a7b226974656d73223a7b2224726566223a22232f24646566732f4b706943656c6c227d2c227469746c65223a224b65792066696775726573222c2274797065223a226172726179222c22782d6d6f72706865223a7b2268656164696e67223a66616c73652c227374726174656779223a226b70692d726f77227d7d2c226e616d65223a7b227469746c65223a22526f73746572222c2274797065223a22737472696e67227d2c2277696e646f774c6162656c223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a2257696e646f77227d2c22776f726b657273223a7b226974656d73223a7b2224726566223a22232f24646566732f5f5461786973526f73746572526f77227d2c227469746c65223a22576f726b657273222c2274797065223a226172726179222c22782d6d6f72706865223a7b227374726174656779223a227461626c65227d7d7d2c227265717569726564223a5b226e616d65222c22636f766572616765222c226b657946696775726573222c22776f726b657273225d2c227469746c65223a225f5461786973526f73746572222c2274797065223a226f626a656374227d",
+    "signing_message_hex": "6d6f727068652d736f757263652d737572666163652d76313a7368613235363a61323134363034343863666537663832326431366434633061303136626437383630333838316333666637616533663730393963356134336538626434306263",
+    "testimony_jcs_hex": "7b22636f6e74656e745f736861323536223a227368613235363a39633537323334336239656237613934383535643037366130666363373966346530393430663936346264356336623532373430383834393965313164633736222c22697373756572223a227461786973222c226b696e64223a226d6f727068652e736f757263652d73757266616365222c2270726f64756365645f6174223a22323032362d30372d31375431323a30303a30305a222c2272657175697265645f6361706162696c6974696573223a5b5d2c22736368656d615f736861323536223a227368613235363a61656431363637656134336161353161646661656237653936613737303938656639303139376137313461306432363533643934613733303630636265393764222c227369676e696e67223a7b22616c676f726974686d223a2245643235353139222c226b65795f6964223a2274617869732d666978747572652d323032362d3031227d2c22736f757263655f7265766973696f6e223a2274617869732d666978747572652d7265762d30303031222c22737572666163655f6964223a2274617869732e726f737465723a77657374666a6f7264733a323032362d573239222c2276616c69645f756e74696c223a22323032362d30372d31385431323a30303a30305a222c22766965775f6d6f64656c223a7b2268696e745f766f636162756c617279223a22302e332e30222c226964223a2274617869732e726f73746572222c227265766973696f6e223a312c22736368656d615f6469616c656374223a2268747470733a2f2f6a736f6e2d736368656d612e6f72672f64726166742f323032302d31322f736368656d61227d2c22776972655f76657273696f6e223a22312e30227d"
+  },
+  "description": "Public test key; never use this private seed in production.",
+  "expected": {
+    "seals": {
+      "content_sha256": "sha256:9c572343b9eb7a94855d076a0fcc79f4e0940f964bd5c6b5274088499e11dc76",
+      "schema_sha256": "sha256:aed1667ea43aa51adfaeb7e96a77098ef90197a714a0d2653d94a73060cbe97d",
+      "testimony_sha256": "sha256:a21460448cfe7f822d16d4c0a016bd78603881c3ff7ae3f7099c5a43e8bd40bc"
+    },
+    "signature": "Fg5BA9b7yyabo-4WJ5HIHTIMA38sjRE04UKFErx4UPkgqlC_mrPYDDmrdu4UCso_03_iOgl1SIoHD544oHQdAg"
+  },
+  "jcs_edge_case": {
+    "canonical_hex": "7b225c72223a2243617272696167652072657475726e222c2231223a302c2265736361706564223a226c696e65206f6e655c6e6c696e652074776f205c2271756f7465645c22205c5c20736c617368222c226578706f6e656e74223a31652b33302c226e756c6c223a6e756c6c2c22e282ac223a224575726f207369676e222c22f09f9880223a2241737472616c206b6579227d",
+    "input": {
+      "\r": "Carriage return",
+      "1": -0.0,
+      "escaped": "line one\nline two \"quoted\" \\ slash",
+      "exponent": 1e+30,
+      "null": null,
+      "\u20ac": "Euro sign",
+      "\ud83d\ude00": "Astral key"
+    }
+  },
+  "jcs_rejection_cases": [
+    {
+      "name": "unsafe-positive-integer-token",
+      "raw_json": "{\"number\":9007199254740992}"
+    },
+    {
+      "name": "unsafe-negative-integer-token",
+      "raw_json": "{\"number\":-9007199254740992}"
+    },
+    {
+      "name": "lone-high-surrogate-value",
+      "raw_json": "{\"nested\":{\"text\":\"\\ud800\"}}"
+    },
+    {
+      "name": "lone-low-surrogate-key",
+      "raw_json": "{\"\\udc00\":\"value\"}"
+    }
+  ],
+  "key_id": "taxis-fixture-2026-01",
+  "private_key_seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+  "public_key_base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+  "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+  "vector_version": "1.0"
+}

@@ -1,0 +1,420 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "obolos-fixture-2026-01",
+    "signature": "m6G8JHWbL2jNB_x7YxBE7UqWKvViHvUQIbpkKXQWVIxo1tRfkfAPxy2Laz5f8RKB62GmrdYkSNgvYEugWM4nDg"
+  },
+  "data": {
+    "adjustment": null,
+    "decision": "review",
+    "evidence": [
+      {
+        "amount": 512.25,
+        "evidenceId": "ev-901",
+        "exceptionNote": null,
+        "pseudonym": "beneficiary-7Q",
+        "receipt": {
+          "href": "/evidence/ev-901",
+          "label": "Open receipt 901"
+        },
+        "seal": {
+          "finality": "verified",
+          "sha256": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+        },
+        "state": "sealed"
+      },
+      {
+        "amount": 223.25,
+        "evidenceId": "ev-902",
+        "exceptionNote": "Manual FX evidence required.",
+        "pseudonym": "beneficiary-2M",
+        "receipt": {
+          "href": "/evidence/ev-902",
+          "label": "Open receipt 902"
+        },
+        "seal": {
+          "finality": "pending",
+          "sha256": "sha256:b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7"
+        },
+        "state": "exception"
+      }
+    ],
+    "keyFigures": [
+      {
+        "currency": "ISK",
+        "format": "currency",
+        "intent": "evidence",
+        "kicker": "Gross",
+        "label": "ISK exposure",
+        "value": 1280000
+      },
+      {
+        "currency": "EUR",
+        "format": "currency",
+        "intent": "caution",
+        "kicker": "Cross-border",
+        "label": "EUR exceptions",
+        "value": 735.5
+      },
+      {
+        "currency": null,
+        "format": null,
+        "intent": null,
+        "kicker": "Route",
+        "label": "Evidence rail",
+        "value": "SEPA + domestic"
+      }
+    ],
+    "name": "Settlement evidence 2026-07-17"
+  },
+  "diagnostics": [
+    {
+      "code": "OBOLOS_EXCEPTION_ROW",
+      "message": "This evidence row needs manual adjudication.",
+      "path": "$.evidence[1]",
+      "repair_hint": "Attach the missing FX testimony.",
+      "severity": "warning"
+    },
+    {
+      "code": "OBOLOS_AMOUNT_ROUNDING",
+      "message": "The amount is represented at settlement precision.",
+      "path": "$.evidence[0].amount",
+      "repair_hint": null,
+      "severity": "info"
+    }
+  ],
+  "issuer": "obolos",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:05:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "CoreIntent": {
+        "enum": [
+          "primary-action",
+          "neutral",
+          "provenance",
+          "evidence",
+          "accession",
+          "caution",
+          "success",
+          "info"
+        ],
+        "type": "string"
+      },
+      "IntentRef": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CoreIntent"
+          },
+          {
+            "$ref": "#/$defs/RegisterIntent"
+          }
+        ]
+      },
+      "KpiCell": {
+        "additionalProperties": false,
+        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.",
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NumberFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kicker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "KpiCell",
+        "type": "object"
+      },
+      "NumberFormat": {
+        "enum": [
+          "plain",
+          "integer",
+          "currency",
+          "percent",
+          "compact"
+        ],
+        "type": "string"
+      },
+      "RegisterIntent": {
+        "enum": [
+          "folio",
+          "marginalia",
+          "seal"
+        ],
+        "type": "string"
+      },
+      "_EvidenceSeal": {
+        "additionalProperties": false,
+        "properties": {
+          "finality": {
+            "enum": [
+              "verified",
+              "pending",
+              "rejected"
+            ],
+            "title": "Finality",
+            "type": "string",
+            "x-morphe": {
+              "intents": {
+                "pending": "caution",
+                "rejected": "caution",
+                "verified": "success"
+              },
+              "strategy": "status"
+            }
+          },
+          "sha256": {
+            "title": "Evidence digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sha256",
+          "finality"
+        ],
+        "title": "_EvidenceSeal",
+        "type": "object"
+      },
+      "_ObolosEvidenceRow": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "number",
+            "x-morphe": {
+              "currency": "EUR",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "evidenceId": {
+            "title": "Evidence ID",
+            "type": "string"
+          },
+          "exceptionNote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exception"
+          },
+          "pseudonym": {
+            "title": "Beneficiary",
+            "type": "string"
+          },
+          "receipt": {
+            "$ref": "#/$defs/_SurfaceLink",
+            "title": "Receipt",
+            "x-morphe": {
+              "role": "evidence",
+              "strategy": "linked-ref"
+            }
+          },
+          "seal": {
+            "$ref": "#/$defs/_EvidenceSeal",
+            "title": "Seal"
+          },
+          "state": {
+            "enum": [
+              "sealed",
+              "exception",
+              "queued"
+            ],
+            "title": "Decision",
+            "type": "string",
+            "x-morphe": {
+              "intents": {
+                "exception": "caution",
+                "queued": "info",
+                "sealed": "success"
+              },
+              "strategy": "badge"
+            }
+          }
+        },
+        "required": [
+          "evidenceId",
+          "pseudonym",
+          "amount",
+          "state",
+          "seal",
+          "receipt"
+        ],
+        "title": "_ObolosEvidenceRow",
+        "type": "object"
+      },
+      "_SurfaceLink": {
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "title": "Href",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "_SurfaceLink",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "adjustment": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Adjustment",
+        "x-morphe": {
+          "currency": "ISK",
+          "format": "currency",
+          "strategy": "number"
+        }
+      },
+      "decision": {
+        "enum": [
+          "settled",
+          "review",
+          "blocked"
+        ],
+        "title": "Decision status",
+        "type": "string",
+        "x-morphe": {
+          "intents": {
+            "blocked": "caution",
+            "review": "caution",
+            "settled": "success"
+          },
+          "strategy": "status"
+        }
+      },
+      "evidence": {
+        "items": {
+          "$ref": "#/$defs/_ObolosEvidenceRow"
+        },
+        "title": "Evidence ledger",
+        "type": "array",
+        "x-morphe": {
+          "strategy": "table"
+        }
+      },
+      "keyFigures": {
+        "items": {
+          "$ref": "#/$defs/KpiCell"
+        },
+        "title": "Evidence totals",
+        "type": "array",
+        "x-morphe": {
+          "heading": false,
+          "strategy": "kpi-row"
+        }
+      },
+      "name": {
+        "title": "Evidence case",
+        "type": "string"
+      }
+    },
+    "required": [
+      "name",
+      "decision",
+      "keyFigures",
+      "evidence"
+    ],
+    "title": "_ObolosEvidence",
+    "type": "object"
+  },
+  "seals": {
+    "content_sha256": "sha256:91175d6af2b88de8e5df2aefaf442c9f7f0594bde9829a4f8569b07cde3ed80e",
+    "schema_sha256": "sha256:72cbc45bf904704c9a960ef247b947b4571c41163d6d43b2b01d5d478501b867",
+    "testimony_sha256": "sha256:8a5ad46c4c754e15acec1e30d5072007840cec9a47da254d6bef7f33060405e7"
+  },
+  "source_revision": "obolos-fixture-rev-0001",
+  "surface_id": "obolos.evidence:settlement-2026-07-17",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.3.0",
+    "id": "obolos.evidence",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

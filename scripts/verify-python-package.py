@@ -204,16 +204,37 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import UTC, datetime
 from importlib.resources import files
+
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from pydantic import BaseModel
 
 wheel_path = sys.argv[1]
 sys.path.insert(0, wheel_path)
 
 import morphe_grammar
+import morphe_surface
+import morphe_surface.source as morphe_source
+from morphe_surface import (
+    JSON_SCHEMA_2020_12,
+    Sha256,
+    SourceSurfaceArtifactV1,
+    ViewModelContract,
+    canonical_json_bytes,
+    prepare_source_surface,
+    verify_source_surface,
+)
 
 module_path = str(morphe_grammar.__file__)
 if not module_path.startswith(f"{wheel_path}/"):
     raise RuntimeError(f"morphe_grammar imported outside the wheel: {module_path}")
+surface_module_path = str(morphe_surface.__file__)
+source_module_path = str(morphe_source.__file__)
+if not surface_module_path.startswith(f"{wheel_path}/"):
+    raise RuntimeError(f"morphe_surface imported outside the wheel: {surface_module_path}")
+if not source_module_path.startswith(f"{wheel_path}/"):
+    raise RuntimeError(f"morphe_surface.source imported outside the wheel: {source_module_path}")
 
 resource_root = files("morphe_grammar").joinpath("schemas", "masks")
 manifest = json.loads(resource_root.joinpath("manifest.json").read_text(encoding="utf-8"))
@@ -233,7 +254,48 @@ for dialect_id, entry in dialects.items():
     if actual.get("x-morphe-dialect") != dialect_id:
         raise RuntimeError(f"public accessor returned the wrong mask for {dialect_id}")
 
-print(f"loaded {len(dialects)} dialect masks from {module_path}")
+
+class PackageProofModel(BaseModel):
+    value: str
+
+
+signing_key = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
+source_artifact = prepare_source_surface(
+    PackageProofModel(value="installed source contract"),
+    issuer="package-proof",
+    surface_id="package-proof:source-v1",
+    source_revision="package-proof-revision",
+    produced_at=datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC),
+    view_model=ViewModelContract(
+        id="package-proof.source",
+        revision=1,
+        schema_dialect=JSON_SCHEMA_2020_12,
+        hint_vocabulary="package-proof",
+    ),
+    signing_key=signing_key,
+    key_id="package-proof-key",
+)
+if not isinstance(source_artifact, SourceSurfaceArtifactV1):
+    raise RuntimeError("installed prepare_source_surface returned the wrong contract type")
+if source_artifact.data != {"value": "installed source contract"}:
+    raise RuntimeError("installed source artifact changed the package proof payload")
+verify_source_surface(
+    source_artifact,
+    public_keys={
+        (source_artifact.issuer, source_artifact.attestation.key_id): signing_key.public_key()
+    },
+    expected_issuer="package-proof",
+    expected_surface_id="package-proof:source-v1",
+)
+if canonical_json_bytes({"z": 1, "a": 2}) != b'{"a":2,"z":1}':
+    raise RuntimeError("installed RFC 8785 canonicalizer returned unexpected bytes")
+if getattr(Sha256, "__name__", None) != "Sha256":
+    raise RuntimeError("installed morphe_surface root does not export Sha256")
+
+print(
+    f"loaded {len(dialects)} dialect masks from {module_path}; "
+    f"verified SourceSurfaceArtifactV1 from {source_module_path}"
+)
 """
 
 

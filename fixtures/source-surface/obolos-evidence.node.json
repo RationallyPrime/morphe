@@ -1,0 +1,435 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_ObolosEvidence"
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "Settlement evidence 2026-07-17"
+        },
+        {
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Decision status"
+            },
+            {
+              "kind": "status",
+              "signal": {
+                "text": "review"
+              },
+              "tone": "caution"
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "Gross"
+                    },
+                    "measure": {
+                      "currency": "ISK",
+                      "emphasis": "strong",
+                      "format": "currency",
+                      "intent": "evidence",
+                      "kind": "number",
+                      "value": 1280000
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "ISK exposure"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
+                },
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "Cross-border"
+                    },
+                    "measure": {
+                      "currency": "EUR",
+                      "emphasis": "strong",
+                      "format": "currency",
+                      "intent": "caution",
+                      "kind": "number",
+                      "value": 735.5
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "EUR exceptions"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
+                },
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "Route"
+                    },
+                    "measure": {
+                      "as": "body",
+                      "emphasis": "strong",
+                      "kind": "text",
+                      "value": "SEPA + domestic"
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "Evidence rail"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
+                }
+              ],
+              "kind": "grid",
+              "minTrack": "narrow",
+              "role": "list"
+            }
+          ],
+          "kind": "stack",
+          "role": "section"
+        },
+        {
+          "children": [
+            {
+              "as": "heading",
+              "emphasis": "strong",
+              "kind": "text",
+              "value": "Evidence ledger"
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Evidence ID"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Beneficiary"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Amount"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Decision"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Seal"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "evidence",
+                      "kind": "text",
+                      "value": "Receipt"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Exception"
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "children": [
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "ev-901"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "beneficiary-7Q"
+                    },
+                    {
+                      "children": [
+                        {
+                          "currency": "EUR",
+                          "format": "currency",
+                          "kind": "number",
+                          "value": 512.25
+                        },
+                        {
+                          "detail": "The amount is represented at settlement precision.",
+                          "kind": "inline-alert",
+                          "title": "OBOLOS_AMOUNT_ROUNDING",
+                          "tone": "info"
+                        }
+                      ],
+                      "kind": "stack",
+                      "role": "field-group"
+                    },
+                    {
+                      "intent": "success",
+                      "kind": "badge",
+                      "label": "sealed"
+                    },
+                    {
+                      "default": 1,
+                      "dimension": "collapse",
+                      "id": "$.evidence[0].seal",
+                      "kind": "within",
+                      "range": [
+                        0,
+                        1
+                      ],
+                      "summary": "Seal",
+                      "target": {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "as": "caption",
+                                "intent": "neutral",
+                                "kind": "text",
+                                "value": "Evidence digest"
+                              },
+                              {
+                                "as": "body",
+                                "kind": "text",
+                                "value": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+                              },
+                              {
+                                "as": "caption",
+                                "intent": "neutral",
+                                "kind": "text",
+                                "value": "Finality"
+                              },
+                              {
+                                "kind": "status",
+                                "signal": {
+                                  "text": "verified"
+                                },
+                                "tone": "success"
+                              }
+                            ],
+                            "columns": [
+                              "content",
+                              "flexible"
+                            ],
+                            "kind": "grid",
+                            "role": "field-group"
+                          }
+                        ],
+                        "kind": "stack",
+                        "role": "section"
+                      }
+                    },
+                    {
+                      "href": "/evidence/ev-901",
+                      "intent": "evidence",
+                      "kind": "link",
+                      "label": "Open receipt 901"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": ""
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "children": [
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "ev-902"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "beneficiary-2M"
+                    },
+                    {
+                      "currency": "EUR",
+                      "format": "currency",
+                      "kind": "number",
+                      "value": 223.25
+                    },
+                    {
+                      "intent": "caution",
+                      "kind": "badge",
+                      "label": "exception"
+                    },
+                    {
+                      "default": 1,
+                      "dimension": "collapse",
+                      "id": "$.evidence[1].seal",
+                      "kind": "within",
+                      "range": [
+                        0,
+                        1
+                      ],
+                      "summary": "Seal",
+                      "target": {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "as": "caption",
+                                "intent": "neutral",
+                                "kind": "text",
+                                "value": "Evidence digest"
+                              },
+                              {
+                                "as": "body",
+                                "kind": "text",
+                                "value": "sha256:b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7"
+                              },
+                              {
+                                "as": "caption",
+                                "intent": "neutral",
+                                "kind": "text",
+                                "value": "Finality"
+                              },
+                              {
+                                "kind": "status",
+                                "signal": {
+                                  "text": "pending"
+                                },
+                                "tone": "caution"
+                              }
+                            ],
+                            "columns": [
+                              "content",
+                              "flexible"
+                            ],
+                            "kind": "grid",
+                            "role": "field-group"
+                          }
+                        ],
+                        "kind": "stack",
+                        "role": "section"
+                      }
+                    },
+                    {
+                      "href": "/evidence/ev-902",
+                      "intent": "evidence",
+                      "kind": "link",
+                      "label": "Open receipt 902"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "Manual FX evidence required."
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "detail": "This evidence row needs manual adjudication.",
+                  "kind": "inline-alert",
+                  "title": "OBOLOS_EXCEPTION_ROW",
+                  "tone": "caution"
+                }
+              ],
+              "columns": [
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible"
+              ],
+              "kind": "grid",
+              "role": "list",
+              "ruled": true
+            }
+          ],
+          "kind": "stack",
+          "role": "section"
+        },
+        {
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Adjustment"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": ""
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

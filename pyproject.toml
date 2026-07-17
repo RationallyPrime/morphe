@@ -4,7 +4,10 @@ version = "0.6.4"
 description = "Pydantic v2 mirror of the Morphe Node grammar."
 requires-python = ">=3.12"
 dependencies = [
+	"cryptography>=49.0.0",
+	"jsonschema>=4.26.0",
 	"pydantic>=2.12.0",
+	"rfc8785>=0.1.4",
 ]
 
 [project.optional-dependencies]
@@ -20,7 +23,6 @@ service = [
 [dependency-groups]
 dev = [
 	"hypothesis>=6.155.7",
-	"jsonschema>=4.26.0",
 	"pytest>=8.4.0",
 	"ruff>=0.13.0",
 	"ty>=0.0.1a23",
