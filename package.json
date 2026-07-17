@@ -93,6 +93,7 @@
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.2.9",
 		"@types/node": "^25.9.2",
+		"canonicalize": "^3.0.0",
 		"jsdom": "^27.3.0",
 		"material-symbols": "^0.45.5",
 		"sharp": "^0.35.3",

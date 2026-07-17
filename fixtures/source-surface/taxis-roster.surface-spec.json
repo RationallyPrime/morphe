@@ -1,0 +1,318 @@
+{
+  "children": [
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Roster",
+      "path": "$.name",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "Vestfir\u00f0ir \u2014 \"night\"\nroster"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": true,
+      "items": [],
+      "label": "Window",
+      "path": "$.windowLabel",
+      "strategy": "scalar",
+      "value": "2026-W29"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": true,
+      "intent": "info",
+      "items": [],
+      "label": "Window coverage",
+      "path": "$.coverage",
+      "strategy": "progress",
+      "value": 0.75
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": false,
+      "items": [
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [],
+          "heading": true,
+          "intent": "evidence",
+          "items": [],
+          "kicker": "Window",
+          "label": "Scheduled payroll",
+          "number_format": "currency",
+          "path": "$.keyFigures[0]",
+          "strategy": "number",
+          "value": 2450000
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "kicker": "Operations",
+          "label": "Dispatch mode",
+          "path": "$.keyFigures[1]",
+          "strategy": "scalar",
+          "value": "weather hold"
+        }
+      ],
+      "label": "Key figures",
+      "path": "$.keyFigures",
+      "strategy": "kpi-row"
+    },
+    {
+      "children": [
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Worker ID",
+          "path": "$.workers.workerId",
+          "strategy": "scalar",
+          "value": "Worker ID"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Worker",
+          "path": "$.workers.name",
+          "strategy": "scalar",
+          "value": "Worker"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Roster state",
+          "path": "$.workers.state",
+          "strategy": "scalar",
+          "value": "Roster state"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "info",
+          "items": [],
+          "label": "Allocation",
+          "path": "$.workers.allocation",
+          "strategy": "scalar",
+          "value": "Allocation"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Hourly rate",
+          "path": "$.workers.hourlyRate",
+          "strategy": "scalar",
+          "value": "Hourly rate"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "primary-action",
+          "items": [],
+          "label": "Worker profile",
+          "path": "$.workers.profile",
+          "strategy": "scalar",
+          "value": "Worker profile"
+        }
+      ],
+      "diagnostics": [],
+      "emphasis": "strong",
+      "heading": true,
+      "items": [
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Worker ID",
+              "path": "$.workers[0].workerId",
+              "strategy": "scalar",
+              "value": "wrk-001"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Worker",
+              "path": "$.workers[0].name",
+              "strategy": "scalar",
+              "value": "Arna K."
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "success",
+              "items": [],
+              "label": "Roster state",
+              "path": "$.workers[0].state",
+              "strategy": "status",
+              "value": "active"
+            },
+            {
+              "children": [],
+              "diagnostics": [
+                {
+                  "code": "TAXIS_ALLOCATION_SOURCE",
+                  "message": "Allocation reflects the signed planning window.",
+                  "path": "$.workers[0].allocation",
+                  "severity": "info"
+                }
+              ],
+              "heading": true,
+              "intent": "info",
+              "items": [],
+              "label": "Allocation",
+              "path": "$.workers[0].allocation",
+              "strategy": "progress",
+              "value": 0.8
+            },
+            {
+              "children": [],
+              "currency": "ISK",
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Hourly rate",
+              "number_format": "currency",
+              "path": "$.workers[0].hourlyRate",
+              "strategy": "number",
+              "value": 7950
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/workers/wrk-001",
+              "intent": "primary-action",
+              "items": [],
+              "label": "Open Arna",
+              "path": "$.workers[0].profile",
+              "strategy": "linked-ref",
+              "value": "Open Arna"
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Workers 0",
+          "path": "$.workers[0]",
+          "strategy": "collapsed-section"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Worker ID",
+              "path": "$.workers[1].workerId",
+              "strategy": "scalar",
+              "value": "wrk-002"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Worker",
+              "path": "$.workers[1].name",
+              "strategy": "scalar",
+              "value": "Baldur R."
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "caution",
+              "items": [],
+              "label": "Roster state",
+              "path": "$.workers[1].state",
+              "strategy": "status",
+              "value": "review"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "info",
+              "items": [],
+              "label": "Allocation",
+              "path": "$.workers[1].allocation",
+              "strategy": "progress",
+              "value": 0.45
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Hourly rate",
+              "path": "$.workers[1].hourlyRate",
+              "strategy": "scalar"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/workers/wrk-002",
+              "intent": "primary-action",
+              "items": [],
+              "label": "Open Baldur",
+              "path": "$.workers[1].profile",
+              "strategy": "linked-ref",
+              "value": "Open Baldur"
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [
+            {
+              "code": "TAXIS_ROW_REVIEW",
+              "message": "The second worker needs roster review.",
+              "path": "$.workers[1]",
+              "repair_hint": "Confirm the allocation before dispatch.",
+              "severity": "warning"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Workers 1",
+          "path": "$.workers[1]",
+          "strategy": "collapsed-section"
+        }
+      ],
+      "label": "Workers",
+      "path": "$.workers",
+      "strategy": "table"
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_TaxisRoster",
+  "path": "$",
+  "strategy": "record-card"
+}

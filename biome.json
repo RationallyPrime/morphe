@@ -9,6 +9,7 @@
 		"includes": [
 			"**",
 			"!schema",
+			"!fixtures",
 			"!static",
 			"!.claude",
 			"!.impeccable",

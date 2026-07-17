@@ -1,0 +1,404 @@
+{
+  "children": [
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Evidence case",
+      "path": "$.name",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "Settlement evidence 2026-07-17"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": true,
+      "intent": "caution",
+      "items": [],
+      "label": "Decision status",
+      "path": "$.decision",
+      "strategy": "status",
+      "value": "review"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": false,
+      "items": [
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [],
+          "heading": true,
+          "intent": "evidence",
+          "items": [],
+          "kicker": "Gross",
+          "label": "ISK exposure",
+          "number_format": "currency",
+          "path": "$.keyFigures[0]",
+          "strategy": "number",
+          "value": 1280000
+        },
+        {
+          "children": [],
+          "currency": "EUR",
+          "diagnostics": [],
+          "heading": true,
+          "intent": "caution",
+          "items": [],
+          "kicker": "Cross-border",
+          "label": "EUR exceptions",
+          "number_format": "currency",
+          "path": "$.keyFigures[1]",
+          "strategy": "number",
+          "value": 735.5
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "kicker": "Route",
+          "label": "Evidence rail",
+          "path": "$.keyFigures[2]",
+          "strategy": "scalar",
+          "value": "SEPA + domestic"
+        }
+      ],
+      "label": "Evidence totals",
+      "path": "$.keyFigures",
+      "strategy": "kpi-row"
+    },
+    {
+      "children": [
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Evidence ID",
+          "path": "$.evidence.evidenceId",
+          "strategy": "scalar",
+          "value": "Evidence ID"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Beneficiary",
+          "path": "$.evidence.pseudonym",
+          "strategy": "scalar",
+          "value": "Beneficiary"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Amount",
+          "path": "$.evidence.amount",
+          "strategy": "scalar",
+          "value": "Amount"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Decision",
+          "path": "$.evidence.state",
+          "strategy": "scalar",
+          "value": "Decision"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Seal",
+          "path": "$.evidence.seal",
+          "strategy": "scalar",
+          "value": "Seal"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "evidence",
+          "items": [],
+          "label": "Receipt",
+          "path": "$.evidence.receipt",
+          "strategy": "scalar",
+          "value": "Receipt"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Exception",
+          "path": "$.evidence.exceptionNote",
+          "strategy": "scalar",
+          "value": "Exception"
+        }
+      ],
+      "diagnostics": [],
+      "emphasis": "strong",
+      "heading": true,
+      "items": [
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Evidence ID",
+              "path": "$.evidence[0].evidenceId",
+              "strategy": "scalar",
+              "value": "ev-901"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Beneficiary",
+              "path": "$.evidence[0].pseudonym",
+              "strategy": "scalar",
+              "value": "beneficiary-7Q"
+            },
+            {
+              "children": [],
+              "currency": "EUR",
+              "diagnostics": [
+                {
+                  "code": "OBOLOS_AMOUNT_ROUNDING",
+                  "message": "The amount is represented at settlement precision.",
+                  "path": "$.evidence[0].amount",
+                  "severity": "info"
+                }
+              ],
+              "heading": true,
+              "items": [],
+              "label": "Amount",
+              "number_format": "currency",
+              "path": "$.evidence[0].amount",
+              "strategy": "number",
+              "value": 512.25
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "success",
+              "items": [],
+              "label": "Decision",
+              "path": "$.evidence[0].state",
+              "strategy": "badge",
+              "value": "sealed"
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "diagnostics": [],
+                  "heading": true,
+                  "items": [],
+                  "label": "Evidence digest",
+                  "path": "$.evidence[0].seal.sha256",
+                  "strategy": "scalar",
+                  "value": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+                },
+                {
+                  "children": [],
+                  "diagnostics": [],
+                  "heading": true,
+                  "intent": "success",
+                  "items": [],
+                  "label": "Finality",
+                  "path": "$.evidence[0].seal.finality",
+                  "strategy": "status",
+                  "value": "verified"
+                }
+              ],
+              "collapse": true,
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Seal",
+              "path": "$.evidence[0].seal",
+              "strategy": "collapsed-section"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/evidence/ev-901",
+              "intent": "evidence",
+              "items": [],
+              "label": "Open receipt 901",
+              "path": "$.evidence[0].receipt",
+              "strategy": "linked-ref",
+              "value": "Open receipt 901"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Exception",
+              "path": "$.evidence[0].exceptionNote",
+              "strategy": "scalar"
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Evidence ledger 0",
+          "path": "$.evidence[0]",
+          "strategy": "collapsed-section"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Evidence ID",
+              "path": "$.evidence[1].evidenceId",
+              "strategy": "scalar",
+              "value": "ev-902"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Beneficiary",
+              "path": "$.evidence[1].pseudonym",
+              "strategy": "scalar",
+              "value": "beneficiary-2M"
+            },
+            {
+              "children": [],
+              "currency": "EUR",
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Amount",
+              "number_format": "currency",
+              "path": "$.evidence[1].amount",
+              "strategy": "number",
+              "value": 223.25
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "caution",
+              "items": [],
+              "label": "Decision",
+              "path": "$.evidence[1].state",
+              "strategy": "badge",
+              "value": "exception"
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "diagnostics": [],
+                  "heading": true,
+                  "items": [],
+                  "label": "Evidence digest",
+                  "path": "$.evidence[1].seal.sha256",
+                  "strategy": "scalar",
+                  "value": "sha256:b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7"
+                },
+                {
+                  "children": [],
+                  "diagnostics": [],
+                  "heading": true,
+                  "intent": "caution",
+                  "items": [],
+                  "label": "Finality",
+                  "path": "$.evidence[1].seal.finality",
+                  "strategy": "status",
+                  "value": "pending"
+                }
+              ],
+              "collapse": true,
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Seal",
+              "path": "$.evidence[1].seal",
+              "strategy": "collapsed-section"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/evidence/ev-902",
+              "intent": "evidence",
+              "items": [],
+              "label": "Open receipt 902",
+              "path": "$.evidence[1].receipt",
+              "strategy": "linked-ref",
+              "value": "Open receipt 902"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Exception",
+              "path": "$.evidence[1].exceptionNote",
+              "strategy": "scalar",
+              "value": "Manual FX evidence required."
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [
+            {
+              "code": "OBOLOS_EXCEPTION_ROW",
+              "message": "This evidence row needs manual adjudication.",
+              "path": "$.evidence[1]",
+              "repair_hint": "Attach the missing FX testimony.",
+              "severity": "warning"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Evidence ledger 1",
+          "path": "$.evidence[1]",
+          "strategy": "collapsed-section"
+        }
+      ],
+      "label": "Evidence ledger",
+      "path": "$.evidence",
+      "strategy": "table"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": true,
+      "items": [],
+      "label": "Adjustment",
+      "path": "$.adjustment",
+      "strategy": "scalar"
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_ObolosEvidence",
+  "path": "$",
+  "strategy": "record-card"
+}

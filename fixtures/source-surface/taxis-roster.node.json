@@ -1,0 +1,286 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_TaxisRoster"
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "Vestfir\u00f0ir \u2014 \"night\"\nroster"
+        },
+        {
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Window"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "2026-W29"
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
+        },
+        {
+          "intent": "info",
+          "kind": "progress",
+          "label": "Window coverage",
+          "value": 0.75
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "Window"
+                    },
+                    "measure": {
+                      "currency": "ISK",
+                      "emphasis": "strong",
+                      "format": "currency",
+                      "intent": "evidence",
+                      "kind": "number",
+                      "value": 2450000
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "Scheduled payroll"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
+                },
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "Operations"
+                    },
+                    "measure": {
+                      "as": "body",
+                      "emphasis": "strong",
+                      "kind": "text",
+                      "value": "weather hold"
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "Dispatch mode"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
+                }
+              ],
+              "kind": "grid",
+              "minTrack": "narrow",
+              "role": "list"
+            }
+          ],
+          "kind": "stack",
+          "role": "section"
+        },
+        {
+          "children": [
+            {
+              "as": "heading",
+              "emphasis": "strong",
+              "kind": "text",
+              "value": "Workers"
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Worker ID"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Worker"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Roster state"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "info",
+                      "kind": "text",
+                      "value": "Allocation"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "neutral",
+                      "kind": "text",
+                      "value": "Hourly rate"
+                    },
+                    {
+                      "as": "caption",
+                      "intent": "primary-action",
+                      "kind": "text",
+                      "value": "Worker profile"
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "children": [
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "wrk-001"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "Arna K."
+                    },
+                    {
+                      "kind": "status",
+                      "signal": {
+                        "text": "active"
+                      },
+                      "tone": "success"
+                    },
+                    {
+                      "children": [
+                        {
+                          "intent": "info",
+                          "kind": "progress",
+                          "label": "Allocation",
+                          "value": 0.8
+                        },
+                        {
+                          "detail": "Allocation reflects the signed planning window.",
+                          "kind": "inline-alert",
+                          "title": "TAXIS_ALLOCATION_SOURCE",
+                          "tone": "info"
+                        }
+                      ],
+                      "kind": "stack",
+                      "role": "field-group"
+                    },
+                    {
+                      "currency": "ISK",
+                      "format": "currency",
+                      "kind": "number",
+                      "value": 7950
+                    },
+                    {
+                      "href": "/workers/wrk-001",
+                      "intent": "primary-action",
+                      "kind": "link",
+                      "label": "Open Arna"
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "children": [
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "wrk-002"
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": "Baldur R."
+                    },
+                    {
+                      "kind": "status",
+                      "signal": {
+                        "text": "review"
+                      },
+                      "tone": "caution"
+                    },
+                    {
+                      "intent": "info",
+                      "kind": "progress",
+                      "label": "Allocation",
+                      "value": 0.45
+                    },
+                    {
+                      "as": "body",
+                      "kind": "text",
+                      "value": ""
+                    },
+                    {
+                      "href": "/workers/wrk-002",
+                      "intent": "primary-action",
+                      "kind": "link",
+                      "label": "Open Baldur"
+                    }
+                  ],
+                  "kind": "grid",
+                  "role": "inline"
+                },
+                {
+                  "detail": "The second worker needs roster review.",
+                  "kind": "inline-alert",
+                  "title": "TAXIS_ROW_REVIEW",
+                  "tone": "caution"
+                }
+              ],
+              "columns": [
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible",
+                "flexible"
+              ],
+              "kind": "grid",
+              "role": "list",
+              "ruled": true
+            }
+          ],
+          "kind": "stack",
+          "role": "section"
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

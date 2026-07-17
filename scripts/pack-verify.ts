@@ -106,6 +106,7 @@ try {
 				scripts: {
 					build: "vite build",
 					"build:ssr": "vite build --ssr src/entry-server.ts --outDir .ssr",
+					typecheck: "tsc --noEmit --project tsconfig.types.json",
 					verify: "bun run build:ssr && bun src/verify-built.ts",
 				},
 				dependencies: {
@@ -117,6 +118,20 @@ try {
 					vite: "^5.4.0",
 					zod: "^4.4.3",
 				},
+			},
+			null,
+			"\t",
+		),
+	);
+	write(
+		join(scaffold, "tsconfig.types.json"),
+		JSON.stringify(
+			{
+				extends: "./tsconfig.json",
+				compilerOptions: {
+					noEmit: true,
+				},
+				include: ["src/verify-types.ts"],
 			},
 			null,
 			"\t",
@@ -209,6 +224,28 @@ try {
 		`,
 	);
 	write(
+		join(scaffold, "src", "verify-types.ts"),
+		`
+			import {
+				SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA,
+				type Sha256,
+				type SourceSurfaceArtifactV1,
+			} from "@rationallyprime/morphe/artifacts";
+
+			const sourceDiscriminators = {
+				kind: "morphe.source-surface",
+				wire_version: "1.0",
+			} satisfies Pick<SourceSurfaceArtifactV1, "kind" | "wire_version">;
+			const zeroDigest: Sha256 =
+				"sha256:0000000000000000000000000000000000000000000000000000000000000000";
+			const sourceSchema: Record<string, unknown> = SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA;
+
+			void sourceDiscriminators;
+			void zeroDigest;
+			void sourceSchema;
+		`,
+	);
+	write(
 		join(scaffold, "src", "verify-built.ts"),
 		`
 			import { createHash } from "node:crypto";
@@ -296,7 +333,19 @@ try {
 				throw new Error("expected installed clinical mask to allow only SignalCard");
 			}
 
-			const { validateSurfaceArtifact } = await import("@rationallyprime/morphe/artifacts");
+			const { SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA, validateSurfaceArtifact } = await import(
+				"@rationallyprime/morphe/artifacts"
+			);
+			const sourceDiscriminators = {
+				kind: "morphe.source-surface",
+				wire_version: "1.0",
+			} as const;
+			if (
+				sourceDiscriminators.kind !== "morphe.source-surface" ||
+				SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA.additionalProperties !== false
+			) {
+				throw new Error("expected installed generated source-artifact ingress contract");
+			}
 			const artifact = {
 				artifact_version: "1.0.0",
 				tree: { kind: "frame", role: "page", children: [] },
@@ -320,10 +369,25 @@ try {
 			if (!surfaceSchemaRoot || surfaceSchemaRoot.title !== "Morphe Compiled Surface Artifact") {
 				throw new Error("expected the installed compiled-surface schema artifact");
 			}
+
+			const sourceSchema = (await import(
+				"@rationallyprime/morphe/schemas/morphe-source-surface.schema.json"
+			)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+			const sourceSchemaRoot = sourceSchema.default ?? sourceSchema;
+			const sourceProperties = sourceSchemaRoot.properties as Record<string, unknown> | undefined;
+			if (
+				sourceSchemaRoot.title !== "Morphe Source Surface Artifact V1" ||
+				sourceSchemaRoot.additionalProperties !== false ||
+				!sourceProperties?.schema ||
+				sourceProperties.tree
+			) {
+				throw new Error("expected the installed strict source-surface schema artifact");
+			}
 		`,
 	);
 
 	run({ cmd: "bun", args: ["install"], cwd: scaffold });
+	run({ cmd: "bun", args: ["run", "typecheck"], cwd: scaffold });
 	run({ cmd: "bun", args: ["run", "build"], cwd: scaffold });
 	run({ cmd: "bun", args: ["run", "verify"], cwd: scaffold });
 

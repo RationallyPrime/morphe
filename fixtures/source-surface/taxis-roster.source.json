@@ -1,0 +1,357 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "taxis-fixture-2026-01",
+    "signature": "Fg5BA9b7yyabo-4WJ5HIHTIMA38sjRE04UKFErx4UPkgqlC_mrPYDDmrdu4UCso_03_iOgl1SIoHD544oHQdAg"
+  },
+  "data": {
+    "coverage": 0.75,
+    "keyFigures": [
+      {
+        "currency": "ISK",
+        "format": "currency",
+        "intent": "evidence",
+        "kicker": "Window",
+        "label": "Scheduled payroll",
+        "value": 2450000
+      },
+      {
+        "currency": null,
+        "format": null,
+        "intent": null,
+        "kicker": "Operations",
+        "label": "Dispatch mode",
+        "value": "weather hold"
+      }
+    ],
+    "name": "Vestfir\u00f0ir \u2014 \"night\"\nroster",
+    "windowLabel": "2026-W29",
+    "workers": [
+      {
+        "allocation": 0.8,
+        "hourlyRate": 7950,
+        "name": "Arna K.",
+        "profile": {
+          "href": "/workers/wrk-001",
+          "label": "Open Arna"
+        },
+        "state": "active",
+        "workerId": "wrk-001"
+      },
+      {
+        "allocation": 0.45,
+        "hourlyRate": null,
+        "name": "Baldur R.",
+        "profile": {
+          "href": "/workers/wrk-002",
+          "label": "Open Baldur"
+        },
+        "state": "review",
+        "workerId": "wrk-002"
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "TAXIS_ROW_REVIEW",
+      "message": "The second worker needs roster review.",
+      "path": "$.workers[1]",
+      "repair_hint": "Confirm the allocation before dispatch.",
+      "severity": "warning"
+    },
+    {
+      "code": "TAXIS_ALLOCATION_SOURCE",
+      "message": "Allocation reflects the signed planning window.",
+      "path": "$.workers[0].allocation",
+      "repair_hint": null,
+      "severity": "info"
+    }
+  ],
+  "issuer": "taxis",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:00:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "CoreIntent": {
+        "enum": [
+          "primary-action",
+          "neutral",
+          "provenance",
+          "evidence",
+          "accession",
+          "caution",
+          "success",
+          "info"
+        ],
+        "type": "string"
+      },
+      "IntentRef": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CoreIntent"
+          },
+          {
+            "$ref": "#/$defs/RegisterIntent"
+          }
+        ]
+      },
+      "KpiCell": {
+        "additionalProperties": false,
+        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.",
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NumberFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kicker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "KpiCell",
+        "type": "object"
+      },
+      "NumberFormat": {
+        "enum": [
+          "plain",
+          "integer",
+          "currency",
+          "percent",
+          "compact"
+        ],
+        "type": "string"
+      },
+      "RegisterIntent": {
+        "enum": [
+          "folio",
+          "marginalia",
+          "seal"
+        ],
+        "type": "string"
+      },
+      "_SurfaceLink": {
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "title": "Href",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "_SurfaceLink",
+        "type": "object"
+      },
+      "_TaxisRosterRow": {
+        "additionalProperties": false,
+        "properties": {
+          "allocation": {
+            "title": "Allocation",
+            "type": "number",
+            "x-morphe": {
+              "role": "info",
+              "strategy": "progress"
+            }
+          },
+          "hourlyRate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hourly rate",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "name": {
+            "title": "Worker",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/$defs/_SurfaceLink",
+            "title": "Worker profile",
+            "x-morphe": {
+              "role": "primary-action",
+              "strategy": "linked-ref"
+            }
+          },
+          "state": {
+            "enum": [
+              "active",
+              "review",
+              "paused"
+            ],
+            "title": "Roster state",
+            "type": "string",
+            "x-morphe": {
+              "intents": {
+                "active": "success",
+                "paused": "neutral",
+                "review": "caution"
+              },
+              "strategy": "status"
+            }
+          },
+          "workerId": {
+            "title": "Worker ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workerId",
+          "name",
+          "state",
+          "allocation",
+          "profile"
+        ],
+        "title": "_TaxisRosterRow",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "coverage": {
+        "title": "Window coverage",
+        "type": "number",
+        "x-morphe": {
+          "role": "info",
+          "strategy": "progress"
+        }
+      },
+      "keyFigures": {
+        "items": {
+          "$ref": "#/$defs/KpiCell"
+        },
+        "title": "Key figures",
+        "type": "array",
+        "x-morphe": {
+          "heading": false,
+          "strategy": "kpi-row"
+        }
+      },
+      "name": {
+        "title": "Roster",
+        "type": "string"
+      },
+      "windowLabel": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Window"
+      },
+      "workers": {
+        "items": {
+          "$ref": "#/$defs/_TaxisRosterRow"
+        },
+        "title": "Workers",
+        "type": "array",
+        "x-morphe": {
+          "strategy": "table"
+        }
+      }
+    },
+    "required": [
+      "name",
+      "coverage",
+      "keyFigures",
+      "workers"
+    ],
+    "title": "_TaxisRoster",
+    "type": "object"
+  },
+  "seals": {
+    "content_sha256": "sha256:9c572343b9eb7a94855d076a0fcc79f4e0940f964bd5c6b5274088499e11dc76",
+    "schema_sha256": "sha256:aed1667ea43aa51adfaeb7e96a77098ef90197a714a0d2653d94a73060cbe97d",
+    "testimony_sha256": "sha256:a21460448cfe7f822d16d4c0a016bd78603881c3ff7ae3f7099c5a43e8bd40bc"
+  },
+  "source_revision": "taxis-fixture-rev-0001",
+  "surface_id": "taxis.roster:westfjords:2026-W29",
+  "valid_until": "2026-07-18T12:00:00Z",
+  "view_model": {
+    "hint_vocabulary": "0.3.0",
+    "id": "taxis.roster",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}
