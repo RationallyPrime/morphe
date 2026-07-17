@@ -81,6 +81,41 @@ describe("validateSurfaceArtifact", () => {
 		expect(validateNodeDocument({ kind: "button" }).ok).toBe(false);
 	});
 
+	it("accepts a py-v0.6.3 wire diagnostic with an explicit null repair_hint", () => {
+		const result = validateSurfaceArtifact({
+			...validArtifact,
+			diagnostics: [
+				{
+					code: "MIN_REST_MINUTES",
+					severity: "warning",
+					path: "$.rows[9]",
+					message: "rest gap 180min is below 660min",
+					repair_hint: null,
+				},
+			],
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.value.diagnostics).toHaveLength(1);
+		expect(Object.hasOwn(result.value.diagnostics[0] ?? {}, "repair_hint")).toBe(false);
+	});
+
+	it("still rejects a non-string, non-null repair_hint", () => {
+		const result = validateSurfaceArtifact({
+			...validArtifact,
+			diagnostics: [
+				{
+					code: "X",
+					severity: "info",
+					path: "$",
+					message: "m",
+					repair_hint: 42,
+				},
+			],
+		});
+		expect(result.ok).toBe(false);
+	});
+
 	it("rejects producer metadata drift", () => {
 		const result = validateSurfaceArtifact({ ...validArtifact, producer_version: "0.1.0" });
 		expect(result.ok).toBe(false);

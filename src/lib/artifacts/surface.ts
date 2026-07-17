@@ -422,11 +422,34 @@ export function validateNodeDocument(
 	return { ok: true, value: value as Node };
 }
 
+/*
+ * Wire compat (producers on py-v0.6.3 and earlier): the envelope doctrine is
+ * absent-not-null — the generated schema collapses `str | None` to `string`
+ * (`_drop_null_from_optional`), and the compiler's tree serializer honors it
+ * with `exclude_none` — but producer ENVELOPES serialized
+ * `Diagnostic.repair_hint: None` as an explicit `null` until the py emit fix,
+ * so every diagnostics-bearing surface failed the gate. Normalize exactly that
+ * legal-intent shape (null → absent) before validation; any other deviation
+ * still fails the gate unchanged.
+ */
+function normalizeDiagnosticWire(value: unknown): unknown {
+	if (!isRecord(value) || !Array.isArray(value.diagnostics)) return value;
+	let changed = false;
+	const diagnostics = value.diagnostics.map((entry) => {
+		if (!isRecord(entry) || entry.repair_hint !== null) return entry;
+		changed = true;
+		const { repair_hint: _dropped, ...rest } = entry;
+		return rest;
+	});
+	return changed ? { ...value, diagnostics } : value;
+}
+
 /** Validate and brand an untrusted compiled-surface document. */
 export function validateSurfaceArtifact(
 	value: unknown,
 	limits?: Partial<ArtifactValidationLimits>,
 ): ValidationResult<TrustedSurfaceArtifact> {
+	value = normalizeDiagnosticWire(value);
 	const limit = inspectComplexity(value, limitsWith(limits));
 	if (limit) return { ok: false, issues: [limit] };
 	const parsed = shallowSurfaceArtifactSchema.safeParse(value);
