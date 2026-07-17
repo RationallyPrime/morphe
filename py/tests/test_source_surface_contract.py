@@ -846,3 +846,25 @@ def test_expired_artifact_verifies_by_default_and_fails_with_clock() -> None:
         expected_surface_id="test-surface",
         now=produced + timedelta(minutes=30),
     )
+
+
+class OverlappingUnionPayload(BaseModel):
+    title: str
+    payload: ContainedSecret | dict[str, object]
+
+
+def test_value_matching_hidden_and_overlapping_visible_branch_fails_hidden() -> None:
+    # STOP-SHIP catch on the first fix (2026-07-17): a Secret instance also
+    # validates against a permissive dict branch, so requiring ALL applicable
+    # branches to be hidden let it ship under its visible reading. Any hidden
+    # match must drop the value — the wire cannot tell the readings apart.
+    schema, data = _raw_pair(
+        OverlappingUnionPayload(title="t", payload=ContainedSecret(ssn="OVERLAP-SECRET"))
+    )
+    _, minimized_data, _ = minimize_source_surface(schema, data)
+    assert "OVERLAP-SECRET" not in json.dumps(minimized_data)
+
+    # A value only the permissive branch can explain still ships.
+    schema, data = _raw_pair(OverlappingUnionPayload(title="t", payload={"note": "visible"}))
+    _, minimized_data, _ = minimize_source_surface(schema, data)
+    assert cast("dict[str, Any]", minimized_data)["payload"] == {"note": "visible"}

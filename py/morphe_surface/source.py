@@ -807,11 +807,15 @@ def _union_has_hidden_branch(schema: dict[str, Any], root: JsonObject) -> bool:
 
 
 def _value_hidden_by_union(schema: dict[str, Any], value: JsonValue, root: JsonObject) -> bool:
-    """Report whether a mixed-union value matches only hidden branches.
+    """Report whether a mixed-union value matches any hidden branch.
 
     The union itself stays visible (some branch is not hidden), but this
-    particular value is an instance of a hidden variant — it must be removed
-    from its parent exactly like a hidden property's value.
+    particular value validates as an instance of a hidden variant — it must be
+    removed from its parent exactly like a hidden property's value. ANY hidden
+    match suffices: when a value satisfies both a hidden branch and an
+    overlapping permissive branch (``Secret | dict[str, object]``), the wire
+    cannot distinguish the two, so disclosure fails hidden rather than
+    shipping the value under its visible reading.
     """
     reference = schema.get("$ref")
     if isinstance(reference, str):
@@ -821,7 +825,7 @@ def _value_hidden_by_union(schema: dict[str, Any], value: JsonValue, root: JsonO
         if not isinstance(branches, list):
             continue
         applicable = _applicable_alternatives(branches, value, root)
-        if applicable and all(_effective_hidden(branch, root) for branch in applicable):
+        if any(_effective_hidden(branch, root) for branch in applicable):
             return True
     return False
 
