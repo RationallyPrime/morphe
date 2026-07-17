@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from morphe_contracts import Diagnostic
 
 from .hints import MorpheHint, parse_hint
-from .refs import resolve_ref, schema_type
+from .refs import resolve_ref, schema_type, unwrap_nullable
 from .resolve import resolve_strategy
 from .spec import SurfaceNode
 
@@ -112,7 +112,10 @@ def _build(schema: dict[str, Any], data: object, ctx: _Ctx) -> SurfaceNode:
 
 
 def _plan(schema: dict[str, Any], ctx: _Ctx) -> _Plan:
-    resolved = resolve_ref(schema, ctx.root)
+    # The nullable unwrap runs AFTER hint extraction below reads the raw field
+    # schema — an optional nested record must still expose its properties (and
+    # a nullable enum its values) to the structural walk.
+    resolved = unwrap_nullable(resolve_ref(schema, ctx.root), ctx.root)
     hint = _hint_for(schema, resolved)
     # Labels read the RAW schema's title only (authored/Pydantic-prettified); a $ref
     # target's title is a class name, never a label — fall back to the field key (KRA-677).
