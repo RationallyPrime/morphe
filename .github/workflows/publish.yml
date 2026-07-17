@@ -14,6 +14,7 @@ on:
       - "Justfile"
       - "schema/**"
       - "py/morphe_grammar/**"
+      - "py/morphe_surface/**"
       - "src/lib/**"
       - "scripts/pack-verify.ts"
       - "scripts/verify-python-package.py"

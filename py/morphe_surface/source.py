@@ -476,8 +476,15 @@ def verify_source_surface(
     public_keys: Mapping[tuple[str, str], Ed25519PublicKey],
     expected_issuer: str,
     expected_surface_id: str,
+    now: datetime | None = None,
 ) -> SourceSurfaceArtifactV1:
-    """Return the revalidated snapshot after offline identity, seal, and signature checks."""
+    """Return the revalidated snapshot after offline identity, seal, and signature checks.
+
+    Verification proves authenticity, not liveness: by default an expired
+    artifact still verifies, because freshness/replay policy belongs to the
+    host gate (design §3.2 step 7). Pass ``now`` to additionally enforce
+    ``valid_until`` at this seam.
+    """
     document = artifact.model_dump(mode="json", by_alias=True, exclude_none=False)
     admitted = SourceSurfaceArtifactV1.model_validate(document)
 
@@ -486,6 +493,13 @@ def verify_source_surface(
         raise SourceVerificationError(msg)
     if admitted.surface_id != expected_surface_id:
         msg = "surface_id does not match the requested surface"
+        raise SourceVerificationError(msg)
+    if (
+        now is not None
+        and admitted.valid_until is not None
+        and _canonical_datetime(now) > admitted.valid_until
+    ):
+        msg = "source artifact is expired (valid_until has passed)"
         raise SourceVerificationError(msg)
 
     schema_sha256 = _sha256(canonical_json_bytes(admitted.schema_))
@@ -703,13 +717,113 @@ def _resolve_local_ref(reference: str, root: JsonObject) -> dict[str, Any]:
     return cast("dict[str, Any]", current)
 
 
+def _hint_hidden(schema: dict[str, Any]) -> bool | None:
+    """Return the explicit ``hidden`` value of a local ``x-morphe`` block, if any.
+
+    Only an explicit ``hidden`` key counts: a local hint carrying just cosmetic
+    fields (``label``, ``intents``…) must not shadow the ``$ref`` target's
+    class-level ``hidden`` — local hints merge over the target, they do not
+    replace it. An explicit local ``hidden: false`` is a deliberate override.
+    """
+    hint = schema.get("x-morphe")
+    if isinstance(hint, dict) and "hidden" in hint:
+        return hint.get("hidden") is True
+    return None
+
+
 def _effective_hidden(schema: dict[str, Any], root: JsonObject) -> bool:
-    if "x-morphe" in schema:
-        hint = schema.get("x-morphe")
-        return isinstance(hint, dict) and hint.get("hidden") is True
+    return _effective_hidden_impl(schema, root, set())
+
+
+def _effective_hidden_impl(  # noqa: PLR0911 - each container shape is one explicit verdict
+    schema: dict[str, Any], root: JsonObject, seen: set[int]
+) -> bool:
+    """Hiddenness of the value a schema position carries, container-aware.
+
+    A position is hidden when its own merged hint says so, or when it can carry
+    no visible content: an array whose ``items`` are hidden, a tuple with any
+    hidden ``prefixItems`` slot (a slot cannot be dropped without changing
+    arity), or a union whose every non-null branch is hidden. Mixed unions are
+    NOT hidden here — their hidden branches are pruned from the schema and
+    their values dropped at the data parent.
+    """
+    identity = id(schema)
+    if identity in seen:
+        return False
+    seen.add(identity)
+
+    local = _hint_hidden(schema)
+    if local is not None:
+        return local
     target = _semantic_target(schema, root, set())
-    hint = target.get("x-morphe")
-    return isinstance(hint, dict) and hint.get("hidden") is True
+    if target is not schema:
+        target_local = _hint_hidden(target)
+        if target_local is not None:
+            return target_local
+        schema = target
+
+    items = schema.get("items")
+    if isinstance(items, dict) and _effective_hidden_impl(
+        cast("dict[str, Any]", items), root, seen
+    ):
+        return True
+    prefix_items = schema.get("prefixItems")
+    if isinstance(prefix_items, list) and any(
+        isinstance(item, dict) and _effective_hidden_impl(cast("dict[str, Any]", item), root, seen)
+        for item in prefix_items
+    ):
+        return True
+    for keyword in ("anyOf", "oneOf"):
+        branches = schema.get(keyword)
+        if not isinstance(branches, list):
+            continue
+        non_null = [
+            cast("dict[str, Any]", branch)
+            for branch in branches
+            if isinstance(branch, dict) and branch.get("type") != "null"
+        ]
+        if non_null and all(_effective_hidden_impl(branch, root, seen) for branch in non_null):
+            return True
+    return False
+
+
+def _union_has_hidden_branch(schema: dict[str, Any], root: JsonObject) -> bool:
+    """Report whether a visible union position carries at least one hidden branch."""
+    reference = schema.get("$ref")
+    if isinstance(reference, str):
+        return _union_has_hidden_branch(_resolve_local_ref(reference, root), root)
+    for keyword in ("anyOf", "oneOf"):
+        branches = schema.get(keyword)
+        if not isinstance(branches, list):
+            continue
+        if any(
+            isinstance(branch, dict)
+            and branch.get("type") != "null"
+            and _effective_hidden(cast("dict[str, Any]", branch), root)
+            for branch in branches
+        ):
+            return True
+    return False
+
+
+def _value_hidden_by_union(schema: dict[str, Any], value: JsonValue, root: JsonObject) -> bool:
+    """Report whether a mixed-union value matches only hidden branches.
+
+    The union itself stays visible (some branch is not hidden), but this
+    particular value is an instance of a hidden variant — it must be removed
+    from its parent exactly like a hidden property's value.
+    """
+    reference = schema.get("$ref")
+    if isinstance(reference, str):
+        return _value_hidden_by_union(_resolve_local_ref(reference, root), value, root)
+    for keyword in ("anyOf", "oneOf"):
+        branches = schema.get(keyword)
+        if not isinstance(branches, list):
+            continue
+        applicable = _applicable_alternatives(branches, value, root)
+        if applicable and all(_effective_hidden(branch, root) for branch in applicable):
+            return True
+    return False
 
 
 def _semantic_target(schema: dict[str, Any], root: JsonObject, seen: set[int]) -> dict[str, Any]:
@@ -734,7 +848,7 @@ def _semantic_target(schema: dict[str, Any], root: JsonObject, seen: set[int]) -
     return schema
 
 
-def _prune_schema_node(  # noqa: C901, PLR0912 - recursive schema keywords are explicit
+def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywords are explicit
     schema: dict[str, Any], root: JsonObject, seen: set[int]
 ) -> None:
     identity = id(schema)
@@ -758,6 +872,12 @@ def _prune_schema_node(  # noqa: C901, PLR0912 - recursive schema keywords are e
                 if isinstance(required, list):
                     required[:] = [entry for entry in required if entry != name]
                 continue
+            # A mixed union keeps its visible branches, but an instance whose
+            # value matches a hidden branch has that value removed from data —
+            # so the property cannot stay required in the minimized testimony
+            # (§1.4 rule 2 applies to the suppressed value).
+            if _union_has_hidden_branch(child, root) and isinstance(required, list):
+                required[:] = [entry for entry in required if entry != name]
             _prune_schema_node(child, root, seen)
 
     pattern_properties = schema.get("patternProperties")
@@ -786,12 +906,26 @@ def _prune_schema_node(  # noqa: C901, PLR0912 - recursive schema keywords are e
         for item in prefix_items:
             if isinstance(item, dict):
                 _prune_schema_node(cast("dict[str, Any]", item), root, seen)
-    for keyword in ("anyOf", "oneOf", "allOf"):
+    # Mixed unions: drop the hidden branches from the effective schema. An
+    # all-hidden union never reaches here — the enclosing position is itself
+    # effectively hidden and was removed by its parent.
+    for keyword in ("anyOf", "oneOf"):
         branches = schema.get(keyword)
         if isinstance(branches, list):
+            visible: list[object] = []
             for branch in branches:
                 if isinstance(branch, dict):
-                    _prune_schema_node(cast("dict[str, Any]", branch), root, seen)
+                    child = cast("dict[str, Any]", branch)
+                    if _effective_hidden(child, root):
+                        continue
+                    _prune_schema_node(child, root, seen)
+                visible.append(branch)
+            branches[:] = visible
+    branches = schema.get("allOf")
+    if isinstance(branches, list):
+        for branch in branches:
+            if isinstance(branch, dict):
+                _prune_schema_node(cast("dict[str, Any]", branch), root, seen)
 
 
 def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal above
@@ -816,13 +950,19 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
                 if not isinstance(name, str) or not isinstance(raw_child, dict):
                     continue
                 child = cast("dict[str, Any]", raw_child)
-                if _effective_hidden(child, root):
+                hide_value = _effective_hidden(child, root) or (
+                    name in data and _value_hidden_by_union(child, data[name], root)
+                )
+                if hide_value:
                     data.pop(name, None)
                 elif name in data:
                     _prune_data_node(child, data[name], root, seen)
         for name, value in list(data.items()):
             dynamic_schemas = _dynamic_value_schemas(schema, name)
             if any(_effective_hidden(child, root) for child in dynamic_schemas):
+                data.pop(name, None)
+                continue
+            if any(_value_hidden_by_union(child, value, root) for child in dynamic_schemas):
                 data.pop(name, None)
                 continue
             for child in dynamic_schemas:
@@ -832,6 +972,7 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
         items = schema.get("items")
         if isinstance(items, dict):
             child = cast("dict[str, Any]", items)
+            data[:] = [item for item in data if not _value_hidden_by_union(child, item, root)]
             for item in data:
                 _prune_data_node(child, item, root, seen)
         prefix_items = schema.get("prefixItems")
@@ -1097,6 +1238,11 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
         branches = schema.get(keyword)
         if isinstance(branches, list):
             for branch in _applicable_alternatives(branches, data, root):
+                # A value carried by a hidden branch of a mixed union is
+                # removed by minimization, so a diagnostic passing through
+                # it targets pruned content.
+                if _effective_hidden(branch, root):
+                    return True
                 if _path_targets_hidden(
                     branch,
                     tokens,
