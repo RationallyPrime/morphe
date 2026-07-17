@@ -1,6 +1,6 @@
 # Viewer image build context (viewer/Dockerfile, built from repo root).
 # Keep the context to what the build actually reads: package manifests, src/,
-# static/, viewer/, and the one py file the grammar-parity test mirrors.
+# static/, viewer/, and the compiler-identity generator.
 node_modules
 .git
 .svelte-kit
@@ -24,7 +24,8 @@ assets
 docs
 generated
 schema
-scripts
+scripts/*
+!scripts/compiler-build-id.ts
 compiled
 content
 publications.json

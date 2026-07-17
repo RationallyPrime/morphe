@@ -49,6 +49,14 @@ viewer-build:
 viewer-build-node:
 	bun run viewer:build:node
 
+# real-browser source trust -> compiler -> renderer contract (Chromium + Firefox)
+edge-e2e:
+	bun run test:edge-e2e
+
+# one-time local install for the browser contract engines
+edge-e2e-install:
+	bun run test:edge-e2e:install
+
 # build the distroless box-viewer image (from repo root context)
 viewer-image:
 	docker build -f viewer/Dockerfile -t morphe-viewer .
@@ -83,6 +91,10 @@ py-pack-verify:
 schema-check:
 	env -u PYTHONPATH uv run --extra service python -m morphe_grammar.artifacts --check
 	env -u PYTHONPATH uv run --extra service python -m morphe_surface.artifacts --check
+
+# compiler receipt identity must equal its exact committed runtime closure
+compiler-id-check:
+	bun run compiler-id:check
 
 # regenerate committed contract artifacts (after a py/ grammar/wire change)
 schema-write:
@@ -125,7 +137,7 @@ _gated inner:
 # Whole-machine run: serialized machine-wide by the heavy gate.
 gates: (_gated "_gates")
 
-_gates: lint check test build viewer-check viewer-build-node py-test py-lint py-types schema-check cms-schema-check py-pack-verify
+_gates: compiler-id-check lint check test build viewer-check viewer-build-node edge-e2e py-test py-lint py-types schema-check cms-schema-check py-pack-verify
 
 # install the prek git hooks (once per checkout)
 hooks:

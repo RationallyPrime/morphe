@@ -62,12 +62,38 @@ function packageVersionFromManifest(): string {
 	return version;
 }
 
+interface SourceConformanceCase {
+	readonly id: string;
+	readonly paths: { readonly node: string; readonly source: string };
+	readonly expected: {
+		readonly issuer: string;
+		readonly key_id: string;
+		readonly public_key_raw_hex: string;
+		readonly surface_id: string;
+	};
+}
+
+function sourceConformanceCase(): SourceConformanceCase {
+	const manifest = JSON.parse(
+		readFileSync(join(repoRoot, "fixtures/source-surface/conformance-v1.json"), "utf8"),
+	) as { readonly cases?: readonly SourceConformanceCase[] };
+	const fixture = manifest.cases?.find((candidate) => candidate.id === "taxis-roster");
+	if (fixture === undefined) throw new Error("source conformance manifest has no Taxis case");
+	return fixture;
+}
+
 try {
 	mkdirSync(runtimeDir, { recursive: true });
 	mkdirSync(join(scaffold, "src"), { recursive: true });
 
 	let dependencySource = "";
 	const surfaceText = verifyRegistry ? "Registry verify surface" : "Pack verify surface";
+	const sourceCase = sourceConformanceCase();
+	const sourceFixture = readFileSync(join(repoRoot, sourceCase.paths.source), "utf8");
+	const expectedSourceNode = readFileSync(join(repoRoot, sourceCase.paths.node), "utf8");
+	const sourcePublicKey = Buffer.from(sourceCase.expected.public_key_raw_hex, "hex").toString(
+		"base64url",
+	);
 
 	if (verifyRegistry) {
 		const packageVersion = process.env.MORPHE_VERIFY_PACKAGE || packageVersionFromManifest();
@@ -231,6 +257,11 @@ try {
 				type Sha256,
 				type SourceSurfaceArtifactV1,
 			} from "@rationallyprime/morphe/artifacts";
+			import type {
+				CompilationReceipt,
+				SourceAdmissionResult,
+				TrustedSourceSurface,
+			} from "@rationallyprime/morphe/surface-edge";
 
 			const sourceDiscriminators = {
 				kind: "morphe.source-surface",
@@ -243,14 +274,20 @@ try {
 			void sourceDiscriminators;
 			void zeroDigest;
 			void sourceSchema;
+			void (undefined as unknown as CompilationReceipt);
+			void (undefined as unknown as SourceAdmissionResult);
+			void (undefined as unknown as TrustedSourceSurface);
 		`,
 	);
+	write(join(scaffold, "src", "source-fixture.json"), sourceFixture);
+	write(join(scaffold, "src", "source-node.json"), expectedSourceNode);
 	write(
 		join(scaffold, "src", "verify-built.ts"),
 		`
 			import { createHash } from "node:crypto";
 			import { readFileSync } from "node:fs";
 			import { fileURLToPath } from "node:url";
+			import { isDeepStrictEqual } from "node:util";
 
 			const { installedDialectIds, installedGrammarVersion, renderSurface } = await import(
 				"../.ssr/entry-server.js"
@@ -382,6 +419,46 @@ try {
 				sourceProperties.tree
 			) {
 				throw new Error("expected the installed strict source-surface schema artifact");
+			}
+
+			// The server-only source-edge seam must survive the installed tarball:
+			// admit the real signed fixture, compile it, and match the frozen Python oracle.
+			const {
+				COMPILER_BUILD_SHA256,
+				COMPILER_VERSION,
+				admitSourceSurfaceJson,
+				compileSourceSurface,
+			} = await import("@rationallyprime/morphe/surface-edge");
+			const sourceRaw = readFileSync(
+				fileURLToPath(new URL("./source-fixture.json", import.meta.url)),
+				"utf8",
+			);
+			const admitted = await admitSourceSurfaceJson(sourceRaw, {
+				expectedIssuer: "${sourceCase.expected.issuer}",
+				expectedSurfaceId: "${sourceCase.expected.surface_id}",
+				publicKeys: {
+					"${sourceCase.expected.issuer}": {
+						"${sourceCase.expected.key_id}": "${sourcePublicKey}",
+					},
+				},
+				now: () => new Date("2026-07-17T12:01:00Z"),
+			});
+			if (!admitted.ok) {
+				throw new Error(\`installed source admission failed: \${admitted.issue.reason}\`);
+			}
+			const compiled = compileSourceSurface(admitted.value);
+			const expectedNode = JSON.parse(
+				readFileSync(fileURLToPath(new URL("./source-node.json", import.meta.url)), "utf8"),
+			) as unknown;
+			if (!isDeepStrictEqual(compiled.tree, expectedNode)) {
+				throw new Error("installed source compiler drifted from the Python Node oracle");
+			}
+			if (
+				compiled.receipt.compilerBuildSha256 !== COMPILER_BUILD_SHA256 ||
+				compiled.receipt.compilerVersion !== COMPILER_VERSION ||
+				compiled.receipt.grammarVersion !== installedGrammarVersion
+			) {
+				throw new Error("installed source compiler stamped an inconsistent receipt");
 			}
 		`,
 	);

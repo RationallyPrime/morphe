@@ -15,7 +15,7 @@ from pydantic import ConfigDict, model_validator
 
 from morphe_contracts import ContractModel, IntentRef
 
-from .hints import MorpheHint, NumberFormat
+from .hints import MorpheHint, NumberFormat, TemporalFormat
 
 _WELL_FORMED_CURRENCY = re.compile(r"^[A-Za-z]{3}$")
 
@@ -47,6 +47,8 @@ class KpiCell(ContractModel):
     Embed ``list[KpiCell]`` (or any model with these field names) in a surface view
     model; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be
     textual — a non-numeric measure renders as text instead of a formatted number.
+    ``temporal="date-time-minute"`` opts a textual timestamp into the deterministic
+    minute-precision display floor without changing its source value.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -55,6 +57,7 @@ class KpiCell(ContractModel):
     value: str | int | float
     kicker: str | None = None
     format: NumberFormat | None = None
+    temporal: TemporalFormat | None = None
     currency: str | None = None
     intent: IntentRef | None = None
 

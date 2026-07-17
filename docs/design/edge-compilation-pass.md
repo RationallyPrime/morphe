@@ -209,6 +209,14 @@ against serialized aliases, after deterministic sorting and minimization. The au
 rejects a diagnostic that targets a pruned field; the kernel must attach it to a visible ancestor
 instead of silently losing it.
 
+JSON object member order is not part of the RFC 8785 authenticated value, but field order is a
+presentation input. After hidden minimization, the authoring adapter therefore stamps every
+object schema's remaining property names into a signed `x-morphe.order` array. The compiler uses
+that array rather than transport insertion order. Source admission requires every object schema
+to name each visible property exactly once. The lower-level compiler remains total over malformed
+or partial arrays by using a deterministic known-property fallback, but such a document is not an
+admissible source-v1 artifact. A proxy or store may reorder JSON members without changing the tree.
+
 ### 1.4 Hidden means absent from the source artifact
 
 Before hashing or signing, the authoring adapter recursively applies established
@@ -233,13 +241,13 @@ deterministic wire-minimization directive for already authorized display data.
 
 The two representative kernels already demonstrate the correct split:
 
-- `morphe_hint(strategy=..., label=..., intents=..., heading=..., hidden=...)` is class-level
-  authoring policy. Pydantic serializes it under `x-morphe` in the JSON Schema. Per-value intent
-  maps such as `_FINALITY_TONES` and `_ROSTER_STATE_TONES` are therefore signed schema data. The
-  request value selects an entry; the map itself is not recomputed by the edge.
+- `morphe_hint(strategy=..., label=..., intents=..., heading=..., hidden=..., temporal=...)` is
+  class-level authoring policy. Pydantic serializes it under `x-morphe` in the JSON Schema.
+  Per-value intent maps such as `_FINALITY_TONES` and `_ROSTER_STATE_TONES` are therefore signed
+  schema data. The request value selects an entry; the map itself is not recomputed by the edge.
 - `KpiCell` is a Pydantic payload model. A kernel may compute its `value`, `kicker`, `format`,
-  `currency`, and `intent` per request. Those fields serialize as ordinary typed `data`, and the
-  stable `kpi-row` hint in the schema tells the edge how to interpret them.
+  `temporal`, `currency`, and `intent` per request. Those fields serialize as ordinary typed `data`,
+  and the stable `kpi-row` hint in the schema tells the edge how to interpret them.
 - Kernel-computed labels, timestamps, units, pseudonyms, links, status values, and diagnostic
   messages are also ordinary typed data.
 
@@ -314,7 +322,8 @@ Initial source limits should be explicit and no weaker than the current artifact
 - maximum 50,000 JSON values;
 - maximum 10,000 entries in any collection;
 - maximum 262,144 characters in one string;
-- local `#/$defs/...` references only; no network or filesystem resolution; and
+- literal local `#/$defs/...` references only (RFC 6901 `~` escapes, no URI percent encoding);
+  no network or filesystem resolution; and
 - bounded `$defs`, reference traversal, compiler recursion, and emitted-node count.
 
 ### 2.3 Caching
@@ -372,8 +381,9 @@ it includes the chosen algorithm and key ID. Metadata timestamps use one canonic
 encoding (`YYYY-MM-DDTHH:MM:SSZ`). The context prefix provides domain separation. Hashes are
 identities; only the asymmetric signature makes the claims authentic. Each kernel has its own
 signing key so one compromised producer cannot forge another. The viewer's source configuration
-pins issuer-to-public-key bindings by `key_id`; rotation overlaps old and new public keys for a
-bounded interval. Public keys are not learned from the artifact being verified.
+pins public keys by the composite `(issuer, key_id)` identity; a `key_id` is never a global lookup
+key across issuers. Rotation overlaps old and new public keys for a bounded interval. Public keys
+are not learned from the artifact being verified.
 
 The signature says:
 
@@ -393,7 +403,8 @@ Every source render path runs the same ordered gate:
 5. recompute schema, content, and testimony hashes;
 6. verify the Ed25519 signature against the configured public key;
 7. apply host freshness/replay policy to `source_revision`, `produced_at`, and `valid_until`;
-8. reject unsupported schema dialects and non-local references;
+8. reject unsupported schema dialects, non-local references, and recursive local-reference cycles
+   that would make the bounded compiler omit finite signed data;
 9. validate `data` against the signed schema;
 10. check `required_capabilities` against the edge compiler;
 11. compile to `Node` with total compiler diagnostics;
@@ -417,14 +428,19 @@ interface CompilationReceipt {
   readonly grammarVersion: string;
   readonly treeSha256: `sha256:${string}`;
   readonly diagnosticsSha256: `sha256:${string}`;
+}
+
+interface DeliveryReceipt extends CompilationReceipt {
   readonly dialectId: string;
   readonly dialectPolicySha256: `sha256:${string}`;
 }
 ```
 
-The receipt supports cache identity, replay, audit, and exact bug reproduction. It is not signed by
-the kernel and must never be presented as though the kernel authored the tree. Given the signed
-source artifact and immutable compiler build, an independent verifier can reproduce it.
+The dialect-free compilation receipt supports cache identity and exact compiler replay. The viewer
+adds dialect fields only after gating the exact tree that will render, producing a delivery
+receipt. Neither receipt is signed by the kernel or may be presented as though the kernel authored
+the tree. Given the signed source artifact and immutable compiler build, an independent verifier
+can reproduce the compilation receipt.
 
 ### 3.4 What a compromised viewer can do
 
@@ -463,6 +479,9 @@ Do not collapse independent compatibility dimensions back into one package tag:
 | Compiler version/build | Morphe edge | receipt and `/healthz` | Never negotiated with a kernel |
 | Grammar version | Morphe package | receipt and `/healthz` | Never stamped by a kernel source artifact |
 | Dialect and policy | viewer | delivery/route config | Applied and gated after compilation |
+
+The authoring package exports `HINT_VOCABULARY_VERSION`; `0.4.0` adds the degradable
+`temporal: date-time-minute` policy without changing source wire v1.
 
 ### Older kernel, newer edge
 
@@ -585,6 +604,38 @@ No kernel endpoint changes.
   parity except for explicitly reviewed bug fixes.
 - Deploy the viewer before any kernel returns source v1.
 
+Reviewed Stage 1 corrections are part of the frozen conformance corpus, not silent drift:
+
+- overlapping-union hidden analysis fails closed when any applicable branch marks a field hidden;
+- source admission rejects any residual `hidden: true` marker after minimization and rejects a
+  malformed disclosure marker rather than treating it as an un-hide;
+- local `$ref` presentation hints inherit the target's signed property order and hidden boundary;
+- source trust roots are indexed by composite `(issuer, key_id)`, preventing a compromised
+  co-issuer key with the same `key_id` from authenticating another issuer's testimony;
+- property-order stamping covers every schema carrying `properties`, including Draft 2020-12
+  composition shapes without an explicit `type: object`;
+- source references are restricted to bounded literal `#/$defs/...` chains with RFC 6901 decoding;
+  URI percent encoding and nested `$id` bases are rejected so the validator and compiler cannot
+  resolve different targets;
+- malformed signed order falls to a deterministic sorted floor without discarding valid sibling hints,
+  while malformed presentation hints retain a valid signed order;
+- nullable/empty table cells lower to an aria-hidden `Spacer` so renderer CSS cannot collapse a
+  cell and shift later columns; and
+- explicitly scalarized JSON containers use canonical JSON rather than transport member order;
+- Python float spelling, numeric intent keys, and prototype-named fields/maps are parity-locked;
+- KPI diagnostics render inside the promoted card body instead of existing only in the receipt;
+- an explicit `temporal: date-time-minute` policy renders full RFC 3339 scalar timestamps at minute
+  precision with an explicit zone, while timestamp-shaped opaque strings, signed source data, and
+  the intermediate `SurfaceNode.value` remain exact; and
+- unknown hint keys remain ignored for forward compatibility but produce an informational
+  compiler diagnostic.
+
+Both compilers and the committed oracles carry the shared corrections. RFC 8785 input follows its
+IEEE-754 domain: unsafe integer-form tokens are rejected before parsing, while representable
+decimal/exponent doubles remain admissible and canonicalizable. Numeric presentation additionally
+refuses decimal or exponent text that would round to an unsafe integral double, preserving the
+signed source spelling instead of displaying a different value.
+
 Rollback is the untouched legacy reader.
 
 #### Stage 2 — pilot Taxis, then Obolos
@@ -676,7 +727,8 @@ One compact source fixture includes:
 - a `kpi-row` of numeric and textual `KpiCell`s;
 - a status with a per-value intent map;
 - a progress value;
-- a ruled table with at least two rows and three unequal-width columns;
+- a ruled table with at least two rows and at least three columns whose content widths are
+  deliberately unequal;
 - one row-level diagnostic and one cell-level diagnostic;
 - a linked reference;
 - a nullable number; and

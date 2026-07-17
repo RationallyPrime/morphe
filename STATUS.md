@@ -1,7 +1,11 @@
 # Morphe — Status
 
-**Date:** 2026-07-13
+**Date:** 2026-07-17
 **Verdict: GREEN.** The complete web, viewer, Python, schema, build, and package gate passes.
+
+The KRA-762 Stage 1 release candidate is also green: the TypeScript edge compiler, source-v1
+trust gate, dual viewer, and untouched legacy rollback reader are verified together. Production
+activation remains viewer-first and follows merge; kernels do not switch before that deployment.
 
 This is the rolling status snapshot. The deeper ledger — every vision mechanism
 mapped to its implementation state — lives in `VISION.md` §15; the scheduled
@@ -16,12 +20,14 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **474 server + 8 DOM passing** across 29 files |
-| Python tests | `pytest` | **271 passing** |
+| Web tests | `bun run test` | **619 server + 8 DOM passing** |
+| Browser seam | `bunx playwright test` | **6 passing** across Chromium + Firefox |
+| Python tests | `pytest` | **415 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
-| npm package | `bun run pack:verify` | **Installed consumer, exports, masks, client and SSR pass** |
+| npm package | `bun run pack:verify` | **Installed exports, source admission, compiler parity, client and SSR pass** |
 | Python package | `just py-pack-verify` | **Wheel + sdist, 10 resources, 9 isolated mask loads pass** |
+| Viewer image | `docker build` + `/healthz` | **Node-only image; compiler identity verified** |
 
 The high-value suites cover all nine dialects, the algebra/property laws, factory and render
 totality, generated artifact trust, dialect-constrained ingress, the stripped viewer, state and
@@ -82,14 +88,16 @@ emission with retry/fail-closed behavior.
   returns a deterministic schema-valid fallback tree); τ_frame arrival
   attribution (`?dialect=` selects the dialect on landing — valid param >
   persisted choice, explicit toggle always wins afterward).
-- **The stripped viewer (`viewer/`):** a second, stripped
-  SvelteKit app sharing the same `$lib`, exactly one route
-  (`/surfaces/[artifactId]`, SSR-fetches a compiled artifact from
-  `MORPHE_ARTIFACT_BASE_URL/{id}`) plus `/healthz`; fail-closed
-  generated artifact-schema and dialect-policy ingress gates (malformed,
-  mismatched, or out-of-dialect artifacts fail closed before rendering);
-  adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the
-  distroless image, `viewer/Dockerfile`, built from repo root).
+- **The stripped viewer (`viewer/`):** a second, stripped SvelteKit app sharing the same `$lib`.
+  The legacy `/surfaces/[artifactId]` compiled-tree route remains unchanged as the rollback path;
+  the dual `/s/[source]/[surfaceId]` route admits bounded, Ed25519-authenticated source-v1
+  envelopes and compiles them with the server-only TypeScript edge compiler. Both paths pass the
+  same generated grammar/dialect policy ingress gate before rendering. `/healthz` exposes the
+  grammar, source wire/media type, receipt contract, edge-compiler version, and self-derived build
+  identity (`sha256:7125ca1243f61f739b83f562c2566b61e614c3735e359dfc112691edf05065f0`).
+  The adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless
+  image, `viewer/Dockerfile`, built from repo root); the production image carries no Python
+  compiler.
 - **Projection M artifacts and structured-emission lab:** one authoritative
   Pydantic grammar/catalog generates TypeScript, full schemas, the decision
   wire, and nine genuine per-dialect `G|D` masks. The npm and Python packages

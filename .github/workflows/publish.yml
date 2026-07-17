@@ -16,6 +16,7 @@ on:
       - "py/morphe_grammar/**"
       - "py/morphe_surface/**"
       - "src/lib/**"
+      - "scripts/compiler-build-id.ts"
       - "scripts/pack-verify.ts"
       - "scripts/verify-python-package.py"
       - ".github/workflows/publish.yml"
@@ -48,6 +49,7 @@ jobs:
 
       - name: Full local gates
         run: |
+          bun run compiler-id:check
           bun run lint
           bun run check
           bun run test
@@ -89,6 +91,7 @@ jobs:
 
       - name: Full local gates
         run: |
+          bun run compiler-id:check
           bun run lint
           bun run check
           bun run test

@@ -12,6 +12,35 @@ def test_resolve_ref_follows_defs() -> None:
     assert schema_type(resolved) == "object"
 
 
+def test_resolve_ref_follows_bounded_chains_and_decodes_pointer_tokens() -> None:
+    root = {
+        "$defs": {
+            "A/B": {"$ref": "#/$defs/T~0arget"},
+            "T~arget": {"type": "string", "title": "Resolved"},
+        }
+    }
+    assert resolve_ref({"$ref": "#/$defs/A~1B"}, root) == {
+        "type": "string",
+        "title": "Resolved",
+    }
+
+
+def test_resolve_ref_rejects_percent_encoded_definition_tokens() -> None:
+    reference = {"$ref": "#/$defs/A%20B"}
+    root = {
+        "$defs": {
+            "A B": {"type": "string"},
+            "A%20B": {"type": "integer"},
+        }
+    }
+    assert resolve_ref(reference, root) is reference
+
+
+def test_resolve_ref_terminates_cycles() -> None:
+    root = {"$defs": {"A": {"$ref": "#/$defs/B"}, "B": {"$ref": "#/$defs/A"}}}
+    assert "$ref" in resolve_ref({"$ref": "#/$defs/A"}, root)
+
+
 def test_hint_strategy_wins_over_structure() -> None:
     s = resolve_strategy(
         {"type": "array", "items": {"type": "object"}},

@@ -17,7 +17,13 @@ from .artifact import (
 )
 from .authoring import KpiCell, morphe_hint
 from .compile import GRAMMAR_VERSION, compile_surface
-from .hints import MorpheHint, NumberFormat, parse_hint
+from .hints import (
+    HINT_VOCABULARY_VERSION,
+    MorpheHint,
+    NumberFormat,
+    TemporalFormat,
+    parse_hint,
+)
 from .source import (
     JSON_SCHEMA_2020_12,
     SOURCE_SIGNATURE_CONTEXT,
@@ -47,6 +53,7 @@ from .strategies import Strategy
 
 __all__ = [
     "GRAMMAR_VERSION",
+    "HINT_VOCABULARY_VERSION",
     "JSON_SCHEMA_2020_12",
     "SOURCE_SIGNATURE_CONTEXT",
     "SOURCE_SURFACE_KIND",
@@ -67,6 +74,7 @@ __all__ = [
     "SourceVerificationError",
     "Strategy",
     "SurfaceNode",
+    "TemporalFormat",
     "ViewModelContract",
     "WireModel",
     "canonical_json_bytes",

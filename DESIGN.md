@@ -130,6 +130,10 @@ Schema-derived surfaces should be intentional projections, not pretty-printed AP
   unless the operator genuinely needs them.
 - Format quantities, dates, references, and lineage before compilation when their display needs
   domain knowledge.
+- An explicit `temporal: date-time-minute` policy gives compiler-generated scalar text one generic
+  timestamp floor: a full RFC 3339 value displays at minute precision with an explicit zone. The
+  source value and intermediate surface spec remain exact; timestamp-like opaque strings are never
+  inferred, and producers still own every domain-specific date or calendar representation.
 - Keep repeated record rows flat and scalar when they should lower to a grid. One nested field can
   correctly force a card-stack fallback; do not fight that fallback with renderer exceptions.
 - Use enums when a value should become a badge. The label must remain sufficient without color.

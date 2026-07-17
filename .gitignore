@@ -9,6 +9,8 @@ node_modules
 .pytest_cache/
 .ruff_cache/
 .vitest-tmp/
+/test-results/
+/playwright-report/
 __pycache__/
 *.py[cod]
 .DS_Store

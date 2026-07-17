@@ -94,6 +94,89 @@ def test_scalar_emits_text() -> None:
     validate_node(node)
 
 
+@pytest.mark.parametrize(
+    ("raw", "display"),
+    [
+        ("2026-07-17T15:40:14.582860+00:00", "2026-07-17 15:40 UTC"),
+        ("2026-07-17T15:40:59.999999Z", "2026-07-17 15:40 UTC"),
+        ("2026-07-17t17:40:10.1+02:00", "2026-07-17 17:40 +02:00"),
+        ("2026-02-30T15:40:10Z", "2026-02-30T15:40:10Z"),
+        ("2026-07-17T15:40:60Z", "2026-07-17T15:40:60Z"),
+        ("2026-07-17T15:40:10+24:00", "2026-07-17T15:40:10+24:00"),
+        ("2026-07-17", "2026-07-17"),
+    ],
+)
+def test_scalar_rfc3339_display_is_minute_precise_and_total(raw: str, display: str) -> None:
+    schema = {
+        "type": "string",
+        "title": "System Time",
+        "x-morphe": {"temporal": "date-time-minute"},
+    }
+    spec = build_surface(schema, raw, root=schema)
+
+    assert spec.value == raw
+    assert emit_node(spec)["value"] == display
+
+
+def test_rfc3339_shaped_opaque_string_is_unchanged_without_temporal_policy() -> None:
+    opaque = "2026-07-17T15:40:14Z"
+    spec = build_surface({"type": "string", "title": "Event ID"}, opaque, root={})
+
+    assert spec.temporal is None
+    assert emit_node(spec)["value"] == opaque
+
+
+def test_timestamp_floor_covers_table_cells_and_textual_kpis_without_mutating_ir() -> None:
+    raw = "2026-07-17T15:40:14.582860+00:00"
+    display = "2026-07-17 15:40 UTC"
+    schema = {
+        "type": "object",
+        "properties": {
+            "summary": {
+                "type": "array",
+                "x-morphe": {"strategy": "kpi-row"},
+            },
+            "events": {
+                "type": "array",
+                "x-morphe": {"strategy": "table"},
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "system_time": {
+                            "type": "string",
+                            "title": "System Time",
+                            "x-morphe": {"temporal": "date-time-minute"},
+                        }
+                    },
+                },
+            },
+        },
+    }
+    spec = build_surface(
+        schema,
+        {
+            "summary": [
+                {"label": "Newest event", "value": raw, "temporal": "date-time-minute"}
+            ],
+            "events": [{"system_time": raw}],
+        },
+        root=schema,
+    )
+    summary = next(child for child in spec.children if child.path == "$.summary")
+    events = next(child for child in spec.children if child.path == "$.events")
+
+    assert summary.items[0].value == raw
+    assert events.items[0].children[0].value == raw
+
+    node = emit_node(spec)
+    table = _find(node, lambda item: item.get("kind") == "grid" and "columns" in item)
+    assert table is not None
+    assert _find(table, lambda item: item.get("value") == display) is not None
+    assert _find(node, lambda item: item.get("value") == display) is not None
+    assert _find(node, lambda item: item.get("value") == raw) is None
+    validate_node(node)
+
+
 def test_root_identity_scalar_emits_display_critical_without_caption() -> None:
     node = emit_node(build_surface(LEDGER_HEADER, LEDGER_HEADER_DATA, root=LEDGER_HEADER))
     display = _find(node, lambda n: n.get("as") == "display")
@@ -246,6 +329,38 @@ def test_non_record_table_row_renders_itself_not_blank() -> None:
     validate_node(node)
 
 
+def test_nullable_table_cell_keeps_its_grid_position() -> None:
+    schema = {
+        "type": "array",
+        "title": "Roster",
+        "x-morphe": {"strategy": "table"},
+        "items": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "title": "Name"},
+                "rate": {"anyOf": [{"type": "number"}, {"type": "null"}], "title": "Rate"},
+                "profile": {
+                    "type": "object",
+                    "title": "Profile",
+                    "x-morphe": {"strategy": "linked-ref"},
+                },
+            },
+        },
+    }
+    data = [{"name": "Ada", "rate": None, "profile": {"label": "Open Ada", "href": "/ada"}}]
+    node = emit_node(build_surface(schema, data, root=schema))
+    table = _find(
+        node,
+        lambda candidate: candidate.get("kind") == "grid" and "columns" in candidate,
+    )
+
+    assert table is not None
+    row = table["children"][1]
+    assert [cell["kind"] for cell in row["children"]] == ["text", "spacer", "link"]
+    assert row["children"][1] == {"kind": "spacer", "size": "xs"}
+    validate_node(node)
+
+
 def test_heading_false_suppresses_section_heading() -> None:
     schema = {
         "type": "object",
@@ -295,6 +410,21 @@ def test_empty_collection_emits_empty_state_caption() -> None:
     empty = _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "No balances.")
 
     assert empty is not None
+    validate_node(node)
+
+
+def test_empty_collection_uses_python_whitespace_for_its_fallback_label() -> None:
+    schema = {"type": "array", "title": "\u0085", "items": {"type": "string"}}
+    node = emit_node(build_surface(schema, [], root=schema))
+    empty = _find(node, lambda item: item.get("value") == "No items.")
+    assert empty is not None
+    validate_node(node)
+
+
+def test_status_preserves_bom_because_python_strip_does_not_remove_it() -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "status"}}
+    node = emit_node(build_surface(schema, "\ufeffready\ufeff", root=schema))
+    assert node["signal"]["text"] == "\ufeffready\ufeff"
     validate_node(node)
 
 

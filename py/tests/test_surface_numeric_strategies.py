@@ -11,7 +11,9 @@ from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
+from morphe_contracts import Diagnostic
 from morphe_grammar import validate_node
+from morphe_surface import HINT_VOCABULARY_VERSION
 from morphe_surface.authoring import KpiCell, morphe_hint
 from morphe_surface.build import build_surface
 from morphe_surface.compile import compile_surface
@@ -126,6 +128,81 @@ def test_number_hint_over_text_degrades_to_scalar() -> None:
     assert balance.value == "not a number"
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        "Infinity",
+        "-Infinity",
+        "NaN",
+        "1e9999",
+        "9007199254740993",
+        "9007199254740993.0",
+        "9.007199254740993e15",
+        "90071992547409930e-1",
+        "-9007199254740993.0",
+        "9007199254740991.5",
+        "1e16",
+        "١٢",
+    ],
+)
+def test_number_hint_degrades_nonfinite_unsafe_and_non_ascii_numeric_text(value: str) -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "number"}}
+    spec = _build(schema, value)
+    assert spec.strategy == "scalar"
+    assert spec.value == value
+    validate_node(emit_node(spec))
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("9007199254740991.0", 9007199254740991),
+        ("9.007199254740991e15", 9007199254740991),
+        ("1.25e2", 125),
+        ("1.25e-2", 0.0125),
+    ],
+)
+def test_number_hint_retains_safely_representable_numeric_text(value: str, expected: float) -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "number"}}
+    spec = _build(schema, value)
+    assert spec.strategy == "number"
+    assert spec.value == expected
+
+
+@pytest.mark.parametrize("value", ["\u00851\u0085", "\u001c1\u001f"])
+def test_number_hint_uses_python_whitespace_semantics(value: str) -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "number"}}
+    spec = _build(schema, value)
+    assert spec.strategy == "number"
+    assert spec.value == 1
+
+
+@pytest.mark.parametrize(
+    ("schema", "value", "label"),
+    [
+        ({"type": "integer", "enum": [1]}, 1.0, "1"),
+        ({"enum": [1]}, 1.0, "1"),
+        ({"type": "number", "enum": [1]}, 1, "1.0"),
+        ({"enum": [0.00001]}, 0.00001, "1e-05"),
+    ],
+)
+def test_badge_numeric_spelling_is_schema_normalized(
+    schema: dict[str, Any], value: float, label: str
+) -> None:
+    node = emit_node(_build(schema, value))
+    assert node["label"] == label
+
+
+def test_scalar_numeric_presentation_uses_ascii_digits_and_python_strip() -> None:
+    schema = {"type": "string"}
+    arabic = _build(schema, "١٢")
+    wrapped = _build(schema, "\u0085-12\u0085")
+    assert arabic.numeric is None
+    assert arabic.polarity is None
+    assert wrapped.numeric is True
+    assert wrapped.polarity == "negative"
+
+
 def test_status_resolves_intent_per_value() -> None:
     settled = _child(_build(TREASURY, _treasury_data()), "$.finality")
     assert settled.strategy == "status"
@@ -170,6 +247,12 @@ def test_kpi_row_builds_number_and_text_cells() -> None:
     assert number_cell.currency == "ISK"
     assert text_cell.strategy == "scalar"
     assert text_cell.value == "bank_batch"
+
+
+def test_kpi_empty_label_uses_the_generated_item_label() -> None:
+    data = _treasury_data(kpis=[{"label": "", "value": 7}])
+    kpis = _child(_build(TREASURY, data), "$.kpis")
+    assert kpis.items[0].label == "Key figures 0"
 
 
 def test_kpi_row_never_wins_primary_collection_promotion() -> None:
@@ -238,6 +321,23 @@ def test_emit_kpi_row_is_a_card_grid_of_signal_cards() -> None:
     assert cards[1]["args"]["measure"]["kind"] == "text"
 
 
+def test_kpi_source_diagnostic_renders_in_signal_card_body() -> None:
+    diagnostics = {
+        "$.kpis[0]": [
+            Diagnostic(
+                code="KPI_SOURCE",
+                severity="info",
+                path="$.kpis[0]",
+                message="Signed KPI provenance.",
+            )
+        ]
+    }
+    spec = build_surface(TREASURY, _treasury_data(), root=TREASURY, diagnostics=diagnostics)
+    kpis = _child(spec, "$.kpis")
+    assert kpis.items[0].diagnostics[0].code == "KPI_SOURCE"
+    assert "KPI_SOURCE" in str(emit_node(kpis))
+
+
 def test_full_pipeline_compiles_and_validates() -> None:
     compiled = compile_surface(TREASURY, _treasury_data(), compiled_at="2026-07-16T00:00:00Z")
     assert compiled.tree.kind == "frame"
@@ -289,10 +389,21 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
+    assert HINT_VOCABULARY_VERSION == "0.4.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
+    assert morphe_hint(temporal="date-time-minute") == {
+        "x-morphe": {"temporal": "date-time-minute"}
+    }
+    assert KpiCell(
+        label="Newest event",
+        value="2026-07-17T15:40:14Z",
+        temporal="date-time-minute",
+    ).temporal == "date-time-minute"
     with pytest.raises(ValueError, match="strategy"):
         morphe_hint(strategy="nubmer")
+    with pytest.raises(ValueError, match="temporal"):
+        morphe_hint(temporal="minute")
 
 
 def test_malformed_currency_degrades_to_plain_number() -> None:

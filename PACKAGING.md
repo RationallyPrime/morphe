@@ -19,6 +19,8 @@ The package root is `src/lib`. It contains the reusable core only.
 - `delegation/` — envelope, epoch/delta machinery, variation resolution, and mid-loop seam.
 - `state/` — client store, tier-1 commit path, tier-2 events, actions, digest, escalation.
 - `render/` — render contracts and registry internals; mounted through `./components`.
+- `surface-edge/` — server-only source-v1 admission, deterministic compiler, evidence,
+  receipts, and generated compiler-build identity.
 
 **DESIGN SYSTEM**
 
@@ -80,6 +82,13 @@ The package root is `src/lib`. It contains the reusable core only.
   untrusted artifact; consumers validating store responses should use it rather
   than re-deriving validation from the raw schemas.
 
+- `@rationallyprime/morphe/surface-edge` — the server-only source-v1 seam:
+  2 MiB-bounded duplicate-safe JSON admission, RFC 8785/Ed25519 testimony
+  verification, deterministic compilation, and dialect-free compilation
+  receipts. The compiler stamps its generated build identity internally; callers
+  cannot provide or override that receipt field. It imports Node APIs and must
+  not be bundled into browser components.
+
 The Python wheel and sdist carry the same dialect masks under package resources.
 `load_dialect_mask()` verifies the installed manifest version, grammar version, and SHA-256 before
 returning a schema. `just py-pack-verify` builds both artifacts, compares every resource byte, and
@@ -135,8 +144,10 @@ bun run pack:verify
 ```
 
 `pack:verify` runs `bun pm pack`, installs the tarball into a throwaway Vite + Svelte 5
-consumer under `/tmp`, imports the public seams, builds the client mount, builds an SSR
-entry, and asserts that the rendered surface contains the expected Morphe output.
+consumer under `/tmp`, imports the public seams, builds the client mount and SSR entry,
+admits a real signed Taxis source fixture through the installed `surface-edge` export,
+compiles it, and requires deep structural parity with the committed Python Node oracle
+plus consistent compiler/grammar/build receipt identities.
 
 After a version is published, the same verifier can install from npmjs instead
 of the local tarball:

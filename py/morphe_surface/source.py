@@ -346,6 +346,7 @@ def minimize_source_surface(
     _prune_schema_node(minimized_schema, minimized_schema, set())
     _prune_data_node(original_schema, minimized_data, original_schema, set())
     _remove_unreachable_definitions(minimized_schema)
+    _stamp_property_order(minimized_schema)
     _validate_minimized_pair(minimized_schema, minimized_data)
 
     for diagnostic in validated_diagnostics:
@@ -368,6 +369,42 @@ def minimize_source_surface(
             raise HiddenDiagnosticError(msg)
 
     return minimized_schema, minimized_data, validated_diagnostics
+
+
+def _stamp_property_order(schema: JsonObject) -> None:
+    """Authenticate visible object-field order independently of JSON member order.
+
+    RFC 8785 deliberately sorts object members, so a signature cannot make their
+    transport insertion order authoritative.  The compiler does care about field
+    order.  Stamp the post-minimization order as an array (whose order *is* covered
+    by JCS) before seals are computed.  Existing x-morphe keys are preserved.
+    """
+    pending: list[object] = [schema]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if isinstance(current, list):
+            pending.extend(current)
+            continue
+        if not isinstance(current, dict):
+            continue
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+
+        record = cast("dict[str, JsonValue]", current)
+        properties = record.get("properties")
+        # Draft 2020-12 permits `properties` without an explicit `type: object`
+        # (notably beside allOf/if/then composition). Such a schema still has
+        # presentation-bearing fields and must authenticate their order.
+        if isinstance(properties, dict):
+            raw_hint = record.get("x-morphe")
+            hint = dict(raw_hint) if isinstance(raw_hint, dict) else {}
+            hint["order"] = list(properties)
+            record["x-morphe"] = cast("JsonValue", hint)
+
+        pending.extend(record.values())
 
 
 def prepare_source_surface(  # noqa: PLR0913 - the signed envelope fields stay explicit
@@ -726,8 +763,8 @@ def _hint_hidden(schema: dict[str, Any]) -> bool | None:
     replace it. An explicit local ``hidden: false`` is a deliberate override.
     """
     hint = schema.get("x-morphe")
-    if isinstance(hint, dict) and "hidden" in hint:
-        return hint.get("hidden") is True
+    if isinstance(hint, dict) and isinstance(hint.get("hidden"), bool):
+        return cast("bool", hint["hidden"])
     return None
 
 

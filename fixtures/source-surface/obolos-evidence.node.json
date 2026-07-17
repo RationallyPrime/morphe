@@ -282,9 +282,8 @@
                       "label": "Open receipt 901"
                     },
                     {
-                      "as": "body",
-                      "kind": "text",
-                      "value": ""
+                      "kind": "spacer",
+                      "size": "xs"
                     }
                   ],
                   "kind": "grid",

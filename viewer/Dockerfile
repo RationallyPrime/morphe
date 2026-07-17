@@ -4,10 +4,13 @@
 #   docker build -f viewer/Dockerfile -t morphe-viewer .
 #
 # Runtime contract:
-#   MORPHE_ARTIFACT_BASE_URL  topos surface read route base
-#                             (e.g. http://topos:8000/api/v1/surfaces), reached
-#                             over the docker bridge — the browser never talks
-#                             to topos directly.
+#   MORPHE_SOURCES            declared store/kernel sources, representation
+#                             selection, and source-v1 trust policy.
+#   MORPHE_ARTIFACT_BASE_URL  legacy single-store fallback when MORPHE_SOURCES
+#                             is unset.
+#   VIEWER_*_TOKEN            optional named kernel bearer tokens, referenced
+#                             only through MORPHE_SOURCES and never sent to the
+#                             browser.
 #   PORT                      listen port (default 3000)
 #
 # Publish LAN-only (topos :8000 posture); NEVER behind a cloudflared route.
@@ -20,12 +23,12 @@ RUN bun install --frozen-lockfile
 COPY tsconfig.json vite.config.ts svelte.config.js ./
 COPY src src
 COPY static static
-COPY py/morphe_surface/compile.py py/morphe_surface/compile.py
+COPY scripts/compiler-build-id.ts scripts/compiler-build-id.ts
 COPY viewer viewer
 ENV MORPHE_VIEWER_ADAPTER=node
 # Root svelte-kit sync first: src/lib files resolve the ROOT tsconfig.json,
 # which extends the root app's generated .svelte-kit/tsconfig.json.
-RUN bun x svelte-kit sync && cd viewer && bun x vite build
+RUN bun run compiler-id:check && bun x svelte-kit sync && cd viewer && bun x vite build
 
 # The adapter-node output is fully self-contained (verified: boots with no
 # node_modules), so the final stage carries only the build tree + probe.
