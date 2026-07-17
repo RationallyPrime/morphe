@@ -41,6 +41,14 @@ type _Presentation = Literal["identity", "primary-collection"] | None
 type _ScalarNumberKind = Literal["integer", "number"]
 
 
+def _safe_coerced_float(number: float) -> float | None:
+    return (
+        number
+        if isfinite(number) and (not number.is_integer() or abs(number) <= _MAX_SAFE_INTEGER)
+        else None
+    )
+
+
 @dataclass(frozen=True)
 class _Ctx:
     """Immutable recursion state threaded through build (keeps every fn under the arg cap)."""
@@ -487,7 +495,7 @@ def _coerce_number(data: object) -> int | float | None:
     if isinstance(data, int):
         return data if abs(data) <= _MAX_SAFE_INTEGER else None
     if isinstance(data, float):
-        return data if isfinite(data) else None
+        return _safe_coerced_float(data)
     normalized = data.strip().replace("_", "")
     if not normalized or _COERCIBLE_NUMBER.fullmatch(normalized) is None:
         return None
@@ -495,7 +503,7 @@ def _coerce_number(data: object) -> int | float | None:
         integer = int(normalized)
         return integer if abs(integer) <= _MAX_SAFE_INTEGER else None
     number = float(normalized)
-    return number if isfinite(number) else None
+    return _safe_coerced_float(number)
 
 
 def _label(schema: dict[str, Any], hint_label: str | None, fallback: str) -> str:
@@ -602,9 +610,7 @@ def _numeric_presentation(value: object) -> tuple[bool | None, Polarity | None]:
     return True, "negative" if text.startswith(("-", "(")) else "positive"
 
 
-def _scalar_number_kind(
-    schema: dict[str, Any], value: object
-) -> _ScalarNumberKind | None:
+def _scalar_number_kind(schema: dict[str, Any], value: object) -> _ScalarNumberKind | None:
     if isinstance(value, bool) or not isinstance(value, int | float):
         return None
     declared = schema_type(schema)

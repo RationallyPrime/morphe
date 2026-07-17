@@ -583,7 +583,10 @@ function currencyPresentation(
 /** Python numeric coercion with the KRA-762 finite/safe totality repair. */
 function coerceNumber(value: unknown): number | null {
 	if (typeof value === "boolean") return null;
-	if (typeof value === "number") return Number.isFinite(value) ? value : null;
+	if (typeof value === "number") {
+		if (!Number.isFinite(value)) return null;
+		return Number.isInteger(value) && !Number.isSafeInteger(value) ? null : value;
+	}
 	if (typeof value !== "string") return null;
 	const text = pythonStrip(value);
 	if (text.length === 0) return null;
@@ -591,7 +594,10 @@ function coerceNumber(value: unknown): number | null {
 	if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(normalized)) return null;
 	const number = Number(normalized);
 	if (!Number.isFinite(number)) return null;
-	if (/^[+-]?\d+$/.test(normalized) && !Number.isSafeInteger(number)) return null;
+	// Decimal and exponent spellings can round to an unsafe integral IEEE-754
+	// value too (for example, 9007199254740993.0). Never render that lossy
+	// integral coercion as if it preserved the signed source value.
+	if (Number.isInteger(number) && !Number.isSafeInteger(number)) return null;
 	return number;
 }
 

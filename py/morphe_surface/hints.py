@@ -60,5 +60,9 @@ def parse_hint(schema: dict[str, object]) -> MorpheHint:
     try:
         return MorpheHint.model_validate(hint)
     except ValidationError:
-        # Totality (D8): a malformed hint block selects nothing.
-        return MorpheHint()
+        # Totality (D8): malformed presentation selects nothing, but signed
+        # property order remains authenticated compiler input.
+        signed_order = hint.get("order")
+        return MorpheHint(
+            order=cast("tuple[str, ...]", signed_order) if isinstance(signed_order, tuple) else None
+        )

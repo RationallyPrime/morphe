@@ -20,9 +20,9 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **599 server + 8 DOM passing** |
+| Web tests | `bun run test` | **610 server + 8 DOM passing** |
 | Browser seam | `bunx playwright test` | **6 passing** across Chromium + Firefox |
-| Python tests | `pytest` | **394 passing** |
+| Python tests | `pytest` | **406 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
 | npm package | `bun run pack:verify` | **Installed exports, source admission, compiler parity, client and SSR pass** |
@@ -94,7 +94,7 @@ emission with retry/fail-closed behavior.
   envelopes and compiles them with the server-only TypeScript edge compiler. Both paths pass the
   same generated grammar/dialect policy ingress gate before rendering. `/healthz` exposes the
   grammar, source wire/media type, receipt contract, edge-compiler version, and self-derived build
-  identity (`sha256:5c1540f93ef97253c6958dcd51bd73e72f5645003cbcf6d2e3bfe1a4510b0a38`).
+  identity (`sha256:ff3ed2014edd1a6d66b37344ab9e344df83e236e65805410f6952660c9bbd03a`).
   The adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless
   image, `viewer/Dockerfile`, built from repo root); the production image carries no Python
   compiler.

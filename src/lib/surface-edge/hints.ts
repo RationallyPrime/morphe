@@ -88,6 +88,16 @@ function optionalMember<T>(
 	return predicate(value) ? value : INVALID;
 }
 
+function defaultedMember<T>(
+	raw: Readonly<Record<string, unknown>>,
+	key: string,
+	predicate: (value: unknown) => value is T,
+): T | undefined | typeof INVALID {
+	const value = raw[key];
+	if (value === undefined) return undefined;
+	return predicate(value) ? value : INVALID;
+}
+
 function isStrategy(value: unknown): value is Strategy {
 	return typeof value === "string" && STRATEGIES.has(value as Strategy);
 }
@@ -126,15 +136,15 @@ function intentMap(
 }
 
 function orderList(value: unknown): readonly string[] | undefined | typeof INVALID {
-	if (value === undefined || value === null) return undefined;
+	if (value === undefined) return undefined;
 	if (!Array.isArray(value) || !value.every((entry) => typeof entry === "string")) return INVALID;
 	return value;
 }
 
 /**
  * Parse the forward-open `x-morphe` block. Unknown keys retain all known
- * siblings and are reported separately; an invalid known value preserves the
- * Python totality floor by discarding the whole block.
+ * siblings and are reported separately; an invalid presentation value selects
+ * the hint-free floor while preserving signed property order.
  */
 export function parseHint(schema: JsonSchema): ParsedHint {
 	const raw = schema["x-morphe"];
@@ -147,8 +157,8 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 	const label = optionalMember(raw, "label", isString);
 	const role = optionalMember(raw, "role", isIntent);
 	const collapse = optionalMember(raw, "collapse", isBoolean);
-	const hidden = optionalMember(raw, "hidden", isBoolean);
-	const heading = optionalMember(raw, "heading", isBoolean);
+	const hidden = defaultedMember(raw, "hidden", isBoolean);
+	const heading = defaultedMember(raw, "heading", isBoolean);
 	const format = optionalMember(raw, "format", isNumberFormat);
 	const currency = optionalMember(raw, "currency", isString);
 	const intents = intentMap(raw.intents);
@@ -170,7 +180,10 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 		intents === INVALID ||
 		emphasis === INVALID
 	) {
-		return { hint: EMPTY_HINT, unknownKeys };
+		return {
+			hint: order === undefined ? EMPTY_HINT : { ...EMPTY_HINT, order },
+			unknownKeys,
+		};
 	}
 
 	return {

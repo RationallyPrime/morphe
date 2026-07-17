@@ -23,9 +23,27 @@ describe("surface-edge compiler adjudications", () => {
 
 	it("preserves the Python floor when a known hint value is malformed", () => {
 		const parsed = parseHint({
-			"x-morphe": { strategy: "number", format: "bogus", heading: false },
+			"x-morphe": {
+				strategy: "number",
+				format: "bogus",
+				heading: false,
+				order: ["second", "first"],
+			},
 		});
-		expect(parsed.hint).toEqual({ hidden: false, heading: true });
+		expect(parsed.hint).toEqual({
+			hidden: false,
+			heading: true,
+			order: ["second", "first"],
+		});
+		const spec = buildSurface(
+			{
+				type: "object",
+				"x-morphe": { format: "bogus", order: ["second", "first"] },
+				properties: { first: { type: "string" }, second: { type: "string" } },
+			},
+			{ first: "1", second: "2" },
+		);
+		expect(spec.children.map((child) => child.path)).toEqual(["$.second", "$.first"]);
 	});
 
 	it("emits UNKNOWN_HINT as the reviewed KRA-762 parity exception", () => {
@@ -77,6 +95,31 @@ describe("surface-edge compiler adjudications", () => {
 		);
 		expect(spec.strategy).toBe("record-card");
 		expect(spec.children.map((child) => child.path)).toEqual(["$.alpha", "$.zeta"]);
+	});
+
+	it("matches Python null semantics for defaulted booleans and local ref order", () => {
+		expect(
+			parseHint({
+				"x-morphe": { strategy: "badge", heading: null, order: ["second", "first"] },
+			}).hint,
+		).toEqual({ hidden: false, heading: true, order: ["second", "first"] });
+		expect(parseHint({ "x-morphe": { order: null } }).hint.order).toEqual([]);
+
+		const root = {
+			$defs: {
+				Record: {
+					type: "object",
+					"x-morphe": { order: ["second", "first"] },
+					properties: { first: { type: "string" }, second: { type: "string" } },
+				},
+			},
+		};
+		const spec = buildSurface(
+			{ $ref: "#/$defs/Record", "x-morphe": { format: "bogus", order: null } },
+			{ first: "1", second: "2" },
+			{ root },
+		);
+		expect(spec.children.map((child) => child.path)).toEqual(["$.first", "$.second"]);
 	});
 
 	it("inherits signed order and fail-hidden policy through a cosmetic local ref hint", () => {
@@ -141,6 +184,12 @@ describe("surface-edge compiler adjudications", () => {
 		"NaN",
 		"1e9999",
 		"9007199254740993",
+		"9007199254740993.0",
+		"9.007199254740993e15",
+		"90071992547409930e-1",
+		"-9007199254740993.0",
+		"9007199254740991.5",
+		"1e16",
 		"١٢",
 	])("degrades unsafe numeric text %s to scalar instead of throwing", (value) => {
 		const spec = buildSurface(
@@ -150,6 +199,19 @@ describe("surface-edge compiler adjudications", () => {
 		expect(spec.strategy).toBe("scalar");
 		expect(spec.value).toBe(value);
 		expect(validateNodeDocument(emitNode(spec)).ok).toBe(true);
+	});
+
+	it.each([
+		["9007199254740991.0", 9007199254740991],
+		["9.007199254740991e15", 9007199254740991],
+		["1.25e2", 125],
+		["1.25e-2", 0.0125],
+	] as const)("retains safely representable numeric text %s", (value, expected) => {
+		const spec = buildSurface(
+			{ type: "string", title: "Measure", "x-morphe": { strategy: "number" } },
+			value,
+		);
+		expect(spec).toMatchObject({ strategy: "number", value: expected });
 	});
 
 	it.each([

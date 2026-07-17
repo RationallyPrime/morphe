@@ -129,7 +129,20 @@ def test_number_hint_over_text_degrades_to_scalar() -> None:
 
 @pytest.mark.parametrize(
     "value",
-    ["Infinity", "-Infinity", "NaN", "1e9999", "9007199254740993", "١٢"],
+    [
+        "Infinity",
+        "-Infinity",
+        "NaN",
+        "1e9999",
+        "9007199254740993",
+        "9007199254740993.0",
+        "9.007199254740993e15",
+        "90071992547409930e-1",
+        "-9007199254740993.0",
+        "9007199254740991.5",
+        "1e16",
+        "١٢",
+    ],
 )
 def test_number_hint_degrades_nonfinite_unsafe_and_non_ascii_numeric_text(value: str) -> None:
     schema = {"type": "string", "x-morphe": {"strategy": "number"}}
@@ -137,6 +150,22 @@ def test_number_hint_degrades_nonfinite_unsafe_and_non_ascii_numeric_text(value:
     assert spec.strategy == "scalar"
     assert spec.value == value
     validate_node(emit_node(spec))
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("9007199254740991.0", 9007199254740991),
+        ("9.007199254740991e15", 9007199254740991),
+        ("1.25e2", 125),
+        ("1.25e-2", 0.0125),
+    ],
+)
+def test_number_hint_retains_safely_representable_numeric_text(value: str, expected: float) -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "number"}}
+    spec = _build(schema, value)
+    assert spec.strategy == "number"
+    assert spec.value == expected
 
 
 @pytest.mark.parametrize("value", ["\u00851\u0085", "\u001c1\u001f"])

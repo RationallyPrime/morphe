@@ -403,7 +403,8 @@ Every source render path runs the same ordered gate:
 5. recompute schema, content, and testimony hashes;
 6. verify the Ed25519 signature against the configured public key;
 7. apply host freshness/replay policy to `source_revision`, `produced_at`, and `valid_until`;
-8. reject unsupported schema dialects and non-local references;
+8. reject unsupported schema dialects, non-local references, and recursive local-reference cycles
+   that would make the bounded compiler omit finite signed data;
 9. validate `data` against the signed schema;
 10. check `required_capabilities` against the edge compiler;
 11. compile to `Node` with total compiler diagnostics;
@@ -613,7 +614,8 @@ Reviewed Stage 1 corrections are part of the frozen conformance corpus, not sile
 - source references are restricted to bounded literal `#/$defs/...` chains with RFC 6901 decoding;
   URI percent encoding and nested `$id` bases are rejected so the validator and compiler cannot
   resolve different targets;
-- malformed signed order falls to a deterministic sorted floor without discarding valid sibling hints;
+- malformed signed order falls to a deterministic sorted floor without discarding valid sibling hints,
+  while malformed presentation hints retain a valid signed order;
 - nullable/empty table cells lower to an aria-hidden `Spacer` so renderer CSS cannot collapse a
   cell and shift later columns; and
 - explicitly scalarized JSON containers use canonical JSON rather than transport member order;
@@ -624,7 +626,9 @@ Reviewed Stage 1 corrections are part of the frozen conformance corpus, not sile
 
 Both compilers and the committed oracles carry the shared corrections. RFC 8785 input follows its
 IEEE-754 domain: unsafe integer-form tokens are rejected before parsing, while representable
-decimal/exponent doubles remain admissible and canonicalizable.
+decimal/exponent doubles remain admissible and canonicalizable. Numeric presentation additionally
+refuses decimal or exponent text that would round to an unsafe integral double, preserving the
+signed source spelling instead of displaying a different value.
 
 Rollback is the untouched legacy reader.
 

@@ -255,6 +255,51 @@ describe("admitSourceSurfaceJson", () => {
 	});
 
 	it("enforces minimized schema policy before compilation", async () => {
+		const recursive = cloneArtifact();
+		recursive.schema = {
+			type: "object",
+			"x-morphe": { order: ["node"] },
+			properties: { node: { $ref: "#/$defs/Node" } },
+			$defs: {
+				Node: {
+					type: "object",
+					"x-morphe": { order: ["value", "child"] },
+					properties: {
+						value: { type: "string" },
+						child: { $ref: "#/$defs/Node" },
+					},
+					required: ["value"],
+				},
+			},
+			required: ["node"],
+		};
+		recursive.data = { node: { value: "parent", child: { value: "signed child" } } };
+		await resign(recursive);
+		const recursiveResult = await admitSourceSurfaceJson(JSON.stringify(recursive), options());
+		expect(recursiveResult.ok).toBe(false);
+		if (!recursiveResult.ok) {
+			expect(recursiveResult.issue.code).toBe("schema");
+			expect(recursiveResult.issue.reason).toContain("recursive local $ref cycle");
+		}
+		const sharedDefinition = cloneArtifact();
+		sharedDefinition.schema = {
+			type: "object",
+			"x-morphe": { order: ["left", "right"] },
+			properties: {
+				left: { $ref: "#/$defs/Leaf" },
+				right: { $ref: "#/$defs/Leaf" },
+			},
+			$defs: { Leaf: { type: "string" } },
+			required: ["left", "right"],
+		};
+		sharedDefinition.data = { left: "L", right: "R" };
+		await resign(sharedDefinition);
+		const sharedDefinitionResult = await admitSourceSurfaceJson(
+			JSON.stringify(sharedDefinition),
+			options(),
+		);
+		expect(sharedDefinitionResult.ok).toBe(true);
+
 		const broadPointer = cloneArtifact();
 		broadPointer.schema.$ref = "#/properties/name";
 		await resign(broadPointer);

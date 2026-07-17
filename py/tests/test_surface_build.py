@@ -68,6 +68,20 @@ def test_signed_property_order_controls_record_children() -> None:
     assert [child.path for child in spec.children] == ["$.name", "$.third", "$.first"]
 
 
+def test_malformed_presentation_hint_preserves_signed_property_order() -> None:
+    schema = {
+        "type": "object",
+        "x-morphe": {"format": "bogus", "order": ["second", "first"]},
+        "properties": {
+            "first": {"type": "string"},
+            "second": {"type": "string"},
+        },
+    }
+    spec = _build(schema, {"first": "1", "second": "2"})
+
+    assert [child.path for child in spec.children] == ["$.second", "$.first"]
+
+
 def test_malformed_signed_order_uses_sorted_floor_without_losing_sibling_hints() -> None:
     schema = {
         "type": "object",
@@ -78,6 +92,28 @@ def test_malformed_signed_order_uses_sorted_floor_without_losing_sibling_hints()
 
     assert spec.strategy == "record-card"
     assert [child.path for child in spec.children] == ["$.alpha", "$.zeta"]
+
+
+def test_null_defaulted_boolean_and_local_ref_order_match_totality_floor() -> None:
+    root = {
+        "$defs": {
+            "Record": {
+                "type": "object",
+                "x-morphe": {"order": ["second", "first"]},
+                "properties": {
+                    "first": {"type": "string"},
+                    "second": {"type": "string"},
+                },
+            }
+        }
+    }
+    schema = {
+        "$ref": "#/$defs/Record",
+        "x-morphe": {"format": "bogus", "heading": None, "order": None},
+    }
+    spec = build_surface(schema, {"first": "1", "second": "2"}, root=root)
+
+    assert [child.path for child in spec.children] == ["$.first", "$.second"]
 
 
 def test_local_hint_inherits_ref_order_and_hidden_boundary() -> None:

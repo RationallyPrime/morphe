@@ -199,6 +199,50 @@ function pushSchemaChildren(schema: Record<string, unknown>, pending: unknown[])
 	for (const keyword of SCHEMA_VALUE_KEYWORDS) pending.push(schema[keyword]);
 }
 
+function schemaGraphChildren(
+	root: JsonObject,
+	schema: Record<string, unknown>,
+): Record<string, unknown>[] {
+	const values: unknown[] = [];
+	pushSchemaChildren(schema, values);
+	if (typeof schema.$ref === "string") {
+		const resolved = resolveLocalReference(root, schema.$ref);
+		if (resolved.ok) values.push(resolved.value);
+	}
+	return values.filter(isRecord);
+}
+
+/** Reject graph recursion that would make the total compiler omit finite signed data. */
+function recursiveLocalReferenceReason(root: JsonObject): string | null {
+	type Frame = {
+		readonly schema: Record<string, unknown>;
+		readonly exit: boolean;
+	};
+	const state = new WeakMap<object, "visiting" | "done">();
+	const stack: Frame[] = [{ schema: root, exit: false }];
+
+	while (stack.length > 0) {
+		const frame = stack.pop();
+		if (!frame) break;
+		if (frame.exit) {
+			state.set(frame.schema, "done");
+			continue;
+		}
+		const prior = state.get(frame.schema);
+		if (prior === "visiting") return "source schema contains a recursive local $ref cycle";
+		if (prior === "done") continue;
+
+		state.set(frame.schema, "visiting");
+		stack.push({ schema: frame.schema, exit: true });
+		const children = schemaGraphChildren(root, frame.schema);
+		for (let index = children.length - 1; index >= 0; index -= 1) {
+			const child = children[index];
+			if (child) stack.push({ schema: child, exit: false });
+		}
+	}
+	return null;
+}
+
 function signedOrderReason(schema: Record<string, unknown>): string | null {
 	const properties = schema.properties;
 	if (!isRecord(properties)) return null;
@@ -276,7 +320,7 @@ function sourceSchemaPolicyReason(
 		}
 		pushSchemaChildren(current, pending);
 	}
-	return null;
+	return recursiveLocalReferenceReason(schema);
 }
 
 function decodePointerToken(value: string): string | null {
