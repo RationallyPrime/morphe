@@ -20,9 +20,9 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **598 server + 8 DOM passing** |
+| Web tests | `bun run test` | **599 server + 8 DOM passing** |
 | Browser seam | `bunx playwright test` | **6 passing** across Chromium + Firefox |
-| Python tests | `pytest` | **393 passing** |
+| Python tests | `pytest` | **394 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
 | npm package | `bun run pack:verify` | **Installed exports, source admission, compiler parity, client and SSR pass** |

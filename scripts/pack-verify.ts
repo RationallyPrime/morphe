@@ -436,7 +436,11 @@ try {
 			const admitted = await admitSourceSurfaceJson(sourceRaw, {
 				expectedIssuer: "${sourceCase.expected.issuer}",
 				expectedSurfaceId: "${sourceCase.expected.surface_id}",
-				publicKeys: { "${sourceCase.expected.key_id}": "${sourcePublicKey}" },
+				publicKeys: {
+					"${sourceCase.expected.issuer}": {
+						"${sourceCase.expected.key_id}": "${sourcePublicKey}",
+					},
+				},
 				now: () => new Date("2026-07-17T12:01:00Z"),
 			});
 			if (!admitted.ok) {

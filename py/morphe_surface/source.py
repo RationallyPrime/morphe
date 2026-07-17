@@ -395,7 +395,10 @@ def _stamp_property_order(schema: JsonObject) -> None:
 
         record = cast("dict[str, JsonValue]", current)
         properties = record.get("properties")
-        if record.get("type") == "object" and isinstance(properties, dict):
+        # Draft 2020-12 permits `properties` without an explicit `type: object`
+        # (notably beside allOf/if/then composition). Such a schema still has
+        # presentation-bearing fields and must authenticate their order.
+        if isinstance(properties, dict):
             raw_hint = record.get("x-morphe")
             hint = dict(raw_hint) if isinstance(raw_hint, dict) else {}
             hint["order"] = list(properties)

@@ -1,4 +1,4 @@
-import { createPrivateKey, sign } from "node:crypto";
+import { createPrivateKey, createPublicKey, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { SourceSurfaceArtifactV1 } from "../artifacts/source-types.generated.js";
@@ -28,6 +28,21 @@ const VECTOR_URL = new URL(
 const VECTOR = JSON.parse(readFileSync(VECTOR_URL, "utf8")) as GoldenVector;
 const PKCS8_ED25519_SEED_PREFIX = Buffer.from("302e020100300506032b657004220420", "hex");
 
+function privateKeyForSeed(seedHex: string) {
+	return createPrivateKey({
+		key: Buffer.concat([PKCS8_ED25519_SEED_PREFIX, Buffer.from(seedHex, "hex")]),
+		format: "der",
+		type: "pkcs8",
+	});
+}
+
+function publicKeyForSeed(seedHex: string): string {
+	const spki = Buffer.from(
+		createPublicKey(privateKeyForSeed(seedHex)).export({ format: "der", type: "spki" }),
+	);
+	return encodeBase64url(spki.subarray(-32));
+}
+
 function cloneArtifact(): Mutable<SourceSurfaceArtifactV1> {
 	return structuredClone(VECTOR.artifact) as Mutable<SourceSurfaceArtifactV1>;
 }
@@ -36,14 +51,19 @@ function options(overrides: Partial<SourceAdmissionOptions> = {}): SourceAdmissi
 	return {
 		expectedIssuer: "taxis",
 		expectedSurfaceId: "taxis.roster:westfjords:2026-W29",
-		publicKeys: { "taxis-fixture-2026-01": VECTOR.public_key_base64url },
+		publicKeys: {
+			taxis: { "taxis-fixture-2026-01": VECTOR.public_key_base64url },
+		},
 		now: () => new Date("2026-07-17T12:10:00Z"),
 		freshness: { maxAgeMs: 60 * 60 * 1_000 },
 		...overrides,
 	};
 }
 
-async function resign(artifact: Mutable<SourceSurfaceArtifactV1>): Promise<void> {
+async function resign(
+	artifact: Mutable<SourceSurfaceArtifactV1>,
+	seedHex = VECTOR.private_key_seed_hex,
+): Promise<void> {
 	const evidence = await computeSourceEvidence({
 		...artifact,
 		valid_until: artifact.valid_until ?? null,
@@ -56,14 +76,7 @@ async function resign(artifact: Mutable<SourceSurfaceArtifactV1>): Promise<void>
 	artifact.seals.schema_sha256 = evidence.schemaSha256;
 	artifact.seals.content_sha256 = evidence.contentSha256;
 	artifact.seals.testimony_sha256 = evidence.testimonySha256;
-	const key = createPrivateKey({
-		key: Buffer.concat([
-			PKCS8_ED25519_SEED_PREFIX,
-			Buffer.from(VECTOR.private_key_seed_hex, "hex"),
-		]),
-		format: "der",
-		type: "pkcs8",
-	});
+	const key = privateKeyForSeed(seedHex);
 	artifact.attestation.signature = encodeBase64url(sign(null, evidence.signingMessage, key));
 }
 
@@ -108,6 +121,28 @@ describe("admitSourceSurfaceJson", () => {
 		);
 		expect(wrongSurface.ok).toBe(false);
 		if (!wrongSurface.ok) expect(wrongSurface.issue.code).toBe("identity");
+	});
+
+	it("pins signing keys by issuer and key_id so a co-issuer cannot forge testimony", async () => {
+		const coIssuerSeed = "42".repeat(32);
+		const forged = cloneArtifact();
+		await resign(forged, coIssuerSeed);
+		const keyId = forged.attestation.key_id;
+		const publicKeys = new Map([
+			["taxis", new Map([[keyId, VECTOR.public_key_base64url]])],
+			["obolos", new Map([[keyId, publicKeyForSeed(coIssuerSeed)]])],
+		]);
+
+		const result = await admitSourceSurfaceJson(JSON.stringify(forged), options({ publicKeys }));
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.issue.code).toBe("signature");
+
+		const wrongIssuerOnly = await admitSourceSurfaceJson(
+			JSON.stringify(forged),
+			options({ publicKeys: { obolos: { [keyId]: publicKeyForSeed(coIssuerSeed) } } }),
+		);
+		expect(wrongIssuerOnly.ok).toBe(false);
+		if (!wrongIssuerOnly.ok) expect(wrongIssuerOnly.issue.code).toBe("key");
 	});
 
 	it("rejects seal, key, and signature failures without compiling the schema", async () => {

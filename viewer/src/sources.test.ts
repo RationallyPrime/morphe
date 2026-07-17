@@ -82,7 +82,7 @@ describe("parseSourcesConfig", () => {
 		if (!result.ok) return;
 		const source = result.sources.get("taxis");
 		expect(source?.sourceTrust?.issuer).toBe("taxis");
-		expect(source?.sourceTrust?.publicKeys.get("taxis-2026-01")).toBe(
+		expect(source?.sourceTrust?.publicKeys.get("taxis")?.get("taxis-2026-01")).toBe(
 			"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		);
 		const surface = source?.surfaces[0];

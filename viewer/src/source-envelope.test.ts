@@ -24,7 +24,9 @@ function options(overrides: Partial<SourceEnvelopeOptions> = {}): SourceEnvelope
 		admission: {
 			expectedIssuer: "taxis",
 			expectedSurfaceId: "taxis.roster:westfjords:2026-W29",
-			publicKeys: { "taxis-fixture-2026-01": VECTOR.public_key_base64url },
+			publicKeys: {
+				taxis: { "taxis-fixture-2026-01": VECTOR.public_key_base64url },
+			},
 			now: () => new Date("2026-07-17T12:01:00Z"),
 		},
 		...overrides,

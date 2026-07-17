@@ -264,6 +264,23 @@ def test_prepare_uses_the_exact_serialization_alias_pair() -> None:
     assert root_hint["order"] == ["publicValue", "happenedAt", "optionalNote"]
 
 
+def test_property_order_stamp_covers_composed_schema_without_explicit_object_type() -> None:
+    schema: JsonObject = {
+        "allOf": [{"type": "object"}],
+        "properties": {
+            "second": {"type": "string"},
+            "first": {"type": "string"},
+        },
+    }
+    data: JsonObject = {"second": "B", "first": "A"}
+
+    minimized_schema, minimized_data, diagnostics = minimize_source_surface(schema, data)
+
+    assert _object(minimized_schema["x-morphe"])["order"] == ["second", "first"]
+    assert minimized_data == data
+    assert diagnostics == ()
+
+
 def test_hidden_minimization_recurses_through_refs_arrays_and_nullable_shapes() -> None:
     raw_schema, raw_data = _raw_pair(_nested_payload())
     raw_properties = _object(raw_schema["properties"])

@@ -84,7 +84,9 @@ tree that renders.
 - `source_trust` — required when any surface selects source v1. `issuer` and
   `surface_id` are exact pins; `public_keys` maps an allowed signed `key_id` to
   its canonical unpadded base64url **raw 32-byte Ed25519 public key**. Rotation
-  can overlap entries in that map. Freshness values are optional host policy.
+  can overlap entries in that map. The host materializes these as composite
+  `(issuer, key_id)` trust roots; a key ID is never global across issuers.
+  Freshness values are optional host policy.
 - The compiler build SHA is generated from the runtime compiler closure and
   lockfile at build time, verified during the Docker build, and stamped by the
   compiler itself; it is not accepted from testimony, callers, or mutable

@@ -55,8 +55,8 @@ export type SurfaceEntry = StoreSurfaceEntry | KernelSurfaceEntry;
 
 export interface SourceTrustConfig {
 	readonly issuer: string;
-	/** Canonical unpadded base64url raw 32-byte Ed25519 keys, pinned by key_id. */
-	readonly publicKeys: ReadonlyMap<string, string>;
+	/** Canonical Ed25519 trust roots, pinned by issuer and then key_id. */
+	readonly publicKeys: ReadonlyMap<string, ReadonlyMap<string, string>>;
 	readonly maxAgeSeconds?: number;
 	readonly maxFutureSkewSeconds?: number;
 }
@@ -131,7 +131,7 @@ function parseSourceTrust(sourceId: string, raw: unknown): SourceTrustConfig | s
 	if (!isRecord(raw.public_keys)) {
 		return `source ${sourceId}: source_trust.public_keys must be an object`;
 	}
-	const publicKeys = new Map<string, string>();
+	const issuerPublicKeys = new Map<string, string>();
 	for (const [keyId, publicKey] of Object.entries(raw.public_keys)) {
 		if (keyId.length === 0 || keyId.length > 256) {
 			return `source ${sourceId}: source_trust contains an invalid key id`;
@@ -139,15 +139,16 @@ function parseSourceTrust(sourceId: string, raw: unknown): SourceTrustConfig | s
 		if (!canonicalEd25519PublicKey(publicKey)) {
 			return `source ${sourceId}: source_trust public key ${keyId} is not a canonical raw Ed25519 key`;
 		}
-		publicKeys.set(keyId, publicKey);
+		issuerPublicKeys.set(keyId, publicKey);
 	}
-	if (publicKeys.size === 0) {
+	if (issuerPublicKeys.size === 0) {
 		return `source ${sourceId}: source_trust.public_keys must not be empty`;
 	}
 	const maxAgeSeconds = optionalSeconds(sourceId, raw, "max_age_seconds");
 	if (typeof maxAgeSeconds === "string") return maxAgeSeconds;
 	const maxFutureSkewSeconds = optionalSeconds(sourceId, raw, "max_future_skew_seconds");
 	if (typeof maxFutureSkewSeconds === "string") return maxFutureSkewSeconds;
+	const publicKeys = new Map<string, ReadonlyMap<string, string>>([[issuer, issuerPublicKeys]]);
 	return { issuer, publicKeys, maxAgeSeconds, maxFutureSkewSeconds };
 }
 

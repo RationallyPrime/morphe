@@ -72,11 +72,19 @@ export interface SourceReplayContext {
 
 export type SourceReplayGuard = (context: SourceReplayContext) => boolean | Promise<boolean>;
 
+/** One issuer's pinned Ed25519 keys, indexed by signed key_id. */
+export type SourceIssuerPublicKeys = Readonly<Record<string, string>> | ReadonlyMap<string, string>;
+
+/** Host-owned trust roots, indexed by issuer and then key_id. */
+export type SourcePublicKeyring =
+	| Readonly<Record<string, SourceIssuerPublicKeys>>
+	| ReadonlyMap<string, SourceIssuerPublicKeys>;
+
 export interface SourceAdmissionOptions {
 	readonly expectedIssuer: string;
 	readonly expectedSurfaceId: string;
-	/** Public keys are pinned by key_id in host configuration, never learned from testimony. */
-	readonly publicKeys: Readonly<Record<string, string>> | ReadonlyMap<string, string>;
+	/** Public keys are pinned by (issuer, key_id), never learned from testimony. */
+	readonly publicKeys: SourcePublicKeyring;
 	readonly supportedCapabilities?: ReadonlySet<string>;
 	readonly limits?: Partial<SourceValidationLimits>;
 	readonly freshness?: Partial<SourceFreshnessPolicy>;
@@ -94,14 +102,22 @@ function failure(code: SourceAdmissionIssueCode, reason: string): SourceAdmissio
 	return { ok: false, issue: { code, reason } };
 }
 
+function keyedValue<T>(
+	values: Readonly<Record<string, T>> | ReadonlyMap<string, T>,
+	key: string,
+): T | undefined {
+	if (values instanceof Map) return values.get(key);
+	const record = values as Readonly<Record<string, T>>;
+	return Object.hasOwn(record, key) ? record[key] : undefined;
+}
+
 function publicKeyFor(
-	keys: SourceAdmissionOptions["publicKeys"],
+	keys: SourcePublicKeyring,
+	issuer: string,
 	keyId: string,
 ): string | undefined {
-	const mapGet = (keys as ReadonlyMap<string, string>).get;
-	if (typeof mapGet === "function") return mapGet.call(keys, keyId);
-	const record = keys as Readonly<Record<string, string>>;
-	return Object.hasOwn(record, keyId) ? record[keyId] : undefined;
+	const issuerKeys = keyedValue(keys, issuer);
+	return issuerKeys === undefined ? undefined : keyedValue(issuerKeys, keyId);
 }
 
 function canonicalTimestamp(value: string): Date | null {
@@ -224,7 +240,7 @@ export async function admitSourceSurfaceJson(
 	}
 	const sealResult = sealsMatch(artifact, evidence);
 	if (!sealResult.ok) return failure("seal", sealResult.reason);
-	const publicKey = publicKeyFor(options.publicKeys, artifact.attestation.key_id);
+	const publicKey = publicKeyFor(options.publicKeys, artifact.issuer, artifact.attestation.key_id);
 	if (publicKey === undefined) {
 		return failure("key", "no trusted public key matches issuer and key_id");
 	}

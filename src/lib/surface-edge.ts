@@ -29,6 +29,8 @@ export type {
 	SourceAdmissionOptions,
 	SourceAdmissionResult,
 	SourceFreshnessPolicy,
+	SourceIssuerPublicKeys,
+	SourcePublicKeyring,
 	SourceReplayContext,
 	SourceReplayGuard,
 	TrustedSourceSurface,

@@ -381,8 +381,9 @@ it includes the chosen algorithm and key ID. Metadata timestamps use one canonic
 encoding (`YYYY-MM-DDTHH:MM:SSZ`). The context prefix provides domain separation. Hashes are
 identities; only the asymmetric signature makes the claims authentic. Each kernel has its own
 signing key so one compromised producer cannot forge another. The viewer's source configuration
-pins issuer-to-public-key bindings by `key_id`; rotation overlaps old and new public keys for a
-bounded interval. Public keys are not learned from the artifact being verified.
+pins public keys by the composite `(issuer, key_id)` identity; a `key_id` is never a global lookup
+key across issuers. Rotation overlaps old and new public keys for a bounded interval. Public keys
+are not learned from the artifact being verified.
 
 The signature says:
 
@@ -605,6 +606,10 @@ Reviewed Stage 1 corrections are part of the frozen conformance corpus, not sile
 - source admission rejects any residual `hidden: true` marker after minimization and rejects a
   malformed disclosure marker rather than treating it as an un-hide;
 - local `$ref` presentation hints inherit the target's signed property order and hidden boundary;
+- source trust roots are indexed by composite `(issuer, key_id)`, preventing a compromised
+  co-issuer key with the same `key_id` from authenticating another issuer's testimony;
+- property-order stamping covers every schema carrying `properties`, including Draft 2020-12
+  composition shapes without an explicit `type: object`;
 - source references are restricted to bounded literal `#/$defs/...` chains with RFC 6901 decoding;
   URI percent encoding and nested `$id` bases are rejected so the validator and compiler cannot
   resolve different targets;
