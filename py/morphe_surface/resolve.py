@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
-from .refs import resolve_ref, schema_type
+from .refs import resolve_ref, schema_type, unwrap_nullable
 
 if TYPE_CHECKING:
     from .hints import MorpheHint
@@ -22,6 +22,7 @@ def resolve_strategy(
     """
     if hint.strategy is not None:
         return hint.strategy
+    schema = unwrap_nullable(schema, root or {})
     if "enum" in schema:
         return "badge"
     t = schema_type(schema)
