@@ -599,7 +599,7 @@ wheels = [
 
 [[package]]
 name = "morphe-grammar"
-version = "0.6.3"
+version = "0.6.4"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
