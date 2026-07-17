@@ -220,6 +220,22 @@ def test_table_row_diagnostics_stay_visible() -> None:
     validate_node(node)
 
 
+def test_table_row_alert_is_a_sibling_never_a_wrapper() -> None:
+    # A wrapped row is a grandchild of the table grid, so it never adopts the
+    # subgrid tracks and collapses into the first column. The alert must ride as
+    # a direct-child sibling of its row grid inside the columned table grid.
+    diags = {"$.balances[0]": [_diag("$.balances[0]", "ROW")]}
+    spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
+    node = emit_node(spec)
+    table = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+    assert table is not None
+    kinds = [child.get("kind") for child in table["children"]]
+    assert "inline-alert" in kinds, "row alert must be a direct child of the table grid"
+    assert all(k in ("grid", "inline-alert") for k in kinds), (
+        "table grid children are row grids and their sibling alerts only — no wrappers"
+    )
+
+
 def test_non_record_table_row_renders_itself_not_blank() -> None:
     # A D9 backstop row (linked-ref) must keep its link instead of padding to blanks.
     row = SurfaceNode(path="$.rows[0]", label="Row 0", strategy="linked-ref", href="#acc")

@@ -108,6 +108,12 @@
 		/* Inherit the list's column gutters so the subgrid tracks line up exactly. */
 		column-gap: inherit;
 	}
+	/* A row's diagnostic alert rides as a direct-child SIBLING of its row grid
+	   (a wrapper would defeat the subgrid adoption above and collapse the row
+	   into the first track); it spans the full table width. */
+	.mo-grid[data-columns] > :global(.mo-alert) {
+		grid-column: 1 / -1;
+	}
 
 	/*
 	 * Ledger rules — a hairline under every row but the last, spanning all columns

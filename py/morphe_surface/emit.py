@@ -192,7 +192,7 @@ def _table(spec: SurfaceNode) -> Node:
     if not spec.items:
         return _section(spec, [_empty_collection(spec)])
     columns = spec.children or _columns_from_rows(spec.items)
-    body = [_table_row(item, len(columns)) for item in spec.items]
+    body = [node for item in spec.items for node in _table_row(item, len(columns))]
     rows = [_table_header(columns), *body] if columns else body
     grid: Node = {"kind": "grid", "role": "list", "children": rows}
     if columns:
@@ -221,17 +221,18 @@ def _header_cell(column: SurfaceNode) -> Node:
     return cell
 
 
-def _table_row(row: SurfaceNode, column_count: int) -> Node:
+def _table_row(row: SurfaceNode, column_count: int) -> list[Node]:
     # A row without fields (D9 linked-ref backstop, scalar items under a table hint)
     # renders itself as the leading cell instead of vanishing into blank padding.
     cells = [_table_cell(cell) for cell in row.children] if row.children else [_table_cell(row)]
     cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
     grid: Node = {"kind": "grid", "role": "inline", "children": cells}
-    # Row-level diagnostics stay visible (D8); a diagnostic-node row already IS its alert.
+    # Row-level diagnostics stay visible (D8) as SIBLINGS of the row grid, never a
+    # wrapper: only a direct-child grid adopts the table's subgrid tracks, so a
+    # wrapped row lands in the first track and stacks its cells vertically. The
+    # renderer spans a direct-child alert across the full row instead.
     alerts = [] if row.strategy == "diagnostic-node" else [_alert(d) for d in row.diagnostics]
-    if not alerts:
-        return grid
-    return {"kind": "stack", "role": "section", "children": [grid, *alerts]}
+    return [grid, *alerts]
 
 
 def _table_cell(spec: SurfaceNode) -> Node:
