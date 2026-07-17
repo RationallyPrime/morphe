@@ -238,9 +238,8 @@
                       "value": 0.45
                     },
                     {
-                      "as": "body",
-                      "kind": "text",
-                      "value": ""
+                      "kind": "spacer",
+                      "size": "xs"
                     },
                     {
                       "href": "/workers/wrk-002",

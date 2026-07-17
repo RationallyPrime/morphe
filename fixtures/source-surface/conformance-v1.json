@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "taxis",
+        "key_id": "taxis-fixture-2026-01",
+        "public_key_raw_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+        "surface_id": "taxis.roster:westfjords:2026-W29"
+      },
+      "hidden": {
+        "field": "dispatchSecret",
+        "sentinel": "MORPHE-HIDDEN-TAXIS-7CFE42"
+      },
+      "id": "taxis-roster",
+      "paths": {
+        "node": "fixtures/source-surface/taxis-roster.node.json",
+        "source": "fixtures/source-surface/taxis-roster.source.json",
+        "surface_spec": "fixtures/source-surface/taxis-roster.surface-spec.json"
+      }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "obolos",
+        "key_id": "obolos-fixture-2026-01",
+        "public_key_raw_hex": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+        "surface_id": "obolos.evidence:settlement-2026-07-17"
+      },
+      "hidden": {
+        "field": "rawBankAccount",
+        "sentinel": "MORPHE-HIDDEN-OBOLOS-91A8DD"
+      },
+      "id": "obolos-evidence",
+      "paths": {
+        "node": "fixtures/source-surface/obolos-evidence.node.json",
+        "source": "fixtures/source-surface/obolos-evidence.source.json",
+        "surface_spec": "fixtures/source-surface/obolos-evidence.surface-spec.json"
+      }
+    }
+  ],
+  "manifest_version": "1.0"
+}

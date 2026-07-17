@@ -1,6 +1,6 @@
 {
 	"name": "@rationallyprime/morphe",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"type": "module",
 	"packageManager": "bun@1.3.11",
 	"description": "Morphe — a stratified adaptive-UI core. Phase 0 keystone.",
@@ -45,6 +45,10 @@
 			"svelte": "./dist/artifacts.js",
 			"default": "./dist/artifacts.js"
 		},
+		"./surface-edge": {
+			"types": "./dist/surface-edge.d.ts",
+			"default": "./dist/surface-edge.js"
+		},
 		"./tokens": {
 			"types": "./dist/tokens/index.d.ts",
 			"svelte": "./dist/tokens/index.js",
@@ -63,8 +67,10 @@
 		"package": "svelte-package",
 		"pack:verify": "bun scripts/pack-verify.ts",
 		"registry:verify": "MORPHE_VERIFY_REGISTRY=1 bun scripts/pack-verify.ts",
+		"compiler-id:check": "bun scripts/compiler-build-id.ts --check",
+		"compiler-id:write": "bun scripts/compiler-build-id.ts --write",
 		"plates": "bun scripts/derive-plates.ts",
-		"prepack": "bun run package",
+		"prepack": "bun run compiler-id:check && bun run package",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"viewer:dev": "cd viewer && vite dev",
@@ -74,6 +80,8 @@
 		"viewer:preview": "cd viewer && vite preview",
 		"sync:all": "svelte-kit sync && cd viewer && svelte-kit sync",
 		"test": "bun run sync:all && vitest run && vitest run --config vitest.dom.config.ts",
+		"test:edge-e2e": "playwright test e2e/edge-surface-contract.e2e.ts",
+		"test:edge-e2e:install": "playwright install chromium firefox",
 		"test:watch": "vitest",
 		"lint": "biome check .",
 		"format": "biome check --write .",
@@ -84,6 +92,7 @@
 		"@fontsource/fragment-mono": "^5.2.8",
 		"@fontsource/hanken-grotesk": "^5.2.8",
 		"@fontsource/spectral": "^5.2.8",
+		"@playwright/test": "^1.61.1",
 		"@sveltejs/adapter-node": "^5.5.7",
 		"@sveltejs/adapter-vercel": "^6.3.3",
 		"@sveltejs/kit": "^2.8.0",
@@ -93,7 +102,6 @@
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.2.9",
 		"@types/node": "^25.9.2",
-		"canonicalize": "^3.0.0",
 		"jsdom": "^27.3.0",
 		"material-symbols": "^0.45.5",
 		"sharp": "^0.35.3",
@@ -110,6 +118,8 @@
 		"zod": "^4"
 	},
 	"dependencies": {
+		"ajv": "^8.20.0",
+		"canonicalize": "^3.0.0",
 		"esm-env": "^1.2.2"
 	}
 }

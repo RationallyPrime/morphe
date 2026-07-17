@@ -20,7 +20,14 @@
 		title={`${data.sourceTitle} · ${data.surfaceTitle}`}
 		back="/"
 	/>
-	<main class="viewer-surface">
+	<main
+		class="viewer-surface"
+		data-delivery-dialect={data.deliveryReceipt?.dialectId}
+		data-compilation-tree-sha256={data.deliveryReceipt?.treeSha256}
+		data-delivered-tree-sha256={data.deliveryReceipt?.deliveredTreeSha256}
+		data-dialect-policy-sha256={data.deliveryReceipt?.dialectPolicySha256}
+		data-source-testimony-sha256={data.deliveryReceipt?.sourceTestimonySha256}
+	>
 		<MorpheRoot tree={data.tree} {dialect} />
 	</main>
 </div>

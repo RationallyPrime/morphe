@@ -53,6 +53,97 @@ def test_record_card_has_scalar_child() -> None:
     assert name.emphasis == "critical"
 
 
+def test_signed_property_order_controls_record_children() -> None:
+    schema = {
+        "type": "object",
+        "x-morphe": {"order": ["name", "third", "first"]},
+        "properties": {
+            "first": {"type": "string"},
+            "name": {"type": "string"},
+            "third": {"type": "string"},
+        },
+    }
+    spec = _build(schema, {"first": "1", "name": "Identity", "third": "3"})
+
+    assert [child.path for child in spec.children] == ["$.name", "$.third", "$.first"]
+
+
+def test_malformed_signed_order_uses_sorted_floor_without_losing_sibling_hints() -> None:
+    schema = {
+        "type": "object",
+        "x-morphe": {"strategy": "record-card", "order": "not-an-array"},
+        "properties": {"zeta": {"type": "string"}, "alpha": {"type": "string"}},
+    }
+    spec = _build(schema, {"zeta": "Z", "alpha": "A"})
+
+    assert spec.strategy == "record-card"
+    assert [child.path for child in spec.children] == ["$.alpha", "$.zeta"]
+
+
+def test_local_hint_inherits_ref_order_and_hidden_boundary() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "ordered": {
+                "$ref": "#/$defs/Ordered",
+                "x-morphe": {"label": "Local label"},
+            },
+            "secret": {
+                "$ref": "#/$defs/Secret",
+                "x-morphe": {"label": "Cosmetic override"},
+            },
+        },
+        "$defs": {
+            "Ordered": {
+                "type": "object",
+                "x-morphe": {"order": ["second", "first"]},
+                "properties": {
+                    "first": {"type": "string"},
+                    "second": {"type": "string"},
+                },
+            },
+            "Secret": {
+                "type": "object",
+                "x-morphe": {"hidden": True},
+                "properties": {"value": {"type": "string"}},
+            },
+        },
+    }
+    spec = _build(
+        schema,
+        {"ordered": {"first": "1", "second": "2"}, "secret": {"value": "never"}},
+    )
+
+    assert [child.path for child in spec.children] == ["$.ordered"]
+    assert [child.path for child in spec.children[0].children] == [
+        "$.ordered.second",
+        "$.ordered.first",
+    ]
+
+
+def test_explicit_scalar_container_uses_transport_order_independent_canonical_json() -> None:
+    schema = {"type": "object", "x-morphe": {"strategy": "scalar"}}
+    first = build_surface(schema, {"a": "A", "b": "B"}, root=schema)
+    second = build_surface(schema, {"b": "B", "a": "A"}, root=schema)
+    assert first == second
+    assert first.value == '{"a":"A","b":"B"}'
+
+
+def test_explicit_scalar_container_is_total_outside_the_jcs_domain() -> None:
+    schema = {"type": "object", "x-morphe": {"strategy": "scalar"}}
+    cyclic: dict[str, object] = {}
+    cyclic["self"] = cyclic
+
+    unsafe = build_surface(schema, {"number": 1 << 53}, root=schema)
+    recursive = build_surface(schema, cyclic, root=schema)
+    malformed_unicode = build_surface(schema, {"text": "\ud800"}, root=schema)
+
+    sentinel = "unrenderable: scalarized value is outside the RFC 8785 domain"
+    assert unsafe.value == sentinel
+    assert recursive.value == sentinel
+    assert malformed_unicode.value == sentinel
+
+
 def test_embedded_object_is_collapsed_section() -> None:
     spec = _build(WORKER, {"name": "Ada", "address": {"city": "Rvk"}, "manager_id": "w-9"})
     addr = next(c for c in spec.children if c.path == "$.address")

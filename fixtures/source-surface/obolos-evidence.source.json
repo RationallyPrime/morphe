@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "m6G8JHWbL2jNB_x7YxBE7UqWKvViHvUQIbpkKXQWVIxo1tRfkfAPxy2Laz5f8RKB62GmrdYkSNgvYEugWM4nDg"
+    "signature": "OxGAuFWk4DNRc_AjhEJl_sQStQbCZke9u7bMkr0t2tgi0KdiXqlZa95vO-5pxcBlExTrSYyfpbug8Mo48rfTBA"
   },
   "data": {
     "adjustment": null,
@@ -186,7 +186,17 @@
           "value"
         ],
         "title": "KpiCell",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "value",
+            "kicker",
+            "format",
+            "currency",
+            "intent"
+          ]
+        }
       },
       "NumberFormat": {
         "enum": [
@@ -236,7 +246,13 @@
           "finality"
         ],
         "title": "_EvidenceSeal",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "sha256",
+            "finality"
+          ]
+        }
       },
       "_ObolosEvidenceRow": {
         "additionalProperties": false,
@@ -309,7 +325,18 @@
           "receipt"
         ],
         "title": "_ObolosEvidenceRow",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "evidenceId",
+            "pseudonym",
+            "amount",
+            "state",
+            "seal",
+            "receipt",
+            "exceptionNote"
+          ]
+        }
       },
       "_SurfaceLink": {
         "additionalProperties": false,
@@ -328,7 +355,13 @@
           "href"
         ],
         "title": "_SurfaceLink",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "href"
+          ]
+        }
       }
     },
     "additionalProperties": false,
@@ -400,12 +433,21 @@
       "evidence"
     ],
     "title": "_ObolosEvidence",
-    "type": "object"
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "name",
+        "decision",
+        "keyFigures",
+        "evidence",
+        "adjustment"
+      ]
+    }
   },
   "seals": {
     "content_sha256": "sha256:91175d6af2b88de8e5df2aefaf442c9f7f0594bde9829a4f8569b07cde3ed80e",
-    "schema_sha256": "sha256:72cbc45bf904704c9a960ef247b947b4571c41163d6d43b2b01d5d478501b867",
-    "testimony_sha256": "sha256:8a5ad46c4c754e15acec1e30d5072007840cec9a47da254d6bef7f33060405e7"
+    "schema_sha256": "sha256:3e6c71d2aeac910e95ac3b3bc7f75bb6390bbf0a8d00b56caa67035af51b067a",
+    "testimony_sha256": "sha256:ddd5ab230c078773ccb3bdfb43de054feee927995ee2d251776e6d837b51e787"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",

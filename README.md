@@ -24,6 +24,9 @@ Useful focused gates:
 bun run check          # svelte-check
 bun run test           # vitest + DOM vitest config
 bun run build          # SvelteKit/Vercel build for the playground host
+bun run compiler-id:check # compiler receipt identity matches its runtime closure
+bun run test:edge-e2e  # signed source -> compiler -> renderer in Chromium + Firefox
+bun run pack:verify    # installed-tarball source admission and Python/TS oracle proof
 just viewer-build-node # stripped adapter-node viewer build
 just py-test           # pytest over py/
 just schema-check      # committed grammar artifacts equal fresh emission
@@ -43,6 +46,8 @@ only the public seams:
   delegation, state, render contracts, token helper types.
 - `@rationallyprime/morphe/components` — `MorpheRoot`, `RenderNode`, and
   primitive Svelte components for harnesses and inspection.
+- `@rationallyprime/morphe/surface-edge` — server-only signed source admission,
+  deterministic TypeScript compilation, evidence, and compilation receipts.
 - `@rationallyprime/morphe/tokens` — intent constants and slot helpers.
 - `@rationallyprime/morphe/styles.css` — public token CSS.
 - `@rationallyprime/morphe/schemas/*` — the generated JSON Schema artifacts
@@ -108,6 +113,7 @@ distributions.
 | `src/lib/state` | Store, tiered events, actions, digest, and escalation. |
 | `src/lib/render` | Recursive renderer and package component entry points. |
 | `src/lib/primitives` | Svelte implementations of the grammar primitives. |
+| `src/lib/surface-edge` | Source-v1 admission, TypeScript compiler, receipts, and build identity. |
 | `src/lib/tokens` | Scales, intents, slot helpers, and public token CSS. |
 | `py/morphe_grammar` | Pydantic grammar mirror, JSON Schema, TS codegen, and masks. |
 | `py/morphe_cms` | Local CMS contracts, presenter, validation, store, tools, and MCP surface. |
@@ -157,9 +163,13 @@ Pydantic Gateway proxy. CI and local gates do not require a live model call.
 ## Stripped Viewer
 
 `viewer/` is a stripped SvelteKit app for artifact rendering. It shares the
-same `src/lib` substrate, exposes `/surfaces/[artifactId]` plus `/healthz`, and
-fetches compiled artifacts from `MORPHE_ARTIFACT_BASE_URL`. It exists so the
-playground's outbound-capable adaptive bridge does not ship in the deployment image.
+same `src/lib` substrate, exposes declared `/s/[source]/[surfaceId]` routes,
+the compatible `/surfaces/[artifactId]` route, and `/healthz`. Each declared
+surface independently selects the untouched compiled-tree reader or the
+source-v1 path: bounded JSON admission, Ed25519 testimony verification,
+TypeScript compilation, link rewriting, then the final grammar/dialect gate.
+It exists so the playground's outbound-capable adaptive bridge does not ship
+in the deployment image.
 
 ```bash
 just viewer-build-node

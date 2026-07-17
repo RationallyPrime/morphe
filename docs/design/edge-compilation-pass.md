@@ -209,6 +209,14 @@ against serialized aliases, after deterministic sorting and minimization. The au
 rejects a diagnostic that targets a pruned field; the kernel must attach it to a visible ancestor
 instead of silently losing it.
 
+JSON object member order is not part of the RFC 8785 authenticated value, but field order is a
+presentation input. After hidden minimization, the authoring adapter therefore stamps every
+object schema's remaining property names into a signed `x-morphe.order` array. The compiler uses
+that array rather than transport insertion order. Source admission requires every object schema
+to name each visible property exactly once. The lower-level compiler remains total over malformed
+or partial arrays by using a deterministic known-property fallback, but such a document is not an
+admissible source-v1 artifact. A proxy or store may reorder JSON members without changing the tree.
+
 ### 1.4 Hidden means absent from the source artifact
 
 Before hashing or signing, the authoring adapter recursively applies established
@@ -314,7 +322,8 @@ Initial source limits should be explicit and no weaker than the current artifact
 - maximum 50,000 JSON values;
 - maximum 10,000 entries in any collection;
 - maximum 262,144 characters in one string;
-- local `#/$defs/...` references only; no network or filesystem resolution; and
+- literal local `#/$defs/...` references only (RFC 6901 `~` escapes, no URI percent encoding);
+  no network or filesystem resolution; and
 - bounded `$defs`, reference traversal, compiler recursion, and emitted-node count.
 
 ### 2.3 Caching
@@ -417,14 +426,19 @@ interface CompilationReceipt {
   readonly grammarVersion: string;
   readonly treeSha256: `sha256:${string}`;
   readonly diagnosticsSha256: `sha256:${string}`;
+}
+
+interface DeliveryReceipt extends CompilationReceipt {
   readonly dialectId: string;
   readonly dialectPolicySha256: `sha256:${string}`;
 }
 ```
 
-The receipt supports cache identity, replay, audit, and exact bug reproduction. It is not signed by
-the kernel and must never be presented as though the kernel authored the tree. Given the signed
-source artifact and immutable compiler build, an independent verifier can reproduce it.
+The dialect-free compilation receipt supports cache identity and exact compiler replay. The viewer
+adds dialect fields only after gating the exact tree that will render, producing a delivery
+receipt. Neither receipt is signed by the kernel or may be presented as though the kernel authored
+the tree. Given the signed source artifact and immutable compiler build, an independent verifier
+can reproduce the compilation receipt.
 
 ### 3.4 What a compromised viewer can do
 
@@ -585,6 +599,28 @@ No kernel endpoint changes.
   parity except for explicitly reviewed bug fixes.
 - Deploy the viewer before any kernel returns source v1.
 
+Reviewed Stage 1 corrections are part of the frozen conformance corpus, not silent drift:
+
+- overlapping-union hidden analysis fails closed when any applicable branch marks a field hidden;
+- source admission rejects any residual `hidden: true` marker after minimization and rejects a
+  malformed disclosure marker rather than treating it as an un-hide;
+- local `$ref` presentation hints inherit the target's signed property order and hidden boundary;
+- source references are restricted to bounded literal `#/$defs/...` chains with RFC 6901 decoding;
+  URI percent encoding and nested `$id` bases are rejected so the validator and compiler cannot
+  resolve different targets;
+- malformed signed order falls to a deterministic sorted floor without discarding valid sibling hints;
+- nullable/empty table cells lower to an aria-hidden `Spacer` so renderer CSS cannot collapse a
+  cell and shift later columns; and
+- explicitly scalarized JSON containers use canonical JSON rather than transport member order;
+- Python float spelling, numeric intent keys, and prototype-named fields/maps are parity-locked;
+- KPI diagnostics render inside the promoted card body instead of existing only in the receipt; and
+- unknown hint keys remain ignored for forward compatibility but produce an informational
+  compiler diagnostic.
+
+Both compilers and the committed oracles carry the shared corrections. RFC 8785 input follows its
+IEEE-754 domain: unsafe integer-form tokens are rejected before parsing, while representable
+decimal/exponent doubles remain admissible and canonicalizable.
+
 Rollback is the untouched legacy reader.
 
 #### Stage 2 — pilot Taxis, then Obolos
@@ -676,7 +712,8 @@ One compact source fixture includes:
 - a `kpi-row` of numeric and textual `KpiCell`s;
 - a status with a per-value intent map;
 - a progress value;
-- a ruled table with at least two rows and three unequal-width columns;
+- a ruled table with at least two rows and at least three columns whose content widths are
+  deliberately unequal;
 - one row-level diagnostic and one cell-level diagnostic;
 - a linked reference;
 - a nullable number; and

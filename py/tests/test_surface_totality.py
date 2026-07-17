@@ -39,3 +39,16 @@ def test_compiler_is_total_and_valid(schema: dict[str, Any], data: object) -> No
     spec = build_surface(schema, data, root=schema)
     node = emit_node(spec)
     validate_node(node)
+
+
+def test_nonfinite_direct_values_degrade_without_escaping_totality() -> None:
+    sentinel = "unrenderable: scalarized value is outside the RFC 8785 domain"
+    for value in (float("nan"), float("inf"), float("-inf")):
+        for schema in (
+            {"type": "number"},
+            {"type": "number", "x-morphe": {"strategy": "number"}},
+        ):
+            spec = build_surface(schema, value, root=schema)
+            assert spec.strategy == "scalar"
+            assert spec.value == sentinel
+            validate_node(emit_node(spec))

@@ -246,6 +246,38 @@ def test_non_record_table_row_renders_itself_not_blank() -> None:
     validate_node(node)
 
 
+def test_nullable_table_cell_keeps_its_grid_position() -> None:
+    schema = {
+        "type": "array",
+        "title": "Roster",
+        "x-morphe": {"strategy": "table"},
+        "items": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "title": "Name"},
+                "rate": {"anyOf": [{"type": "number"}, {"type": "null"}], "title": "Rate"},
+                "profile": {
+                    "type": "object",
+                    "title": "Profile",
+                    "x-morphe": {"strategy": "linked-ref"},
+                },
+            },
+        },
+    }
+    data = [{"name": "Ada", "rate": None, "profile": {"label": "Open Ada", "href": "/ada"}}]
+    node = emit_node(build_surface(schema, data, root=schema))
+    table = _find(
+        node,
+        lambda candidate: candidate.get("kind") == "grid" and "columns" in candidate,
+    )
+
+    assert table is not None
+    row = table["children"][1]
+    assert [cell["kind"] for cell in row["children"]] == ["text", "spacer", "link"]
+    assert row["children"][1] == {"kind": "spacer", "size": "xs"}
+    validate_node(node)
+
+
 def test_heading_false_suppresses_section_heading() -> None:
     schema = {
         "type": "object",
@@ -295,6 +327,21 @@ def test_empty_collection_emits_empty_state_caption() -> None:
     empty = _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "No balances.")
 
     assert empty is not None
+    validate_node(node)
+
+
+def test_empty_collection_uses_python_whitespace_for_its_fallback_label() -> None:
+    schema = {"type": "array", "title": "\u0085", "items": {"type": "string"}}
+    node = emit_node(build_surface(schema, [], root=schema))
+    empty = _find(node, lambda item: item.get("value") == "No items.")
+    assert empty is not None
+    validate_node(node)
+
+
+def test_status_preserves_bom_because_python_strip_does_not_remove_it() -> None:
+    schema = {"type": "string", "x-morphe": {"strategy": "status"}}
+    node = emit_node(build_surface(schema, "\ufeffready\ufeff", root=schema))
+    assert node["signal"]["text"] == "\ufeffready\ufeff"
     validate_node(node)
 
 

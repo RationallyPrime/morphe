@@ -39,14 +39,24 @@ from .source import (
 if TYPE_CHECKING:
     from .source import JsonValue
 
+_SOURCE_GOLDEN_VECTOR_PATH = "fixtures/source-surface/source-surface-v1.ed25519-vector.json"
+_TAXIS_SOURCE_PATH = "fixtures/source-surface/taxis-roster.source.json"
+_TAXIS_SURFACE_SPEC_PATH = "fixtures/source-surface/taxis-roster.surface-spec.json"
+_TAXIS_NODE_PATH = "fixtures/source-surface/taxis-roster.node.json"
+_OBOLOS_SOURCE_PATH = "fixtures/source-surface/obolos-evidence.source.json"
+_OBOLOS_SURFACE_SPEC_PATH = "fixtures/source-surface/obolos-evidence.surface-spec.json"
+_OBOLOS_NODE_PATH = "fixtures/source-surface/obolos-evidence.node.json"
+SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
+
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
-    "fixtures/source-surface/source-surface-v1.ed25519-vector.json",
-    "fixtures/source-surface/taxis-roster.source.json",
-    "fixtures/source-surface/taxis-roster.surface-spec.json",
-    "fixtures/source-surface/taxis-roster.node.json",
-    "fixtures/source-surface/obolos-evidence.source.json",
-    "fixtures/source-surface/obolos-evidence.surface-spec.json",
-    "fixtures/source-surface/obolos-evidence.node.json",
+    _SOURCE_GOLDEN_VECTOR_PATH,
+    _TAXIS_SOURCE_PATH,
+    _TAXIS_SURFACE_SPEC_PATH,
+    _TAXIS_NODE_PATH,
+    _OBOLOS_SOURCE_PATH,
+    _OBOLOS_SURFACE_SPEC_PATH,
+    _OBOLOS_NODE_PATH,
+    SOURCE_CONFORMANCE_MANIFEST_PATH,
 )
 
 _TAXIS_SEED_HEX = "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"
@@ -195,20 +205,21 @@ def source_vector_documents() -> dict[str, str]:
     """Build every checked-in source artifact, crypto vector, and Python oracle."""
     taxis = _taxis_fixture()
     obolos = _obolos_fixture()
-    taxis_spec, taxis_node = _compiler_oracles(taxis[0])
-    obolos_spec, obolos_node = _compiler_oracles(obolos[0])
+    taxis_spec, taxis_node = source_compiler_oracles(taxis[0])
+    obolos_spec, obolos_node = source_compiler_oracles(obolos[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
 
     documents = {
-        SOURCE_VECTOR_PATHS[0]: _json_document(_golden_vector(taxis)),
-        SOURCE_VECTOR_PATHS[1]: _json_document(_artifact_document(taxis[0])),
-        SOURCE_VECTOR_PATHS[2]: _json_document(taxis_spec),
-        SOURCE_VECTOR_PATHS[3]: _json_document(taxis_node),
-        SOURCE_VECTOR_PATHS[4]: _json_document(_artifact_document(obolos[0])),
-        SOURCE_VECTOR_PATHS[5]: _json_document(obolos_spec),
-        SOURCE_VECTOR_PATHS[6]: _json_document(obolos_node),
+        _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
+        _TAXIS_SOURCE_PATH: _json_document(_artifact_document(taxis[0])),
+        _TAXIS_SURFACE_SPEC_PATH: _json_document(taxis_spec),
+        _TAXIS_NODE_PATH: _json_document(taxis_node),
+        _OBOLOS_SOURCE_PATH: _json_document(_artifact_document(obolos[0])),
+        _OBOLOS_SURFACE_SPEC_PATH: _json_document(obolos_spec),
+        _OBOLOS_NODE_PATH: _json_document(obolos_node),
+        SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(_conformance_manifest(taxis, obolos)),
     }
     if tuple(documents) != SOURCE_VECTOR_PATHS:
         msg = "source vector path order drifted"
@@ -277,7 +288,9 @@ def _taxis_fixture() -> _Fixture:
         source_revision="taxis-fixture-rev-0001",
         view_model_id="taxis.roster",
         produced_at=datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC),
-        valid_until=datetime(2026, 7, 18, 12, 0, 0, tzinfo=UTC),
+        # Committed conformance evidence must remain replayable in future CI.
+        # Freshness/expiry behavior is pinned separately with injected-clock tests.
+        valid_until=None,
         diagnostics=diagnostics,
         required_capabilities=(),
     )
@@ -402,7 +415,10 @@ def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's test
     return artifact, key, seed_hex
 
 
-def _compiler_oracles(artifact: SourceSurfaceArtifactV1) -> tuple[dict[str, object], object]:
+def source_compiler_oracles(
+    artifact: SourceSurfaceArtifactV1,
+) -> tuple[dict[str, object], object]:
+    """Rebuild the frozen Python SurfaceSpec and Node migration oracles."""
     diagnostics: dict[str, list[Diagnostic]] = {}
     for diagnostic in artifact.diagnostics:
         diagnostics.setdefault(diagnostic.path, []).append(diagnostic)
@@ -431,12 +447,69 @@ def _compiler_oracles(artifact: SourceSurfaceArtifactV1) -> tuple[dict[str, obje
     return spec.model_dump(mode="json", by_alias=True, exclude_none=True), node
 
 
+def _conformance_manifest(
+    taxis: _Fixture,
+    obolos: _Fixture,
+) -> dict[str, object]:
+    """Index the shared Python/TypeScript compiler corpus and its trust bindings."""
+    return {
+        "manifest_version": "1.0",
+        "cases": [
+            _conformance_case(
+                "taxis-roster",
+                taxis,
+                paths={
+                    "source": _TAXIS_SOURCE_PATH,
+                    "surface_spec": _TAXIS_SURFACE_SPEC_PATH,
+                    "node": _TAXIS_NODE_PATH,
+                },
+                hidden_field=_TAXIS_HIDDEN_FIELD,
+                hidden_sentinel=_TAXIS_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "obolos-evidence",
+                obolos,
+                paths={
+                    "source": _OBOLOS_SOURCE_PATH,
+                    "surface_spec": _OBOLOS_SURFACE_SPEC_PATH,
+                    "node": _OBOLOS_NODE_PATH,
+                },
+                hidden_field=_OBOLOS_HIDDEN_FIELD,
+                hidden_sentinel=_OBOLOS_HIDDEN_SENTINEL,
+            ),
+        ],
+    }
+
+
+def _conformance_case(
+    case_id: str,
+    fixture: _Fixture,
+    *,
+    paths: dict[str, str],
+    hidden_field: str,
+    hidden_sentinel: str,
+) -> dict[str, object]:
+    artifact, key, _seed_hex = fixture
+    return {
+        "id": case_id,
+        "paths": paths,
+        "expected": {
+            "issuer": artifact.issuer,
+            "surface_id": artifact.surface_id,
+            "key_id": artifact.attestation.key_id,
+            "public_key_raw_hex": _raw_public_key_bytes(key).hex(),
+        },
+        "hidden": {
+            "field": hidden_field,
+            "sentinel": hidden_sentinel,
+        },
+        "allowed_differences": [],
+    }
+
+
 def _golden_vector(fixture: _Fixture) -> dict[str, object]:
     artifact, key, seed_hex = fixture
-    public_bytes = key.public_key().public_bytes(
-        encoding=serialization.Encoding.Raw,
-        format=serialization.PublicFormat.Raw,
-    )
+    public_bytes = _raw_public_key_bytes(key)
     schema_jcs = canonical_json_bytes(artifact.schema_)
     content_jcs = canonical_json_bytes(source_content_document(artifact))
     testimony_jcs = canonical_json_bytes(source_testimony_document(artifact))
@@ -509,9 +582,17 @@ def _tassert_hidden_absent(
 ) -> None:
     encoded_schema = canonical_json_bytes(artifact.schema_)
     encoded_data = canonical_json_bytes(artifact.data)
-    if field_name.encode() in encoded_schema or sentinel.encode() in encoded_data:
+    minimized_pair = encoded_schema + encoded_data
+    if field_name.encode() in minimized_pair or sentinel.encode() in minimized_pair:
         msg = f"hidden fixture material escaped minimization: {field_name}"
         raise AssertionError(msg)
+
+
+def _raw_public_key_bytes(key: Ed25519PrivateKey) -> bytes:
+    return key.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw,
+    )
 
 
 def _base64url(value: bytes) -> str:
@@ -531,4 +612,9 @@ def _json_document(document: object) -> str:
     )
 
 
-__all__ = ["SOURCE_VECTOR_PATHS", "source_vector_documents"]
+__all__ = [
+    "SOURCE_CONFORMANCE_MANIFEST_PATH",
+    "SOURCE_VECTOR_PATHS",
+    "source_compiler_oracles",
+    "source_vector_documents",
+]

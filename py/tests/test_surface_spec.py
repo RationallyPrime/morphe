@@ -48,3 +48,16 @@ def test_parse_hint_ignores_unknown_keys() -> None:
 def test_parse_hint_degrades_on_invalid_values() -> None:
     hint = parse_hint({"x-morphe": {"strategy": "not-a-strategy"}})
     assert hint == parse_hint({})
+
+
+def test_parse_hint_does_not_coerce_known_value_types() -> None:
+    assert parse_hint({"x-morphe": {"strategy": "status", "heading": "false"}}) == parse_hint(
+        {}
+    )
+    assert parse_hint({"x-morphe": {"strategy": "status", "collapse": 1}}) == parse_hint({})
+
+
+def test_parse_hint_accepts_json_order_arrays_under_strict_validation() -> None:
+    hint = parse_hint({"x-morphe": {"strategy": "record-card", "order": ["b", "a"]}})
+    assert hint.strategy == "record-card"
+    assert hint.order == ("b", "a")

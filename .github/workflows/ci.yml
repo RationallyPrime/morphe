@@ -30,7 +30,7 @@ jobs:
   web:
     name: web (svelte-check · vitest · build · SSR smoke)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -46,6 +46,12 @@ jobs:
           restore-keys: bun-${{ runner.os }}-
 
       - run: bun install --frozen-lockfile
+
+      - name: Install compiler-renderer contract browsers
+        run: bunx playwright install --with-deps chromium firefox
+
+      - name: Verify compiler build identity
+        run: bun run compiler-id:check
 
       - name: Lint + format (Biome)
         run: bunx biome ci .
@@ -90,10 +96,17 @@ jobs:
         run: bun run viewer:build:node
 
       - name: Viewer SSR smoke (stripped app · fail-closed grammar gate)
+        env:
+          MORPHE_SOURCES: >-
+            {"default":{"kind":"store","title":"Artifact store","base_url":"http://127.0.0.1:4399/api/v1/surfaces","surfaces":[]},"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:westfjords:2026-W29"},{"id":"roster-legacy","title":"Weekly roster legacy","path":"/legacy/taxis-roster","representation":"legacy"}]}}
         run: |
           node scripts/stub-artifact-store.mjs &
-          PORT=4174 MORPHE_ARTIFACT_BASE_URL=http://127.0.0.1:4399/api/v1/surfaces \
-            node viewer/build/index.js &
+          artifact_store_pid=$!
+          node scripts/stub-source-surface-store.mjs &
+          source_store_pid=$!
+          PORT=4174 node viewer/build/index.js &
+          viewer_pid=$!
+          trap 'kill "$artifact_store_pid" "$source_store_pid" "$viewer_pid" 2>/dev/null || true' EXIT
           for i in $(seq 1 30); do
             curl -sf -o /dev/null http://localhost:4174/healthz && break
             sleep 1
@@ -101,6 +114,9 @@ jobs:
           fail=0
           # /healthz reports the supported grammar_version (deploy-to-box asserts this).
           curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.2.0"' || fail=1
+          curl -s http://localhost:4174/healthz | grep -q '"edge_compiler_version":"0.3.3"' || fail=1
+          curl -s http://localhost:4174/healthz | grep -q '"compiler_build_sha256":"sha256:' || fail=1
+          curl -s http://localhost:4174/healthz | grep -q '"source_surface_wire_version":"1.0"' || fail=1
           # A real artifact SSRs (200 + the SSR'd copy, not just a 200 shell).
           code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42")
           echo "/surfaces/run-42 -> $code"
@@ -118,6 +134,18 @@ jobs:
           echo "$drift" | grep -q "Unsupported grammar version" || fail=1
           echo "$drift" | grep -q "9.9.9" || fail=1
           echo "$drift" | grep -q "0.2.0" || fail=1
+          # The production adapter-node build serves both the new source-v1 path
+          # and its unchanged per-surface legacy rollback reader.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster")
+          echo "/s/taxis/roster -> $code"
+          [ "$code" = "200" ] || fail=1
+          source_html=$(curl -s "http://localhost:4174/s/taxis/roster")
+          echo "$source_html" | grep -q "TAXIS_ROW_REVIEW" || fail=1
+          echo "$source_html" | grep -q 'data-source-testimony-sha256="sha256:' || fail=1
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster-legacy")
+          echo "/s/taxis/roster-legacy -> $code"
+          [ "$code" = "200" ] || fail=1
+          curl -s "http://localhost:4174/s/taxis/roster-legacy" | grep -q "TAXIS_ROW_REVIEW" || fail=1
           # Unknown artifact is a 404, and the playground's adaptive surface is ABSENT.
           code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:missing:one")
           echo "/surfaces/missing -> $code"
@@ -126,6 +154,9 @@ jobs:
           echo "/api/adaptive/decision -> $code (must be 404: stripped image)"
           [ "$code" = "404" ] || fail=1
           exit $fail
+
+      - name: Edge source compiler-renderer contract (Chromium + Firefox)
+        run: bun run test:edge-e2e
 
   python:
     name: python (pytest · ruff · ty · schema stability)

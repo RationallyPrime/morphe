@@ -2,18 +2,49 @@ from __future__ import annotations
 
 from typing import Any
 
+MAX_REFERENCE_HOPS = 64
 
-def resolve_ref(schema: dict[str, Any], root: dict[str, Any]) -> dict[str, Any]:
-    """Resolve a local ``#/...`` JSON Pointer ``$ref`` against ``root`` (else unchanged)."""
-    ref = schema.get("$ref")
-    if not isinstance(ref, str) or not ref.startswith("#/"):
-        return schema
-    node: Any = root
-    for part in ref[2:].split("/"):
-        if not isinstance(node, dict) or part not in node:
-            return schema
-        node = node[part]
-    return node if isinstance(node, dict) else schema
+
+def _pointer_token(value: str) -> str | None:
+    index = 0
+    while index < len(value):
+        if value[index] != "~":
+            index += 1
+            continue
+        if index + 1 >= len(value) or value[index + 1] not in {"0", "1"}:
+            return None
+        index += 2
+    return value.replace("~1", "/").replace("~0", "~")
+
+
+def resolve_ref(
+    schema: dict[str, Any],
+    root: dict[str, Any],
+    max_hops: int = MAX_REFERENCE_HOPS,
+) -> dict[str, Any]:
+    """Resolve a bounded chain of local ``#/$defs/...`` RFC 6901 references."""
+    current = schema
+    seen: set[str] = set()
+    for _hop in range(max_hops):
+        ref = current.get("$ref")
+        if (
+            not isinstance(ref, str)
+            or not ref.startswith("#/$defs/")
+            or "%" in ref
+            or ref in seen
+        ):
+            return current
+        seen.add(ref)
+        node: Any = root
+        for encoded in ref[2:].split("/"):
+            part = _pointer_token(encoded)
+            if part is None or not isinstance(node, dict) or part not in node:
+                return current
+            node = node[part]
+        if not isinstance(node, dict):
+            return current
+        current = node
+    return current
 
 
 def schema_type(schema: dict[str, Any]) -> str | None:

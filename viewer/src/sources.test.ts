@@ -13,6 +13,26 @@ const kernelSource = {
 	],
 };
 
+const sourceV1Kernel = {
+	...kernelSource,
+	source_trust: {
+		issuer: "taxis",
+		public_keys: {
+			"taxis-2026-01": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		},
+		max_age_seconds: 300,
+		max_future_skew_seconds: 30,
+	},
+	surfaces: [
+		{
+			id: "roster",
+			path: "/orgs/1/surfaces/roster",
+			representation: "source-v1",
+			surface_id: "taxis.roster:westfjords:2026-W29",
+		},
+	],
+};
+
 const storeSource = {
 	kind: "store",
 	base_url: "http://topos:8000/api/v1/surfaces",
@@ -49,10 +69,28 @@ describe("parseSourcesConfig", () => {
 		expect(taxis?.surfaces).toHaveLength(2);
 		const roster = taxis?.surfaces[1];
 		expect(roster && "path" in roster && roster.dialectHint).toBe("ledger");
+		expect(roster && "path" in roster && roster.representation).toBe("legacy");
 		const orgs = taxis?.surfaces[0];
 		expect(orgs?.title).toBe("Organizations");
 		const digest = result.sources.get("default")?.surfaces[0];
 		expect(digest && "artifactId" in digest && digest.artifactId).toBe("surface:digest:run-1");
+	});
+
+	it("parses an explicitly pinned source-v1 representation", () => {
+		const result = parseSourcesConfig(JSON.stringify({ taxis: sourceV1Kernel }), undefined);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const source = result.sources.get("taxis");
+		expect(source?.sourceTrust?.issuer).toBe("taxis");
+		expect(source?.sourceTrust?.publicKeys.get("taxis-2026-01")).toBe(
+			"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		);
+		const surface = source?.surfaces[0];
+		expect(
+			surface && "representation" in surface && surface.representation === "source-v1"
+				? surface.sourceSurfaceId
+				: null,
+		).toBe("taxis.roster:westfjords:2026-W29");
 	});
 
 	it("MORPHE_SOURCES wins over the legacy env when both are set", () => {
@@ -87,6 +125,33 @@ describe("parseSourcesConfig", () => {
 						{ id: "orgs", path: "/a" },
 						{ id: "orgs", path: "/b" },
 					],
+				},
+			}),
+		],
+		[
+			"source-v1 without trust pins",
+			JSON.stringify({
+				taxis: { ...kernelSource, surfaces: sourceV1Kernel.surfaces },
+			}),
+		],
+		[
+			"source-v1 without a concrete signed identity",
+			JSON.stringify({
+				taxis: {
+					...sourceV1Kernel,
+					surfaces: [{ id: "roster", path: "/roster", representation: "source-v1" }],
+				},
+			}),
+		],
+		[
+			"malformed raw public key",
+			JSON.stringify({
+				taxis: {
+					...sourceV1Kernel,
+					source_trust: {
+						...sourceV1Kernel.source_trust,
+						public_keys: { bad: "not-a-key" },
+					},
 				},
 			}),
 		],

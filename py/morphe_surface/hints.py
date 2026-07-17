@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import ConfigDict, ValidationError
 
@@ -16,7 +16,7 @@ class MorpheHint(ContractModel):
 
     # Hints cross pinned repo revs, so the vocabulary is forward-open: a producer annotated
     # for a newer (or older) compiler must degrade to the hint-free floor, never crash (D8).
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", strict=True)
 
     strategy: Strategy | None = None
     label: str | None = None
@@ -33,14 +33,32 @@ class MorpheHint(ContractModel):
     currency: str | None = None
     intents: dict[str, IntentRef] | None = None
     emphasis: EmphasisClaim | None = None
+    # JSON object member order is not part of RFC 8785's authenticated value.
+    # Source-v1 authoring therefore stamps the producer's visible property order
+    # into this signed array.  Legacy schemas omit it and retain their in-memory
+    # insertion order during the bounded migration window.
+    order: tuple[str, ...] | None = None
 
 
 def parse_hint(schema: dict[str, object]) -> MorpheHint:
     raw = schema.get("x-morphe")
     if not isinstance(raw, dict):
-        raw = {}
+        hint: dict[str, object] = {}
+    else:
+        hint = cast("dict[str, object]", raw)
+    order = hint.get("order")
+    if "order" in hint and not (
+        isinstance(order, (list, tuple)) and all(isinstance(entry, str) for entry in order)
+    ):
+        # A present-but-malformed signed order selects the deterministic sorted
+        # floor (empty prefix + known-key remainder), without discarding valid
+        # sibling hints. Missing order remains None for the bounded legacy path.
+        hint = {**hint, "order": ()}
+    elif isinstance(order, (list, tuple)):
+        # Strict validation still accepts the JSON array at the wire boundary.
+        hint = {**hint, "order": tuple(order)}
     try:
-        return MorpheHint.model_validate(raw)
+        return MorpheHint.model_validate(hint)
     except ValidationError:
         # Totality (D8): a malformed hint block selects nothing.
         return MorpheHint()

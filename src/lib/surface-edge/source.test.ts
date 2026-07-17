@@ -1,0 +1,306 @@
+import { createPrivateKey, sign } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import type { SourceSurfaceArtifactV1 } from "../artifacts/source-types.generated.js";
+import { canonicalJson, computeSourceEvidence, encodeBase64url, parseJcsJson } from "./attest.js";
+import {
+	admitSourceSurfaceJson,
+	MAX_SOURCE_SURFACE_BYTES,
+	type SourceAdmissionOptions,
+} from "./source.js";
+
+interface GoldenVector {
+	readonly private_key_seed_hex: string;
+	readonly public_key_base64url: string;
+	readonly artifact: SourceSurfaceArtifactV1;
+}
+
+type Mutable<T> = T extends readonly (infer Item)[]
+	? Mutable<Item>[]
+	: T extends object
+		? { -readonly [Key in keyof T]: Mutable<T[Key]> }
+		: T;
+
+const VECTOR_URL = new URL(
+	"../../../fixtures/source-surface/source-surface-v1.ed25519-vector.json",
+	import.meta.url,
+);
+const VECTOR = JSON.parse(readFileSync(VECTOR_URL, "utf8")) as GoldenVector;
+const PKCS8_ED25519_SEED_PREFIX = Buffer.from("302e020100300506032b657004220420", "hex");
+
+function cloneArtifact(): Mutable<SourceSurfaceArtifactV1> {
+	return structuredClone(VECTOR.artifact) as Mutable<SourceSurfaceArtifactV1>;
+}
+
+function options(overrides: Partial<SourceAdmissionOptions> = {}): SourceAdmissionOptions {
+	return {
+		expectedIssuer: "taxis",
+		expectedSurfaceId: "taxis.roster:westfjords:2026-W29",
+		publicKeys: { "taxis-fixture-2026-01": VECTOR.public_key_base64url },
+		now: () => new Date("2026-07-17T12:10:00Z"),
+		freshness: { maxAgeMs: 60 * 60 * 1_000 },
+		...overrides,
+	};
+}
+
+async function resign(artifact: Mutable<SourceSurfaceArtifactV1>): Promise<void> {
+	const evidence = await computeSourceEvidence({
+		...artifact,
+		valid_until: artifact.valid_until ?? null,
+		diagnostics: (artifact.diagnostics ?? []).map((diagnostic) => ({
+			...diagnostic,
+			repair_hint: diagnostic.repair_hint ?? null,
+		})),
+		required_capabilities: artifact.required_capabilities ?? [],
+	});
+	artifact.seals.schema_sha256 = evidence.schemaSha256;
+	artifact.seals.content_sha256 = evidence.contentSha256;
+	artifact.seals.testimony_sha256 = evidence.testimonySha256;
+	const key = createPrivateKey({
+		key: Buffer.concat([
+			PKCS8_ED25519_SEED_PREFIX,
+			Buffer.from(VECTOR.private_key_seed_hex, "hex"),
+		]),
+		format: "der",
+		type: "pkcs8",
+	});
+	artifact.attestation.signature = encodeBase64url(sign(null, evidence.signingMessage, key));
+}
+
+describe("admitSourceSurfaceJson", () => {
+	it("admits the cross-language vector into one deeply immutable snapshot", async () => {
+		const result = await admitSourceSurfaceJson(JSON.stringify(VECTOR.artifact), options());
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.value.sourceTestimonySha256).toBe(VECTOR.artifact.seals.testimony_sha256);
+		expect(Object.isFrozen(result.value)).toBe(true);
+		expect(Object.isFrozen(result.value.schema)).toBe(true);
+		expect(Object.isFrozen(result.value.data)).toBe(true);
+		expect(() => {
+			(result.value.data as { name: string }).name = "tampered";
+		}).toThrow();
+	});
+
+	it("rejects more than 2 MiB before parsing otherwise valid signed JSON", async () => {
+		const oversized = `${JSON.stringify(VECTOR.artifact)}${" ".repeat(MAX_SOURCE_SURFACE_BYTES)}`;
+		const result = await admitSourceSurfaceJson(oversized, options());
+		expect(result).toEqual({
+			ok: false,
+			issue: {
+				code: "bounds",
+				reason: `source response exceeds ${MAX_SOURCE_SURFACE_BYTES} bytes`,
+			},
+		});
+	});
+
+	it("checks expected issuer and concrete surface identity before crypto", async () => {
+		const wrongIssuer = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ expectedIssuer: "obolos" }),
+		);
+		expect(wrongIssuer).toEqual({
+			ok: false,
+			issue: { code: "identity", reason: "source issuer does not match the expected issuer" },
+		});
+		const wrongSurface = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ expectedSurfaceId: "taxis.roster:other" }),
+		);
+		expect(wrongSurface.ok).toBe(false);
+		if (!wrongSurface.ok) expect(wrongSurface.issue.code).toBe("identity");
+	});
+
+	it("rejects seal, key, and signature failures without compiling the schema", async () => {
+		const tampered = cloneArtifact();
+		(tampered.data as { name: string }).name = "tampered";
+		const seal = await admitSourceSurfaceJson(JSON.stringify(tampered), options());
+		expect(seal.ok).toBe(false);
+		if (!seal.ok) expect(seal.issue.code).toBe("seal");
+
+		const missingKey = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ publicKeys: {} }),
+		);
+		expect(missingKey.ok).toBe(false);
+		if (!missingKey.ok) expect(missingKey.issue.code).toBe("key");
+
+		const badSignature = cloneArtifact();
+		badSignature.attestation.signature = `${
+			badSignature.attestation.signature.startsWith("A") ? "B" : "A"
+		}${badSignature.attestation.signature.slice(1)}`;
+		const signature = await admitSourceSurfaceJson(JSON.stringify(badSignature), options());
+		expect(signature.ok).toBe(false);
+		if (!signature.ok) expect(signature.issue.code).toBe("signature");
+	});
+
+	it("rejects unsafe integer tokens before JSON parsing rounds them", async () => {
+		const raw = JSON.stringify(VECTOR.artifact).replace(
+			'"source_revision":"taxis-fixture-rev-0001"',
+			'"unsafe":9007199254740992,"source_revision":"taxis-fixture-rev-0001"',
+		);
+		const result = await admitSourceSurfaceJson(raw, options());
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.issue.code).toBe("json");
+			expect(result.issue.reason).toContain("unsafe integer-form JSON token");
+		}
+	});
+
+	it("accepts RFC 8785 doubles while rejecting only unsafe integer-form tokens", () => {
+		expect(parseJcsJson('{"number":9007199254740992.0}').ok).toBe(true);
+		expect(parseJcsJson('{"number":1e30}').ok).toBe(true);
+		expect(canonicalJson({ number: 1e30 })).toBe('{"number":1e+30}');
+	});
+
+	it("rejects duplicate object members before JSON.parse applies last-member-wins", async () => {
+		const raw = JSON.stringify(VECTOR.artifact).replace(
+			'"kind":"morphe.source-surface"',
+			'"kind":"morphe.source-surface","\\u006bind":"morphe.source-surface"',
+		);
+		const result = await admitSourceSurfaceJson(raw, options());
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.issue.code).toBe("json");
+			expect(result.issue.reason).toContain("duplicate object member");
+		}
+	});
+
+	it("applies expiry, future-clock, and replay policy after signature verification", async () => {
+		const expired = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({
+				now: () => new Date("2026-07-19T12:00:00Z"),
+				freshness: { maxAgeMs: 24 * 60 * 60 * 1_000 },
+			}),
+		);
+		expect(expired.ok).toBe(false);
+		if (!expired.ok) expect(expired.issue.code).toBe("freshness");
+
+		const future = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ now: () => new Date("2026-07-17T11:00:00Z") }),
+		);
+		expect(future.ok).toBe(false);
+		if (!future.ok) expect(future.issue.code).toBe("freshness");
+
+		const replay = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ replayGuard: () => false }),
+		);
+		expect(replay.ok).toBe(false);
+		if (!replay.ok) expect(replay.issue.code).toBe("replay");
+	});
+
+	it("verifies local-reference, data-schema, and required-capability contracts", async () => {
+		const remote = cloneArtifact();
+		remote.schema.$ref = "https://example.invalid/schema.json";
+		await resign(remote);
+		const remoteResult = await admitSourceSurfaceJson(JSON.stringify(remote), options());
+		expect(remoteResult.ok).toBe(false);
+		if (!remoteResult.ok) expect(remoteResult.issue.code).toBe("schema");
+
+		const invalidData = cloneArtifact();
+		(invalidData.data as { workers: unknown }).workers = "not-an-array";
+		await resign(invalidData);
+		const dataResult = await admitSourceSurfaceJson(JSON.stringify(invalidData), options());
+		expect(dataResult.ok).toBe(false);
+		if (!dataResult.ok) expect(dataResult.issue.code).toBe("schema");
+
+		const capability = cloneArtifact();
+		capability.required_capabilities = ["morphe.future-proof"];
+		await resign(capability);
+		const capabilityResult = await admitSourceSurfaceJson(JSON.stringify(capability), options());
+		expect(capabilityResult.ok).toBe(false);
+		if (!capabilityResult.ok) expect(capabilityResult.issue.code).toBe("capability");
+		const supportedResult = await admitSourceSurfaceJson(
+			JSON.stringify(capability),
+			options({ supportedCapabilities: new Set(["morphe.future-proof"]) }),
+		);
+		expect(supportedResult.ok).toBe(true);
+	});
+
+	it("enforces minimized schema policy before compilation", async () => {
+		const broadPointer = cloneArtifact();
+		broadPointer.schema.$ref = "#/properties/name";
+		await resign(broadPointer);
+		const broadPointerResult = await admitSourceSurfaceJson(
+			JSON.stringify(broadPointer),
+			options(),
+		);
+		expect(broadPointerResult.ok).toBe(false);
+		if (!broadPointerResult.ok) {
+			expect(broadPointerResult.issue.code).toBe("schema");
+			expect(broadPointerResult.issue.reason).toContain("#/$defs/...");
+		}
+
+		const percentEncoded = cloneArtifact();
+		percentEncoded.schema = {
+			$defs: {
+				"A B": { type: "string" },
+				"A%20B": { type: "integer" },
+			},
+			$ref: "#/$defs/A%20B",
+		};
+		percentEncoded.data = "TEXT";
+		await resign(percentEncoded);
+		const percentEncodedResult = await admitSourceSurfaceJson(
+			JSON.stringify(percentEncoded),
+			options(),
+		);
+		expect(percentEncodedResult.ok).toBe(false);
+		if (!percentEncodedResult.ok) {
+			expect(percentEncodedResult.issue.code).toBe("schema");
+			expect(percentEncodedResult.issue.reason).toContain("percent encoding");
+		}
+
+		const nestedId = cloneArtifact();
+		const nestedProperties = nestedId.schema.properties as Record<string, Record<string, unknown>>;
+		const nestedProperty = Object.values(nestedProperties)[0];
+		if (nestedProperty === undefined) throw new Error("fixture must have a property schema");
+		nestedProperty.$id = "https://example.invalid/nested";
+		await resign(nestedId);
+		const nestedIdResult = await admitSourceSurfaceJson(JSON.stringify(nestedId), options());
+		expect(nestedIdResult.ok).toBe(false);
+		if (!nestedIdResult.ok) expect(nestedIdResult.issue.reason).toContain("$id");
+
+		const missingOrder = cloneArtifact();
+		const rootHint = missingOrder.schema["x-morphe"] as Record<string, unknown>;
+		delete rootHint.order;
+		await resign(missingOrder);
+		const missingOrderResult = await admitSourceSurfaceJson(
+			JSON.stringify(missingOrder),
+			options(),
+		);
+		expect(missingOrderResult.ok).toBe(false);
+		if (!missingOrderResult.ok)
+			expect(missingOrderResult.issue.reason).toContain("signed x-morphe.order");
+
+		const residualHidden = cloneArtifact();
+		residualHidden.schema = {
+			$defs: {
+				Secret: { type: "string", "x-morphe": { hidden: true } },
+			},
+			type: "array",
+			items: { $ref: "#/$defs/Secret" },
+		};
+		residualHidden.data = ["SIGNED-ARRAY-SECRET"];
+		await resign(residualHidden);
+		const hiddenResult = await admitSourceSurfaceJson(JSON.stringify(residualHidden), options());
+		expect(hiddenResult.ok).toBe(false);
+		if (!hiddenResult.ok) {
+			expect(hiddenResult.issue.code).toBe("schema");
+			expect(hiddenResult.issue.reason).toContain("residual hidden policy");
+		}
+	});
+
+	it("bounds generic JSON before the recursive generated schema", async () => {
+		let value: unknown = "leaf";
+		for (let index = 0; index < 8; index += 1) value = { nested: value };
+		const result = await admitSourceSurfaceJson(
+			JSON.stringify(value),
+			options({ limits: { maxDepth: 4 } }),
+		);
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.issue.code).toBe("bounds");
+	});
+});

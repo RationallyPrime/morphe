@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, replace
+from math import isfinite
 from typing import TYPE_CHECKING, Any, Literal, cast
 
+import rfc8785
 from pydantic import ValidationError
 
 from morphe_contracts import Diagnostic
@@ -11,7 +13,7 @@ from morphe_contracts import Diagnostic
 from .hints import MorpheHint, parse_hint
 from .refs import resolve_ref, schema_type, unwrap_nullable
 from .resolve import resolve_strategy
-from .spec import SurfaceNode
+from .spec import NON_JCS_SCALAR, SurfaceNode, scalar_text
 
 if TYPE_CHECKING:
     from morphe_contracts import IntentRef
@@ -30,9 +32,13 @@ _COLLECTION = {"table", "card-stack", "kpi-row"}
 # a leading KPI row is a header, not the record's main body.
 _PROMOTABLE = {"table", "card-stack"}
 _IDENTITY_KEYS = ("name", "title")
-_NUMERIC_TEXT = re.compile(r"^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$")
+_NUMERIC_TEXT = re.compile(r"^\(?[+-]?[0-9](?:[0-9 _.,]*[0-9])?\)?$")
+_COERCIBLE_NUMBER = re.compile(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$")
+_COERCIBLE_INTEGER = re.compile(r"^[+-]?[0-9]+$")
+_MAX_SAFE_INTEGER = (1 << 53) - 1
 
 type _Presentation = Literal["identity", "primary-collection"] | None
+type _ScalarNumberKind = Literal["integer", "number"]
 
 
 @dataclass(frozen=True)
@@ -138,9 +144,9 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         else "collapsed-section"
     )
     props = plan.resolved.get("properties", {})
-    prop_items = props.items() if isinstance(props, dict) else ()
+    prop_items = _property_items(props, plan.hint.order)
     pairs = tuple(
-        (str(key), sub if isinstance(sub, dict) else {})
+        (str(key), cast("dict[str, Any]", sub) if isinstance(sub, dict) else {})
         for key, sub in prop_items
         if not _hidden(sub, ctx.root)
     )
@@ -205,6 +211,7 @@ def _kpi_row(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
 
 def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
     """Lower one KpiCell-shaped record; anything else degrades in place (D8)."""
+    source_diagnostics = tuple(ctx.diagnostics.get(ctx.path, ()))
     if not isinstance(row, dict):
         why = "unrenderable: kpi-row item is not a record"
         diag = Diagnostic(code="UNRENDERABLE", severity="warning", path=ctx.path, message=why)
@@ -213,7 +220,7 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
             label=ctx.label,
             strategy="diagnostic-node",
             value=why,
-            diagnostics=(diag,),
+            diagnostics=(*source_diagnostics, diag),
         )
     cell = cast("dict[str, Any]", row)
     presentation = _cell_presentation(cell)
@@ -228,6 +235,7 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
         number_format=number_format,
         currency=currency,
         kicker=_string_or_none(cell.get("kicker")),
+        diagnostics=source_diagnostics,
     )
 
 
@@ -249,13 +257,44 @@ def _cell_presentation(cell: dict[str, Any]) -> MorpheHint:
 def _table_columns(items_schema: dict[str, Any], ctx: _Ctx) -> tuple[SurfaceNode, ...]:
     resolved = resolve_ref(items_schema, ctx.root)
     props = resolved.get("properties")
-    pairs = props.items() if isinstance(props, dict) else ()
+    pairs = _property_items(props, _hint_for(items_schema, resolved).order)
     # The hidden filter matches _record's, so column heads stay aligned with row cells.
     return tuple(
-        _table_column(str(key), sub if isinstance(sub, dict) else {}, ctx)
+        _table_column(
+            str(key),
+            cast("dict[str, Any]", sub) if isinstance(sub, dict) else {},
+            ctx,
+        )
         for key, sub in pairs
         if not _hidden(sub, ctx.root)
     )
+
+
+def _property_items(
+    properties: object,
+    signed_order: tuple[str, ...] | None,
+) -> tuple[tuple[str, object], ...]:
+    """Return properties in authenticated source order when one is present.
+
+    Source-v1 stamps a complete order after minimization.  Be total over a
+    malformed or partial signed hint: use each known name once, then append any
+    remainder deterministically.  Legacy in-memory schemas carry no order and
+    keep their historical insertion semantics during migration.
+    """
+    if not isinstance(properties, dict):
+        return ()
+    pairs = cast("dict[str, object]", properties)
+    if signed_order is None:
+        return tuple(pairs.items())
+
+    names: list[str] = []
+    seen: set[str] = set()
+    for name in signed_order:
+        if name in pairs and name not in seen:
+            names.append(name)
+            seen.add(name)
+    names.extend(sorted(name for name in pairs if name not in seen))
+    return tuple((name, pairs[name]) for name in names)
 
 
 def _table_column(key: str, schema: dict[str, Any], ctx: _Ctx) -> SurfaceNode:
@@ -268,8 +307,22 @@ def _table_column(key: str, schema: dict[str, Any], ctx: _Ctx) -> SurfaceNode:
 
 
 def _hint_for(schema: dict[str, Any], resolved: dict[str, Any]) -> MorpheHint:
-    # A field's own x-morphe overrides the referenced target's (call site owns the register).
-    return parse_hint(schema) if "x-morphe" in schema else parse_hint(resolved)
+    # A field's own block owns presentation, but cannot accidentally shadow the
+    # referenced class's disclosure boundary or signed object order. Only an
+    # explicit local hidden key overrides target hiddenness; order inherits when
+    # the call site does not provide one.
+    if "x-morphe" not in schema:
+        return parse_hint(resolved)
+    local = parse_hint(schema)
+    target = parse_hint(resolved)
+    raw_local = schema.get("x-morphe")
+    explicit_hidden = isinstance(raw_local, dict) and isinstance(raw_local.get("hidden"), bool)
+    return local.model_copy(
+        update={
+            "hidden": local.hidden if explicit_hidden else target.hidden,
+            "order": local.order if local.order is not None else target.order,
+        }
+    )
 
 
 def _hidden(schema: object, root: dict[str, Any]) -> bool:
@@ -314,6 +367,7 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     if plan.strategy == "status":
         return _status_leaf(plan, data, ctx)
     value = _as_scalar(data)
+    scalar_number_kind = _scalar_number_kind(plan.resolved, value)
     numeric, polarity = _numeric_presentation(value)
     identity = ctx.presentation == "identity" and plan.strategy == "scalar"
     return SurfaceNode(
@@ -321,7 +375,10 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         label=plan.label,
         strategy=plan.strategy,
         value=value,
-        intent=_value_intent(plan.hint, value) if plan.strategy == "badge" else plan.hint.role,
+        scalar_number_kind=scalar_number_kind,
+        intent=_value_intent(plan.hint, value, scalar_number_kind)
+        if plan.strategy == "badge"
+        else plan.hint.role,
         text_as="display" if identity else None,
         emphasis="critical"
         if identity
@@ -337,12 +394,14 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     if number is None:
         # Totality (D8): a non-numeric value under a number hint keeps the scalar floor.
         value = _as_scalar(data)
+        scalar_number_kind = _scalar_number_kind(plan.resolved, value)
         numeric, polarity = _numeric_presentation(value)
         return SurfaceNode(
             path=ctx.path,
             label=plan.label,
             strategy="scalar",
             value=value,
+            scalar_number_kind=scalar_number_kind,
             intent=plan.hint.role,
             emphasis=plan.hint.emphasis,
             numeric=numeric,
@@ -379,21 +438,26 @@ def _progress_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
 
 def _status_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     value = _as_scalar(data)
-    text = "" if value is None else str(value)
+    scalar_number_kind = _scalar_number_kind(plan.resolved, value)
+    text = scalar_text(value, scalar_number_kind)
     return SurfaceNode(
         path=ctx.path,
         label=plan.label,
         strategy="status",
         value=text,
-        intent=_value_intent(plan.hint, text),
+        intent=_value_intent(plan.hint, value, scalar_number_kind),
         diagnostics=plan.diags,
     )
 
 
-def _value_intent(hint: MorpheHint, value: object) -> IntentRef | None:
+def _value_intent(
+    hint: MorpheHint,
+    value: object,
+    number_kind: _ScalarNumberKind | None = None,
+) -> IntentRef | None:
     # Per-VALUE intent (the ``intents`` map) wins over the field-level role: one enum
     # column carries state-dependent color without a bespoke presenter per state.
-    mapped = (hint.intents or {}).get("" if value is None else str(value))
+    mapped = (hint.intents or {}).get(scalar_text(value, number_kind))
     return mapped or hint.role
 
 
@@ -418,20 +482,20 @@ def _currency_presentation(
 
 
 def _coerce_number(data: object) -> int | float | None:
-    if isinstance(data, bool):
+    if isinstance(data, bool) or not isinstance(data, str | int | float):
         return None
-    if isinstance(data, int | float):
-        return data
-    if isinstance(data, str):
-        text = data.strip()
-        try:
-            return int(text)
-        except ValueError:
-            try:
-                return float(text)
-            except ValueError:
-                return None
-    return None
+    if isinstance(data, int):
+        return data if abs(data) <= _MAX_SAFE_INTEGER else None
+    if isinstance(data, float):
+        return data if isfinite(data) else None
+    normalized = data.strip().replace("_", "")
+    if not normalized or _COERCIBLE_NUMBER.fullmatch(normalized) is None:
+        return None
+    if _COERCIBLE_INTEGER.fullmatch(normalized) is not None:
+        integer = int(normalized)
+        return integer if abs(integer) <= _MAX_SAFE_INTEGER else None
+    number = float(normalized)
+    return number if isfinite(number) else None
 
 
 def _label(schema: dict[str, Any], hint_label: str | None, fallback: str) -> str:
@@ -538,7 +602,32 @@ def _numeric_presentation(value: object) -> tuple[bool | None, Polarity | None]:
     return True, "negative" if text.startswith(("-", "(")) else "positive"
 
 
+def _scalar_number_kind(
+    schema: dict[str, Any], value: object
+) -> _ScalarNumberKind | None:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    declared = schema_type(schema)
+    if declared == "number":
+        return "number"
+    if declared == "integer":
+        return "integer"
+    if isinstance(value, int) or value.is_integer():
+        return "integer"
+    return "number"
+
+
 def _as_scalar(data: object) -> str | int | float | bool | None:
+    if isinstance(data, float) and not isfinite(data):
+        return NON_JCS_SCALAR
     if isinstance(data, str | int | float | bool) or data is None:
         return data
-    return str(data)
+    # RFC 8785 removes transport member-order ambiguity. Explicitly scalarized
+    # JSON containers therefore render as canonical JSON in both compilers,
+    # keeping one tree per (testimony, compiler-build) cache key. Admitted source
+    # cannot reach the fallback; it exists only to keep the direct compiler total
+    # over hostile values outside the signed RFC 8785 domain.
+    try:
+        return rfc8785.dumps(cast("Any", data)).decode("utf-8")
+    except (rfc8785.CanonicalizationError, RecursionError, UnicodeError):
+        return NON_JCS_SCALAR

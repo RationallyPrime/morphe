@@ -56,3 +56,11 @@ def test_absent_relation_without_data_label_stays_blank() -> None:
 def test_string_data_is_an_href_with_the_field_label() -> None:
     node = _ref_node({"strategy": "linked-ref", "label": "Manager"}, "/workers/w-9")
     assert node == {"kind": "link", "href": "/workers/w-9", "label": "Manager"}
+
+
+def test_empty_data_label_uses_the_field_label() -> None:
+    node = _ref_node(
+        {"strategy": "linked-ref", "label": "Receipt"},
+        {"label": "", "href": "/receipts/r-1"},
+    )
+    assert node == {"kind": "link", "href": "/receipts/r-1", "label": "Receipt"}

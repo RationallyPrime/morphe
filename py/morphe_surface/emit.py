@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 from morphe_grammar import normalize_visible_label_text
 
+from .spec import scalar_text
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -45,7 +47,11 @@ def _leaf(spec: SurfaceNode) -> Node:
 
 
 def _scalar(spec: SurfaceNode) -> Node:
-    node: Node = {"kind": "text", "value": _str(spec.value), "as": spec.text_as or "body"}
+    node: Node = {
+        "kind": "text",
+        "value": scalar_text(spec.value, spec.scalar_number_kind),
+        "as": spec.text_as or "body",
+    }
     if spec.emphasis is not None:
         node["emphasis"] = spec.emphasis
     if spec.intent is not None:
@@ -58,7 +64,11 @@ def _scalar(spec: SurfaceNode) -> Node:
 
 
 def _badge(spec: SurfaceNode) -> Node:
-    return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
+    return {
+        "kind": "badge",
+        "label": scalar_text(spec.value, spec.scalar_number_kind),
+        "intent": spec.intent or "neutral",
+    }
 
 
 def _link(spec: SurfaceNode) -> Node:
@@ -156,15 +166,22 @@ def _signal_card(item: SurfaceNode) -> Node:
         measure: Node = _number(item)
         measure["emphasis"] = "strong"
     else:
-        measure = {"kind": "text", "value": _str(item.value), "as": "body", "emphasis": "strong"}
+        measure = {
+            "kind": "text",
+            "value": scalar_text(item.value, item.scalar_number_kind),
+            "as": "body",
+            "emphasis": "strong",
+        }
         if item.intent is not None:
             measure["intent"] = item.intent
+    body = [_alert(diagnostic) for diagnostic in item.diagnostics]
     return {
         "kind": "compound",
         "name": "SignalCard",
         "args": {"kicker": kicker, "title": title, "measure": measure},
-        # An explicit empty body fill beats the template's "No body supplied." fallback.
-        "slots": {"body": []},
+        # An explicit body fill beats the template's "No body supplied." fallback
+        # while keeping signed KPI diagnostics visible.
+        "slots": {"body": body},
     }
 
 
@@ -240,7 +257,15 @@ def _table_row(row: SurfaceNode, column_count: int) -> list[Node]:
 def _table_cell(spec: SurfaceNode) -> Node:
     if spec.strategy in _CONTAINER:
         return emit_node(spec)
-    inner = _leaf(spec)
+    lowered = _leaf(spec)
+    # Empty Text is deliberately display:none in the renderer. Inside a grid
+    # that removes the item box and shifts every following cell one track left.
+    # Spacer is the grammar's data-free, aria-hidden structural placeholder.
+    inner = (
+        _empty_cell()
+        if lowered.get("kind") == "text" and lowered.get("value") == ""
+        else lowered
+    )
     # Cell-level diagnostics stay visible (D8); a diagnostic-node cell already IS its alert.
     alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
     if not alerts:
@@ -249,7 +274,7 @@ def _table_cell(spec: SurfaceNode) -> Node:
 
 
 def _empty_cell() -> Node:
-    return {"kind": "text", "value": "", "as": "body"}
+    return {"kind": "spacer", "size": "xs"}
 
 
 def _section(spec: SurfaceNode, children: list[Node], *, include_heading: bool = True) -> Node:

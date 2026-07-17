@@ -1,8 +1,10 @@
 import { error } from "@sveltejs/kit";
 import { parseKernelSurfaceResponse, parseSurfaceResponse } from "../../../../envelope.js";
 import { rewriteKernelLinks } from "../../../../links.js";
+import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
 import { loadGatedSurface } from "../../../../surface-load.server.js";
+import { SOURCE_SURFACE_V1_MEDIA_TYPE } from "../../../../surface-reader.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -11,10 +13,10 @@ import type { PageServerLoad } from "./$types.js";
  * Both segments resolve against declared config only: an unknown source or an
  * undeclared surface id is a 404, never a proxied guess — the viewer is not an
  * open proxy onto the docker network. Store sources fetch a stored artifact by
- * its declared artifact_id; kernel sources fetch a declared route and lift the
- * bare CompiledSurface through the identical trust gate. Kernel trees then get
- * their links rewired against the source's declared paths (viewer-navigable or
- * degraded to text — never a dead in-viewer href).
+ * its declared artifact_id; kernel sources either lift the legacy bare
+ * CompiledSurface or admit and edge-compile signed source-v1 testimony. Kernel
+ * links are rewired against declared paths inside the final grammar/dialect
+ * gate (viewer-navigable or degraded to text — never a dead in-viewer href).
  */
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
@@ -41,6 +43,39 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const artifactId = `${source.id}:${entry.id}`;
 	const dialectHint = entry.dialectHint ?? source.dialectHint ?? "ledger";
+	if (entry.representation === "source-v1") {
+		const trust = source.sourceTrust;
+		if (trust === undefined) {
+			error(503, { message: `Source "${source.id}" has no source-v1 trust configuration.` });
+		}
+		const freshness = {
+			...(trust.maxAgeSeconds === undefined ? {} : { maxAgeMs: trust.maxAgeSeconds * 1_000 }),
+			...(trust.maxFutureSkewSeconds === undefined
+				? {}
+				: { maxFutureSkewMs: trust.maxFutureSkewSeconds * 1_000 }),
+		};
+		const surface = await loadGatedSurface({
+			fetch,
+			url: `${source.baseUrl}${entry.path}`,
+			artifactId,
+			bearer,
+			accept: SOURCE_SURFACE_V1_MEDIA_TYPE,
+			parse: (response) =>
+				parseSourceSurfaceResponse(response, {
+					artifactId,
+					dialectHint,
+					admission: {
+						expectedIssuer: trust.issuer,
+						expectedSurfaceId: entry.sourceSurfaceId,
+						publicKeys: trust.publicKeys,
+						freshness,
+					},
+				}),
+			dialectOverride,
+			transformTree: (tree) => rewriteKernelLinks(tree, source),
+		});
+		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title };
+	}
 	const surface = await loadGatedSurface({
 		fetch,
 		url: `${source.baseUrl}${entry.path}`,
@@ -48,10 +83,10 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		bearer,
 		parse: (response) => parseKernelSurfaceResponse(response, { artifactId, dialectHint }),
 		dialectOverride,
+		transformTree: (tree) => rewriteKernelLinks(tree, source),
 	});
 	return {
 		...surface,
-		tree: rewriteKernelLinks(surface.tree, source),
 		sourceTitle: source.title,
 		surfaceTitle: entry.title,
 	};

@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "Fg5BA9b7yyabo-4WJ5HIHTIMA38sjRE04UKFErx4UPkgqlC_mrPYDDmrdu4UCso_03_iOgl1SIoHD544oHQdAg"
+    "signature": "O8QiUArGW7saIOgiZyiSIliIdj_rd_5ADMd2sWWae4Q2kYUe0ep-PGGAXrvd3pMJj1uPg9hmanZCdoSounIUBw"
   },
   "data": {
     "coverage": 0.75,
@@ -170,7 +170,17 @@
           "value"
         ],
         "title": "KpiCell",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "value",
+            "kicker",
+            "format",
+            "currency",
+            "intent"
+          ]
+        }
       },
       "NumberFormat": {
         "enum": [
@@ -207,7 +217,13 @@
           "href"
         ],
         "title": "_SurfaceLink",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "href"
+          ]
+        }
       },
       "_TaxisRosterRow": {
         "additionalProperties": false,
@@ -279,7 +295,17 @@
           "profile"
         ],
         "title": "_TaxisRosterRow",
-        "type": "object"
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "workerId",
+            "name",
+            "state",
+            "allocation",
+            "hourlyRate",
+            "profile"
+          ]
+        }
       }
     },
     "additionalProperties": false,
@@ -337,16 +363,25 @@
       "workers"
     ],
     "title": "_TaxisRoster",
-    "type": "object"
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "name",
+        "windowLabel",
+        "coverage",
+        "keyFigures",
+        "workers"
+      ]
+    }
   },
   "seals": {
     "content_sha256": "sha256:9c572343b9eb7a94855d076a0fcc79f4e0940f964bd5c6b5274088499e11dc76",
-    "schema_sha256": "sha256:aed1667ea43aa51adfaeb7e96a77098ef90197a714a0d2653d94a73060cbe97d",
-    "testimony_sha256": "sha256:a21460448cfe7f822d16d4c0a016bd78603881c3ff7ae3f7099c5a43e8bd40bc"
+    "schema_sha256": "sha256:113d0fd6fc925602f3771ad56d9844cc57aabc8bddbc79adf84117e8493dea3d",
+    "testimony_sha256": "sha256:fb4f50184c3ee5446db90fd10ada24a745896d1958decec9cefd8048b9c5910a"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
-  "valid_until": "2026-07-18T12:00:00Z",
+  "valid_until": null,
   "view_model": {
     "hint_vocabulary": "0.3.0",
     "id": "taxis.roster",
