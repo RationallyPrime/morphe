@@ -71,11 +71,19 @@
 		letter-spacing: 0.04em;
 		line-height: var(--mo-leading-tight);
 	}
-	/* Compact: shed the fill, keep an outline tick + text+icon — quieter in a dense band. */
+	/* Compact: shed the fill, keep an outline tick + text+icon — quieter in a dense
+	   band. The text must NOT keep the on-surface ink (chosen for the filled chip):
+	   on a transparent ground it loses contrast. Text takes the dialect's
+	   contrast-guaranteed page ink; the tone stays triple-signaled via the icon
+	   color, the glyph shape, and the outline ring. */
 	.mo-status[data-compact="true"] {
 		background: transparent;
 		padding-inline: var(--mo-space-1);
 		box-shadow: inset 0 0 0 1px var(--mo-status-border);
+		color: var(--mo-intent-on-surface);
+	}
+	.mo-status[data-compact="true"] .mo-status__icon {
+		color: var(--mo-status-border);
 	}
 	.mo-status__icon {
 		font-size: 1.1em;
