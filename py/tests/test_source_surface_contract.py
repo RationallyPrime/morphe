@@ -10,7 +10,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from hypothesis import given
 from hypothesis import strategies as st
-from pydantic import BaseModel, Field, StringConstraints, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError
 
 from morphe_contracts import Diagnostic
 from morphe_surface.authoring import morphe_hint
@@ -668,3 +668,203 @@ def test_attestation_rejects_noncanonical_base64url_pad_bits() -> None:
     assert base64.urlsafe_b64decode(malleated + "==") == base64.urlsafe_b64decode(signature + "==")
     with pytest.raises(ValidationError, match="pattern"):
         Ed25519Attestation(algorithm="Ed25519", key_id="key", signature=malleated)
+
+
+# ── container-position and hint-merge minimization (leak regressions) ──
+# Both blockers from the 2026-07-17 PR #50 post-merge review: hidden classes
+# leaked from list/tuple/union positions, and a cosmetic local hint un-hid a
+# hidden class by shadowing its $ref target.
+
+
+class ContainedSecret(BaseModel):
+    model_config = ConfigDict(json_schema_extra=morphe_hint(hidden=True))
+
+    ssn: str
+
+
+class ListPositionPayload(BaseModel):
+    title: str
+    rows: list[ContainedSecret]
+
+
+class TuplePositionPayload(BaseModel):
+    title: str
+    pair: tuple[str, ContainedSecret]
+
+
+class MixedUnionPayload(BaseModel):
+    title: str
+    payload: str | ContainedSecret
+
+
+class ShadowedHintPayload(BaseModel):
+    title: str
+    secret: ContainedSecret = Field(json_schema_extra=morphe_hint(label="Card"))
+
+
+class OptionalHiddenPayload(BaseModel):
+    title: str
+    maybe: ContainedSecret | None = None
+
+
+@pytest.mark.parametrize(
+    ("model", "sentinel"),
+    [
+        (ListPositionPayload(title="t", rows=[ContainedSecret(ssn="LIST-SECRET")]), "LIST-SECRET"),
+        (
+            TuplePositionPayload(title="t", pair=("a", ContainedSecret(ssn="TUPLE-SECRET"))),
+            "TUPLE-SECRET",
+        ),
+        (
+            MixedUnionPayload(title="t", payload=ContainedSecret(ssn="UNION-SECRET")),
+            "UNION-SECRET",
+        ),
+        (
+            ShadowedHintPayload(title="t", secret=ContainedSecret(ssn="SHADOW-SECRET")),
+            "SHADOW-SECRET",
+        ),
+        (
+            OptionalHiddenPayload(title="t", maybe=ContainedSecret(ssn="OPTIONAL-SECRET")),
+            "OPTIONAL-SECRET",
+        ),
+    ],
+    ids=["list-items", "tuple-prefix-items", "mixed-union-value", "hint-shadowing", "optional"],
+)
+def test_hidden_classes_are_pruned_from_container_positions(
+    model: BaseModel, sentinel: str
+) -> None:
+    schema, data = _raw_pair(model)
+    minimized_schema, minimized_data, _ = minimize_source_surface(schema, data)
+
+    assert sentinel not in json.dumps(minimized_data)
+    assert "ssn" not in json.dumps(minimized_schema)
+    assert cast("dict[str, Any]", minimized_data)["title"] == "t"
+
+
+def test_mixed_union_keeps_visible_variant_and_relaxes_required() -> None:
+    schema, data = _raw_pair(MixedUnionPayload(title="t", payload="visible-string"))
+    minimized_schema, minimized_data, _ = minimize_source_surface(schema, data)
+
+    assert cast("dict[str, Any]", minimized_data)["payload"] == "visible-string"
+    # The hidden branch is gone from the union and the property is no longer
+    # required — an instance carrying the hidden variant ships without it.
+    top = cast("dict[str, Any]", minimized_schema)
+    assert "payload" not in top.get("required", [])
+    payload_schema = json.dumps(top["properties"]["payload"])
+    assert "ssn" not in payload_schema
+
+
+def test_authoring_api_cannot_express_unhide() -> None:
+    # morphe_hint(hidden=False) collapses to an empty hint block
+    # (exclude_defaults), so the blessed authoring path cannot un-hide a
+    # hidden class — absence of a local `hidden` key defers to the $ref
+    # target. This pins the fail-hidden posture of the disclosure boundary.
+    assert morphe_hint(hidden=False) == {"x-morphe": {}}
+
+    class EmptyHintOverride(BaseModel):
+        title: str
+        secret: ContainedSecret = Field(json_schema_extra=morphe_hint(hidden=False))
+
+    schema, data = _raw_pair(
+        EmptyHintOverride(title="t", secret=ContainedSecret(ssn="STILL-HIDDEN"))
+    )
+    _, minimized_data, _ = minimize_source_surface(schema, data)
+    assert "STILL-HIDDEN" not in json.dumps(minimized_data)
+
+
+def test_diagnostic_on_container_hidden_path_is_rejected() -> None:
+    model = ListPositionPayload(title="t", rows=[ContainedSecret(ssn="LIST-SECRET")])
+    schema, data = _raw_pair(model)
+    diagnostic = Diagnostic(path="$.rows[0].ssn", severity="info", code="X", message="m")
+
+    with pytest.raises(HiddenDiagnosticError):
+        minimize_source_surface(schema, data, [diagnostic])
+
+
+def test_container_hidden_payload_round_trips_signed_without_sentinel() -> None:
+    model = ListPositionPayload(title="t", rows=[ContainedSecret(ssn="SIGNED-SECRET")])
+    artifact = prepare_source_surface(
+        model,
+        issuer="test-kernel",
+        surface_id="test-surface",
+        source_revision="r1",
+        produced_at=datetime(2026, 7, 17, 12, 30, tzinfo=UTC),
+        view_model=_view_model(),
+        signing_key=_private_key(),
+        key_id="k1",
+    )
+
+    assert "SIGNED-SECRET" not in json.dumps(artifact.model_dump(mode="json", by_alias=True))
+    verified = verify_source_surface(
+        artifact,
+        public_keys={("test-kernel", "k1"): _private_key().public_key()},
+        expected_issuer="test-kernel",
+        expected_surface_id="test-surface",
+    )
+    assert verified.seals == artifact.seals
+
+
+# ── valid_until enforcement (authenticity vs liveness) ──
+
+
+def test_expired_artifact_verifies_by_default_and_fails_with_clock() -> None:
+    model = ListPositionPayload(title="t", rows=[])
+    produced = datetime(2026, 7, 17, 12, 30, tzinfo=UTC)
+    artifact = prepare_source_surface(
+        model,
+        issuer="test-kernel",
+        surface_id="test-surface",
+        source_revision="r1",
+        produced_at=produced,
+        valid_until=produced + timedelta(hours=1),
+        view_model=_view_model(),
+        signing_key=_private_key(),
+        key_id="k1",
+    )
+    keys = {("test-kernel", "k1"): _private_key().public_key()}
+
+    # Default: authenticity only — expiry is host freshness policy (§3.2 step 7).
+    verify_source_surface(
+        artifact,
+        public_keys=keys,
+        expected_issuer="test-kernel",
+        expected_surface_id="test-surface",
+    )
+    # Opt-in clock: the same artifact is rejected once valid_until has passed.
+    with pytest.raises(SourceVerificationError, match="expired"):
+        verify_source_surface(
+            artifact,
+            public_keys=keys,
+            expected_issuer="test-kernel",
+            expected_surface_id="test-surface",
+            now=produced + timedelta(hours=2),
+        )
+    verify_source_surface(
+        artifact,
+        public_keys=keys,
+        expected_issuer="test-kernel",
+        expected_surface_id="test-surface",
+        now=produced + timedelta(minutes=30),
+    )
+
+
+class OverlappingUnionPayload(BaseModel):
+    title: str
+    payload: ContainedSecret | dict[str, object]
+
+
+def test_value_matching_hidden_and_overlapping_visible_branch_fails_hidden() -> None:
+    # STOP-SHIP catch on the first fix (2026-07-17): a Secret instance also
+    # validates against a permissive dict branch, so requiring ALL applicable
+    # branches to be hidden let it ship under its visible reading. Any hidden
+    # match must drop the value — the wire cannot tell the readings apart.
+    schema, data = _raw_pair(
+        OverlappingUnionPayload(title="t", payload=ContainedSecret(ssn="OVERLAP-SECRET"))
+    )
+    _, minimized_data, _ = minimize_source_surface(schema, data)
+    assert "OVERLAP-SECRET" not in json.dumps(minimized_data)
+
+    # A value only the permissive branch can explain still ships.
+    schema, data = _raw_pair(OverlappingUnionPayload(title="t", payload={"note": "visible"}))
+    _, minimized_data, _ = minimize_source_surface(schema, data)
+    assert cast("dict[str, Any]", minimized_data)["payload"] == {"note": "visible"}

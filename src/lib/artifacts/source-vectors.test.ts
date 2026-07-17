@@ -245,6 +245,9 @@ describe("SourceSurfaceArtifactV1 cross-language evidence", () => {
 	});
 
 	it("rejects the shared raw-JSON JCS exclusion vectors before hashing", () => {
+		// A Python-side regression that drops the rejection corpus must fail
+		// here, not pass vacuously over an empty loop.
+		expect(VECTOR.jcs_rejection_cases.length).toBeGreaterThan(0);
 		for (const rejection of VECTOR.jcs_rejection_cases) {
 			expect(() => parseJcsJson(rejection.raw_json), rejection.name).toThrow();
 		}
