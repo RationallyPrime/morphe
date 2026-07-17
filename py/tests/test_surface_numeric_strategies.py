@@ -234,6 +234,7 @@ def test_emit_kpi_row_is_a_card_grid_of_signal_cards() -> None:
     assert cards[0]["args"]["measure"]["kind"] == "number"
     assert cards[0]["args"]["measure"]["emphasis"] == "strong"
     assert cards[0]["args"]["kicker"]["intent"] == "folio"
+    assert cards[0]["slots"] == {"body": []}
     assert cards[1]["args"]["measure"]["kind"] == "text"
 
 

@@ -163,6 +163,8 @@ def _signal_card(item: SurfaceNode) -> Node:
         "kind": "compound",
         "name": "SignalCard",
         "args": {"kicker": kicker, "title": title, "measure": measure},
+        # An explicit empty body fill beats the template's "No body supplied." fallback.
+        "slots": {"body": []},
     }
 
 
