@@ -17,6 +17,7 @@ export type Strategy =
 	| "kpi-row";
 
 export type NumberFormat = "plain" | "integer" | "currency" | "percent" | "compact";
+export type TemporalFormat = "date-time-minute";
 export type TextAs = "display" | "heading" | "subheading" | "body" | "caption";
 export type Polarity = "positive" | "negative";
 export type ScalarValue = string | number | boolean | null;
@@ -46,6 +47,7 @@ export interface SurfaceNode {
 	readonly href?: string;
 	readonly collapse?: boolean;
 	readonly number_format?: NumberFormat;
+	readonly temporal?: TemporalFormat;
 	readonly currency?: string;
 	readonly kicker?: string;
 	readonly heading: boolean;
@@ -152,6 +154,63 @@ export function pythonScalarText(value: ScalarValue, numberKind?: ScalarNumberKi
 		return canonicalize(value) ?? NON_JCS_SCALAR;
 	}
 	return String(value);
+}
+
+const RFC3339_TIMESTAMP =
+	/^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;
+
+/**
+ * Render compiler-generated RFC 3339 text at stable minute precision.
+ *
+ * SurfaceNode and signed-source values stay exact. Only emitted scalar text uses this
+ * locale-free floor, keeping Python and TypeScript tree bytes in parity.
+ */
+export function displayScalarText(
+	value: ScalarValue,
+	temporal: TemporalFormat | undefined,
+	numberKind?: ScalarNumberKind,
+): string {
+	const rendered = pythonScalarText(value, numberKind);
+	if (temporal !== "date-time-minute" || typeof value !== "string") return rendered;
+	const match = RFC3339_TIMESTAMP.exec(value);
+	if (match === null) return rendered;
+
+	const year = Number(match[1]);
+	const month = Number(match[2]);
+	const day = Number(match[3]);
+	const hour = Number(match[4]);
+	const minute = Number(match[5]);
+	const second = Number(match[6]);
+	const zone = match[7];
+	if (zone === undefined || !validTimestampParts(year, month, day, hour, minute, second, zone)) {
+		return rendered;
+	}
+
+	const zoneText = zone.toLowerCase() === "z" || zone === "+00:00" ? "UTC" : zone;
+	return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]} ${zoneText}`;
+}
+
+function validTimestampParts(
+	year: number,
+	month: number,
+	day: number,
+	hour: number,
+	minute: number,
+	second: number,
+	zone: string,
+): boolean {
+	if (month < 1 || month > 12 || hour < 0 || hour > 23) return false;
+	if (minute < 0 || minute > 59 || second < 0 || second > 59) return false;
+	const days = [31, leapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	if (day < 1 || day > (days[month - 1] ?? 0)) return false;
+	if (zone.toLowerCase() === "z") return true;
+	const offsetHour = Number(zone.slice(1, 3));
+	const offsetMinute = Number(zone.slice(4, 6));
+	return offsetHour >= 0 && offsetHour <= 23 && offsetMinute >= 0 && offsetMinute <= 59;
+}
+
+function leapYear(year: number): boolean {
+	return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 function isWellFormedUnicode(value: string): boolean {

@@ -62,6 +62,18 @@
           "path": "$.keyFigures[1]",
           "strategy": "scalar",
           "value": "weather hold"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "kicker": "System time",
+          "label": "Newest event",
+          "path": "$.keyFigures[2]",
+          "strategy": "scalar",
+          "temporal": "date-time-minute",
+          "value": "2026-07-17T11:59:14.582860Z"
         }
       ],
       "label": "Key figures",

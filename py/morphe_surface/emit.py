@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from morphe_grammar import normalize_visible_label_text
 
-from .spec import scalar_text
+from .spec import display_scalar_text, scalar_text
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -49,7 +49,7 @@ def _leaf(spec: SurfaceNode) -> Node:
 def _scalar(spec: SurfaceNode) -> Node:
     node: Node = {
         "kind": "text",
-        "value": scalar_text(spec.value, spec.scalar_number_kind),
+        "value": display_scalar_text(spec.value, spec.temporal, spec.scalar_number_kind),
         "as": spec.text_as or "body",
     }
     if spec.emphasis is not None:
@@ -168,7 +168,7 @@ def _signal_card(item: SurfaceNode) -> Node:
     else:
         measure = {
             "kind": "text",
-            "value": scalar_text(item.value, item.scalar_number_kind),
+            "value": display_scalar_text(item.value, item.temporal, item.scalar_number_kind),
             "as": "body",
             "emphasis": "strong",
         }

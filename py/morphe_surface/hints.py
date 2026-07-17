@@ -9,6 +9,8 @@ from morphe_contracts import ContractModel, EmphasisClaim, IntentRef
 from .strategies import Strategy
 
 type NumberFormat = Literal["plain", "integer", "currency", "percent", "compact"]
+type TemporalFormat = Literal["date-time-minute"]
+HINT_VOCABULARY_VERSION = "0.4.0"
 
 
 class MorpheHint(ContractModel):
@@ -24,12 +26,15 @@ class MorpheHint(ContractModel):
     collapse: bool | None = None
     hidden: bool = False
     heading: bool = True
-    # 0.3.0 vocabulary. ``format``/``currency`` shape a ``number`` leaf (percent takes a
+    # 0.3.0 additions. ``format``/``currency`` shape a ``number`` leaf (percent takes a
     # 0..1 fraction — Intl multiplies). ``intents`` maps data VALUES to intents so one
     # enum column can carry per-state color (badge: intent as-is; status: clamped to its
     # tone subset). ``emphasis`` is a claim on scalar/number leaves — the renderer's
     # budget renormalizes it, so an over-claiming producer degrades, never shouts.
     format: NumberFormat | None = None
+    # 0.4.0 addition. Explicit timestamp display policy is deliberately separate from the
+    # numeric ``format`` vocabulary and never inferred from a field name/value.
+    temporal: TemporalFormat | None = None
     currency: str | None = None
     intents: dict[str, IntentRef] | None = None
     emphasis: EmphasisClaim | None = None

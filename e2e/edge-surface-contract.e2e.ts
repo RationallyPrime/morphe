@@ -64,6 +64,8 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	await expect(page.getByRole("heading", { name: "Scheduled payroll" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Dispatch mode" })).toBeVisible();
 	await expect(page.getByText("weather hold", { exact: true })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Newest event" })).toBeVisible();
+	await expect(page.getByText("2026-07-17 11:59 UTC", { exact: true })).toBeVisible();
 
 	const active = page.locator(".mo-status").filter({ hasText: "active" });
 	const review = page.locator(".mo-status").filter({ hasText: "review" });

@@ -241,6 +241,7 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
         value=number if number is not None else _as_scalar(cell.get("value")),
         intent=presentation.role,
         number_format=number_format,
+        temporal=presentation.temporal if number is None else None,
         currency=currency,
         kicker=_string_or_none(cell.get("kicker")),
         diagnostics=source_diagnostics,
@@ -255,6 +256,7 @@ def _cell_presentation(cell: dict[str, Any]) -> MorpheHint:
             {
                 "role": cell.get("intent"),
                 "format": cell.get("format"),
+                "temporal": cell.get("temporal"),
                 "currency": cell.get("currency"),
             }
         )
@@ -393,6 +395,7 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         else (plan.hint.emphasis if plan.strategy == "scalar" else None),
         numeric=numeric if plan.strategy == "scalar" else None,
         polarity=polarity if plan.strategy == "scalar" else None,
+        temporal=plan.hint.temporal if plan.strategy == "scalar" else None,
         diagnostics=plan.diags,
     )
 
@@ -414,6 +417,7 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             emphasis=plan.hint.emphasis,
             numeric=numeric,
             polarity=polarity,
+            temporal=plan.hint.temporal,
             diagnostics=plan.diags,
         )
     number_format, currency = _currency_presentation(plan.hint.format, plan.hint.currency)

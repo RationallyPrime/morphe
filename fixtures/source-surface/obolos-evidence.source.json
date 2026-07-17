@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "OxGAuFWk4DNRc_AjhEJl_sQStQbCZke9u7bMkr0t2tgi0KdiXqlZa95vO-5pxcBlExTrSYyfpbug8Mo48rfTBA"
+    "signature": "s9h3fzG0GXYnVJswwbpIsWC0XuxWHOZ21nXxR4OrC7SxQo_Mp3oVUUVdyPdYK29eZefni2YEYGURFBv6uS9PAA"
   },
   "data": {
     "adjustment": null,
@@ -46,6 +46,7 @@
         "intent": "evidence",
         "kicker": "Gross",
         "label": "ISK exposure",
+        "temporal": null,
         "value": 1280000
       },
       {
@@ -54,6 +55,7 @@
         "intent": "caution",
         "kicker": "Cross-border",
         "label": "EUR exceptions",
+        "temporal": null,
         "value": 735.5
       },
       {
@@ -62,6 +64,7 @@
         "intent": null,
         "kicker": "Route",
         "label": "Evidence rail",
+        "temporal": null,
         "value": "SEPA + domestic"
       }
     ],
@@ -114,7 +117,7 @@
       },
       "KpiCell": {
         "additionalProperties": false,
-        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.",
+        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.\n``temporal=\"date-time-minute\"`` opts a textual timestamp into the deterministic\nminute-precision display floor without changing its source value.",
         "properties": {
           "currency": {
             "anyOf": [
@@ -166,6 +169,17 @@
             "title": "Label",
             "type": "string"
           },
+          "temporal": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/TemporalFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "value": {
             "anyOf": [
               {
@@ -193,6 +207,7 @@
             "value",
             "kicker",
             "format",
+            "temporal",
             "currency",
             "intent"
           ]
@@ -214,6 +229,10 @@
           "marginalia",
           "seal"
         ],
+        "type": "string"
+      },
+      "TemporalFormat": {
+        "const": "date-time-minute",
         "type": "string"
       },
       "_EvidenceSeal": {
@@ -445,15 +464,15 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:91175d6af2b88de8e5df2aefaf442c9f7f0594bde9829a4f8569b07cde3ed80e",
-    "schema_sha256": "sha256:3e6c71d2aeac910e95ac3b3bc7f75bb6390bbf0a8d00b56caa67035af51b067a",
-    "testimony_sha256": "sha256:ddd5ab230c078773ccb3bdfb43de054feee927995ee2d251776e6d837b51e787"
+    "content_sha256": "sha256:6ba45b7f6fdce0746f12cb522f49118d6f8bd615bb818d4c0d85d81e371d870e",
+    "schema_sha256": "sha256:368c8c4049680985d9af461bebb506173d969753f0a425d88008c8bcce8f788e",
+    "testimony_sha256": "sha256:ea3d3fff494edf3bc4be81b3504a4a1b7e5b57223627320c805c9fe25ba848f4"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.3.0",
+    "hint_vocabulary": "0.4.0",
     "id": "obolos.evidence",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

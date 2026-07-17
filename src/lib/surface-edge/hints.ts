@@ -1,5 +1,5 @@
 import type { EmphasisClaim, IntentRef } from "../grammar/types.js";
-import type { JsonSchema, NumberFormat, Strategy } from "./spec.js";
+import type { JsonSchema, NumberFormat, Strategy, TemporalFormat } from "./spec.js";
 
 const STRATEGIES = new Set<Strategy>([
 	"scalar",
@@ -22,6 +22,7 @@ const NUMBER_FORMATS = new Set<NumberFormat>([
 	"percent",
 	"compact",
 ]);
+const TEMPORAL_FORMATS = new Set<TemporalFormat>(["date-time-minute"]);
 const INTENTS = new Set<IntentRef>([
 	"primary-action",
 	"neutral",
@@ -44,6 +45,7 @@ const KNOWN_HINT_KEYS = new Set([
 	"hidden",
 	"heading",
 	"format",
+	"temporal",
 	"currency",
 	"intents",
 	"emphasis",
@@ -58,6 +60,7 @@ export interface MorpheHint {
 	readonly hidden: boolean;
 	readonly heading: boolean;
 	readonly format?: NumberFormat;
+	readonly temporal?: TemporalFormat;
 	readonly currency?: string;
 	readonly intents?: Readonly<Record<string, IntentRef>>;
 	readonly emphasis?: EmphasisClaim;
@@ -104,6 +107,10 @@ function isStrategy(value: unknown): value is Strategy {
 
 function isNumberFormat(value: unknown): value is NumberFormat {
 	return typeof value === "string" && NUMBER_FORMATS.has(value as NumberFormat);
+}
+
+function isTemporalFormat(value: unknown): value is TemporalFormat {
+	return typeof value === "string" && TEMPORAL_FORMATS.has(value as TemporalFormat);
 }
 
 function isIntent(value: unknown): value is IntentRef {
@@ -160,6 +167,7 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 	const hidden = defaultedMember(raw, "hidden", isBoolean);
 	const heading = defaultedMember(raw, "heading", isBoolean);
 	const format = optionalMember(raw, "format", isNumberFormat);
+	const temporal = optionalMember(raw, "temporal", isTemporalFormat);
 	const currency = optionalMember(raw, "currency", isString);
 	const intents = intentMap(raw.intents);
 	const emphasis = optionalMember(raw, "emphasis", isEmphasis);
@@ -176,6 +184,7 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 		hidden === INVALID ||
 		heading === INVALID ||
 		format === INVALID ||
+		temporal === INVALID ||
 		currency === INVALID ||
 		intents === INVALID ||
 		emphasis === INVALID
@@ -195,6 +204,7 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 			...(role === undefined ? {} : { role }),
 			...(collapse === undefined ? {} : { collapse }),
 			...(format === undefined ? {} : { format }),
+			...(temporal === undefined ? {} : { temporal }),
 			...(currency === undefined ? {} : { currency }),
 			...(intents === undefined ? {} : { intents }),
 			...(emphasis === undefined ? {} : { emphasis }),

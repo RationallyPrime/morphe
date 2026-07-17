@@ -376,6 +376,9 @@ function buildKpiCell(row: unknown, context: BuildContext): SurfaceNode {
 		value: number ?? asScalar(row.value),
 		...(presentation.role === undefined ? {} : { intent: presentation.role }),
 		...(numberFormat === undefined ? {} : { number_format: numberFormat }),
+		...(number === null && presentation.temporal !== undefined
+			? { temporal: presentation.temporal }
+			: {}),
 		...(currency === undefined ? {} : { currency }),
 		...(kicker === null ? {} : { kicker }),
 		diagnostics: sourceDiagnostics,
@@ -387,6 +390,7 @@ function cellPresentation(cell: Readonly<Record<string, unknown>>): MorpheHint {
 		"x-morphe": {
 			role: cell.intent ?? null,
 			format: cell.format ?? null,
+			temporal: cell.temporal ?? null,
 			currency: cell.currency ?? null,
 		},
 	};
@@ -475,6 +479,9 @@ function buildLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNod
 					: {}),
 			...(plan.strategy === "scalar" && numeric !== null ? { numeric } : {}),
 			...(plan.strategy === "scalar" && polarity !== null ? { polarity } : {}),
+			...(plan.strategy === "scalar" && plan.hint.temporal !== undefined
+				? { temporal: plan.hint.temporal }
+				: {}),
 			diagnostics: plan.diagnostics,
 		},
 		typeof value === "number" ? { scalarNumberKind: scalarKind } : {},
@@ -498,6 +505,7 @@ function numberLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNo
 				...(plan.hint.emphasis === undefined ? {} : { emphasis: plan.hint.emphasis }),
 				...(numeric === null ? {} : { numeric }),
 				...(polarity === null ? {} : { polarity }),
+				...(plan.hint.temporal === undefined ? {} : { temporal: plan.hint.temporal }),
 				diagnostics: plan.diagnostics,
 			},
 			scalarKind === undefined ? {} : { scalarNumberKind: scalarKind },

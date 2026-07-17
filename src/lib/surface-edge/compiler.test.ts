@@ -14,9 +14,15 @@ const HASH = `sha256:${"0".repeat(64)}` as const;
 describe("surface-edge compiler adjudications", () => {
 	it("retains known hint fields and reports unknown fields", () => {
 		const parsed = parseHint({
-			"x-morphe": { strategy: "status", heading: false, future_register: "probe" },
+			"x-morphe": {
+				strategy: "status",
+				temporal: "date-time-minute",
+				heading: false,
+				future_register: "probe",
+			},
 		});
 		expect(parsed.hint.strategy).toBe("status");
+		expect(parsed.hint.temporal).toBe("date-time-minute");
 		expect(parsed.hint.heading).toBe(false);
 		expect(parsed.unknownKeys).toEqual(["future_register"]);
 	});
@@ -228,6 +234,73 @@ describe("surface-edge compiler adjudications", () => {
 		expect(arabic.numeric).toBeUndefined();
 		expect(arabic.polarity).toBeUndefined();
 		expect(wrapped).toMatchObject({ numeric: true, polarity: "negative" });
+	});
+
+	it.each([
+		["2026-07-17T15:40:14.582860+00:00", "2026-07-17 15:40 UTC"],
+		["2026-07-17T15:40:59.999999Z", "2026-07-17 15:40 UTC"],
+		["2026-07-17t17:40:10.1+02:00", "2026-07-17 17:40 +02:00"],
+		["2026-02-30T15:40:10Z", "2026-02-30T15:40:10Z"],
+		["2026-07-17T15:40:60Z", "2026-07-17T15:40:60Z"],
+		["2026-07-17T15:40:10+24:00", "2026-07-17T15:40:10+24:00"],
+		["2026-07-17", "2026-07-17"],
+	] as const)("renders RFC 3339 scalar %s at a minute-precise total floor", (raw, display) => {
+		const spec = buildSurface(
+			{
+				type: "string",
+				title: "System Time",
+				"x-morphe": { temporal: "date-time-minute" },
+			},
+			raw,
+		);
+		expect(spec.value).toBe(raw);
+		expect(emitNode(spec)).toMatchObject({ kind: "text", value: display });
+	});
+
+	it("does not reinterpret an RFC 3339-shaped opaque string without temporal policy", () => {
+		const opaque = "2026-07-17T15:40:14Z";
+		const spec = buildSurface({ type: "string", title: "Event ID" }, opaque);
+		expect(spec.temporal).toBeUndefined();
+		expect(emitNode(spec)).toMatchObject({ kind: "text", value: opaque });
+	});
+
+	it("formats timestamp table cells and textual KPIs without mutating their IR values", () => {
+		const raw = "2026-07-17T15:40:14.582860+00:00";
+		const display = "2026-07-17 15:40 UTC";
+		const spec = buildSurface(
+			{
+				type: "object",
+				properties: {
+					summary: { type: "array", "x-morphe": { strategy: "kpi-row" } },
+					events: {
+						type: "array",
+						"x-morphe": { strategy: "table" },
+						items: {
+							type: "object",
+							properties: {
+								system_time: {
+									type: "string",
+									title: "System Time",
+									"x-morphe": { temporal: "date-time-minute" },
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				summary: [{ label: "Newest event", value: raw, temporal: "date-time-minute" }],
+				events: [{ system_time: raw }],
+			},
+		);
+		const summary = spec.children.find((child) => child.path === "$.summary");
+		const events = spec.children.find((child) => child.path === "$.events");
+		expect(summary?.items[0]?.value).toBe(raw);
+		expect(events?.items[0]?.children[0]?.value).toBe(raw);
+
+		const encoded = JSON.stringify(emitNode(spec));
+		expect(encoded.match(new RegExp(display, "g"))).toHaveLength(2);
+		expect(encoded).not.toContain(raw);
 	});
 
 	it("retains producer diagnostics attached directly to KPI cells", () => {

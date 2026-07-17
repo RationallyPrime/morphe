@@ -11,6 +11,7 @@ import type {
 } from "../grammar/types.js";
 import {
 	type CompilerDiagnostic,
+	displayScalarText,
 	pythonScalarText,
 	pythonStrip,
 	type SurfaceNode,
@@ -145,7 +146,7 @@ function leaf(spec: SurfaceNode): Node {
 function scalar(spec: SurfaceNode): Text {
 	return {
 		kind: "text",
-		value: pythonScalarText(spec.value ?? null, scalarNumberKind(spec)),
+		value: displayScalarText(spec.value ?? null, spec.temporal, scalarNumberKind(spec)),
 		as: spec.text_as ?? "body",
 		...(spec.emphasis === undefined ? {} : { emphasis: spec.emphasis }),
 		...(spec.intent === undefined ? {} : { intent: spec.intent }),
@@ -245,7 +246,7 @@ function signalCard(item: SurfaceNode): Node {
 	} else {
 		measure = {
 			kind: "text",
-			value: pythonScalarText(item.value ?? null, scalarNumberKind(item)),
+			value: displayScalarText(item.value ?? null, item.temporal, scalarNumberKind(item)),
 			as: "body",
 			emphasis: "strong",
 			...(item.intent === undefined ? {} : { intent: item.intent }),

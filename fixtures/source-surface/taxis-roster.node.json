@@ -97,6 +97,32 @@
                   "slots": {
                     "body": []
                   }
+                },
+                {
+                  "args": {
+                    "kicker": {
+                      "as": "caption",
+                      "intent": "folio",
+                      "kind": "text",
+                      "value": "System time"
+                    },
+                    "measure": {
+                      "as": "body",
+                      "emphasis": "strong",
+                      "kind": "text",
+                      "value": "2026-07-17 11:59 UTC"
+                    },
+                    "title": {
+                      "as": "subheading",
+                      "kind": "text",
+                      "value": "Newest event"
+                    }
+                  },
+                  "kind": "compound",
+                  "name": "SignalCard",
+                  "slots": {
+                    "body": []
+                  }
                 }
               ],
               "kind": "grid",

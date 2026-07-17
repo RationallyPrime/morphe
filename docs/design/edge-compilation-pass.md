@@ -241,13 +241,13 @@ deterministic wire-minimization directive for already authorized display data.
 
 The two representative kernels already demonstrate the correct split:
 
-- `morphe_hint(strategy=..., label=..., intents=..., heading=..., hidden=...)` is class-level
-  authoring policy. Pydantic serializes it under `x-morphe` in the JSON Schema. Per-value intent
-  maps such as `_FINALITY_TONES` and `_ROSTER_STATE_TONES` are therefore signed schema data. The
-  request value selects an entry; the map itself is not recomputed by the edge.
+- `morphe_hint(strategy=..., label=..., intents=..., heading=..., hidden=..., temporal=...)` is
+  class-level authoring policy. Pydantic serializes it under `x-morphe` in the JSON Schema.
+  Per-value intent maps such as `_FINALITY_TONES` and `_ROSTER_STATE_TONES` are therefore signed
+  schema data. The request value selects an entry; the map itself is not recomputed by the edge.
 - `KpiCell` is a Pydantic payload model. A kernel may compute its `value`, `kicker`, `format`,
-  `currency`, and `intent` per request. Those fields serialize as ordinary typed `data`, and the
-  stable `kpi-row` hint in the schema tells the edge how to interpret them.
+  `temporal`, `currency`, and `intent` per request. Those fields serialize as ordinary typed `data`,
+  and the stable `kpi-row` hint in the schema tells the edge how to interpret them.
 - Kernel-computed labels, timestamps, units, pseudonyms, links, status values, and diagnostic
   messages are also ordinary typed data.
 
@@ -480,6 +480,9 @@ Do not collapse independent compatibility dimensions back into one package tag:
 | Grammar version | Morphe package | receipt and `/healthz` | Never stamped by a kernel source artifact |
 | Dialect and policy | viewer | delivery/route config | Applied and gated after compilation |
 
+The authoring package exports `HINT_VOCABULARY_VERSION`; `0.4.0` adds the degradable
+`temporal: date-time-minute` policy without changing source wire v1.
+
 ### Older kernel, newer edge
 
 - A legacy tree-emitting kernel continues through the legacy reader during migration.
@@ -620,7 +623,10 @@ Reviewed Stage 1 corrections are part of the frozen conformance corpus, not sile
   cell and shift later columns; and
 - explicitly scalarized JSON containers use canonical JSON rather than transport member order;
 - Python float spelling, numeric intent keys, and prototype-named fields/maps are parity-locked;
-- KPI diagnostics render inside the promoted card body instead of existing only in the receipt; and
+- KPI diagnostics render inside the promoted card body instead of existing only in the receipt;
+- an explicit `temporal: date-time-minute` policy renders full RFC 3339 scalar timestamps at minute
+  precision with an explicit zone, while timestamp-shaped opaque strings, signed source data, and
+  the intermediate `SurfaceNode.value` remain exact; and
 - unknown hint keys remain ignored for forward compatibility but produce an informational
   compiler diagnostic.
 

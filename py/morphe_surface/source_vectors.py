@@ -23,6 +23,7 @@ from .authoring import KpiCell, morphe_hint
 from .build import build_surface
 from .compile import compile_surface
 from .emit import emit_node
+from .hints import HINT_VOCABULARY_VERSION
 from .source import (
     JSON_SCHEMA_2020_12,
     SourceSurfaceArtifactV1,
@@ -242,6 +243,12 @@ def _taxis_fixture() -> _Fixture:
                 intent="evidence",
             ),
             KpiCell(label="Dispatch mode", value="weather hold", kicker="Operations"),
+            KpiCell(
+                label="Newest event",
+                value="2026-07-17T11:59:14.582860Z",
+                kicker="System time",
+                temporal="date-time-minute",
+            ),
         ],
         workers=[
             _TaxisRosterRow(
@@ -399,7 +406,7 @@ def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's test
             id=view_model_id,
             revision=1,
             schema_dialect=JSON_SCHEMA_2020_12,
-            hint_vocabulary="0.3.0",
+            hint_vocabulary=HINT_VOCABULARY_VERSION,
         ),
         signing_key=key,
         key_id=key_id,

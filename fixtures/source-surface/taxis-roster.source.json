@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "O8QiUArGW7saIOgiZyiSIliIdj_rd_5ADMd2sWWae4Q2kYUe0ep-PGGAXrvd3pMJj1uPg9hmanZCdoSounIUBw"
+    "signature": "O4o7mp3w6SqlsBQEGYnHAFP0dCelMxnrOHOct73i1ALBnwn9wVbzo2K6oxgJQdXConBmveB9DmyH1mYvMoXrAw"
   },
   "data": {
     "coverage": 0.75,
@@ -13,6 +13,7 @@
         "intent": "evidence",
         "kicker": "Window",
         "label": "Scheduled payroll",
+        "temporal": null,
         "value": 2450000
       },
       {
@@ -21,7 +22,17 @@
         "intent": null,
         "kicker": "Operations",
         "label": "Dispatch mode",
+        "temporal": null,
         "value": "weather hold"
+      },
+      {
+        "currency": null,
+        "format": null,
+        "intent": null,
+        "kicker": "System time",
+        "label": "Newest event",
+        "temporal": "date-time-minute",
+        "value": "2026-07-17T11:59:14.582860Z"
       }
     ],
     "name": "Vestfir\u00f0ir \u2014 \"night\"\nroster",
@@ -98,7 +109,7 @@
       },
       "KpiCell": {
         "additionalProperties": false,
-        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.",
+        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.\n``temporal=\"date-time-minute\"`` opts a textual timestamp into the deterministic\nminute-precision display floor without changing its source value.",
         "properties": {
           "currency": {
             "anyOf": [
@@ -150,6 +161,17 @@
             "title": "Label",
             "type": "string"
           },
+          "temporal": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/TemporalFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "value": {
             "anyOf": [
               {
@@ -177,6 +199,7 @@
             "value",
             "kicker",
             "format",
+            "temporal",
             "currency",
             "intent"
           ]
@@ -198,6 +221,10 @@
           "marginalia",
           "seal"
         ],
+        "type": "string"
+      },
+      "TemporalFormat": {
+        "const": "date-time-minute",
         "type": "string"
       },
       "_SurfaceLink": {
@@ -375,15 +402,15 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:9c572343b9eb7a94855d076a0fcc79f4e0940f964bd5c6b5274088499e11dc76",
-    "schema_sha256": "sha256:113d0fd6fc925602f3771ad56d9844cc57aabc8bddbc79adf84117e8493dea3d",
-    "testimony_sha256": "sha256:fb4f50184c3ee5446db90fd10ada24a745896d1958decec9cefd8048b9c5910a"
+    "content_sha256": "sha256:0c3e4f56d9b25ecd6e2e93bd2a9124b105e692d5561441b9da3aed7c6f452464",
+    "schema_sha256": "sha256:e12080456d3b31fdd2d75adce1da8a1a5c083648366cfa12053d2670e9a36e03",
+    "testimony_sha256": "sha256:6ac96cd34dce8c73d16f1b2ec6c0dafaad9d83b2a03cffb7a8b46bc0287e0bee"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.3.0",
+    "hint_vocabulary": "0.4.0",
     "id": "taxis.roster",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

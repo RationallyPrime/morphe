@@ -13,6 +13,7 @@ import pytest
 
 from morphe_contracts import Diagnostic
 from morphe_grammar import validate_node
+from morphe_surface import HINT_VOCABULARY_VERSION
 from morphe_surface.authoring import KpiCell, morphe_hint
 from morphe_surface.build import build_surface
 from morphe_surface.compile import compile_surface
@@ -388,10 +389,21 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
+    assert HINT_VOCABULARY_VERSION == "0.4.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
+    assert morphe_hint(temporal="date-time-minute") == {
+        "x-morphe": {"temporal": "date-time-minute"}
+    }
+    assert KpiCell(
+        label="Newest event",
+        value="2026-07-17T15:40:14Z",
+        temporal="date-time-minute",
+    ).temporal == "date-time-minute"
     with pytest.raises(ValueError, match="strategy"):
         morphe_hint(strategy="nubmer")
+    with pytest.raises(ValueError, match="temporal"):
+        morphe_hint(temporal="minute")
 
 
 def test_malformed_currency_degrades_to_plain_number() -> None:
