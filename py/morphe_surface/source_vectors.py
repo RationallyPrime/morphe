@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from .source import JsonValue
 
 _SOURCE_GOLDEN_VECTOR_PATH = "fixtures/source-surface/source-surface-v1.ed25519-vector.json"
+_OBOLOS_GOLDEN_VECTOR_PATH = "fixtures/source-surface/source-surface-v1.obolos.ed25519-vector.json"
 _TAXIS_SOURCE_PATH = "fixtures/source-surface/taxis-roster.source.json"
 _TAXIS_SURFACE_SPEC_PATH = "fixtures/source-surface/taxis-roster.surface-spec.json"
 _TAXIS_NODE_PATH = "fixtures/source-surface/taxis-roster.node.json"
@@ -51,6 +52,7 @@ SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
 
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _SOURCE_GOLDEN_VECTOR_PATH,
+    _OBOLOS_GOLDEN_VECTOR_PATH,
     _TAXIS_SOURCE_PATH,
     _TAXIS_SURFACE_SPEC_PATH,
     _TAXIS_NODE_PATH,
@@ -214,6 +216,7 @@ def source_vector_documents() -> dict[str, str]:
 
     documents = {
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
+        _OBOLOS_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(obolos)),
         _TAXIS_SOURCE_PATH: _json_document(_artifact_document(taxis[0])),
         _TAXIS_SURFACE_SPEC_PATH: _json_document(taxis_spec),
         _TAXIS_NODE_PATH: _json_document(taxis_node),

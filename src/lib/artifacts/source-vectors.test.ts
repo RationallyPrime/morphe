@@ -37,8 +37,19 @@ const VECTOR_URL = new URL(
 	"../../../fixtures/source-surface/source-surface-v1.ed25519-vector.json",
 	import.meta.url,
 );
+const OBOLOS_VECTOR_URL = new URL(
+	"../../../fixtures/source-surface/source-surface-v1.obolos.ed25519-vector.json",
+	import.meta.url,
+);
 const MAX_SAFE_INTEGER_BIGINT = BigInt(Number.MAX_SAFE_INTEGER);
 const VECTOR = parseJcsJson(readFileSync(VECTOR_URL, "utf8")) as GoldenVector;
+// The obolos vector exercises a second signing key, a `float | None` union, and a
+// null `valid_until` — cross-language evidence for those was Python-side only.
+const OBOLOS_VECTOR = parseJcsJson(readFileSync(OBOLOS_VECTOR_URL, "utf8")) as GoldenVector;
+const GOLDEN_VECTORS: readonly (readonly [string, GoldenVector])[] = [
+	["taxis", VECTOR],
+	["obolos", OBOLOS_VECTOR],
+];
 const ED25519_SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 const ED25519_SIGNATURE_PATTERN = /^[A-Za-z0-9_-]{85}[AQgw]$/;
 
@@ -218,26 +229,37 @@ function verifiesOffline(artifact: SourceSurfaceArtifactV1, publicKeyHex: string
 	}
 }
 
-function cloneArtifact(): Mutable<SourceSurfaceArtifactV1> {
-	return structuredClone(VECTOR.artifact) as unknown as Mutable<SourceSurfaceArtifactV1>;
+function cloneArtifact(vector: GoldenVector = VECTOR): Mutable<SourceSurfaceArtifactV1> {
+	return structuredClone(vector.artifact) as unknown as Mutable<SourceSurfaceArtifactV1>;
 }
 
 describe("SourceSurfaceArtifactV1 cross-language evidence", () => {
-	it("matches Python RFC 8785 bytes, hashes, signing bytes, and Ed25519 signature", () => {
-		const evidence = evidenceFor(VECTOR.artifact);
+	it.each(
+		GOLDEN_VECTORS,
+	)("%s matches Python RFC 8785 bytes, hashes, signing bytes, and Ed25519 signature", (_name, vector) => {
+		const evidence = evidenceFor(vector.artifact);
 
-		expect(utf8Hex(evidence.schemaJcs)).toBe(VECTOR.canonical.schema_jcs_hex);
-		expect(utf8Hex(evidence.contentJcs)).toBe(VECTOR.canonical.content_jcs_hex);
-		expect(utf8Hex(evidence.testimonyJcs)).toBe(VECTOR.canonical.testimony_jcs_hex);
-		expect(utf8Hex(evidence.signingMessage)).toBe(VECTOR.canonical.signing_message_hex);
+		expect(utf8Hex(evidence.schemaJcs)).toBe(vector.canonical.schema_jcs_hex);
+		expect(utf8Hex(evidence.contentJcs)).toBe(vector.canonical.content_jcs_hex);
+		expect(utf8Hex(evidence.testimonyJcs)).toBe(vector.canonical.testimony_jcs_hex);
+		expect(utf8Hex(evidence.signingMessage)).toBe(vector.canonical.signing_message_hex);
 		expect(evidence.seals).toEqual({
-			schemaSha256: VECTOR.expected.seals.schema_sha256,
-			contentSha256: VECTOR.expected.seals.content_sha256,
-			testimonySha256: VECTOR.expected.seals.testimony_sha256,
+			schemaSha256: vector.expected.seals.schema_sha256,
+			contentSha256: vector.expected.seals.content_sha256,
+			testimonySha256: vector.expected.seals.testimony_sha256,
 		});
-		expect(VECTOR.artifact.required_capabilities).toEqual([]);
-		expect(VECTOR.artifact.attestation.signature).toBe(VECTOR.expected.signature);
-		expect(verifiesOffline(VECTOR.artifact, VECTOR.public_key_hex)).toBe(true);
+		expect(vector.artifact.required_capabilities).toEqual([]);
+		expect(vector.artifact.attestation.signature).toBe(vector.expected.signature);
+		expect(verifiesOffline(vector.artifact, vector.public_key_hex)).toBe(true);
+	});
+
+	it("admits the obolos second key, float|None union, and null valid_until", () => {
+		expect(OBOLOS_VECTOR.artifact.attestation.key_id).not.toBe(VECTOR.artifact.attestation.key_id);
+		expect(OBOLOS_VECTOR.public_key_hex).not.toBe(VECTOR.public_key_hex);
+		expect(OBOLOS_VECTOR.artifact.valid_until).toBeNull();
+		// A `float | None` optional adjustment serializes as a real null the seal covers.
+		expect(OBOLOS_VECTOR.artifact.data).toMatchObject({ adjustment: null });
+		expect(verifiesOffline(OBOLOS_VECTOR.artifact, VECTOR.public_key_hex)).toBe(false);
 	});
 
 	it("matches the RFC 8785 Unicode, escaping, number, and null edge vector", () => {
@@ -296,6 +318,7 @@ describe("SourceSurfaceArtifactV1 cross-language evidence", () => {
 		"diagnostics",
 		"key-id",
 		"signature",
+		"seal-only",
 	] as const)("rejects %s tampering offline", (target) => {
 		const artifact = cloneArtifact();
 		switch (target) {
@@ -316,6 +339,14 @@ describe("SourceSurfaceArtifactV1 cross-language evidence", () => {
 					artifact.attestation.signature.startsWith("A") ? "B" : "A"
 				}${artifact.attestation.signature.slice(1)}`;
 				break;
+			case "seal-only": {
+				// Flip a claimed seal while leaving the schema, data, diagnostics, and
+				// signature untouched: the recomputed digest no longer matches the claim,
+				// so the seal gate rejects it independently of the signature.
+				const hex = artifact.seals.schema_sha256.slice("sha256:".length);
+				artifact.seals.schema_sha256 = `sha256:${hex[0] === "0" ? "1" : "0"}${hex.slice(1)}`;
+				break;
+			}
 		}
 		expect(verifiesOffline(artifact, VECTOR.public_key_hex)).toBe(false);
 	});

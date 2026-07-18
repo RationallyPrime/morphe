@@ -1,0 +1,534 @@
+{
+  "algorithm": "Ed25519",
+  "artifact": {
+    "attestation": {
+      "algorithm": "Ed25519",
+      "key_id": "obolos-fixture-2026-01",
+      "signature": "s9h3fzG0GXYnVJswwbpIsWC0XuxWHOZ21nXxR4OrC7SxQo_Mp3oVUUVdyPdYK29eZefni2YEYGURFBv6uS9PAA"
+    },
+    "data": {
+      "adjustment": null,
+      "decision": "review",
+      "evidence": [
+        {
+          "amount": 512.25,
+          "evidenceId": "ev-901",
+          "exceptionNote": null,
+          "pseudonym": "beneficiary-7Q",
+          "receipt": {
+            "href": "/evidence/ev-901",
+            "label": "Open receipt 901"
+          },
+          "seal": {
+            "finality": "verified",
+            "sha256": "sha256:a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+          },
+          "state": "sealed"
+        },
+        {
+          "amount": 223.25,
+          "evidenceId": "ev-902",
+          "exceptionNote": "Manual FX evidence required.",
+          "pseudonym": "beneficiary-2M",
+          "receipt": {
+            "href": "/evidence/ev-902",
+            "label": "Open receipt 902"
+          },
+          "seal": {
+            "finality": "pending",
+            "sha256": "sha256:b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7"
+          },
+          "state": "exception"
+        }
+      ],
+      "keyFigures": [
+        {
+          "currency": "ISK",
+          "format": "currency",
+          "intent": "evidence",
+          "kicker": "Gross",
+          "label": "ISK exposure",
+          "temporal": null,
+          "value": 1280000
+        },
+        {
+          "currency": "EUR",
+          "format": "currency",
+          "intent": "caution",
+          "kicker": "Cross-border",
+          "label": "EUR exceptions",
+          "temporal": null,
+          "value": 735.5
+        },
+        {
+          "currency": null,
+          "format": null,
+          "intent": null,
+          "kicker": "Route",
+          "label": "Evidence rail",
+          "temporal": null,
+          "value": "SEPA + domestic"
+        }
+      ],
+      "name": "Settlement evidence 2026-07-17"
+    },
+    "diagnostics": [
+      {
+        "code": "OBOLOS_EXCEPTION_ROW",
+        "message": "This evidence row needs manual adjudication.",
+        "path": "$.evidence[1]",
+        "repair_hint": "Attach the missing FX testimony.",
+        "severity": "warning"
+      },
+      {
+        "code": "OBOLOS_AMOUNT_ROUNDING",
+        "message": "The amount is represented at settlement precision.",
+        "path": "$.evidence[0].amount",
+        "repair_hint": null,
+        "severity": "info"
+      }
+    ],
+    "issuer": "obolos",
+    "kind": "morphe.source-surface",
+    "produced_at": "2026-07-17T12:05:00Z",
+    "required_capabilities": [],
+    "schema": {
+      "$defs": {
+        "CoreIntent": {
+          "enum": [
+            "primary-action",
+            "neutral",
+            "provenance",
+            "evidence",
+            "accession",
+            "caution",
+            "success",
+            "info"
+          ],
+          "type": "string"
+        },
+        "IntentRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CoreIntent"
+            },
+            {
+              "$ref": "#/$defs/RegisterIntent"
+            }
+          ]
+        },
+        "KpiCell": {
+          "additionalProperties": false,
+          "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.\n``temporal=\"date-time-minute\"`` opts a textual timestamp into the deterministic\nminute-precision display floor without changing its source value.",
+          "properties": {
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Currency"
+            },
+            "format": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/NumberFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "intent": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/IntentRef"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "kicker": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Kicker"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "temporal": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/TemporalFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Value"
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ],
+          "title": "KpiCell",
+          "type": "object",
+          "x-morphe": {
+            "order": [
+              "label",
+              "value",
+              "kicker",
+              "format",
+              "temporal",
+              "currency",
+              "intent"
+            ]
+          }
+        },
+        "NumberFormat": {
+          "enum": [
+            "plain",
+            "integer",
+            "currency",
+            "percent",
+            "compact"
+          ],
+          "type": "string"
+        },
+        "RegisterIntent": {
+          "enum": [
+            "folio",
+            "marginalia",
+            "seal"
+          ],
+          "type": "string"
+        },
+        "TemporalFormat": {
+          "const": "date-time-minute",
+          "type": "string"
+        },
+        "_EvidenceSeal": {
+          "additionalProperties": false,
+          "properties": {
+            "finality": {
+              "enum": [
+                "verified",
+                "pending",
+                "rejected"
+              ],
+              "title": "Finality",
+              "type": "string",
+              "x-morphe": {
+                "intents": {
+                  "pending": "caution",
+                  "rejected": "caution",
+                  "verified": "success"
+                },
+                "strategy": "status"
+              }
+            },
+            "sha256": {
+              "title": "Evidence digest",
+              "type": "string"
+            }
+          },
+          "required": [
+            "sha256",
+            "finality"
+          ],
+          "title": "_EvidenceSeal",
+          "type": "object",
+          "x-morphe": {
+            "order": [
+              "sha256",
+              "finality"
+            ]
+          }
+        },
+        "_ObolosEvidenceRow": {
+          "additionalProperties": false,
+          "properties": {
+            "amount": {
+              "title": "Amount",
+              "type": "number",
+              "x-morphe": {
+                "currency": "EUR",
+                "format": "currency",
+                "strategy": "number"
+              }
+            },
+            "evidenceId": {
+              "title": "Evidence ID",
+              "type": "string"
+            },
+            "exceptionNote": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Exception"
+            },
+            "pseudonym": {
+              "title": "Beneficiary",
+              "type": "string"
+            },
+            "receipt": {
+              "$ref": "#/$defs/_SurfaceLink",
+              "title": "Receipt",
+              "x-morphe": {
+                "role": "evidence",
+                "strategy": "linked-ref"
+              }
+            },
+            "seal": {
+              "$ref": "#/$defs/_EvidenceSeal",
+              "title": "Seal"
+            },
+            "state": {
+              "enum": [
+                "sealed",
+                "exception",
+                "queued"
+              ],
+              "title": "Decision",
+              "type": "string",
+              "x-morphe": {
+                "intents": {
+                  "exception": "caution",
+                  "queued": "info",
+                  "sealed": "success"
+                },
+                "strategy": "badge"
+              }
+            }
+          },
+          "required": [
+            "evidenceId",
+            "pseudonym",
+            "amount",
+            "state",
+            "seal",
+            "receipt"
+          ],
+          "title": "_ObolosEvidenceRow",
+          "type": "object",
+          "x-morphe": {
+            "order": [
+              "evidenceId",
+              "pseudonym",
+              "amount",
+              "state",
+              "seal",
+              "receipt",
+              "exceptionNote"
+            ]
+          }
+        },
+        "_SurfaceLink": {
+          "additionalProperties": false,
+          "properties": {
+            "href": {
+              "title": "Href",
+              "type": "string"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "href"
+          ],
+          "title": "_SurfaceLink",
+          "type": "object",
+          "x-morphe": {
+            "order": [
+              "label",
+              "href"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "adjustment": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjustment",
+          "x-morphe": {
+            "currency": "ISK",
+            "format": "currency",
+            "strategy": "number"
+          }
+        },
+        "decision": {
+          "enum": [
+            "settled",
+            "review",
+            "blocked"
+          ],
+          "title": "Decision status",
+          "type": "string",
+          "x-morphe": {
+            "intents": {
+              "blocked": "caution",
+              "review": "caution",
+              "settled": "success"
+            },
+            "strategy": "status"
+          }
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/_ObolosEvidenceRow"
+          },
+          "title": "Evidence ledger",
+          "type": "array",
+          "x-morphe": {
+            "strategy": "table"
+          }
+        },
+        "keyFigures": {
+          "items": {
+            "$ref": "#/$defs/KpiCell"
+          },
+          "title": "Evidence totals",
+          "type": "array",
+          "x-morphe": {
+            "heading": false,
+            "strategy": "kpi-row"
+          }
+        },
+        "name": {
+          "title": "Evidence case",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "decision",
+        "keyFigures",
+        "evidence"
+      ],
+      "title": "_ObolosEvidence",
+      "type": "object",
+      "x-morphe": {
+        "order": [
+          "name",
+          "decision",
+          "keyFigures",
+          "evidence",
+          "adjustment"
+        ]
+      }
+    },
+    "seals": {
+      "content_sha256": "sha256:6ba45b7f6fdce0746f12cb522f49118d6f8bd615bb818d4c0d85d81e371d870e",
+      "schema_sha256": "sha256:368c8c4049680985d9af461bebb506173d969753f0a425d88008c8bcce8f788e",
+      "testimony_sha256": "sha256:ea3d3fff494edf3bc4be81b3504a4a1b7e5b57223627320c805c9fe25ba848f4"
+    },
+    "source_revision": "obolos-fixture-rev-0001",
+    "surface_id": "obolos.evidence:settlement-2026-07-17",
+    "valid_until": null,
+    "view_model": {
+      "hint_vocabulary": "0.4.0",
+      "id": "obolos.evidence",
+      "revision": 1,
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "wire_version": "1.0"
+  },
+  "canonical": {
+    "content_jcs_hex": "7b2264617461223a7b2261646a7573746d656e74223a6e756c6c2c226465636973696f6e223a22726576696577222c2265766964656e6365223a5b7b22616d6f756e74223a3531322e32352c2265766964656e63654964223a2265762d393031222c22657863657074696f6e4e6f7465223a6e756c6c2c2270736575646f6e796d223a2262656e65666963696172792d3751222c2272656365697074223a7b2268726566223a222f65766964656e63652f65762d393031222c226c6162656c223a224f70656e207265636569707420393031227d2c227365616c223a7b2266696e616c697479223a227665726966696564222c22736861323536223a227368613235363a61316131613161316131613161316131613161316131613161316131613161316131613161316131613161316131613161316131613161316131613161316131227d2c227374617465223a227365616c6564227d2c7b22616d6f756e74223a3232332e32352c2265766964656e63654964223a2265762d393032222c22657863657074696f6e4e6f7465223a224d616e75616c2046582065766964656e63652072657175697265642e222c2270736575646f6e796d223a2262656e65666963696172792d324d222c2272656365697074223a7b2268726566223a222f65766964656e63652f65762d393032222c226c6162656c223a224f70656e207265636569707420393032227d2c227365616c223a7b2266696e616c697479223a2270656e64696e67222c22736861323536223a227368613235363a62376237623762376237623762376237623762376237623762376237623762376237623762376237623762376237623762376237623762376237623762376237227d2c227374617465223a22657863657074696f6e227d5d2c226b657946696775726573223a5b7b2263757272656e6379223a2249534b222c22666f726d6174223a2263757272656e6379222c22696e74656e74223a2265766964656e6365222c226b69636b6572223a2247726f7373222c226c6162656c223a2249534b206578706f73757265222c2274656d706f72616c223a6e756c6c2c2276616c7565223a313238303030307d2c7b2263757272656e6379223a22455552222c22666f726d6174223a2263757272656e6379222c22696e74656e74223a2263617574696f6e222c226b69636b6572223a2243726f73732d626f72646572222c226c6162656c223a2245555220657863657074696f6e73222c2274656d706f72616c223a6e756c6c2c2276616c7565223a3733352e357d2c7b2263757272656e6379223a6e756c6c2c22666f726d6174223a6e756c6c2c22696e74656e74223a6e756c6c2c226b69636b6572223a22526f757465222c226c6162656c223a2245766964656e6365207261696c222c2274656d706f72616c223a6e756c6c2c2276616c7565223a2253455041202b20646f6d6573746963227d5d2c226e616d65223a22536574746c656d656e742065766964656e636520323032362d30372d3137227d2c22646961676e6f7374696373223a5b7b22636f6465223a224f424f4c4f535f455843455054494f4e5f524f57222c226d657373616765223a22546869732065766964656e636520726f77206e65656473206d616e75616c2061646a756469636174696f6e2e222c2270617468223a22242e65766964656e63655b315d222c227265706169725f68696e74223a2241747461636820746865206d697373696e672046582074657374696d6f6e792e222c227365766572697479223a227761726e696e67227d2c7b22636f6465223a224f424f4c4f535f414d4f554e545f524f554e44494e47222c226d657373616765223a2254686520616d6f756e7420697320726570726573656e74656420617420736574746c656d656e7420707265636973696f6e2e222c2270617468223a22242e65766964656e63655b305d2e616d6f756e74222c227265706169725f68696e74223a6e756c6c2c227365766572697479223a22696e666f227d5d7d",
+    "schema_jcs_hex": "7b222464656673223a7b22436f7265496e74656e74223a7b22656e756d223a5b227072696d6172792d616374696f6e222c226e65757472616c222c2270726f76656e616e6365222c2265766964656e6365222c22616363657373696f6e222c2263617574696f6e222c2273756363657373222c22696e666f225d2c2274797065223a22737472696e67227d2c22496e74656e74526566223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f436f7265496e74656e74227d2c7b2224726566223a22232f24646566732f5265676973746572496e74656e74227d5d7d2c224b706943656c6c223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c226465736372697074696f6e223a224f6e65206361726420696e206120606073747261746567793d5c226b70692d726f775c22606020636f6c6c656374696f6e20e280942074686520747970656420726f7720636f6e74726163742e5c6e5c6e456d6265642060606c6973745b4b706943656c6c5d606020286f7220616e79206d6f64656c2077697468207468657365206669656c64206e616d65732920696e2061207375726661636520766965775c6e6d6f64656c3b2074686520636f6d70696c6572206c6f7765727320656163682063656c6c20746f20612070726f6d6f7465642060605369676e616c4361726460602e20606076616c75656060206d61792062655c6e7465787475616c20e280942061206e6f6e2d6e756d65726963206d6561737572652072656e64657273206173207465787420696e7374656164206f66206120666f726d6174746564206e756d6265722e5c6e606074656d706f72616c3d5c22646174652d74696d652d6d696e7574655c226060206f7074732061207465787475616c2074696d657374616d7020696e746f207468652064657465726d696e69737469635c6e6d696e7574652d707265636973696f6e20646973706c617920666c6f6f7220776974686f7574206368616e67696e672069747320736f757263652076616c75652e222c2270726f70657274696573223a7b2263757272656e6379223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a2243757272656e6379227d2c22666f726d6174223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f4e756d626572466f726d6174227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c7d2c22696e74656e74223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f496e74656e74526566227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c7d2c226b69636b6572223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a224b69636b6572227d2c226c6162656c223a7b227469746c65223a224c6162656c222c2274797065223a22737472696e67227d2c2274656d706f72616c223a7b22616e794f66223a5b7b2224726566223a22232f24646566732f54656d706f72616c466f726d6174227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c7d2c2276616c7565223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a22696e7465676572227d2c7b2274797065223a226e756d626572227d5d2c227469746c65223a2256616c7565227d7d2c227265717569726564223a5b226c6162656c222c2276616c7565225d2c227469746c65223a224b706943656c6c222c2274797065223a226f626a656374222c22782d6d6f72706865223a7b226f72646572223a5b226c6162656c222c2276616c7565222c226b69636b6572222c22666f726d6174222c2274656d706f72616c222c2263757272656e6379222c22696e74656e74225d7d7d2c224e756d626572466f726d6174223a7b22656e756d223a5b22706c61696e222c22696e7465676572222c2263757272656e6379222c2270657263656e74222c22636f6d70616374225d2c2274797065223a22737472696e67227d2c225265676973746572496e74656e74223a7b22656e756d223a5b22666f6c696f222c226d617267696e616c6961222c227365616c225d2c2274797065223a22737472696e67227d2c2254656d706f72616c466f726d6174223a7b22636f6e7374223a22646174652d74696d652d6d696e757465222c2274797065223a22737472696e67227d2c225f45766964656e63655365616c223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b2266696e616c697479223a7b22656e756d223a5b227665726966696564222c2270656e64696e67222c2272656a6563746564225d2c227469746c65223a2246696e616c697479222c2274797065223a22737472696e67222c22782d6d6f72706865223a7b22696e74656e7473223a7b2270656e64696e67223a2263617574696f6e222c2272656a6563746564223a2263617574696f6e222c227665726966696564223a2273756363657373227d2c227374726174656779223a22737461747573227d7d2c22736861323536223a7b227469746c65223a2245766964656e636520646967657374222c2274797065223a22737472696e67227d7d2c227265717569726564223a5b22736861323536222c2266696e616c697479225d2c227469746c65223a225f45766964656e63655365616c222c2274797065223a226f626a656374222c22782d6d6f72706865223a7b226f72646572223a5b22736861323536222c2266696e616c697479225d7d7d2c225f4f626f6c6f7345766964656e6365526f77223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b22616d6f756e74223a7b227469746c65223a22416d6f756e74222c2274797065223a226e756d626572222c22782d6d6f72706865223a7b2263757272656e6379223a22455552222c22666f726d6174223a2263757272656e6379222c227374726174656779223a226e756d626572227d7d2c2265766964656e63654964223a7b227469746c65223a2245766964656e6365204944222c2274797065223a22737472696e67227d2c22657863657074696f6e4e6f7465223a7b22616e794f66223a5b7b2274797065223a22737472696e67227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a22457863657074696f6e227d2c2270736575646f6e796d223a7b227469746c65223a2242656e6566696369617279222c2274797065223a22737472696e67227d2c2272656365697074223a7b2224726566223a22232f24646566732f5f537572666163654c696e6b222c227469746c65223a2252656365697074222c22782d6d6f72706865223a7b22726f6c65223a2265766964656e6365222c227374726174656779223a226c696e6b65642d726566227d7d2c227365616c223a7b2224726566223a22232f24646566732f5f45766964656e63655365616c222c227469746c65223a225365616c227d2c227374617465223a7b22656e756d223a5b227365616c6564222c22657863657074696f6e222c22717565756564225d2c227469746c65223a224465636973696f6e222c2274797065223a22737472696e67222c22782d6d6f72706865223a7b22696e74656e7473223a7b22657863657074696f6e223a2263617574696f6e222c22717565756564223a22696e666f222c227365616c6564223a2273756363657373227d2c227374726174656779223a226261646765227d7d7d2c227265717569726564223a5b2265766964656e63654964222c2270736575646f6e796d222c22616d6f756e74222c227374617465222c227365616c222c2272656365697074225d2c227469746c65223a225f4f626f6c6f7345766964656e6365526f77222c2274797065223a226f626a656374222c22782d6d6f72706865223a7b226f72646572223a5b2265766964656e63654964222c2270736575646f6e796d222c22616d6f756e74222c227374617465222c227365616c222c2272656365697074222c22657863657074696f6e4e6f7465225d7d7d2c225f537572666163654c696e6b223a7b226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b2268726566223a7b227469746c65223a2248726566222c2274797065223a22737472696e67227d2c226c6162656c223a7b227469746c65223a224c6162656c222c2274797065223a22737472696e67227d7d2c227265717569726564223a5b226c6162656c222c2268726566225d2c227469746c65223a225f537572666163654c696e6b222c2274797065223a226f626a656374222c22782d6d6f72706865223a7b226f72646572223a5b226c6162656c222c2268726566225d7d7d7d2c226164646974696f6e616c50726f70657274696573223a66616c73652c2270726f70657274696573223a7b2261646a7573746d656e74223a7b22616e794f66223a5b7b2274797065223a226e756d626572227d2c7b2274797065223a226e756c6c227d5d2c2264656661756c74223a6e756c6c2c227469746c65223a2241646a7573746d656e74222c22782d6d6f72706865223a7b2263757272656e6379223a2249534b222c22666f726d6174223a2263757272656e6379222c227374726174656779223a226e756d626572227d7d2c226465636973696f6e223a7b22656e756d223a5b22736574746c6564222c22726576696577222c22626c6f636b6564225d2c227469746c65223a224465636973696f6e20737461747573222c2274797065223a22737472696e67222c22782d6d6f72706865223a7b22696e74656e7473223a7b22626c6f636b6564223a2263617574696f6e222c22726576696577223a2263617574696f6e222c22736574746c6564223a2273756363657373227d2c227374726174656779223a22737461747573227d7d2c2265766964656e6365223a7b226974656d73223a7b2224726566223a22232f24646566732f5f4f626f6c6f7345766964656e6365526f77227d2c227469746c65223a2245766964656e6365206c6564676572222c2274797065223a226172726179222c22782d6d6f72706865223a7b227374726174656779223a227461626c65227d7d2c226b657946696775726573223a7b226974656d73223a7b2224726566223a22232f24646566732f4b706943656c6c227d2c227469746c65223a2245766964656e636520746f74616c73222c2274797065223a226172726179222c22782d6d6f72706865223a7b2268656164696e67223a66616c73652c227374726174656779223a226b70692d726f77227d7d2c226e616d65223a7b227469746c65223a2245766964656e63652063617365222c2274797065223a22737472696e67227d7d2c227265717569726564223a5b226e616d65222c226465636973696f6e222c226b657946696775726573222c2265766964656e6365225d2c227469746c65223a225f4f626f6c6f7345766964656e6365222c2274797065223a226f626a656374222c22782d6d6f72706865223a7b226f72646572223a5b226e616d65222c226465636973696f6e222c226b657946696775726573222c2265766964656e6365222c2261646a7573746d656e74225d7d7d",
+    "signing_message_hex": "6d6f727068652d736f757263652d737572666163652d76313a7368613235363a65613364336666663439346564663362633462653831623335303461346131623765356235373232333632373332306338303563396665323562613834386634",
+    "testimony_jcs_hex": "7b22636f6e74656e745f736861323536223a227368613235363a36626134356237663666646365303734366631326362353232663439313138643666386264363135626238313864346330643835643831653337316438373065222c22697373756572223a226f626f6c6f73222c226b696e64223a226d6f727068652e736f757263652d73757266616365222c2270726f64756365645f6174223a22323032362d30372d31375431323a30353a30305a222c2272657175697265645f6361706162696c6974696573223a5b5d2c22736368656d615f736861323536223a227368613235363a33363863386334303439363830393835643961663436316265626235303631373364393639373533663061343235643838303038633862636365386637383865222c227369676e696e67223a7b22616c676f726974686d223a2245643235353139222c226b65795f6964223a226f626f6c6f732d666978747572652d323032362d3031227d2c22736f757263655f7265766973696f6e223a226f626f6c6f732d666978747572652d7265762d30303031222c22737572666163655f6964223a226f626f6c6f732e65766964656e63653a736574746c656d656e742d323032362d30372d3137222c2276616c69645f756e74696c223a6e756c6c2c22766965775f6d6f64656c223a7b2268696e745f766f636162756c617279223a22302e342e30222c226964223a226f626f6c6f732e65766964656e6365222c227265766973696f6e223a312c22736368656d615f6469616c656374223a2268747470733a2f2f6a736f6e2d736368656d612e6f72672f64726166742f323032302d31322f736368656d61227d2c22776972655f76657273696f6e223a22312e30227d"
+  },
+  "description": "Public test key; never use this private seed in production.",
+  "expected": {
+    "seals": {
+      "content_sha256": "sha256:6ba45b7f6fdce0746f12cb522f49118d6f8bd615bb818d4c0d85d81e371d870e",
+      "schema_sha256": "sha256:368c8c4049680985d9af461bebb506173d969753f0a425d88008c8bcce8f788e",
+      "testimony_sha256": "sha256:ea3d3fff494edf3bc4be81b3504a4a1b7e5b57223627320c805c9fe25ba848f4"
+    },
+    "signature": "s9h3fzG0GXYnVJswwbpIsWC0XuxWHOZ21nXxR4OrC7SxQo_Mp3oVUUVdyPdYK29eZefni2YEYGURFBv6uS9PAA"
+  },
+  "jcs_edge_case": {
+    "canonical_hex": "7b225c72223a2243617272696167652072657475726e222c2231223a302c2265736361706564223a226c696e65206f6e655c6e6c696e652074776f205c2271756f7465645c22205c5c20736c617368222c226578706f6e656e74223a31652b33302c226e756c6c223a6e756c6c2c22e282ac223a224575726f207369676e222c22f09f9880223a2241737472616c206b6579227d",
+    "input": {
+      "\r": "Carriage return",
+      "1": -0.0,
+      "escaped": "line one\nline two \"quoted\" \\ slash",
+      "exponent": 1e+30,
+      "null": null,
+      "\u20ac": "Euro sign",
+      "\ud83d\ude00": "Astral key"
+    }
+  },
+  "jcs_rejection_cases": [
+    {
+      "name": "unsafe-positive-integer-token",
+      "raw_json": "{\"number\":9007199254740992}"
+    },
+    {
+      "name": "unsafe-negative-integer-token",
+      "raw_json": "{\"number\":-9007199254740992}"
+    },
+    {
+      "name": "lone-high-surrogate-value",
+      "raw_json": "{\"nested\":{\"text\":\"\\ud800\"}}"
+    },
+    {
+      "name": "lone-low-surrogate-key",
+      "raw_json": "{\"\\udc00\":\"value\"}"
+    }
+  ],
+  "key_id": "obolos-fixture-2026-01",
+  "private_key_seed_hex": "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb",
+  "public_key_base64url": "PUAXw-hDiVqStwqnTRt-vJyYLM8uxJaMwM1V8Sr0Zgw",
+  "public_key_hex": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+  "vector_version": "1.0"
+}
