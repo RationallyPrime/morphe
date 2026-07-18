@@ -2,7 +2,7 @@ import type { Node } from "$lib";
 import { GRAMMAR_VERSION } from "$lib";
 import { compileSourceSurface } from "$lib/surface-edge/compile.js";
 import { admitSourceSurfaceJson, type SourceAdmissionOptions } from "$lib/surface-edge/source.js";
-import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
+import type { CompilationReceipt, TemporalPolicy } from "$lib/surface-edge/spec.js";
 import { readSourceSurfaceResponse } from "./surface-reader.js";
 
 export interface CompiledSourceEnvelope {
@@ -22,6 +22,12 @@ export interface SourceEnvelopeOptions {
 	readonly artifactId: string;
 	readonly dialectHint: string;
 	readonly admission: SourceAdmissionOptions;
+	/**
+	 * The viewer's instant presentation policy. The signed source is never mutated;
+	 * only the compiled display text bends to this. Omitted → the compiler default
+	 * (minute). The chosen policy is recorded on the compilation receipt.
+	 */
+	readonly temporalPolicy?: TemporalPolicy;
 }
 
 /**
@@ -47,7 +53,9 @@ export async function parseSourceSurfaceResponse(
 
 	let compiled: ReturnType<typeof compileSourceSurface>;
 	try {
-		compiled = compileSourceSurface(admitted.value);
+		compiled = compileSourceSurface(admitted.value, {
+			...(options.temporalPolicy === undefined ? {} : { temporalPolicy: options.temporalPolicy }),
+		});
 	} catch (error) {
 		return {
 			ok: false,

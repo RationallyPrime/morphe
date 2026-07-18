@@ -4,9 +4,9 @@ import { validateNodeDocument } from "../artifacts/surface.js";
 import { GRAMMAR_VERSION } from "../grammar/version.js";
 import { buildSurface } from "./build.js";
 import { COMPILER_BUILD_SHA256 } from "./build-id.generated.js";
-import { emitNode, SurfaceEmitLimitError } from "./emit.js";
+import { DEFAULT_EMIT_CONTEXT, type EmitContext, emitNode, SurfaceEmitLimitError } from "./emit.js";
 import type { TrustedSourceSurface } from "./source.js";
-import type { CompilationResult, CompilerDiagnostic, SurfaceNode } from "./spec.js";
+import type { CompilationResult, CompilerDiagnostic, SurfaceNode, TemporalPolicy } from "./spec.js";
 
 export const COMPILER_VERSION = "0.3.4";
 
@@ -50,10 +50,33 @@ function limitDiagnostic(error: SurfaceEmitLimitError): CompilerDiagnostic {
 }
 
 /**
+ * Options for {@link compileSourceSurface}. The temporal policy is the viewer's
+ * presentation choice for instant-typed values (default {@link DEFAULT_TEMPORAL_POLICY}
+ * = minute); `now` injects the render-time clock the `relative` policy reads, kept
+ * explicit so a compile is reproducible for a fixed instant.
+ */
+export interface CompileSourceSurfaceOptions {
+	readonly temporalPolicy?: TemporalPolicy;
+	readonly now?: () => Date;
+}
+
+/**
  * Pure, dialect-free edge compilation over already-admitted testimony.
  * Dialect policy and its delivery receipt are intentionally downstream.
+ *
+ * The temporal policy is a compiler INPUT, not a renderer reformat: one formatting
+ * truth, deterministic per (source, policy), so the receipt (which records the policy)
+ * stays honest. The signed source is never mutated — only the compiled display text
+ * bends to the policy.
  */
-export function compileSourceSurface(source: TrustedSourceSurface): CompilationResult {
+export function compileSourceSurface(
+	source: TrustedSourceSurface,
+	options: CompileSourceSurfaceOptions = {},
+): CompilationResult {
+	const context: EmitContext = {
+		temporalPolicy: options.temporalPolicy ?? DEFAULT_EMIT_CONTEXT.temporalPolicy,
+		now: options.now ?? DEFAULT_EMIT_CONTEXT.now,
+	};
 	const spec = buildSurface(source.schema, source.data, {
 		root: source.schema,
 		diagnostics: source.diagnostics,
@@ -63,7 +86,7 @@ export function compileSourceSurface(source: TrustedSourceSurface): CompilationR
 
 	let emitted: unknown;
 	try {
-		emitted = emitNode(spec);
+		emitted = emitNode(spec, undefined, context);
 	} catch (error) {
 		if (!(error instanceof SurfaceEmitLimitError)) throw error;
 		const diagnostic = limitDiagnostic(error);
@@ -96,6 +119,7 @@ export function compileSourceSurface(source: TrustedSourceSurface): CompilationR
 			grammarVersion: GRAMMAR_VERSION,
 			treeSha256: sha256(validated.value),
 			diagnosticsSha256: sha256(diagnostics),
+			temporalPolicy: context.temporalPolicy,
 		},
 	};
 }

@@ -11,11 +11,13 @@ import type {
 } from "../grammar/types.js";
 import {
 	type CompilerDiagnostic,
+	DEFAULT_TEMPORAL_POLICY,
 	displayScalarText,
 	pythonScalarText,
 	pythonStrip,
 	type SurfaceNode,
 	scalarNumberKind,
+	type TemporalPolicy,
 } from "./spec.js";
 
 const LEAF_STRATEGIES = new Set([
@@ -44,6 +46,21 @@ export interface EmitLimits {
 export const DEFAULT_EMIT_LIMITS: EmitLimits = Object.freeze({
 	maxSpecDepth: 64,
 	maxEmittedNodes: 250_000,
+});
+
+/**
+ * Per-compile presentation context threaded through the pure lowering. Carries the
+ * temporal policy and the render-time clock `relative` reads. Threaded explicitly (no
+ * module-level state) so a compile is reentrant and deterministic per (spec, context).
+ */
+export interface EmitContext {
+	readonly temporalPolicy: TemporalPolicy;
+	readonly now: () => Date;
+}
+
+export const DEFAULT_EMIT_CONTEXT: EmitContext = Object.freeze({
+	temporalPolicy: DEFAULT_TEMPORAL_POLICY,
+	now: (): Date => new Date(),
 });
 
 export class SurfaceEmitLimitError extends Error {
@@ -99,10 +116,14 @@ function emittedNodeCount(root: Node, limit: number): number {
 }
 
 /** Mechanical SurfaceNode -> grammar Node lowering with explicit output bounds. */
-export function emitNode(spec: SurfaceNode, overrides?: Partial<EmitLimits>): Node {
+export function emitNode(
+	spec: SurfaceNode,
+	overrides?: Partial<EmitLimits>,
+	context: EmitContext = DEFAULT_EMIT_CONTEXT,
+): Node {
 	const limits = limitsWith(overrides);
 	assertSpecDepth(spec, limits.maxSpecDepth);
-	const node = emit(spec);
+	const node = emit(spec, context);
 	if (emittedNodeCount(node, limits.maxEmittedNodes) > limits.maxEmittedNodes) {
 		throw new SurfaceEmitLimitError(
 			"COMPILER_EMITTED_NODE_LIMIT",
@@ -112,22 +133,22 @@ export function emitNode(spec: SurfaceNode, overrides?: Partial<EmitLimits>): No
 	return node;
 }
 
-function emit(spec: SurfaceNode): Node {
-	if (LEAF_STRATEGIES.has(spec.strategy)) return leaf(spec);
-	if (spec.strategy === "collapsed-section") return collapsible(spec);
-	if (spec.strategy === "table") return table(spec);
-	if (spec.strategy === "kpi-row") return kpiRow(spec);
+function emit(spec: SurfaceNode, ctx: EmitContext): Node {
+	if (LEAF_STRATEGIES.has(spec.strategy)) return leaf(spec, ctx);
+	if (spec.strategy === "collapsed-section") return collapsible(spec, ctx);
+	if (spec.strategy === "table") return table(spec, ctx);
+	if (spec.strategy === "kpi-row") return kpiRow(spec, ctx);
 	if (spec.strategy === "card-stack") {
-		const fields = spec.items.map(field);
-		return section(spec, fields.length > 0 ? fields : [emptyCollection(spec)]);
+		const built = spec.items.map((item) => field(item, ctx));
+		return section(spec, built.length > 0 ? built : [emptyCollection(spec)]);
 	}
-	return frame(spec);
+	return frame(spec, ctx);
 }
 
-function leaf(spec: SurfaceNode): Node {
+function leaf(spec: SurfaceNode, ctx: EmitContext): Node {
 	switch (spec.strategy) {
 		case "scalar":
-			return scalar(spec);
+			return scalar(spec, ctx);
 		case "badge":
 			return badge(spec);
 		case "linked-ref":
@@ -143,10 +164,15 @@ function leaf(spec: SurfaceNode): Node {
 	}
 }
 
-function scalar(spec: SurfaceNode): Text {
+function scalar(spec: SurfaceNode, ctx: EmitContext): Text {
 	return {
 		kind: "text",
-		value: displayScalarText(spec.value ?? null, spec.temporal, scalarNumberKind(spec)),
+		value: displayScalarText(
+			spec.value ?? null,
+			scalarNumberKind(spec),
+			ctx.temporalPolicy,
+			ctx.now,
+		),
 		as: spec.text_as ?? "body",
 		...(spec.emphasis === undefined ? {} : { emphasis: spec.emphasis }),
 		...(spec.intent === undefined ? {} : { intent: spec.intent }),
@@ -220,19 +246,19 @@ function statusTone(intent: string | undefined): "success" | "caution" | "info" 
 		: "neutral";
 }
 
-function kpiRow(spec: SurfaceNode): Node {
+function kpiRow(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
 	const grid: Grid = {
 		kind: "grid",
 		role: "list",
 		minTrack: "narrow",
-		children: spec.items.map(signalCard),
+		children: spec.items.map((item) => signalCard(item, ctx)),
 	};
 	return section(spec, [grid]);
 }
 
-function signalCard(item: SurfaceNode): Node {
-	if (item.strategy === "diagnostic-node") return leaf(item);
+function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
+	if (item.strategy === "diagnostic-node") return leaf(item, ctx);
 	const kicker: Text = {
 		kind: "text",
 		value: item.kicker ?? "",
@@ -246,7 +272,12 @@ function signalCard(item: SurfaceNode): Node {
 	} else {
 		measure = {
 			kind: "text",
-			value: displayScalarText(item.value ?? null, item.temporal, scalarNumberKind(item)),
+			value: displayScalarText(
+				item.value ?? null,
+				scalarNumberKind(item),
+				ctx.temporalPolicy,
+				ctx.now,
+			),
 			as: "body",
 			emphasis: "strong",
 			...(item.intent === undefined ? {} : { intent: item.intent }),
@@ -260,17 +291,17 @@ function signalCard(item: SurfaceNode): Node {
 	} satisfies CompoundRef;
 }
 
-function frame(spec: SurfaceNode): Node {
+function frame(spec: SurfaceNode, ctx: EmitContext): Node {
 	return {
 		kind: "frame",
 		role: "page",
 		surface: "base",
-		children: [section(spec, fields(spec.children))],
+		children: [section(spec, fields(spec.children, ctx))],
 	};
 }
 
-function collapsible(spec: SurfaceNode): Node {
-	const target = section(spec, fields(spec.children), false);
+function collapsible(spec: SurfaceNode, ctx: EmitContext): Node {
+	const target = section(spec, fields(spec.children, ctx), false);
 	const emphasized: Stack =
 		spec.emphasis === undefined ? target : { ...target, emphasis: spec.emphasis };
 	return {
@@ -284,10 +315,10 @@ function collapsible(spec: SurfaceNode): Node {
 	};
 }
 
-function table(spec: SurfaceNode): Node {
+function table(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
 	const columns = spec.children.length > 0 ? spec.children : (spec.items[0]?.children ?? []);
-	const body = spec.items.flatMap((item) => tableRow(item, columns.length));
+	const body = spec.items.flatMap((item) => tableRow(item, columns.length, ctx));
 	const rows = columns.length > 0 ? [tableHeader(columns), ...body] : body;
 	const grid: Grid = {
 		kind: "grid",
@@ -309,17 +340,20 @@ function headerCell(column: SurfaceNode): Text {
 	};
 }
 
-function tableRow(row: SurfaceNode, columnCount: number): Node[] {
-	const cells = row.children.length > 0 ? row.children.map(tableCell) : [tableCell(row)];
+function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): Node[] {
+	const cells =
+		row.children.length > 0
+			? row.children.map((cell) => tableCell(cell, ctx))
+			: [tableCell(row, ctx)];
 	while (cells.length < columnCount) cells.push(emptyCell());
 	const grid: Grid = { kind: "grid", role: "inline", children: cells };
 	const alerts = row.strategy === "diagnostic-node" ? [] : row.diagnostics.map(alert);
 	return [grid, ...alerts];
 }
 
-function tableCell(spec: SurfaceNode): Node {
-	if (CONTAINER_STRATEGIES.has(spec.strategy)) return emit(spec);
-	const lowered = leaf(spec);
+function tableCell(spec: SurfaceNode, ctx: EmitContext): Node {
+	if (CONTAINER_STRATEGIES.has(spec.strategy)) return emit(spec, ctx);
+	const lowered = leaf(spec, ctx);
 	// Empty Text intentionally renders with display:none. In a grid that removes
 	// the item box and auto-placement shifts every following cell one track left.
 	// Spacer is the grammar's data-free, aria-hidden structural placeholder.
@@ -352,7 +386,7 @@ function heading(label: string, emphasis: SurfaceNode["emphasis"]): Text {
 	};
 }
 
-function fields(specs: readonly SurfaceNode[]): Node[] {
+function fields(specs: readonly SurfaceNode[], ctx: EmitContext): Node[] {
 	const nodes: Node[] = [];
 	const pending: SurfaceNode[] = [];
 	for (const spec of specs) {
@@ -360,16 +394,16 @@ function fields(specs: readonly SurfaceNode[]): Node[] {
 			pending.push(spec);
 			continue;
 		}
-		flushDefinitions(nodes, pending);
-		nodes.push(field(spec));
+		flushDefinitions(nodes, pending, ctx);
+		nodes.push(field(spec, ctx));
 	}
-	flushDefinitions(nodes, pending);
+	flushDefinitions(nodes, pending, ctx);
 	return nodes;
 }
 
-function flushDefinitions(nodes: Node[], pending: SurfaceNode[]): void {
+function flushDefinitions(nodes: Node[], pending: SurfaceNode[], ctx: EmitContext): void {
 	if (pending.length === 0) return;
-	nodes.push(definitionGrid(pending));
+	nodes.push(definitionGrid(pending, ctx));
 	pending.length = 0;
 }
 
@@ -378,9 +412,9 @@ function definitionCandidate(spec: SurfaceNode): boolean {
 	return LEAF_STRATEGIES.has(spec.strategy) && spec.text_as === undefined;
 }
 
-function definitionGrid(specs: readonly SurfaceNode[]): Grid {
+function definitionGrid(specs: readonly SurfaceNode[], ctx: EmitContext): Grid {
 	const children: Node[] = [];
-	for (const spec of specs) children.push(caption(spec.label), definitionValue(spec));
+	for (const spec of specs) children.push(caption(spec.label), definitionValue(spec, ctx));
 	return {
 		kind: "grid",
 		role: "field-group",
@@ -389,16 +423,16 @@ function definitionGrid(specs: readonly SurfaceNode[]): Grid {
 	};
 }
 
-function definitionValue(spec: SurfaceNode): Node {
-	const inner = leaf(spec);
+function definitionValue(spec: SurfaceNode, ctx: EmitContext): Node {
+	const inner = leaf(spec, ctx);
 	const alerts = spec.strategy === "diagnostic-node" ? [] : spec.diagnostics.map(alert);
 	return alerts.length === 0
 		? inner
 		: { kind: "stack", role: "field-group", children: [inner, ...alerts] };
 }
 
-function field(spec: SurfaceNode): Node {
-	const inner = emit(spec);
+function field(spec: SurfaceNode, ctx: EmitContext): Node {
+	const inner = emit(spec, ctx);
 	if (CONTAINER_STRATEGIES.has(spec.strategy)) return inner;
 	const alerts = spec.strategy === "diagnostic-node" ? [] : spec.diagnostics.map(alert);
 	if (spec.text_as !== undefined || spec.strategy === "progress") {

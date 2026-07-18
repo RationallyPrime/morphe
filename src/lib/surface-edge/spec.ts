@@ -17,7 +17,26 @@ export type Strategy =
 	| "kpi-row";
 
 export type NumberFormat = "plain" | "integer" | "currency" | "percent" | "compact";
+/**
+ * The producer's SEMANTIC instant marker, carried on the hint and the SurfaceNode.
+ * It says "this value is an instant"; it never dictates presentation. Presentation is
+ * the viewer's {@link TemporalPolicy}, applied at emit time.
+ */
 export type TemporalFormat = "date-time-minute";
+
+/**
+ * The viewer-selected presentation policy for instant-typed scalar values.
+ *
+ * A compiler option, not a renderer reformat: one formatting truth, deterministic per
+ * (source, policy), so receipts stay honest. `exact` keeps full RFC 3339; `minute` and
+ * `date` floor the locale-free display text; `relative` renders against render time and
+ * is viewer-only — it must never enter a persisted or attested artifact, and the
+ * compile receipt records which policy produced a tree.
+ */
+export type TemporalPolicy = "exact" | "minute" | "date" | "relative";
+
+/** The default policy: minute precision for every instant, with exact one toggle away. */
+export const DEFAULT_TEMPORAL_POLICY: TemporalPolicy = "minute";
 export type TextAs = "display" | "heading" | "subheading" | "body" | "caption";
 export type Polarity = "positive" | "negative";
 export type ScalarValue = string | number | boolean | null;
@@ -66,6 +85,12 @@ export interface CompilationReceipt {
 	readonly grammarVersion: string;
 	readonly treeSha256: Sha256;
 	readonly diagnosticsSha256: Sha256;
+	/**
+	 * The temporal presentation policy this tree was compiled under. Recorded so a
+	 * downstream consumer can tell an exact/minute/date tree (safe to cache) from a
+	 * `relative` one (render-time-dependent, never to be persisted or attested).
+	 */
+	readonly temporalPolicy: TemporalPolicy;
 }
 
 export interface CompilationResult {
@@ -159,19 +184,63 @@ export function pythonScalarText(value: ScalarValue, numberKind?: ScalarNumberKi
 const RFC3339_TIMESTAMP =
 	/^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;
 
+const RELATIVE_UNITS: readonly (readonly [number, number, string])[] = [
+	[60, 1, "sec"],
+	[3_600, 60, "min"],
+	[86_400, 3_600, "hr"],
+	[604_800, 86_400, "day"],
+	[2_629_800, 604_800, "wk"],
+	[31_557_600, 2_629_800, "mo"],
+	[Number.POSITIVE_INFINITY, 31_557_600, "yr"],
+];
+
 /**
- * Render compiler-generated RFC 3339 text at stable minute precision.
+ * Render an RFC 3339 instant relative to render time (e.g. "3 mins ago", "in 2 hrs").
  *
- * SurfaceNode and signed-source values stay exact. Only emitted scalar text uses this
- * locale-free floor, keeping Python and TypeScript tree bytes in parity.
+ * Deterministic given (value, now): no locale, no `Date.now()` read of its own — the
+ * clock is injected so a compile is reproducible for a fixed instant. Viewer-only by
+ * contract; the receipt flags a tree built under this policy as non-persistable.
+ */
+function relativeScalarText(value: string, now: Date): string {
+	const then = Date.parse(value);
+	if (!Number.isFinite(then)) return value;
+	const deltaSeconds = (now.getTime() - then) / 1000;
+	const past = deltaSeconds >= 0;
+	const magnitude = Math.abs(deltaSeconds);
+	if (magnitude < 5) return "just now";
+	for (const [limit, divisor, label] of RELATIVE_UNITS) {
+		if (magnitude < limit) {
+			const count = Math.max(1, Math.floor(magnitude / divisor));
+			const unit = count === 1 ? label : `${label}s`;
+			return past ? `${count} ${unit} ago` : `in ${count} ${unit}`;
+		}
+	}
+	return value;
+}
+
+/**
+ * Lower one scalar value to its display text under a temporal presentation policy.
+ *
+ * Instant detection is by SHAPE (RFC 3339), never by the producer's semantic hint: a
+ * provenance-role instant carries no hint yet is still an instant, so the founder's
+ * raw-microsecond System Time is caught here. The SurfaceNode and signed-source values
+ * stay exact — only this emitted display text bends to the policy:
+ *  - `exact`   → the full RFC 3339 value, unchanged (the parity/copy affordance).
+ *  - `minute`  → the locale-free "YYYY-MM-DD HH:MM UTC" floor (Python-oracle parity).
+ *  - `date`    → the calendar date alone.
+ *  - `relative`→ render-time-relative text (viewer-only; receipt-flagged).
+ *
+ * A string that is not a well-formed RFC 3339 instant is never reinterpreted; it
+ * returns its exact spelling under every policy.
  */
 export function displayScalarText(
 	value: ScalarValue,
-	temporal: TemporalFormat | undefined,
-	numberKind?: ScalarNumberKind,
+	numberKind: ScalarNumberKind | undefined,
+	policy: TemporalPolicy,
+	now: () => Date,
 ): string {
 	const rendered = pythonScalarText(value, numberKind);
-	if (temporal !== "date-time-minute" || typeof value !== "string") return rendered;
+	if (policy === "exact" || typeof value !== "string") return rendered;
 	const match = RFC3339_TIMESTAMP.exec(value);
 	if (match === null) return rendered;
 
@@ -187,7 +256,14 @@ export function displayScalarText(
 	}
 
 	const zoneText = zone.toLowerCase() === "z" || zone === "+00:00" ? "UTC" : zone;
-	return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]} ${zoneText}`;
+	switch (policy) {
+		case "date":
+			return `${match[1]}-${match[2]}-${match[3]}`;
+		case "minute":
+			return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]} ${zoneText}`;
+		case "relative":
+			return relativeScalarText(value, now());
+	}
 }
 
 function validTimestampParts(

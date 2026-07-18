@@ -12,6 +12,7 @@ const compilation: CompilationReceipt = {
 	grammarVersion: "0.2.0",
 	treeSha256: sha("3"),
 	diagnosticsSha256: sha("4"),
+	temporalPolicy: "minute",
 };
 
 describe("createDeliveryReceipt", () => {

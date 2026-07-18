@@ -383,4 +383,34 @@ describe("admitSourceSurfaceJson", () => {
 		expect(result.ok).toBe(false);
 		if (!result.ok) expect(result.issue.code).toBe("bounds");
 	});
+
+	// KRA-765 F1 teeth: the oracle-suite F1 admits pre-minimized conformance fixtures
+	// (taxis/obolos), so it can only ever be a regression tripwire — it holds no kernel
+	// private key to forge a leaky variant, and a clean fixture cannot leak. Here the
+	// ed25519 test vector DOES hold a private seed, so we plant a hidden-marked property
+	// and RE-SIGN so the residue rides a *validly signed* source (signature + seals all
+	// pass) into the admission gate. The gate is the teeth: a residual hidden policy is
+	// REJECTED before compilation, so a sentinel that slipped minimization can never
+	// reach a renderer — signature validity does not buy a hidden field a way in.
+	it("rejects a validly signed source that still carries a residual hidden field", async () => {
+		const sentinel = "MORPHE-F1-RESIDUAL-HIDDEN-9E17AA";
+		const artifact = cloneArtifact();
+		const schema = artifact.schema as unknown as {
+			properties: Record<string, unknown>;
+			"x-morphe": { order: string[] };
+		};
+		schema.properties.residualLeak = { type: "string", "x-morphe": { hidden: true } };
+		schema["x-morphe"].order.push("residualLeak");
+		(artifact.data as Record<string, unknown>).residualLeak = sentinel;
+		await resign(artifact);
+
+		const admitted = await admitSourceSurfaceJson(JSON.stringify(artifact), options());
+		// The gate refuses a residual hidden policy even on a validly signed source, so
+		// the sentinel that slipped minimization never reaches compilation. Compiler-side
+		// pruning of hidden classes is proven adversarially in totality (F3).
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.reason.toLowerCase()).toContain("residual hidden");
+		}
+	});
 });

@@ -257,11 +257,43 @@ describe("surface-edge compiler adjudications", () => {
 		expect(emitNode(spec)).toMatchObject({ kind: "text", value: display });
 	});
 
-	it("does not reinterpret an RFC 3339-shaped opaque string without temporal policy", () => {
-		const opaque = "2026-07-17T15:40:14Z";
-		const spec = buildSurface({ type: "string", title: "Event ID" }, opaque);
+	it("floors an unhinted RFC 3339 instant under the default policy, exact one toggle away (KRA-767)", () => {
+		// The founder's zygos System Time is provenance-role and carries NO temporal
+		// hint, yet is an instant. Detection is by SHAPE, so the default minute policy
+		// floors it (no mid-string microsecond wrap) while the IR value stays exact.
+		const instant = "2026-07-17T15:40:14.307610Z";
+		const spec = buildSurface({ type: "string", title: "System Time" }, instant);
 		expect(spec.temporal).toBeUndefined();
-		expect(emitNode(spec)).toMatchObject({ kind: "text", value: opaque });
+		expect(spec.value).toBe(instant); // IR stays exact beneath display
+		expect(emitNode(spec)).toMatchObject({ kind: "text", value: "2026-07-17 15:40 UTC" });
+		// Exact is one toggle away: policy=exact renders the full RFC 3339 value.
+		expect(
+			emitNode(spec, undefined, { temporalPolicy: "exact", now: () => new Date(0) }),
+		).toMatchObject({ kind: "text", value: instant });
+	});
+
+	it("leaves a non-timestamp string exact under every temporal policy (KRA-767)", () => {
+		// Shape detection must not reinterpret a string that is not a well-formed
+		// RFC 3339 instant — an id, a code, a label — under any policy.
+		const opaque = "2026-07-17T99:99:99Z"; // RFC-3339-ish but out of range
+		const spec = buildSurface({ type: "string", title: "Event ID" }, opaque);
+		for (const temporalPolicy of ["exact", "minute", "date", "relative"] as const) {
+			expect(
+				emitNode(spec, undefined, { temporalPolicy, now: () => new Date("2026-07-17T16:00:00Z") }),
+			).toMatchObject({ kind: "text", value: opaque });
+		}
+	});
+
+	it("renders each temporal policy over one instant, exact always recoverable (KRA-767)", () => {
+		const instant = "2026-07-17T15:40:14Z";
+		const spec = buildSurface({ type: "string", title: "System Time" }, instant);
+		const at = () => new Date("2026-07-17T15:45:14Z"); // exactly 5 minutes later
+		const value = (temporalPolicy: "exact" | "minute" | "date" | "relative"): unknown =>
+			(emitNode(spec, undefined, { temporalPolicy, now: at }) as { value: unknown }).value;
+		expect(value("exact")).toBe(instant);
+		expect(value("minute")).toBe("2026-07-17 15:40 UTC");
+		expect(value("date")).toBe("2026-07-17");
+		expect(value("relative")).toBe("5 mins ago");
 	});
 
 	it("formats timestamp table cells and textual KPIs without mutating their IR values", () => {

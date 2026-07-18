@@ -24,15 +24,37 @@
 		dialects: readonly string[];
 		current: string;
 		crumbs?: readonly Crumb[];
+		/*
+		 * Temporal presentation control (KRA-767). Present only on source-v1 panes —
+		 * a legacy tree carries baked timestamp text nothing here could re-floor. When
+		 * `temporalPolicy` is null/undefined the control is omitted entirely.
+		 */
+		temporalPolicies?: readonly string[];
+		temporalPolicy?: string | null;
 	}
 
-	let { dialects, current, crumbs }: Props = $props();
+	let { dialects, current, crumbs, temporalPolicies, temporalPolicy }: Props = $props();
 
-	function onDialectChange(event: Event & { currentTarget: HTMLSelectElement }): void {
+	function setParam(key: string, value: string): void {
 		const params = new URLSearchParams(window.location.search);
-		params.set("dialect", event.currentTarget.value);
+		params.set(key, value);
 		void goto(`?${params.toString()}`, { keepFocus: true, noScroll: true });
 	}
+
+	function onDialectChange(event: Event & { currentTarget: HTMLSelectElement }): void {
+		setParam("dialect", event.currentTarget.value);
+	}
+
+	function onTemporalChange(event: Event & { currentTarget: HTMLSelectElement }): void {
+		setParam("temporal", event.currentTarget.value);
+	}
+
+	const showTemporal = $derived(
+		temporalPolicy !== null &&
+			temporalPolicy !== undefined &&
+			temporalPolicies !== undefined &&
+			temporalPolicies.length > 0,
+	);
 </script>
 
 <header class="chrome">
@@ -50,14 +72,26 @@
 			{/each}
 		{/if}
 	</nav>
-	<label class="chrome__dialect">
-		<span>Dialect</span>
-		<select value={current} onchange={onDialectChange}>
-			{#each dialects as dialect (dialect)}
-				<option value={dialect}>{dialect}</option>
-			{/each}
-		</select>
-	</label>
+	<div class="chrome__controls">
+		{#if showTemporal}
+			<label class="chrome__control">
+				<span>Time</span>
+				<select value={temporalPolicy} onchange={onTemporalChange}>
+					{#each temporalPolicies ?? [] as policy (policy)}
+						<option value={policy}>{policy}</option>
+					{/each}
+				</select>
+			</label>
+		{/if}
+		<label class="chrome__control">
+			<span>Dialect</span>
+			<select value={current} onchange={onDialectChange}>
+				{#each dialects as dialect (dialect)}
+					<option value={dialect}>{dialect}</option>
+				{/each}
+			</select>
+		</label>
+	</div>
 </header>
 
 <style>
@@ -101,7 +135,13 @@
 		white-space: nowrap;
 	}
 
-	.chrome__dialect {
+	.chrome__controls {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.chrome__control {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -109,7 +149,7 @@
 		white-space: nowrap;
 	}
 
-	.chrome__dialect select {
+	.chrome__control select {
 		background: var(--mo-intent-surface-sunken);
 		color: var(--mo-intent-on-surface);
 		border: 1px solid var(--mo-intent-outline);
