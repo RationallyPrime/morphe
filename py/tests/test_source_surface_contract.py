@@ -4,6 +4,7 @@ import base64
 import json
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta, timezone
+from pathlib import Path
 from typing import Annotated, Any, Literal, cast
 
 import pytest
@@ -36,6 +37,7 @@ from morphe_surface.source import (
 _SIGNING_SEED = bytes(range(32))
 _SAFE_INTEGER_MAX = (1 << 53) - 1
 _ED25519_SIGNATURE_TEXT_LENGTH = 86
+_FIXTURE_ROOT = Path(__file__).resolve().parents[2] / "fixtures" / "source-surface"
 
 
 class AliasPayload(BaseModel):
@@ -278,6 +280,30 @@ def test_property_order_stamp_covers_composed_schema_without_explicit_object_typ
 
     assert _object(minimized_schema["x-morphe"])["order"] == ["second", "first"]
     assert minimized_data == data
+    assert diagnostics == ()
+
+
+def test_composition_order_parity_fixture_stamps_the_signed_order() -> None:
+    """Stamp the signed order from the shared composition-parity fixture.
+
+    F4 (KRA-765): the fixture carries `properties` beside `allOf` with no explicit
+    top-level `type: object`. Python stamps the exact signed order the TypeScript
+    admission gate keys on; the TS suite (composition-parity.test.ts) admits these
+    same stamped bytes and rejects them un-stamped.
+    """
+    fixture = json.loads((_FIXTURE_ROOT / "composition-order-v1.json").read_text(encoding="utf-8"))
+    raw_schema = _object(fixture["schema"])
+    # The fixture must genuinely omit an explicit object type — that is the whole
+    # point of the composition path both languages key on `properties` for.
+    assert "type" not in raw_schema
+    assert isinstance(raw_schema["allOf"], list)
+
+    schema = cast("JsonObject", deepcopy(raw_schema))
+    data = cast("JsonValue", deepcopy(fixture["data"]))
+    minimized_schema, minimized_data, diagnostics = minimize_source_surface(schema, data)
+
+    assert _object(minimized_schema["x-morphe"])["order"] == fixture["expected_order"]
+    assert minimized_data == fixture["data"]
     assert diagnostics == ()
 
 

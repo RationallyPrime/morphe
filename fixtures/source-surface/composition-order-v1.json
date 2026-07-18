@@ -1,0 +1,12 @@
+{
+	"note": "F4 (KRA-765) cross-language composition-parity fixture. The schema carries `properties` beside `allOf` with NO explicit top-level `type: object`. The Python stamper (morphe_surface.source._stamp_property_order) and the TypeScript admission gate (surface-edge/schema.ts signedOrderReason) both key on `properties` presence, not on `type`. These exact bytes drive both suites: Python minimizes + stamps the signed order below; TypeScript admits the stamped schema through validateAuthenticatedSchemaData and rejects the same schema un-stamped. The property order is deliberately non-alphabetical so the stamp cannot be confused with a sorted floor.",
+	"schema": {
+		"allOf": [{ "type": "object" }],
+		"properties": {
+			"second": { "type": "string" },
+			"first": { "type": "string" }
+		}
+	},
+	"data": { "second": "B", "first": "A" },
+	"expected_order": ["second", "first"]
+}
