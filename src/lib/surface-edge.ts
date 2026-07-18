@@ -16,6 +16,7 @@ export {
 	SOURCE_SIGNATURE_CONTEXT,
 } from "./surface-edge/attest.js";
 export { COMPILER_BUILD_SHA256 } from "./surface-edge/build-id.generated.js";
+export type { CompileSourceSurfaceOptions } from "./surface-edge/compile.js";
 export {
 	COMPILER_VERSION,
 	compileSourceSurface,
@@ -44,3 +45,4 @@ export type {
 	CompilationResult,
 	CompilerDiagnostic,
 } from "./surface-edge/spec.js";
+export { DEFAULT_TEMPORAL_POLICY, type TemporalPolicy } from "./surface-edge/spec.js";

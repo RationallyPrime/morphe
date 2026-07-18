@@ -139,12 +139,17 @@ describe("Python/TypeScript source-surface migration oracles", () => {
 			expect(compileSourceSurface(source).tree).toEqual(fixture.node);
 		});
 
-		// KRA-765 F1: the parity oracle above only ever sees post-minimization clean
-		// fixtures, so a TS-side re-exposure is structurally untestable there. Admit
-		// the real signed source end to end and prove the compiled tree carries no
-		// residue of the field that was hidden before signing — neither its
-		// sentinel value nor its wire name.
-		it(`${fixture.id} admits and compiles with no trace of its pre-minimization hidden field`, async () => {
+		// KRA-765 F1 — regression tripwire, NOT a leak detector. The conformance
+		// fixtures are minimized before signing and this suite holds no kernel private
+		// key to forge a leaky variant of them, so this case can only prove that a
+		// clean fixture STAYS clean end to end (admission → compile). It would catch a
+		// regression that reintroduced a named/sentinel field from a genuinely clean
+		// source, but it cannot exercise the residual-hidden defenses on residue that
+		// survived signing. The genuine teeth for that live where a private seed is
+		// available: `source.test.ts` re-signs a planted hidden field and proves the
+		// ADMISSION gate rejects it before compilation, and `totality.property.test.ts`
+		// (F3) drives 200 adversarial hidden-marker cases through the compiler's pruning.
+		it(`${fixture.id} stays clean end to end — no trace of its pre-minimization hidden field`, async () => {
 			const publicKey = Buffer.from(fixture.expected.public_key_raw_hex, "hex").toString(
 				"base64url",
 			);

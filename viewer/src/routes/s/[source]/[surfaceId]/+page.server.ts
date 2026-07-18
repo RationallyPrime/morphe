@@ -6,6 +6,7 @@ import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
 import { loadGatedSurface } from "../../../../surface-load.server.js";
 import { SOURCE_SURFACE_V1_MEDIA_TYPE } from "../../../../surface-reader.js";
+import { resolveTemporalPolicy, TEMPORAL_QUERY_KEY } from "../../../../temporal.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -36,6 +37,10 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const bearer = bearerFor(source);
 	const dialectOverride = url.searchParams.get("dialect");
+	// The instant presentation policy rides `?temporal=` exactly as the dialect
+	// override rides `?dialect=`; it applies only to source-v1 panes (a legacy tree
+	// carries baked display text), so it is threaded solely into that branch below.
+	const temporalPolicy = resolveTemporalPolicy(url.searchParams.get(TEMPORAL_QUERY_KEY));
 
 	// Breadcrumb "one of N" rung: link the source's declared collection pane,
 	// unless this pane already is it (no self-link) or none is declared.
@@ -44,10 +49,13 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			? `/s/${source.id}/${source.collectionRoot}`
 			: undefined;
 
-	// Everything except the render-only dialect override is a producer-facing
-	// filter (party_id, …) forwarded onto the kernel fetch.
+	// Everything except the render-only overrides (dialect, temporal) is a
+	// producer-facing filter (party_id, …) forwarded onto the kernel fetch. The
+	// temporal policy is a client-side presentation choice — it never reaches the
+	// producer, and forwarding it would leak a viewer concern onto the kernel.
 	const forwardedQuery = new URLSearchParams(url.searchParams);
 	forwardedQuery.delete("dialect");
+	forwardedQuery.delete(TEMPORAL_QUERY_KEY);
 
 	if ("artifactId" in entry) {
 		const surface = await loadGatedSurface({
@@ -58,7 +66,14 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			parse: (response) => parseSurfaceResponse(response, { expectedArtifactId: entry.artifactId }),
 			dialectOverride,
 		});
-		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title, collectionHref };
+		// Legacy store artifacts carry baked display text; the temporal control is inert.
+		return {
+			...surface,
+			sourceTitle: source.title,
+			surfaceTitle: entry.title,
+			collectionHref,
+			temporalPolicy: null,
+		};
 	}
 
 	const artifactId = `${source.id}:${entry.id}`;
@@ -84,6 +99,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 				parseSourceSurfaceResponse(response, {
 					artifactId,
 					dialectHint,
+					temporalPolicy,
 					admission: {
 						expectedIssuer: trust.issuer,
 						expectedSurfaceId: entry.sourceSurfaceId,
@@ -94,7 +110,15 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			dialectOverride,
 			transformTree: (tree) => rewriteKernelLinks(tree, source),
 		});
-		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title, collectionHref };
+		// Source-v1 panes honor the temporal control; report the effective policy so
+		// the chrome renders it and marks the current selection.
+		return {
+			...surface,
+			sourceTitle: source.title,
+			surfaceTitle: entry.title,
+			collectionHref,
+			temporalPolicy,
+		};
 	}
 	const surface = await loadGatedSurface({
 		fetch,
@@ -105,10 +129,12 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		dialectOverride,
 		transformTree: (tree) => rewriteKernelLinks(tree, source),
 	});
+	// A legacy bare CompiledSurface is already lowered; the temporal control is inert.
 	return {
 		...surface,
 		sourceTitle: source.title,
 		surfaceTitle: entry.title,
 		collectionHref,
+		temporalPolicy: null,
 	};
 };

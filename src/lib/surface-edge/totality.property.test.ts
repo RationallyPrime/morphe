@@ -226,3 +226,52 @@ describe("surface compiler adversarial totality", () => {
 		expect(plantedSentinels).toBeGreaterThan(0);
 	});
 });
+
+// KRA-767: the temporal policy is a compiler option over instant-typed scalars.
+// Totality over the policy enum: every policy emits a grammar-valid Node and never
+// crashes, and the exact value is always recoverable by compiling under `exact`.
+
+const TEMPORAL_POLICIES = ["exact", "minute", "date", "relative"] as const;
+
+/** A random, well-formed RFC 3339 instant (UTC), deterministic in `random`. */
+function instantOf(random: () => number): string {
+	const pad = (n: number, width: number): string => String(n).padStart(width, "0");
+	const year = 2000 + Math.floor(random() * 60);
+	const month = 1 + Math.floor(random() * 12);
+	const day = 1 + Math.floor(random() * 28);
+	const hour = Math.floor(random() * 24);
+	const minute = Math.floor(random() * 60);
+	const second = Math.floor(random() * 60);
+	const micros = Math.floor(random() * 1_000_000);
+	const fraction = random() < 0.5 ? `.${pad(micros, 6)}` : "";
+	return `${pad(year, 4)}-${pad(month, 2)}-${pad(day, 2)}T${pad(hour, 2)}:${pad(minute, 2)}:${pad(second, 2)}${fraction}Z`;
+}
+
+describe("surface compiler temporal-policy totality", () => {
+	it("emits a grammar-valid Node for every policy and keeps exact recoverable", () => {
+		const random = generator(0x7e_46_70_11);
+		const now = (): Date => new Date("2030-01-01T00:00:00Z");
+		for (let index = 0; index < 250; index += 1) {
+			const instant = instantOf(random);
+			const spec = buildSurface({ type: "string", title: "Instant" }, instant);
+			// The intermediate IR keeps the exact value beneath any display policy.
+			expect(spec.value, `case ${index}`).toBe(instant);
+
+			let exactText: string | undefined;
+			for (const temporalPolicy of TEMPORAL_POLICIES) {
+				const node = emitNode(spec, undefined, { temporalPolicy, now }) as { value: unknown };
+				expect(
+					validateNodeDocument(node).ok,
+					`case ${index} under ${temporalPolicy}: ${instant}`,
+				).toBe(true);
+				expect(typeof node.value, `case ${index} under ${temporalPolicy}`).toBe("string");
+				// Determinism: identical (spec, policy, now) yields identical text.
+				const again = emitNode(spec, undefined, { temporalPolicy, now }) as { value: unknown };
+				expect(again.value).toBe(node.value);
+				if (temporalPolicy === "exact") exactText = node.value as string;
+			}
+			// Exact is always recoverable: `exact` renders the instant verbatim.
+			expect(exactText, `case ${index}`).toBe(instant);
+		}
+	});
+});

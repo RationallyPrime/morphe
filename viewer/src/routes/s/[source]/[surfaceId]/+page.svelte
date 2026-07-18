@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { applyDialect, DIALECT_IDS, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
+	import { TEMPORAL_POLICIES } from "../../../../temporal.js";
 	import ViewerChrome from "../../../../ViewerChrome.svelte";
 
 	let { data } = $props();
@@ -23,7 +24,13 @@
 </svelte:head>
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
-	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} />
+	<ViewerChrome
+		dialects={DIALECT_IDS}
+		current={data.dialectId}
+		{crumbs}
+		temporalPolicies={TEMPORAL_POLICIES}
+		temporalPolicy={data.temporalPolicy}
+	/>
 	<main
 		class="viewer-surface"
 		data-delivery-dialect={data.deliveryReceipt?.dialectId}
