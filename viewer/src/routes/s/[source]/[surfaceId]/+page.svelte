@@ -7,6 +7,15 @@
 
 	const dialect = $derived(getDialect(data.dialectId));
 	const applied = $derived(applyDialect(dialect));
+
+	// Surfaces (index) › Source collection › this pane. The source rung links the
+	// declared collection when there is one (and it is not this pane); otherwise
+	// it is inert context and the index stays the only way back.
+	const crumbs = $derived([
+		{ label: "Surfaces", href: "/" },
+		{ label: data.sourceTitle, href: data.collectionHref },
+		{ label: data.surfaceTitle },
+	]);
 </script>
 
 <svelte:head>
@@ -14,12 +23,7 @@
 </svelte:head>
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
-	<ViewerChrome
-		dialects={DIALECT_IDS}
-		current={data.dialectId}
-		title={`${data.sourceTitle} · ${data.surfaceTitle}`}
-		back="/"
-	/>
+	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} />
 	<main
 		class="viewer-surface"
 		data-delivery-dialect={data.deliveryReceipt?.dialectId}

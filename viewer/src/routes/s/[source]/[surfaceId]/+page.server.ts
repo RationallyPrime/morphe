@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { parseKernelSurfaceResponse, parseSurfaceResponse } from "../../../../envelope.js";
+import { withForwardedQuery } from "../../../../forward-query.js";
 import { rewriteKernelLinks } from "../../../../links.js";
 import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
@@ -17,6 +18,13 @@ import type { PageServerLoad } from "./$types.js";
  * CompiledSurface or admit and edge-compile signed source-v1 testimony. Kernel
  * links are rewired against declared paths inside the final grammar/dialect
  * gate (viewer-navigable or degraded to text — never a dead in-viewer href).
+ *
+ * The breadcrumb's middle rung (`collectionHref`) points at the source's
+ * DECLARED `collectionRoot` — undeclared, or when the current pane already IS
+ * the collection, it is absent and the chrome falls back to the flat index.
+ * Any viewer query beyond `dialect` (e.g. `?party_id=`) is forwarded onto the
+ * kernel fetch so a filtered link that survived `rewriteKernelLinks` actually
+ * reaches the producer as a filter.
  */
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
@@ -29,6 +37,18 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	const bearer = bearerFor(source);
 	const dialectOverride = url.searchParams.get("dialect");
 
+	// Breadcrumb "one of N" rung: link the source's declared collection pane,
+	// unless this pane already is it (no self-link) or none is declared.
+	const collectionHref =
+		source.collectionRoot !== undefined && source.collectionRoot !== entry.id
+			? `/s/${source.id}/${source.collectionRoot}`
+			: undefined;
+
+	// Everything except the render-only dialect override is a producer-facing
+	// filter (party_id, …) forwarded onto the kernel fetch.
+	const forwardedQuery = new URLSearchParams(url.searchParams);
+	forwardedQuery.delete("dialect");
+
 	if ("artifactId" in entry) {
 		const surface = await loadGatedSurface({
 			fetch,
@@ -38,7 +58,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			parse: (response) => parseSurfaceResponse(response, { expectedArtifactId: entry.artifactId }),
 			dialectOverride,
 		});
-		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title };
+		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title, collectionHref };
 	}
 
 	const artifactId = `${source.id}:${entry.id}`;
@@ -56,7 +76,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		};
 		const surface = await loadGatedSurface({
 			fetch,
-			url: `${source.baseUrl}${entry.path}`,
+			url: `${source.baseUrl}${withForwardedQuery(entry.path, forwardedQuery)}`,
 			artifactId,
 			bearer,
 			accept: SOURCE_SURFACE_V1_MEDIA_TYPE,
@@ -74,11 +94,11 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 			dialectOverride,
 			transformTree: (tree) => rewriteKernelLinks(tree, source),
 		});
-		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title };
+		return { ...surface, sourceTitle: source.title, surfaceTitle: entry.title, collectionHref };
 	}
 	const surface = await loadGatedSurface({
 		fetch,
-		url: `${source.baseUrl}${entry.path}`,
+		url: `${source.baseUrl}${withForwardedQuery(entry.path, forwardedQuery)}`,
 		artifactId,
 		bearer,
 		parse: (response) => parseKernelSurfaceResponse(response, { artifactId, dialectHint }),
@@ -89,5 +109,6 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		...surface,
 		sourceTitle: source.title,
 		surfaceTitle: entry.title,
+		collectionHref,
 	};
 };

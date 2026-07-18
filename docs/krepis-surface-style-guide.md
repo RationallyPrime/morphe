@@ -142,6 +142,68 @@ override is the live re-theme proof; nothing in a kernel may depend on its diale
 - Grammar-version boot assertion stays (`EXPECTED_GRAMMAR_VERSION` pattern), sourced
   from `morphe_surface.GRAMMAR_VERSION`.
 
+## Interaction & navigation
+
+A surface is read-only (D4) — "interaction" here is **navigation**, not action. The
+family reads as one product only if a user can move through it the same way everywhere:
+every reference goes somewhere, every pane knows where it sits, and nothing that looks
+clickable is a dead end. The ownership split below is load-bearing — a gap on the wrong
+side of it is unfixable from the other.
+
+### The navigation contract
+
+- **A reference to another entity is a `linked-ref`, never inert text.** A foreign key,
+  a counterparty, a parent account — anything that has a detail surface — is a
+  pre-resolved `SurfaceRef {label, href}` lowered with `strategy="linked-ref"`. Structural
+  inference would otherwise render an object as a nested record-card and a scalar as plain
+  text; the hint is what makes it navigable.
+- **An absent target is an em-dash, never a dead or self link.** When no surface can
+  receive the reference, emit `SurfaceRef(label="—")` (href-less → plain text) — do **not**
+  point the href back at the current pane to "have a link". A link that navigates to the
+  page you are on is worse than honest text: it looks actionable and does nothing.
+- **No raw id or slug where a display label exists.** An id that has a name beside it is
+  `hidden=True` (kept on the wire, out of the tree) or lives in the provenance footer with
+  `role="provenance"`. A bare UUID in a table cell or, worse, inside summary prose, is the
+  one thing the intent taxonomy exists to prevent. An id with genuinely no friendlier form
+  is footer provenance at most — never a column a user scans.
+- **At most one `primary-action` per pane** (already the intent-taxonomy rule) — the pane's
+  single drill-in. Navigation has one obvious next step, not a field of equal buttons.
+- **A filtering reference carries its filter in the query** (`…?party_id=…`). The producer
+  builds the href against its own origin with the filter attached; the viewer preserves
+  the query across the rewrite and forwards it onto the fetch. A kernel that emits a filter
+  query it cannot honor is authoring a lie — emit the plain reference instead.
+
+### Who owns what (do not cross this line)
+
+- **The viewer owns the trail.** Breadcrumb, back-to-collection, and the "one of N"
+  context are host chrome, built from the source config's declared `collectionRoot` (the
+  surface id of a source's collection pane) — never inferred, never assembled in a kernel.
+  A kernel that hand-rolls a "back" link or a breadcrumb is reaching across the boundary;
+  the fix is a viewer/source-config change, not a per-kernel tree. `collectionRoot` is
+  optional: undeclared keeps the flat index as the only way back.
+- **The viewer owns cross-origin rewriting.** A kernel compiles hrefs against *its own*
+  origin; the viewer resolves them against declared surface paths (match by path, query
+  carried forward) and **degrades any href it cannot resolve to plain text**. So a kernel
+  may reference a target the viewer has not declared — it simply renders as a label, never
+  a broken in-viewer link. The kernel never needs to know the viewer's routes.
+- **The kernel owns per-row references and their labels.** Which fields are `linked-ref`,
+  what the label says (under its own PII governance), and what origin-relative href it
+  points at. If a reference has no navigable target *in the domain* (no per-entity surface
+  exists), that is **missing surface data** — a new pane to author, not a chrome tweak and
+  not something to paper over with a self-link.
+
+### The three failure classes (name them when auditing)
+
+A navigation gap is exactly one of these, and the class names the fix locus:
+
+1. **General-Morphe / viewer mechanism** — the trail, the rewrite, query preservation.
+   One fix, every pane benefits. Lives in the viewer/grammar, never in a kernel.
+2. **Kernel annotation** — the mechanism exists; the kernel does not emit the hint, the
+   `hidden=True`, or the parent reference. A one-field change in the surface model.
+3. **Missing surface data** — the target pane, the history endpoint, the filtered view
+   does not exist. Real domain work; the honest answer is a new surface, never a dead link
+   standing in for one.
+
 ## Per-kernel pane specs (the KRA-752 demo scope)
 
 Shared: every org pane leads with the org name identity line + KPI band + signal band.

@@ -9,14 +9,24 @@
 	 * this control can restyle a pane but never bypass a compound policy.
 	 */
 
+	/*
+	 * A crumb is one rung of the breadcrumb trail. A rung with an `href` is a
+	 * native link (the collection it belongs to); the trailing rung — the pane
+	 * itself — carries no href and renders as inert current-location text. The
+	 * route owns the trail so this control stays a dumb renderer.
+	 */
+	interface Crumb {
+		label: string;
+		href?: string;
+	}
+
 	interface Props {
 		dialects: readonly string[];
 		current: string;
-		title?: string;
-		back?: string;
+		crumbs?: readonly Crumb[];
 	}
 
-	let { dialects, current, title, back }: Props = $props();
+	let { dialects, current, crumbs }: Props = $props();
 
 	function onDialectChange(event: Event & { currentTarget: HTMLSelectElement }): void {
 		const params = new URLSearchParams(window.location.search);
@@ -26,12 +36,18 @@
 </script>
 
 <header class="chrome">
-	<nav class="chrome__context">
-		{#if back !== undefined}
-			<a class="chrome__back" href={back}>← Surfaces</a>
-		{/if}
-		{#if title !== undefined}
-			<span class="chrome__title">{title}</span>
+	<nav class="chrome__context" aria-label="Breadcrumb">
+		{#if crumbs !== undefined}
+			{#each crumbs as crumb, index (index)}
+				{#if index > 0}
+					<span class="chrome__sep" aria-hidden="true">›</span>
+				{/if}
+				{#if crumb.href !== undefined}
+					<a class="chrome__crumb" href={crumb.href}>{crumb.label}</a>
+				{:else}
+					<span class="chrome__title" aria-current="page">{crumb.label}</span>
+				{/if}
+			{/each}
 		{/if}
 	</nav>
 	<label class="chrome__dialect">
@@ -64,14 +80,18 @@
 		min-width: 0;
 	}
 
-	.chrome__back {
+	.chrome__crumb {
 		color: var(--mo-intent-primary-action-surface);
 		text-decoration: none;
 		white-space: nowrap;
 	}
 
-	.chrome__back:hover {
+	.chrome__crumb:hover {
 		text-decoration: underline;
+	}
+
+	.chrome__sep {
+		color: var(--mo-intent-on-surface-muted);
 	}
 
 	.chrome__title {
