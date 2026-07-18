@@ -326,6 +326,14 @@ Initial source limits should be explicit and no weaker than the current artifact
   no network or filesystem resolution; and
 - bounded `$defs`, reference traversal, compiler recursion, and emitted-node count.
 
+Hidden-field minimization interprets exactly this applicator set: `$ref`, `properties`,
+`patternProperties`, `additionalProperties`, `items`, `prefixItems`, `allOf`, `anyOf`,
+`oneOf` (`allOf` is what a kernel emits to wrap a `$ref` beside field-level hints).
+Applicators whose disclosure policy the walk cannot prove — `if`/`then`/`else`,
+`dependentSchemas`/`dependentRequired`, `not`, and dynamic references — are rejected at
+schema validation rather than silently mis-minimized: a conditional or negated subschema
+could gate a hidden field the walk never visits, so the posture is fail-closed.
+
 ### 2.3 Caching
 
 There are two safe cache levels:

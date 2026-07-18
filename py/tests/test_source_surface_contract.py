@@ -618,6 +618,15 @@ def test_verification_rejects_schema_content_testimony_and_signature_tampering()
     testimony_tamper["source_revision"] = "tampered revision"
     tampered_documents.append(testimony_tamper)
 
+    # Seal-only tamper: flip a claimed seal while leaving the schema, data, and
+    # signature untouched. The recomputed schema digest no longer matches the claim,
+    # so the seal gate rejects it before any signature check would.
+    seal_tamper = deepcopy(original)
+    seals = _object(seal_tamper["seals"])
+    hex_part = cast("str", seals["schema_sha256"]).split(":", 1)[1]
+    seals["schema_sha256"] = f"sha256:{'1' if hex_part[0] == '0' else '0'}{hex_part[1:]}"
+    tampered_documents.append(seal_tamper)
+
     signature_tamper = deepcopy(original)
     attestation = _object(signature_tamper["attestation"])
     signature = cast("str", attestation["signature"])
@@ -914,3 +923,111 @@ def test_value_matching_hidden_and_overlapping_visible_branch_fails_hidden() -> 
     schema, data = _raw_pair(OverlappingUnionPayload(title="t", payload={"note": "visible"}))
     _, minimized_data, _ = minimize_source_surface(schema, data)
     assert cast("dict[str, Any]", minimized_data)["payload"] == {"note": "visible"}
+
+
+# --- KRA-764: untrusted-ingress bounds, union-prune cost, keyword posture ---------------
+
+from morphe_surface.source import (  # noqa: E402 - grouped with the hardening tests
+    _MAX_COLLECTION_ENTRIES,
+    _MAX_STRUCTURAL_DEPTH,
+)
+
+
+def _nested_data(structural_depth: int) -> JsonValue:
+    """Return a value whose deepest scalar sits at exactly ``structural_depth``.
+
+    ``_check_source_bounds`` seeds the root at depth 1, so a chain of
+    ``structural_depth - 1`` single-key objects reaches a leaf at ``structural_depth``.
+    """
+    value: JsonValue = "leaf"
+    for _ in range(structural_depth - 1):
+        value = {"child": value}
+    return value
+
+
+def test_structural_depth_ceiling_is_enforced_at_the_minimizer_ingress() -> None:
+    # At the ceiling the artifact minimizes (an empty schema admits any value).
+    minimize_source_surface({}, _nested_data(_MAX_STRUCTURAL_DEPTH))
+    # One level past it fails closed with a domain error, never a bare RecursionError.
+    with pytest.raises(SourceSurfaceError, match="structural depth"):
+        minimize_source_surface({}, _nested_data(_MAX_STRUCTURAL_DEPTH + 1))
+
+
+def test_deeply_nested_data_admission_raises_a_domain_error() -> None:
+    # Model admission is the untrusted ingress (it runs before seals/signature): a
+    # hostile depth must surface a bounded parse failure there too, never a
+    # RecursionError. The bound is raised inside the model validator, so Pydantic
+    # surfaces it as a ValidationError carrying the domain message.
+    document = _artifact().model_dump(mode="json", by_alias=True, exclude_none=False)
+    document["data"] = _nested_data(_MAX_STRUCTURAL_DEPTH + 1)
+    with pytest.raises(ValidationError, match="structural depth"):
+        SourceSurfaceArtifactV1.model_validate(document)
+
+
+def test_oversized_collection_is_rejected_before_recursion() -> None:
+    oversized = cast("JsonValue", [0] * (_MAX_COLLECTION_ENTRIES + 1))
+    with pytest.raises(SourceSurfaceError, match="array exceeds"):
+        minimize_source_surface({}, oversized)
+
+
+def _nested_union(depth: int) -> JsonObject:
+    """Return ``depth`` nested double-``anyOf`` layers, every branch permissive.
+
+    Empty branches match any value, so every layer has two applicable alternatives and
+    a naive prune fans out to O(2^depth) deepcopy+recurse expansions.
+    """
+    node: JsonObject = {}
+    for _ in range(depth):
+        node = {"anyOf": [node, deepcopy(node)]}
+    return node
+
+
+def test_union_prune_fanout_is_bounded_by_a_loud_error() -> None:
+    # 2^depth branch expansions past the budget: a pathological nested union wedges the
+    # producer unless the fan-out is bounded. depth 14 → ~2^15 expansions >> the budget.
+    schema = _nested_union(14)
+    with pytest.raises(SourceSurfaceError, match="mixed-union pruning budget"):
+        minimize_source_surface(schema, cast("JsonValue", {}))
+
+
+@pytest.mark.parametrize(
+    "unsupported_schema",
+    [
+        {"if": {"properties": {"a": {}}}, "then": {"required": ["a"]}},
+        {"type": "object", "dependentSchemas": {"a": {"required": ["b"]}}},
+        {"not": {"type": "string"}},
+        {"$dynamicRef": "#node"},
+    ],
+)
+def test_unsupported_applicator_keywords_are_rejected(unsupported_schema: JsonObject) -> None:
+    with pytest.raises(SourceSurfaceError, match="unsupported applicator keyword"):
+        minimize_source_surface(unsupported_schema, cast("JsonValue", {}))
+
+
+def test_allof_field_hint_wrapping_is_still_supported() -> None:
+    # Kernels emit allOf to wrap a $ref beside field-level metadata; rejecting it would
+    # break a live surface. It must minimize cleanly, not be rejected as unsupported.
+    schema: JsonObject = {
+        "type": "object",
+        "properties": {
+            "wrapped": {
+                "allOf": [{"$ref": "#/$defs/Inner"}],
+                "title": "Wrapped",
+            }
+        },
+        "required": ["wrapped"],
+        "$defs": {
+            "Inner": {
+                "type": "object",
+                "properties": {
+                    "shown": {"type": "string"},
+                    "secret": {"type": "string", "x-morphe": {"hidden": True}},
+                },
+                "required": ["shown", "secret"],
+            }
+        },
+    }
+    data = cast("JsonValue", {"wrapped": {"shown": "public", "secret": "HIDDEN-ALLOF"}})
+    minimized_schema, minimized_data, _ = minimize_source_surface(schema, data)
+    assert "HIDDEN-ALLOF" not in json.dumps(minimized_data)
+    assert "secret" not in json.dumps(minimized_schema)

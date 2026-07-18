@@ -1,3 +1,24 @@
+"""Source-v1 artifact preparation, minimization, and offline verification.
+
+Untrusted-ingress hardening (design §2.2). Every recursive walk over an artifact's
+schema or data runs before that artifact's seals and signature are trusted — freeze on
+model admission, hidden-field minimization on the producer — so hostile input is bounded
+up front and mapped to :class:`SourceSurfaceError` (or, in the verifier,
+:class:`SourceVerificationError`), never a bare ``RecursionError`` or an out-of-memory
+kill. The structural limits (depth 64, 50k values, 10k collection entries, 262 144-char
+strings, 2 MiB encoded) match the TypeScript viewer's ``DEFAULT_SOURCE_VALIDATION_LIMITS``.
+
+Supported schema applicators. Hidden-field minimization interprets exactly this Draft
+2020-12 applicator set: ``$ref`` (local ``#/...`` only), ``properties``,
+``patternProperties``, ``additionalProperties``, ``items``, ``prefixItems``, ``allOf``,
+``anyOf``, ``oneOf`` (``allOf`` is what kernels emit to wrap a ``$ref`` beside field-level
+hints). Applicators whose disclosure policy the walk cannot prove — ``if``/``then``/
+``else``, ``dependentSchemas``/``dependentRequired``, ``not``, and dynamic references —
+are rejected at validation (:func:`_reject_unsupported_schema_keywords`) rather than
+silently mis-minimized: a conditional or negated subschema could gate a hidden field the
+walk never visits, so the safe posture is fail-closed.
+"""
+
 from __future__ import annotations
 
 import base64
@@ -50,6 +71,153 @@ _SIGNATURE_PATTERN = re.compile(r"^[A-Za-z0-9_-]{85}[AQgw]$")
 _PATH_SEGMENT_PATTERN = re.compile(r"\.([^.[\]]+)|\[(\d+)]")
 _ED25519_SIGNATURE_BYTES = 64
 _DEFINITION_REF_PARTS = 2
+
+# --- untrusted-ingress bounds (design §2.2) ------------------------------------------
+# A source artifact is untrusted until its seals and signature verify, and the recursive
+# walks below run *before* that gate (freeze on model admission, minimization on the
+# producer). Unbounded input would otherwise raise a bare ``RecursionError`` or exhaust
+# memory instead of a domain error. Every limit is no weaker than the current artifact
+# gate and matches the TypeScript viewer's ``DEFAULT_SOURCE_VALIDATION_LIMITS``.
+_MAX_STRUCTURAL_DEPTH = 64
+"""Deepest JSON nesting admitted in schema or data (design §2.2). Real kernel panes sit
+near depth 7, so this clears every live surface with wide margin."""
+_MAX_JSON_VALUES = 50_000
+_MAX_COLLECTION_ENTRIES = 10_000
+_MAX_STRING_CHARS = 262_144
+_MAX_ENCODED_BYTES = 2 * 1024 * 1024
+# Schema traversal follows local ``$ref`` edges, so its stack depth is not the JSON
+# nesting depth: a chain of distinct ``$defs`` adds a frame per hop. This backstop
+# converts a pathological reference chain into a domain error well before CPython's own
+# recursion limit, while clearing any real depth-≤64 artifact (real traversal ≈ 15).
+_MAX_TRAVERSAL_DEPTH = 256
+# A mixed-union data node is pruned once per applicable branch with a ``deepcopy`` each,
+# so nested unions cost O(branches^depth). This ceiling bounds the total branch
+# expansions across one minimization and fails loud on a pathological union model.
+_MAX_ALTERNATIVE_EXPANSIONS = 10_000
+
+# Object-applicator keywords whose hidden-field policy this minimizer cannot reason
+# about are rejected at validation rather than silently mis-minimized (a conditional or
+# negated subschema could gate a hidden field the walk never visits, leaking it). The
+# supported applicator set is: ``$ref``, ``properties``, ``patternProperties``,
+# ``additionalProperties``, ``items``, ``prefixItems``, ``allOf``, ``anyOf``, ``oneOf``.
+# Pydantic serialization schemas emit none of the rejected keywords today (verified
+# against the live taxis/obolos/chreos surfaces); the rejection makes that reliance
+# explicit and fail-closed for any hand-authored or future schema shape.
+_UNSUPPORTED_SCHEMA_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "if",
+        "then",
+        "else",
+        "dependentSchemas",
+        "dependentRequired",
+        "not",
+        "$dynamicRef",
+        "$dynamicAnchor",
+        "$recursiveRef",
+        "$recursiveAnchor",
+    }
+)
+
+
+class _AlternativeBudget:
+    """Mutable counter bounding total mixed-union branch expansions in one minimization."""
+
+    __slots__ = ("_remaining",)
+
+    def __init__(self, ceiling: int = _MAX_ALTERNATIVE_EXPANSIONS) -> None:
+        self._remaining = ceiling
+
+    def spend(self) -> None:
+        self._remaining -= 1
+        if self._remaining < 0:
+            msg = (
+                "source data expands past the mixed-union pruning budget of "
+                f"{_MAX_ALTERNATIVE_EXPANSIONS} branch evaluations"
+            )
+            raise SourceSurfaceError(msg)
+
+
+def _guard_traversal_depth(depth: int) -> None:
+    if depth > _MAX_TRAVERSAL_DEPTH:
+        msg = f"source schema traversal exceeds the maximum depth of {_MAX_TRAVERSAL_DEPTH}"
+        raise SourceSurfaceError(msg)
+
+
+def _check_source_bounds(schema: JsonValue, data: JsonValue) -> None:  # noqa: C901 - one explicit branch per bound
+    """Reject depth, value-count, collection, string, and size-hostile input up front.
+
+    Iterative by construction: this gate must never itself recurse on the untrusted
+    structure it is guarding. It runs before the recursive freeze/minimization walks so
+    those never see input that would overflow the interpreter stack, and it maps every
+    breach to a :class:`SourceSurfaceError` rather than a bare ``RecursionError`` or an
+    out-of-memory kill.
+    """
+    values = 0
+    approx_bytes = 0
+    stack: list[tuple[JsonValue, int]] = [(schema, 1), (data, 1)]
+    while stack:
+        current, depth = stack.pop()
+        values += 1
+        if values > _MAX_JSON_VALUES:
+            msg = f"source exceeds the maximum of {_MAX_JSON_VALUES} JSON values"
+            raise SourceSurfaceError(msg)
+        if depth > _MAX_STRUCTURAL_DEPTH:
+            msg = f"source exceeds the maximum structural depth of {_MAX_STRUCTURAL_DEPTH}"
+            raise SourceSurfaceError(msg)
+        approx_bytes += 2
+        if approx_bytes > _MAX_ENCODED_BYTES:
+            msg = f"source exceeds the maximum encoded size of {_MAX_ENCODED_BYTES} bytes"
+            raise SourceSurfaceError(msg)
+        if isinstance(current, str):
+            if len(current) > _MAX_STRING_CHARS:
+                msg = f"source string exceeds {_MAX_STRING_CHARS} characters"
+                raise SourceSurfaceError(msg)
+            approx_bytes += len(current.encode("utf-8"))
+        elif isinstance(current, dict):
+            if len(current) > _MAX_COLLECTION_ENTRIES:
+                msg = f"source object exceeds {_MAX_COLLECTION_ENTRIES} properties"
+                raise SourceSurfaceError(msg)
+            for key, child in current.items():
+                if len(key) > _MAX_STRING_CHARS:
+                    msg = f"source key exceeds {_MAX_STRING_CHARS} characters"
+                    raise SourceSurfaceError(msg)
+                approx_bytes += len(key.encode("utf-8"))
+                stack.append((child, depth + 1))
+        elif isinstance(current, list):
+            if len(current) > _MAX_COLLECTION_ENTRIES:
+                msg = f"source array exceeds {_MAX_COLLECTION_ENTRIES} entries"
+                raise SourceSurfaceError(msg)
+            stack.extend((child, depth + 1) for child in current)
+
+
+def _reject_unsupported_schema_keywords(schema: JsonObject) -> None:
+    """Fail closed on applicator keywords the hidden-field walk does not interpret.
+
+    Iterative walk over every subschema object; the first unsupported keyword raises.
+    Keeping this separate from ``_validate_source_schema``'s Draft check lets the
+    verifier apply the same posture to authenticated schemas.
+    """
+    pending: list[object] = [schema]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if isinstance(current, list):
+            pending.extend(current)
+            continue
+        if not isinstance(current, dict):
+            continue
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        for keyword in current:
+            if keyword in _UNSUPPORTED_SCHEMA_KEYWORDS:
+                msg = (
+                    f"source schema uses unsupported applicator keyword {keyword!r}; "
+                    "hidden-field minimization cannot prove it discloses nothing"
+                )
+                raise SourceSurfaceError(msg)
+        pending.extend(cast("dict[str, object]", current).values())
 
 
 class SourceSurfaceError(ValueError):
@@ -269,7 +437,14 @@ class SourceSurfaceArtifactV1(WireModel):
 
     @model_validator(mode="after")
     def freeze_nested_evidence(self) -> Self:
-        """Make the admitted snapshot recursively immutable for downstream compilation."""
+        """Make the admitted snapshot recursively immutable for downstream compilation.
+
+        Model admission is the untrusted ingress: this runs on any wire document parsed
+        into the artifact, before seals or signatures are checked. Bound depth and size
+        here so the recursive freeze below (and every downstream walk) meets input that
+        cannot overflow the interpreter stack, mapping a breach to a domain error.
+        """
+        _check_source_bounds(self.schema_, self.data)
         object.__setattr__(self, "schema_", _freeze_json_object(self.schema_))
         object.__setattr__(self, "data", _freeze_json(self.data))
         object.__setattr__(
@@ -332,6 +507,9 @@ def minimize_source_surface(
     diagnostics: tuple[Diagnostic, ...] | list[Diagnostic] = (),
 ) -> tuple[JsonObject, JsonValue, tuple[Diagnostic, ...]]:
     """Remove hidden schema/data fields and reject diagnostics below them."""
+    # Bound the raw input before any recursive thaw walk touches it: a producer handed a
+    # hostile depth or size gets a domain error, never a bare RecursionError.
+    _check_source_bounds(schema, data)
     original_schema = _thaw_json_object(schema)
     original_data = _thaw_json(data)
     minimized_schema = _thaw_json_object(schema)
@@ -344,7 +522,7 @@ def minimize_source_surface(
     _validate_source_schema(original_schema)
     _reject_nonlocal_refs(original_schema)
     _prune_schema_node(minimized_schema, minimized_schema, set())
-    _prune_data_node(original_schema, minimized_data, original_schema, set())
+    _prune_data_node(original_schema, minimized_data, original_schema, set(), _AlternativeBudget())
     _remove_unreachable_definitions(minimized_schema)
     _stamp_property_order(minimized_schema)
     _validate_minimized_pair(minimized_schema, minimized_data)
@@ -582,6 +760,7 @@ def verify_source_surface(
 
     try:
         _reject_nonlocal_refs(admitted.schema_)
+        _reject_unsupported_schema_keywords(admitted.schema_)
         _validate_minimized_pair(admitted.schema_, admitted.data)
     except SourceSurfaceError as error:
         msg = "authenticated source schema and data failed contract validation"
@@ -890,8 +1069,9 @@ def _semantic_target(schema: dict[str, Any], root: JsonObject, seen: set[int]) -
 
 
 def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywords are explicit
-    schema: dict[str, Any], root: JsonObject, seen: set[int]
+    schema: dict[str, Any], root: JsonObject, seen: set[int], _depth: int = 0
 ) -> None:
+    _guard_traversal_depth(_depth)
     identity = id(schema)
     if identity in seen:
         return
@@ -899,7 +1079,7 @@ def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywo
 
     reference = schema.get("$ref")
     if isinstance(reference, str):
-        _prune_schema_node(_resolve_local_ref(reference, root), root, seen)
+        _prune_schema_node(_resolve_local_ref(reference, root), root, seen, _depth + 1)
 
     properties = schema.get("properties")
     if isinstance(properties, dict):
@@ -919,7 +1099,7 @@ def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywo
             # (§1.4 rule 2 applies to the suppressed value).
             if _union_has_hidden_branch(child, root) and isinstance(required, list):
                 required[:] = [entry for entry in required if entry != name]
-            _prune_schema_node(child, root, seen)
+            _prune_schema_node(child, root, seen, _depth + 1)
 
     pattern_properties = schema.get("patternProperties")
     if isinstance(pattern_properties, dict):
@@ -930,23 +1110,23 @@ def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywo
             if _effective_hidden(child, root):
                 pattern_properties[pattern] = False
             else:
-                _prune_schema_node(child, root, seen)
+                _prune_schema_node(child, root, seen, _depth + 1)
     additional_properties = schema.get("additionalProperties")
     if isinstance(additional_properties, dict):
         child = cast("dict[str, Any]", additional_properties)
         if _effective_hidden(child, root):
             schema["additionalProperties"] = False
         else:
-            _prune_schema_node(child, root, seen)
+            _prune_schema_node(child, root, seen, _depth + 1)
 
     items = schema.get("items")
     if isinstance(items, dict):
-        _prune_schema_node(cast("dict[str, Any]", items), root, seen)
+        _prune_schema_node(cast("dict[str, Any]", items), root, seen, _depth + 1)
     prefix_items = schema.get("prefixItems")
     if isinstance(prefix_items, list):
         for item in prefix_items:
             if isinstance(item, dict):
-                _prune_schema_node(cast("dict[str, Any]", item), root, seen)
+                _prune_schema_node(cast("dict[str, Any]", item), root, seen, _depth + 1)
     # Mixed unions: drop the hidden branches from the effective schema. An
     # all-hidden union never reaches here — the enclosing position is itself
     # effectively hidden and was removed by its parent.
@@ -959,14 +1139,14 @@ def _prune_schema_node(  # noqa: C901, PLR0912, PLR0915 - recursive schema keywo
                     child = cast("dict[str, Any]", branch)
                     if _effective_hidden(child, root):
                         continue
-                    _prune_schema_node(child, root, seen)
+                    _prune_schema_node(child, root, seen, _depth + 1)
                 visible.append(branch)
             branches[:] = visible
     branches = schema.get("allOf")
     if isinstance(branches, list):
         for branch in branches:
             if isinstance(branch, dict):
-                _prune_schema_node(cast("dict[str, Any]", branch), root, seen)
+                _prune_schema_node(cast("dict[str, Any]", branch), root, seen, _depth + 1)
 
 
 def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal above
@@ -974,7 +1154,10 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
     data: JsonValue,
     root: JsonObject,
     seen: set[tuple[int, int]],
+    budget: _AlternativeBudget,
+    _depth: int = 0,
 ) -> None:
+    _guard_traversal_depth(_depth)
     pair = (id(schema), id(data))
     if pair in seen:
         return
@@ -982,7 +1165,7 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
 
     reference = schema.get("$ref")
     if isinstance(reference, str):
-        _prune_data_node(_resolve_local_ref(reference, root), data, root, seen)
+        _prune_data_node(_resolve_local_ref(reference, root), data, root, seen, budget, _depth + 1)
 
     if isinstance(data, dict):
         properties = schema.get("properties")
@@ -997,7 +1180,7 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
                 if hide_value:
                     data.pop(name, None)
                 elif name in data:
-                    _prune_data_node(child, data[name], root, seen)
+                    _prune_data_node(child, data[name], root, seen, budget, _depth + 1)
         for name, value in list(data.items()):
             dynamic_schemas = _dynamic_value_schemas(schema, name)
             if any(_effective_hidden(child, root) for child in dynamic_schemas):
@@ -1007,7 +1190,7 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
                 data.pop(name, None)
                 continue
             for child in dynamic_schemas:
-                _prune_data_node(child, value, root, seen)
+                _prune_data_node(child, value, root, seen, budget, _depth + 1)
 
     if isinstance(data, list):
         items = schema.get("items")
@@ -1015,31 +1198,37 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
             child = cast("dict[str, Any]", items)
             data[:] = [item for item in data if not _value_hidden_by_union(child, item, root)]
             for item in data:
-                _prune_data_node(child, item, root, seen)
+                _prune_data_node(child, item, root, seen, budget, _depth + 1)
         prefix_items = schema.get("prefixItems")
         if isinstance(prefix_items, list):
             for index, raw_child in enumerate(prefix_items):
                 if index >= len(data) or not isinstance(raw_child, dict):
                     continue
-                _prune_data_node(cast("dict[str, Any]", raw_child), data[index], root, seen)
+                _prune_data_node(
+                    cast("dict[str, Any]", raw_child), data[index], root, seen, budget, _depth + 1
+                )
 
     for keyword in ("anyOf", "oneOf"):
         branches = schema.get(keyword)
         if isinstance(branches, list):
-            _prune_alternative_data(keyword, branches, data, root, seen)
+            _prune_alternative_data(keyword, branches, data, root, seen, budget, _depth)
     branches = schema.get("allOf")
     if isinstance(branches, list):
         for branch in branches:
             if isinstance(branch, dict):
-                _prune_data_node(cast("dict[str, Any]", branch), data, root, seen)
+                _prune_data_node(
+                    cast("dict[str, Any]", branch), data, root, seen, budget, _depth + 1
+                )
 
 
-def _prune_alternative_data(
+def _prune_alternative_data(  # noqa: PLR0913 - mirrors the data-node traversal state
     keyword: str,
     branches: list[object],
     data: JsonValue,
     root: JsonObject,
     seen: set[tuple[int, int]],
+    budget: _AlternativeBudget,
+    _depth: int = 0,
 ) -> None:
     applicable = _applicable_alternatives(branches, data, root)
     if not applicable:
@@ -1048,8 +1237,11 @@ def _prune_alternative_data(
 
     candidates: list[JsonValue] = []
     for branch in applicable:
+        # Each applicable branch is a full re-prune over a copy: charge the shared
+        # budget so nested unions cannot fan out to O(branches^depth) unbounded.
+        budget.spend()
         candidate = deepcopy(data)
-        _prune_data_node(branch, candidate, root, set(seen))
+        _prune_data_node(branch, candidate, root, set(seen), budget, _depth + 1)
         candidates.append(candidate)
     first = candidates[0]
     if any(candidate != first for candidate in candidates[1:]):
@@ -1148,6 +1340,7 @@ def _validate_source_schema(schema: JsonObject) -> None:
     except SchemaError as error:
         msg = f"source serialization schema is not valid Draft 2020-12: {error.message}"
         raise SourceSurfaceError(msg) from error
+    _reject_unsupported_schema_keywords(schema)
 
 
 def _definition_names(references: list[str]) -> set[str]:
@@ -1202,7 +1395,9 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
     data: JsonValue,
     position: int,
     seen: set[tuple[int, int, int]],
+    _depth: int = 0,
 ) -> bool:
+    _guard_traversal_depth(_depth)
     state = (id(schema), position, id(data))
     if state in seen:
         return False
@@ -1210,7 +1405,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
 
     reference = schema.get("$ref")
     if isinstance(reference, str) and _path_targets_hidden(
-        _resolve_local_ref(reference, root), tokens, root, data, position, seen
+        _resolve_local_ref(reference, root), tokens, root, data, position, seen, _depth + 1
     ):
         return True
 
@@ -1233,6 +1428,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
                     child_data,
                     position + 1,
                     seen,
+                    _depth + 1,
                 ):
                     return True
         for child in _dynamic_value_schemas(schema, token):
@@ -1245,6 +1441,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
                 child_data,
                 position + 1,
                 seen,
+                _depth + 1,
             ):
                 return True
     else:
@@ -1257,6 +1454,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
             child_data,
             position + 1,
             seen,
+            _depth + 1,
         ):
             return True
         prefix_items = schema.get("prefixItems")
@@ -1271,6 +1469,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
                 child_data,
                 position + 1,
                 seen,
+                _depth + 1,
             )
         ):
             return True
@@ -1291,6 +1490,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
                     data,
                     position,
                     seen,
+                    _depth + 1,
                 ):
                     return True
     branches = schema.get("allOf")
@@ -1303,6 +1503,7 @@ def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit tr
                 data,
                 position,
                 seen,
+                _depth + 1,
             ):
                 return True
     return False
