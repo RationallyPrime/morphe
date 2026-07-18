@@ -5,6 +5,10 @@ import type { NormalizedSourceSurfaceArtifact } from "./schema.js";
 export const SOURCE_SIGNATURE_CONTEXT = "morphe-source-surface-v1:";
 
 const MAX_SAFE_INTEGER_BIGINT = BigInt(Number.MAX_SAFE_INTEGER);
+// Sticky: matched at the exact cursor via `lastIndex`, so no per-token substring
+// copy (the old `rawJson.slice(cursor)` was O(n) per number → O(n^2) on adversarial
+// digit-dense input) and no chance of matching a number further along the string.
+const NUMBER_TOKEN_STICKY = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
 const ED25519_SIGNATURE_PATTERN = /^[A-Za-z0-9_-]{85}[AQgw]$/;
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
 const RAW_ED25519_PUBLIC_KEY_BYTES = 32;
@@ -45,7 +49,8 @@ function assertSafeIntegerTokens(rawJson: string): void {
 			continue;
 		}
 
-		const token = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(rawJson.slice(cursor))?.[0];
+		NUMBER_TOKEN_STICKY.lastIndex = cursor;
+		const token = NUMBER_TOKEN_STICKY.exec(rawJson)?.[0];
 		if (!token) {
 			cursor += 1;
 			continue;

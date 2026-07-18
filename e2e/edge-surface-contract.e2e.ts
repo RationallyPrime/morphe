@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 const SURFACE_PATH = "/s/taxis/roster";
 const HIDDEN_FIELD = "dispatchSecret";
 const HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42";
-const GEOMETRY_TOLERANCE_PX = 1;
+const GEOMETRY_TOLERANCE_PX = 0.5;
 const SHIPPED_DIALECTS = [
 	"icelandic-archive",
 	"clinical",

@@ -60,3 +60,169 @@ describe("surface compiler bounded totality", () => {
 		}
 	});
 });
+
+// KRA-765 F3: the corpus above only generates well-formed schemas and never
+// carries a hidden marker. Adversarial totality drives a coordinated schema+data
+// generator that injects the failure shapes an attacker actually reaches for —
+// hidden markers (inline, via $ref, and via a hint that shadows the $ref target),
+// malformed hints, cyclic $refs, and shuffled/duplicate/partial/ghost order arrays
+// — and proves the compiler still emits a grammar-valid Node whose bytes carry no
+// hidden sentinel. Sentinels sit ONLY where the compiler contractually prunes them:
+// as hidden properties of an object the compiler builds as a record. Minimization
+// removes hidden classes at other positions upstream, so the compiler is not
+// contracted to defend them and this generator does not plant sentinels there.
+
+interface AdversarialCase {
+	readonly root: JsonSchema;
+	readonly data: unknown;
+	readonly sentinels: readonly string[];
+}
+
+function adversarialCase(random: () => number): AdversarialCase {
+	const defs: Record<string, JsonSchema> = {};
+	const sentinels: string[] = [];
+	let counter = 0;
+	const nextId = (): number => {
+		counter += 1;
+		return counter;
+	};
+
+	function ensureCycleDef(): string {
+		const name = "Cycle";
+		if (!(name in defs)) {
+			defs[name] = {
+				type: "object",
+				"x-morphe": { order: ["leaf", "next"] },
+				properties: { leaf: { type: "string" }, next: { $ref: "#/$defs/Cycle" } },
+			};
+		}
+		return name;
+	}
+
+	function hiddenObjectSchema(): JsonSchema {
+		return {
+			type: "object",
+			"x-morphe": { hidden: true, order: ["s"] },
+			properties: { s: { type: "string" } },
+		};
+	}
+
+	function hiddenProperty(): { readonly schema: JsonSchema; readonly data: unknown } {
+		const sentinel = `MORPHE-ADVERSARIAL-SENTINEL-${nextId()}`;
+		sentinels.push(sentinel);
+		const data = { s: sentinel };
+		if (random() < 0.5) {
+			// Hidden via $ref, half the time behind a call-site hint that carries no
+			// `hidden` key — the shadowing attack that must NOT re-expose the class.
+			const name = `Hidden${nextId()}`;
+			defs[name] = hiddenObjectSchema();
+			const schema: JsonSchema =
+				random() < 0.5
+					? { $ref: `#/$defs/${name}`, "x-morphe": { label: "Card" } }
+					: { $ref: `#/$defs/${name}` };
+			return { schema, data };
+		}
+		return { schema: hiddenObjectSchema(), data };
+	}
+
+	function malformedLeaf(): { readonly schema: JsonSchema; readonly data: unknown } {
+		return {
+			schema: {
+				type: "string",
+				"x-morphe": { role: 123, format: "bogus", order: "not-an-array", weird: true },
+			},
+			data: `visible-${nextId()}`,
+		};
+	}
+
+	function cyclicProperty(): { readonly schema: JsonSchema; readonly data: unknown } {
+		const name = ensureCycleDef();
+		return {
+			schema: { $ref: `#/$defs/${name}` },
+			data: { leaf: `leaf-${nextId()}`, next: { leaf: `leaf-${nextId()}`, next: null } },
+		};
+	}
+
+	function scalarLeaf(): { readonly schema: JsonSchema; readonly data: unknown } {
+		return random() < 0.5
+			? { schema: { type: "string" }, data: `visible-${nextId()}` }
+			: { schema: { type: "integer" }, data: Math.floor(random() * 200) - 100 };
+	}
+
+	function property(depth: number): { readonly schema: JsonSchema; readonly data: unknown } {
+		const roll = random();
+		if (roll < 0.28) return hiddenProperty();
+		if (roll < 0.42) return malformedLeaf();
+		if (roll < 0.52) return cyclicProperty();
+		if (roll < 0.68 && depth < 3) return objectSchema(random, depth + 1);
+		return scalarLeaf();
+	}
+
+	function adversarialOrder(keys: readonly string[]): string[] {
+		const order = [...keys];
+		for (let index = order.length - 1; index > 0; index -= 1) {
+			const swap = Math.floor(random() * (index + 1));
+			const held = order[index] as string;
+			order[index] = order[swap] as string;
+			order[swap] = held;
+		}
+		if (order.length > 0 && random() < 0.5) order.push(order[0] as string);
+		if (random() < 0.4) order.push(`ghost-${nextId()}`);
+		if (order.length > 1 && random() < 0.3) order.pop();
+		return order;
+	}
+
+	function objectSchema(
+		rng: () => number,
+		depth: number,
+	): { readonly schema: JsonSchema; readonly data: unknown } {
+		const count = 1 + Math.floor(rng() * 3);
+		const properties: Record<string, JsonSchema> = {};
+		const data: Record<string, unknown> = {};
+		const keys: string[] = [];
+		for (let index = 0; index < count; index += 1) {
+			const key = `p${depth}_${index}`;
+			const built = property(depth);
+			properties[key] = built.schema;
+			data[key] = built.data;
+			keys.push(key);
+		}
+		return {
+			schema: { type: "object", "x-morphe": { order: adversarialOrder(keys) }, properties },
+			data,
+		};
+	}
+
+	const top = objectSchema(random, 0);
+	const root: JsonSchema =
+		Object.keys(defs).length > 0
+			? { ...(top.schema as Record<string, unknown>), $defs: defs }
+			: top.schema;
+	return { root, data: top.data, sentinels };
+}
+
+describe("surface compiler adversarial totality", () => {
+	it("never leaks a hidden sentinel and stays grammar-valid under adversarial input", () => {
+		const random = generator(0x5a17_c0de);
+		let plantedSentinels = 0;
+		for (let index = 0; index < 200; index += 1) {
+			const { root, data, sentinels } = adversarialCase(random);
+			plantedSentinels += sentinels.length;
+			const node = emitNode(buildSurface(root, data));
+
+			const validation = validateNodeDocument(node);
+			expect(validation.ok, `case ${index}: ${JSON.stringify({ root, data })}`).toBe(true);
+
+			const serialized = JSON.stringify(node);
+			for (const sentinel of sentinels) {
+				expect(
+					serialized.includes(sentinel),
+					`case ${index} leaked hidden sentinel ${sentinel}`,
+				).toBe(false);
+			}
+		}
+		// Guard against a generator regression that stops planting hidden markers,
+		// which would turn the leak assertion into theatre.
+		expect(plantedSentinels).toBeGreaterThan(0);
+	});
+});
