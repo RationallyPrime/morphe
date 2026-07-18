@@ -470,6 +470,41 @@ describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
 		}
 	});
 
+	it("family mode rejects a same-prefix near-miss family (the trailing ':' is load-bearing)", async () => {
+		// `taxis.roster` is the expected family; `taxis.rosterEVIL:` shares the prefix but is
+		// a DIFFERENT pane. Seed-proof that the family match requires the boundary colon —
+		// a bare `startsWith(family)` (no ':') would wrongly admit this validly-signed forgery.
+		const nearMiss = cloneArtifact();
+		nearMiss.surface_id = "taxis.rosterEVIL:party-50548990";
+		await resign(nearMiss);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(nearMiss),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+		}
+	});
+
+	it("family mode rejects a case-variant of the expected family (no case-insensitive compare)", async () => {
+		// `Taxis.Roster:` differs from `taxis.roster:` only in case; it must still hard-fail,
+		// locking out any future case-folding of the family compare on a validly-signed source.
+		const caseVariant = cloneArtifact();
+		caseVariant.surface_id = "Taxis.Roster:party-50548990";
+		await resign(caseVariant);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(caseVariant),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+		}
+	});
+
 	it("family mode rejects a valid-family artifact whose signature does not verify", async () => {
 		const tamperedSignature = cloneArtifact();
 		tamperedSignature.surface_id = PARAM_SCOPED;

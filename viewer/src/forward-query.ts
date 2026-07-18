@@ -25,6 +25,12 @@ export interface ForwardedRequest {
  * doing so changed the request. `derived` is false when nothing is forwarded, and
  * also when every forwarded param merely restates a value the declared path already
  * carries (the effective request is still the pinned instance).
+ *
+ * NOTE: `derived === false` (→ exact gate) is NOT a client-forced guarantee — any
+ * request can append a junk param and flip itself to derived/family. That is safe by
+ * design: the real boundary in family mode is family-membership + a valid signature
+ * over the surface_id, not the exact/family selector. The selector only decides how
+ * strict the identity comparison is; it never widens which artifacts can pass crypto.
  */
 export function forwardedRequest(path: string, forward: URLSearchParams): ForwardedRequest {
 	if ([...forward].length === 0) return { path, derived: false };
