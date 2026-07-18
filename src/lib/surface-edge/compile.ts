@@ -8,7 +8,7 @@ import { DEFAULT_EMIT_CONTEXT, type EmitContext, emitNode, SurfaceEmitLimitError
 import type { TrustedSourceSurface } from "./source.js";
 import type { CompilationResult, CompilerDiagnostic, SurfaceNode, TemporalPolicy } from "./spec.js";
 
-export const COMPILER_VERSION = "0.3.4";
+export const COMPILER_VERSION = "0.3.5";
 
 export class SurfaceCompilerInvariantError extends Error {}
 
@@ -120,6 +120,7 @@ export function compileSourceSurface(
 			treeSha256: sha256(validated.value),
 			diagnosticsSha256: sha256(diagnostics),
 			temporalPolicy: context.temporalPolicy,
+			surfaceIdGate: source.surfaceIdGate,
 		},
 	};
 }

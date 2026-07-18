@@ -20,6 +20,7 @@ import {
 	validateAuthenticatedSchemaData,
 	validateSourceEnvelope,
 } from "./schema.js";
+import { DEFAULT_SURFACE_ID_GATE, type SurfaceIdGateMode } from "./spec.js";
 
 declare const trustedSourceSurface: unique symbol;
 
@@ -29,6 +30,8 @@ export type TrustedSourceSurface = NormalizedSourceSurfaceArtifact & {
 	readonly data: JsonValue;
 	readonly diagnostics: readonly NormalizedDiagnostic[];
 	readonly sourceTestimonySha256: Sha256;
+	/** Which identity gate mode admitted this testimony; carried into the receipt. */
+	readonly surfaceIdGate: SurfaceIdGateMode;
 	readonly [trustedSourceSurface]: true;
 };
 
@@ -83,6 +86,18 @@ export type SourcePublicKeyring =
 export interface SourceAdmissionOptions {
 	readonly expectedIssuer: string;
 	readonly expectedSurfaceId: string;
+	/**
+	 * How to check the admitted `surface_id` against {@link expectedSurfaceId}.
+	 *
+	 * `exact` (default) demands verbatim equality — the pinned/unforwarded request.
+	 * `family` relaxes ONLY this check to a family-prefix match (the `<source>.<pane>`
+	 * token before the first `:`, followed by `:`) for a derived drill-through instance
+	 * whose forwarded params made the producer emit a param-scoped id. The caller
+	 * decides this from how it built the request, never from the artifact; every other
+	 * trust gate (issuer, seals, key, signature, freshness, schema, capability) stays
+	 * strict in both modes.
+	 */
+	readonly surfaceIdMatch?: SurfaceIdGateMode;
 	/** Public keys are pinned by (issuer, key_id), never learned from testimony. */
 	readonly publicKeys: SourcePublicKeyring;
 	readonly supportedCapabilities?: ReadonlySet<string>;
@@ -118,6 +133,32 @@ function publicKeyFor(
 ): string | undefined {
 	const issuerKeys = keyedValue(keys, issuer);
 	return issuerKeys === undefined ? undefined : keyedValue(issuerKeys, keyId);
+}
+
+/**
+ * The identity-gate reason, or null when `surfaceId` satisfies the requested mode.
+ *
+ * `exact` requires verbatim equality. `family` requires `surfaceId` to start with the
+ * expected id's family segment — the token before the first `:` — followed by `:`, so
+ * a param-scoped derived instance is admitted while a cross-family id (a different
+ * `<source>.<pane>` slot) still hard-fails. Only `surface_id` is relaxed here; the
+ * issuer check and every crypto/freshness/schema gate run unchanged downstream.
+ */
+function surfaceIdGateReason(
+	surfaceId: string,
+	expectedSurfaceId: string,
+	mode: SurfaceIdGateMode,
+): string | null {
+	if (mode === "exact") {
+		return surfaceId === expectedSurfaceId
+			? null
+			: "surface_id does not match the requested surface";
+	}
+	const colon = expectedSurfaceId.indexOf(":");
+	const family = colon === -1 ? expectedSurfaceId : expectedSurfaceId.slice(0, colon);
+	return surfaceId.startsWith(`${family}:`)
+		? null
+		: "surface_id is outside the requested surface family";
 }
 
 function canonicalTimestamp(value: string): Date | null {
@@ -192,10 +233,12 @@ function cloneAndFreeze<T>(value: T): T {
 function admittedSnapshot(
 	artifact: NormalizedSourceSurfaceArtifact,
 	testimonySha256: Sha256,
+	surfaceIdGate: SurfaceIdGateMode,
 ): TrustedSourceSurface {
 	return cloneAndFreeze({
 		...artifact,
 		sourceTestimonySha256: testimonySha256,
+		surfaceIdGate,
 	}) as TrustedSourceSurface;
 }
 
@@ -223,9 +266,13 @@ export async function admitSourceSurfaceJson(
 	if (artifact.issuer !== options.expectedIssuer) {
 		return failure("identity", "source issuer does not match the expected issuer");
 	}
-	if (artifact.surface_id !== options.expectedSurfaceId) {
-		return failure("identity", "surface_id does not match the requested surface");
-	}
+	const gateMode = options.surfaceIdMatch ?? DEFAULT_SURFACE_ID_GATE;
+	const surfaceIdReason = surfaceIdGateReason(
+		artifact.surface_id,
+		options.expectedSurfaceId,
+		gateMode,
+	);
+	if (surfaceIdReason !== null) return failure("identity", surfaceIdReason);
 
 	let evidence: Awaited<ReturnType<typeof computeSourceEvidence>>;
 	try {
@@ -277,7 +324,7 @@ export async function admitSourceSurfaceJson(
 
 	return {
 		ok: true,
-		value: admittedSnapshot(artifact, evidence.testimonySha256),
+		value: admittedSnapshot(artifact, evidence.testimonySha256, gateMode),
 	};
 }
 

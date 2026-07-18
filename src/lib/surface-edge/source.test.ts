@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { SourceSurfaceArtifactV1 } from "../artifacts/source-types.generated.js";
 import { canonicalJson, computeSourceEvidence, encodeBase64url, parseJcsJson } from "./attest.js";
+import { compileSourceSurface } from "./compile.js";
 import {
 	admitSourceSurfaceJson,
 	MAX_SOURCE_SURFACE_BYTES,
@@ -411,6 +412,147 @@ describe("admitSourceSurfaceJson", () => {
 		expect(admitted.ok).toBe(false);
 		if (!admitted.ok) {
 			expect(admitted.issue.reason.toLowerCase()).toContain("residual hidden");
+		}
+	});
+});
+
+// KRA-776 family-mode identity gate. The live defect: a drill-through link forwards a
+// filter (`?party_id=`), the kernel correctly emits a PARAM-SCOPED surface_id, and the
+// strict pinned equality gate then 502s every parameterized drill-through. Family mode
+// relaxes ONLY the surface_id check to a family-prefix match for a derived instance —
+// the family segment is the `<source>.<pane>` token before the first `:`. The vector's
+// expected id is `taxis.roster:westfjords:2026-W29`, so its family is `taxis.roster`.
+// Everything else (issuer, seals, key, signature, freshness, schema) stays fully strict.
+describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
+	const PARAM_SCOPED = "taxis.roster:party-50548990";
+	const CROSS_FAMILY = "taxis.horizon:party-50548990";
+
+	it("admits a correctly-signed same-family param-scoped artifact (the live drill-through)", async () => {
+		const scoped = cloneArtifact();
+		scoped.surface_id = PARAM_SCOPED;
+		await resign(scoped);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(scoped),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(true);
+		if (admitted.ok) {
+			expect(admitted.value.surface_id).toBe(PARAM_SCOPED);
+			expect(admitted.value.surfaceIdGate).toBe("family");
+		}
+	});
+
+	it("exact mode still 502s that same param-scoped id — the defect this fix removes", async () => {
+		const scoped = cloneArtifact();
+		scoped.surface_id = PARAM_SCOPED;
+		await resign(scoped);
+		const exact = await admitSourceSurfaceJson(JSON.stringify(scoped), options());
+		expect(exact.ok).toBe(false);
+		if (!exact.ok) {
+			expect(exact.issue.code).toBe("identity");
+			expect(exact.issue.reason).toBe("surface_id does not match the requested surface");
+		}
+	});
+
+	it("family mode rejects a cross-family surface_id even when validly signed", async () => {
+		// Default expected id family is `taxis.roster`; this artifact is a different pane.
+		const foreign = cloneArtifact();
+		foreign.surface_id = CROSS_FAMILY;
+		await resign(foreign);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(foreign),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+		}
+	});
+
+	it("family mode rejects a same-prefix near-miss family (the trailing ':' is load-bearing)", async () => {
+		// `taxis.roster` is the expected family; `taxis.rosterEVIL:` shares the prefix but is
+		// a DIFFERENT pane. Seed-proof that the family match requires the boundary colon —
+		// a bare `startsWith(family)` (no ':') would wrongly admit this validly-signed forgery.
+		const nearMiss = cloneArtifact();
+		nearMiss.surface_id = "taxis.rosterEVIL:party-50548990";
+		await resign(nearMiss);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(nearMiss),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+		}
+	});
+
+	it("family mode rejects a case-variant of the expected family (no case-insensitive compare)", async () => {
+		// `Taxis.Roster:` differs from `taxis.roster:` only in case; it must still hard-fail,
+		// locking out any future case-folding of the family compare on a validly-signed source.
+		const caseVariant = cloneArtifact();
+		caseVariant.surface_id = "Taxis.Roster:party-50548990";
+		await resign(caseVariant);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(caseVariant),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+		}
+	});
+
+	it("family mode rejects a valid-family artifact whose signature does not verify", async () => {
+		const tamperedSignature = cloneArtifact();
+		tamperedSignature.surface_id = PARAM_SCOPED;
+		await resign(tamperedSignature);
+		const signature = tamperedSignature.attestation.signature;
+		tamperedSignature.attestation.signature = `${signature.startsWith("A") ? "B" : "A"}${signature.slice(1)}`;
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(tamperedSignature),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) expect(admitted.issue.code).toBe("signature");
+	});
+
+	it("family mode rejects a valid-family artifact signed by an untrusted key", async () => {
+		const foreignSeed = "42".repeat(32);
+		const forged = cloneArtifact();
+		forged.surface_id = PARAM_SCOPED;
+		// Re-seal AND re-sign under a co-issuer seed while keeping the pinned issuer and
+		// key_id, so seals match but the trusted taxis key cannot verify the signature.
+		await resign(forged, foreignSeed);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(forged),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) expect(admitted.issue.code).toBe("signature");
+	});
+
+	it("records the gate mode on the receipt in both modes", async () => {
+		const exactAdmit = await admitSourceSurfaceJson(JSON.stringify(VECTOR.artifact), options());
+		expect(exactAdmit.ok).toBe(true);
+		if (exactAdmit.ok) {
+			expect(exactAdmit.value.surfaceIdGate).toBe("exact");
+			expect(compileSourceSurface(exactAdmit.value).receipt.surfaceIdGate).toBe("exact");
+		}
+
+		const scoped = cloneArtifact();
+		scoped.surface_id = PARAM_SCOPED;
+		await resign(scoped);
+		const familyAdmit = await admitSourceSurfaceJson(
+			JSON.stringify(scoped),
+			options({ surfaceIdMatch: "family" }),
+		);
+		expect(familyAdmit.ok).toBe(true);
+		if (familyAdmit.ok) {
+			expect(familyAdmit.value.surfaceIdGate).toBe("family");
+			expect(compileSourceSurface(familyAdmit.value).receipt.surfaceIdGate).toBe("family");
 		}
 	});
 });

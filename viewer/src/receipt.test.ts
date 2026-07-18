@@ -13,6 +13,7 @@ const compilation: CompilationReceipt = {
 	treeSha256: sha("3"),
 	diagnosticsSha256: sha("4"),
 	temporalPolicy: "minute",
+	surfaceIdGate: "exact",
 };
 
 describe("createDeliveryReceipt", () => {

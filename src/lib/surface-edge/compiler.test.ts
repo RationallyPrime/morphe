@@ -572,10 +572,12 @@ describe("surface-edge compiler adjudications", () => {
 			data: { name: "Ada" },
 			diagnostics: [],
 			sourceTestimonySha256: HASH,
+			surfaceIdGate: "exact",
 		} as unknown as TrustedSourceSurface;
 		const first = compileSourceSurface(source);
 		const second = compileSourceSurface(source);
 		expect(first).toEqual(second);
+		expect(first.receipt.surfaceIdGate).toBe("exact");
 		expect(first.receipt).not.toHaveProperty("dialectId");
 		expect(first.receipt).not.toHaveProperty("dialectPolicySha256");
 		expect(first.receipt.treeSha256).toMatch(/^sha256:[0-9a-f]{64}$/);

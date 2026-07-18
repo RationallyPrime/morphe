@@ -114,7 +114,7 @@ jobs:
           fail=0
           # /healthz reports the supported grammar_version (deploy-to-box asserts this).
           curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.2.0"' || fail=1
-          curl -s http://localhost:4174/healthz | grep -q '"edge_compiler_version":"0.3.4"' || fail=1
+          curl -s http://localhost:4174/healthz | grep -q '"edge_compiler_version":"0.3.5"' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"compiler_build_sha256":"sha256:' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"source_surface_wire_version":"1.0"' || fail=1
           # A real artifact SSRs (200 + the SSR'd copy, not just a 200 shell).

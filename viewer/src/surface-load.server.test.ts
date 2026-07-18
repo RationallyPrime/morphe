@@ -15,6 +15,7 @@ const compilationReceipt: CompilationReceipt = {
 	treeSha256: hash("3"),
 	diagnosticsSha256: hash("4"),
 	temporalPolicy: "minute",
+	surfaceIdGate: "exact",
 };
 
 function parsed(tree: Node, withReceipt = false) {

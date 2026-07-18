@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { parseKernelSurfaceResponse, parseSurfaceResponse } from "../../../../envelope.js";
-import { withForwardedQuery } from "../../../../forward-query.js";
+import { forwardedRequest } from "../../../../forward-query.js";
 import { rewriteKernelLinks } from "../../../../links.js";
 import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
@@ -78,6 +78,12 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const artifactId = `${source.id}:${entry.id}`;
 	const dialectHint = entry.dialectHint ?? source.dialectHint ?? "ledger";
+	// Build the kernel request once. `derived` is true when the viewer forwarded a
+	// filter beyond what the declared path already carries — a drill-through instance
+	// whose producer emits a param-scoped surface_id. That single bit chooses the
+	// source-v1 identity gate mode below; it is known here from how we built the URL,
+	// never inferred from the artifact.
+	const forwarded = forwardedRequest(entry.path, forwardedQuery);
 	if (entry.representation === "source-v1") {
 		const trust = source.sourceTrust;
 		if (trust === undefined) {
@@ -91,7 +97,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		};
 		const surface = await loadGatedSurface({
 			fetch,
-			url: `${source.baseUrl}${withForwardedQuery(entry.path, forwardedQuery)}`,
+			url: `${source.baseUrl}${forwarded.path}`,
 			artifactId,
 			bearer,
 			accept: SOURCE_SURFACE_V1_MEDIA_TYPE,
@@ -103,6 +109,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 					admission: {
 						expectedIssuer: trust.issuer,
 						expectedSurfaceId: entry.sourceSurfaceId,
+						surfaceIdMatch: forwarded.derived ? "family" : "exact",
 						publicKeys: trust.publicKeys,
 						freshness,
 					},
@@ -122,7 +129,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	}
 	const surface = await loadGatedSurface({
 		fetch,
-		url: `${source.baseUrl}${withForwardedQuery(entry.path, forwardedQuery)}`,
+		url: `${source.baseUrl}${forwarded.path}`,
 		artifactId,
 		bearer,
 		parse: (response) => parseKernelSurfaceResponse(response, { artifactId, dialectHint }),
