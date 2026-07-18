@@ -37,6 +37,21 @@ export type TemporalPolicy = "exact" | "minute" | "date" | "relative";
 
 /** The default policy: minute precision for every instant, with exact one toggle away. */
 export const DEFAULT_TEMPORAL_POLICY: TemporalPolicy = "minute";
+
+/**
+ * Which surface-identity gate mode admitted this testimony.
+ *
+ * `exact` — the effective upstream request equalled the configured/pinned path, so
+ * the admitted `surface_id` had to equal the expected id verbatim. `family` — the
+ * request was a derived drill-through instance (forwarded params beyond the
+ * configured path's own query), so the pinned identity check was relaxed to a
+ * family-prefix match on `surface_id` ALONE while every other trust check stayed
+ * strict. Recorded on the receipt for attestation honesty.
+ */
+export type SurfaceIdGateMode = "exact" | "family";
+
+/** The default gate mode: a pinned request demands verbatim identity. */
+export const DEFAULT_SURFACE_ID_GATE: SurfaceIdGateMode = "exact";
 export type TextAs = "display" | "heading" | "subheading" | "body" | "caption";
 export type Polarity = "positive" | "negative";
 export type ScalarValue = string | number | boolean | null;
@@ -91,6 +106,14 @@ export interface CompilationReceipt {
 	 * `relative` one (render-time-dependent, never to be persisted or attested).
 	 */
 	readonly temporalPolicy: TemporalPolicy;
+	/**
+	 * Which surface-identity gate mode admitted the testimony this tree was compiled
+	 * from. `exact` for a pinned request, `family` for a derived drill-through instance
+	 * whose `surface_id` matched only the expected id's family prefix (see
+	 * {@link SurfaceIdGateMode}). Attestation honesty: it records the relaxation that
+	 * was in effect, never that the concrete id happened to match verbatim.
+	 */
+	readonly surfaceIdGate: SurfaceIdGateMode;
 }
 
 export interface CompilationResult {

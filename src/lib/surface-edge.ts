@@ -45,4 +45,9 @@ export type {
 	CompilationResult,
 	CompilerDiagnostic,
 } from "./surface-edge/spec.js";
-export { DEFAULT_TEMPORAL_POLICY, type TemporalPolicy } from "./surface-edge/spec.js";
+export {
+	DEFAULT_SURFACE_ID_GATE,
+	DEFAULT_TEMPORAL_POLICY,
+	type SurfaceIdGateMode,
+	type TemporalPolicy,
+} from "./surface-edge/spec.js";
