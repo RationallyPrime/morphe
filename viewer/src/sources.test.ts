@@ -100,6 +100,23 @@ describe("parseSourcesConfig", () => {
 		expect(result.sources.has("default")).toBe(false);
 	});
 
+	it("parses a declared collection_root that names an existing surface", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({ taxis: { ...kernelSource, collection_root: "orgs" } }),
+			undefined,
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.sources.get("taxis")?.collectionRoot).toBe("orgs");
+	});
+
+	it("leaves collectionRoot undefined when the source does not declare one", () => {
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }), undefined);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.sources.get("taxis")?.collectionRoot).toBeUndefined();
+	});
+
 	it.each([
 		["invalid JSON", "{nope"],
 		["non-object root", JSON.stringify([kernelSource])],
@@ -154,6 +171,10 @@ describe("parseSourcesConfig", () => {
 					},
 				},
 			}),
+		],
+		[
+			"collection_root naming an undeclared surface",
+			JSON.stringify({ taxis: { ...kernelSource, collection_root: "ghost" } }),
 		],
 	])("rejects %s", (_label, raw) => {
 		expect(parseSourcesConfig(raw, undefined).ok).toBe(false);

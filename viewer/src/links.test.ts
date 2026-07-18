@@ -23,7 +23,7 @@ function link(href: string, label = "Open"): Node {
 }
 
 describe("rewriteKernelLinks", () => {
-	it("rewrites a declared kernel path (query ignored) to the viewer pane", () => {
+	it("rewrites a declared kernel path (matched by path) to the viewer pane", () => {
 		const tree: Node = {
 			kind: "stack",
 			role: "section",
@@ -34,6 +34,22 @@ describe("rewriteKernelLinks", () => {
 			kind: "stack",
 			role: "section",
 			children: [{ kind: "link", href: "/s/zygos/overview", label: "Open" }],
+		});
+	});
+
+	it("carries a filter query forward onto the rewritten viewer href", () => {
+		// The path matches `overview` (its declared query is ignored for MATCHING);
+		// the link's own query is preserved so a filtered drill actually filters.
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [link("/books/b-1/surfaces/overview?party_id=p-7", "Björn")],
+		};
+		const rewritten = rewriteKernelLinks(tree, ZYGOS) as unknown as { children: Node[] };
+		expect(rewritten.children[0]).toEqual({
+			kind: "link",
+			href: "/s/zygos/overview?party_id=p-7",
+			label: "Björn",
 		});
 	});
 

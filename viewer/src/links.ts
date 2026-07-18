@@ -5,7 +5,11 @@
  * inside the viewer those hrefs are meaningless. After the gate passes, every link in
  * a kernel tree is resolved against the source's DECLARED surface paths:
  *
- * - path matches a declared entry (query ignored) → rewritten to `/s/{source}/{id}`
+ * - path matches a declared entry → rewritten to `/s/{source}/{id}`, and the
+ *   original query is CARRIED FORWARD onto the viewer href so a filtered link
+ *   (`…/obligations?party_id=…`) survives the rewrite. The pane route forwards
+ *   that query onto its kernel fetch; kernel-side honoring of the filter is the
+ *   producer's concern.
  * - absolute http(s) href                         → left alone (a real external link)
  * - any other kernel-relative href                → DEGRADED to plain text
  *
@@ -39,6 +43,12 @@ function pathOnly(href: string): string {
 	return cut === -1 ? href : href.slice(0, cut);
 }
 
+/** The `?query#fragment` suffix of a kernel href, or "" when there is none. */
+function querySuffix(href: string): string {
+	const cut = href.search(/[?#]/);
+	return cut === -1 ? "" : href.slice(cut);
+}
+
 function isExternal(href: string): boolean {
 	return /^https?:\/\//.test(href);
 }
@@ -66,7 +76,7 @@ function rewriteLink(
 	const href = link.href as string;
 	if (isExternal(href)) return link;
 	const pane = routes.get(pathOnly(href));
-	if (pane !== undefined) return { ...link, href: pane };
+	if (pane !== undefined) return { ...link, href: `${pane}${querySuffix(href)}` };
 	const label = typeof link.label === "string" ? link.label : "";
 	return { kind: "text", value: label, as: "body" };
 }

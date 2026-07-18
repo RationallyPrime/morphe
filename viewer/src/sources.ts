@@ -71,6 +71,14 @@ export interface SourceConfig {
 	readonly sourceTrust?: SourceTrustConfig;
 	/** Optional Material Symbol name shown on the index card (declared, never inferred). */
 	readonly icon?: string;
+	/**
+	 * The surface id of this source's collection pane — the breadcrumb's middle
+	 * rung links here so a detail pane returns to its own collection ("one of N")
+	 * rather than the flat index. DECLARED, never inferred: an undeclared source
+	 * keeps the current back-to-index behavior, and a value that does not name a
+	 * declared surface is a configuration error (fail closed), never a guess.
+	 */
+	readonly collectionRoot?: string;
 	readonly surfaces: readonly SurfaceEntry[];
 }
 
@@ -226,6 +234,10 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	) {
 		return `source ${sourceId}: source-v1 surfaces require source_trust`;
 	}
+	const collectionRoot = stringField(raw, "collection_root") ?? undefined;
+	if (collectionRoot !== undefined && !seen.has(collectionRoot)) {
+		return `source ${sourceId}: collection_root "${collectionRoot}" is not a declared surface`;
+	}
 	return {
 		id: sourceId,
 		title,
@@ -235,6 +247,7 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 		dialectHint,
 		sourceTrust,
 		icon,
+		collectionRoot,
 		surfaces,
 	};
 }
