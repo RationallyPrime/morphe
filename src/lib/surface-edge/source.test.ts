@@ -9,6 +9,7 @@ import {
 	MAX_SOURCE_SURFACE_BYTES,
 	type SourceAdmissionOptions,
 } from "./source.js";
+import { isValidSurfaceId, surfaceFamily } from "./spec.js";
 
 interface GoldenVector {
 	readonly private_key_seed_hex: string;
@@ -470,12 +471,13 @@ describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
 		}
 	});
 
-	it("family mode rejects a same-prefix near-miss family (the trailing ':' is load-bearing)", async () => {
-		// `taxis.roster` is the expected family; `taxis.rosterEVIL:` shares the prefix but is
-		// a DIFFERENT pane. Seed-proof that the family match requires the boundary colon —
-		// a bare `startsWith(family)` (no ':') would wrongly admit this validly-signed forgery.
+	it("family mode rejects a same-prefix near-miss family (the family token compares whole)", async () => {
+		// `taxis.roster` is the expected family; `taxis.rosterx:` shares the prefix but is a
+		// DIFFERENT pane. Seed-proof that the family match compares the WHOLE grammar-parsed
+		// `<source>.<pane>` token — a bare `startsWith(family)` would wrongly admit this
+		// validly-signed forgery. (KRA-777 made the compare a parsed-family equality.)
 		const nearMiss = cloneArtifact();
-		nearMiss.surface_id = "taxis.rosterEVIL:party-50548990";
+		nearMiss.surface_id = "taxis.rosterx:party-50548990";
 		await resign(nearMiss);
 		const admitted = await admitSourceSurfaceJson(
 			JSON.stringify(nearMiss),
@@ -488,9 +490,11 @@ describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
 		}
 	});
 
-	it("family mode rejects a case-variant of the expected family (no case-insensitive compare)", async () => {
-		// `Taxis.Roster:` differs from `taxis.roster:` only in case; it must still hard-fail,
-		// locking out any future case-folding of the family compare on a validly-signed source.
+	it("rejects a case-variant of the expected family at the schema gate (no uppercase family)", async () => {
+		// `Taxis.Roster:` differs from `taxis.roster:` only in case. The KRA-777 grammar makes
+		// an uppercase family token UNREPRESENTABLE, so this validly-signed forgery is now
+		// refused at the envelope schema gate — before the family compare is even reached —
+		// which is strictly stronger than the earlier case-sensitive family compare.
 		const caseVariant = cloneArtifact();
 		caseVariant.surface_id = "Taxis.Roster:party-50548990";
 		await resign(caseVariant);
@@ -500,8 +504,8 @@ describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
 		);
 		expect(admitted.ok).toBe(false);
 		if (!admitted.ok) {
-			expect(admitted.issue.code).toBe("identity");
-			expect(admitted.issue.reason).toBe("surface_id is outside the requested surface family");
+			expect(admitted.issue.code).toBe("envelope");
+			expect(admitted.issue.reason).toContain("surface_id");
 		}
 	});
 
@@ -553,6 +557,69 @@ describe("admitSourceSurfaceJson family-mode identity gate (KRA-776)", () => {
 		if (familyAdmit.ok) {
 			expect(familyAdmit.value.surfaceIdGate).toBe("family");
 			expect(compileSourceSurface(familyAdmit.value).receipt.surfaceIdGate).toBe("family");
+		}
+	});
+});
+
+// KRA-777 surface_id family grammar. The loki6 finding: the family is derived as the token
+// before the FIRST `:`, assuming `<source>.<pane>:<instance…>`. A producer emitting
+// `<source>:<pane>:…` collapses the family to `<source>` — every pane of that source becomes
+// same-family, admitting cross-pane traffic under family mode. The grammar closes it at the
+// schema gate AND at the runtime parse rule (the SAME grammar, one constant per language).
+describe("surface_id family grammar (KRA-777)", () => {
+	const VALID = [
+		"krates.budget:krates-ehf",
+		"obolos.evidence:settlement-2026-07-17",
+		"taxis.roster:westfjords:2026-W29",
+		"taxis.roster:party-50548990",
+	];
+	const INVALID = [
+		"krates:budget:krates-ehf", // the collapse attack: no family dot before the first colon
+		"krates.budget", // missing the `:instance` segment
+		"kratesbudget:krates-ehf", // missing the family `.`
+		"krates.budget:", // empty instance segment
+		"Krates.Budget:krates-ehf", // uppercase family token
+		"krat:es.budget:krates-ehf", // a colon inside the family token
+		"",
+	];
+
+	it.each(VALID)("runtime parse accepts %s and derives its family", (id) => {
+		expect(isValidSurfaceId(id)).toBe(true);
+		expect(surfaceFamily(id)).toBe(id.slice(0, id.indexOf(":")));
+	});
+
+	it.each(INVALID)("runtime parse rejects %s (no collapsible family)", (id) => {
+		expect(isValidSurfaceId(id)).toBe(false);
+		expect(surfaceFamily(id)).toBeNull();
+	});
+
+	it("rejects the collapse attack at the schema gate", async () => {
+		const collapse = cloneArtifact();
+		collapse.surface_id = "taxis:roster:party-50548990";
+		await resign(collapse);
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(collapse),
+			options({ expectedSurfaceId: "taxis:roster:party-50548990", surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("envelope");
+			expect(admitted.issue.reason).toContain("surface_id");
+		}
+	});
+
+	it("rejects a malformed family-mode pin at the gate (defense in depth)", async () => {
+		// A validly-signed, grammar-conforming artifact against a misconfigured collapse pin:
+		// the artifact clears the schema gate, so the gate's own grammar assertion on the pin
+		// is what must fire — never a family compare keyed off the collapsed `<source>`.
+		const admitted = await admitSourceSurfaceJson(
+			JSON.stringify(VECTOR.artifact),
+			options({ expectedSurfaceId: "taxis:roster:westfjords", surfaceIdMatch: "family" }),
+		);
+		expect(admitted.ok).toBe(false);
+		if (!admitted.ok) {
+			expect(admitted.issue.code).toBe("identity");
+			expect(admitted.issue.reason).toContain("family grammar");
 		}
 	});
 });

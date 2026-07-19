@@ -18,6 +18,7 @@ from morphe_surface.authoring import morphe_hint
 from morphe_surface.source import (
     JSON_SCHEMA_2020_12,
     SOURCE_SIGNATURE_CONTEXT,
+    SURFACE_ID_PATTERN,
     Ed25519Attestation,
     HiddenDiagnosticError,
     JsonObject,
@@ -28,9 +29,11 @@ from morphe_surface.source import (
     SourceVerificationError,
     ViewModelContract,
     canonical_json_bytes,
+    is_valid_surface_id,
     minimize_source_surface,
     prepare_source_surface,
     source_signature_message,
+    surface_family,
     verify_source_surface,
 )
 
@@ -177,7 +180,7 @@ def _artifact() -> SourceSurfaceArtifactV1:
     return prepare_source_surface(
         _alias_payload(),
         issuer="test-kernel",
-        surface_id="org-1/window-2",
+        surface_id="org.window:2",
         source_revision="rev-3",
         produced_at=datetime(2026, 7, 17, 12, 34, 56, tzinfo=UTC),
         valid_until=datetime(2026, 7, 17, 12, 39, 56, tzinfo=UTC),
@@ -567,7 +570,7 @@ def test_prepare_rejects_a_model_mutated_outside_its_serialization_schema() -> N
         prepare_source_surface(
             payload,
             issuer="test-kernel",
-            surface_id="mutable/1",
+            surface_id="mutable.pane:1",
             source_revision="rev-1",
             produced_at=datetime(2026, 7, 17, 12, 34, 56, tzinfo=UTC),
             view_model=_view_model(),
@@ -584,7 +587,7 @@ def test_sign_and_offline_verify_use_a_deterministic_domain_separated_attestatio
         artifact,
         public_keys={(artifact.issuer, artifact.attestation.key_id): key.public_key()},
         expected_issuer="test-kernel",
-        expected_surface_id="org-1/window-2",
+        expected_surface_id="org.window:2",
     )
 
     assert admitted is not artifact
@@ -642,7 +645,7 @@ def test_verification_rejects_schema_content_testimony_and_signature_tampering()
                 tampered,
                 public_keys=public_keys,
                 expected_issuer="test-kernel",
-                expected_surface_id="org-1/window-2",
+                expected_surface_id="org.window:2",
             )
 
 
@@ -657,21 +660,92 @@ def test_verification_rejects_untrusted_or_mismatched_identity() -> None:
             artifact,
             public_keys={},
             expected_issuer="test-kernel",
-            expected_surface_id="org-1/window-2",
+            expected_surface_id="org.window:2",
         )
     with pytest.raises(SourceVerificationError, match="issuer does not match"):
         verify_source_surface(
             artifact,
             public_keys=trusted,
             expected_issuer="other-kernel",
-            expected_surface_id="org-1/window-2",
+            expected_surface_id="org.window:2",
         )
     with pytest.raises(SourceVerificationError, match="surface_id does not match"):
         verify_source_surface(
             artifact,
             public_keys=trusted,
             expected_issuer="test-kernel",
-            expected_surface_id="other-surface",
+            expected_surface_id="other.surface:1",
+        )
+
+
+# --- surface_id family grammar (KRA-777) ---------------------------------------------
+# The loki6 finding: the admission gate derives the surface family as the token before the
+# FIRST `:`, assuming `<source>.<pane>:<instance…>`. A producer emitting
+# `<source>:<pane>:…` collapses the family to `<source>`, so every pane of that source is
+# same-family. The grammar closes it in three enforcing layers; these lock all three.
+
+# The six live signed kernel vectors plus the drill-through instance shapes real ids use.
+_VALID_SURFACE_IDS = (
+    "krates.budget:krates-ehf",
+    "krates.vendor:krates-ehf",
+    "krates.profile:krates-ehf",
+    "krates.trail:krates-ehf",
+    "obolos.evidence:settlement-2026-07-17",
+    "taxis.roster:westfjords:2026-W29",
+    "taxis.roster:party-50548990",
+)
+
+_INVALID_SURFACE_IDS = (
+    "krates:budget:krates-ehf",  # the collapse attack: `<source>:<pane>:…`, no family dot
+    "krates.budget",  # missing the `:instance` segment
+    "kratesbudget:krates-ehf",  # missing the family `.`
+    "krates.budget:",  # empty instance segment
+    ".budget:krates-ehf",  # empty source
+    "krates.:krates-ehf",  # empty pane
+    "Krates.Budget:krates-ehf",  # uppercase family token
+    "krat:es.budget:krates-ehf",  # a colon inside the family token
+    "",  # empty
+)
+
+
+@pytest.mark.parametrize("surface_id", _VALID_SURFACE_IDS)
+def test_grammar_accepts_live_kernel_and_drill_through_ids(surface_id: str) -> None:
+    assert is_valid_surface_id(surface_id)
+    family = surface_id.split(":", 1)[0]
+    assert surface_family(surface_id) == family
+
+
+@pytest.mark.parametrize("surface_id", _INVALID_SURFACE_IDS)
+def test_grammar_rejects_malformed_ids(surface_id: str) -> None:
+    # Rejected at the runtime assertion (the parser)...
+    assert not is_valid_surface_id(surface_id)
+    assert surface_family(surface_id) is None
+
+
+@pytest.mark.parametrize("surface_id", _INVALID_SURFACE_IDS)
+def test_schema_pattern_rejects_malformed_surface_id(surface_id: str) -> None:
+    # ...and at the schema layer: the model pattern refuses to admit the wire document.
+    document = _artifact().model_dump(mode="json", by_alias=True, exclude_none=False)
+    document["surface_id"] = surface_id
+    with pytest.raises(ValidationError):
+        SourceSurfaceArtifactV1.model_validate(document)
+
+
+def test_model_pattern_is_the_one_published_grammar() -> None:
+    schema = SourceSurfaceArtifactV1.model_json_schema()
+    assert schema["properties"]["surface_id"]["pattern"] == SURFACE_ID_PATTERN
+
+
+def test_verify_rejects_a_collapse_attack_pin() -> None:
+    # A misconfigured `<source>:<pane>:…` pin must never reach the family compare.
+    artifact = _artifact()
+    trusted = {(artifact.issuer, artifact.attestation.key_id): _private_key().public_key()}
+    with pytest.raises(SourceVerificationError, match="family grammar"):
+        verify_source_surface(
+            artifact,
+            public_keys=trusted,
+            expected_issuer="test-kernel",
+            expected_surface_id="org:window:2",
         )
 
 
@@ -681,7 +755,7 @@ def test_verified_snapshot_is_recursively_immutable() -> None:
         artifact,
         public_keys={(artifact.issuer, artifact.attestation.key_id): _private_key().public_key()},
         expected_issuer="test-kernel",
-        expected_surface_id="org-1/window-2",
+        expected_surface_id="org.window:2",
     )
     data = _object(admitted.data)
     schema = _object(admitted.schema_)
@@ -841,7 +915,7 @@ def test_container_hidden_payload_round_trips_signed_without_sentinel() -> None:
     artifact = prepare_source_surface(
         model,
         issuer="test-kernel",
-        surface_id="test-surface",
+        surface_id="test.surface:1",
         source_revision="r1",
         produced_at=datetime(2026, 7, 17, 12, 30, tzinfo=UTC),
         view_model=_view_model(),
@@ -854,7 +928,7 @@ def test_container_hidden_payload_round_trips_signed_without_sentinel() -> None:
         artifact,
         public_keys={("test-kernel", "k1"): _private_key().public_key()},
         expected_issuer="test-kernel",
-        expected_surface_id="test-surface",
+        expected_surface_id="test.surface:1",
     )
     assert verified.seals == artifact.seals
 
@@ -868,7 +942,7 @@ def test_expired_artifact_verifies_by_default_and_fails_with_clock() -> None:
     artifact = prepare_source_surface(
         model,
         issuer="test-kernel",
-        surface_id="test-surface",
+        surface_id="test.surface:1",
         source_revision="r1",
         produced_at=produced,
         valid_until=produced + timedelta(hours=1),
@@ -883,7 +957,7 @@ def test_expired_artifact_verifies_by_default_and_fails_with_clock() -> None:
         artifact,
         public_keys=keys,
         expected_issuer="test-kernel",
-        expected_surface_id="test-surface",
+        expected_surface_id="test.surface:1",
     )
     # Opt-in clock: the same artifact is rejected once valid_until has passed.
     with pytest.raises(SourceVerificationError, match="expired"):
@@ -891,14 +965,14 @@ def test_expired_artifact_verifies_by_default_and_fails_with_clock() -> None:
             artifact,
             public_keys=keys,
             expected_issuer="test-kernel",
-            expected_surface_id="test-surface",
+            expected_surface_id="test.surface:1",
             now=produced + timedelta(hours=2),
         )
     verify_source_surface(
         artifact,
         public_keys=keys,
         expected_issuer="test-kernel",
-        expected_surface_id="test-surface",
+        expected_surface_id="test.surface:1",
         now=produced + timedelta(minutes=30),
     )
 

@@ -123,6 +123,31 @@ describe("parseSourcesConfig", () => {
 		});
 	});
 
+	it("rejects a pinned surface_id that does not parse under the family grammar (KRA-777)", () => {
+		// A misconfigured `<source>:<pane>:…` pin would collapse the admission family to
+		// `<source>` at request time; the boot check fails config load instead.
+		const result = parseSourcesConfig(
+			JSON.stringify({
+				taxis: {
+					...kernelSource,
+					surfaces: [
+						{
+							id: "orgs",
+							path: "/surfaces/orgs",
+							representation: "source-v1",
+							surface_id: "taxis:orgs:westfjords",
+						},
+					],
+				},
+			}),
+		);
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.reason).toContain("surface_id");
+			expect(result.reason).toContain("<source>.<pane>");
+		}
+	});
+
 	it("rejects non-empty surfaces without source_trust", () => {
 		const result = parseSourcesConfig(
 			JSON.stringify({ taxis: { ...kernelSource, source_trust: undefined } }),
