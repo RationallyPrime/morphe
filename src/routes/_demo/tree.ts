@@ -257,6 +257,51 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted Breakdown — labeled proportion rows. Each row is a label +
+		// progress + value cluster the presenter builds; the rows ride the `rows` slot.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "Breakdown",
+			args: { title: { kind: "text", value: "Allocation", as: "heading" } },
+			slots: {
+				rows: [
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Research", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Research", value: 0.2857142857142857 },
+							{ kind: "number", value: 100_000, format: "currency", currency: "ISK" },
+						],
+					},
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Operations", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Operations", value: 0.5714285714285714 },
+							{ kind: "number", value: 200_000, format: "currency", currency: "ISK" },
+						],
+					},
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Reserve", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Reserve", value: 0.14285714285714285 },
+							{ kind: "number", value: 50_000, format: "currency", currency: "ISK" },
+						],
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",

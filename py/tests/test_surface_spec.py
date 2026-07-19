@@ -51,9 +51,7 @@ def test_parse_hint_degrades_on_invalid_values() -> None:
 
 
 def test_parse_hint_does_not_coerce_known_value_types() -> None:
-    assert parse_hint({"x-morphe": {"strategy": "status", "heading": "false"}}) == parse_hint(
-        {}
-    )
+    assert parse_hint({"x-morphe": {"strategy": "status", "heading": "false"}}) == parse_hint({})
     assert parse_hint({"x-morphe": {"strategy": "status", "collapse": 1}}) == parse_hint({})
 
 

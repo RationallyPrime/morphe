@@ -218,11 +218,47 @@ STAT_BAND = CompoundDefinition.model_validate(
     }
 )
 
+BREAKDOWN = CompoundDefinition.model_validate(
+    {
+        "name": "Breakdown",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "node",
+                    # Optional lede. The empty-text default renders display:none, so a
+                    # call site that omits the title leaves no stray node behind.
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional heading for the proportion breakdown.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "children": [
+                {"kind": "param-ref", "param": "title"},
+                # The proportion rows the call site builds — each a label + progress +
+                # value cluster — ride this slot; the factory splices them inline.
+                {
+                    "kind": "stack",
+                    "role": "list",
+                    "children": [{"kind": "slot", "name": "rows", "fallback": []}],
+                },
+            ],
+        },
+    }
+)
+
 PROMOTED_COMPOUNDS = MappingProxyType(
     {
         SIGNAL_CARD.name: SIGNAL_CARD,
         ENTITY_HEADER.name: ENTITY_HEADER,
         STAT_BAND.name: STAT_BAND,
+        BREAKDOWN.name: BREAKDOWN,
     }
 )
 
@@ -337,6 +373,7 @@ validate_catalog()
 
 
 __all__ = [
+    "BREAKDOWN",
     "ENTITY_HEADER",
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",

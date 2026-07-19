@@ -192,4 +192,45 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "Breakdown",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				title: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional heading for the proportion breakdown.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "stack",
+					role: "list",
+					children: [
+						{
+							kind: "slot",
+							name: "rows",
+							fallback: [],
+						},
+					],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];

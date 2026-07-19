@@ -91,7 +91,12 @@ def test_source_conformance_manifest_rebuilds_oracles_and_pins_trust() -> None:
     assert manifest["manifest_version"] == "1.0"
     cases = manifest["cases"]
     assert isinstance(cases, list)
-    assert [case["id"] for case in cases] == ["taxis-roster", "obolos-evidence", "krates-vendor"]
+    assert [case["id"] for case in cases] == [
+        "taxis-roster",
+        "obolos-evidence",
+        "krates-vendor",
+        "krates-budget",
+    ]
 
     for case in cases:
         paths = case["paths"]

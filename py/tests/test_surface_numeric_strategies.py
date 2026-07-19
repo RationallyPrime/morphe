@@ -397,11 +397,14 @@ def test_morphe_hint_is_strict_at_authoring_time() -> None:
     assert morphe_hint(temporal="date-time-minute") == {
         "x-morphe": {"temporal": "date-time-minute"}
     }
-    assert KpiCell(
-        label="Newest event",
-        value="2026-07-17T15:40:14Z",
-        temporal="date-time-minute",
-    ).temporal == "date-time-minute"
+    assert (
+        KpiCell(
+            label="Newest event",
+            value="2026-07-17T15:40:14Z",
+            temporal="date-time-minute",
+        ).temporal
+        == "date-time-minute"
+    )
     with pytest.raises(ValueError, match="strategy"):
         morphe_hint(strategy="nubmer")
     with pytest.raises(ValueError, match="temporal"):

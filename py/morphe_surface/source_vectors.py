@@ -51,6 +51,9 @@ _OBOLOS_NODE_PATH = "fixtures/source-surface/obolos-evidence.node.json"
 _KRATES_SOURCE_PATH = "fixtures/source-surface/krates-vendor.source.json"
 _KRATES_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-vendor.surface-spec.json"
 _KRATES_NODE_PATH = "fixtures/source-surface/krates-vendor.node.json"
+_BUDGET_SOURCE_PATH = "fixtures/source-surface/krates-budget.source.json"
+_BUDGET_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-budget.surface-spec.json"
+_BUDGET_NODE_PATH = "fixtures/source-surface/krates-budget.node.json"
 SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
 
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
@@ -65,6 +68,9 @@ SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _KRATES_SOURCE_PATH,
     _KRATES_SURFACE_SPEC_PATH,
     _KRATES_NODE_PATH,
+    _BUDGET_SOURCE_PATH,
+    _BUDGET_SURFACE_SPEC_PATH,
+    _BUDGET_NODE_PATH,
     SOURCE_CONFORMANCE_MANIFEST_PATH,
 )
 
@@ -81,6 +87,11 @@ _OBOLOS_HIDDEN_FIELD = "rawBankAccount"
 _OBOLOS_HIDDEN_SENTINEL = "MORPHE-HIDDEN-OBOLOS-91A8DD"
 _KRATES_HIDDEN_FIELD = "internalRating"
 _KRATES_HIDDEN_SENTINEL = "MORPHE-HIDDEN-KRATES-3D91C4"
+# RFC 8032 §7.1 TEST 1024 seed — public test material, never a production key.
+_BUDGET_SEED_HEX = "f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc0ee5"
+_BUDGET_KEY_ID = "krates-fixture-2026-01"
+_BUDGET_HIDDEN_FIELD = "internalMemo"
+_BUDGET_HIDDEN_SENTINEL = "MORPHE-HIDDEN-BUDGET-5B7E20"
 
 
 class _FixtureModel(BaseModel):
@@ -254,6 +265,44 @@ class _VendorDetail(_FixtureModel):
     summary: str = Field(title="Summary")
 
 
+class _BudgetAllocation(_FixtureModel):
+    """An object of currency numbers, hint-selected to lower to a promoted Breakdown.
+
+    The three positive figures sum to 350,000 ISK, so their proportion rows carry the
+    non-trivial repeating IEEE-754 fractions 2/7, 4/7, 1/7 — the parity vector that
+    pins byte-identical double division across both compilers. A hidden memo must
+    never reach the compiled tree.
+    """
+
+    research: int = Field(
+        alias="researchIsk",
+        title="Research",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    operations: int = Field(
+        alias="operationsIsk",
+        title="Operations",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    reserve: int = Field(
+        alias="reserveIsk",
+        title="Reserve",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    internal_memo: str = Field(
+        alias=_BUDGET_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _BudgetDetail(_FixtureModel):
+    allocation: _BudgetAllocation = Field(
+        title="Allocation",
+        json_schema_extra=morphe_hint(strategy="breakdown"),
+    )
+    summary: str = Field(title="Summary")
+
+
 type _Fixture = tuple[SourceSurfaceArtifactV1, Ed25519PrivateKey, str]
 
 
@@ -262,13 +311,16 @@ def source_vector_documents() -> dict[str, str]:
     taxis = _taxis_fixture()
     obolos = _obolos_fixture()
     krates = _krates_fixture()
+    budget = _budget_fixture()
     taxis_spec, taxis_node = source_compiler_oracles(taxis[0])
     obolos_spec, obolos_node = source_compiler_oracles(obolos[0])
     krates_spec, krates_node = source_compiler_oracles(krates[0])
+    budget_spec, budget_node = source_compiler_oracles(budget[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(krates[0], _KRATES_HIDDEN_FIELD, _KRATES_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(budget[0], _BUDGET_HIDDEN_FIELD, _BUDGET_HIDDEN_SENTINEL)
 
     documents = {
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
@@ -282,8 +334,11 @@ def source_vector_documents() -> dict[str, str]:
         _KRATES_SOURCE_PATH: _json_document(_artifact_document(krates[0])),
         _KRATES_SURFACE_SPEC_PATH: _json_document(krates_spec),
         _KRATES_NODE_PATH: _json_document(krates_node),
+        _BUDGET_SOURCE_PATH: _json_document(_artifact_document(budget[0])),
+        _BUDGET_SURFACE_SPEC_PATH: _json_document(budget_spec),
+        _BUDGET_NODE_PATH: _json_document(budget_node),
         SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(
-            _conformance_manifest(taxis, obolos, krates)
+            _conformance_manifest(taxis, obolos, krates, budget)
         ),
     }
     if tuple(documents) != SOURCE_VECTOR_PATHS:
@@ -486,6 +541,46 @@ def _krates_fixture() -> _Fixture:
     )
 
 
+def _budget_fixture() -> _Fixture:
+    model = _BudgetDetail(
+        allocation=_BudgetAllocation(
+            researchIsk=100_000,
+            operationsIsk=200_000,
+            reserveIsk=50_000,
+            internalMemo=_BUDGET_HIDDEN_SENTINEL,
+        ),
+        summary="One budget detail pane; the allocation lowers to a promoted Breakdown.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="BUDGET_ALLOCATION_SOURCE",
+            severity="info",
+            path="$.allocation",
+            message="Allocation reflects the signed planning window.",
+        ),
+        Diagnostic(
+            code="BUDGET_RESERVE_LOW",
+            severity="warning",
+            path="$.allocation.reserveIsk",
+            message="Reserve is below the target proportion.",
+            repair_hint="Rebalance before the next settlement run.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_BUDGET_SEED_HEX,
+        key_id=_BUDGET_KEY_ID,
+        issuer="krates",
+        surface_id="krates.budget:krates-ehf",
+        source_revision="krates-budget-fixture-rev-0001",
+        view_model_id="krates.budget",
+        produced_at=datetime(2026, 7, 17, 12, 15, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
 def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's testimony
     model: BaseModel,
     *,
@@ -564,6 +659,7 @@ def _conformance_manifest(
     taxis: _Fixture,
     obolos: _Fixture,
     krates: _Fixture,
+    budget: _Fixture,
 ) -> dict[str, object]:
     """Index the shared Python/TypeScript compiler corpus and its trust bindings."""
     return {
@@ -601,6 +697,17 @@ def _conformance_manifest(
                 },
                 hidden_field=_KRATES_HIDDEN_FIELD,
                 hidden_sentinel=_KRATES_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-budget",
+                budget,
+                paths={
+                    "source": _BUDGET_SOURCE_PATH,
+                    "surface_spec": _BUDGET_SURFACE_SPEC_PATH,
+                    "node": _BUDGET_NODE_PATH,
+                },
+                hidden_field=_BUDGET_HIDDEN_FIELD,
+                hidden_sentinel=_BUDGET_HIDDEN_SENTINEL,
             ),
         ],
     }

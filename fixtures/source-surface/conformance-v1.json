@@ -56,6 +56,25 @@
         "source": "fixtures/source-surface/krates-vendor.source.json",
         "surface_spec": "fixtures/source-surface/krates-vendor.surface-spec.json"
       }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "krates",
+        "key_id": "krates-fixture-2026-01",
+        "public_key_raw_hex": "278117fc144c72340f67d0f2316e8386ceffbf2b2428c9c51fef7c597f1d426e",
+        "surface_id": "krates.budget:krates-ehf"
+      },
+      "hidden": {
+        "field": "internalMemo",
+        "sentinel": "MORPHE-HIDDEN-BUDGET-5B7E20"
+      },
+      "id": "krates-budget",
+      "paths": {
+        "node": "fixtures/source-surface/krates-budget.node.json",
+        "source": "fixtures/source-surface/krates-budget.source.json",
+        "surface_spec": "fixtures/source-surface/krates-budget.surface-spec.json"
+      }
     }
   ],
   "manifest_version": "1.0"

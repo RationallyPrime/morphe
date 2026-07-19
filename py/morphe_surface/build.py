@@ -16,6 +16,8 @@ from .resolve import resolve_strategy
 from .spec import NON_JCS_SCALAR, SurfaceNode, scalar_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from morphe_contracts import IntentRef
 
     from .hints import NumberFormat
@@ -114,20 +116,16 @@ def build_surface(
 
 def _build(schema: dict[str, Any], data: object, ctx: _Ctx) -> SurfaceNode:
     plan = _plan(schema, ctx)
-    if plan.strategy == "entity-header":
-        # Object-shaped, hint-selected only. Same terminating guard as a record: a
-        # re-entered id or over-depth entity-header degrades to a link (D9).
+    # entity-header/breakdown are hint-selected containers (object- or array-shaped)
+    # that share the record's terminating guard: a re-entered id or over-depth node
+    # degrades to a link (D9). record/collapsed-section carry the same guard.
+    builder = _HINT_SELECTED_CONTAINERS.get(plan.strategy)
+    if builder is not None or plan.strategy in _RECORD:
         if ctx.depth >= MAX_DEPTH or (plan.sid is not None and plan.sid in ctx.seen):
             return SurfaceNode(
                 path=ctx.path, label=plan.label, strategy="linked-ref", diagnostics=plan.diags
             )
-        return _entity_header(plan, data, ctx)
-    if plan.strategy in _RECORD:
-        if ctx.depth >= MAX_DEPTH or (plan.sid is not None and plan.sid in ctx.seen):
-            return SurfaceNode(
-                path=ctx.path, label=plan.label, strategy="linked-ref", diagnostics=plan.diags
-            )
-        return _record(plan, data, ctx)
+        return builder(plan, data, ctx) if builder is not None else _record(plan, data, ctx)
     if plan.strategy in _COLLECTION:
         return _collection(plan, data, ctx)
     return _leaf(plan, data, ctx)
@@ -215,6 +213,46 @@ def _entity_header(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         children=children,
         diagnostics=plan.diags,
     )
+
+
+def _breakdown(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    # Labeled proportion rows. Build the container's children plainly (object
+    # properties or array items); emit reads each child's numeric value, computes
+    # the fraction, and composes one Breakdown compound. Classification lives in
+    # emit so it stays identical across both compilers.
+    if schema_type(plan.resolved) == "array":
+        items_schema = plan.resolved.get("items")
+        items_schema = items_schema if isinstance(items_schema, dict) else {}
+        rows = data if isinstance(data, list) else []
+        children = tuple(
+            _build(items_schema, row, ctx.item(i, plan.label)) for i, row in enumerate(rows)
+        )
+    else:
+        props = plan.resolved.get("properties", {})
+        prop_items = _property_items(props, plan.hint.order)
+        pairs = tuple(
+            (str(key), cast("dict[str, Any]", sub) if isinstance(sub, dict) else {})
+            for key, sub in prop_items
+            if not _hidden(sub, ctx.root)
+        )
+        children = tuple(
+            _build(sub, _get(data, key), ctx.child(key, schema_id=plan.sid)) for key, sub in pairs
+        )
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="breakdown",
+        heading=plan.hint.heading,
+        children=children,
+        diagnostics=plan.diags,
+    )
+
+
+# Hint-selected containers that share the record's terminating guard (see _build).
+_HINT_SELECTED_CONTAINERS: dict[str, Callable[[_Plan, object, _Ctx], SurfaceNode]] = {
+    "entity-header": _entity_header,
+    "breakdown": _breakdown,
+}
 
 
 def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:

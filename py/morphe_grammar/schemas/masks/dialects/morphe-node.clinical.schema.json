@@ -202,9 +202,63 @@
         },
         {
           "$ref": "#/$defs/CompoundRef_StatBand"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_Breakdown"
         }
       ],
       "title": "clinical CompoundRef"
+    },
+    "CompoundRef_Breakdown": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional heading for the proportion breakdown."
+            }
+          },
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "Breakdown",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "Breakdown",
+      "type": "object"
     },
     "CompoundRef_EntityHeader": {
       "additionalProperties": false,
@@ -2021,7 +2075,8 @@
     "compounds": [
       "SignalCard",
       "EntityHeader",
-      "StatBand"
+      "StatBand",
+      "Breakdown"
     ],
     "mode": "allowlist"
   },

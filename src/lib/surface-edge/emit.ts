@@ -36,6 +36,7 @@ const CONTAINER_STRATEGIES = new Set([
 	"card-stack",
 	"kpi-row",
 	"entity-header",
+	"breakdown",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
 
@@ -140,6 +141,7 @@ function emit(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.strategy === "table") return table(spec, ctx);
 	if (spec.strategy === "kpi-row") return kpiRow(spec, ctx);
 	if (spec.strategy === "entity-header") return entityHeader(spec, ctx);
+	if (spec.strategy === "breakdown") return breakdown(spec, ctx);
 	if (spec.strategy === "card-stack") {
 		const built = spec.items.map((item) => field(item, ctx));
 		return section(spec, built.length > 0 ? built : [emptyCollection(spec)]);
@@ -369,6 +371,66 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 		name: "EntityHeader",
 		args,
 		slots: { signal, meta, provenance },
+	} satisfies CompoundRef;
+}
+
+function breakdownNumeric(child: SurfaceNode): number | null {
+	// A row is numeric iff its built value is a real number (never a bool). A
+	// non-numeric child keeps its value but degrades its progress to indeterminate.
+	return typeof child.value === "number" ? child.value : null;
+}
+
+function breakdownRow(
+	child: SurfaceNode,
+	value: number | null,
+	positiveSum: number,
+	ctx: EmitContext,
+): Node[] {
+	// One proportion row: label + progress + value cluster (D8 keeps child alerts).
+	const label: Text = { kind: "text", value: child.label, as: "caption", intent: "neutral" };
+	const progressNode: Node = {
+		kind: "progress",
+		label: normalizeVisibleLabelText(child.label, "Proportion"),
+		// IEEE-754 double division — identical in both compilers; clamped like the
+		// `progress` strategy so a negative share degrades to an empty bar, not a lie.
+		...(value !== null && positiveSum > 0
+			? { value: Math.min(1, Math.max(0, value / positiveSum)) }
+			: {}),
+	};
+	// A numeric child leads with a number node; a non-numeric one shows its natural
+	// leaf (a NumberNode cannot hold a non-numeric value), with progress indeterminate.
+	const valueNode = value !== null ? numberNode(child) : leaf(child, ctx);
+	const cluster: Node = {
+		kind: "cluster",
+		role: "inline",
+		align: "baseline",
+		children: [label, progressNode, valueNode],
+	};
+	const alerts = child.strategy === "diagnostic-node" ? [] : child.diagnostics.map(alert);
+	return [cluster, ...alerts];
+}
+
+function breakdown(spec: SurfaceNode, ctx: EmitContext): Node {
+	const numbers = spec.children.map(breakdownNumeric);
+	let positiveSum = 0;
+	for (const n of numbers) {
+		if (n !== null && n > 0) positiveSum += n;
+	}
+	const rows: Node[] = [];
+	spec.children.forEach((child, index) => {
+		rows.push(...breakdownRow(child, numbers[index] ?? null, positiveSum, ctx));
+	});
+	const args: Record<string, Node> = {};
+	if (spec.heading) {
+		args.title = { kind: "text", value: spec.label, as: "heading" };
+	}
+	// Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
+	const headAlerts = spec.diagnostics.map(alert);
+	return {
+		kind: "compound",
+		name: "Breakdown",
+		args,
+		slots: { rows: [...headAlerts, ...rows] },
 	} satisfies CompoundRef;
 }
 

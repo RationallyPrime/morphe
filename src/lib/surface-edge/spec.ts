@@ -15,7 +15,8 @@ export type Strategy =
 	| "status"
 	| "progress"
 	| "kpi-row"
-	| "entity-header";
+	| "entity-header"
+	| "breakdown";
 
 export type NumberFormat = "plain" | "integer" | "currency" | "percent" | "compact";
 /**

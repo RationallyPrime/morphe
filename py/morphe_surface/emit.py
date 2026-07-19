@@ -23,6 +23,7 @@ _CONTAINER = {
     "card-stack",
     "kpi-row",
     "entity-header",
+    "breakdown",
 }
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
 
@@ -266,6 +267,58 @@ def _entity_header(spec: SurfaceNode) -> Node:
     }
 
 
+def _breakdown_numeric(child: SurfaceNode) -> float | None:
+    # A row is numeric iff its built value is a real number (never a bool). A
+    # non-numeric child keeps its value but degrades its progress to indeterminate.
+    value = child.value
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return float(value)
+
+
+def _breakdown_row(child: SurfaceNode, number: float | None, positive_sum: float) -> list[Node]:
+    # One proportion row: label + progress + value cluster (D8 keeps child alerts).
+    label: Node = {"kind": "text", "value": child.label, "as": "caption", "intent": "neutral"}
+    progress: Node = {
+        "kind": "progress",
+        "label": normalize_visible_label_text(child.label, fallback="Proportion"),
+    }
+    if number is not None and positive_sum > 0:
+        # IEEE-754 double division — identical in both compilers; clamped like the
+        # `progress` strategy so a negative share degrades to an empty bar, not a lie.
+        progress["value"] = min(1.0, max(0.0, number / positive_sum))
+    # A numeric child leads with a number node; a non-numeric one shows its natural
+    # leaf (a NumberNode cannot hold a non-numeric value), with progress indeterminate.
+    value_node = _number(child) if number is not None else _leaf(child)
+    cluster: Node = {
+        "kind": "cluster",
+        "role": "inline",
+        "align": "baseline",
+        "children": [label, progress, value_node],
+    }
+    alerts = [] if child.strategy == "diagnostic-node" else [_alert(d) for d in child.diagnostics]
+    return [cluster, *alerts]
+
+
+def _breakdown(spec: SurfaceNode) -> Node:
+    numbers = [_breakdown_numeric(child) for child in spec.children]
+    positive_sum = sum(n for n in numbers if n is not None and n > 0)
+    rows: list[Node] = []
+    for child, number in zip(spec.children, numbers, strict=True):
+        rows.extend(_breakdown_row(child, number, positive_sum))
+    args: Node = {}
+    if spec.heading:
+        args["title"] = {"kind": "text", "value": spec.label, "as": "heading"}
+    # Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
+    head_alerts = [_alert(d) for d in spec.diagnostics]
+    return {
+        "kind": "compound",
+        "name": "Breakdown",
+        "args": args,
+        "slots": {"rows": [*head_alerts, *rows]},
+    }
+
+
 def _frame(spec: SurfaceNode) -> Node:
     body = _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
@@ -472,5 +525,6 @@ _CONTAINER_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
     "table": _table,
     "kpi-row": _kpi_row,
     "entity-header": _entity_header,
+    "breakdown": _breakdown,
     "card-stack": _card_stack,
 }

@@ -15,6 +15,7 @@ const STRATEGIES = new Set<Strategy>([
 	"progress",
 	"kpi-row",
 	"entity-header",
+	"breakdown",
 ]);
 const NUMBER_FORMATS = new Set<NumberFormat>([
 	"plain",

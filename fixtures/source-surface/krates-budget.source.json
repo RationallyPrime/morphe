@@ -1,0 +1,127 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "krates-fixture-2026-01",
+    "signature": "c0sJ4BlviUC4pF1kZZrFtAZANlWr6qUV3JeADuF7QvpB0s9tYyiZFwikD_SAYzVbcEQ-YZQ861ZyudP8ok0oCQ"
+  },
+  "data": {
+    "allocation": {
+      "operationsIsk": 200000,
+      "researchIsk": 100000,
+      "reserveIsk": 50000
+    },
+    "summary": "One budget detail pane; the allocation lowers to a promoted Breakdown."
+  },
+  "diagnostics": [
+    {
+      "code": "BUDGET_ALLOCATION_SOURCE",
+      "message": "Allocation reflects the signed planning window.",
+      "path": "$.allocation",
+      "repair_hint": null,
+      "severity": "info"
+    },
+    {
+      "code": "BUDGET_RESERVE_LOW",
+      "message": "Reserve is below the target proportion.",
+      "path": "$.allocation.reserveIsk",
+      "repair_hint": "Rebalance before the next settlement run.",
+      "severity": "warning"
+    }
+  ],
+  "issuer": "krates",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:15:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "_BudgetAllocation": {
+        "additionalProperties": false,
+        "description": "An object of currency numbers, hint-selected to lower to a promoted Breakdown.\n\nThe three positive figures sum to 350,000 ISK, so their proportion rows carry the\nnon-trivial repeating IEEE-754 fractions 2/7, 4/7, 1/7 \u2014 the parity vector that\npins byte-identical double division across both compilers. A hidden memo must\nnever reach the compiled tree.",
+        "properties": {
+          "operationsIsk": {
+            "title": "Operations",
+            "type": "integer",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "researchIsk": {
+            "title": "Research",
+            "type": "integer",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "reserveIsk": {
+            "title": "Reserve",
+            "type": "integer",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          }
+        },
+        "required": [
+          "researchIsk",
+          "operationsIsk",
+          "reserveIsk"
+        ],
+        "title": "_BudgetAllocation",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "researchIsk",
+            "operationsIsk",
+            "reserveIsk"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "allocation": {
+        "$ref": "#/$defs/_BudgetAllocation",
+        "title": "Allocation",
+        "x-morphe": {
+          "strategy": "breakdown"
+        }
+      },
+      "summary": {
+        "title": "Summary",
+        "type": "string"
+      }
+    },
+    "required": [
+      "allocation",
+      "summary"
+    ],
+    "title": "_BudgetDetail",
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "allocation",
+        "summary"
+      ]
+    }
+  },
+  "seals": {
+    "content_sha256": "sha256:d19db84dea1c6cc83daa537b5604ef81dd1f3cb7e8c9fb1d5db00f12bcb6b204",
+    "schema_sha256": "sha256:bc8c747b4a55bf1a3429a2d21f9c24748836b3f6f156794b55039d9e58410ca5",
+    "testimony_sha256": "sha256:f81efb4337d025139f3d9ba520a84d5cb769559a292ae4979c03fddd155b3032"
+  },
+  "source_revision": "krates-budget-fixture-rev-0001",
+  "surface_id": "krates.budget:krates-ehf",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.5.0",
+    "id": "krates.budget",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

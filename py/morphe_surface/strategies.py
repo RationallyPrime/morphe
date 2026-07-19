@@ -17,6 +17,10 @@ from typing import Literal
 # hint-free floor stays byte-identical and resolve_strategy never returns it structurally:
 #   entity-header -> one promoted EntityHeader compound (the detail-pane lede), composed
 #                    from the hinted object's own children (kicker/title/keyFigure + slots)
+#   breakdown -> one promoted Breakdown compound (labeled proportion rows); each numeric
+#                child is a row (fraction = value / sum(positive numeric values); a
+#                non-numeric child or a zero/empty sum degrades that row's progress to
+#                indeterminate, mirroring how the `progress` strategy degrades)
 Strategy = Literal[
     "scalar",
     "badge",
@@ -31,4 +35,5 @@ Strategy = Literal[
     "progress",
     "kpi-row",
     "entity-header",
+    "breakdown",
 ]

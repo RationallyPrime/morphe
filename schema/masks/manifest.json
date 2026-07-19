@@ -5,12 +5,13 @@
         "compounds": [
           "SignalCard",
           "EntityHeader",
-          "StatBand"
+          "StatBand",
+          "Breakdown"
         ],
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "afb220727ba3d93468d287b3c987cc6b3e4428122c409da123a7c6f0b9a46af1"
+      "sha256": "062dfe5e6332bbef7020c953e52f58283d207473d4f0d9545a954a29acb1f3da"
     },
     "estate": {
       "compound_policy": {
