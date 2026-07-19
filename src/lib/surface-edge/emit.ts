@@ -35,6 +35,7 @@ const CONTAINER_STRATEGIES = new Set([
 	"table",
 	"card-stack",
 	"kpi-row",
+	"entity-header",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
 
@@ -138,6 +139,7 @@ function emit(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.strategy === "collapsed-section") return collapsible(spec, ctx);
 	if (spec.strategy === "table") return table(spec, ctx);
 	if (spec.strategy === "kpi-row") return kpiRow(spec, ctx);
+	if (spec.strategy === "entity-header") return entityHeader(spec, ctx);
 	if (spec.strategy === "card-stack") {
 		const built = spec.items.map((item) => field(item, ctx));
 		return section(spec, built.length > 0 ? built : [emptyCollection(spec)]);
@@ -288,6 +290,82 @@ function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
 		name: "SignalCard",
 		args: { kicker, title, measure },
 		slots: { body: item.diagnostics.map(alert) },
+	} satisfies CompoundRef;
+}
+
+function isTitleCandidate(child: SurfaceNode): boolean {
+	// See the Python twin: in practice this selects the first string scalar; the
+	// heading/display register clause stays for an explicitly authored one.
+	if (child.strategy !== "scalar") return false;
+	return (
+		child.text_as === "display" || child.text_as === "heading" || typeof child.value === "string"
+	);
+}
+
+function slotLeaf(spec: SurfaceNode, ctx: EmitContext): Node {
+	const inner = leaf(spec, ctx);
+	const alerts = spec.strategy === "diagnostic-node" ? [] : spec.diagnostics.map(alert);
+	return alerts.length === 0
+		? inner
+		: { kind: "stack", role: "field-group", children: [inner, ...alerts] };
+}
+
+function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
+	// One deterministic classification pass in document order, mirroring the Python
+	// twin exactly: explicit `role: provenance` wins; then first number is the key
+	// figure; then status/badge feed signal; then the first title candidate; the
+	// rest are meta facts.
+	const kicker: Text = { kind: "text", value: spec.label, as: "caption", intent: "folio" };
+	const provenance: Node[] = [];
+	const signal: Node[] = [];
+	const metaChildren: SurfaceNode[] = [];
+	let keyFigure: SurfaceNode | undefined;
+	let titleChild: SurfaceNode | undefined;
+	for (const child of spec.children) {
+		if (child.intent === "provenance") {
+			provenance.push(slotLeaf(child, ctx));
+		} else if (child.strategy === "number" && keyFigure === undefined) {
+			keyFigure = child;
+		} else if (child.strategy === "status" || child.strategy === "badge") {
+			signal.push(slotLeaf(child, ctx));
+		} else if (titleChild === undefined && isTitleCandidate(child)) {
+			titleChild = child;
+		} else {
+			metaChildren.push(child);
+		}
+	}
+	const title: Text = {
+		kind: "text",
+		value:
+			titleChild === undefined
+				? spec.label
+				: displayScalarText(
+						titleChild.value ?? null,
+						scalarNumberKind(titleChild),
+						ctx.temporalPolicy,
+						ctx.now,
+					),
+		as: "heading",
+	};
+	const args: Record<string, Node> = { kicker, title };
+	if (keyFigure !== undefined) {
+		args.keyFigure = { ...numberNode(keyFigure), emphasis: "strong" };
+	}
+	// Diagnostics on the node itself and on the two children promoted to BARE args
+	// (title, keyFigure) would otherwise lose their alert path. Surface them all at
+	// the head of the meta row, in document order, so nothing signed is dropped (D8).
+	const promoted: SurfaceNode[] = [
+		spec,
+		...(titleChild === undefined ? [] : [titleChild]),
+		...(keyFigure === undefined ? [] : [keyFigure]),
+	];
+	const headAlerts = promoted.flatMap((node) => node.diagnostics.map(alert));
+	const meta: Node[] = [...headAlerts, ...fields(metaChildren, ctx)];
+	return {
+		kind: "compound",
+		name: "EntityHeader",
+		args,
+		slots: { signal, meta, provenance },
 	} satisfies CompoundRef;
 }
 

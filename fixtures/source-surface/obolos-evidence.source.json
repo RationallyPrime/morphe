@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "s9h3fzG0GXYnVJswwbpIsWC0XuxWHOZ21nXxR4OrC7SxQo_Mp3oVUUVdyPdYK29eZefni2YEYGURFBv6uS9PAA"
+    "signature": "6sP-xdLG_Dbahk7FPCqtlAxlYx6AHfkWYKPfK3dB6J3WgQGiO_I2CWOPpA1Tolyy4IpL-2yepcMbgw86jQMQCg"
   },
   "data": {
     "adjustment": null,
@@ -466,13 +466,13 @@
   "seals": {
     "content_sha256": "sha256:6ba45b7f6fdce0746f12cb522f49118d6f8bd615bb818d4c0d85d81e371d870e",
     "schema_sha256": "sha256:368c8c4049680985d9af461bebb506173d969753f0a425d88008c8bcce8f788e",
-    "testimony_sha256": "sha256:ea3d3fff494edf3bc4be81b3504a4a1b7e5b57223627320c805c9fe25ba848f4"
+    "testimony_sha256": "sha256:ef157c534370f8ebcadee6b443da7db005024180c3920d7f4c89a8a7ad0d44a5"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.4.0",
+    "hint_vocabulary": "0.5.0",
     "id": "obolos.evidence",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

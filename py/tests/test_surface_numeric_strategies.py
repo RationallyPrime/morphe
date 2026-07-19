@@ -389,7 +389,7 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
-    assert HINT_VOCABULARY_VERSION == "0.4.0"
+    assert HINT_VOCABULARY_VERSION == "0.5.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
     assert morphe_hint(temporal="date-time-minute") == {

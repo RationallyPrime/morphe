@@ -16,7 +16,14 @@ if TYPE_CHECKING:
 Node = dict[str, Any]
 
 _LEAF = {"scalar", "badge", "linked-ref", "diagnostic-node", "number", "status", "progress"}
-_CONTAINER = {"record-card", "collapsed-section", "table", "card-stack", "kpi-row"}
+_CONTAINER = {
+    "record-card",
+    "collapsed-section",
+    "table",
+    "card-stack",
+    "kpi-row",
+    "entity-header",
+}
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
 
 
@@ -28,15 +35,14 @@ def emit_node(spec: SurfaceNode) -> Node:
     """
     if spec.strategy in _LEAF:
         return _leaf(spec)
-    if spec.strategy == "collapsed-section":
-        return _collapsible(spec)
-    if spec.strategy == "table":
-        return _table(spec)
-    if spec.strategy == "kpi-row":
-        return _kpi_row(spec)
-    if spec.strategy == "card-stack":
-        return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
-    return _frame(spec)  # record-card
+    # A container dispatch TABLE, mirroring _LEAF_EMITTERS: the strategy vocabulary is
+    # closed, so container emitters are enumerable data. record-card is the default.
+    emitter = _CONTAINER_EMITTERS.get(spec.strategy)
+    return emitter(spec) if emitter is not None else _frame(spec)
+
+
+def _card_stack(spec: SurfaceNode) -> Node:
+    return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
 
 
 def _leaf(spec: SurfaceNode) -> Node:
@@ -185,6 +191,79 @@ def _signal_card(item: SurfaceNode) -> Node:
     }
 
 
+def _is_title_candidate(child: SurfaceNode) -> bool:
+    # The title is the first heading-register text OR the record's primary string
+    # value. Built children never carry a heading/display register (entity-header
+    # runs no identity promotion), so in practice this selects the first string
+    # scalar; the register clause stays for a caller who authored one explicitly.
+    if child.strategy != "scalar":
+        return False
+    return child.text_as in {"display", "heading"} or isinstance(child.value, str)
+
+
+def _slot_leaf(spec: SurfaceNode) -> Node:
+    # A slot fill mirrors _definition_value: the lowered leaf, plus any signed
+    # diagnostics as sibling alerts so nothing a child carried is dropped (D8).
+    inner = _leaf(spec)
+    alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
+    if not alerts:
+        return inner
+    return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
+
+
+def _entity_header(spec: SurfaceNode) -> Node:
+    # One deterministic classification pass over the hinted object's children, in
+    # document order. Precedence (identical in both compilers): an explicit
+    # `role: provenance` child wins outright; then the first number is the key
+    # figure; then status/badge feed the signal slot; then the first title
+    # candidate; everything else is a meta fact.
+    kicker: Node = {"kind": "text", "value": spec.label, "as": "caption", "intent": "folio"}
+    provenance: list[Node] = []
+    signal: list[Node] = []
+    meta_children: list[SurfaceNode] = []
+    key_figure: SurfaceNode | None = None
+    title_child: SurfaceNode | None = None
+    for child in spec.children:
+        if child.intent == "provenance":
+            provenance.append(_slot_leaf(child))
+        elif child.strategy == "number" and key_figure is None:
+            key_figure = child
+        elif child.strategy in {"status", "badge"}:
+            signal.append(_slot_leaf(child))
+        elif title_child is None and _is_title_candidate(child):
+            title_child = child
+        else:
+            meta_children.append(child)
+    if title_child is not None:
+        title_value = display_scalar_text(
+            title_child.value, title_child.temporal, title_child.scalar_number_kind
+        )
+    else:
+        title_value = spec.label
+    title: Node = {"kind": "text", "value": title_value, "as": "heading"}
+    args: Node = {"kicker": kicker, "title": title}
+    if key_figure is not None:
+        measure = _number(key_figure)
+        measure["emphasis"] = "strong"
+        args["keyFigure"] = measure
+    # Diagnostics on the node itself and on the two children promoted to BARE args
+    # (title, keyFigure) would otherwise lose their alert path. Surface them all at
+    # the head of the meta row, in document order, so nothing signed is dropped (D8).
+    promoted = [
+        spec,
+        *([title_child] if title_child is not None else []),
+        *([key_figure] if key_figure is not None else []),
+    ]
+    head_alerts = [_alert(d) for node in promoted for d in node.diagnostics]
+    meta = [*head_alerts, *_fields(tuple(meta_children))]
+    return {
+        "kind": "compound",
+        "name": "EntityHeader",
+        "args": args,
+        "slots": {"signal": signal, "meta": meta, "provenance": provenance},
+    }
+
+
 def _frame(spec: SurfaceNode) -> Node:
     body = _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
@@ -262,9 +341,7 @@ def _table_cell(spec: SurfaceNode) -> Node:
     # that removes the item box and shifts every following cell one track left.
     # Spacer is the grammar's data-free, aria-hidden structural placeholder.
     inner = (
-        _empty_cell()
-        if lowered.get("kind") == "text" and lowered.get("value") == ""
-        else lowered
+        _empty_cell() if lowered.get("kind") == "text" and lowered.get("value") == "" else lowered
     )
     # Cell-level diagnostics stay visible (D8); a diagnostic-node cell already IS its alert.
     alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
@@ -386,3 +463,12 @@ def _tone(severity: str) -> str:
 
 def _str(value: object) -> str:
     return "" if value is None else str(value)
+
+
+_CONTAINER_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
+    "collapsed-section": _collapsible,
+    "table": _table,
+    "kpi-row": _kpi_row,
+    "entity-header": _entity_header,
+    "card-stack": _card_stack,
+}

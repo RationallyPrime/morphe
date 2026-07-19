@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "O4o7mp3w6SqlsBQEGYnHAFP0dCelMxnrOHOct73i1ALBnwn9wVbzo2K6oxgJQdXConBmveB9DmyH1mYvMoXrAw"
+    "signature": "ryQ6ugQUpzUami-l4HSqygCC1MaOhtX1LjTyAt8bxmLImDrK2i7KRuttWY6tWbtLI8wIqqsP48WHAxlWGgclDQ"
   },
   "data": {
     "coverage": 0.75,
@@ -404,13 +404,13 @@
   "seals": {
     "content_sha256": "sha256:0c3e4f56d9b25ecd6e2e93bd2a9124b105e692d5561441b9da3aed7c6f452464",
     "schema_sha256": "sha256:e12080456d3b31fdd2d75adce1da8a1a5c083648366cfa12053d2670e9a36e03",
-    "testimony_sha256": "sha256:6ac96cd34dce8c73d16f1b2ec6c0dafaad9d83b2a03cffb7a8b46bc0287e0bee"
+    "testimony_sha256": "sha256:aa75a4306e69b8353e38c3e9fb92673cb2530eb1171c4edc8a4938569d7614a1"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.4.0",
+    "hint_vocabulary": "0.5.0",
     "id": "taxis.roster",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

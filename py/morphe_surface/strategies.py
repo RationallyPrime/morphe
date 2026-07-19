@@ -12,6 +12,11 @@ from typing import Literal
 #   status    -> Status chip (tone resolved per-VALUE via the hint's intents map)
 #   progress  -> Progress bar (0..1 fraction; non-numeric data degrades to indeterminate)
 #   kpi-row   -> grid of promoted SignalCard compounds (one per KpiCell-shaped row)
+#
+# The 0.5.0 addition follows the same 0.3.0 precedent — hint-selected ONLY, so the
+# hint-free floor stays byte-identical and resolve_strategy never returns it structurally:
+#   entity-header -> one promoted EntityHeader compound (the detail-pane lede), composed
+#                    from the hinted object's own children (kicker/title/keyFigure + slots)
 Strategy = Literal[
     "scalar",
     "badge",
@@ -25,4 +30,5 @@ Strategy = Literal[
     "status",
     "progress",
     "kpi-row",
+    "entity-header",
 ]
