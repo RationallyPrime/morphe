@@ -365,9 +365,17 @@ try {
 				!clinicalPolicy ||
 				typeof clinicalPolicy !== "object" ||
 				(clinicalPolicy as Record<string, unknown>).mode !== "allowlist" ||
-				JSON.stringify((clinicalPolicy as Record<string, unknown>).compounds) !== '["SignalCard"]'
+				JSON.stringify((clinicalPolicy as Record<string, unknown>).compounds) !==
+					JSON.stringify([
+						"SignalCard",
+						"EntityHeader",
+						"StatBand",
+						"Breakdown",
+						"TrailEntry",
+						"KeyValuePanel",
+					])
 			) {
-				throw new Error("expected installed clinical mask to allow only SignalCard");
+				throw new Error("expected installed clinical mask to allow exactly the promoted catalog");
 			}
 
 			const { SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA, validateSurfaceArtifact } = await import(
