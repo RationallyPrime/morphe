@@ -14,6 +14,8 @@
  * unauthenticated fetch.
  */
 
+import { isValidSurfaceId } from "$lib/surface-edge/spec.js";
+
 const SOURCE_ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const SURFACE_ID_RE = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 
@@ -167,6 +169,12 @@ function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry
 	const sourceSurfaceId = stringField(raw, "surface_id");
 	if (sourceSurfaceId === null) {
 		return `source ${sourceId}: source-v1 surface ${id} needs surface_id`;
+	}
+	// Boot-time pin check (KRA-777): the pinned surface_id is the family the admission gate
+	// keys on, so a misconfigured `<source>:<pane>:…` (or otherwise malformed) pin must fail
+	// config load fast rather than silently collapse the family at request time.
+	if (!isValidSurfaceId(sourceSurfaceId)) {
+		return `source ${sourceId}: kernel surface ${id} surface_id "${sourceSurfaceId}" must be <source>.<pane>:<instance…>`;
 	}
 	return { id, title, path, dialectHint, representation, sourceSurfaceId };
 }

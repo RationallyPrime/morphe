@@ -48,6 +48,9 @@ export type {
 export {
 	DEFAULT_SURFACE_ID_GATE,
 	DEFAULT_TEMPORAL_POLICY,
+	isValidSurfaceId,
+	SURFACE_ID_PATTERN,
 	type SurfaceIdGateMode,
+	surfaceFamily,
 	type TemporalPolicy,
 } from "./surface-edge/spec.js";

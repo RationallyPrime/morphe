@@ -56,6 +56,42 @@ export type SurfaceIdGateMode = "exact" | "family";
 
 /** The default gate mode: a pinned request demands verbatim identity. */
 export const DEFAULT_SURFACE_ID_GATE: SurfaceIdGateMode = "exact";
+
+/**
+ * The surface_id family grammar (KRA-777): `<source>.<pane>:<instance…>`.
+ *
+ * The FAMILY token — the `<source>.<pane>` slot the admission gate keys family-mode on —
+ * is everything before the FIRST `:`; it MUST carry a `.` and no `:`. Enforcing that here
+ * closes the loki6 finding: a producer emitting `<source>:<pane>:<instance>` can no longer
+ * collapse every pane of a source into a single `<source>` family. Source and pane are
+ * lowercase; instance segments (one or more, `:`-separated) allow mixed case for week
+ * stamps (`2026-W29`), uuids, and dates.
+ *
+ * This string is THE grammar for the TypeScript side and MUST equal the schema `pattern`
+ * emitted from `SourceSurfaceArtifactV1.surface_id` (Python `SURFACE_ID_PATTERN`); the
+ * `source-contract` test pins that parity so the schema gate and this runtime parse rule
+ * can never drift apart.
+ */
+export const SURFACE_ID_PATTERN = "^[a-z0-9_-]+\\.[a-z0-9_-]+(?::[A-Za-z0-9_-]+)+$";
+const SURFACE_ID_RE = new RegExp(SURFACE_ID_PATTERN);
+
+/** Whether `surfaceId` parses under the family grammar. */
+export function isValidSurfaceId(surfaceId: string): boolean {
+	return SURFACE_ID_RE.test(surfaceId);
+}
+
+/**
+ * The `<source>.<pane>` family token, or `null` when `surfaceId` is malformed.
+ *
+ * The family is the segment before the first `:`. Deriving it through this parser — not a
+ * bare `indexOf(":")` slice — is what keeps family-mode admission safe: a
+ * `<source>:<pane>:…` id has no valid family and returns `null` instead of silently
+ * collapsing to `<source>`.
+ */
+export function surfaceFamily(surfaceId: string): string | null {
+	if (!isValidSurfaceId(surfaceId)) return null;
+	return surfaceId.slice(0, surfaceId.indexOf(":"));
+}
 export type TextAs = "display" | "heading" | "subheading" | "body" | "caption";
 export type Polarity = "positive" | "negative";
 export type ScalarValue = string | number | boolean | null;

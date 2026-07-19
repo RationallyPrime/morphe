@@ -20,7 +20,12 @@ import {
 	validateAuthenticatedSchemaData,
 	validateSourceEnvelope,
 } from "./schema.js";
-import { DEFAULT_SURFACE_ID_GATE, type SurfaceIdGateMode } from "./spec.js";
+import {
+	DEFAULT_SURFACE_ID_GATE,
+	isValidSurfaceId,
+	type SurfaceIdGateMode,
+	surfaceFamily,
+} from "./spec.js";
 
 declare const trustedSourceSurface: unique symbol;
 
@@ -39,6 +44,7 @@ export type SourceAdmissionIssueCode =
 	| "json"
 	| "bounds"
 	| "envelope"
+	| "grammar"
 	| "identity"
 	| "seal"
 	| "key"
@@ -90,12 +96,12 @@ export interface SourceAdmissionOptions {
 	 * How to check the admitted `surface_id` against {@link expectedSurfaceId}.
 	 *
 	 * `exact` (default) demands verbatim equality — the pinned/unforwarded request.
-	 * `family` relaxes ONLY this check to a family-prefix match (the `<source>.<pane>`
-	 * token before the first `:`, followed by `:`) for a derived drill-through instance
-	 * whose forwarded params made the producer emit a param-scoped id. The caller
-	 * decides this from how it built the request, never from the artifact; every other
-	 * trust gate (issuer, seals, key, signature, freshness, schema, capability) stays
-	 * strict in both modes.
+	 * `family` relaxes ONLY this check to a match on the grammar-parsed `<source>.<pane>`
+	 * family token (the segment before the first `:`; see {@link surfaceFamily}) for a
+	 * derived drill-through instance whose forwarded params made the producer emit a
+	 * param-scoped id. The caller decides this from how it built the request, never from
+	 * the artifact; every other trust gate (issuer, seals, key, signature, freshness,
+	 * schema, capability) stays strict in both modes.
 	 */
 	readonly surfaceIdMatch?: SurfaceIdGateMode;
 	/** Public keys are pinned by (issuer, key_id), never learned from testimony. */
@@ -138,11 +144,12 @@ function publicKeyFor(
 /**
  * The identity-gate reason, or null when `surfaceId` satisfies the requested mode.
  *
- * `exact` requires verbatim equality. `family` requires `surfaceId` to start with the
- * expected id's family segment — the token before the first `:` — followed by `:`, so
- * a param-scoped derived instance is admitted while a cross-family id (a different
- * `<source>.<pane>` slot) still hard-fails. Only `surface_id` is relaxed here; the
- * issuer check and every crypto/freshness/schema gate run unchanged downstream.
+ * `exact` requires verbatim equality. `family` requires `surfaceId` to share the expected
+ * id's grammar-parsed `<source>.<pane>` family token — so a param-scoped derived instance
+ * is admitted while a cross-family id (a different `<source>.<pane>` slot) still hard-fails.
+ * The pin is grammar-checked first (KRA-777): a misconfigured `<source>:<pane>:…` pin can
+ * no longer collapse the family and admit foreign panes. Only `surface_id` is relaxed here;
+ * the issuer check and every crypto/freshness/schema gate run unchanged downstream.
  */
 function surfaceIdGateReason(
 	surfaceId: string,
@@ -154,9 +161,11 @@ function surfaceIdGateReason(
 			? null
 			: "surface_id does not match the requested surface";
 	}
-	const colon = expectedSurfaceId.indexOf(":");
-	const family = colon === -1 ? expectedSurfaceId : expectedSurfaceId.slice(0, colon);
-	return surfaceId.startsWith(`${family}:`)
+	const expectedFamily = surfaceFamily(expectedSurfaceId);
+	if (expectedFamily === null) {
+		return "expected surface_id does not parse under the surface_id family grammar";
+	}
+	return surfaceFamily(surfaceId) === expectedFamily
 		? null
 		: "surface_id is outside the requested surface family";
 }
@@ -265,6 +274,13 @@ export async function admitSourceSurfaceJson(
 
 	if (artifact.issuer !== options.expectedIssuer) {
 		return failure("identity", "source issuer does not match the expected issuer");
+	}
+	// Defense in depth (KRA-777): the generated schema's `surface_id` pattern already
+	// rejected a malformed id at the envelope gate above, but re-assert the grammar here so
+	// the family-mode comparison can never key off a `<source>:<pane>:…` collapse even if a
+	// future schema regression let one through.
+	if (!isValidSurfaceId(artifact.surface_id)) {
+		return failure("grammar", "surface_id does not parse under the family grammar");
 	}
 	const gateMode = options.surfaceIdMatch ?? DEFAULT_SURFACE_ID_GATE;
 	const surfaceIdReason = surfaceIdGateReason(
