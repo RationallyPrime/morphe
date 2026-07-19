@@ -78,6 +78,18 @@
 		border-radius: var(--mo-radius-2);
 		background: var(--mo-alert-surface);
 		color: var(--mo-alert-on);
+		/* A grid/flex item refuses to shrink below its content min-size by
+		   default, so an alert in a narrow track kept its longest token's width
+		   (LIVE_VIOLATIONS…) and painted its tonal surface far over the
+		   neighboring cell. A bare `min-inline-size: 0` swings the other way: a
+		   squeezed fr/subgrid track then collapses the alert to zero (hidden).
+		   Floor it at a readable fixed minimum instead — it compresses below
+		   its content min-size (unbroken tokens wrap via `break-word`, which
+		   unlike `anywhere` keeps intrinsic contributions intact) but never
+		   out of existence, and any residual overflow is bounded by the floor,
+		   not by token length. */
+		min-inline-size: min(12rem, 100vw - 2 * var(--mo-space-5));
+		overflow-wrap: break-word;
 		/* Tone is carried by the tonal surface + the leading glyph (shape) + the
 		   required title (text) — never a colored edge rule (DESIGN §9 side-stripe
 		   ban). The glyph already IS the shape signal the rule was duplicating. */
