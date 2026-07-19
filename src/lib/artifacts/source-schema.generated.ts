@@ -222,6 +222,7 @@ export const SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
       "type": "string"
     },
     "surface_id": {
+      "pattern": "^[a-z0-9_-]+\\.[a-z0-9_-]+(?::[A-Za-z0-9_-]+)+$",
       "title": "Surface Id",
       "type": "string"
     },

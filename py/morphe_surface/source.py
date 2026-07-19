@@ -69,6 +69,39 @@ JSON_SCHEMA_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 _TIMESTAMP_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 _SIGNATURE_PATTERN = re.compile(r"^[A-Za-z0-9_-]{85}[AQgw]$")
 _PATH_SEGMENT_PATTERN = re.compile(r"\.([^.[\]]+)|\[(\d+)]")
+
+# --- surface_id family grammar (KRA-777) ---------------------------------------------
+# A source-surface id is `<source>.<pane>:<instance…>`. The FAMILY token — the
+# `<source>.<pane>` slot the admission gate keys family-mode on — is everything before
+# the FIRST `:`; it MUST contain a `.` and no `:`, so a producer that emits
+# `<source>:<pane>:<instance>` can no longer collapse every pane of a source into one
+# family (the loki6 finding). Source and pane are lowercase; instance segments (one or
+# more, `:`-separated) permit mixed case for week stamps (`2026-W29`), uuids, and dates.
+# This constant is the ONE grammar: `SourceSurfaceArtifactV1.surface_id` pins it as a
+# schema `pattern` (so it rides into the generated JSON Schema and the TS Ajv gate), and
+# the admission twin re-asserts it at runtime via :func:`is_valid_surface_id`. The
+# TypeScript peer is ``SURFACE_ID_PATTERN`` in ``src/lib/surface-edge/spec.ts`` and the
+# generated schema pattern is parity-checked against both.
+SURFACE_ID_PATTERN = r"^[a-z0-9_-]+\.[a-z0-9_-]+(?::[A-Za-z0-9_-]+)+$"
+_SURFACE_ID_PATTERN = re.compile(SURFACE_ID_PATTERN)
+
+
+def is_valid_surface_id(surface_id: str) -> bool:
+    """Return whether ``surface_id`` parses under the family grammar (KRA-777)."""
+    return _SURFACE_ID_PATTERN.fullmatch(surface_id) is not None
+
+
+def surface_family(surface_id: str) -> str | None:
+    """Return the `<source>.<pane>` family token, or ``None`` when the id is malformed.
+
+    The family is the segment before the first ``:``. Deriving it via this parser — not a
+    bare ``split(":", 1)`` — is what makes the family-mode admission gate safe: a
+    ``<source>:<pane>:…`` id has no valid family and yields ``None`` instead of silently
+    collapsing to ``<source>``.
+    """
+    if not is_valid_surface_id(surface_id):
+        return None
+    return surface_id.split(":", 1)[0]
 _ED25519_SIGNATURE_BYTES = 64
 _DEFINITION_REF_PARTS = 2
 
@@ -386,7 +419,7 @@ class SourceSurfaceArtifactV1(WireModel):
     wire_version: Literal["1.0"]
 
     issuer: str
-    surface_id: str
+    surface_id: str = Field(pattern=SURFACE_ID_PATTERN)
     source_revision: str
     produced_at: datetime = Field(
         json_schema_extra={"format": "date-time", "pattern": _TIMESTAMP_PATTERN.pattern}
@@ -404,6 +437,17 @@ class SourceSurfaceArtifactV1(WireModel):
 
     seals: SourceSeals
     attestation: Ed25519Attestation
+
+    @field_validator("surface_id")
+    @classmethod
+    def require_family_grammar_surface_id(cls, value: str) -> str:
+        if not is_valid_surface_id(value):
+            msg = (
+                "surface_id must be <source>.<pane>:<instance…> "
+                "(a colon-free, lowercase <source>.<pane> family token)"
+            )
+            raise ValueError(msg)
+        return value
 
     @field_validator("produced_at", "valid_until", mode="before")
     @classmethod
@@ -705,6 +749,15 @@ def verify_source_surface(
 
     if admitted.issuer != expected_issuer:
         msg = "source issuer does not match the expected issuer"
+        raise SourceVerificationError(msg)
+    # Defense in depth (KRA-777): model admission already pins `surface_id` to the family
+    # grammar, but re-assert it — and the caller's pin — at the gate so a family-scoped
+    # comparison can never key off a `<source>:<pane>:…` collapse or a misconfigured pin.
+    if not is_valid_surface_id(expected_surface_id):
+        msg = "expected_surface_id does not parse under the surface_id family grammar"
+        raise SourceVerificationError(msg)
+    if not is_valid_surface_id(admitted.surface_id):
+        msg = "surface_id does not parse under the surface_id family grammar"
         raise SourceVerificationError(msg)
     if admitted.surface_id != expected_surface_id:
         msg = "surface_id does not match the requested surface"

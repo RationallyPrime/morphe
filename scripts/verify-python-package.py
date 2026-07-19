@@ -263,7 +263,7 @@ signing_key = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
 source_artifact = prepare_source_surface(
     PackageProofModel(value="installed source contract"),
     issuer="package-proof",
-    surface_id="package-proof:source-v1",
+    surface_id="package-proof.source:v1",
     source_revision="package-proof-revision",
     produced_at=datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC),
     view_model=ViewModelContract(
@@ -285,7 +285,7 @@ verify_source_surface(
         (source_artifact.issuer, source_artifact.attestation.key_id): signing_key.public_key()
     },
     expected_issuer="package-proof",
-    expected_surface_id="package-proof:source-v1",
+    expected_surface_id="package-proof.source:v1",
 )
 if canonical_json_bytes({"z": 1, "a": 2}) != b'{"a":2,"z":1}':
     raise RuntimeError("installed RFC 8785 canonicalizer returned unexpected bytes")
