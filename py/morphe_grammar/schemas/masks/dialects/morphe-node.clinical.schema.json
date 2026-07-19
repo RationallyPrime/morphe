@@ -196,9 +196,88 @@
       "oneOf": [
         {
           "$ref": "#/$defs/CompoundRef_SignalCard"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_EntityHeader"
         }
       ],
       "title": "clinical CompoundRef"
+    },
+    "CompoundRef_EntityHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "keyFigure": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "format": "integer",
+                "intent": "neutral",
+                "kind": "number",
+                "value": 0
+              },
+              "description": "The one number this entity leads with."
+            },
+            "kicker": {
+              "$ref": "#/$defs/Node",
+              "description": "Small register line naming the collection this entity is in."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "The entity's name at display/heading register."
+            }
+          },
+          "required": [
+            "kicker",
+            "title"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "EntityHeader",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "meta": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "EntityHeader",
+      "type": "object"
     },
     "CompoundRef_SignalCard": {
       "additionalProperties": false,
@@ -1896,7 +1975,8 @@
   "title": "Morphe Node Decoder Mask \u2014 clinical",
   "x-morphe-compound-policy": {
     "compounds": [
-      "SignalCard"
+      "SignalCard",
+      "EntityHeader"
     ],
     "mode": "allowlist"
   },

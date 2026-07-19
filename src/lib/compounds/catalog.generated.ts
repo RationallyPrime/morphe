@@ -85,4 +85,90 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "EntityHeader",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				kicker: {
+					type: "node",
+					required: true,
+					description: "Small register line naming the collection this entity is in.",
+				},
+				title: {
+					type: "node",
+					required: true,
+					description: "The entity's name at display/heading register.",
+				},
+				keyFigure: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "number",
+						value: 0,
+						format: "integer",
+						intent: "neutral",
+					},
+					description: "The one number this entity leads with.",
+				},
+			},
+		},
+		template: {
+			kind: "frame",
+			role: "panel",
+			surface: "raised",
+			children: [
+				{
+					kind: "stack",
+					role: "panel",
+					children: [
+						{
+							kind: "cluster",
+							role: "toolbar",
+							justify: "between",
+							align: "center",
+							children: [
+								{
+									kind: "param-ref",
+									param: "kicker",
+								},
+								{
+									kind: "slot",
+									name: "signal",
+									fallback: [],
+								},
+							],
+						},
+						{
+							kind: "param-ref",
+							param: "title",
+						},
+						{
+							kind: "cluster",
+							role: "inline",
+							align: "baseline",
+							children: [
+								{
+									kind: "param-ref",
+									param: "keyFigure",
+								},
+								{
+									kind: "slot",
+									name: "meta",
+									fallback: [],
+								},
+							],
+						},
+						{
+							kind: "slot",
+							name: "provenance",
+							fallback: [],
+						},
+					],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];

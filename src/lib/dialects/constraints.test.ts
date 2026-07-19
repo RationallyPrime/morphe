@@ -18,8 +18,12 @@ const signalCard = (body: readonly Node[] = []): Node => ({
 
 describe("generated dialect constraints", () => {
 	it("keeps the Python-owned catalog, registry, and shipped dialects in parity", () => {
-		expect(PROMOTED_COMPOUNDS.map((definition) => definition.name)).toEqual(["SignalCard"]);
+		expect(PROMOTED_COMPOUNDS.map((definition) => definition.name)).toEqual([
+			"SignalCard",
+			"EntityHeader",
+		]);
 		expect(registry.has("SignalCard")).toBe(true);
+		expect(registry.has("EntityHeader")).toBe(true);
 		expect(Object.keys(DIALECT_COMPOUND_CONSTRAINTS)).toEqual(Object.keys(DIALECTS));
 		for (const [id, dialect] of Object.entries(DIALECTS)) {
 			expect(dialect.compounds).toEqual(

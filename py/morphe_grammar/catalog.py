@@ -117,7 +117,84 @@ SIGNAL_CARD = CompoundDefinition.model_validate(
     }
 )
 
-PROMOTED_COMPOUNDS = MappingProxyType({SIGNAL_CARD.name: SIGNAL_CARD})
+ENTITY_HEADER = CompoundDefinition.model_validate(
+    {
+        "name": "EntityHeader",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "kicker": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Small register line naming the collection this entity is in.",
+                },
+                "title": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The entity's name at display/heading register.",
+                },
+                "keyFigure": {
+                    "type": "node",
+                    # The one number the entity leads with. Mirrors SignalCard's `measure`:
+                    # a neutral integer default lets the call site omit it entirely.
+                    "default": {
+                        "kind": "number",
+                        "value": 0,
+                        "format": "integer",
+                        "intent": "neutral",
+                    },
+                    "description": "The one number this entity leads with.",
+                },
+            },
+        },
+        "template": {
+            "kind": "frame",
+            "role": "panel",
+            "surface": "raised",
+            "children": [
+                {
+                    "kind": "stack",
+                    "role": "panel",
+                    "children": [
+                        {
+                            "kind": "cluster",
+                            "role": "toolbar",
+                            "justify": "between",
+                            "align": "center",
+                            "children": [
+                                {"kind": "param-ref", "param": "kicker"},
+                                # The lede's corner is a SLOT (a Status/Badge the call site
+                                # owns): the factory can't parameterise Status.signal.text or
+                                # Badge.label (string fields never interpolate), so the one
+                                # grammar-lawful way to carry a caller-owned signal is a slot.
+                                {"kind": "slot", "name": "signal", "fallback": []},
+                            ],
+                        },
+                        {"kind": "param-ref", "param": "title"},
+                        {
+                            "kind": "cluster",
+                            "role": "inline",
+                            "align": "baseline",
+                            "children": [
+                                {"kind": "param-ref", "param": "keyFigure"},
+                                {"kind": "slot", "name": "meta", "fallback": []},
+                            ],
+                        },
+                        # Identifiers / footer: provenance-register nodes the call site owns.
+                        {"kind": "slot", "name": "provenance", "fallback": []},
+                    ],
+                }
+            ],
+        },
+    }
+)
+
+PROMOTED_COMPOUNDS = MappingProxyType(
+    {SIGNAL_CARD.name: SIGNAL_CARD, ENTITY_HEADER.name: ENTITY_HEADER}
+)
 
 
 def promoted_compound(name: str) -> CompoundDefinition:
@@ -230,6 +307,7 @@ validate_catalog()
 
 
 __all__ = [
+    "ENTITY_HEADER",
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",
     "CompoundDefinition",
