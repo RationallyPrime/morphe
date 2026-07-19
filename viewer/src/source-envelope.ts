@@ -12,6 +12,13 @@ export interface CompiledSourceEnvelope {
 	readonly dialectHint: string;
 	readonly tree: Node;
 	readonly compilationReceipt: CompilationReceipt;
+	/**
+	 * The concrete `surface_id` the admission gate actually accepted. For a family-mode
+	 * drill-through (KRA-776/777) this is the producer's family-canonical instance — the
+	 * carrier of the kernel's resolved window (KRA-779/KRA-789) — which can differ from
+	 * the pinned representative the request was made through.
+	 */
+	readonly admittedSurfaceId: string;
 }
 
 export type SourceEnvelopeResult =
@@ -80,6 +87,7 @@ export async function parseSourceSurfaceResponse(
 			dialectHint: options.dialectHint,
 			tree: compiled.tree,
 			compilationReceipt: compiled.receipt,
+			admittedSurfaceId: admitted.value.surface_id,
 		},
 	};
 }

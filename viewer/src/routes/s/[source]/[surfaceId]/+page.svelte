@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { applyDialect, DIALECT_IDS, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
+	import { paneCrumbs } from "../../../../crumbs.js";
 	import { TEMPORAL_POLICIES } from "../../../../temporal.js";
 	import ViewerChrome from "../../../../ViewerChrome.svelte";
 
@@ -9,14 +10,14 @@
 	const dialect = $derived(getDialect(data.dialectId));
 	const applied = $derived(applyDialect(dialect));
 
-	// Surfaces (index) › Source collection › this pane. The source rung links the
-	// declared collection when there is one (and it is not this pane); otherwise
-	// it is inert context and the index stays the only way back.
-	const crumbs = $derived([
-		{ label: "Surfaces", href: "/" },
-		{ label: data.sourceTitle, href: data.collectionHref },
-		{ label: data.surfaceTitle },
-	]);
+	// Home (root) › Surfaces catalog › Source collection › this pane (KRA-789 re-root).
+	const crumbs = $derived(
+		paneCrumbs({
+			sourceTitle: data.sourceTitle,
+			surfaceTitle: data.surfaceTitle,
+			collectionHref: data.collectionHref,
+		}),
+	);
 </script>
 
 <svelte:head>

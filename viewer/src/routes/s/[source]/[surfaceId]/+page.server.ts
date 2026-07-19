@@ -1,12 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { derivedSurfaceTitle } from "../../../../derived-title.js";
-import { forwardedRequest, withoutGovernedParams } from "../../../../forward-query.js";
-import { rewriteKernelLinks } from "../../../../links.js";
-import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
+import { loadSourcePane } from "../../../../pane-load.server.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
-import { loadGatedSurface } from "../../../../surface-load.server.js";
-import { SOURCE_SURFACE_V1_MEDIA_TYPE } from "../../../../surface-reader.js";
-import { resolveTemporalPolicy, TEMPORAL_QUERY_KEY } from "../../../../temporal.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -14,20 +8,10 @@ import type { PageServerLoad } from "./$types.js";
  *
  * Both segments resolve against declared config only: an unknown source or an
  * undeclared surface id is a 404, never a proxied guess — the viewer is not an
- * open proxy onto the docker network. Kernel sources admit signed source-v1
- * testimony ONLY: the viewer negotiates the source-v1 media type, verifies and
- * edge-compiles the testimony under source-level trust pins, then runs the
- * shared grammar/dialect gate. The store reader and the legacy bare
- * CompiledSurface reader are retired (KRA-775 Stage 5). Kernel links are
- * rewired against declared paths inside the final grammar/dialect gate
- * (viewer-navigable or degraded to text — never a dead in-viewer href).
- *
- * The breadcrumb's middle rung (`collectionHref`) points at the source's
- * DECLARED `collectionRoot` — undeclared, or when the current pane already IS
- * the collection, it is absent and the chrome falls back to the flat index.
- * Any viewer query beyond `dialect` (e.g. `?party_id=`) is forwarded onto the
- * kernel fetch so a filtered link that survived `rewriteKernelLinks` actually
- * reaches the producer as a filter.
+ * open proxy onto the docker network. The admission + compile + gate pipeline is
+ * the shared `loadSourcePane` (KRA-789), so this pane and the composed home
+ * surface admit testimony through exactly one path. `as_of` rides through it as an
+ * ordinary forwarded filter (KRA-779/KRA-789).
  */
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
@@ -37,84 +21,21 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	const entry = source.surfaces.find((surface) => surface.id === params.surfaceId);
 	if (entry === undefined) error(404, { message: "Unknown surface." });
 
-	const bearer = bearerFor(source);
-	const dialectOverride = url.searchParams.get("dialect");
-	// The instant presentation policy rides `?temporal=` exactly as the dialect
-	// override rides `?dialect=`.
-	const temporalPolicy = resolveTemporalPolicy(url.searchParams.get(TEMPORAL_QUERY_KEY));
-
-	// Breadcrumb "one of N" rung: link the source's declared collection pane,
-	// unless this pane already is it (no self-link) or none is declared.
-	const collectionHref =
-		source.collectionRoot !== undefined && source.collectionRoot !== entry.id
-			? `/s/${source.id}/${source.collectionRoot}`
-			: undefined;
-
-	// Everything except the render-only overrides (dialect, temporal) is a
-	// producer-facing filter (party_id, …) forwarded onto the kernel fetch. The
-	// temporal policy is a client-side presentation choice — it never reaches the
-	// producer, and forwarding it would leak a viewer concern onto the kernel.
-	// Governed-read selectors (source.governedParams) are stripped last: the
-	// anonymous public edge must never request a privileged representation.
-	const rawQuery = new URLSearchParams(url.searchParams);
-	rawQuery.delete("dialect");
-	rawQuery.delete(TEMPORAL_QUERY_KEY);
-	const forwardedQuery = withoutGovernedParams(rawQuery, source.governedParams);
-
-	const artifactId = `${source.id}:${entry.id}`;
-	const dialectHint = entry.dialectHint ?? source.dialectHint ?? "ledger";
-	// Build the kernel request once. `derived` is true when the viewer forwarded a
-	// filter beyond what the declared path already carries — a drill-through instance
-	// whose producer emits a param-scoped surface_id. That single bit chooses the
-	// source-v1 identity gate mode below; it is known here from how we built the URL,
-	// never inferred from the artifact.
-	const forwarded = forwardedRequest(entry.path, forwardedQuery);
-	const trust = source.sourceTrust;
-	if (trust === undefined) {
-		error(503, { message: `Source "${source.id}" has no source-v1 trust configuration.` });
-	}
-	const freshness = {
-		...(trust.maxAgeSeconds === undefined ? {} : { maxAgeMs: trust.maxAgeSeconds * 1_000 }),
-		...(trust.maxFutureSkewSeconds === undefined
-			? {}
-			: { maxFutureSkewMs: trust.maxFutureSkewSeconds * 1_000 }),
-	};
-	const surface = await loadGatedSurface({
+	const pane = await loadSourcePane({
+		source,
+		entry,
+		searchParams: url.searchParams,
 		fetch,
-		url: `${source.baseUrl}${forwarded.path}`,
-		artifactId,
-		bearer,
-		accept: SOURCE_SURFACE_V1_MEDIA_TYPE,
-		parse: (response) =>
-			parseSourceSurfaceResponse(response, {
-				artifactId,
-				dialectHint,
-				temporalPolicy,
-				admission: {
-					expectedIssuer: trust.issuer,
-					expectedSurfaceId: entry.sourceSurfaceId,
-					surfaceIdMatch: forwarded.derived ? "family" : "exact",
-					publicKeys: trust.publicKeys,
-					freshness,
-				},
-			}),
-		dialectOverride,
-		transformTree: (tree) => rewriteKernelLinks(tree, source),
+		bearer: bearerFor(source),
+		dialectOverride: url.searchParams.get("dialect"),
 	});
-	// Source-v1 panes honor the temporal control; report the effective policy so
-	// the chrome renders it and marks the current selection.
-	//
-	// A derived instance (family-mode drill-through) is a DIFFERENT surface than
-	// the pin: its crumb/title come from the artifact's own leading heading, not
-	// the declared title of the representative it was pinned through.
-	const surfaceTitle = forwarded.derived
-		? (derivedSurfaceTitle(surface.tree) ?? entry.title)
-		: entry.title;
+
 	return {
-		...surface,
+		...pane.surface,
 		sourceTitle: source.title,
-		surfaceTitle,
-		collectionHref,
-		temporalPolicy,
+		surfaceTitle: pane.surfaceTitle,
+		collectionHref: pane.collectionHref,
+		temporalPolicy: pane.temporalPolicy,
+		resolvedWindow: pane.resolvedWindow,
 	};
 };
