@@ -1,0 +1,147 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "krates-fixture-2026-01",
+    "signature": "rKAUgJIrd5Tn1Bt0qcYkSkdCrRi-GVvo4_KWGJPAJwK8QyZM3b1cL-YWTpPoKRSz3vG1l_qTCQ8zwBC8Wpu0Dg"
+  },
+  "data": {
+    "header": {
+      "exposureIsk": 2450000,
+      "ledgerRef": "vendor:krates-ehf",
+      "name": "Krates ehf",
+      "primaryContact": "S\u00f3k Rates",
+      "standing": "review"
+    },
+    "summary": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
+  },
+  "diagnostics": [
+    {
+      "code": "VENDOR_STANDING_REVIEW",
+      "message": "This vendor is under standing review.",
+      "path": "$.header",
+      "repair_hint": "Confirm the exposure before the next settlement run.",
+      "severity": "warning"
+    },
+    {
+      "code": "VENDOR_EXPOSURE_SOURCE",
+      "message": "Exposure reflects the signed ledger position.",
+      "path": "$.header.exposureIsk",
+      "repair_hint": null,
+      "severity": "info"
+    }
+  ],
+  "issuer": "krates",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:10:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "_VendorLede": {
+        "additionalProperties": false,
+        "description": "The detail-pane lede, hint-selected to lower to a promoted EntityHeader.\n\nIts children exercise every classification slot: the primary string is the\ntitle, the currency number is the key figure, the enum status feeds the signal\nslot, a plain scalar is a meta fact, a provenance-role id is the footer, and a\nhidden field must never reach the compiled tree.",
+        "properties": {
+          "exposureIsk": {
+            "title": "Exposure",
+            "type": "integer",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "ledgerRef": {
+            "title": "Ledger id",
+            "type": "string",
+            "x-morphe": {
+              "role": "provenance"
+            }
+          },
+          "name": {
+            "title": "Vendor",
+            "type": "string"
+          },
+          "primaryContact": {
+            "title": "Primary contact",
+            "type": "string"
+          },
+          "standing": {
+            "enum": [
+              "active",
+              "review",
+              "suspended"
+            ],
+            "title": "Standing",
+            "type": "string",
+            "x-morphe": {
+              "intents": {
+                "active": "success",
+                "review": "caution",
+                "suspended": "caution"
+              },
+              "strategy": "status"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "exposureIsk",
+          "standing",
+          "primaryContact",
+          "ledgerRef"
+        ],
+        "title": "_VendorLede",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "name",
+            "exposureIsk",
+            "standing",
+            "primaryContact",
+            "ledgerRef"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "header": {
+        "$ref": "#/$defs/_VendorLede",
+        "title": "Vendor",
+        "x-morphe": {
+          "strategy": "entity-header"
+        }
+      },
+      "summary": {
+        "title": "Summary",
+        "type": "string"
+      }
+    },
+    "required": [
+      "header",
+      "summary"
+    ],
+    "title": "_VendorDetail",
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "header",
+        "summary"
+      ]
+    }
+  },
+  "seals": {
+    "content_sha256": "sha256:0dabf7db4395c56cfecce6cd2aed34ae2ea26ff6490011c5df67aefcd55764b6",
+    "schema_sha256": "sha256:311953ce3c9c4196623d1d6d1fe851504c581c279c94a4ded8459a737e5aa001",
+    "testimony_sha256": "sha256:ad5498783443579f5a04c50358021901c72b3940feb171b538d86b95ed37e284"
+  },
+  "source_revision": "krates-fixture-rev-0001",
+  "surface_id": "krates.vendor:krates-ehf",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.5.0",
+    "id": "krates.vendor",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

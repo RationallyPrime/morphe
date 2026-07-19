@@ -48,6 +48,9 @@ _TAXIS_NODE_PATH = "fixtures/source-surface/taxis-roster.node.json"
 _OBOLOS_SOURCE_PATH = "fixtures/source-surface/obolos-evidence.source.json"
 _OBOLOS_SURFACE_SPEC_PATH = "fixtures/source-surface/obolos-evidence.surface-spec.json"
 _OBOLOS_NODE_PATH = "fixtures/source-surface/obolos-evidence.node.json"
+_KRATES_SOURCE_PATH = "fixtures/source-surface/krates-vendor.source.json"
+_KRATES_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-vendor.surface-spec.json"
+_KRATES_NODE_PATH = "fixtures/source-surface/krates-vendor.node.json"
 SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
 
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
@@ -59,17 +62,25 @@ SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _OBOLOS_SOURCE_PATH,
     _OBOLOS_SURFACE_SPEC_PATH,
     _OBOLOS_NODE_PATH,
+    _KRATES_SOURCE_PATH,
+    _KRATES_SURFACE_SPEC_PATH,
+    _KRATES_NODE_PATH,
     SOURCE_CONFORMANCE_MANIFEST_PATH,
 )
 
 _TAXIS_SEED_HEX = "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"
 _OBOLOS_SEED_HEX = "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb"
+# RFC 8032 §7.1 TEST 3 seed — public test material, never a production key.
+_KRATES_SEED_HEX = "c5aa8df43f9f837bedb7442f31dcb7b166d38535076f094b85ce3a2e0b4458f7"
 _TAXIS_KEY_ID = "taxis-fixture-2026-01"
 _OBOLOS_KEY_ID = "obolos-fixture-2026-01"
+_KRATES_KEY_ID = "krates-fixture-2026-01"
 _TAXIS_HIDDEN_FIELD = "dispatchSecret"
 _TAXIS_HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42"
 _OBOLOS_HIDDEN_FIELD = "rawBankAccount"
 _OBOLOS_HIDDEN_SENTINEL = "MORPHE-HIDDEN-OBOLOS-91A8DD"
+_KRATES_HIDDEN_FIELD = "internalRating"
+_KRATES_HIDDEN_SENTINEL = "MORPHE-HIDDEN-KRATES-3D91C4"
 
 
 class _FixtureModel(BaseModel):
@@ -201,6 +212,48 @@ class _ObolosEvidence(_FixtureModel):
     )
 
 
+class _VendorLede(_FixtureModel):
+    """The detail-pane lede, hint-selected to lower to a promoted EntityHeader.
+
+    Its children exercise every classification slot: the primary string is the
+    title, the currency number is the key figure, the enum status feeds the signal
+    slot, a plain scalar is a meta fact, a provenance-role id is the footer, and a
+    hidden field must never reach the compiled tree.
+    """
+
+    name: str = Field(title="Vendor")
+    exposure: int = Field(
+        alias="exposureIsk",
+        title="Exposure",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    standing: Literal["active", "review", "suspended"] = Field(
+        title="Standing",
+        json_schema_extra=morphe_hint(
+            strategy="status",
+            intents={"active": "success", "review": "caution", "suspended": "caution"},
+        ),
+    )
+    contact: str = Field(alias="primaryContact", title="Primary contact")
+    ledger_ref: str = Field(
+        alias="ledgerRef",
+        title="Ledger id",
+        json_schema_extra=morphe_hint(role="provenance"),
+    )
+    internal_rating: str = Field(
+        alias=_KRATES_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _VendorDetail(_FixtureModel):
+    header: _VendorLede = Field(
+        title="Vendor",
+        json_schema_extra=morphe_hint(strategy="entity-header"),
+    )
+    summary: str = Field(title="Summary")
+
+
 type _Fixture = tuple[SourceSurfaceArtifactV1, Ed25519PrivateKey, str]
 
 
@@ -208,11 +261,14 @@ def source_vector_documents() -> dict[str, str]:
     """Build every checked-in source artifact, crypto vector, and Python oracle."""
     taxis = _taxis_fixture()
     obolos = _obolos_fixture()
+    krates = _krates_fixture()
     taxis_spec, taxis_node = source_compiler_oracles(taxis[0])
     obolos_spec, obolos_node = source_compiler_oracles(obolos[0])
+    krates_spec, krates_node = source_compiler_oracles(krates[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(krates[0], _KRATES_HIDDEN_FIELD, _KRATES_HIDDEN_SENTINEL)
 
     documents = {
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
@@ -223,7 +279,12 @@ def source_vector_documents() -> dict[str, str]:
         _OBOLOS_SOURCE_PATH: _json_document(_artifact_document(obolos[0])),
         _OBOLOS_SURFACE_SPEC_PATH: _json_document(obolos_spec),
         _OBOLOS_NODE_PATH: _json_document(obolos_node),
-        SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(_conformance_manifest(taxis, obolos)),
+        _KRATES_SOURCE_PATH: _json_document(_artifact_document(krates[0])),
+        _KRATES_SURFACE_SPEC_PATH: _json_document(krates_spec),
+        _KRATES_NODE_PATH: _json_document(krates_node),
+        SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(
+            _conformance_manifest(taxis, obolos, krates)
+        ),
     }
     if tuple(documents) != SOURCE_VECTOR_PATHS:
         msg = "source vector path order drifted"
@@ -383,6 +444,48 @@ def _obolos_fixture() -> _Fixture:
     )
 
 
+def _krates_fixture() -> _Fixture:
+    model = _VendorDetail(
+        header=_VendorLede(
+            name="Krates ehf",
+            exposureIsk=2_450_000,
+            standing="review",
+            primaryContact="Sók Rates",
+            ledgerRef="vendor:krates-ehf",
+            internalRating=_KRATES_HIDDEN_SENTINEL,
+        ),
+        summary="One vendor detail pane; the lede lowers to a promoted EntityHeader.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="VENDOR_STANDING_REVIEW",
+            severity="warning",
+            path="$.header",
+            message="This vendor is under standing review.",
+            repair_hint="Confirm the exposure before the next settlement run.",
+        ),
+        Diagnostic(
+            code="VENDOR_EXPOSURE_SOURCE",
+            severity="info",
+            path="$.header.exposureIsk",
+            message="Exposure reflects the signed ledger position.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_KRATES_SEED_HEX,
+        key_id=_KRATES_KEY_ID,
+        issuer="krates",
+        surface_id="krates.vendor:krates-ehf",
+        source_revision="krates-fixture-rev-0001",
+        view_model_id="krates.vendor",
+        produced_at=datetime(2026, 7, 17, 12, 10, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
 def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's testimony
     model: BaseModel,
     *,
@@ -460,6 +563,7 @@ def source_compiler_oracles(
 def _conformance_manifest(
     taxis: _Fixture,
     obolos: _Fixture,
+    krates: _Fixture,
 ) -> dict[str, object]:
     """Index the shared Python/TypeScript compiler corpus and its trust bindings."""
     return {
@@ -486,6 +590,17 @@ def _conformance_manifest(
                 },
                 hidden_field=_OBOLOS_HIDDEN_FIELD,
                 hidden_sentinel=_OBOLOS_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-vendor",
+                krates,
+                paths={
+                    "source": _KRATES_SOURCE_PATH,
+                    "surface_spec": _KRATES_SURFACE_SPEC_PATH,
+                    "node": _KRATES_NODE_PATH,
+                },
+                hidden_field=_KRATES_HIDDEN_FIELD,
+                hidden_sentinel=_KRATES_HIDDEN_SENTINEL,
             ),
         ],
     }

@@ -97,7 +97,11 @@ describe("Python/TypeScript source-surface migration oracles", () => {
 		// Two pinned pilot kernels (taxis, obolos) are the floor. If the manifest
 		// ever ships fewer, this fails rather than quietly gating on less.
 		expect(CASES.length).toBeGreaterThanOrEqual(2);
-		expect(CASES.map((entry) => entry.id)).toEqual(["taxis-roster", "obolos-evidence"]);
+		expect(CASES.map((entry) => entry.id)).toEqual([
+			"taxis-roster",
+			"obolos-evidence",
+			"krates-vendor",
+		]);
 	});
 
 	for (const fixture of CASES) {

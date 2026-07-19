@@ -174,6 +174,47 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted EntityHeader — the detail-pane lede. Authored as data (its
+		// string fields ride as call-site nodes, never interpolated params) and
+		// re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "EntityHeader",
+			args: {
+				kicker: { kind: "text", value: "Detail pane", as: "caption", intent: "folio" },
+				title: { kind: "text", value: "Vestfjörður roster", as: "heading" },
+				keyFigure: {
+					kind: "number",
+					value: 2_450_000,
+					format: "currency",
+					currency: "ISK",
+					intent: "evidence",
+					emphasis: "strong",
+				},
+			},
+			slots: {
+				signal: [{ kind: "status", tone: "success", signal: { text: "Active" } }],
+				meta: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Window", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "2026-W29", as: "body" },
+							{ kind: "text", value: "Coverage", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "18 of 24 shifts", as: "body" },
+						],
+					},
+				],
+				provenance: [
+					{ kind: "text", value: "roster:westfjords:2026-W29", as: "body", intent: "provenance" },
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",
