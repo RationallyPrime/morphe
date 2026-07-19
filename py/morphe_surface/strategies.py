@@ -21,6 +21,10 @@ from typing import Literal
 #                child is a row (fraction = value / sum(positive numeric values); a
 #                non-numeric child or a zero/empty sum degrades that row's progress to
 #                indeterminate, mirroring how the `progress` strategy degrades)
+#   trail     -> one promoted TrailEntry compound per array item (event/trace rows);
+#                child classification is hint-keyed only (temporal -> stamp; the primary
+#                string scalar -> summary; linked-ref -> ref slot; role:provenance ->
+#                provenance slot), never name-based
 Strategy = Literal[
     "scalar",
     "badge",
@@ -36,4 +40,5 @@ Strategy = Literal[
     "kpi-row",
     "entity-header",
     "breakdown",
+    "trail",
 ]

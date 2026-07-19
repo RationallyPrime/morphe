@@ -1,0 +1,157 @@
+{
+  "children": [
+    {
+      "children": [],
+      "diagnostics": [],
+      "heading": true,
+      "items": [
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [
+                {
+                  "code": "TRAIL_EVENT_SOURCE",
+                  "message": "Timestamp reflects the signed event log.",
+                  "path": "$.events[0].occurredAt",
+                  "severity": "info"
+                }
+              ],
+              "heading": true,
+              "items": [],
+              "label": "Occurred",
+              "path": "$.events[0].occurredAt",
+              "strategy": "scalar",
+              "temporal": "date-time-minute",
+              "value": "2026-07-17T09:14:00Z"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Summary",
+              "path": "$.events[0].summary",
+              "strategy": "scalar",
+              "value": "Vendor admitted to the settlement roster."
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/audit/adm-001",
+              "intent": "primary-action",
+              "items": [],
+              "label": "Open admission",
+              "path": "$.events[0].source",
+              "strategy": "linked-ref",
+              "value": "Open admission"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "provenance",
+              "items": [],
+              "label": "Event id",
+              "path": "$.events[0].eventId",
+              "strategy": "scalar",
+              "value": "evt-001"
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Audit trail 0",
+          "path": "$.events[0]",
+          "strategy": "collapsed-section"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Occurred",
+              "path": "$.events[1].occurredAt",
+              "strategy": "scalar",
+              "temporal": "date-time-minute",
+              "value": "2026-07-17T11:02:00Z"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "items": [],
+              "label": "Summary",
+              "path": "$.events[1].summary",
+              "strategy": "scalar",
+              "value": "Exposure recomputed against the signed ledger."
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "href": "/audit/adm-002",
+              "intent": "primary-action",
+              "items": [],
+              "label": "Open recompute",
+              "path": "$.events[1].source",
+              "strategy": "linked-ref",
+              "value": "Open recompute"
+            },
+            {
+              "children": [],
+              "diagnostics": [],
+              "heading": true,
+              "intent": "provenance",
+              "items": [],
+              "label": "Event id",
+              "path": "$.events[1].eventId",
+              "strategy": "scalar",
+              "value": "evt-002"
+            }
+          ],
+          "collapse": true,
+          "diagnostics": [
+            {
+              "code": "TRAIL_EVENT_REVIEW",
+              "message": "The recompute event needs review.",
+              "path": "$.events[1]",
+              "repair_hint": "Confirm the exposure delta before settlement.",
+              "severity": "warning"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Audit trail 1",
+          "path": "$.events[1]",
+          "strategy": "collapsed-section"
+        }
+      ],
+      "label": "Audit trail",
+      "path": "$.events",
+      "strategy": "trail"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Summary",
+      "path": "$.summary",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "Two audit events; each lowers to a promoted TrailEntry."
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_AuditTrailDetail",
+  "path": "$",
+  "strategy": "record-card"
+}

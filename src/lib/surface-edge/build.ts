@@ -95,7 +95,7 @@ class BuildBudget {
 }
 
 const RECORD_STRATEGIES = new Set<Strategy>(["record-card", "collapsed-section"]);
-const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row"]);
+const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row", "trail"]);
 const PROMOTABLE_STRATEGIES = new Set<Strategy>(["table", "card-stack"]);
 const IDENTITY_KEYS = ["name", "title"] as const;
 const NUMERIC_TEXT = /^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$/;

@@ -205,6 +205,9 @@
         },
         {
           "$ref": "#/$defs/CompoundRef_Breakdown"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_TrailEntry"
         }
       ],
       "title": "clinical CompoundRef"
@@ -445,6 +448,70 @@
         "args"
       ],
       "title": "StatBand",
+      "type": "object"
+    },
+    "CompoundRef_TrailEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "stamp": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional temporal stamp for the event."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "description": "The event's primary line at body register."
+            }
+          },
+          "required": [
+            "summary"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "TrailEntry",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "ref": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "TrailEntry",
       "type": "object"
     },
     "ContainerRole": {
@@ -2076,7 +2143,8 @@
       "SignalCard",
       "EntityHeader",
       "StatBand",
-      "Breakdown"
+      "Breakdown",
+      "TrailEntry"
     ],
     "mode": "allowlist"
   },

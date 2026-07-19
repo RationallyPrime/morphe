@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 MAX_DEPTH = 6
 
 _RECORD = {"record-card", "collapsed-section"}
-_COLLECTION = {"table", "card-stack", "kpi-row"}
+# trail rides the generic per-item build (each item -> one TrailEntry at emit); like
+# kpi-row it never wins the "primary collection" promotion below.
+_COLLECTION = {"table", "card-stack", "kpi-row", "trail"}
 # Only row-shaped collections compete for the depth-0 "primary collection" promotion —
 # a leading KPI row is a header, not the record's main body.
 _PROMOTABLE = {"table", "card-stack"}

@@ -52,7 +52,13 @@ def _definitions(document: JsonSchema) -> dict[str, object]:
 
 
 def test_signal_card_is_a_neutral_promoted_compound() -> None:
-    assert tuple(PROMOTED_COMPOUNDS) == ("SignalCard", "EntityHeader", "StatBand", "Breakdown")
+    assert tuple(PROMOTED_COMPOUNDS) == (
+        "SignalCard",
+        "EntityHeader",
+        "StatBand",
+        "Breakdown",
+        "TrailEntry",
+    )
     assert SIGNAL_CARD.lifecycle == "promoted"
     assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
     assert set(SIGNAL_CARD.params.properties) == {"kicker", "title", "measure"}
@@ -86,6 +92,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
         "EntityHeader",
         "StatBand",
         "Breakdown",
+        "TrailEntry",
     )
 
     for dialect_id in DIALECT_IDS:
@@ -231,6 +238,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
         {"$ref": "#/$defs/CompoundRef_EntityHeader"},
         {"$ref": "#/$defs/CompoundRef_StatBand"},
         {"$ref": "#/$defs/CompoundRef_Breakdown"},
+        {"$ref": "#/$defs/CompoundRef_TrailEntry"},
     ]
 
     entity_header = _object(definitions["CompoundRef_EntityHeader"])
@@ -260,6 +268,16 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     breakdown_slots = _object(breakdown_properties["slots"])
     assert set(_object(breakdown_slots["properties"])) == {"rows"}
 
+    # TrailEntry: optional `stamp` + required `summary` node params, ref + provenance slots.
+    trail_entry = _object(definitions["CompoundRef_TrailEntry"])
+    trail_properties = _object(trail_entry["properties"])
+    assert _object(trail_properties["name"])["const"] == "TrailEntry"
+    trail_args = _object(trail_properties["args"])
+    assert set(_object(trail_args["properties"])) == {"stamp", "summary"}
+    assert trail_args["required"] == ["summary"]
+    trail_slots = _object(trail_properties["slots"])
+    assert set(_object(trail_slots["properties"])) == {"ref", "provenance"}
+
     signal_card = _object(definitions["CompoundRef_SignalCard"])
     properties = _object(signal_card["properties"])
     assert _object(properties["name"])["const"] == "SignalCard"
@@ -278,7 +296,13 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
 
     assert document["x-morphe-compound-policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard", "EntityHeader", "StatBand", "Breakdown"],
+        "compounds": [
+            "SignalCard",
+            "EntityHeader",
+            "StatBand",
+            "Breakdown",
+            "TrailEntry",
+        ],
     }
 
 
@@ -362,7 +386,13 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
     assert clinical["schema"] == "dialects/morphe-node.clinical.schema.json"
     assert clinical["compound_policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard", "EntityHeader", "StatBand", "Breakdown"],
+        "compounds": [
+            "SignalCard",
+            "EntityHeader",
+            "StatBand",
+            "Breakdown",
+            "TrailEntry",
+        ],
     }
     assert gallery["compound_policy"] == {"mode": "unrestricted", "compounds": []}
 

@@ -24,6 +24,7 @@ _CONTAINER = {
     "kpi-row",
     "entity-header",
     "breakdown",
+    "trail",
 }
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
 
@@ -319,6 +320,73 @@ def _breakdown(spec: SurfaceNode) -> Node:
     }
 
 
+def _trail_entry(item: SurfaceNode) -> Node:
+    # One event row -> one TrailEntry compound. Classification is deterministic and
+    # HINT-KEYED only (never name-based): role:provenance -> provenance slot; a
+    # linked-ref child -> ref slot; the first temporal-hinted child -> stamp; the
+    # first string scalar among the rest -> summary. Identifiers therefore have
+    # exactly one home (provenance) and never bleed into the summary.
+    stamp: SurfaceNode | None = None
+    summary_child: SurfaceNode | None = None
+    ref: list[Node] = []
+    provenance: list[Node] = []
+    leftover_diagnostics: list[Node] = []
+    for child in item.children:
+        if child.intent == "provenance":
+            provenance.append(_slot_leaf(child))
+        elif child.strategy == "linked-ref":
+            ref.append(_slot_leaf(child))
+        elif stamp is None and child.temporal is not None:
+            stamp = child
+        elif summary_child is None and _is_title_candidate(child):
+            summary_child = child
+        elif child.strategy != "diagnostic-node":
+            # No general "meta" slot exists on a TrailEntry; keep any SIGNED child
+            # diagnostics (D8) at the provenance-footer head, drop only the value.
+            leftover_diagnostics.extend(_alert(d) for d in child.diagnostics)
+    if summary_child is not None:
+        summary_value = display_scalar_text(
+            summary_child.value, summary_child.temporal, summary_child.scalar_number_kind
+        )
+    elif not item.children and isinstance(item.value, str):
+        summary_value = display_scalar_text(item.value, item.temporal, item.scalar_number_kind)
+    else:
+        summary_value = item.label
+    args: Node = {"summary": {"kind": "text", "value": summary_value, "as": "body"}}
+    if stamp is not None:
+        args["stamp"] = {
+            "kind": "text",
+            "value": display_scalar_text(stamp.value, stamp.temporal, stamp.scalar_number_kind),
+            "as": "caption",
+            "intent": "marginalia",
+        }
+    # The event object itself and the children promoted to BARE args (stamp, summary)
+    # would otherwise lose their alert path. Surface them at the provenance-footer
+    # head, in document order, so nothing signed is dropped (D8).
+    promoted = [
+        item,
+        *([stamp] if stamp is not None else []),
+        *([summary_child] if summary_child is not None else []),
+    ]
+    head_alerts = [
+        _alert(d)
+        for node in promoted
+        if node.strategy != "diagnostic-node"
+        for d in node.diagnostics
+    ]
+    return {
+        "kind": "compound",
+        "name": "TrailEntry",
+        "args": args,
+        "slots": {"ref": ref, "provenance": [*head_alerts, *leftover_diagnostics, *provenance]},
+    }
+
+
+def _trail(spec: SurfaceNode) -> Node:
+    entries = [_trail_entry(item) for item in spec.items]
+    return _section(spec, entries or [_empty_collection(spec)])
+
+
 def _frame(spec: SurfaceNode) -> Node:
     body = _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
@@ -526,5 +594,6 @@ _CONTAINER_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
     "kpi-row": _kpi_row,
     "entity-header": _entity_header,
     "breakdown": _breakdown,
+    "trail": _trail,
     "card-stack": _card_stack,
 }

@@ -102,6 +102,7 @@ describe("Python/TypeScript source-surface migration oracles", () => {
 			"obolos-evidence",
 			"krates-vendor",
 			"krates-budget",
+			"krates-trail",
 		]);
 	});
 

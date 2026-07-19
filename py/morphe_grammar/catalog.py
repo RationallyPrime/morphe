@@ -253,12 +253,58 @@ BREAKDOWN = CompoundDefinition.model_validate(
     }
 )
 
+TRAIL_ENTRY = CompoundDefinition.model_validate(
+    {
+        "name": "TrailEntry",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "stamp": {
+                    "type": "node",
+                    # Optional temporal marker. The empty-text default renders
+                    # display:none, so an entry with no temporal child leaves no gap.
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional temporal stamp for the event.",
+                },
+                "summary": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The event's primary line at body register.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "inline",
+                    "align": "baseline",
+                    "children": [
+                        {"kind": "param-ref", "param": "stamp"},
+                        {"kind": "param-ref", "param": "summary"},
+                    ],
+                },
+                # Relations the entry points to (linked-ref children the call site owns).
+                {"kind": "slot", "name": "ref", "fallback": []},
+                # Identifiers / provenance footer — the one place an id exists.
+                {"kind": "slot", "name": "provenance", "fallback": []},
+            ],
+        },
+    }
+)
+
 PROMOTED_COMPOUNDS = MappingProxyType(
     {
         SIGNAL_CARD.name: SIGNAL_CARD,
         ENTITY_HEADER.name: ENTITY_HEADER,
         STAT_BAND.name: STAT_BAND,
         BREAKDOWN.name: BREAKDOWN,
+        TRAIL_ENTRY.name: TRAIL_ENTRY,
     }
 )
 
@@ -378,6 +424,7 @@ __all__ = [
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",
     "STAT_BAND",
+    "TRAIL_ENTRY",
     "CompoundDefinition",
     "CompoundLifecycle",
     "CompoundParam",

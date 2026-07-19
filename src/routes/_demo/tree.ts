@@ -302,6 +302,31 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted TrailEntry — one event/trace row. The stamp + summary ride as
+		// call-site nodes; the ref and provenance slots carry the links and the id.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "TrailEntry",
+			args: {
+				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "marginalia" },
+				summary: { kind: "text", value: "Vendor admitted to the settlement roster.", as: "body" },
+			},
+			slots: {
+				ref: [
+					{
+						kind: "link",
+						href: "/audit/adm-001",
+						label: "Open admission",
+						intent: "primary-action",
+					},
+				],
+				provenance: [{ kind: "text", value: "evt-001", as: "body", intent: "provenance" }],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",

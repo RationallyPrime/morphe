@@ -233,4 +233,60 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "TrailEntry",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				stamp: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional temporal stamp for the event.",
+				},
+				summary: {
+					type: "node",
+					required: true,
+					description: "The event's primary line at body register.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "cluster",
+					role: "inline",
+					align: "baseline",
+					children: [
+						{
+							kind: "param-ref",
+							param: "stamp",
+						},
+						{
+							kind: "param-ref",
+							param: "summary",
+						},
+					],
+				},
+				{
+					kind: "slot",
+					name: "ref",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];

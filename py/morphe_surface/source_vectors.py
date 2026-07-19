@@ -54,6 +54,9 @@ _KRATES_NODE_PATH = "fixtures/source-surface/krates-vendor.node.json"
 _BUDGET_SOURCE_PATH = "fixtures/source-surface/krates-budget.source.json"
 _BUDGET_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-budget.surface-spec.json"
 _BUDGET_NODE_PATH = "fixtures/source-surface/krates-budget.node.json"
+_TRAIL_SOURCE_PATH = "fixtures/source-surface/krates-trail.source.json"
+_TRAIL_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-trail.surface-spec.json"
+_TRAIL_NODE_PATH = "fixtures/source-surface/krates-trail.node.json"
 SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
 
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
@@ -71,6 +74,9 @@ SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _BUDGET_SOURCE_PATH,
     _BUDGET_SURFACE_SPEC_PATH,
     _BUDGET_NODE_PATH,
+    _TRAIL_SOURCE_PATH,
+    _TRAIL_SURFACE_SPEC_PATH,
+    _TRAIL_NODE_PATH,
     SOURCE_CONFORMANCE_MANIFEST_PATH,
 )
 
@@ -92,6 +98,11 @@ _BUDGET_SEED_HEX = "f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc
 _BUDGET_KEY_ID = "krates-fixture-2026-01"
 _BUDGET_HIDDEN_FIELD = "internalMemo"
 _BUDGET_HIDDEN_SENTINEL = "MORPHE-HIDDEN-BUDGET-5B7E20"
+# Deterministic public test seed (never a production key).
+_TRAIL_SEED_HEX = "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
+_TRAIL_KEY_ID = "krates-fixture-2026-01"
+_TRAIL_HIDDEN_FIELD = "internalTrace"
+_TRAIL_HIDDEN_SENTINEL = "MORPHE-HIDDEN-TRAIL-9C4D71"
 
 
 class _FixtureModel(BaseModel):
@@ -303,6 +314,44 @@ class _BudgetDetail(_FixtureModel):
     summary: str = Field(title="Summary")
 
 
+class _TrailEvent(_FixtureModel):
+    """One event row; hint-keyed classification lowers it to a promoted TrailEntry.
+
+    The temporal-hinted stamp -> the stamp param, the plain string -> the summary,
+    the linked-ref -> the ref slot, and the role:provenance id -> the provenance
+    footer (never inside the summary). A hidden trace must never reach the tree.
+    """
+
+    occurred_at: str = Field(
+        alias="occurredAt",
+        title="Occurred",
+        json_schema_extra=morphe_hint(temporal="date-time-minute"),
+    )
+    summary: str = Field(title="Summary")
+    source: _SurfaceLink = Field(
+        title="Source",
+        json_schema_extra=morphe_hint(strategy="linked-ref", role="primary-action"),
+    )
+    event_id: str = Field(
+        alias="eventId",
+        title="Event id",
+        json_schema_extra=morphe_hint(role="provenance"),
+    )
+    internal_trace: str = Field(
+        alias=_TRAIL_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _AuditTrailDetail(_FixtureModel):
+    events: list[_TrailEvent] = Field(
+        alias="events",
+        title="Audit trail",
+        json_schema_extra=morphe_hint(strategy="trail"),
+    )
+    summary: str = Field(title="Summary")
+
+
 type _Fixture = tuple[SourceSurfaceArtifactV1, Ed25519PrivateKey, str]
 
 
@@ -312,15 +361,18 @@ def source_vector_documents() -> dict[str, str]:
     obolos = _obolos_fixture()
     krates = _krates_fixture()
     budget = _budget_fixture()
+    trail = _trail_fixture()
     taxis_spec, taxis_node = source_compiler_oracles(taxis[0])
     obolos_spec, obolos_node = source_compiler_oracles(obolos[0])
     krates_spec, krates_node = source_compiler_oracles(krates[0])
     budget_spec, budget_node = source_compiler_oracles(budget[0])
+    trail_spec, trail_node = source_compiler_oracles(trail[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(krates[0], _KRATES_HIDDEN_FIELD, _KRATES_HIDDEN_SENTINEL)
     _tassert_hidden_absent(budget[0], _BUDGET_HIDDEN_FIELD, _BUDGET_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(trail[0], _TRAIL_HIDDEN_FIELD, _TRAIL_HIDDEN_SENTINEL)
 
     documents = {
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
@@ -337,8 +389,11 @@ def source_vector_documents() -> dict[str, str]:
         _BUDGET_SOURCE_PATH: _json_document(_artifact_document(budget[0])),
         _BUDGET_SURFACE_SPEC_PATH: _json_document(budget_spec),
         _BUDGET_NODE_PATH: _json_document(budget_node),
+        _TRAIL_SOURCE_PATH: _json_document(_artifact_document(trail[0])),
+        _TRAIL_SURFACE_SPEC_PATH: _json_document(trail_spec),
+        _TRAIL_NODE_PATH: _json_document(trail_node),
         SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(
-            _conformance_manifest(taxis, obolos, krates, budget)
+            _conformance_manifest(taxis, obolos, krates, budget, trail)
         ),
     }
     if tuple(documents) != SOURCE_VECTOR_PATHS:
@@ -581,6 +636,56 @@ def _budget_fixture() -> _Fixture:
     )
 
 
+def _trail_fixture() -> _Fixture:
+    model = _AuditTrailDetail(
+        events=[
+            _TrailEvent(
+                occurredAt="2026-07-17T09:14:00Z",
+                summary="Vendor admitted to the settlement roster.",
+                source=_SurfaceLink(label="Open admission", href="/audit/adm-001"),
+                eventId="evt-001",
+                internalTrace=_TRAIL_HIDDEN_SENTINEL,
+            ),
+            _TrailEvent(
+                occurredAt="2026-07-17T11:02:00Z",
+                summary="Exposure recomputed against the signed ledger.",
+                source=_SurfaceLink(label="Open recompute", href="/audit/adm-002"),
+                eventId="evt-002",
+                internalTrace=f"{_TRAIL_HIDDEN_SENTINEL}-2",
+            ),
+        ],
+        summary="Two audit events; each lowers to a promoted TrailEntry.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="TRAIL_EVENT_REVIEW",
+            severity="warning",
+            path="$.events[1]",
+            message="The recompute event needs review.",
+            repair_hint="Confirm the exposure delta before settlement.",
+        ),
+        Diagnostic(
+            code="TRAIL_EVENT_SOURCE",
+            severity="info",
+            path="$.events[0].occurredAt",
+            message="Timestamp reflects the signed event log.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_TRAIL_SEED_HEX,
+        key_id=_TRAIL_KEY_ID,
+        issuer="krates",
+        surface_id="krates.trail:krates-ehf",
+        source_revision="krates-trail-fixture-rev-0001",
+        view_model_id="krates.trail",
+        produced_at=datetime(2026, 7, 17, 12, 20, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
 def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's testimony
     model: BaseModel,
     *,
@@ -660,6 +765,7 @@ def _conformance_manifest(
     obolos: _Fixture,
     krates: _Fixture,
     budget: _Fixture,
+    trail: _Fixture,
 ) -> dict[str, object]:
     """Index the shared Python/TypeScript compiler corpus and its trust bindings."""
     return {
@@ -708,6 +814,17 @@ def _conformance_manifest(
                 },
                 hidden_field=_BUDGET_HIDDEN_FIELD,
                 hidden_sentinel=_BUDGET_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-trail",
+                trail,
+                paths={
+                    "source": _TRAIL_SOURCE_PATH,
+                    "surface_spec": _TRAIL_SURFACE_SPEC_PATH,
+                    "node": _TRAIL_NODE_PATH,
+                },
+                hidden_field=_TRAIL_HIDDEN_FIELD,
+                hidden_sentinel=_TRAIL_HIDDEN_SENTINEL,
             ),
         ],
     }

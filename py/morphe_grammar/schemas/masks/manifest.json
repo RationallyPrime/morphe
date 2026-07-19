@@ -6,12 +6,13 @@
           "SignalCard",
           "EntityHeader",
           "StatBand",
-          "Breakdown"
+          "Breakdown",
+          "TrailEntry"
         ],
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "062dfe5e6332bbef7020c953e52f58283d207473d4f0d9545a954a29acb1f3da"
+      "sha256": "6bc46b91136c7d563656c15c8e827400296848eb335bf39a465f3e0ab43a8b69"
     },
     "estate": {
       "compound_policy": {

@@ -102,7 +102,15 @@ def _constraint(
 
 _DIALECT_CONSTRAINTS = (
     _constraint("icelandic-archive", "unrestricted"),
-    _constraint("clinical", "allowlist", "SignalCard", "EntityHeader", "StatBand", "Breakdown"),
+    _constraint(
+        "clinical",
+        "allowlist",
+        "SignalCard",
+        "EntityHeader",
+        "StatBand",
+        "Breakdown",
+        "TrailEntry",
+    ),
     _constraint("reykjavik-registry", "unrestricted"),
     _constraint("timaeus", "unrestricted"),
     _constraint("gallery", "unrestricted"),
