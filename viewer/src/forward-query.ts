@@ -52,3 +52,24 @@ export function forwardedRequest(path: string, forward: URLSearchParams): Forwar
 export function withForwardedQuery(path: string, forward: URLSearchParams): string {
 	return forwardedRequest(path, forward).path;
 }
+
+/**
+ * Drop governed-read params from a viewer-edge filter before it is forwarded.
+ *
+ * A governed param (Krepis convention: `include_pii`) selects a privileged
+ * representation the producer serves on the caller's own authority — an
+ * authority the anonymous public edge never carries, and one that demo
+ * deployments running with producer auth disabled cannot re-check downstream.
+ * The public viewer therefore refuses to forward them, at the same single
+ * choke point every filter passes (link-carried and hand-typed alike).
+ * Stripping rather than erroring: the pane degrades to its masked public
+ * representation instead of breaking the link.
+ */
+export function withoutGovernedParams(
+	forward: URLSearchParams,
+	governed: readonly string[],
+): URLSearchParams {
+	const cleaned = new URLSearchParams(forward);
+	for (const key of governed) cleaned.delete(key);
+	return cleaned;
+}

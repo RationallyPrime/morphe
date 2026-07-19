@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { forwardedRequest, withForwardedQuery } from "./forward-query.js";
+import { forwardedRequest, withForwardedQuery, withoutGovernedParams } from "./forward-query.js";
 
 // The pane route strips `dialect` (render-only) and forwards the rest of the
 // viewer query onto the kernel fetch, so a filter that survived the link
@@ -78,5 +78,38 @@ describe("forwardedRequest derived detection", () => {
 		const params = new URL(`http://x${result.path}`).searchParams;
 		expect(params.get("window_start")).toBe("2026-07-13");
 		expect(params.get("party_id")).toBe("p-7");
+	});
+});
+
+// Governed-read selectors must never leave the public edge: the strip happens
+// before forwarding, at the same choke point every filter passes, so neither a
+// hand-typed `?include_pii=true` nor a link-carried one reaches the producer.
+describe("withoutGovernedParams", () => {
+	it("strips a governed key including repeated values", () => {
+		const cleaned = withoutGovernedParams(
+			new URLSearchParams("include_pii=true&include_pii=1&party_id=p-7"),
+			["include_pii"],
+		);
+		expect(cleaned.toString()).toBe("party_id=p-7");
+	});
+
+	it("strips a percent-encoded spelling of a governed key", () => {
+		// URLSearchParams decodes `%69nclude_pii` to `include_pii` at parse time,
+		// so the encoded spelling cannot smuggle the param past the strip.
+		const cleaned = withoutGovernedParams(new URLSearchParams("%69nclude_pii=true"), [
+			"include_pii",
+		]);
+		expect(cleaned.toString()).toBe("");
+	});
+
+	it("leaves non-governed filters untouched with an empty deny list", () => {
+		const cleaned = withoutGovernedParams(new URLSearchParams("party_id=p-7&week=2026-W25"), []);
+		expect(cleaned.toString()).toBe("party_id=p-7&week=2026-W25");
+	});
+
+	it("does not mutate the input params", () => {
+		const original = new URLSearchParams("include_pii=true&party_id=p-7");
+		withoutGovernedParams(original, ["include_pii"]);
+		expect(original.get("include_pii")).toBe("true");
 	});
 });

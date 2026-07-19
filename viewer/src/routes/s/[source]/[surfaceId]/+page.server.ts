@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { parseKernelSurfaceResponse, parseSurfaceResponse } from "../../../../envelope.js";
-import { forwardedRequest } from "../../../../forward-query.js";
+import { forwardedRequest, withoutGovernedParams } from "../../../../forward-query.js";
 import { rewriteKernelLinks } from "../../../../links.js";
 import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
 import { bearerFor, loadSources } from "../../../../sources.server.js";
@@ -53,9 +53,12 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	// producer-facing filter (party_id, …) forwarded onto the kernel fetch. The
 	// temporal policy is a client-side presentation choice — it never reaches the
 	// producer, and forwarding it would leak a viewer concern onto the kernel.
-	const forwardedQuery = new URLSearchParams(url.searchParams);
-	forwardedQuery.delete("dialect");
-	forwardedQuery.delete(TEMPORAL_QUERY_KEY);
+	// Governed-read selectors (source.governedParams) are stripped last: the
+	// anonymous public edge must never request a privileged representation.
+	const rawQuery = new URLSearchParams(url.searchParams);
+	rawQuery.delete("dialect");
+	rawQuery.delete(TEMPORAL_QUERY_KEY);
+	const forwardedQuery = withoutGovernedParams(rawQuery, source.governedParams);
 
 	if ("artifactId" in entry) {
 		const surface = await loadGatedSurface({
