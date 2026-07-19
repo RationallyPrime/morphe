@@ -119,4 +119,31 @@ describe("rewriteKernelLinks", () => {
 		};
 		expect(rewriteKernelLinks(tree, ZYGOS)).toEqual(tree);
 	});
+
+	// KRA-789: drill-through from a home panel must preserve the selected as_of.
+	it("carries as_of forward onto a rewritten drill-through href (query preservation)", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [link("/books/b-1/surfaces/overview?party_id=p-7", "Björn")],
+		};
+		const carry = new URLSearchParams({ as_of: "2026-07-15" });
+		const rewritten = rewriteKernelLinks(tree, ZYGOS, carry) as unknown as { children: Node[] };
+		expect(rewritten.children[0]).toEqual({
+			kind: "link",
+			href: "/s/zygos/overview?party_id=p-7&as_of=2026-07-15",
+			label: "Björn",
+		});
+	});
+
+	it("carrying an EMPTY set is byte-identical to the pre-KRA-789 rewrite", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [link("/books/b-1/surfaces/overview?party_id=p-7", "Björn")],
+		};
+		expect(rewriteKernelLinks(tree, ZYGOS, new URLSearchParams())).toEqual(
+			rewriteKernelLinks(tree, ZYGOS),
+		);
+	});
 });

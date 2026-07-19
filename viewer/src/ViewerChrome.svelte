@@ -31,14 +31,37 @@
 		 */
 		temporalPolicies?: readonly string[];
 		temporalPolicy?: string | null;
+		/*
+		 * The ONE `as_of` date control (KRA-789). Present only in the home chrome
+		 * (`showAsOf`): selecting a date fans `?as_of=` to every home panel's kernel
+		 * fetch. Empty is today's behavior — no `as_of` forwarded. Built the same way
+		 * as the KRA-767 temporal control: a native control writing a query param.
+		 */
+		showAsOf?: boolean;
+		asOf?: string | null;
 	}
 
-	let { dialects, current, crumbs, temporalPolicies, temporalPolicy }: Props = $props();
+	let {
+		dialects,
+		current,
+		crumbs,
+		temporalPolicies,
+		temporalPolicy,
+		showAsOf,
+		asOf,
+	}: Props = $props();
 
 	function setParam(key: string, value: string): void {
 		const params = new URLSearchParams(window.location.search);
 		params.set(key, value);
 		void goto(`?${params.toString()}`, { keepFocus: true, noScroll: true });
+	}
+
+	function deleteParam(key: string): void {
+		const params = new URLSearchParams(window.location.search);
+		params.delete(key);
+		const query = params.toString();
+		void goto(query === "" ? "?" : `?${query}`, { keepFocus: true, noScroll: true });
 	}
 
 	function onDialectChange(event: Event & { currentTarget: HTMLSelectElement }): void {
@@ -47,6 +70,13 @@
 
 	function onTemporalChange(event: Event & { currentTarget: HTMLSelectElement }): void {
 		setParam("temporal", event.currentTarget.value);
+	}
+
+	function onAsOfChange(event: Event & { currentTarget: HTMLInputElement }): void {
+		const value = event.currentTarget.value;
+		// Clearing the date restores today's behavior (no `as_of` forwarded), byte-identical.
+		if (value === "") deleteParam("as_of");
+		else setParam("as_of", value);
 	}
 
 	const showTemporal = $derived(
@@ -73,6 +103,12 @@
 		{/if}
 	</nav>
 	<div class="chrome__controls">
+		{#if showAsOf}
+			<label class="chrome__control">
+				<span>As of</span>
+				<input type="date" value={asOf ?? ""} onchange={onAsOfChange} />
+			</label>
+		{/if}
 		{#if showTemporal}
 			<label class="chrome__control">
 				<span>Time</span>
@@ -149,7 +185,8 @@
 		white-space: nowrap;
 	}
 
-	.chrome__control select {
+	.chrome__control select,
+	.chrome__control input[type="date"] {
 		background: var(--mo-intent-surface-sunken);
 		color: var(--mo-intent-on-surface);
 		border: 1px solid var(--mo-intent-outline);

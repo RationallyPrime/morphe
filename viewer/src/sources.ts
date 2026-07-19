@@ -66,7 +66,22 @@ export interface SourceConfig {
 	 * empty array is the deliberate opt-out.
 	 */
 	readonly governedParams: readonly string[];
+	/**
+	 * Which configured pane represents this source on the composed home surface
+	 * (KRA-789), plus the short panel title shown above the grafted digest.
+	 * DECLARED, never inferred: an undeclared source is simply absent from home,
+	 * and a `pane` that does not name a declared surface is a configuration error
+	 * (fail closed), never a guess — boot-validated exactly like `collectionRoot`.
+	 */
+	readonly homePanel?: HomePanelConfig;
 	readonly surfaces: readonly SurfaceEntry[];
+}
+
+export interface HomePanelConfig {
+	/** The declared surface id this source contributes to home. */
+	readonly pane: string;
+	/** Short title rendered as the panel's strong lede. */
+	readonly title: string;
 }
 
 export type SourcesResult =
@@ -218,6 +233,8 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	}
 	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
 	if (typeof governedParams === "string") return governedParams;
+	const homePanel = parseHomePanel(sourceId, raw.home_panel, seen, title);
+	if (typeof homePanel === "string") return homePanel;
 	return {
 		id: sourceId,
 		title,
@@ -229,8 +246,33 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 		icon,
 		collectionRoot,
 		governedParams,
+		...(homePanel === undefined ? {} : { homePanel }),
 		surfaces,
 	};
+}
+
+/**
+ * `home_panel` is config-as-data (KRA-789): `{ pane, title }`. Undeclared means the
+ * source is absent from the composed home surface; a declared `pane` MUST name one of
+ * this source's own surfaces, boot-validated against `seen` so a typo fails config load
+ * fast rather than blanking a home cell at request time. `title` defaults to the source
+ * title when omitted.
+ */
+function parseHomePanel(
+	sourceId: string,
+	raw: unknown,
+	seen: ReadonlySet<string>,
+	sourceTitle: string,
+): HomePanelConfig | undefined | string {
+	if (raw === undefined) return undefined;
+	if (!isRecord(raw)) return `source ${sourceId}: home_panel must be an object`;
+	const pane = stringField(raw, "pane");
+	if (pane === null) return `source ${sourceId}: home_panel needs a pane`;
+	if (!seen.has(pane)) {
+		return `source ${sourceId}: home_panel pane "${pane}" is not a declared surface`;
+	}
+	const title = stringField(raw, "title") ?? sourceTitle;
+	return { pane, title };
 }
 
 /**

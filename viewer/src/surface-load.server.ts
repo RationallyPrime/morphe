@@ -51,6 +51,8 @@ export interface GatedSurface {
 	readonly tree: Node;
 	readonly dialectId: string;
 	readonly deliveryReceipt?: DeliveryReceipt;
+	/** The concrete `surface_id` the admission gate accepted, when the parser reports it. */
+	readonly admittedSurfaceId?: string;
 }
 
 interface GatedParsedEnvelope {
@@ -60,6 +62,7 @@ interface GatedParsedEnvelope {
 	readonly dialectHint: string;
 	readonly tree: Node;
 	readonly compilationReceipt?: CompilationReceipt;
+	readonly admittedSurfaceId?: string;
 }
 
 type GatedParseResult =
@@ -177,5 +180,8 @@ export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<Ga
 		tree: validatedTree.value,
 		dialectId,
 		deliveryReceipt,
+		...(parsed.envelope.admittedSurfaceId === undefined
+			? {}
+			: { admittedSurfaceId: parsed.envelope.admittedSurfaceId }),
 	};
 }

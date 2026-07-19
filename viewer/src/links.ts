@@ -22,9 +22,21 @@
 import type { Node } from "$lib";
 import type { KernelSurfaceEntry, SourceConfig } from "./sources.js";
 
-export function rewriteKernelLinks(tree: Node, source: SourceConfig): Node {
+/**
+ * `carry` are viewer-level presentation params (KRA-789: `as_of`) that must SURVIVE a
+ * drill-through so a panel link keeps the home date. They are merged onto the rewritten
+ * viewer href AFTER the kernel link's own query, winning on a key collision. An empty or
+ * omitted `carry` is a strict no-op — the rewrite stays byte-identical to the pre-KRA-789
+ * behavior, so `as_of`-free navigation is unchanged.
+ */
+export function rewriteKernelLinks(
+	tree: Node,
+	source: SourceConfig,
+	carry?: URLSearchParams,
+): Node {
 	const routes = declaredRoutes(source);
-	return walk(tree, routes) as Node;
+	const carried = carry !== undefined && [...carry].length > 0 ? carry : undefined;
+	return walk(tree, routes, carried) as Node;
 }
 
 /** Declared path (query stripped) → viewer pane href. First declaration wins. */
@@ -53,30 +65,49 @@ function isExternal(href: string): boolean {
 	return /^https?:\/\//.test(href);
 }
 
-function walk(value: unknown, routes: ReadonlyMap<string, string>): unknown {
+function walk(
+	value: unknown,
+	routes: ReadonlyMap<string, string>,
+	carry: URLSearchParams | undefined,
+): unknown {
 	if (Array.isArray(value)) {
-		return value.map((item) => walk(item, routes));
+		return value.map((item) => walk(item, routes, carry));
 	}
 	if (typeof value !== "object" || value === null) return value;
 	const record = value as Record<string, unknown>;
 	if (record.kind === "link" && typeof record.href === "string") {
-		return rewriteLink(record, routes);
+		return rewriteLink(record, routes, carry);
 	}
 	const out: Record<string, unknown> = {};
 	for (const [key, child] of Object.entries(record)) {
-		out[key] = walk(child, routes);
+		out[key] = walk(child, routes, carry);
 	}
 	return out;
+}
+
+/** Merge the carried viewer params onto a rewritten viewer href's own query. */
+function withCarriedQuery(paneHref: string, carry: URLSearchParams | undefined): string {
+	if (carry === undefined) return paneHref;
+	const cut = paneHref.search(/[?#]/);
+	const base = cut === -1 ? paneHref : paneHref.slice(0, cut);
+	const existing = cut === -1 ? "" : paneHref.slice(cut + 1);
+	const merged = new URLSearchParams(existing);
+	for (const [key, value] of carry) merged.set(key, value);
+	const query = merged.toString();
+	return query === "" ? base : `${base}?${query}`;
 }
 
 function rewriteLink(
 	link: Record<string, unknown>,
 	routes: ReadonlyMap<string, string>,
+	carry: URLSearchParams | undefined,
 ): Record<string, unknown> {
 	const href = link.href as string;
 	if (isExternal(href)) return link;
 	const pane = routes.get(pathOnly(href));
-	if (pane !== undefined) return { ...link, href: `${pane}${querySuffix(href)}` };
+	if (pane !== undefined) {
+		return { ...link, href: withCarriedQuery(`${pane}${querySuffix(href)}`, carry) };
+	}
 	const label = typeof link.label === "string" ? link.label : "";
 	return { kind: "text", value: label, as: "body" };
 }
