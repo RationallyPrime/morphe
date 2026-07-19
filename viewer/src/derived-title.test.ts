@@ -7,8 +7,8 @@ import { derivedSurfaceTitle } from "./derived-title.js";
 // representative's declared title. See +page.server.ts for the wiring.
 describe("derivedSurfaceTitle", () => {
 	const text = (value: string, as?: "display" | "heading" | "body"): Node =>
-		({ kind: "text", value, ...(as === undefined ? {} : { as }) }) as Node;
-	const stack = (...children: Node[]): Node => ({ kind: "stack", children }) as Node;
+		({ kind: "text", value, ...(as === undefined ? {} : { as }) }) as unknown as Node;
+	const stack = (...children: Node[]): Node => ({ kind: "stack", children }) as unknown as Node;
 
 	it("finds the first display text in document order", () => {
 		const tree = stack(text("breadcrumb noise", "body"), text("Hákon Freyr", "display"));
