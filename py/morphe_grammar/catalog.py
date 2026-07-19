@@ -18,6 +18,8 @@ type TypeScriptValue = (
 
 _TYPESCRIPT_IDENTIFIER = re.compile(r"^[A-Za-z_$][A-Za-z0-9_$]*$")
 _TYPESCRIPT_LINE_WIDTH = 100
+# Biome counts a tab as its indent width (2) toward lineWidth; mirror that here.
+_TYPESCRIPT_TAB_WIDTH = 2
 
 
 class CompoundParam(GrammarModel):
@@ -391,7 +393,46 @@ def _typescript_key(key: str) -> str:
     return key if _TYPESCRIPT_IDENTIFIER.fullmatch(key) else json.dumps(key, ensure_ascii=True)
 
 
-def typescript_data_literal(value: TypeScriptValue, *, depth: int = 0) -> str:
+def _entry_prefix_width(depth: int, key: str) -> int:
+    # Expanded indent + "key: " + the trailing comma the parent appends.
+    return (depth + 1) * _TYPESCRIPT_TAB_WIDTH + len(_typescript_key(key)) + 3
+
+
+def _typescript_list_literal(
+    value: list[TypeScriptValue],
+    *,
+    depth: int,
+    prefix_width: int | None,
+) -> str:
+    if not value:
+        return "[]"
+    if all(not isinstance(item, dict | list) for item in value):
+        inline = f"[{', '.join(typescript_data_literal(item) for item in value)}]"
+        occupied = (
+            prefix_width if prefix_width is not None else (depth + 1) * _TYPESCRIPT_TAB_WIDTH + 1
+        )
+        if occupied + len(inline) <= _TYPESCRIPT_LINE_WIDTH:
+            return inline
+    child_indent = "\t" * (depth + 1)
+    item_prefix = (depth + 1) * _TYPESCRIPT_TAB_WIDTH + 1
+    lines = ["["]
+    for item in value:
+        encoded = typescript_data_literal(item, depth=depth + 1, prefix_width=item_prefix)
+        lines.append(f"{child_indent}{encoded},")
+    lines.append("\t" * depth + "]")
+    return "\n".join(lines)
+
+
+def typescript_data_literal(
+    value: TypeScriptValue,
+    *,
+    depth: int = 0,
+    prefix_width: int | None = None,
+) -> str:
+    # ``prefix_width`` is everything already on the emitted line besides this literal:
+    # expanded indent, any ``key: `` prefix, and the trailing comma. Biome inlines an
+    # array only when the whole line fits ``lineWidth`` (a tab counting as its indent
+    # width), so the fit check must measure the same line the formatter measures.
     indent = "\t" * depth
     child_indent = "\t" * (depth + 1)
     if value is None:
@@ -401,29 +442,18 @@ def typescript_data_literal(value: TypeScriptValue, *, depth: int = 0) -> str:
     elif isinstance(value, int | float | str):
         rendered = json.dumps(value, ensure_ascii=True)
     elif isinstance(value, list):
-        if not value:
-            return "[]"
-        if all(not isinstance(item, dict | list) for item in value):
-            inline = f"[{', '.join(typescript_data_literal(item) for item in value)}]"
-            if len(child_indent) + len(inline) <= _TYPESCRIPT_LINE_WIDTH:
-                return inline
-        lines = ["["]
-        lines.extend(
-            f"{child_indent}{typescript_data_literal(item, depth=depth + 1)}," for item in value
-        )
-        lines.append(f"{indent}]")
-        return "\n".join(lines)
+        return _typescript_list_literal(value, depth=depth, prefix_width=prefix_width)
     else:
         if not value:
             return "{}"
         lines = ["{"]
-        lines.extend(
-            (
-                f"{child_indent}{_typescript_key(key)}: "
-                f"{typescript_data_literal(item, depth=depth + 1)},"
+        for key, item in value.items():
+            encoded = typescript_data_literal(
+                item,
+                depth=depth + 1,
+                prefix_width=_entry_prefix_width(depth, key),
             )
-            for key, item in value.items()
-        )
+            lines.append(f"{child_indent}{_typescript_key(key)}: {encoded},")
         lines.append(f"{indent}}}")
         return "\n".join(lines)
     return rendered
