@@ -79,11 +79,14 @@ export const SLOTS = {
 	 * dialect's `on-surface` ink and is therefore contrast-guaranteed on every
 	 * ground — fixing the gallery bug where the provenance `on` ice tone (built
 	 * for a navy panel) was used as inline text on paper and vanished. A link that
-	 * carries an EXPLICIT non-provenance intent still reads that intent's channels.
+	 * carries an EXPLICIT non-provenance intent reads that intent's SURFACE hue as
+	 * its ink: a standalone link sits on the base ground, so the fill hue (the
+	 * beacon) is the readable channel — the `on` channel is text-on-fill and
+	 * vanishes off its fill (the same failure the provenance branch fixed).
 	 */
 	link: {
 		on: (intent: IntentRef = "provenance"): string =>
-			intent === "provenance" ? `var(--mo-link-on)` : slot(intent, "on"),
+			intent === "provenance" ? `var(--mo-link-on)` : slot(intent, "surface"),
 		hover: (intent: IntentRef = "provenance"): string =>
 			intent === "provenance" ? `var(--mo-link-hover)` : slot(intent, "hover"),
 		ring: (intent: IntentRef = "provenance"): string => slot(intent, "ring"),

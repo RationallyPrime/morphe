@@ -1,4 +1,5 @@
 import { error } from "@sveltejs/kit";
+import { derivedSurfaceTitle } from "../../../../derived-title.js";
 import { forwardedRequest, withoutGovernedParams } from "../../../../forward-query.js";
 import { rewriteKernelLinks } from "../../../../links.js";
 import { parseSourceSurfaceResponse } from "../../../../source-envelope.js";
@@ -102,10 +103,17 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	});
 	// Source-v1 panes honor the temporal control; report the effective policy so
 	// the chrome renders it and marks the current selection.
+	//
+	// A derived instance (family-mode drill-through) is a DIFFERENT surface than
+	// the pin: its crumb/title come from the artifact's own leading heading, not
+	// the declared title of the representative it was pinned through.
+	const surfaceTitle = forwarded.derived
+		? (derivedSurfaceTitle(surface.tree) ?? entry.title)
+		: entry.title;
 	return {
 		...surface,
 		sourceTitle: source.title,
-		surfaceTitle: entry.title,
+		surfaceTitle,
 		collectionHref,
 		temporalPolicy,
 	};

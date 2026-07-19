@@ -78,6 +78,13 @@
 		border-radius: var(--mo-radius-2);
 		background: var(--mo-alert-surface);
 		color: var(--mo-alert-on);
+		/* A grid/flex item refuses to shrink below its content min-size by
+		   default, so an alert in a narrow track would overflow and paint its
+		   tonal surface OVER the neighboring cell. Cap it to its container and
+		   let unbroken tokens (rule codes, identifiers) wrap instead. */
+		min-inline-size: 0;
+		max-inline-size: 100%;
+		overflow-wrap: anywhere;
 		/* Tone is carried by the tonal surface + the leading glyph (shape) + the
 		   required title (text) — never a colored edge rule (DESIGN §9 side-stripe
 		   ban). The glyph already IS the shape signal the rule was duplicating. */
