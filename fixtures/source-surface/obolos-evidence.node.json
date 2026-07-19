@@ -39,93 +39,95 @@
         {
           "children": [
             {
-              "children": [
-                {
-                  "args": {
-                    "kicker": {
-                      "as": "caption",
-                      "intent": "folio",
-                      "kind": "text",
-                      "value": "Gross"
+              "args": {},
+              "kind": "compound",
+              "name": "StatBand",
+              "slots": {
+                "tiles": [
+                  {
+                    "args": {
+                      "kicker": {
+                        "as": "caption",
+                        "intent": "folio",
+                        "kind": "text",
+                        "value": "Gross"
+                      },
+                      "measure": {
+                        "currency": "ISK",
+                        "emphasis": "strong",
+                        "format": "currency",
+                        "intent": "evidence",
+                        "kind": "number",
+                        "value": 1280000
+                      },
+                      "title": {
+                        "as": "subheading",
+                        "kind": "text",
+                        "value": "ISK exposure"
+                      }
                     },
-                    "measure": {
-                      "currency": "ISK",
-                      "emphasis": "strong",
-                      "format": "currency",
-                      "intent": "evidence",
-                      "kind": "number",
-                      "value": 1280000
-                    },
-                    "title": {
-                      "as": "subheading",
-                      "kind": "text",
-                      "value": "ISK exposure"
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "slots": {
+                      "body": []
                     }
                   },
-                  "kind": "compound",
-                  "name": "SignalCard",
-                  "slots": {
-                    "body": []
-                  }
-                },
-                {
-                  "args": {
-                    "kicker": {
-                      "as": "caption",
-                      "intent": "folio",
-                      "kind": "text",
-                      "value": "Cross-border"
+                  {
+                    "args": {
+                      "kicker": {
+                        "as": "caption",
+                        "intent": "folio",
+                        "kind": "text",
+                        "value": "Cross-border"
+                      },
+                      "measure": {
+                        "currency": "EUR",
+                        "emphasis": "strong",
+                        "format": "currency",
+                        "intent": "caution",
+                        "kind": "number",
+                        "value": 735.5
+                      },
+                      "title": {
+                        "as": "subheading",
+                        "kind": "text",
+                        "value": "EUR exceptions"
+                      }
                     },
-                    "measure": {
-                      "currency": "EUR",
-                      "emphasis": "strong",
-                      "format": "currency",
-                      "intent": "caution",
-                      "kind": "number",
-                      "value": 735.5
-                    },
-                    "title": {
-                      "as": "subheading",
-                      "kind": "text",
-                      "value": "EUR exceptions"
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "slots": {
+                      "body": []
                     }
                   },
-                  "kind": "compound",
-                  "name": "SignalCard",
-                  "slots": {
-                    "body": []
-                  }
-                },
-                {
-                  "args": {
-                    "kicker": {
-                      "as": "caption",
-                      "intent": "folio",
-                      "kind": "text",
-                      "value": "Route"
+                  {
+                    "args": {
+                      "kicker": {
+                        "as": "caption",
+                        "intent": "folio",
+                        "kind": "text",
+                        "value": "Route"
+                      },
+                      "measure": {
+                        "as": "body",
+                        "emphasis": "strong",
+                        "kind": "text",
+                        "value": "SEPA + domestic"
+                      },
+                      "title": {
+                        "as": "subheading",
+                        "kind": "text",
+                        "value": "Evidence rail"
+                      }
                     },
-                    "measure": {
-                      "as": "body",
-                      "emphasis": "strong",
-                      "kind": "text",
-                      "value": "SEPA + domestic"
-                    },
-                    "title": {
-                      "as": "subheading",
-                      "kind": "text",
-                      "value": "Evidence rail"
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "slots": {
+                      "body": []
                     }
-                  },
-                  "kind": "compound",
-                  "name": "SignalCard",
-                  "slots": {
-                    "body": []
                   }
-                }
-              ],
-              "kind": "grid",
-              "minTrack": "narrow",
-              "role": "list"
+                ]
+              }
             }
           ],
           "kind": "stack",

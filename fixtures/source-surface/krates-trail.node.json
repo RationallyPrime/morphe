@@ -1,0 +1,117 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_AuditTrailDetail"
+        },
+        {
+          "children": [
+            {
+              "as": "heading",
+              "kind": "text",
+              "value": "Audit trail"
+            },
+            {
+              "args": {
+                "stamp": {
+                  "as": "caption",
+                  "intent": "marginalia",
+                  "kind": "text",
+                  "value": "2026-07-17 09:14 UTC"
+                },
+                "summary": {
+                  "as": "body",
+                  "kind": "text",
+                  "value": "Vendor admitted to the settlement roster."
+                }
+              },
+              "kind": "compound",
+              "name": "TrailEntry",
+              "slots": {
+                "provenance": [
+                  {
+                    "detail": "Timestamp reflects the signed event log.",
+                    "kind": "inline-alert",
+                    "title": "TRAIL_EVENT_SOURCE",
+                    "tone": "info"
+                  },
+                  {
+                    "as": "body",
+                    "intent": "provenance",
+                    "kind": "text",
+                    "value": "evt-001"
+                  }
+                ],
+                "ref": [
+                  {
+                    "href": "/audit/adm-001",
+                    "intent": "primary-action",
+                    "kind": "link",
+                    "label": "Open admission"
+                  }
+                ]
+              }
+            },
+            {
+              "args": {
+                "stamp": {
+                  "as": "caption",
+                  "intent": "marginalia",
+                  "kind": "text",
+                  "value": "2026-07-17 11:02 UTC"
+                },
+                "summary": {
+                  "as": "body",
+                  "kind": "text",
+                  "value": "Exposure recomputed against the signed ledger."
+                }
+              },
+              "kind": "compound",
+              "name": "TrailEntry",
+              "slots": {
+                "provenance": [
+                  {
+                    "detail": "The recompute event needs review.",
+                    "kind": "inline-alert",
+                    "title": "TRAIL_EVENT_REVIEW",
+                    "tone": "caution"
+                  },
+                  {
+                    "as": "body",
+                    "intent": "provenance",
+                    "kind": "text",
+                    "value": "evt-002"
+                  }
+                ],
+                "ref": [
+                  {
+                    "href": "/audit/adm-002",
+                    "intent": "primary-action",
+                    "kind": "link",
+                    "label": "Open recompute"
+                  }
+                ]
+              }
+            }
+          ],
+          "kind": "stack",
+          "role": "section"
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "Two audit events; each lowers to a promoted TrailEntry."
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

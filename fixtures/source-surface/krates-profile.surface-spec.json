@@ -1,0 +1,92 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "diagnostics": [],
+          "emphasis": "strong",
+          "heading": true,
+          "items": [],
+          "label": "Name",
+          "path": "$.profile.displayName",
+          "strategy": "scalar",
+          "value": "S\u00f3k Rates"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "emphasis": "strong",
+          "heading": true,
+          "items": [],
+          "label": "Position",
+          "path": "$.profile.position",
+          "strategy": "scalar",
+          "value": "Settlement lead"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Department",
+          "path": "$.profile.department",
+          "strategy": "scalar",
+          "value": "Treasury"
+        },
+        {
+          "children": [],
+          "diagnostics": [
+            {
+              "code": "PROFILE_LOCATION_STALE",
+              "message": "Location was last confirmed a quarter ago.",
+              "path": "$.profile.location",
+              "severity": "info"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Location",
+          "path": "$.profile.location",
+          "strategy": "scalar",
+          "value": "Reykjav\u00edk"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "provenance",
+          "items": [],
+          "label": "Employee id",
+          "path": "$.profile.employeeId",
+          "strategy": "scalar",
+          "value": "emp-001"
+        }
+      ],
+      "diagnostics": [],
+      "heading": true,
+      "items": [],
+      "label": "Profile",
+      "path": "$.profile",
+      "strategy": "key-value"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Summary",
+      "path": "$.summary",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_ProfileDetail",
+  "path": "$",
+  "strategy": "record-card"
+}

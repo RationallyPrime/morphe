@@ -190,6 +190,108 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(html).toContain("after");
 	});
 
+	it("renders known siblings around an invalid promoted EntityHeader without throwing", () => {
+		// The generated EntityHeader is registered in the process-wide `registry`; an
+		// invalid call (missing the required kicker/title) must render empty and leave
+		// its siblings intact (the factory gate's totality contract, D8).
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "EntityHeader", args: {} },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("renders known siblings around an invalid promoted StatBand without throwing", () => {
+		// StatBand carries no required args, so an empty call is valid; an unknown
+		// argument is the invalid case. It must render empty and leave its siblings
+		// intact (the factory gate's totality contract, D8).
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "StatBand", args: { bogus: { kind: "text", value: "x" } } },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("renders known siblings around an invalid promoted Breakdown without throwing", () => {
+		// An unknown argument is the invalid case. It must render empty and leave its
+		// siblings intact (the factory gate's totality contract, D8).
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "Breakdown", args: { bogus: { kind: "text", value: "x" } } },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("renders known siblings around an invalid promoted TrailEntry without throwing", () => {
+		// A missing required `summary` is the invalid case. It must render empty and
+		// leave its siblings intact (the factory gate's totality contract, D8).
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "TrailEntry", args: {} },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
+	it("renders known siblings around an invalid promoted KeyValuePanel without throwing", () => {
+		// An unknown argument is the invalid case. It must render empty and leave its
+		// siblings intact (the factory gate's totality contract, D8).
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{ kind: "text", value: "before", as: "body" },
+				{ kind: "compound", name: "KeyValuePanel", args: { bogus: { kind: "text", value: "x" } } },
+				{ kind: "text", value: "after", as: "body" },
+			],
+		};
+		let html = "";
+		expect(() => {
+			html = ssr(tree);
+		}).not.toThrow();
+		expect(html).toContain("before");
+		expect(html).toContain("after");
+	});
+
 	it("renders known siblings around a Within variation point without throwing", () => {
 		const tree: Node = {
 			kind: "stack",

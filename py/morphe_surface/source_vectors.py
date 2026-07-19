@@ -48,6 +48,18 @@ _TAXIS_NODE_PATH = "fixtures/source-surface/taxis-roster.node.json"
 _OBOLOS_SOURCE_PATH = "fixtures/source-surface/obolos-evidence.source.json"
 _OBOLOS_SURFACE_SPEC_PATH = "fixtures/source-surface/obolos-evidence.surface-spec.json"
 _OBOLOS_NODE_PATH = "fixtures/source-surface/obolos-evidence.node.json"
+_KRATES_SOURCE_PATH = "fixtures/source-surface/krates-vendor.source.json"
+_KRATES_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-vendor.surface-spec.json"
+_KRATES_NODE_PATH = "fixtures/source-surface/krates-vendor.node.json"
+_BUDGET_SOURCE_PATH = "fixtures/source-surface/krates-budget.source.json"
+_BUDGET_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-budget.surface-spec.json"
+_BUDGET_NODE_PATH = "fixtures/source-surface/krates-budget.node.json"
+_TRAIL_SOURCE_PATH = "fixtures/source-surface/krates-trail.source.json"
+_TRAIL_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-trail.surface-spec.json"
+_TRAIL_NODE_PATH = "fixtures/source-surface/krates-trail.node.json"
+_PROFILE_SOURCE_PATH = "fixtures/source-surface/krates-profile.source.json"
+_PROFILE_SURFACE_SPEC_PATH = "fixtures/source-surface/krates-profile.surface-spec.json"
+_PROFILE_NODE_PATH = "fixtures/source-surface/krates-profile.node.json"
 SOURCE_CONFORMANCE_MANIFEST_PATH = "fixtures/source-surface/conformance-v1.json"
 
 SOURCE_VECTOR_PATHS: tuple[str, ...] = (
@@ -59,17 +71,49 @@ SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _OBOLOS_SOURCE_PATH,
     _OBOLOS_SURFACE_SPEC_PATH,
     _OBOLOS_NODE_PATH,
+    _KRATES_SOURCE_PATH,
+    _KRATES_SURFACE_SPEC_PATH,
+    _KRATES_NODE_PATH,
+    _BUDGET_SOURCE_PATH,
+    _BUDGET_SURFACE_SPEC_PATH,
+    _BUDGET_NODE_PATH,
+    _TRAIL_SOURCE_PATH,
+    _TRAIL_SURFACE_SPEC_PATH,
+    _TRAIL_NODE_PATH,
+    _PROFILE_SOURCE_PATH,
+    _PROFILE_SURFACE_SPEC_PATH,
+    _PROFILE_NODE_PATH,
     SOURCE_CONFORMANCE_MANIFEST_PATH,
 )
 
 _TAXIS_SEED_HEX = "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"
 _OBOLOS_SEED_HEX = "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb"
+# RFC 8032 §7.1 TEST 3 seed — public test material, never a production key.
+_KRATES_SEED_HEX = "c5aa8df43f9f837bedb7442f31dcb7b166d38535076f094b85ce3a2e0b4458f7"
 _TAXIS_KEY_ID = "taxis-fixture-2026-01"
 _OBOLOS_KEY_ID = "obolos-fixture-2026-01"
+_KRATES_KEY_ID = "krates-fixture-2026-01"
 _TAXIS_HIDDEN_FIELD = "dispatchSecret"
 _TAXIS_HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42"
 _OBOLOS_HIDDEN_FIELD = "rawBankAccount"
 _OBOLOS_HIDDEN_SENTINEL = "MORPHE-HIDDEN-OBOLOS-91A8DD"
+_KRATES_HIDDEN_FIELD = "internalRating"
+_KRATES_HIDDEN_SENTINEL = "MORPHE-HIDDEN-KRATES-3D91C4"
+# RFC 8032 §7.1 TEST 1024 seed — public test material, never a production key.
+_BUDGET_SEED_HEX = "f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc0ee5"
+_BUDGET_KEY_ID = "krates-fixture-2026-01"
+_BUDGET_HIDDEN_FIELD = "internalMemo"
+_BUDGET_HIDDEN_SENTINEL = "MORPHE-HIDDEN-BUDGET-5B7E20"
+# Deterministic public test seed (never a production key).
+_TRAIL_SEED_HEX = "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
+_TRAIL_KEY_ID = "krates-fixture-2026-01"
+_TRAIL_HIDDEN_FIELD = "internalTrace"
+_TRAIL_HIDDEN_SENTINEL = "MORPHE-HIDDEN-TRAIL-9C4D71"
+# Deterministic public test seed (never a production key).
+_PROFILE_SEED_HEX = "202f2e2d2c2b2a292827262524232221201f1e1d1c1b1a191817161514131211"
+_PROFILE_KEY_ID = "krates-fixture-2026-01"
+_PROFILE_HIDDEN_FIELD = "internalNote"
+_PROFILE_HIDDEN_SENTINEL = "MORPHE-HIDDEN-PROFILE-2F8A63"
 
 
 class _FixtureModel(BaseModel):
@@ -201,6 +245,163 @@ class _ObolosEvidence(_FixtureModel):
     )
 
 
+class _VendorLede(_FixtureModel):
+    """The detail-pane lede, hint-selected to lower to a promoted EntityHeader.
+
+    Its children exercise every classification slot: the primary string is the
+    title, the currency number is the key figure, the enum status feeds the signal
+    slot, a plain scalar is a meta fact, a provenance-role id is the footer, and a
+    hidden field must never reach the compiled tree.
+    """
+
+    name: str = Field(title="Vendor")
+    exposure: int = Field(
+        alias="exposureIsk",
+        title="Exposure",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    standing: Literal["active", "review", "suspended"] = Field(
+        title="Standing",
+        json_schema_extra=morphe_hint(
+            strategy="status",
+            intents={"active": "success", "review": "caution", "suspended": "caution"},
+        ),
+    )
+    contact: str = Field(alias="primaryContact", title="Primary contact")
+    ledger_ref: str = Field(
+        alias="ledgerRef",
+        title="Ledger id",
+        json_schema_extra=morphe_hint(role="provenance"),
+    )
+    internal_rating: str = Field(
+        alias=_KRATES_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _VendorDetail(_FixtureModel):
+    header: _VendorLede = Field(
+        title="Vendor",
+        json_schema_extra=morphe_hint(strategy="entity-header"),
+    )
+    summary: str = Field(title="Summary")
+
+
+class _BudgetAllocation(_FixtureModel):
+    """An object of currency numbers, hint-selected to lower to a promoted Breakdown.
+
+    The three positive figures sum to 350,000 ISK, so their proportion rows carry the
+    non-trivial repeating IEEE-754 fractions 2/7, 4/7, 1/7 — the parity vector that
+    pins byte-identical double division across both compilers. A hidden memo must
+    never reach the compiled tree.
+    """
+
+    research: int = Field(
+        alias="researchIsk",
+        title="Research",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    operations: int = Field(
+        alias="operationsIsk",
+        title="Operations",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    reserve: int = Field(
+        alias="reserveIsk",
+        title="Reserve",
+        json_schema_extra=morphe_hint(strategy="number", format="currency", currency="ISK"),
+    )
+    internal_memo: str = Field(
+        alias=_BUDGET_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _BudgetDetail(_FixtureModel):
+    allocation: _BudgetAllocation = Field(
+        title="Allocation",
+        json_schema_extra=morphe_hint(strategy="breakdown"),
+    )
+    summary: str = Field(title="Summary")
+
+
+class _TrailEvent(_FixtureModel):
+    """One event row; hint-keyed classification lowers it to a promoted TrailEntry.
+
+    The temporal-hinted stamp -> the stamp param, the plain string -> the summary,
+    the linked-ref -> the ref slot, and the role:provenance id -> the provenance
+    footer (never inside the summary). A hidden trace must never reach the tree.
+    """
+
+    occurred_at: str = Field(
+        alias="occurredAt",
+        title="Occurred",
+        json_schema_extra=morphe_hint(temporal="date-time-minute"),
+    )
+    summary: str = Field(title="Summary")
+    source: _SurfaceLink = Field(
+        title="Source",
+        json_schema_extra=morphe_hint(strategy="linked-ref", role="primary-action"),
+    )
+    event_id: str = Field(
+        alias="eventId",
+        title="Event id",
+        json_schema_extra=morphe_hint(role="provenance"),
+    )
+    internal_trace: str = Field(
+        alias=_TRAIL_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _AuditTrailDetail(_FixtureModel):
+    events: list[_TrailEvent] = Field(
+        alias="events",
+        title="Audit trail",
+        json_schema_extra=morphe_hint(strategy="trail"),
+    )
+    summary: str = Field(title="Summary")
+
+
+class _ProfilePanel(_FixtureModel):
+    """An object of scalars, hint-selected to lower to a promoted KeyValuePanel.
+
+    The two emphasis-hinted fields tier into `primary` (value strong), the plain
+    fields into `secondary` (caption tier), and the role:provenance id into the
+    `provenance` footer. Classification is hint-keyed only — the field NAMES never
+    matter. A hidden note must never reach the compiled tree.
+    """
+
+    display_name: str = Field(
+        alias="displayName",
+        title="Name",
+        json_schema_extra=morphe_hint(emphasis="strong"),
+    )
+    position: str = Field(
+        title="Position",
+        json_schema_extra=morphe_hint(emphasis="strong"),
+    )
+    department: str = Field(title="Department")
+    location: str = Field(title="Location")
+    employee_id: str = Field(
+        alias="employeeId",
+        title="Employee id",
+        json_schema_extra=morphe_hint(role="provenance"),
+    )
+    internal_note: str = Field(
+        alias=_PROFILE_HIDDEN_FIELD,
+        json_schema_extra=morphe_hint(hidden=True),
+    )
+
+
+class _ProfileDetail(_FixtureModel):
+    profile: _ProfilePanel = Field(
+        title="Profile",
+        json_schema_extra=morphe_hint(strategy="key-value"),
+    )
+    summary: str = Field(title="Summary")
+
+
 type _Fixture = tuple[SourceSurfaceArtifactV1, Ed25519PrivateKey, str]
 
 
@@ -208,11 +409,23 @@ def source_vector_documents() -> dict[str, str]:
     """Build every checked-in source artifact, crypto vector, and Python oracle."""
     taxis = _taxis_fixture()
     obolos = _obolos_fixture()
+    krates = _krates_fixture()
+    budget = _budget_fixture()
+    trail = _trail_fixture()
+    profile = _profile_fixture()
     taxis_spec, taxis_node = source_compiler_oracles(taxis[0])
     obolos_spec, obolos_node = source_compiler_oracles(obolos[0])
+    krates_spec, krates_node = source_compiler_oracles(krates[0])
+    budget_spec, budget_node = source_compiler_oracles(budget[0])
+    trail_spec, trail_node = source_compiler_oracles(trail[0])
+    profile_spec, profile_node = source_compiler_oracles(profile[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(krates[0], _KRATES_HIDDEN_FIELD, _KRATES_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(budget[0], _BUDGET_HIDDEN_FIELD, _BUDGET_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(trail[0], _TRAIL_HIDDEN_FIELD, _TRAIL_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(profile[0], _PROFILE_HIDDEN_FIELD, _PROFILE_HIDDEN_SENTINEL)
 
     documents = {
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
@@ -223,7 +436,21 @@ def source_vector_documents() -> dict[str, str]:
         _OBOLOS_SOURCE_PATH: _json_document(_artifact_document(obolos[0])),
         _OBOLOS_SURFACE_SPEC_PATH: _json_document(obolos_spec),
         _OBOLOS_NODE_PATH: _json_document(obolos_node),
-        SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(_conformance_manifest(taxis, obolos)),
+        _KRATES_SOURCE_PATH: _json_document(_artifact_document(krates[0])),
+        _KRATES_SURFACE_SPEC_PATH: _json_document(krates_spec),
+        _KRATES_NODE_PATH: _json_document(krates_node),
+        _BUDGET_SOURCE_PATH: _json_document(_artifact_document(budget[0])),
+        _BUDGET_SURFACE_SPEC_PATH: _json_document(budget_spec),
+        _BUDGET_NODE_PATH: _json_document(budget_node),
+        _TRAIL_SOURCE_PATH: _json_document(_artifact_document(trail[0])),
+        _TRAIL_SURFACE_SPEC_PATH: _json_document(trail_spec),
+        _TRAIL_NODE_PATH: _json_document(trail_node),
+        _PROFILE_SOURCE_PATH: _json_document(_artifact_document(profile[0])),
+        _PROFILE_SURFACE_SPEC_PATH: _json_document(profile_spec),
+        _PROFILE_NODE_PATH: _json_document(profile_node),
+        SOURCE_CONFORMANCE_MANIFEST_PATH: _json_document(
+            _conformance_manifest(taxis, obolos, krates, budget, trail, profile)
+        ),
     }
     if tuple(documents) != SOURCE_VECTOR_PATHS:
         msg = "source vector path order drifted"
@@ -383,6 +610,173 @@ def _obolos_fixture() -> _Fixture:
     )
 
 
+def _krates_fixture() -> _Fixture:
+    model = _VendorDetail(
+        header=_VendorLede(
+            name="Krates ehf",
+            exposureIsk=2_450_000,
+            standing="review",
+            primaryContact="Sók Rates",
+            ledgerRef="vendor:krates-ehf",
+            internalRating=_KRATES_HIDDEN_SENTINEL,
+        ),
+        summary="One vendor detail pane; the lede lowers to a promoted EntityHeader.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="VENDOR_STANDING_REVIEW",
+            severity="warning",
+            path="$.header",
+            message="This vendor is under standing review.",
+            repair_hint="Confirm the exposure before the next settlement run.",
+        ),
+        Diagnostic(
+            code="VENDOR_EXPOSURE_SOURCE",
+            severity="info",
+            path="$.header.exposureIsk",
+            message="Exposure reflects the signed ledger position.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_KRATES_SEED_HEX,
+        key_id=_KRATES_KEY_ID,
+        issuer="krates",
+        surface_id="krates.vendor:krates-ehf",
+        source_revision="krates-fixture-rev-0001",
+        view_model_id="krates.vendor",
+        produced_at=datetime(2026, 7, 17, 12, 10, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
+def _budget_fixture() -> _Fixture:
+    model = _BudgetDetail(
+        allocation=_BudgetAllocation(
+            researchIsk=100_000,
+            operationsIsk=200_000,
+            reserveIsk=50_000,
+            internalMemo=_BUDGET_HIDDEN_SENTINEL,
+        ),
+        summary="One budget detail pane; the allocation lowers to a promoted Breakdown.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="BUDGET_ALLOCATION_SOURCE",
+            severity="info",
+            path="$.allocation",
+            message="Allocation reflects the signed planning window.",
+        ),
+        Diagnostic(
+            code="BUDGET_RESERVE_LOW",
+            severity="warning",
+            path="$.allocation.reserveIsk",
+            message="Reserve is below the target proportion.",
+            repair_hint="Rebalance before the next settlement run.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_BUDGET_SEED_HEX,
+        key_id=_BUDGET_KEY_ID,
+        issuer="krates",
+        surface_id="krates.budget:krates-ehf",
+        source_revision="krates-budget-fixture-rev-0001",
+        view_model_id="krates.budget",
+        produced_at=datetime(2026, 7, 17, 12, 15, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
+def _trail_fixture() -> _Fixture:
+    model = _AuditTrailDetail(
+        events=[
+            _TrailEvent(
+                occurredAt="2026-07-17T09:14:00Z",
+                summary="Vendor admitted to the settlement roster.",
+                source=_SurfaceLink(label="Open admission", href="/audit/adm-001"),
+                eventId="evt-001",
+                internalTrace=_TRAIL_HIDDEN_SENTINEL,
+            ),
+            _TrailEvent(
+                occurredAt="2026-07-17T11:02:00Z",
+                summary="Exposure recomputed against the signed ledger.",
+                source=_SurfaceLink(label="Open recompute", href="/audit/adm-002"),
+                eventId="evt-002",
+                internalTrace=f"{_TRAIL_HIDDEN_SENTINEL}-2",
+            ),
+        ],
+        summary="Two audit events; each lowers to a promoted TrailEntry.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="TRAIL_EVENT_REVIEW",
+            severity="warning",
+            path="$.events[1]",
+            message="The recompute event needs review.",
+            repair_hint="Confirm the exposure delta before settlement.",
+        ),
+        Diagnostic(
+            code="TRAIL_EVENT_SOURCE",
+            severity="info",
+            path="$.events[0].occurredAt",
+            message="Timestamp reflects the signed event log.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_TRAIL_SEED_HEX,
+        key_id=_TRAIL_KEY_ID,
+        issuer="krates",
+        surface_id="krates.trail:krates-ehf",
+        source_revision="krates-trail-fixture-rev-0001",
+        view_model_id="krates.trail",
+        produced_at=datetime(2026, 7, 17, 12, 20, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
+def _profile_fixture() -> _Fixture:
+    model = _ProfileDetail(
+        profile=_ProfilePanel(
+            displayName="Sók Rates",
+            position="Settlement lead",
+            department="Treasury",
+            location="Reykjavík",
+            employeeId="emp-001",
+            internalNote=_PROFILE_HIDDEN_SENTINEL,
+        ),
+        summary="One profile detail pane; the fields lower to a promoted KeyValuePanel.",
+    )
+    diagnostics = (
+        Diagnostic(
+            code="PROFILE_LOCATION_STALE",
+            severity="info",
+            path="$.profile.location",
+            message="Location was last confirmed a quarter ago.",
+        ),
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_PROFILE_SEED_HEX,
+        key_id=_PROFILE_KEY_ID,
+        issuer="krates",
+        surface_id="krates.profile:krates-ehf",
+        source_revision="krates-profile-fixture-rev-0001",
+        view_model_id="krates.profile",
+        produced_at=datetime(2026, 7, 17, 12, 25, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
 def _prepare_fixture(  # noqa: PLR0913 - explicit fields pin each fixture's testimony
     model: BaseModel,
     *,
@@ -457,9 +851,13 @@ def source_compiler_oracles(
     return spec.model_dump(mode="json", by_alias=True, exclude_none=True), node
 
 
-def _conformance_manifest(
+def _conformance_manifest(  # noqa: PLR0913 - one explicit fixture per conformance case
     taxis: _Fixture,
     obolos: _Fixture,
+    krates: _Fixture,
+    budget: _Fixture,
+    trail: _Fixture,
+    profile: _Fixture,
 ) -> dict[str, object]:
     """Index the shared Python/TypeScript compiler corpus and its trust bindings."""
     return {
@@ -486,6 +884,50 @@ def _conformance_manifest(
                 },
                 hidden_field=_OBOLOS_HIDDEN_FIELD,
                 hidden_sentinel=_OBOLOS_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-vendor",
+                krates,
+                paths={
+                    "source": _KRATES_SOURCE_PATH,
+                    "surface_spec": _KRATES_SURFACE_SPEC_PATH,
+                    "node": _KRATES_NODE_PATH,
+                },
+                hidden_field=_KRATES_HIDDEN_FIELD,
+                hidden_sentinel=_KRATES_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-budget",
+                budget,
+                paths={
+                    "source": _BUDGET_SOURCE_PATH,
+                    "surface_spec": _BUDGET_SURFACE_SPEC_PATH,
+                    "node": _BUDGET_NODE_PATH,
+                },
+                hidden_field=_BUDGET_HIDDEN_FIELD,
+                hidden_sentinel=_BUDGET_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-trail",
+                trail,
+                paths={
+                    "source": _TRAIL_SOURCE_PATH,
+                    "surface_spec": _TRAIL_SURFACE_SPEC_PATH,
+                    "node": _TRAIL_NODE_PATH,
+                },
+                hidden_field=_TRAIL_HIDDEN_FIELD,
+                hidden_sentinel=_TRAIL_HIDDEN_SENTINEL,
+            ),
+            _conformance_case(
+                "krates-profile",
+                profile,
+                paths={
+                    "source": _PROFILE_SOURCE_PATH,
+                    "surface_spec": _PROFILE_SURFACE_SPEC_PATH,
+                    "node": _PROFILE_NODE_PATH,
+                },
+                hidden_field=_PROFILE_HIDDEN_FIELD,
+                hidden_sentinel=_PROFILE_HIDDEN_SENTINEL,
             ),
         ],
     }

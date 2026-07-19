@@ -95,7 +95,7 @@ class BuildBudget {
 }
 
 const RECORD_STRATEGIES = new Set<Strategy>(["record-card", "collapsed-section"]);
-const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row"]);
+const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row", "trail"]);
 const PROMOTABLE_STRATEGIES = new Set<Strategy>(["table", "card-stack"]);
 const IDENTITY_KEYS = ["name", "title"] as const;
 const NUMERIC_TEXT = /^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$/;
@@ -201,6 +201,51 @@ function itemContext(context: BuildContext, index: number, baseLabel: string): B
 function build(schema: JsonSchema, data: unknown, context: BuildContext): SurfaceNode {
 	context.budget.enter(context);
 	const plan = makePlan(schema, context);
+	if (plan.strategy === "entity-header") {
+		// Object-shaped, hint-selected only. Same terminating guard as a record.
+		if (
+			context.depth >= MAX_RECORD_DEPTH ||
+			(plan.schemaId !== null && context.seen.has(plan.schemaId))
+		) {
+			return surfaceNode({
+				path: context.path,
+				label: plan.label,
+				strategy: "linked-ref",
+				diagnostics: plan.diagnostics,
+			});
+		}
+		return buildEntityHeader(plan, data, context);
+	}
+	if (plan.strategy === "breakdown") {
+		// Object- or array-shaped, hint-selected only. Same terminating guard as a record.
+		if (
+			context.depth >= MAX_RECORD_DEPTH ||
+			(plan.schemaId !== null && context.seen.has(plan.schemaId))
+		) {
+			return surfaceNode({
+				path: context.path,
+				label: plan.label,
+				strategy: "linked-ref",
+				diagnostics: plan.diagnostics,
+			});
+		}
+		return buildBreakdown(plan, data, context);
+	}
+	if (plan.strategy === "key-value") {
+		// Object-shaped, hint-selected only. Same terminating guard as a record.
+		if (
+			context.depth >= MAX_RECORD_DEPTH ||
+			(plan.schemaId !== null && context.seen.has(plan.schemaId))
+		) {
+			return surfaceNode({
+				path: context.path,
+				label: plan.label,
+				strategy: "linked-ref",
+				diagnostics: plan.diagnostics,
+			});
+		}
+		return buildKeyValue(plan, data, context);
+	}
 	if (RECORD_STRATEGIES.has(plan.strategy)) {
 		if (
 			context.depth >= MAX_RECORD_DEPTH ||
@@ -309,6 +354,80 @@ function buildRecord(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 		strategy,
 		heading: plan.hint.heading,
 		...(strategy === "collapsed-section" ? { collapse: plan.hint.collapse !== false } : {}),
+		children,
+		diagnostics: plan.diagnostics,
+	});
+}
+
+function buildEntityHeader(plan: Plan, data: unknown, context: BuildContext): SurfaceNode {
+	// The detail-pane lede: build children plainly (no identity / primary-collection
+	// promotion — those are record-only). Child classification lives in emit so it
+	// stays identical across both compilers.
+	const properties = isSchema(plan.resolved.properties) ? plan.resolved.properties : {};
+	const pairs = orderedProperties(properties, plan.hint.order).filter(
+		([, childSchema]) => !hidden(childSchema, context.root),
+	);
+	const children = pairs.map(([key, childSchema]) =>
+		build(childSchema, getValue(data, key), childContext(context, key, plan.schemaId, null)),
+	);
+	return surfaceNode({
+		path: context.path,
+		label: plan.label,
+		strategy: "entity-header",
+		heading: plan.hint.heading,
+		children,
+		diagnostics: plan.diagnostics,
+	});
+}
+
+function buildBreakdown(plan: Plan, data: unknown, context: BuildContext): SurfaceNode {
+	// Labeled proportion rows. Build the container's children plainly (object
+	// properties or array items); emit reads each child's numeric value, computes the
+	// fraction, and composes one Breakdown compound. Classification lives in emit so it
+	// stays identical across both compilers.
+	let children: SurfaceNode[];
+	if (schemaType(plan.resolved) === "array") {
+		const itemsSchema = isSchema(plan.resolved.items) ? plan.resolved.items : {};
+		const rows = Array.isArray(data) ? data : [];
+		children = rows.map((row, index) =>
+			build(itemsSchema, row, itemContext(context, index, plan.label)),
+		);
+	} else {
+		const properties = isSchema(plan.resolved.properties) ? plan.resolved.properties : {};
+		const pairs = orderedProperties(properties, plan.hint.order).filter(
+			([, childSchema]) => !hidden(childSchema, context.root),
+		);
+		children = pairs.map(([key, childSchema]) =>
+			build(childSchema, getValue(data, key), childContext(context, key, plan.schemaId, null)),
+		);
+	}
+	return surfaceNode({
+		path: context.path,
+		label: plan.label,
+		strategy: "breakdown",
+		heading: plan.hint.heading,
+		children,
+		diagnostics: plan.diagnostics,
+	});
+}
+
+function buildKeyValue(plan: Plan, data: unknown, context: BuildContext): SurfaceNode {
+	// Tiered field rows. Build the object's scalar children plainly; emit tiers them
+	// (emphasis -> primary, role:provenance -> provenance, the rest -> secondary) and
+	// renders each tier through the hint-free definition-grid idiom. Classification
+	// lives in emit so it stays identical across both compilers.
+	const properties = isSchema(plan.resolved.properties) ? plan.resolved.properties : {};
+	const pairs = orderedProperties(properties, plan.hint.order).filter(
+		([, childSchema]) => !hidden(childSchema, context.root),
+	);
+	const children = pairs.map(([key, childSchema]) =>
+		build(childSchema, getValue(data, key), childContext(context, key, plan.schemaId, null)),
+	);
+	return surfaceNode({
+		path: context.path,
+		label: plan.label,
+		strategy: "key-value",
+		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
 	});

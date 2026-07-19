@@ -16,7 +16,17 @@ if TYPE_CHECKING:
 Node = dict[str, Any]
 
 _LEAF = {"scalar", "badge", "linked-ref", "diagnostic-node", "number", "status", "progress"}
-_CONTAINER = {"record-card", "collapsed-section", "table", "card-stack", "kpi-row"}
+_CONTAINER = {
+    "record-card",
+    "collapsed-section",
+    "table",
+    "card-stack",
+    "kpi-row",
+    "entity-header",
+    "breakdown",
+    "trail",
+    "key-value",
+}
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
 
 
@@ -28,15 +38,14 @@ def emit_node(spec: SurfaceNode) -> Node:
     """
     if spec.strategy in _LEAF:
         return _leaf(spec)
-    if spec.strategy == "collapsed-section":
-        return _collapsible(spec)
-    if spec.strategy == "table":
-        return _table(spec)
-    if spec.strategy == "kpi-row":
-        return _kpi_row(spec)
-    if spec.strategy == "card-stack":
-        return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
-    return _frame(spec)  # record-card
+    # A container dispatch TABLE, mirroring _LEAF_EMITTERS: the strategy vocabulary is
+    # closed, so container emitters are enumerable data. record-card is the default.
+    emitter = _CONTAINER_EMITTERS.get(spec.strategy)
+    return emitter(spec) if emitter is not None else _frame(spec)
+
+
+def _card_stack(spec: SurfaceNode) -> Node:
+    return _section(spec, [_field(item) for item in spec.items] or [_empty_collection(spec)])
 
 
 def _leaf(spec: SurfaceNode) -> Node:
@@ -147,9 +156,11 @@ def _kpi_row(spec: SurfaceNode) -> Node:
     if not spec.items:
         return _section(spec, [_empty_collection(spec)])
     cards = [_signal_card(item) for item in spec.items]
-    # No ``columns`` means the auto-fit card grid; narrow tracks pack the KPI band.
-    grid: Node = {"kind": "grid", "role": "list", "minTrack": "narrow", "children": cards}
-    return _section(spec, [grid])
+    # The SignalCard tiles ride the promoted StatBand compound: the band owns the
+    # auto-fit narrow-track grid (no ``columns`` means it wraps) that packs the KPI
+    # band. The factory splices the ``tiles`` slot inline as the grid's children.
+    band: Node = {"kind": "compound", "name": "StatBand", "args": {}, "slots": {"tiles": cards}}
+    return _section(spec, [band])
 
 
 def _signal_card(item: SurfaceNode) -> Node:
@@ -182,6 +193,228 @@ def _signal_card(item: SurfaceNode) -> Node:
         # An explicit body fill beats the template's "No body supplied." fallback
         # while keeping signed KPI diagnostics visible.
         "slots": {"body": body},
+    }
+
+
+def _is_title_candidate(child: SurfaceNode) -> bool:
+    # The title is the first heading-register text OR the record's primary string
+    # value. Built children never carry a heading/display register (entity-header
+    # runs no identity promotion), so in practice this selects the first string
+    # scalar; the register clause stays for a caller who authored one explicitly.
+    if child.strategy != "scalar":
+        return False
+    return child.text_as in {"display", "heading"} or isinstance(child.value, str)
+
+
+def _slot_leaf(spec: SurfaceNode) -> Node:
+    # A slot fill mirrors _definition_value: the lowered leaf, plus any signed
+    # diagnostics as sibling alerts so nothing a child carried is dropped (D8).
+    inner = _leaf(spec)
+    alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
+    if not alerts:
+        return inner
+    return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
+
+
+def _entity_header(spec: SurfaceNode) -> Node:
+    # One deterministic classification pass over the hinted object's children, in
+    # document order. Precedence (identical in both compilers): an explicit
+    # `role: provenance` child wins outright; then the first number is the key
+    # figure; then status/badge feed the signal slot; then the first title
+    # candidate; everything else is a meta fact.
+    kicker: Node = {"kind": "text", "value": spec.label, "as": "caption", "intent": "folio"}
+    provenance: list[Node] = []
+    signal: list[Node] = []
+    meta_children: list[SurfaceNode] = []
+    key_figure: SurfaceNode | None = None
+    title_child: SurfaceNode | None = None
+    for child in spec.children:
+        if child.intent == "provenance":
+            provenance.append(_slot_leaf(child))
+        elif child.strategy == "number" and key_figure is None:
+            key_figure = child
+        elif child.strategy in {"status", "badge"}:
+            signal.append(_slot_leaf(child))
+        elif title_child is None and _is_title_candidate(child):
+            title_child = child
+        else:
+            meta_children.append(child)
+    if title_child is not None:
+        title_value = display_scalar_text(
+            title_child.value, title_child.temporal, title_child.scalar_number_kind
+        )
+    else:
+        title_value = spec.label
+    title: Node = {"kind": "text", "value": title_value, "as": "heading"}
+    args: Node = {"kicker": kicker, "title": title}
+    if key_figure is not None:
+        measure = _number(key_figure)
+        measure["emphasis"] = "strong"
+        args["keyFigure"] = measure
+    # Diagnostics on the node itself and on the two children promoted to BARE args
+    # (title, keyFigure) would otherwise lose their alert path. Surface them all at
+    # the head of the meta row, in document order, so nothing signed is dropped (D8).
+    promoted = [
+        spec,
+        *([title_child] if title_child is not None else []),
+        *([key_figure] if key_figure is not None else []),
+    ]
+    head_alerts = [_alert(d) for node in promoted for d in node.diagnostics]
+    meta = [*head_alerts, *_fields(tuple(meta_children))]
+    return {
+        "kind": "compound",
+        "name": "EntityHeader",
+        "args": args,
+        "slots": {"signal": signal, "meta": meta, "provenance": provenance},
+    }
+
+
+def _breakdown_numeric(child: SurfaceNode) -> float | None:
+    # A row is numeric iff its built value is a real number (never a bool). A
+    # non-numeric child keeps its value but degrades its progress to indeterminate.
+    value = child.value
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return float(value)
+
+
+def _breakdown_row(child: SurfaceNode, number: float | None, positive_sum: float) -> list[Node]:
+    # One proportion row: label + progress + value cluster (D8 keeps child alerts).
+    label: Node = {"kind": "text", "value": child.label, "as": "caption", "intent": "neutral"}
+    progress: Node = {
+        "kind": "progress",
+        "label": normalize_visible_label_text(child.label, fallback="Proportion"),
+    }
+    if number is not None and positive_sum > 0:
+        # IEEE-754 double division — identical in both compilers; clamped like the
+        # `progress` strategy so a negative share degrades to an empty bar, not a lie.
+        progress["value"] = min(1.0, max(0.0, number / positive_sum))
+    # A numeric child leads with a number node; a non-numeric one shows its natural
+    # leaf (a NumberNode cannot hold a non-numeric value), with progress indeterminate.
+    value_node = _number(child) if number is not None else _leaf(child)
+    cluster: Node = {
+        "kind": "cluster",
+        "role": "inline",
+        "align": "baseline",
+        "children": [label, progress, value_node],
+    }
+    alerts = [] if child.strategy == "diagnostic-node" else [_alert(d) for d in child.diagnostics]
+    return [cluster, *alerts]
+
+
+def _breakdown(spec: SurfaceNode) -> Node:
+    numbers = [_breakdown_numeric(child) for child in spec.children]
+    positive_sum = sum(n for n in numbers if n is not None and n > 0)
+    rows: list[Node] = []
+    for child, number in zip(spec.children, numbers, strict=True):
+        rows.extend(_breakdown_row(child, number, positive_sum))
+    args: Node = {}
+    if spec.heading:
+        args["title"] = {"kind": "text", "value": spec.label, "as": "heading"}
+    # Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
+    head_alerts = [_alert(d) for d in spec.diagnostics]
+    return {
+        "kind": "compound",
+        "name": "Breakdown",
+        "args": args,
+        "slots": {"rows": [*head_alerts, *rows]},
+    }
+
+
+def _trail_entry(item: SurfaceNode) -> Node:
+    # One event row -> one TrailEntry compound. Classification is deterministic and
+    # HINT-KEYED only (never name-based): role:provenance -> provenance slot; a
+    # linked-ref child -> ref slot; the first temporal-hinted child -> stamp; the
+    # first string scalar among the rest -> summary. Identifiers therefore have
+    # exactly one home (provenance) and never bleed into the summary.
+    stamp: SurfaceNode | None = None
+    summary_child: SurfaceNode | None = None
+    ref: list[Node] = []
+    provenance: list[Node] = []
+    leftover_diagnostics: list[Node] = []
+    for child in item.children:
+        if child.intent == "provenance":
+            provenance.append(_slot_leaf(child))
+        elif child.strategy == "linked-ref":
+            ref.append(_slot_leaf(child))
+        elif stamp is None and child.temporal is not None:
+            stamp = child
+        elif summary_child is None and _is_title_candidate(child):
+            summary_child = child
+        elif child.strategy != "diagnostic-node":
+            # No general "meta" slot exists on a TrailEntry; keep any SIGNED child
+            # diagnostics (D8) at the provenance-footer head, drop only the value.
+            leftover_diagnostics.extend(_alert(d) for d in child.diagnostics)
+    if summary_child is not None:
+        summary_value = display_scalar_text(
+            summary_child.value, summary_child.temporal, summary_child.scalar_number_kind
+        )
+    elif not item.children and isinstance(item.value, str):
+        summary_value = display_scalar_text(item.value, item.temporal, item.scalar_number_kind)
+    else:
+        summary_value = item.label
+    args: Node = {"summary": {"kind": "text", "value": summary_value, "as": "body"}}
+    if stamp is not None:
+        args["stamp"] = {
+            "kind": "text",
+            "value": display_scalar_text(stamp.value, stamp.temporal, stamp.scalar_number_kind),
+            "as": "caption",
+            "intent": "marginalia",
+        }
+    # The event object itself and the children promoted to BARE args (stamp, summary)
+    # would otherwise lose their alert path. Surface them at the provenance-footer
+    # head, in document order, so nothing signed is dropped (D8).
+    promoted = [
+        item,
+        *([stamp] if stamp is not None else []),
+        *([summary_child] if summary_child is not None else []),
+    ]
+    head_alerts = [
+        _alert(d)
+        for node in promoted
+        if node.strategy != "diagnostic-node"
+        for d in node.diagnostics
+    ]
+    return {
+        "kind": "compound",
+        "name": "TrailEntry",
+        "args": args,
+        "slots": {"ref": ref, "provenance": [*head_alerts, *leftover_diagnostics, *provenance]},
+    }
+
+
+def _trail(spec: SurfaceNode) -> Node:
+    entries = [_trail_entry(item) for item in spec.items]
+    return _section(spec, entries or [_empty_collection(spec)])
+
+
+def _key_value(spec: SurfaceNode) -> Node:
+    # Tier the object's children by HINT only (never name): a child carrying an
+    # emphasis hint is a primary field; a role:provenance child is a provenance
+    # field; everything else is secondary. Each tier renders through the SAME
+    # definition-grid idiom the hint-free floor uses, so a primary value stays
+    # strong (it carries its own emphasis) and identifiers keep one home.
+    primary: list[SurfaceNode] = []
+    secondary: list[SurfaceNode] = []
+    provenance: list[SurfaceNode] = []
+    for child in spec.children:
+        if child.intent == "provenance":
+            provenance.append(child)
+        elif child.emphasis is not None:
+            primary.append(child)
+        else:
+            secondary.append(child)
+    node_alerts = [_alert(d) for d in spec.diagnostics]
+    primary_fill = [*node_alerts, *([_definition_grid(primary)] if primary else [])]
+    return {
+        "kind": "compound",
+        "name": "KeyValuePanel",
+        "args": {},
+        "slots": {
+            "primary": primary_fill,
+            "secondary": [_definition_grid(secondary)] if secondary else [],
+            "provenance": [_definition_grid(provenance)] if provenance else [],
+        },
     }
 
 
@@ -262,9 +495,7 @@ def _table_cell(spec: SurfaceNode) -> Node:
     # that removes the item box and shifts every following cell one track left.
     # Spacer is the grammar's data-free, aria-hidden structural placeholder.
     inner = (
-        _empty_cell()
-        if lowered.get("kind") == "text" and lowered.get("value") == ""
-        else lowered
+        _empty_cell() if lowered.get("kind") == "text" and lowered.get("value") == "" else lowered
     )
     # Cell-level diagnostics stay visible (D8); a diagnostic-node cell already IS its alert.
     alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
@@ -386,3 +617,15 @@ def _tone(severity: str) -> str:
 
 def _str(value: object) -> str:
     return "" if value is None else str(value)
+
+
+_CONTAINER_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
+    "collapsed-section": _collapsible,
+    "table": _table,
+    "kpi-row": _kpi_row,
+    "entity-header": _entity_header,
+    "breakdown": _breakdown,
+    "trail": _trail,
+    "key-value": _key_value,
+    "card-stack": _card_stack,
+}

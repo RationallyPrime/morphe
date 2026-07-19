@@ -174,6 +174,209 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted EntityHeader — the detail-pane lede. Authored as data (its
+		// string fields ride as call-site nodes, never interpolated params) and
+		// re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "EntityHeader",
+			args: {
+				kicker: { kind: "text", value: "Detail pane", as: "caption", intent: "folio" },
+				title: { kind: "text", value: "Vestfjörður roster", as: "heading" },
+				keyFigure: {
+					kind: "number",
+					value: 2_450_000,
+					format: "currency",
+					currency: "ISK",
+					intent: "evidence",
+					emphasis: "strong",
+				},
+			},
+			slots: {
+				signal: [{ kind: "status", tone: "success", signal: { text: "Active" } }],
+				meta: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Window", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "2026-W29", as: "body" },
+							{ kind: "text", value: "Coverage", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "18 of 24 shifts", as: "body" },
+						],
+					},
+				],
+				provenance: [
+					{ kind: "text", value: "roster:westfjords:2026-W29", as: "body", intent: "provenance" },
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
+		// The promoted StatBand — the KPI band. The band owns the auto-fit narrow-track
+		// grid that wraps its tiles; the SignalCard tiles ride the single `tiles` slot.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "StatBand",
+			args: {},
+			slots: {
+				tiles: [
+					{
+						kind: "compound",
+						name: "SignalCard",
+						args: {
+							kicker: { kind: "text", value: "Treasury", as: "caption", intent: "folio" },
+							title: { kind: "text", value: "Net position", as: "subheading" },
+							measure: {
+								kind: "number",
+								value: 2_450_000,
+								format: "currency",
+								currency: "ISK",
+								intent: "evidence",
+								emphasis: "strong",
+							},
+						},
+						slots: { body: [] },
+					},
+					{
+						kind: "compound",
+						name: "SignalCard",
+						args: {
+							kicker: { kind: "text", value: "Route", as: "caption", intent: "folio" },
+							title: { kind: "text", value: "Rail", as: "subheading" },
+							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
+						},
+						slots: { body: [] },
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
+		// The promoted Breakdown — labeled proportion rows. Each row is a label +
+		// progress + value cluster the presenter builds; the rows ride the `rows` slot.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "Breakdown",
+			args: { title: { kind: "text", value: "Allocation", as: "heading" } },
+			slots: {
+				rows: [
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Research", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Research", value: 0.2857142857142857 },
+							{ kind: "number", value: 100_000, format: "currency", currency: "ISK" },
+						],
+					},
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Operations", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Operations", value: 0.5714285714285714 },
+							{ kind: "number", value: 200_000, format: "currency", currency: "ISK" },
+						],
+					},
+					{
+						kind: "cluster",
+						role: "inline",
+						align: "baseline",
+						children: [
+							{ kind: "text", value: "Reserve", as: "caption", intent: "neutral" },
+							{ kind: "progress", label: "Reserve", value: 0.14285714285714285 },
+							{ kind: "number", value: 50_000, format: "currency", currency: "ISK" },
+						],
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
+		// The promoted TrailEntry — one event/trace row. The stamp + summary ride as
+		// call-site nodes; the ref and provenance slots carry the links and the id.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "TrailEntry",
+			args: {
+				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "marginalia" },
+				summary: { kind: "text", value: "Vendor admitted to the settlement roster.", as: "body" },
+			},
+			slots: {
+				ref: [
+					{
+						kind: "link",
+						href: "/audit/adm-001",
+						label: "Open admission",
+						intent: "primary-action",
+					},
+				],
+				provenance: [{ kind: "text", value: "evt-001", as: "body", intent: "provenance" }],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
+		// The promoted KeyValuePanel — tiered field rows for a detail pane. Each tier is
+		// a definition grid (caption + value) the presenter builds; the primary/secondary/
+		// provenance slots carry the tiers. Re-themed by every shipped dialect, clinical too.
+		{
+			kind: "compound",
+			name: "KeyValuePanel",
+			args: {},
+			slots: {
+				primary: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Name", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Sók Rates", as: "body", emphasis: "strong" },
+							{ kind: "text", value: "Position", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Settlement lead", as: "body", emphasis: "strong" },
+						],
+					},
+				],
+				secondary: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Department", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Treasury", as: "body" },
+							{ kind: "text", value: "Location", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Reykjavík", as: "body" },
+						],
+					},
+				],
+				provenance: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Employee id", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "emp-001", as: "body", intent: "provenance" },
+						],
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",

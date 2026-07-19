@@ -1,0 +1,83 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Research",
+          "number_format": "currency",
+          "path": "$.allocation.researchIsk",
+          "strategy": "number",
+          "value": 100000
+        },
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Operations",
+          "number_format": "currency",
+          "path": "$.allocation.operationsIsk",
+          "strategy": "number",
+          "value": 200000
+        },
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [
+            {
+              "code": "BUDGET_RESERVE_LOW",
+              "message": "Reserve is below the target proportion.",
+              "path": "$.allocation.reserveIsk",
+              "repair_hint": "Rebalance before the next settlement run.",
+              "severity": "warning"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Reserve",
+          "number_format": "currency",
+          "path": "$.allocation.reserveIsk",
+          "strategy": "number",
+          "value": 50000
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "BUDGET_ALLOCATION_SOURCE",
+          "message": "Allocation reflects the signed planning window.",
+          "path": "$.allocation",
+          "severity": "info"
+        }
+      ],
+      "heading": true,
+      "items": [],
+      "label": "Allocation",
+      "path": "$.allocation",
+      "strategy": "breakdown"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Summary",
+      "path": "$.summary",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "One budget detail pane; the allocation lowers to a promoted Breakdown."
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_BudgetDetail",
+  "path": "$",
+  "strategy": "record-card"
+}

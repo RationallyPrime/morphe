@@ -1,0 +1,123 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_BudgetDetail"
+        },
+        {
+          "args": {
+            "title": {
+              "as": "heading",
+              "kind": "text",
+              "value": "Allocation"
+            }
+          },
+          "kind": "compound",
+          "name": "Breakdown",
+          "slots": {
+            "rows": [
+              {
+                "detail": "Allocation reflects the signed planning window.",
+                "kind": "inline-alert",
+                "title": "BUDGET_ALLOCATION_SOURCE",
+                "tone": "info"
+              },
+              {
+                "align": "baseline",
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Research"
+                  },
+                  {
+                    "kind": "progress",
+                    "label": "Research",
+                    "value": 0.2857142857142857
+                  },
+                  {
+                    "currency": "ISK",
+                    "format": "currency",
+                    "kind": "number",
+                    "value": 100000
+                  }
+                ],
+                "kind": "cluster",
+                "role": "inline"
+              },
+              {
+                "align": "baseline",
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Operations"
+                  },
+                  {
+                    "kind": "progress",
+                    "label": "Operations",
+                    "value": 0.5714285714285714
+                  },
+                  {
+                    "currency": "ISK",
+                    "format": "currency",
+                    "kind": "number",
+                    "value": 200000
+                  }
+                ],
+                "kind": "cluster",
+                "role": "inline"
+              },
+              {
+                "align": "baseline",
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Reserve"
+                  },
+                  {
+                    "kind": "progress",
+                    "label": "Reserve",
+                    "value": 0.14285714285714285
+                  },
+                  {
+                    "currency": "ISK",
+                    "format": "currency",
+                    "kind": "number",
+                    "value": 50000
+                  }
+                ],
+                "kind": "cluster",
+                "role": "inline"
+              },
+              {
+                "detail": "Reserve is below the target proportion.",
+                "kind": "inline-alert",
+                "title": "BUDGET_RESERVE_LOW",
+                "tone": "caution"
+              }
+            ]
+          }
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "One budget detail pane; the allocation lowers to a promoted Breakdown."
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

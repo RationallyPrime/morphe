@@ -3,12 +3,17 @@
     "clinical": {
       "compound_policy": {
         "compounds": [
-          "SignalCard"
+          "SignalCard",
+          "EntityHeader",
+          "StatBand",
+          "Breakdown",
+          "TrailEntry",
+          "KeyValuePanel"
         ],
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "3382781c16e7abb88611b89021ff58cc4543c9a1fac281bfdb16aa2e6fbdc8cc"
+      "sha256": "c28c523362564ba3fddba6d055a50fe9419dea56335530c91111bf237bf08259"
     },
     "estate": {
       "compound_policy": {

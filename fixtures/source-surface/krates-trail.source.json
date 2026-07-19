@@ -1,0 +1,171 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "krates-fixture-2026-01",
+    "signature": "FKEqIo5Fkm7wQSuqRxMQsKUC46rbmwJ4RVkLfLzQGIcUO3sCDwB3lSzVLsAwqnfFyuJslVNklebdZemJNzPdAQ"
+  },
+  "data": {
+    "events": [
+      {
+        "eventId": "evt-001",
+        "occurredAt": "2026-07-17T09:14:00Z",
+        "source": {
+          "href": "/audit/adm-001",
+          "label": "Open admission"
+        },
+        "summary": "Vendor admitted to the settlement roster."
+      },
+      {
+        "eventId": "evt-002",
+        "occurredAt": "2026-07-17T11:02:00Z",
+        "source": {
+          "href": "/audit/adm-002",
+          "label": "Open recompute"
+        },
+        "summary": "Exposure recomputed against the signed ledger."
+      }
+    ],
+    "summary": "Two audit events; each lowers to a promoted TrailEntry."
+  },
+  "diagnostics": [
+    {
+      "code": "TRAIL_EVENT_REVIEW",
+      "message": "The recompute event needs review.",
+      "path": "$.events[1]",
+      "repair_hint": "Confirm the exposure delta before settlement.",
+      "severity": "warning"
+    },
+    {
+      "code": "TRAIL_EVENT_SOURCE",
+      "message": "Timestamp reflects the signed event log.",
+      "path": "$.events[0].occurredAt",
+      "repair_hint": null,
+      "severity": "info"
+    }
+  ],
+  "issuer": "krates",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:20:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "_SurfaceLink": {
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "title": "Href",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "_SurfaceLink",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "href"
+          ]
+        }
+      },
+      "_TrailEvent": {
+        "additionalProperties": false,
+        "description": "One event row; hint-keyed classification lowers it to a promoted TrailEntry.\n\nThe temporal-hinted stamp -> the stamp param, the plain string -> the summary,\nthe linked-ref -> the ref slot, and the role:provenance id -> the provenance\nfooter (never inside the summary). A hidden trace must never reach the tree.",
+        "properties": {
+          "eventId": {
+            "title": "Event id",
+            "type": "string",
+            "x-morphe": {
+              "role": "provenance"
+            }
+          },
+          "occurredAt": {
+            "title": "Occurred",
+            "type": "string",
+            "x-morphe": {
+              "temporal": "date-time-minute"
+            }
+          },
+          "source": {
+            "$ref": "#/$defs/_SurfaceLink",
+            "title": "Source",
+            "x-morphe": {
+              "role": "primary-action",
+              "strategy": "linked-ref"
+            }
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "occurredAt",
+          "summary",
+          "source",
+          "eventId"
+        ],
+        "title": "_TrailEvent",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "occurredAt",
+            "summary",
+            "source",
+            "eventId"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "events": {
+        "items": {
+          "$ref": "#/$defs/_TrailEvent"
+        },
+        "title": "Audit trail",
+        "type": "array",
+        "x-morphe": {
+          "strategy": "trail"
+        }
+      },
+      "summary": {
+        "title": "Summary",
+        "type": "string"
+      }
+    },
+    "required": [
+      "events",
+      "summary"
+    ],
+    "title": "_AuditTrailDetail",
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "events",
+        "summary"
+      ]
+    }
+  },
+  "seals": {
+    "content_sha256": "sha256:0b3f90230eccd7ba7b016c14687798e5c68999700e8677f9e7cd515c39a8f548",
+    "schema_sha256": "sha256:77231cf2702d3949c1a130e0e19c840a4efa7e6105608a0c4f7eb525dd39908a",
+    "testimony_sha256": "sha256:ce66d47f65c1a99ca16e4a9cdbb10df2f60b3c1476d774dc54acddc4f2f4baaf"
+  },
+  "source_revision": "krates-trail-fixture-rev-0001",
+  "surface_id": "krates.trail:krates-ehf",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.5.0",
+    "id": "krates.trail",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

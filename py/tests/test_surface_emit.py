@@ -155,9 +155,7 @@ def test_timestamp_floor_covers_table_cells_and_textual_kpis_without_mutating_ir
     spec = build_surface(
         schema,
         {
-            "summary": [
-                {"label": "Newest event", "value": raw, "temporal": "date-time-minute"}
-            ],
+            "summary": [{"label": "Newest event", "value": raw, "temporal": "date-time-minute"}],
             "events": [{"system_time": raw}],
         },
         root=schema,

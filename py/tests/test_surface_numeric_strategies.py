@@ -305,13 +305,15 @@ def test_emit_progress_self_labels() -> None:
     validate_node(node)
 
 
-def test_emit_kpi_row_is_a_card_grid_of_signal_cards() -> None:
+def test_emit_kpi_row_is_a_stat_band_of_signal_cards() -> None:
     spec = _build(TREASURY, _treasury_data())
     section = emit_node(_child(spec, "$.kpis"))
-    grid = next(c for c in section["children"] if c.get("kind") == "grid")
-    assert grid["minTrack"] == "narrow"
-    assert "columns" not in grid
-    cards = grid["children"]
+    # The KPI tiles ride the promoted StatBand compound; the band owns the auto-fit
+    # narrow-track grid, so the emitted section holds the band, not a bare grid.
+    band = next(c for c in section["children"] if c.get("kind") == "compound")
+    assert band["name"] == "StatBand"
+    assert band["args"] == {}
+    cards = band["slots"]["tiles"]
     assert [c["kind"] for c in cards] == ["compound", "compound"]
     assert cards[0]["name"] == "SignalCard"
     assert cards[0]["args"]["measure"]["kind"] == "number"
@@ -389,17 +391,20 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
-    assert HINT_VOCABULARY_VERSION == "0.4.0"
+    assert HINT_VOCABULARY_VERSION == "0.5.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
     assert morphe_hint(temporal="date-time-minute") == {
         "x-morphe": {"temporal": "date-time-minute"}
     }
-    assert KpiCell(
-        label="Newest event",
-        value="2026-07-17T15:40:14Z",
-        temporal="date-time-minute",
-    ).temporal == "date-time-minute"
+    assert (
+        KpiCell(
+            label="Newest event",
+            value="2026-07-17T15:40:14Z",
+            temporal="date-time-minute",
+        ).temporal
+        == "date-time-minute"
+    )
     with pytest.raises(ValueError, match="strategy"):
         morphe_hint(strategy="nubmer")
     with pytest.raises(ValueError, match="temporal"):

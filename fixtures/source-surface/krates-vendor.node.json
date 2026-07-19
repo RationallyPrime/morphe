@@ -1,0 +1,102 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_VendorDetail"
+        },
+        {
+          "args": {
+            "keyFigure": {
+              "currency": "ISK",
+              "emphasis": "strong",
+              "format": "currency",
+              "kind": "number",
+              "value": 2450000
+            },
+            "kicker": {
+              "as": "caption",
+              "intent": "folio",
+              "kind": "text",
+              "value": "Vendor"
+            },
+            "title": {
+              "as": "heading",
+              "kind": "text",
+              "value": "Krates ehf"
+            }
+          },
+          "kind": "compound",
+          "name": "EntityHeader",
+          "slots": {
+            "meta": [
+              {
+                "detail": "This vendor is under standing review.",
+                "kind": "inline-alert",
+                "title": "VENDOR_STANDING_REVIEW",
+                "tone": "caution"
+              },
+              {
+                "detail": "Exposure reflects the signed ledger position.",
+                "kind": "inline-alert",
+                "title": "VENDOR_EXPOSURE_SOURCE",
+                "tone": "info"
+              },
+              {
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Primary contact"
+                  },
+                  {
+                    "as": "body",
+                    "kind": "text",
+                    "value": "S\u00f3k Rates"
+                  }
+                ],
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "kind": "grid",
+                "role": "field-group"
+              }
+            ],
+            "provenance": [
+              {
+                "as": "body",
+                "intent": "provenance",
+                "kind": "text",
+                "value": "vendor:krates-ehf"
+              }
+            ],
+            "signal": [
+              {
+                "kind": "status",
+                "signal": {
+                  "text": "review"
+                },
+                "tone": "caution"
+              }
+            ]
+          }
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

@@ -27,12 +27,7 @@ def resolve_ref(
     seen: set[str] = set()
     for _hop in range(max_hops):
         ref = current.get("$ref")
-        if (
-            not isinstance(ref, str)
-            or not ref.startswith("#/$defs/")
-            or "%" in ref
-            or ref in seen
-        ):
+        if not isinstance(ref, str) or not ref.startswith("#/$defs/") or "%" in ref or ref in seen:
             return current
         seen.add(ref)
         node: Any = root

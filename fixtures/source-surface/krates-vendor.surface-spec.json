@@ -1,0 +1,101 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Vendor",
+          "path": "$.header.name",
+          "strategy": "scalar",
+          "value": "Krates ehf"
+        },
+        {
+          "children": [],
+          "currency": "ISK",
+          "diagnostics": [
+            {
+              "code": "VENDOR_EXPOSURE_SOURCE",
+              "message": "Exposure reflects the signed ledger position.",
+              "path": "$.header.exposureIsk",
+              "severity": "info"
+            }
+          ],
+          "heading": true,
+          "items": [],
+          "label": "Exposure",
+          "number_format": "currency",
+          "path": "$.header.exposureIsk",
+          "strategy": "number",
+          "value": 2450000
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "caution",
+          "items": [],
+          "label": "Standing",
+          "path": "$.header.standing",
+          "strategy": "status",
+          "value": "review"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "items": [],
+          "label": "Primary contact",
+          "path": "$.header.primaryContact",
+          "strategy": "scalar",
+          "value": "S\u00f3k Rates"
+        },
+        {
+          "children": [],
+          "diagnostics": [],
+          "heading": true,
+          "intent": "provenance",
+          "items": [],
+          "label": "Ledger id",
+          "path": "$.header.ledgerRef",
+          "strategy": "scalar",
+          "value": "vendor:krates-ehf"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "VENDOR_STANDING_REVIEW",
+          "message": "This vendor is under standing review.",
+          "path": "$.header",
+          "repair_hint": "Confirm the exposure before the next settlement run.",
+          "severity": "warning"
+        }
+      ],
+      "heading": true,
+      "items": [],
+      "label": "Vendor",
+      "path": "$.header",
+      "strategy": "entity-header"
+    },
+    {
+      "children": [],
+      "diagnostics": [],
+      "emphasis": "critical",
+      "heading": true,
+      "items": [],
+      "label": "Summary",
+      "path": "$.summary",
+      "strategy": "scalar",
+      "text_as": "display",
+      "value": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
+    }
+  ],
+  "diagnostics": [],
+  "heading": true,
+  "items": [],
+  "label": "_VendorDetail",
+  "path": "$",
+  "strategy": "record-card"
+}

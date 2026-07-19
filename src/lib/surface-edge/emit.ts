@@ -35,6 +35,10 @@ const CONTAINER_STRATEGIES = new Set([
 	"table",
 	"card-stack",
 	"kpi-row",
+	"entity-header",
+	"breakdown",
+	"trail",
+	"key-value",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
 
@@ -138,6 +142,10 @@ function emit(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.strategy === "collapsed-section") return collapsible(spec, ctx);
 	if (spec.strategy === "table") return table(spec, ctx);
 	if (spec.strategy === "kpi-row") return kpiRow(spec, ctx);
+	if (spec.strategy === "entity-header") return entityHeader(spec, ctx);
+	if (spec.strategy === "breakdown") return breakdown(spec, ctx);
+	if (spec.strategy === "trail") return trail(spec, ctx);
+	if (spec.strategy === "key-value") return keyValue(spec, ctx);
 	if (spec.strategy === "card-stack") {
 		const built = spec.items.map((item) => field(item, ctx));
 		return section(spec, built.length > 0 ? built : [emptyCollection(spec)]);
@@ -248,13 +256,16 @@ function statusTone(intent: string | undefined): "success" | "caution" | "info" 
 
 function kpiRow(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
-	const grid: Grid = {
-		kind: "grid",
-		role: "list",
-		minTrack: "narrow",
-		children: spec.items.map((item) => signalCard(item, ctx)),
+	// The SignalCard tiles ride the promoted StatBand compound: the band owns the
+	// auto-fit narrow-track grid (no `columns` means it wraps) that packs the KPI band.
+	// The factory splices the `tiles` slot inline as the grid's children.
+	const band: CompoundRef = {
+		kind: "compound",
+		name: "StatBand",
+		args: {},
+		slots: { tiles: spec.items.map((item) => signalCard(item, ctx)) },
 	};
-	return section(spec, [grid]);
+	return section(spec, [band]);
 }
 
 function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
@@ -288,6 +299,260 @@ function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
 		name: "SignalCard",
 		args: { kicker, title, measure },
 		slots: { body: item.diagnostics.map(alert) },
+	} satisfies CompoundRef;
+}
+
+function isTitleCandidate(child: SurfaceNode): boolean {
+	// See the Python twin: in practice this selects the first string scalar; the
+	// heading/display register clause stays for an explicitly authored one.
+	if (child.strategy !== "scalar") return false;
+	return (
+		child.text_as === "display" || child.text_as === "heading" || typeof child.value === "string"
+	);
+}
+
+function slotLeaf(spec: SurfaceNode, ctx: EmitContext): Node {
+	const inner = leaf(spec, ctx);
+	const alerts = spec.strategy === "diagnostic-node" ? [] : spec.diagnostics.map(alert);
+	return alerts.length === 0
+		? inner
+		: { kind: "stack", role: "field-group", children: [inner, ...alerts] };
+}
+
+function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
+	// One deterministic classification pass in document order, mirroring the Python
+	// twin exactly: explicit `role: provenance` wins; then first number is the key
+	// figure; then status/badge feed signal; then the first title candidate; the
+	// rest are meta facts.
+	const kicker: Text = { kind: "text", value: spec.label, as: "caption", intent: "folio" };
+	const provenance: Node[] = [];
+	const signal: Node[] = [];
+	const metaChildren: SurfaceNode[] = [];
+	let keyFigure: SurfaceNode | undefined;
+	let titleChild: SurfaceNode | undefined;
+	for (const child of spec.children) {
+		if (child.intent === "provenance") {
+			provenance.push(slotLeaf(child, ctx));
+		} else if (child.strategy === "number" && keyFigure === undefined) {
+			keyFigure = child;
+		} else if (child.strategy === "status" || child.strategy === "badge") {
+			signal.push(slotLeaf(child, ctx));
+		} else if (titleChild === undefined && isTitleCandidate(child)) {
+			titleChild = child;
+		} else {
+			metaChildren.push(child);
+		}
+	}
+	const title: Text = {
+		kind: "text",
+		value:
+			titleChild === undefined
+				? spec.label
+				: displayScalarText(
+						titleChild.value ?? null,
+						scalarNumberKind(titleChild),
+						ctx.temporalPolicy,
+						ctx.now,
+					),
+		as: "heading",
+	};
+	const args: Record<string, Node> = { kicker, title };
+	if (keyFigure !== undefined) {
+		args.keyFigure = { ...numberNode(keyFigure), emphasis: "strong" };
+	}
+	// Diagnostics on the node itself and on the two children promoted to BARE args
+	// (title, keyFigure) would otherwise lose their alert path. Surface them all at
+	// the head of the meta row, in document order, so nothing signed is dropped (D8).
+	const promoted: SurfaceNode[] = [
+		spec,
+		...(titleChild === undefined ? [] : [titleChild]),
+		...(keyFigure === undefined ? [] : [keyFigure]),
+	];
+	const headAlerts = promoted.flatMap((node) => node.diagnostics.map(alert));
+	const meta: Node[] = [...headAlerts, ...fields(metaChildren, ctx)];
+	return {
+		kind: "compound",
+		name: "EntityHeader",
+		args,
+		slots: { signal, meta, provenance },
+	} satisfies CompoundRef;
+}
+
+function breakdownNumeric(child: SurfaceNode): number | null {
+	// A row is numeric iff its built value is a real number (never a bool). A
+	// non-numeric child keeps its value but degrades its progress to indeterminate.
+	return typeof child.value === "number" ? child.value : null;
+}
+
+function breakdownRow(
+	child: SurfaceNode,
+	value: number | null,
+	positiveSum: number,
+	ctx: EmitContext,
+): Node[] {
+	// One proportion row: label + progress + value cluster (D8 keeps child alerts).
+	const label: Text = { kind: "text", value: child.label, as: "caption", intent: "neutral" };
+	const progressNode: Node = {
+		kind: "progress",
+		label: normalizeVisibleLabelText(child.label, "Proportion"),
+		// IEEE-754 double division — identical in both compilers; clamped like the
+		// `progress` strategy so a negative share degrades to an empty bar, not a lie.
+		...(value !== null && positiveSum > 0
+			? { value: Math.min(1, Math.max(0, value / positiveSum)) }
+			: {}),
+	};
+	// A numeric child leads with a number node; a non-numeric one shows its natural
+	// leaf (a NumberNode cannot hold a non-numeric value), with progress indeterminate.
+	const valueNode = value !== null ? numberNode(child) : leaf(child, ctx);
+	const cluster: Node = {
+		kind: "cluster",
+		role: "inline",
+		align: "baseline",
+		children: [label, progressNode, valueNode],
+	};
+	const alerts = child.strategy === "diagnostic-node" ? [] : child.diagnostics.map(alert);
+	return [cluster, ...alerts];
+}
+
+function breakdown(spec: SurfaceNode, ctx: EmitContext): Node {
+	const numbers = spec.children.map(breakdownNumeric);
+	let positiveSum = 0;
+	for (const n of numbers) {
+		if (n !== null && n > 0) positiveSum += n;
+	}
+	const rows: Node[] = [];
+	spec.children.forEach((child, index) => {
+		rows.push(...breakdownRow(child, numbers[index] ?? null, positiveSum, ctx));
+	});
+	const args: Record<string, Node> = {};
+	if (spec.heading) {
+		args.title = { kind: "text", value: spec.label, as: "heading" };
+	}
+	// Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
+	const headAlerts = spec.diagnostics.map(alert);
+	return {
+		kind: "compound",
+		name: "Breakdown",
+		args,
+		slots: { rows: [...headAlerts, ...rows] },
+	} satisfies CompoundRef;
+}
+
+function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
+	// One event row -> one TrailEntry compound, mirroring the Python twin exactly.
+	// Classification is deterministic and HINT-KEYED only (never name-based):
+	// role:provenance -> provenance slot; a linked-ref child -> ref slot; the first
+	// temporal-hinted child -> stamp; the first string scalar among the rest ->
+	// summary. Identifiers have exactly one home (provenance), never the summary.
+	let stamp: SurfaceNode | undefined;
+	let summaryChild: SurfaceNode | undefined;
+	const ref: Node[] = [];
+	const provenance: Node[] = [];
+	const leftoverDiagnostics: Node[] = [];
+	for (const child of item.children) {
+		if (child.intent === "provenance") {
+			provenance.push(slotLeaf(child, ctx));
+		} else if (child.strategy === "linked-ref") {
+			ref.push(slotLeaf(child, ctx));
+		} else if (stamp === undefined && child.temporal !== undefined) {
+			stamp = child;
+		} else if (summaryChild === undefined && isTitleCandidate(child)) {
+			summaryChild = child;
+		} else if (child.strategy !== "diagnostic-node") {
+			// No general "meta" slot exists on a TrailEntry; keep any SIGNED child
+			// diagnostics (D8) at the provenance-footer head, drop only the value.
+			for (const d of child.diagnostics) leftoverDiagnostics.push(alert(d));
+		}
+	}
+	let summaryValue: string;
+	if (summaryChild !== undefined) {
+		summaryValue = displayScalarText(
+			summaryChild.value ?? null,
+			scalarNumberKind(summaryChild),
+			ctx.temporalPolicy,
+			ctx.now,
+		);
+	} else if (item.children.length === 0 && typeof item.value === "string") {
+		summaryValue = displayScalarText(
+			item.value,
+			scalarNumberKind(item),
+			ctx.temporalPolicy,
+			ctx.now,
+		);
+	} else {
+		summaryValue = item.label;
+	}
+	const args: Record<string, Node> = {
+		summary: { kind: "text", value: summaryValue, as: "body" },
+	};
+	if (stamp !== undefined) {
+		args.stamp = {
+			kind: "text",
+			value: displayScalarText(
+				stamp.value ?? null,
+				scalarNumberKind(stamp),
+				ctx.temporalPolicy,
+				ctx.now,
+			),
+			as: "caption",
+			intent: "marginalia",
+		};
+	}
+	// The event object itself and the children promoted to BARE args (stamp, summary)
+	// would otherwise lose their alert path. Surface them at the provenance-footer head,
+	// in document order, so nothing signed is dropped (D8).
+	const promoted: SurfaceNode[] = [
+		item,
+		...(stamp === undefined ? [] : [stamp]),
+		...(summaryChild === undefined ? [] : [summaryChild]),
+	];
+	const headAlerts = promoted.flatMap((node) =>
+		node.strategy === "diagnostic-node" ? [] : node.diagnostics.map(alert),
+	);
+	return {
+		kind: "compound",
+		name: "TrailEntry",
+		args,
+		slots: { ref, provenance: [...headAlerts, ...leftoverDiagnostics, ...provenance] },
+	} satisfies CompoundRef;
+}
+
+function trail(spec: SurfaceNode, ctx: EmitContext): Node {
+	const entries = spec.items.map((item) => trailEntry(item, ctx));
+	return section(spec, entries.length > 0 ? entries : [emptyCollection(spec)]);
+}
+
+function keyValue(spec: SurfaceNode, ctx: EmitContext): Node {
+	// Tier the object's children by HINT only (never name), mirroring the Python
+	// twin: a child carrying an emphasis hint is a primary field; a role:provenance
+	// child is a provenance field; everything else is secondary. Each tier renders
+	// through the SAME definition-grid idiom the hint-free floor uses.
+	const primary: SurfaceNode[] = [];
+	const secondary: SurfaceNode[] = [];
+	const provenance: SurfaceNode[] = [];
+	for (const child of spec.children) {
+		if (child.intent === "provenance") {
+			provenance.push(child);
+		} else if (child.emphasis !== undefined) {
+			primary.push(child);
+		} else {
+			secondary.push(child);
+		}
+	}
+	const nodeAlerts = spec.diagnostics.map(alert);
+	const primaryFill: Node[] = [
+		...nodeAlerts,
+		...(primary.length > 0 ? [definitionGrid(primary, ctx)] : []),
+	];
+	return {
+		kind: "compound",
+		name: "KeyValuePanel",
+		args: {},
+		slots: {
+			primary: primaryFill,
+			secondary: secondary.length > 0 ? [definitionGrid(secondary, ctx)] : [],
+			provenance: provenance.length > 0 ? [definitionGrid(provenance, ctx)] : [],
+		},
 	} satisfies CompoundRef;
 }
 

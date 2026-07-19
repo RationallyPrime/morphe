@@ -196,9 +196,204 @@
       "oneOf": [
         {
           "$ref": "#/$defs/CompoundRef_SignalCard"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_EntityHeader"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_StatBand"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_Breakdown"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_TrailEntry"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_KeyValuePanel"
         }
       ],
       "title": "clinical CompoundRef"
+    },
+    "CompoundRef_Breakdown": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional heading for the proportion breakdown."
+            }
+          },
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "Breakdown",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "Breakdown",
+      "type": "object"
+    },
+    "CompoundRef_EntityHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "keyFigure": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "format": "integer",
+                "intent": "neutral",
+                "kind": "number",
+                "value": 0
+              },
+              "description": "The one number this entity leads with."
+            },
+            "kicker": {
+              "$ref": "#/$defs/Node",
+              "description": "Small register line naming the collection this entity is in."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "The entity's name at display/heading register."
+            }
+          },
+          "required": [
+            "kicker",
+            "title"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "EntityHeader",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "meta": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "EntityHeader",
+      "type": "object"
+    },
+    "CompoundRef_KeyValuePanel": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "KeyValuePanel",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "primary": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "secondary": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "KeyValuePanel",
+      "type": "object"
     },
     "CompoundRef_SignalCard": {
       "additionalProperties": false,
@@ -268,6 +463,111 @@
         "args"
       ],
       "title": "SignalCard",
+      "type": "object"
+    },
+    "CompoundRef_StatBand": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "StatBand",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "tiles": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "StatBand",
+      "type": "object"
+    },
+    "CompoundRef_TrailEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "stamp": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional temporal stamp for the event."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "description": "The event's primary line at body register."
+            }
+          },
+          "required": [
+            "summary"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "TrailEntry",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "ref": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "TrailEntry",
       "type": "object"
     },
     "ContainerRole": {
@@ -1896,7 +2196,12 @@
   "title": "Morphe Node Decoder Mask \u2014 clinical",
   "x-morphe-compound-policy": {
     "compounds": [
-      "SignalCard"
+      "SignalCard",
+      "EntityHeader",
+      "StatBand",
+      "Breakdown",
+      "TrailEntry",
+      "KeyValuePanel"
     ],
     "mode": "allowlist"
   },

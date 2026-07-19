@@ -12,6 +12,23 @@ from typing import Literal
 #   status    -> Status chip (tone resolved per-VALUE via the hint's intents map)
 #   progress  -> Progress bar (0..1 fraction; non-numeric data degrades to indeterminate)
 #   kpi-row   -> grid of promoted SignalCard compounds (one per KpiCell-shaped row)
+#
+# The 0.5.0 addition follows the same 0.3.0 precedent — hint-selected ONLY, so the
+# hint-free floor stays byte-identical and resolve_strategy never returns it structurally:
+#   entity-header -> one promoted EntityHeader compound (the detail-pane lede), composed
+#                    from the hinted object's own children (kicker/title/keyFigure + slots)
+#   breakdown -> one promoted Breakdown compound (labeled proportion rows); each numeric
+#                child is a row (fraction = value / sum(positive numeric values); a
+#                non-numeric child or a zero/empty sum degrades that row's progress to
+#                indeterminate, mirroring how the `progress` strategy degrades)
+#   trail     -> one promoted TrailEntry compound per array item (event/trace rows);
+#                child classification is hint-keyed only (temporal -> stamp; the primary
+#                string scalar -> summary; linked-ref -> ref slot; role:provenance ->
+#                provenance slot), never name-based
+#   key-value -> one promoted KeyValuePanel compound (tiered field rows for a detail
+#                pane); children hinted `emphasis` -> primary tier, role:provenance ->
+#                provenance tier, the rest -> secondary tier — hint-keyed only, and the
+#                rows reuse the hint-free definition-grid idiom verbatim
 Strategy = Literal[
     "scalar",
     "badge",
@@ -25,4 +42,8 @@ Strategy = Literal[
     "status",
     "progress",
     "kpi-row",
+    "entity-header",
+    "breakdown",
+    "trail",
+    "key-value",
 ]

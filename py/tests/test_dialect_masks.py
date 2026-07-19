@@ -52,7 +52,14 @@ def _definitions(document: JsonSchema) -> dict[str, object]:
 
 
 def test_signal_card_is_a_neutral_promoted_compound() -> None:
-    assert tuple(PROMOTED_COMPOUNDS) == ("SignalCard",)
+    assert tuple(PROMOTED_COMPOUNDS) == (
+        "SignalCard",
+        "EntityHeader",
+        "StatBand",
+        "Breakdown",
+        "TrailEntry",
+        "KeyValuePanel",
+    )
     assert SIGNAL_CARD.lifecycle == "promoted"
     assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
     assert set(SIGNAL_CARD.params.properties) == {"kicker", "title", "measure"}
@@ -81,7 +88,14 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
     )
     assert tuple(DIALECT_CONSTRAINTS) == DIALECT_IDS
     assert DIALECT_CONSTRAINTS["clinical"].mode == "allowlist"
-    assert DIALECT_CONSTRAINTS["clinical"].compounds == ("SignalCard",)
+    assert DIALECT_CONSTRAINTS["clinical"].compounds == (
+        "SignalCard",
+        "EntityHeader",
+        "StatBand",
+        "Breakdown",
+        "TrailEntry",
+        "KeyValuePanel",
+    )
 
     for dialect_id in DIALECT_IDS:
         if dialect_id != "clinical":
@@ -216,12 +230,65 @@ def test_dialect_validator_validates_structural_tree_only_once(
     assert calls == 1
 
 
-def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape() -> None:
+def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape() -> None:  # noqa: PLR0915 - one assertion block per allowlisted compound
     document = dialect_mask_document("clinical")
     definitions = _definitions(document)
     compound_union = _object(definitions["CompoundRef"])
     options = compound_union["oneOf"]
-    assert options == [{"$ref": "#/$defs/CompoundRef_SignalCard"}]
+    assert options == [
+        {"$ref": "#/$defs/CompoundRef_SignalCard"},
+        {"$ref": "#/$defs/CompoundRef_EntityHeader"},
+        {"$ref": "#/$defs/CompoundRef_StatBand"},
+        {"$ref": "#/$defs/CompoundRef_Breakdown"},
+        {"$ref": "#/$defs/CompoundRef_TrailEntry"},
+        {"$ref": "#/$defs/CompoundRef_KeyValuePanel"},
+    ]
+
+    entity_header = _object(definitions["CompoundRef_EntityHeader"])
+    header_properties = _object(entity_header["properties"])
+    assert _object(header_properties["name"])["const"] == "EntityHeader"
+    header_args = _object(header_properties["args"])
+    assert header_args["required"] == ["kicker", "title"]
+    header_slots = _object(header_properties["slots"])
+    assert set(_object(header_slots["properties"])) == {"signal", "meta", "provenance"}
+
+    # StatBand is a layout band: no params (it owns the grid), one `tiles` slot.
+    stat_band = _object(definitions["CompoundRef_StatBand"])
+    band_properties = _object(stat_band["properties"])
+    assert _object(band_properties["name"])["const"] == "StatBand"
+    band_args = _object(band_properties["args"])
+    assert set(_object(band_args["properties"])) == set()
+    band_slots = _object(band_properties["slots"])
+    assert set(_object(band_slots["properties"])) == {"tiles"}
+
+    # Breakdown: an optional `title` node param, one `rows` slot.
+    breakdown = _object(definitions["CompoundRef_Breakdown"])
+    breakdown_properties = _object(breakdown["properties"])
+    assert _object(breakdown_properties["name"])["const"] == "Breakdown"
+    breakdown_args = _object(breakdown_properties["args"])
+    assert set(_object(breakdown_args["properties"])) == {"title"}
+    assert "required" not in breakdown_args
+    breakdown_slots = _object(breakdown_properties["slots"])
+    assert set(_object(breakdown_slots["properties"])) == {"rows"}
+
+    # TrailEntry: optional `stamp` + required `summary` node params, ref + provenance slots.
+    trail_entry = _object(definitions["CompoundRef_TrailEntry"])
+    trail_properties = _object(trail_entry["properties"])
+    assert _object(trail_properties["name"])["const"] == "TrailEntry"
+    trail_args = _object(trail_properties["args"])
+    assert set(_object(trail_args["properties"])) == {"stamp", "summary"}
+    assert trail_args["required"] == ["summary"]
+    trail_slots = _object(trail_properties["slots"])
+    assert set(_object(trail_slots["properties"])) == {"ref", "provenance"}
+
+    # KeyValuePanel is pure tiering: no params, three field-row slots.
+    key_value = _object(definitions["CompoundRef_KeyValuePanel"])
+    kv_properties = _object(key_value["properties"])
+    assert _object(kv_properties["name"])["const"] == "KeyValuePanel"
+    kv_args = _object(kv_properties["args"])
+    assert set(_object(kv_args["properties"])) == set()
+    kv_slots = _object(kv_properties["slots"])
+    assert set(_object(kv_slots["properties"])) == {"primary", "secondary", "provenance"}
 
     signal_card = _object(definitions["CompoundRef_SignalCard"])
     properties = _object(signal_card["properties"])
@@ -241,7 +308,14 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
 
     assert document["x-morphe-compound-policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard"],
+        "compounds": [
+            "SignalCard",
+            "EntityHeader",
+            "StatBand",
+            "Breakdown",
+            "TrailEntry",
+            "KeyValuePanel",
+        ],
     }
 
 
@@ -325,7 +399,14 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
     assert clinical["schema"] == "dialects/morphe-node.clinical.schema.json"
     assert clinical["compound_policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard"],
+        "compounds": [
+            "SignalCard",
+            "EntityHeader",
+            "StatBand",
+            "Breakdown",
+            "TrailEntry",
+            "KeyValuePanel",
+        ],
     }
     assert gallery["compound_policy"] == {"mode": "unrestricted", "compounds": []}
 

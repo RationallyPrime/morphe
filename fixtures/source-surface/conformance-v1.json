@@ -37,6 +37,82 @@
         "source": "fixtures/source-surface/obolos-evidence.source.json",
         "surface_spec": "fixtures/source-surface/obolos-evidence.surface-spec.json"
       }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "krates",
+        "key_id": "krates-fixture-2026-01",
+        "public_key_raw_hex": "fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025",
+        "surface_id": "krates.vendor:krates-ehf"
+      },
+      "hidden": {
+        "field": "internalRating",
+        "sentinel": "MORPHE-HIDDEN-KRATES-3D91C4"
+      },
+      "id": "krates-vendor",
+      "paths": {
+        "node": "fixtures/source-surface/krates-vendor.node.json",
+        "source": "fixtures/source-surface/krates-vendor.source.json",
+        "surface_spec": "fixtures/source-surface/krates-vendor.surface-spec.json"
+      }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "krates",
+        "key_id": "krates-fixture-2026-01",
+        "public_key_raw_hex": "278117fc144c72340f67d0f2316e8386ceffbf2b2428c9c51fef7c597f1d426e",
+        "surface_id": "krates.budget:krates-ehf"
+      },
+      "hidden": {
+        "field": "internalMemo",
+        "sentinel": "MORPHE-HIDDEN-BUDGET-5B7E20"
+      },
+      "id": "krates-budget",
+      "paths": {
+        "node": "fixtures/source-surface/krates-budget.node.json",
+        "source": "fixtures/source-surface/krates-budget.source.json",
+        "surface_spec": "fixtures/source-surface/krates-budget.surface-spec.json"
+      }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "krates",
+        "key_id": "krates-fixture-2026-01",
+        "public_key_raw_hex": "79b5562e8fe654f94078b112e8a98ba7901f853ae695bed7e0e3910bad049664",
+        "surface_id": "krates.trail:krates-ehf"
+      },
+      "hidden": {
+        "field": "internalTrace",
+        "sentinel": "MORPHE-HIDDEN-TRAIL-9C4D71"
+      },
+      "id": "krates-trail",
+      "paths": {
+        "node": "fixtures/source-surface/krates-trail.node.json",
+        "source": "fixtures/source-surface/krates-trail.source.json",
+        "surface_spec": "fixtures/source-surface/krates-trail.surface-spec.json"
+      }
+    },
+    {
+      "allowed_differences": [],
+      "expected": {
+        "issuer": "krates",
+        "key_id": "krates-fixture-2026-01",
+        "public_key_raw_hex": "936c9c611648671ce911531a0e956a2b3188865e3704135a3d77f4f5e0d0e6eb",
+        "surface_id": "krates.profile:krates-ehf"
+      },
+      "hidden": {
+        "field": "internalNote",
+        "sentinel": "MORPHE-HIDDEN-PROFILE-2F8A63"
+      },
+      "id": "krates-profile",
+      "paths": {
+        "node": "fixtures/source-surface/krates-profile.node.json",
+        "source": "fixtures/source-surface/krates-profile.source.json",
+        "surface_spec": "fixtures/source-surface/krates-profile.surface-spec.json"
+      }
     }
   ],
   "manifest_version": "1.0"

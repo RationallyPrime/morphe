@@ -85,4 +85,238 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "EntityHeader",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				kicker: {
+					type: "node",
+					required: true,
+					description: "Small register line naming the collection this entity is in.",
+				},
+				title: {
+					type: "node",
+					required: true,
+					description: "The entity's name at display/heading register.",
+				},
+				keyFigure: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "number",
+						value: 0,
+						format: "integer",
+						intent: "neutral",
+					},
+					description: "The one number this entity leads with.",
+				},
+			},
+		},
+		template: {
+			kind: "frame",
+			role: "panel",
+			surface: "raised",
+			children: [
+				{
+					kind: "stack",
+					role: "panel",
+					children: [
+						{
+							kind: "cluster",
+							role: "toolbar",
+							justify: "between",
+							align: "center",
+							children: [
+								{
+									kind: "param-ref",
+									param: "kicker",
+								},
+								{
+									kind: "slot",
+									name: "signal",
+									fallback: [],
+								},
+							],
+						},
+						{
+							kind: "param-ref",
+							param: "title",
+						},
+						{
+							kind: "cluster",
+							role: "inline",
+							align: "baseline",
+							children: [
+								{
+									kind: "param-ref",
+									param: "keyFigure",
+								},
+								{
+									kind: "slot",
+									name: "meta",
+									fallback: [],
+								},
+							],
+						},
+						{
+							kind: "slot",
+							name: "provenance",
+							fallback: [],
+						},
+					],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
+	{
+		name: "StatBand",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {},
+		},
+		template: {
+			kind: "grid",
+			role: "list",
+			minTrack: "narrow",
+			children: [
+				{
+					kind: "slot",
+					name: "tiles",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
+	{
+		name: "Breakdown",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				title: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional heading for the proportion breakdown.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "stack",
+					role: "list",
+					children: [
+						{
+							kind: "slot",
+							name: "rows",
+							fallback: [],
+						},
+					],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
+	{
+		name: "TrailEntry",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				stamp: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional temporal stamp for the event.",
+				},
+				summary: {
+					type: "node",
+					required: true,
+					description: "The event's primary line at body register.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "cluster",
+					role: "inline",
+					align: "baseline",
+					children: [
+						{
+							kind: "param-ref",
+							param: "stamp",
+						},
+						{
+							kind: "param-ref",
+							param: "summary",
+						},
+					],
+				},
+				{
+					kind: "slot",
+					name: "ref",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
+	{
+		name: "KeyValuePanel",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "slot",
+					name: "primary",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "secondary",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];
