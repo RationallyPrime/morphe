@@ -8,6 +8,7 @@ const ZYGOS: SourceConfig = {
 	title: "zygos — money",
 	kind: "kernel",
 	baseUrl: "http://demo-zygos:8000",
+	governedParams: ["include_pii"],
 	surfaces: [
 		{ id: "books", title: "Books", path: "/surfaces/books" },
 		{

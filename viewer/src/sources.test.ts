@@ -117,12 +117,54 @@ describe("parseSourcesConfig", () => {
 		expect(result.sources.get("taxis")?.collectionRoot).toBeUndefined();
 	});
 
+	// governed_params is fail-closed: an undeclared source gets the Krepis
+	// default deny (`include_pii`); only an explicit [] opts out.
+	it("defaults governedParams to include_pii when undeclared", () => {
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }), undefined);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.sources.get("taxis")?.governedParams).toEqual(["include_pii"]);
+	});
+
+	it("parses a declared governed_params list, deduplicated", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({
+				taxis: {
+					...kernelSource,
+					governed_params: ["include_pii", "as_of_sequence", "include_pii"],
+				},
+			}),
+			undefined,
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.sources.get("taxis")?.governedParams).toEqual(["include_pii", "as_of_sequence"]);
+	});
+
+	it("honors an explicit empty governed_params as the deliberate opt-out", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({ taxis: { ...kernelSource, governed_params: [] } }),
+			undefined,
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.sources.get("taxis")?.governedParams).toEqual([]);
+	});
+
 	it.each([
 		["invalid JSON", "{nope"],
 		["non-object root", JSON.stringify([kernelSource])],
 		["path-unsafe source id", JSON.stringify({ "Bad Id!": kernelSource })],
 		["missing kind", JSON.stringify({ taxis: { ...kernelSource, kind: undefined } })],
 		["non-http base_url", JSON.stringify({ taxis: { ...kernelSource, base_url: "file:///x" } })],
+		[
+			"non-array governed_params",
+			JSON.stringify({ taxis: { ...kernelSource, governed_params: "include_pii" } }),
+		],
+		[
+			"governed_params with an empty entry",
+			JSON.stringify({ taxis: { ...kernelSource, governed_params: ["include_pii", ""] } }),
+		],
 		[
 			"kernel surface with relative path",
 			JSON.stringify({

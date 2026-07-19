@@ -79,6 +79,15 @@ export interface SourceConfig {
 	 * declared surface is a configuration error (fail closed), never a guess.
 	 */
 	readonly collectionRoot?: string;
+	/**
+	 * Query params the public viewer must never forward to this producer —
+	 * governed-read selectors that flip a surface into a privileged
+	 * representation on the caller's authority (Krepis convention:
+	 * `include_pii`). Defaults to `["include_pii"]` when undeclared, so a new
+	 * source is protected without remembering to configure it; an explicit
+	 * empty array is the deliberate opt-out.
+	 */
+	readonly governedParams: readonly string[];
 	readonly surfaces: readonly SurfaceEntry[];
 }
 
@@ -238,6 +247,8 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	if (collectionRoot !== undefined && !seen.has(collectionRoot)) {
 		return `source ${sourceId}: collection_root "${collectionRoot}" is not a declared surface`;
 	}
+	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
+	if (typeof governedParams === "string") return governedParams;
 	return {
 		id: sourceId,
 		title,
@@ -248,8 +259,26 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 		sourceTrust,
 		icon,
 		collectionRoot,
+		governedParams,
 		surfaces,
 	};
+}
+
+/**
+ * `governed_params` is fail-closed: undeclared means the Krepis default
+ * (`include_pii`); only an explicit empty array opts a source out.
+ */
+function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] | string {
+	if (raw === undefined) return ["include_pii"];
+	if (!Array.isArray(raw)) return `source ${sourceId}: governed_params must be an array`;
+	const params: string[] = [];
+	for (const value of raw) {
+		if (typeof value !== "string" || value.length === 0) {
+			return `source ${sourceId}: governed_params entries must be non-empty strings`;
+		}
+		if (!params.includes(value)) params.push(value);
+	}
+	return params;
 }
 
 /** Parse `MORPHE_SOURCES`, falling back to the legacy single-store env. */
@@ -266,6 +295,7 @@ export function parseSourcesConfig(
 			title: "Artifact store",
 			kind: "store",
 			baseUrl: legacyBaseUrl.replace(/\/+$/, ""),
+			governedParams: ["include_pii"],
 			surfaces: [],
 		};
 		return { ok: true, sources: new Map([[legacy.id, legacy]]) };
