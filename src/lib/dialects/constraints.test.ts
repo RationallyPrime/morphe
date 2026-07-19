@@ -21,9 +21,11 @@ describe("generated dialect constraints", () => {
 		expect(PROMOTED_COMPOUNDS.map((definition) => definition.name)).toEqual([
 			"SignalCard",
 			"EntityHeader",
+			"StatBand",
 		]);
 		expect(registry.has("SignalCard")).toBe(true);
 		expect(registry.has("EntityHeader")).toBe(true);
+		expect(registry.has("StatBand")).toBe(true);
 		expect(Object.keys(DIALECT_COMPOUND_CONSTRAINTS)).toEqual(Object.keys(DIALECTS));
 		for (const [id, dialect] of Object.entries(DIALECTS)) {
 			expect(dialect.compounds).toEqual(

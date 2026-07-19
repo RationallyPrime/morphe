@@ -153,9 +153,11 @@ def _kpi_row(spec: SurfaceNode) -> Node:
     if not spec.items:
         return _section(spec, [_empty_collection(spec)])
     cards = [_signal_card(item) for item in spec.items]
-    # No ``columns`` means the auto-fit card grid; narrow tracks pack the KPI band.
-    grid: Node = {"kind": "grid", "role": "list", "minTrack": "narrow", "children": cards}
-    return _section(spec, [grid])
+    # The SignalCard tiles ride the promoted StatBand compound: the band owns the
+    # auto-fit narrow-track grid (no ``columns`` means it wraps) that packs the KPI
+    # band. The factory splices the ``tiles`` slot inline as the grid's children.
+    band: Node = {"kind": "compound", "name": "StatBand", "args": {}, "slots": {"tiles": cards}}
+    return _section(spec, [band])
 
 
 def _signal_card(item: SurfaceNode) -> Node:

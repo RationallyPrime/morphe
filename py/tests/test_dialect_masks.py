@@ -52,7 +52,7 @@ def _definitions(document: JsonSchema) -> dict[str, object]:
 
 
 def test_signal_card_is_a_neutral_promoted_compound() -> None:
-    assert tuple(PROMOTED_COMPOUNDS) == ("SignalCard", "EntityHeader")
+    assert tuple(PROMOTED_COMPOUNDS) == ("SignalCard", "EntityHeader", "StatBand")
     assert SIGNAL_CARD.lifecycle == "promoted"
     assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
     assert set(SIGNAL_CARD.params.properties) == {"kicker", "title", "measure"}
@@ -81,7 +81,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
     )
     assert tuple(DIALECT_CONSTRAINTS) == DIALECT_IDS
     assert DIALECT_CONSTRAINTS["clinical"].mode == "allowlist"
-    assert DIALECT_CONSTRAINTS["clinical"].compounds == ("SignalCard", "EntityHeader")
+    assert DIALECT_CONSTRAINTS["clinical"].compounds == ("SignalCard", "EntityHeader", "StatBand")
 
     for dialect_id in DIALECT_IDS:
         if dialect_id != "clinical":
@@ -224,6 +224,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert options == [
         {"$ref": "#/$defs/CompoundRef_SignalCard"},
         {"$ref": "#/$defs/CompoundRef_EntityHeader"},
+        {"$ref": "#/$defs/CompoundRef_StatBand"},
     ]
 
     entity_header = _object(definitions["CompoundRef_EntityHeader"])
@@ -233,6 +234,15 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert header_args["required"] == ["kicker", "title"]
     header_slots = _object(header_properties["slots"])
     assert set(_object(header_slots["properties"])) == {"signal", "meta", "provenance"}
+
+    # StatBand is a layout band: no params (it owns the grid), one `tiles` slot.
+    stat_band = _object(definitions["CompoundRef_StatBand"])
+    band_properties = _object(stat_band["properties"])
+    assert _object(band_properties["name"])["const"] == "StatBand"
+    band_args = _object(band_properties["args"])
+    assert set(_object(band_args["properties"])) == set()
+    band_slots = _object(band_properties["slots"])
+    assert set(_object(band_slots["properties"])) == {"tiles"}
 
     signal_card = _object(definitions["CompoundRef_SignalCard"])
     properties = _object(signal_card["properties"])
@@ -252,7 +262,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
 
     assert document["x-morphe-compound-policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard", "EntityHeader"],
+        "compounds": ["SignalCard", "EntityHeader", "StatBand"],
     }
 
 
@@ -336,7 +346,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
     assert clinical["schema"] == "dialects/morphe-node.clinical.schema.json"
     assert clinical["compound_policy"] == {
         "mode": "allowlist",
-        "compounds": ["SignalCard", "EntityHeader"],
+        "compounds": ["SignalCard", "EntityHeader", "StatBand"],
     }
     assert gallery["compound_policy"] == {"mode": "unrestricted", "compounds": []}
 

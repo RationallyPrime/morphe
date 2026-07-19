@@ -250,13 +250,16 @@ function statusTone(intent: string | undefined): "success" | "caution" | "info" 
 
 function kpiRow(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
-	const grid: Grid = {
-		kind: "grid",
-		role: "list",
-		minTrack: "narrow",
-		children: spec.items.map((item) => signalCard(item, ctx)),
+	// The SignalCard tiles ride the promoted StatBand compound: the band owns the
+	// auto-fit narrow-track grid (no `columns` means it wraps) that packs the KPI band.
+	// The factory splices the `tiles` slot inline as the grid's children.
+	const band: CompoundRef = {
+		kind: "compound",
+		name: "StatBand",
+		args: {},
+		slots: { tiles: spec.items.map((item) => signalCard(item, ctx)) },
 	};
-	return section(spec, [grid]);
+	return section(spec, [band]);
 }
 
 function signalCard(item: SurfaceNode, ctx: EmitContext): Node {

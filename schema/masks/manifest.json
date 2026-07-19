@@ -4,12 +4,13 @@
       "compound_policy": {
         "compounds": [
           "SignalCard",
-          "EntityHeader"
+          "EntityHeader",
+          "StatBand"
         ],
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "ac8ea894f912cc3283a60ac233b6be70ab29291f57e23c7dfc3d9c4ad5e37cd9"
+      "sha256": "afb220727ba3d93468d287b3c987cc6b3e4428122c409da123a7c6f0b9a46af1"
     },
     "estate": {
       "compound_policy": {

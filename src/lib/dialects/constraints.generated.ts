@@ -9,7 +9,7 @@ export const DIALECT_COMPOUND_CONSTRAINTS = {
 	},
 	clinical: {
 		mode: "allowlist",
-		compounds: ["SignalCard", "EntityHeader"],
+		compounds: ["SignalCard", "EntityHeader", "StatBand"],
 	},
 	"reykjavik-registry": {
 		mode: "unrestricted",

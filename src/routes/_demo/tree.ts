@@ -215,6 +215,48 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted StatBand — the KPI band. The band owns the auto-fit narrow-track
+		// grid that wraps its tiles; the SignalCard tiles ride the single `tiles` slot.
+		// Re-themed by every shipped dialect, including the restricted `clinical`.
+		{
+			kind: "compound",
+			name: "StatBand",
+			args: {},
+			slots: {
+				tiles: [
+					{
+						kind: "compound",
+						name: "SignalCard",
+						args: {
+							kicker: { kind: "text", value: "Treasury", as: "caption", intent: "folio" },
+							title: { kind: "text", value: "Net position", as: "subheading" },
+							measure: {
+								kind: "number",
+								value: 2_450_000,
+								format: "currency",
+								currency: "ISK",
+								intent: "evidence",
+								emphasis: "strong",
+							},
+						},
+						slots: { body: [] },
+					},
+					{
+						kind: "compound",
+						name: "SignalCard",
+						args: {
+							kicker: { kind: "text", value: "Route", as: "caption", intent: "folio" },
+							title: { kind: "text", value: "Rail", as: "subheading" },
+							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
+						},
+						slots: { body: [] },
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",

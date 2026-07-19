@@ -171,4 +171,25 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "StatBand",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {},
+		},
+		template: {
+			kind: "grid",
+			role: "list",
+			minTrack: "narrow",
+			children: [
+				{
+					kind: "slot",
+					name: "tiles",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];

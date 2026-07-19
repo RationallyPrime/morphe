@@ -199,6 +199,9 @@
         },
         {
           "$ref": "#/$defs/CompoundRef_EntityHeader"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_StatBand"
         }
       ],
       "title": "clinical CompoundRef"
@@ -347,6 +350,47 @@
         "args"
       ],
       "title": "SignalCard",
+      "type": "object"
+    },
+    "CompoundRef_StatBand": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "StatBand",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "tiles": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "StatBand",
       "type": "object"
     },
     "ContainerRole": {
@@ -1976,7 +2020,8 @@
   "x-morphe-compound-policy": {
     "compounds": [
       "SignalCard",
-      "EntityHeader"
+      "EntityHeader",
+      "StatBand"
     ],
     "mode": "allowlist"
   },

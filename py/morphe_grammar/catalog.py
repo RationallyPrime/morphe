@@ -192,8 +192,38 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
     }
 )
 
+STAT_BAND = CompoundDefinition.model_validate(
+    {
+        "name": "StatBand",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            # The band owns the layout — the auto-fit narrow-track grid that wraps its
+            # tiles — so it carries no params. Everything variable is the SignalCard
+            # tiles that ride the single `tiles` slot.
+            "properties": {},
+        },
+        "template": {
+            # The KPI band's grid, lifted from the kpi-row emitter into the catalog: an
+            # auto-fit narrow-track grid (no `columns`, so it wraps) whose children ARE
+            # the slot fill. The factory splices slot nodes inline, so the tiles become
+            # the grid's direct children.
+            "kind": "grid",
+            "role": "list",
+            "minTrack": "narrow",
+            "children": [{"kind": "slot", "name": "tiles", "fallback": []}],
+        },
+    }
+)
+
 PROMOTED_COMPOUNDS = MappingProxyType(
-    {SIGNAL_CARD.name: SIGNAL_CARD, ENTITY_HEADER.name: ENTITY_HEADER}
+    {
+        SIGNAL_CARD.name: SIGNAL_CARD,
+        ENTITY_HEADER.name: ENTITY_HEADER,
+        STAT_BAND.name: STAT_BAND,
+    }
 )
 
 
@@ -310,6 +340,7 @@ __all__ = [
     "ENTITY_HEADER",
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",
+    "STAT_BAND",
     "CompoundDefinition",
     "CompoundLifecycle",
     "CompoundParam",
