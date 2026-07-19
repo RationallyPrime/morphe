@@ -289,4 +289,34 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.2.0",
 	},
+	{
+		name: "KeyValuePanel",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "slot",
+					name: "primary",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "secondary",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.2.0",
+	},
 ] as const satisfies readonly CompoundDef[];

@@ -327,6 +327,56 @@ export const dignityTree: Node = {
 
 		{ kind: "spacer", size: "md" },
 
+		// The promoted KeyValuePanel — tiered field rows for a detail pane. Each tier is
+		// a definition grid (caption + value) the presenter builds; the primary/secondary/
+		// provenance slots carry the tiers. Re-themed by every shipped dialect, clinical too.
+		{
+			kind: "compound",
+			name: "KeyValuePanel",
+			args: {},
+			slots: {
+				primary: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Name", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Sók Rates", as: "body", emphasis: "strong" },
+							{ kind: "text", value: "Position", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Settlement lead", as: "body", emphasis: "strong" },
+						],
+					},
+				],
+				secondary: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Department", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Treasury", as: "body" },
+							{ kind: "text", value: "Location", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "Reykjavík", as: "body" },
+						],
+					},
+				],
+				provenance: [
+					{
+						kind: "grid",
+						role: "field-group",
+						columns: ["content", "flexible"],
+						children: [
+							{ kind: "text", value: "Employee id", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "emp-001", as: "body", intent: "provenance" },
+						],
+					},
+				],
+			},
+		},
+
+		{ kind: "spacer", size: "md" },
+
 		{
 			kind: "grid",
 			role: "section",

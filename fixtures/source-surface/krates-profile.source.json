@@ -1,0 +1,128 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "krates-fixture-2026-01",
+    "signature": "XUsEujx4feE2zMDqhaaLpQFqHwwP21qpPyrBfXl7-dIBsQ0MmiifhxUiPFlswg2VSwlmlKUQKsIuNiDOYTipDw"
+  },
+  "data": {
+    "profile": {
+      "department": "Treasury",
+      "displayName": "S\u00f3k Rates",
+      "employeeId": "emp-001",
+      "location": "Reykjav\u00edk",
+      "position": "Settlement lead"
+    },
+    "summary": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
+  },
+  "diagnostics": [
+    {
+      "code": "PROFILE_LOCATION_STALE",
+      "message": "Location was last confirmed a quarter ago.",
+      "path": "$.profile.location",
+      "repair_hint": null,
+      "severity": "info"
+    }
+  ],
+  "issuer": "krates",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-17T12:25:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "_ProfilePanel": {
+        "additionalProperties": false,
+        "description": "An object of scalars, hint-selected to lower to a promoted KeyValuePanel.\n\nThe two emphasis-hinted fields tier into `primary` (value strong), the plain\nfields into `secondary` (caption tier), and the role:provenance id into the\n`provenance` footer. Classification is hint-keyed only \u2014 the field NAMES never\nmatter. A hidden note must never reach the compiled tree.",
+        "properties": {
+          "department": {
+            "title": "Department",
+            "type": "string"
+          },
+          "displayName": {
+            "title": "Name",
+            "type": "string",
+            "x-morphe": {
+              "emphasis": "strong"
+            }
+          },
+          "employeeId": {
+            "title": "Employee id",
+            "type": "string",
+            "x-morphe": {
+              "role": "provenance"
+            }
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "string",
+            "x-morphe": {
+              "emphasis": "strong"
+            }
+          }
+        },
+        "required": [
+          "displayName",
+          "position",
+          "department",
+          "location",
+          "employeeId"
+        ],
+        "title": "_ProfilePanel",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "displayName",
+            "position",
+            "department",
+            "location",
+            "employeeId"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "profile": {
+        "$ref": "#/$defs/_ProfilePanel",
+        "title": "Profile",
+        "x-morphe": {
+          "strategy": "key-value"
+        }
+      },
+      "summary": {
+        "title": "Summary",
+        "type": "string"
+      }
+    },
+    "required": [
+      "profile",
+      "summary"
+    ],
+    "title": "_ProfileDetail",
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "profile",
+        "summary"
+      ]
+    }
+  },
+  "seals": {
+    "content_sha256": "sha256:1b4e5a5cc21cf4b4269666ed378469c48a87bdd5d81510d2bf3ffba26e62f13f",
+    "schema_sha256": "sha256:805b863320413b6d485daeb691fa5caf91b5a5a1d8ca868e90ecd7381dccdbbf",
+    "testimony_sha256": "sha256:5d01bdfb19bc3b21802e446e09e15f0784a2ba28db4817fc9bd1d29dd5d1e9ab"
+  },
+  "source_revision": "krates-profile-fixture-rev-0001",
+  "surface_id": "krates.profile:krates-ehf",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.5.0",
+    "id": "krates.profile",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

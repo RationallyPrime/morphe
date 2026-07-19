@@ -110,6 +110,7 @@ _DIALECT_CONSTRAINTS = (
         "StatBand",
         "Breakdown",
         "TrailEntry",
+        "KeyValuePanel",
     ),
     _constraint("reykjavik-registry", "unrestricted"),
     _constraint("timaeus", "unrestricted"),

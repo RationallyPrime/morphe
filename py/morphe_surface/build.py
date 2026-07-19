@@ -217,6 +217,31 @@ def _entity_header(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     )
 
 
+def _key_value(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
+    # Tiered field rows. Build the object's scalar children plainly; emit tiers them
+    # (emphasis -> primary, role:provenance -> provenance, the rest -> secondary) and
+    # renders each tier through the hint-free definition-grid idiom. Classification
+    # lives in emit so it stays identical across both compilers.
+    props = plan.resolved.get("properties", {})
+    prop_items = _property_items(props, plan.hint.order)
+    pairs = tuple(
+        (str(key), cast("dict[str, Any]", sub) if isinstance(sub, dict) else {})
+        for key, sub in prop_items
+        if not _hidden(sub, ctx.root)
+    )
+    children = tuple(
+        _build(sub, _get(data, key), ctx.child(key, schema_id=plan.sid)) for key, sub in pairs
+    )
+    return SurfaceNode(
+        path=ctx.path,
+        label=plan.label,
+        strategy="key-value",
+        heading=plan.hint.heading,
+        children=children,
+        diagnostics=plan.diags,
+    )
+
+
 def _breakdown(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     # Labeled proportion rows. Build the container's children plainly (object
     # properties or array items); emit reads each child's numeric value, computes
@@ -254,6 +279,7 @@ def _breakdown(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
 _HINT_SELECTED_CONTAINERS: dict[str, Callable[[_Plan, object, _Ctx], SurfaceNode]] = {
     "entity-header": _entity_header,
     "breakdown": _breakdown,
+    "key-value": _key_value,
 }
 
 

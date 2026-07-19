@@ -231,6 +231,21 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 		}
 		return buildBreakdown(plan, data, context);
 	}
+	if (plan.strategy === "key-value") {
+		// Object-shaped, hint-selected only. Same terminating guard as a record.
+		if (
+			context.depth >= MAX_RECORD_DEPTH ||
+			(plan.schemaId !== null && context.seen.has(plan.schemaId))
+		) {
+			return surfaceNode({
+				path: context.path,
+				label: plan.label,
+				strategy: "linked-ref",
+				diagnostics: plan.diagnostics,
+			});
+		}
+		return buildKeyValue(plan, data, context);
+	}
 	if (RECORD_STRATEGIES.has(plan.strategy)) {
 		if (
 			context.depth >= MAX_RECORD_DEPTH ||
@@ -390,6 +405,28 @@ function buildBreakdown(plan: Plan, data: unknown, context: BuildContext): Surfa
 		path: context.path,
 		label: plan.label,
 		strategy: "breakdown",
+		heading: plan.hint.heading,
+		children,
+		diagnostics: plan.diagnostics,
+	});
+}
+
+function buildKeyValue(plan: Plan, data: unknown, context: BuildContext): SurfaceNode {
+	// Tiered field rows. Build the object's scalar children plainly; emit tiers them
+	// (emphasis -> primary, role:provenance -> provenance, the rest -> secondary) and
+	// renders each tier through the hint-free definition-grid idiom. Classification
+	// lives in emit so it stays identical across both compilers.
+	const properties = isSchema(plan.resolved.properties) ? plan.resolved.properties : {};
+	const pairs = orderedProperties(properties, plan.hint.order).filter(
+		([, childSchema]) => !hidden(childSchema, context.root),
+	);
+	const children = pairs.map(([key, childSchema]) =>
+		build(childSchema, getValue(data, key), childContext(context, key, plan.schemaId, null)),
+	);
+	return surfaceNode({
+		path: context.path,
+		label: plan.label,
+		strategy: "key-value",
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,

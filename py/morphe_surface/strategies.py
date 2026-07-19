@@ -25,6 +25,10 @@ from typing import Literal
 #                child classification is hint-keyed only (temporal -> stamp; the primary
 #                string scalar -> summary; linked-ref -> ref slot; role:provenance ->
 #                provenance slot), never name-based
+#   key-value -> one promoted KeyValuePanel compound (tiered field rows for a detail
+#                pane); children hinted `emphasis` -> primary tier, role:provenance ->
+#                provenance tier, the rest -> secondary tier — hint-keyed only, and the
+#                rows reuse the hint-free definition-grid idiom verbatim
 Strategy = Literal[
     "scalar",
     "badge",
@@ -41,4 +45,5 @@ Strategy = Literal[
     "entity-header",
     "breakdown",
     "trail",
+    "key-value",
 ]

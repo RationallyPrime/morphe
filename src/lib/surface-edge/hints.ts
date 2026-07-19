@@ -17,6 +17,7 @@ const STRATEGIES = new Set<Strategy>([
 	"entity-header",
 	"breakdown",
 	"trail",
+	"key-value",
 ]);
 const NUMBER_FORMATS = new Set<NumberFormat>([
 	"plain",

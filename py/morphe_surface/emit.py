@@ -25,6 +25,7 @@ _CONTAINER = {
     "entity-header",
     "breakdown",
     "trail",
+    "key-value",
 }
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
 
@@ -387,6 +388,36 @@ def _trail(spec: SurfaceNode) -> Node:
     return _section(spec, entries or [_empty_collection(spec)])
 
 
+def _key_value(spec: SurfaceNode) -> Node:
+    # Tier the object's children by HINT only (never name): a child carrying an
+    # emphasis hint is a primary field; a role:provenance child is a provenance
+    # field; everything else is secondary. Each tier renders through the SAME
+    # definition-grid idiom the hint-free floor uses, so a primary value stays
+    # strong (it carries its own emphasis) and identifiers keep one home.
+    primary: list[SurfaceNode] = []
+    secondary: list[SurfaceNode] = []
+    provenance: list[SurfaceNode] = []
+    for child in spec.children:
+        if child.intent == "provenance":
+            provenance.append(child)
+        elif child.emphasis is not None:
+            primary.append(child)
+        else:
+            secondary.append(child)
+    node_alerts = [_alert(d) for d in spec.diagnostics]
+    primary_fill = [*node_alerts, *([_definition_grid(primary)] if primary else [])]
+    return {
+        "kind": "compound",
+        "name": "KeyValuePanel",
+        "args": {},
+        "slots": {
+            "primary": primary_fill,
+            "secondary": [_definition_grid(secondary)] if secondary else [],
+            "provenance": [_definition_grid(provenance)] if provenance else [],
+        },
+    }
+
+
 def _frame(spec: SurfaceNode) -> Node:
     body = _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
@@ -595,5 +626,6 @@ _CONTAINER_EMITTERS: dict[str, Callable[[SurfaceNode], Node]] = {
     "entity-header": _entity_header,
     "breakdown": _breakdown,
     "trail": _trail,
+    "key-value": _key_value,
     "card-stack": _card_stack,
 }

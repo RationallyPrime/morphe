@@ -38,6 +38,7 @@ const CONTAINER_STRATEGIES = new Set([
 	"entity-header",
 	"breakdown",
 	"trail",
+	"key-value",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
 
@@ -144,6 +145,7 @@ function emit(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.strategy === "entity-header") return entityHeader(spec, ctx);
 	if (spec.strategy === "breakdown") return breakdown(spec, ctx);
 	if (spec.strategy === "trail") return trail(spec, ctx);
+	if (spec.strategy === "key-value") return keyValue(spec, ctx);
 	if (spec.strategy === "card-stack") {
 		const built = spec.items.map((item) => field(item, ctx));
 		return section(spec, built.length > 0 ? built : [emptyCollection(spec)]);
@@ -518,6 +520,40 @@ function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 function trail(spec: SurfaceNode, ctx: EmitContext): Node {
 	const entries = spec.items.map((item) => trailEntry(item, ctx));
 	return section(spec, entries.length > 0 ? entries : [emptyCollection(spec)]);
+}
+
+function keyValue(spec: SurfaceNode, ctx: EmitContext): Node {
+	// Tier the object's children by HINT only (never name), mirroring the Python
+	// twin: a child carrying an emphasis hint is a primary field; a role:provenance
+	// child is a provenance field; everything else is secondary. Each tier renders
+	// through the SAME definition-grid idiom the hint-free floor uses.
+	const primary: SurfaceNode[] = [];
+	const secondary: SurfaceNode[] = [];
+	const provenance: SurfaceNode[] = [];
+	for (const child of spec.children) {
+		if (child.intent === "provenance") {
+			provenance.push(child);
+		} else if (child.emphasis !== undefined) {
+			primary.push(child);
+		} else {
+			secondary.push(child);
+		}
+	}
+	const nodeAlerts = spec.diagnostics.map(alert);
+	const primaryFill: Node[] = [
+		...nodeAlerts,
+		...(primary.length > 0 ? [definitionGrid(primary, ctx)] : []),
+	];
+	return {
+		kind: "compound",
+		name: "KeyValuePanel",
+		args: {},
+		slots: {
+			primary: primaryFill,
+			secondary: secondary.length > 0 ? [definitionGrid(secondary, ctx)] : [],
+			provenance: provenance.length > 0 ? [definitionGrid(provenance, ctx)] : [],
+		},
+	} satisfies CompoundRef;
 }
 
 function frame(spec: SurfaceNode, ctx: EmitContext): Node {

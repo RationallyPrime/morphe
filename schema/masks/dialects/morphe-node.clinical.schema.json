@@ -208,6 +208,9 @@
         },
         {
           "$ref": "#/$defs/CompoundRef_TrailEntry"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_KeyValuePanel"
         }
       ],
       "title": "clinical CompoundRef"
@@ -337,6 +340,59 @@
         "args"
       ],
       "title": "EntityHeader",
+      "type": "object"
+    },
+    "CompoundRef_KeyValuePanel": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "KeyValuePanel",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "primary": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "secondary": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "KeyValuePanel",
       "type": "object"
     },
     "CompoundRef_SignalCard": {
@@ -2144,7 +2200,8 @@
       "EntityHeader",
       "StatBand",
       "Breakdown",
-      "TrailEntry"
+      "TrailEntry",
+      "KeyValuePanel"
     ],
     "mode": "allowlist"
   },

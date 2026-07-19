@@ -58,6 +58,7 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
         "StatBand",
         "Breakdown",
         "TrailEntry",
+        "KeyValuePanel",
     )
     assert SIGNAL_CARD.lifecycle == "promoted"
     assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
@@ -93,6 +94,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
         "StatBand",
         "Breakdown",
         "TrailEntry",
+        "KeyValuePanel",
     )
 
     for dialect_id in DIALECT_IDS:
@@ -228,7 +230,7 @@ def test_dialect_validator_validates_structural_tree_only_once(
     assert calls == 1
 
 
-def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape() -> None:
+def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape() -> None:  # noqa: PLR0915 - one assertion block per allowlisted compound
     document = dialect_mask_document("clinical")
     definitions = _definitions(document)
     compound_union = _object(definitions["CompoundRef"])
@@ -239,6 +241,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
         {"$ref": "#/$defs/CompoundRef_StatBand"},
         {"$ref": "#/$defs/CompoundRef_Breakdown"},
         {"$ref": "#/$defs/CompoundRef_TrailEntry"},
+        {"$ref": "#/$defs/CompoundRef_KeyValuePanel"},
     ]
 
     entity_header = _object(definitions["CompoundRef_EntityHeader"])
@@ -278,6 +281,15 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     trail_slots = _object(trail_properties["slots"])
     assert set(_object(trail_slots["properties"])) == {"ref", "provenance"}
 
+    # KeyValuePanel is pure tiering: no params, three field-row slots.
+    key_value = _object(definitions["CompoundRef_KeyValuePanel"])
+    kv_properties = _object(key_value["properties"])
+    assert _object(kv_properties["name"])["const"] == "KeyValuePanel"
+    kv_args = _object(kv_properties["args"])
+    assert set(_object(kv_args["properties"])) == set()
+    kv_slots = _object(kv_properties["slots"])
+    assert set(_object(kv_slots["properties"])) == {"primary", "secondary", "provenance"}
+
     signal_card = _object(definitions["CompoundRef_SignalCard"])
     properties = _object(signal_card["properties"])
     assert _object(properties["name"])["const"] == "SignalCard"
@@ -302,6 +314,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
             "StatBand",
             "Breakdown",
             "TrailEntry",
+            "KeyValuePanel",
         ],
     }
 
@@ -392,6 +405,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
             "StatBand",
             "Breakdown",
             "TrailEntry",
+            "KeyValuePanel",
         ],
     }
     assert gallery["compound_policy"] == {"mode": "unrestricted", "compounds": []}

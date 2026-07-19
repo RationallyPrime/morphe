@@ -1,0 +1,137 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "as": "heading",
+          "kind": "text",
+          "value": "_ProfileDetail"
+        },
+        {
+          "args": {},
+          "kind": "compound",
+          "name": "KeyValuePanel",
+          "slots": {
+            "primary": [
+              {
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Name"
+                  },
+                  {
+                    "as": "body",
+                    "emphasis": "strong",
+                    "kind": "text",
+                    "value": "S\u00f3k Rates"
+                  },
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Position"
+                  },
+                  {
+                    "as": "body",
+                    "emphasis": "strong",
+                    "kind": "text",
+                    "value": "Settlement lead"
+                  }
+                ],
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "kind": "grid",
+                "role": "field-group"
+              }
+            ],
+            "provenance": [
+              {
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Employee id"
+                  },
+                  {
+                    "as": "body",
+                    "intent": "provenance",
+                    "kind": "text",
+                    "value": "emp-001"
+                  }
+                ],
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "kind": "grid",
+                "role": "field-group"
+              }
+            ],
+            "secondary": [
+              {
+                "children": [
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Department"
+                  },
+                  {
+                    "as": "body",
+                    "kind": "text",
+                    "value": "Treasury"
+                  },
+                  {
+                    "as": "caption",
+                    "intent": "neutral",
+                    "kind": "text",
+                    "value": "Location"
+                  },
+                  {
+                    "children": [
+                      {
+                        "as": "body",
+                        "kind": "text",
+                        "value": "Reykjav\u00edk"
+                      },
+                      {
+                        "detail": "Location was last confirmed a quarter ago.",
+                        "kind": "inline-alert",
+                        "title": "PROFILE_LOCATION_STALE",
+                        "tone": "info"
+                      }
+                    ],
+                    "kind": "stack",
+                    "role": "field-group"
+                  }
+                ],
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "kind": "grid",
+                "role": "field-group"
+              }
+            ]
+          }
+        },
+        {
+          "as": "display",
+          "emphasis": "critical",
+          "kind": "text",
+          "value": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
+        }
+      ],
+      "kind": "stack",
+      "role": "section"
+    }
+  ],
+  "kind": "frame",
+  "role": "page",
+  "surface": "base"
+}

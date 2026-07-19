@@ -97,6 +97,7 @@ def test_source_conformance_manifest_rebuilds_oracles_and_pins_trust() -> None:
         "krates-vendor",
         "krates-budget",
         "krates-trail",
+        "krates-profile",
     ]
 
     for case in cases:

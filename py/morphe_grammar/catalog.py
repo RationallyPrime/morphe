@@ -298,6 +298,33 @@ TRAIL_ENTRY = CompoundDefinition.model_validate(
     }
 )
 
+KEY_VALUE_PANEL = CompoundDefinition.model_validate(
+    {
+        "name": "KeyValuePanel",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            # The panel is pure tiering — all variability is the three tiers of field
+            # rows the call site builds, so it carries no params.
+            "properties": {},
+        },
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "children": [
+                # Emphasised fields (value strong, body register).
+                {"kind": "slot", "name": "primary", "fallback": []},
+                # The rest, at the lighter caption tier.
+                {"kind": "slot", "name": "secondary", "fallback": []},
+                # Identifiers / provenance footer.
+                {"kind": "slot", "name": "provenance", "fallback": []},
+            ],
+        },
+    }
+)
+
 PROMOTED_COMPOUNDS = MappingProxyType(
     {
         SIGNAL_CARD.name: SIGNAL_CARD,
@@ -305,6 +332,7 @@ PROMOTED_COMPOUNDS = MappingProxyType(
         STAT_BAND.name: STAT_BAND,
         BREAKDOWN.name: BREAKDOWN,
         TRAIL_ENTRY.name: TRAIL_ENTRY,
+        KEY_VALUE_PANEL.name: KEY_VALUE_PANEL,
     }
 )
 
@@ -421,6 +449,7 @@ validate_catalog()
 __all__ = [
     "BREAKDOWN",
     "ENTITY_HEADER",
+    "KEY_VALUE_PANEL",
     "PROMOTED_COMPOUNDS",
     "SIGNAL_CARD",
     "STAT_BAND",
