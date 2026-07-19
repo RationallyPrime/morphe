@@ -95,20 +95,27 @@ jobs:
       - name: Viewer build (adapter-node, the appliance shape)
         run: bun run viewer:build:node
 
-      - name: Viewer SSR smoke (stripped app · fail-closed grammar gate)
+      - name: Viewer SSR smoke (stripped app · fail-closed trust + retirement gates)
         env:
           MORPHE_SOURCES: >-
-            {"default":{"kind":"store","title":"Artifact store","base_url":"http://127.0.0.1:4399/api/v1/surfaces","surfaces":[]},"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:westfjords:2026-W29"},{"id":"roster-legacy","title":"Weekly roster legacy","path":"/legacy/taxis-roster","representation":"legacy"}]}}
+            {"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:westfjords:2026-W29"},{"id":"roster-wrong-pin","title":"Wrong identity pin","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:someone-else:2026-W29"}]}}
+          # A config that still declares the retired legacy representation must
+          # fail the whole source CLOSED (KRA-775 Stage 5) — asserted on a
+          # second viewer instance so the assertion is deliberate, not a side
+          # effect of breaking the main fixture.
+          MORPHE_SOURCES_LEGACY_DECLARATION: >-
+            {"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/legacy/taxis-roster","representation":"legacy"}]}}
         run: |
-          node scripts/stub-artifact-store.mjs &
-          artifact_store_pid=$!
           node scripts/stub-source-surface-store.mjs &
           source_store_pid=$!
           PORT=4174 node viewer/build/index.js &
           viewer_pid=$!
-          trap 'kill "$artifact_store_pid" "$source_store_pid" "$viewer_pid" 2>/dev/null || true' EXIT
+          MORPHE_SOURCES="$MORPHE_SOURCES_LEGACY_DECLARATION" PORT=4175 node viewer/build/index.js &
+          legacy_viewer_pid=$!
+          trap 'kill "$source_store_pid" "$viewer_pid" "$legacy_viewer_pid" 2>/dev/null || true' EXIT
           for i in $(seq 1 30); do
-            curl -sf -o /dev/null http://localhost:4174/healthz && break
+            curl -sf -o /dev/null http://localhost:4174/healthz \
+              && curl -sf -o /dev/null http://localhost:4175/healthz && break
             sleep 1
           done
           fail=0
@@ -117,38 +124,38 @@ jobs:
           curl -s http://localhost:4174/healthz | grep -q '"edge_compiler_version":"0.3.5"' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"compiler_build_sha256":"sha256:' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"source_surface_wire_version":"1.0"' || fail=1
-          # A real artifact SSRs (200 + the SSR'd copy, not just a 200 shell).
-          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42")
-          echo "/surfaces/run-42 -> $code"
-          [ "$code" = "200" ] || fail=1
-          curl -s "http://localhost:4174/surfaces/surface:capability-page:run-42" | grep -q "Served from the artifact store" || fail=1
-          # ?dialect= override stays a 200 render.
-          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42?dialect=night")
-          echo "/surfaces/run-42?dialect=night -> $code"
-          [ "$code" = "200" ] || fail=1
-          # Unsupported grammar_version fails CLOSED: 409 diagnostic naming both versions.
-          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-drift")
-          echo "/surfaces/run-drift -> $code"
-          [ "$code" = "409" ] || fail=1
-          drift=$(curl -s "http://localhost:4174/surfaces/surface:capability-page:run-drift")
-          echo "$drift" | grep -q "Unsupported grammar version" || fail=1
-          echo "$drift" | grep -q "9.9.9" || fail=1
-          echo "$drift" | grep -q "0.2.0" || fail=1
-          # The production adapter-node build serves both the new source-v1 path
-          # and its unchanged per-surface legacy rollback reader.
+          # The production adapter-node build serves the source-v1 path (200 +
+          # the SSR'd testimony content, not just a 200 shell).
           code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster")
           echo "/s/taxis/roster -> $code"
           [ "$code" = "200" ] || fail=1
           source_html=$(curl -s "http://localhost:4174/s/taxis/roster")
           echo "$source_html" | grep -q "TAXIS_ROW_REVIEW" || fail=1
           echo "$source_html" | grep -q 'data-source-testimony-sha256="sha256:' || fail=1
-          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster-legacy")
-          echo "/s/taxis/roster-legacy -> $code"
+          # ?dialect= override stays a 200 render on the source-v1 path.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster?dialect=night")
+          echo "/s/taxis/roster?dialect=night -> $code"
           [ "$code" = "200" ] || fail=1
-          curl -s "http://localhost:4174/s/taxis/roster-legacy" | grep -q "TAXIS_ROW_REVIEW" || fail=1
-          # Unknown artifact is a 404, and the playground's adaptive surface is ABSENT.
-          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:missing:one")
-          echo "/surfaces/missing -> $code"
+          # Admission fails CLOSED: a declared surface_id pin that does not match
+          # the signed concrete identity is a 502 trust-gate diagnostic.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/roster-wrong-pin")
+          echo "/s/taxis/roster-wrong-pin -> $code"
+          [ "$code" = "502" ] || fail=1
+          curl -s "http://localhost:4174/s/taxis/roster-wrong-pin" | grep -q "failed its trust gate" || fail=1
+          # RETIREMENT (KRA-775 Stage 5): the legacy store route is deleted —
+          # /surfaces/<anything> is a 404, never a reader.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/surfaces/surface:capability-page:run-42")
+          echo "/surfaces/run-42 -> $code (must be 404: store reader retired)"
+          [ "$code" = "404" ] || fail=1
+          # RETIREMENT (KRA-775 Stage 5): a config declaring the legacy
+          # representation fails the whole source closed with the retirement error.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4175/s/taxis/roster")
+          echo "legacy-declaration viewer /s/taxis/roster -> $code (must be 503: legacy declaration fails closed)"
+          [ "$code" = "503" ] || fail=1
+          curl -s "http://localhost:4175/s/taxis/roster" | grep -q "legacy representation is retired (KRA-775 Stage 5)" || fail=1
+          # Unknown surface is a 404, and the playground's adaptive surface is ABSENT.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:4174/s/taxis/missing")
+          echo "/s/taxis/missing -> $code"
           [ "$code" = "404" ] || fail=1
           code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:4174/api/adaptive/decision)
           echo "/api/adaptive/decision -> $code (must be 404: stripped image)"

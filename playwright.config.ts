@@ -45,17 +45,22 @@ const sources = JSON.stringify({
 				surface_id: taxis.expected.surface_id,
 				dialect_hint: "gallery",
 			},
+			// Link-rewrite targets only (asserted as rewritten hrefs, never
+			// navigated): declared source-v1 like every admitted entry —
+			// the legacy representation is retired (KRA-775 Stage 5).
 			{
 				id: "worker-arna",
 				title: "Arna K.",
 				path: "/workers/wrk-001",
-				representation: "legacy",
+				representation: "source-v1",
+				surface_id: "taxis.worker:wrk-001",
 			},
 			{
 				id: "worker-baldur",
 				title: "Baldur R.",
 				path: "/workers/wrk-002",
-				representation: "legacy",
+				representation: "source-v1",
+				surface_id: "taxis.worker:wrk-002",
 			},
 		],
 	},

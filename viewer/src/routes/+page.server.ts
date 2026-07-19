@@ -8,8 +8,7 @@ import type { PageServerLoad } from "./$types.js";
  * / — the source index (KRA-752 §4), rendered as a Morphe tree.
  *
  * Lists every configured source and its DECLARED surfaces (config is the whole
- * browse space — nothing is discovered by probing upstreams). Store artifacts
- * addressed by dynamic ids remain reachable via /surfaces/[artifactId].
+ * browse space — nothing is discovered by probing upstreams).
  *
  * The index dialect is deployment-declared (`MORPHE_INDEX_DIALECT`); a
  * `?dialect=` override wins when it names a shipped dialect — the same
@@ -32,7 +31,7 @@ export const load: PageServerLoad = ({ url }) => {
 		id: source.id,
 		title: source.title,
 		kind: source.kind,
-		dialectId: source.kind === "kernel" ? (source.dialectHint ?? "ledger") : source.dialectHint,
+		dialectId: source.dialectHint ?? "ledger",
 		icon: source.icon,
 		surfaces: source.surfaces.map((entry) => ({
 			title: entry.title,

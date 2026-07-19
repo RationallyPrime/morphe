@@ -1,24 +1,36 @@
 /**
  * Shared SSR surface loader: fetch → bound → trust gate → dialect resolution.
  *
- * Both viewer routes (`/surfaces/[artifactId]` legacy store route and the
- * multi-source `/s/[source]/[surfaceId]` route) run this exact pipeline so a
- * kernel-direct source gets no weaker failure semantics than the store path:
- * unreachable upstream → 502, unknown artifact → 404, foreign grammar → 409
- * naming both versions (MO-D5, never a silent partial render), anything else
- * that fails the gate → 502.
+ * The multi-source `/s/[source]/[surfaceId]` route runs this pipeline with
+ * uniform failure semantics: unreachable upstream → 502, unknown artifact →
+ * 404, foreign grammar → 409 naming both versions (MO-D5, never a silent
+ * partial render), anything else that fails the gate → 502.
  */
 
 import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
-import { GRAMMAR_VERSION, getDialect, hasDialect } from "$lib";
+import { GRAMMAR_VERSION, getDialect, hasDialect, validateNodeForDialect } from "$lib";
 import { validateNodeDocument } from "$lib/artifacts";
 import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
-import { dialectGateReason } from "./envelope.js";
 import type { DeliveryReceipt } from "./receipt.js";
 import { createDeliveryReceipt } from "./receipt.js";
 
 const FETCH_TIMEOUT_MS = 4000;
+
+/**
+ * Run the dialect-mask gate alone. Exposed so the SSR loader can re-validate a
+ * tree under a `?dialect=` override: the dialect that actually renders must be
+ * a dialect the gate validated, never a bypass (the G|D emission contract).
+ */
+export function dialectGateReason(tree: Node, dialectHint: string): string | null {
+	const effectiveDialectId = getDialect(dialectHint).id;
+	const dialectValidation = validateNodeForDialect(tree, effectiveDialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (dialectValidation.ok) return null;
+	const issue = dialectValidation.issues[0];
+	return issue?.message ?? "artifact tree violates its dialect constraint";
+}
 
 export interface GatedSurfaceRequest {
 	readonly fetch: typeof globalThis.fetch;

@@ -10,11 +10,19 @@ const ZYGOS: SourceConfig = {
 	baseUrl: "http://demo-zygos:8000",
 	governedParams: ["include_pii"],
 	surfaces: [
-		{ id: "books", title: "Books", path: "/surfaces/books" },
+		{
+			id: "books",
+			title: "Books",
+			path: "/surfaces/books",
+			representation: "source-v1",
+			sourceSurfaceId: "zygos.books:demo",
+		},
 		{
 			id: "overview",
 			title: "Overview",
 			path: "/books/b-1/surfaces/overview?window=2026-07",
+			representation: "source-v1",
+			sourceSurfaceId: "zygos.overview:b-1:2026-07",
 		},
 	],
 };

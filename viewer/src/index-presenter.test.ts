@@ -18,9 +18,9 @@ const MODEL: IndexModel = {
 			],
 		},
 		{
-			id: "default",
-			title: "Topos artifacts",
-			kind: "store",
+			id: "chreos",
+			title: "Chreos — obligations",
+			kind: "kernel",
 			surfaces: [],
 		},
 	],

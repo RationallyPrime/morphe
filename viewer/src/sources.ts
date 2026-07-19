@@ -2,56 +2,32 @@
  * Multi-source configuration for the box viewer (KRA-752 §4).
  *
  * `MORPHE_SOURCES` is a JSON object mapping a source id to a source config.
- * Two source kinds exist:
- *
- * - `"store"`  — a surface-artifact store (the topos shape): entries name a
- *   stored `artifact_id`; responses carry the outer SurfaceArtifactResponse
- *   envelope and are parsed by `parseSurfaceResponse`.
- * - `"kernel"` — a kernel-direct source (Taxis/chreos/… shape): entries name a
- *   concrete route `path`; omitted/legacy representations are BARE
- *   CompiledSurface responses, while an explicit source-v1 entry negotiates
- *   signed testimony under source-level trust pins.
+ * The only source kind is `"kernel"`: a kernel-direct source (Taxis/chreos/…
+ * shape) whose entries name a concrete route `path` and negotiate signed
+ * source-v1 testimony under source-level trust pins. Store sources and the
+ * legacy bare-CompiledSurface representation are retired (KRA-775 Stage 5) —
+ * a config that declares either fails closed.
  *
  * Bearer credentials never reach the browser: a source names the PRIVATE env
  * var holding its token via `token_env`, and the SSR load injects it. A named
  * but absent token env is a configuration error (fail closed), never a silent
  * unauthenticated fetch.
- *
- * Back-compat: with `MORPHE_SOURCES` unset, a configured
- * `MORPHE_ARTIFACT_BASE_URL` synthesizes the single legacy store source used
- * by `/surfaces/[artifactId]`.
  */
 
 const SOURCE_ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const SURFACE_ID_RE = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 
-export interface StoreSurfaceEntry {
-	readonly id: string;
-	readonly title: string;
-	readonly artifactId: string;
-}
-
-interface KernelSurfaceEntryBase {
+export interface KernelSurfaceEntry {
 	readonly id: string;
 	readonly title: string;
 	readonly path: string;
 	readonly dialectHint?: string;
-}
-
-export interface LegacyKernelSurfaceEntry extends KernelSurfaceEntryBase {
-	/** Omission is the compatibility-safe legacy default. */
-	readonly representation?: "legacy";
-}
-
-export interface SourceV1KernelSurfaceEntry extends KernelSurfaceEntryBase {
 	readonly representation: "source-v1";
 	/** Concrete signed testimony identity; deliberately distinct from the viewer route id. */
 	readonly sourceSurfaceId: string;
 }
 
-export type KernelSurfaceEntry = LegacyKernelSurfaceEntry | SourceV1KernelSurfaceEntry;
-
-export type SurfaceEntry = StoreSurfaceEntry | KernelSurfaceEntry;
+export type SurfaceEntry = KernelSurfaceEntry;
 
 export interface SourceTrustConfig {
 	readonly issuer: string;
@@ -64,7 +40,7 @@ export interface SourceTrustConfig {
 export interface SourceConfig {
 	readonly id: string;
 	readonly title: string;
-	readonly kind: "store" | "kernel";
+	readonly kind: "kernel";
 	readonly baseUrl: string;
 	readonly tokenEnv?: string;
 	readonly dialectHint?: string;
@@ -169,49 +145,40 @@ function parseSourceTrust(sourceId: string, raw: unknown): SourceTrustConfig | s
 	return { issuer, publicKeys, maxAgeSeconds, maxFutureSkewSeconds };
 }
 
-function parseEntry(
-	sourceId: string,
-	kind: "store" | "kernel",
-	raw: unknown,
-	index: number,
-): SurfaceEntry | string {
+function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry | string {
 	if (!isRecord(raw)) return `source ${sourceId}: surfaces[${index}] is not an object`;
 	const id = stringField(raw, "id");
 	if (id === null || !SURFACE_ID_RE.test(id)) {
 		return `source ${sourceId}: surfaces[${index}] needs a path-safe id`;
 	}
 	const title = stringField(raw, "title") ?? id;
-	if (kind === "store") {
-		const artifactId = stringField(raw, "artifact_id");
-		if (artifactId === null) {
-			return `source ${sourceId}: store surface ${id} needs artifact_id`;
-		}
-		return { id, title, artifactId };
-	}
 	const path = stringField(raw, "path");
 	if (path === null || !path.startsWith("/")) {
 		return `source ${sourceId}: kernel surface ${id} needs an absolute path`;
 	}
 	const dialectHint = stringField(raw, "dialect_hint") ?? undefined;
-	const representation = raw.representation ?? "legacy";
-	if (representation !== "legacy" && representation !== "source-v1") {
+	const representation = raw.representation;
+	if (representation === undefined || representation === "legacy") {
+		return `source ${sourceId}: kernel surface ${id}: the legacy representation is retired (KRA-775 Stage 5) — declare representation "source-v1"`;
+	}
+	if (representation !== "source-v1") {
 		return `source ${sourceId}: kernel surface ${id} has an unsupported representation`;
 	}
-	if (representation === "source-v1") {
-		const sourceSurfaceId = stringField(raw, "surface_id");
-		if (sourceSurfaceId === null) {
-			return `source ${sourceId}: source-v1 surface ${id} needs surface_id`;
-		}
-		return { id, title, path, dialectHint, representation, sourceSurfaceId };
+	const sourceSurfaceId = stringField(raw, "surface_id");
+	if (sourceSurfaceId === null) {
+		return `source ${sourceId}: source-v1 surface ${id} needs surface_id`;
 	}
-	return { id, title, path, dialectHint, representation };
+	return { id, title, path, dialectHint, representation, sourceSurfaceId };
 }
 
 function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	if (!isRecord(raw)) return `source ${sourceId} is not an object`;
 	const kindValue = stringField(raw, "kind");
-	if (kindValue !== "store" && kindValue !== "kernel") {
-		return `source ${sourceId}: kind must be "store" or "kernel"`;
+	if (kindValue === "store") {
+		return `source ${sourceId}: store sources are retired (KRA-775 Stage 5) — the viewer admits kernel source-v1 only`;
+	}
+	if (kindValue !== "kernel") {
+		return `source ${sourceId}: kind must be "kernel"`;
 	}
 	const baseUrl = stringField(raw, "base_url");
 	if (baseUrl === null || !/^https?:\/\//.test(baseUrl)) {
@@ -228,19 +195,13 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	const surfaces: SurfaceEntry[] = [];
 	const seen = new Set<string>();
 	for (const [index, entry] of rawSurfaces.entries()) {
-		const parsed = parseEntry(sourceId, kindValue, entry, index);
+		const parsed = parseEntry(sourceId, entry, index);
 		if (typeof parsed === "string") return parsed;
 		if (seen.has(parsed.id)) return `source ${sourceId}: duplicate surface id ${parsed.id}`;
 		seen.add(parsed.id);
 		surfaces.push(parsed);
 	}
-	if (
-		kindValue === "kernel" &&
-		surfaces.some(
-			(surface) => "representation" in surface && surface.representation === "source-v1",
-		) &&
-		sourceTrust === undefined
-	) {
+	if (surfaces.length > 0 && sourceTrust === undefined) {
 		return `source ${sourceId}: source-v1 surfaces require source_trust`;
 	}
 	const collectionRoot = stringField(raw, "collection_root") ?? undefined;
@@ -281,24 +242,10 @@ function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] 
 	return params;
 }
 
-/** Parse `MORPHE_SOURCES`, falling back to the legacy single-store env. */
-export function parseSourcesConfig(
-	rawSources: string | undefined,
-	legacyBaseUrl: string | undefined,
-): SourcesResult {
+/** Parse `MORPHE_SOURCES`; unset or empty means no sources are configured. */
+export function parseSourcesConfig(rawSources: string | undefined): SourcesResult {
 	if (rawSources === undefined || rawSources === "") {
-		if (legacyBaseUrl === undefined || legacyBaseUrl === "") {
-			return { ok: true, sources: new Map() };
-		}
-		const legacy: SourceConfig = {
-			id: "default",
-			title: "Artifact store",
-			kind: "store",
-			baseUrl: legacyBaseUrl.replace(/\/+$/, ""),
-			governedParams: ["include_pii"],
-			surfaces: [],
-		};
-		return { ok: true, sources: new Map([[legacy.id, legacy]]) };
+		return { ok: true, sources: new Map() };
 	}
 
 	let decoded: unknown;
