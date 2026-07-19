@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { applyDialect, DIALECT_IDS, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
-	import { homeCrumbs } from "../crumbs.js";
-	import ViewerChrome from "../ViewerChrome.svelte";
+	import { catalogCrumbs } from "../../crumbs.js";
+	import ViewerChrome from "../../ViewerChrome.svelte";
 
 	let { data } = $props();
 
 	const dialect = $derived(getDialect(data.dialectId));
 	const applied = $derived(applyDialect(dialect));
 
-	// Home is the navigation root: a single inert current-location rung.
-	const crumbs = homeCrumbs();
+	// Home (root) › Surfaces catalog (current), reachable from and linking back to home.
+	const crumbs = catalogCrumbs();
 </script>
 
 <svelte:head>
@@ -18,8 +18,8 @@
 </svelte:head>
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
-	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} showAsOf asOf={data.asOf} />
-	<main class="viewer-home">
+	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} />
+	<main class="viewer-index">
 		<MorpheRoot tree={data.tree} {dialect} />
 	</main>
 </div>
@@ -32,7 +32,7 @@
 		background: var(--mo-intent-surface-base);
 	}
 
-	.viewer-home {
+	.viewer-index {
 		flex: 1;
 	}
 </style>

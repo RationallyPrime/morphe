@@ -1,21 +1,26 @@
 import { env } from "$env/dynamic/private";
 import { DEFAULT_DIALECT_ID, GRAMMAR_VERSION, hasDialect } from "$lib";
-import { type IndexSource, indexTree } from "../index-presenter.js";
-import { loadSources } from "../sources.server.js";
+import { composeHomePanels, type HomePanelSource } from "../home-compose.server.js";
+import { homeTree } from "../home-presenter.js";
+import { bearerFor, loadSources } from "../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
- * / — the source index (KRA-752 §4), rendered as a Morphe tree.
+ * / — the composed cross-kernel home surface (KRA-789), the viewer's navigation root.
  *
- * Lists every configured source and its DECLARED surfaces (config is the whole
- * browse space — nothing is discovered by probing upstreams).
+ * Each source that declares a `home_panel` contributes exactly one pane, admitted through
+ * the SHARED `loadSourcePane` pipeline (same fail-closed admission, same edge compiler as
+ * `/s/[source]/[surfaceId]`). The whole compiled subtrees are grafted into one authored
+ * home tree by `home-presenter`. Every panel is gated under the SINGLE home dialect so the
+ * composed tree renders coherently and each graft already passed that dialect's mask.
  *
- * The index dialect is deployment-declared (`MORPHE_INDEX_DIALECT`); a
- * `?dialect=` override wins when it names a shipped dialect — the same
- * precedence the pane routes honor.
+ * The ONE `as_of` control (home chrome) fans `?as_of=` to every panel's kernel fetch — an
+ * ordinary forwarded filter that admits under the KRA-776 family-mode gate. No `as_of`
+ * selected is byte-identical to today's behavior. This route owns `$env`; the fail-soft
+ * orchestration lives in the `$env`-free `composeHomePanels`.
  */
 
-export const load: PageServerLoad = ({ url }) => {
+export const load: PageServerLoad = async ({ url, fetch }) => {
 	const sources = loadSources();
 	const declared = env.MORPHE_INDEX_DIALECT;
 	const override = url.searchParams.get("dialect");
@@ -26,22 +31,32 @@ export const load: PageServerLoad = ({ url }) => {
 				? declared
 				: DEFAULT_DIALECT_ID;
 
-	const title = env.MORPHE_INDEX_TITLE ?? "Surfaces";
-	const indexSources: IndexSource[] = [...sources.values()].map((source) => ({
-		id: source.id,
-		title: source.title,
-		kind: source.kind,
-		dialectId: source.dialectHint ?? "ledger",
-		icon: source.icon,
-		surfaces: source.surfaces.map((entry) => ({
-			title: entry.title,
-			href: `/s/${source.id}/${entry.id}`,
-		})),
-	}));
+	const title = env.MORPHE_HOME_TITLE ?? env.MORPHE_INDEX_TITLE ?? "Home";
+	const rawAsOf = url.searchParams.get("as_of");
+	const asOf = rawAsOf !== null && rawAsOf !== "" ? rawAsOf : undefined;
+
+	const roster: HomePanelSource[] = [];
+	for (const source of sources.values()) {
+		const home = source.homePanel;
+		if (home === undefined) continue;
+		const entry = source.surfaces.find((surface) => surface.id === home.pane);
+		// Boot validation already proved `pane` names a declared surface; this guard only
+		// keeps the loop total against a future config-shape change.
+		if (entry === undefined) continue;
+		roster.push({ source, entry, bearer: bearerFor(source), title: home.title });
+	}
+
+	const panels = await composeHomePanels({
+		panels: roster,
+		searchParams: url.searchParams,
+		fetch,
+		dialectId,
+	});
 
 	return {
 		title,
-		tree: indexTree({ title, grammarVersion: GRAMMAR_VERSION, sources: indexSources }),
+		tree: homeTree({ title, grammarVersion: GRAMMAR_VERSION, asOf, panels }),
 		dialectId,
+		asOf,
 	};
 };
