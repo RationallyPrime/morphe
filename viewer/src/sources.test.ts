@@ -1,32 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { parseSourcesConfig } from "./sources.js";
 
+const sourceTrust = {
+	issuer: "taxis",
+	public_keys: {
+		"taxis-2026-01": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+	},
+	max_age_seconds: 300,
+	max_future_skew_seconds: 30,
+};
+
 const kernelSource = {
 	kind: "kernel",
 	base_url: "http://taxis:8205/",
 	title: "Taxis",
 	dialect_hint: "timaeus",
 	token_env: "VIEWER_TAXIS_TOKEN",
+	source_trust: sourceTrust,
 	surfaces: [
-		{ id: "orgs", title: "Organizations", path: "/surfaces/orgs" },
-		{ id: "roster", path: "/orgs/1/surfaces/roster", dialect_hint: "ledger" },
-	],
-};
-
-const sourceV1Kernel = {
-	...kernelSource,
-	source_trust: {
-		issuer: "taxis",
-		public_keys: {
-			"taxis-2026-01": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		{
+			id: "orgs",
+			title: "Organizations",
+			path: "/surfaces/orgs",
+			representation: "source-v1",
+			surface_id: "taxis.orgs:westfjords:2026-W29",
 		},
-		max_age_seconds: 300,
-		max_future_skew_seconds: 30,
-	},
-	surfaces: [
 		{
 			id: "roster",
 			path: "/orgs/1/surfaces/roster",
+			dialect_hint: "ledger",
 			representation: "source-v1",
 			surface_id: "taxis.roster:westfjords:2026-W29",
 		},
@@ -41,43 +43,31 @@ const storeSource = {
 
 describe("parseSourcesConfig", () => {
 	it("returns an empty map when nothing is configured", () => {
-		const result = parseSourcesConfig(undefined, undefined);
+		const result = parseSourcesConfig(undefined);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.sources.size).toBe(0);
 	});
 
-	it("synthesizes the legacy default store from MORPHE_ARTIFACT_BASE_URL", () => {
-		const result = parseSourcesConfig(undefined, "http://topos:8000/api/v1/surfaces/");
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		const source = result.sources.get("default");
-		expect(source?.kind).toBe("store");
-		expect(source?.baseUrl).toBe("http://topos:8000/api/v1/surfaces");
-	});
-
-	it("parses a multi-source config with kernel and store sources", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({ taxis: kernelSource, default: storeSource }),
-			undefined,
-		);
+	it("parses a source-v1 kernel config", () => {
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const taxis = result.sources.get("taxis");
+		expect(taxis?.kind).toBe("kernel");
 		expect(taxis?.baseUrl).toBe("http://taxis:8205");
 		expect(taxis?.tokenEnv).toBe("VIEWER_TAXIS_TOKEN");
 		expect(taxis?.surfaces).toHaveLength(2);
 		const roster = taxis?.surfaces[1];
-		expect(roster && "path" in roster && roster.dialectHint).toBe("ledger");
-		expect(roster && "path" in roster && roster.representation).toBe("legacy");
+		expect(roster?.dialectHint).toBe("ledger");
+		expect(roster?.representation).toBe("source-v1");
+		expect(roster?.sourceSurfaceId).toBe("taxis.roster:westfjords:2026-W29");
 		const orgs = taxis?.surfaces[0];
 		expect(orgs?.title).toBe("Organizations");
-		const digest = result.sources.get("default")?.surfaces[0];
-		expect(digest && "artifactId" in digest && digest.artifactId).toBe("surface:digest:run-1");
 	});
 
-	it("parses an explicitly pinned source-v1 representation", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: sourceV1Kernel }), undefined);
+	it("pins the source-v1 trust roots by issuer and key id", () => {
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const source = result.sources.get("taxis");
@@ -85,25 +75,67 @@ describe("parseSourcesConfig", () => {
 		expect(source?.sourceTrust?.publicKeys.get("taxis")?.get("taxis-2026-01")).toBe(
 			"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		);
-		const surface = source?.surfaces[0];
-		expect(
-			surface && "representation" in surface && surface.representation === "source-v1"
-				? surface.sourceSurfaceId
-				: null,
-		).toBe("taxis.roster:westfjords:2026-W29");
+		expect(source?.sourceTrust?.maxAgeSeconds).toBe(300);
+		expect(source?.sourceTrust?.maxFutureSkewSeconds).toBe(30);
 	});
 
-	it("MORPHE_SOURCES wins over the legacy env when both are set", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }), "http://legacy:1");
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.has("default")).toBe(false);
+	// Stage-5 retirement (KRA-775): the store reader and the legacy
+	// bare-CompiledSurface representation are gone — configs that declare either
+	// fail closed with an error naming the retirement.
+	it("rejects a store source with the retirement error", () => {
+		const result = parseSourcesConfig(JSON.stringify({ default: storeSource }));
+		expect(result).toEqual({
+			ok: false,
+			reason:
+				"source default: store sources are retired (KRA-775 Stage 5) — the viewer admits kernel source-v1 only",
+		});
+	});
+
+	it("rejects a kernel surface with no declared representation (the retired legacy default)", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({
+				taxis: {
+					...kernelSource,
+					surfaces: [{ id: "orgs", title: "Organizations", path: "/surfaces/orgs" }],
+				},
+			}),
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason:
+				'source taxis: kernel surface orgs: the legacy representation is retired (KRA-775 Stage 5) — declare representation "source-v1"',
+		});
+	});
+
+	it("rejects an explicit legacy representation with the retirement error", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({
+				taxis: {
+					...kernelSource,
+					surfaces: [{ id: "orgs", path: "/surfaces/orgs", representation: "legacy" }],
+				},
+			}),
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason:
+				'source taxis: kernel surface orgs: the legacy representation is retired (KRA-775 Stage 5) — declare representation "source-v1"',
+		});
+	});
+
+	it("rejects non-empty surfaces without source_trust", () => {
+		const result = parseSourcesConfig(
+			JSON.stringify({ taxis: { ...kernelSource, source_trust: undefined } }),
+		);
+		expect(result).toEqual({
+			ok: false,
+			reason: "source taxis: source-v1 surfaces require source_trust",
+		});
 	});
 
 	it("parses a declared collection_root that names an existing surface", () => {
 		const result = parseSourcesConfig(
 			JSON.stringify({ taxis: { ...kernelSource, collection_root: "orgs" } }),
-			undefined,
 		);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -111,7 +143,7 @@ describe("parseSourcesConfig", () => {
 	});
 
 	it("leaves collectionRoot undefined when the source does not declare one", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }), undefined);
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.sources.get("taxis")?.collectionRoot).toBeUndefined();
@@ -120,7 +152,7 @@ describe("parseSourcesConfig", () => {
 	// governed_params is fail-closed: an undeclared source gets the Krepis
 	// default deny (`include_pii`); only an explicit [] opts out.
 	it("defaults governedParams to include_pii when undeclared", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }), undefined);
+		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.sources.get("taxis")?.governedParams).toEqual(["include_pii"]);
@@ -134,7 +166,6 @@ describe("parseSourcesConfig", () => {
 					governed_params: ["include_pii", "as_of_sequence", "include_pii"],
 				},
 			}),
-			undefined,
 		);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -144,7 +175,6 @@ describe("parseSourcesConfig", () => {
 	it("honors an explicit empty governed_params as the deliberate opt-out", () => {
 		const result = parseSourcesConfig(
 			JSON.stringify({ taxis: { ...kernelSource, governed_params: [] } }),
-			undefined,
 		);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -168,12 +198,34 @@ describe("parseSourcesConfig", () => {
 		[
 			"kernel surface with relative path",
 			JSON.stringify({
-				taxis: { ...kernelSource, surfaces: [{ id: "orgs", path: "surfaces/orgs" }] },
+				taxis: {
+					...kernelSource,
+					surfaces: [
+						{
+							id: "orgs",
+							path: "surfaces/orgs",
+							representation: "source-v1",
+							surface_id: "taxis.orgs:westfjords:2026-W29",
+						},
+					],
+				},
 			}),
 		],
 		[
-			"store surface without artifact_id",
-			JSON.stringify({ default: { ...storeSource, surfaces: [{ id: "digest" }] } }),
+			"unsupported representation",
+			JSON.stringify({
+				taxis: {
+					...kernelSource,
+					surfaces: [
+						{
+							id: "orgs",
+							path: "/surfaces/orgs",
+							representation: "source-v2",
+							surface_id: "taxis.orgs:westfjords:2026-W29",
+						},
+					],
+				},
+			}),
 		],
 		[
 			"duplicate surface ids",
@@ -181,8 +233,8 @@ describe("parseSourcesConfig", () => {
 				taxis: {
 					...kernelSource,
 					surfaces: [
-						{ id: "orgs", path: "/a" },
-						{ id: "orgs", path: "/b" },
+						{ id: "orgs", path: "/a", representation: "source-v1", surface_id: "taxis.orgs:a" },
+						{ id: "orgs", path: "/b", representation: "source-v1", surface_id: "taxis.orgs:b" },
 					],
 				},
 			}),
@@ -190,14 +242,14 @@ describe("parseSourcesConfig", () => {
 		[
 			"source-v1 without trust pins",
 			JSON.stringify({
-				taxis: { ...kernelSource, surfaces: sourceV1Kernel.surfaces },
+				taxis: { ...kernelSource, source_trust: undefined },
 			}),
 		],
 		[
 			"source-v1 without a concrete signed identity",
 			JSON.stringify({
 				taxis: {
-					...sourceV1Kernel,
+					...kernelSource,
 					surfaces: [{ id: "roster", path: "/roster", representation: "source-v1" }],
 				},
 			}),
@@ -206,9 +258,9 @@ describe("parseSourcesConfig", () => {
 			"malformed raw public key",
 			JSON.stringify({
 				taxis: {
-					...sourceV1Kernel,
+					...kernelSource,
 					source_trust: {
-						...sourceV1Kernel.source_trust,
+						...sourceTrust,
 						public_keys: { bad: "not-a-key" },
 					},
 				},
@@ -219,6 +271,6 @@ describe("parseSourcesConfig", () => {
 			JSON.stringify({ taxis: { ...kernelSource, collection_root: "ghost" } }),
 		],
 	])("rejects %s", (_label, raw) => {
-		expect(parseSourcesConfig(raw, undefined).ok).toBe(false);
+		expect(parseSourcesConfig(raw).ok).toBe(false);
 	});
 });

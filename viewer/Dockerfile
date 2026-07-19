@@ -4,10 +4,8 @@
 #   docker build -f viewer/Dockerfile -t morphe-viewer .
 #
 # Runtime contract:
-#   MORPHE_SOURCES            declared store/kernel sources, representation
-#                             selection, and source-v1 trust policy.
-#   MORPHE_ARTIFACT_BASE_URL  legacy single-store fallback when MORPHE_SOURCES
-#                             is unset.
+#   MORPHE_SOURCES            declared kernel sources (source-v1 only) and
+#                             their source-v1 trust policy.
 #   VIEWER_*_TOKEN            optional named kernel bearer tokens, referenced
 #                             only through MORPHE_SOURCES and never sent to the
 #                             browser.

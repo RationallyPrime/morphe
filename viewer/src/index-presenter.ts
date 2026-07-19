@@ -18,8 +18,8 @@ export interface IndexSurfaceLink {
 export interface IndexSource {
 	readonly id: string;
 	readonly title: string;
-	readonly kind: "store" | "kernel";
-	/** Declared dialect for the source's panes; absent when per-artifact (store). */
+	readonly kind: "kernel";
+	/** Declared dialect for the source's panes. */
 	readonly dialectId?: string;
 	readonly icon?: string;
 	readonly surfaces: readonly IndexSurfaceLink[];
@@ -33,7 +33,6 @@ export interface IndexModel {
 
 const KIND_LABEL: Record<IndexSource["kind"], string> = {
 	kernel: "Kernel",
-	store: "Artifact store",
 };
 
 export function indexTree(model: IndexModel): Node {
@@ -83,8 +82,7 @@ function emptyState(): Node {
 		kind: "inline-alert",
 		tone: "info",
 		title: "No sources configured",
-		detail:
-			"Set MORPHE_SOURCES (or the legacy MORPHE_ARTIFACT_BASE_URL) to give this viewer something to show.",
+		detail: "Set MORPHE_SOURCES to give this viewer something to show.",
 	};
 }
 
@@ -147,10 +145,7 @@ function surfaceLinks(source: IndexSource): Node {
 	if (source.surfaces.length === 0) {
 		return {
 			kind: "text",
-			value:
-				source.kind === "store"
-					? "No declared surfaces — store artifacts are addressed directly by id."
-					: "No declared surfaces.",
+			value: "No declared surfaces.",
 			as: "caption",
 			intent: "marginalia",
 		};

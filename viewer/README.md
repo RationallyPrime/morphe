@@ -10,7 +10,6 @@ playground app — no decision endpoint, no outbound proxy surface.
 | -- | -- |
 | `/` | Source index: every configured source and its declared surfaces |
 | `/s/[source]/[surfaceId]` | A declared surface from a configured source |
-| `/surfaces/[artifactId]` | A dynamic-id artifact from the `default` store source |
 | `/healthz` | Liveness + the supported `grammar_version` |
 
 Every render path runs the same trust gate: generated-schema validation of the
@@ -19,12 +18,12 @@ a foreign `grammar_version` renders a 409 diagnostic naming both versions,
 never a silent partial render (MO-D5). `?dialect=` overrides the pane dialect
 when it names a shipped dialect.
 
-Kernel entries are representation-selectable. Omitted `representation` is the
-unchanged compiled-tree (`legacy`) reader. An explicit `source-v1` entry instead
-negotiates signed source testimony, verifies and compiles it at the viewer edge,
-then runs the same grammar and dialect gates. Link rewriting is inside the final
-gate, and the load result carries a dialect-aware delivery receipt for the exact
-tree that renders.
+Kernel entries admit signed `source-v1` testimony only (KRA-775 Stage 5): the
+viewer negotiates the source-v1 media type, verifies and compiles the testimony
+at the viewer edge, then runs the same grammar and dialect gates. The store
+reader and the legacy compiled-tree reader are retired — a config declaring
+either fails closed. Link rewriting is inside the final gate, and the load
+result carries a dialect-aware delivery receipt for the exact tree that renders.
 
 ## Configuration (KRA-752 §4)
 
@@ -32,14 +31,6 @@ tree that renders.
 
 ```json
 {
-	"default": {
-		"kind": "store",
-		"title": "Topos artifacts",
-		"base_url": "http://topos:8000/api/v1/surfaces",
-		"surfaces": [
-			{ "id": "digest", "title": "Balance digest", "artifact_id": "surface:digest:run-1" }
-		]
-	},
 	"taxis": {
 		"kind": "kernel",
 		"title": "Taxis — workforce time",
@@ -55,7 +46,13 @@ tree that renders.
 			"max_future_skew_seconds": 30
 		},
 		"surfaces": [
-			{ "id": "orgs", "title": "Organizations", "path": "/surfaces/orgs" },
+			{
+				"id": "orgs",
+				"title": "Organizations",
+				"path": "/surfaces/orgs",
+				"representation": "source-v1",
+				"surface_id": "taxis.orgs:<org-id>:<period>"
+			},
 			{
 				"id": "roster",
 				"title": "Weekly roster",
@@ -68,20 +65,16 @@ tree that renders.
 }
 ```
 
-- `kind: "store"` — a surface-artifact store (topos shape). Responses carry the
-  outer `SurfaceArtifactResponse` envelope. Declared entries name a stored
-  `artifact_id`; dynamic ids stay reachable via `/surfaces/[artifactId]` on the
-  source named `default`.
-- `kind: "kernel"` — a kernel-direct source (Taxis/chreos/… shape). Responses
-  default to a **bare `CompiledSurface`**; the viewer wrapper-lifts them through
-  the identical trust gate and synthesizes the envelope identity
-  (`<source>:<id>`, dialect from entry → source → `ledger`).
-- `representation: "source-v1"` — additive per-surface opt-in. The viewer sends
-  `Accept: application/vnd.morphe.source-surface+json;v=1` and requires that
-  exact response `Content-Type`. The entry's `surface_id` must equal the signed
-  concrete identity. Omit the field (or set `legacy`) for instant rollback to
-  the existing reader and response contract.
-- `source_trust` — required when any surface selects source v1. `issuer` and
+- `kind: "kernel"` — the only source kind: a kernel-direct source
+  (Taxis/chreos/… shape). The viewer synthesizes the envelope identity
+  (`<source>:<id>`, dialect from entry → source → `ledger`). `kind: "store"`
+  is retired (KRA-775 Stage 5) and fails closed.
+- `representation: "source-v1"` — required on every surface entry. The viewer
+  sends `Accept: application/vnd.morphe.source-surface+json;v=1` and requires
+  that exact response `Content-Type`. The entry's `surface_id` must equal the
+  signed concrete identity. An omitted or `legacy` representation fails closed
+  (the legacy bare-`CompiledSurface` reader is retired).
+- `source_trust` — required whenever a source declares surfaces. `issuer` and
   `surface_id` are exact pins; `public_keys` maps an allowed signed `key_id` to
   its canonical unpadded base64url **raw 32-byte Ed25519 public key**. Rotation
   can overlap entries in that map. The host materializes these as composite
@@ -98,5 +91,5 @@ tree that renders.
 - The browse space is config-declared only — unknown sources/surfaces 404; the
   viewer is not an open proxy onto the docker network.
 
-Legacy fallback: with `MORPHE_SOURCES` unset, `MORPHE_ARTIFACT_BASE_URL`
-synthesizes the single `default` store source (KRA-648 behavior, unchanged).
+With `MORPHE_SOURCES` unset, no sources are configured; the retired
+`MORPHE_ARTIFACT_BASE_URL` fallback is ignored (KRA-775 Stage 5).

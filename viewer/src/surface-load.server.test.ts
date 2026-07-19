@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Node } from "$lib";
 import type { Sha256 } from "$lib/artifacts/source-types.generated.js";
 import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
-import { loadGatedSurface } from "./surface-load.server.js";
+import { dialectGateReason, loadGatedSurface } from "./surface-load.server.js";
 import { SOURCE_SURFACE_V1_MEDIA_TYPE } from "./surface-reader.js";
 
 const hash = (digit: string): Sha256 => `sha256:${digit.repeat(64)}` as Sha256;
@@ -63,22 +63,6 @@ describe("loadGatedSurface", () => {
 		expect(result.deliveryReceipt?.dialectId).toBe("ledger");
 	});
 
-	it("keeps application/json as the unchanged legacy default", async () => {
-		const fetch = vi.fn(async () => new Response("{}"));
-		const result = await loadGatedSurface({
-			fetch: fetch as unknown as typeof globalThis.fetch,
-			url: "http://legacy.test/surface",
-			artifactId: "legacy:one",
-			parse: async () => parsed({ kind: "text", value: "legacy", as: "body" }),
-			dialectOverride: null,
-		});
-		expect(fetch).toHaveBeenCalledWith(
-			"http://legacy.test/surface",
-			expect.objectContaining({ headers: { accept: "application/json" } }),
-		);
-		expect(result.deliveryReceipt).toBeUndefined();
-	});
-
 	it("rejects a host transform that makes the exact delivered tree invalid", async () => {
 		await expect(
 			loadGatedSurface({
@@ -110,5 +94,27 @@ describe("loadGatedSurface", () => {
 			status: 502,
 			body: { code: "upstream-unreachable", artifactId: "taxis:roster" },
 		});
+	});
+});
+
+describe("dialectGateReason", () => {
+	const frameTree = {
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		children: [],
+	} as unknown as Node;
+
+	it("returns null for a tree the dialect permits", () => {
+		expect(dialectGateReason(frameTree, "clinical")).toBeNull();
+	});
+
+	it("names the violation when the dialect forbids a compound", () => {
+		const tree = { kind: "compound", name: "consumer-private-card", args: {} } as unknown as Node;
+		expect(dialectGateReason(tree, "clinical")).toContain("not permitted");
+	});
+
+	it("validates under the total fallback for unknown dialect names", () => {
+		expect(dialectGateReason(frameTree, "no-such-dialect")).toBeNull();
 	});
 });
