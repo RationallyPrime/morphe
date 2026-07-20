@@ -204,22 +204,10 @@
                       "value": "beneficiary-7Q"
                     },
                     {
-                      "children": [
-                        {
-                          "currency": "EUR",
-                          "format": "currency",
-                          "kind": "number",
-                          "value": 512.25
-                        },
-                        {
-                          "detail": "The amount is represented at settlement precision.",
-                          "kind": "inline-alert",
-                          "title": "OBOLOS_AMOUNT_ROUNDING",
-                          "tone": "info"
-                        }
-                      ],
-                      "kind": "stack",
-                      "role": "field-group"
+                      "currency": "EUR",
+                      "format": "currency",
+                      "kind": "number",
+                      "value": 512.25
                     },
                     {
                       "intent": "success",
@@ -290,6 +278,12 @@
                   ],
                   "kind": "grid",
                   "role": "inline"
+                },
+                {
+                  "detail": "The amount is represented at settlement precision.",
+                  "kind": "inline-alert",
+                  "title": "Amount: OBOLOS_AMOUNT_ROUNDING",
+                  "tone": "info"
                 },
                 {
                   "children": [

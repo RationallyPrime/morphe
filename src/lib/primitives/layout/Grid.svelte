@@ -110,9 +110,14 @@
 	}
 	/* A row's diagnostic alert rides as a direct-child SIBLING of its row grid
 	   (a wrapper would defeat the subgrid adoption above and collapse the row
-	   into the first track); it spans the full table width. */
+	   into the first track); it spans the full table width. Both row- and
+	   lifted cell-level diagnostics (KRA-796) land here. Because it spans 1/-1 it
+	   already owns the full row width, so InlineAlert's 12rem inline floor — which
+	   protects free-standing alerts in narrow flex/grid tracks — is unnecessary
+	   here and would only force horizontal overflow in a dense table; drop it. */
 	.mo-grid[data-columns] > :global(.mo-alert) {
 		grid-column: 1 / -1;
+		min-inline-size: 0;
 	}
 
 	/*

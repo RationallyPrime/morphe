@@ -284,11 +284,28 @@ def _diag(path: str, code: str) -> Diagnostic:
 
 
 def test_table_cell_diagnostics_stay_visible() -> None:
+    # A cell diagnostic is lifted (KRA-796) out of its cell into the row diagnostics
+    # lane as a full-width sibling of the row grid, and its title names the field so
+    # the copy stays anchored: "<Field label>: <code>".
     diags = {"$.balances[0].amount": [_diag("$.balances[0].amount", "CELL")]}
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
-    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "CELL")
+    alert = _find(
+        node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Amount: CELL"
+    )
     assert alert is not None
+    assert alert["detail"] == "probe"
+    # The lifted alert is a direct child of the columned table grid — never wrapped
+    # in a field-group stack inside the cell (that shape overpainted neighbours).
+    table = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+    assert table is not None
+    assert alert in table["children"]
+    assert not _find(
+        node,
+        lambda n: n.get("kind") == "stack"
+        and n.get("role") == "field-group"
+        and any(c.get("kind") == "inline-alert" for c in n.get("children", [])),
+    )
     validate_node(node)
 
 
