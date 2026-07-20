@@ -649,13 +649,12 @@ def _alert(diag: Diagnostic) -> Node:
 def _labeled_alert(label: str, diag: Diagnostic) -> Node:
     # A cell diagnostic lifted out of its cell loses its spatial tie to the field,
     # so the title names the field it refers to: "<Field label>: <code>" (KRA-796).
-    title = f"{label}: {diag.code}" if label else diag.code
-    return {
-        "kind": "inline-alert",
-        "tone": _tone(diag.severity),
-        "title": title,
-        "detail": diag.message,
-    }
+    # The lifted alert keeps everything _alert renders — including the authored
+    # repair hint (KRA-788) — only the title gains the field name.
+    node = _alert(diag)
+    if label:
+        node["title"] = f"{label}: {diag.code}"
+    return node
 
 
 def _tone(severity: str) -> str:
