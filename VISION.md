@@ -189,7 +189,8 @@ This is closure under restriction. The same validation machinery that admits com
 makes a narrower vocabulary safe.
 
 The shipped dialect registry proves intent, surface, and prior invariance. It now also carries an
-explicit structural policy for every dialect: `clinical` permits the promoted `SignalCard`, while
+explicit structural policy for every dialect: `clinical` allowlists the full promoted package
+catalog (promoted-only; ratified KRA-788), while
 the other eight remain unrestricted for compatibility. Generated, integrity-stamped `G|D` masks
 make that same restriction available to structured producers and package consumers.
 
@@ -352,7 +353,7 @@ Legend: **shipped**, **partial**, **future**.
 | context algebra and property laws | shipped | `src/lib/context/` tests |
 | three token strata and fixed intent keyset | shipped | `src/lib/tokens/`, dialect parity tests |
 | nine intent/surface dialects | shipped | `src/lib/dialects/registry.ts` |
-| dialect compound restriction | shipped | generated policies; `clinical` permits `SignalCard` |
+| dialect compound restriction | shipped | generated policies; `clinical` allowlists the promoted catalog |
 | true per-dialect `G|D` masks | shipped | manifest + nine npm/Python package resources |
 | compound lifecycle and expansion gate | shipped | `src/lib/compounds/factory.ts` |
 | action map and tier-1 store binding | shipped | `MorpheRoot`, primitives, state tests |

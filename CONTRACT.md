@@ -187,6 +187,16 @@ Grid     { kind:"grid";    role:ContainerRole; minTrack?:"narrow"|"regular"|"wid
 Cluster  { kind:"cluster"; role:ContainerRole; justify?:"start"|"center"|"end"|"between"; align?:"start"|"center"|"end"|"baseline"; emphasis?:EmphasisClaim; children:Node[] }
 Frame    { kind:"frame";   role:ContainerRole; surface?:"base"|"raised"|"sunken"; density?:Density; budget?:number; children:Node[] }   // context RESET
 Spacer   { kind:"spacer";  size?:"xs"|"sm"|"md"|"lg"|"xl" }
+
+// ADR-0020: the data-table CAPABILITY (real <table>/<th scope> semantics — NOT a compound).
+// caption + every header require visible text; every row carries exactly len(columns) cells
+// (validator-enforced); `responsive` is a DECLARED policy, never inference; row `diagnostics`
+// render as a full-width lane after the row. Not a generic container: no ContainerRole,
+// not a context reset. Cells hold ordinary Node children.
+TableColumn { header:string; numeric?:boolean; priority?:"primary"|"secondary"|"detail"; intent?:IntentRef }
+TableRow    { cells:{children:Node[]}[]; diagnostics?:Node[] }
+Table    { kind:"table";   caption:string; captionHidden?:boolean; columns:TableColumn[]; rows:TableRow[];
+           rowHeader?:boolean; responsive?:"scroll"|"collapse"|"records"; sticky?:boolean; emphasis?:EmphasisClaim }
 ```
 
 ### Content
@@ -196,6 +206,10 @@ Text       { kind:"text";   value:string; as?:"display"|"heading"|"subheading"|"
 NumberNode { kind:"number"; value:number; format?:"plain"|"integer"|"currency"|"percent"|"compact"; currency?:string; emphasis?:EmphasisClaim; intent?:IntentRef }
 Badge      { kind:"badge";  label:string; intent?:IntentRef; icon?:string }
 Icon       { kind:"icon";   name:string; a11y:{role:"decorative"}|{role:"img";label:string}; intent?:IntentRef }
+// ADR-0019: a sampled quantity over a period axis. `summary` is REQUIRED visible text and
+// the PRIMARY channel (the SVG figure is aria-hidden — shape is never the only signal);
+// points are typed values, never pre-rendered; `baseline:"zero"` (default) is geometric honesty.
+Trend      { kind:"trend";  points:{period:string;value:number}[]; summary:string; baseline?:"zero"|"min"; emphasis?:EmphasisClaim; intent?:IntentRef }
 Media      { kind:"media";  src:string; alt:string; aspect?:"square"|"video"|"portrait"|"auto" }   // alt required ("" = decorative)
 ```
 
@@ -233,7 +247,7 @@ for that primitive must handle BOTH modes inside the SAME `.svelte` file:
 ```ts
 Progress    { kind:"progress";     value?:number; label:string; intent?:IntentRef }   // label required
 Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal }
-InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; live?:"polite"|"assertive" }
+InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; repair?:string; live?:"polite"|"assertive" }   // repair = the producer-authored next action (KRA-757 §3.8)
 ```
 
 ### Action (real `<button>`/`<a>` — genuine browser capability, NOT compounds)
@@ -433,8 +447,9 @@ default visible set.
 `restrictCompounds(registry, { allow: dialect.compounds })` and provides it to
 every `<Node>` via context (the prop chain does not survive container
 recursion). An empty `compounds[]` is unrestricted (the compatibility policy used by eight shipped
-dialects); a non-empty list such as `clinical`'s `SignalCard` policy makes out-of-dialect names read as UNKNOWN — render-nothing +
-dev-warn, never a throw. The base registry is never mutated; two roots under
+dialects); a non-empty list such as `clinical`'s promoted-only allowlist (the full package
+catalog, excluding unreviewed consumer compounds — ratified KRA-788) makes out-of-dialect
+names read as UNKNOWN — render-nothing + dev-warn, never a throw. The base registry is never mutated; two roots under
 different dialects hold independent views over the same singleton.
 
 **Registration gate** (a failing compound is NOT added — render stays total):
