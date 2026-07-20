@@ -57,6 +57,12 @@ edge-e2e:
 edge-e2e-install:
 	bun run test:edge-e2e:install
 
+# browser-computed WCAG 2.2 AA contrast matrix + composed-a11y gate (KRA-796):
+# every dialect x base/raised/sunken, freestanding ink measured after var() and
+# color-mix() resolution in Chromium + Firefox (same engines as edge-e2e-install)
+contrast:
+	bun run test:contrast
+
 # build the distroless box-viewer image (from repo root context)
 viewer-image:
 	docker build -f viewer/Dockerfile -t morphe-viewer .
@@ -137,7 +143,7 @@ _gated inner:
 # Whole-machine run: serialized machine-wide by the heavy gate.
 gates: (_gated "_gates")
 
-_gates: compiler-id-check lint check test build viewer-check viewer-build-node edge-e2e py-test py-lint py-types schema-check cms-schema-check py-pack-verify
+_gates: compiler-id-check lint check test build viewer-check viewer-build-node edge-e2e contrast py-test py-lint py-types schema-check cms-schema-check py-pack-verify
 
 # install the prek git hooks (once per checkout)
 hooks:

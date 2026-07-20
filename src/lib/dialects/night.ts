@@ -78,6 +78,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-500)",
 		active: "var(--mo-cobalt-600)",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-500) 38%, var(--mo-cobalt-900))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Quiet strata chrome — the 900 stratum nudged toward the lattice. */
 	neutral: {
@@ -88,6 +90,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-900) 60%, var(--mo-cobalt-700))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-900) 60%, var(--mo-cobalt-950))",
+		ink: "var(--mo-cobalt-100)",
+		"ink-hover": "var(--mo-cobalt-300)",
 	},
 	/** Provenance — the wire of the lattice: deep navy, full depth. */
 	provenance: {
@@ -98,6 +102,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 78%, var(--mo-cobalt-500))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 40%, var(--mo-cobalt-950))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Evidence — the record register: a near-stratum panel, ink-lifted. */
 	evidence: {
@@ -108,6 +114,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-900) 40%, var(--mo-cobalt-800))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-900) 70%, var(--mo-cobalt-950))",
+		ink: "var(--mo-cobalt-100)",
+		"ink-hover": "var(--mo-cobalt-300)",
 	},
 	/** Accession — a half-lit node of the lattice; depth, not hue, sets it apart. */
 	accession: {
@@ -118,6 +126,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-500)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 66%, var(--mo-cobalt-900))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 18%, var(--mo-cobalt-900))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Caution — red survives the monochrome: functional color is never a mood. */
 	caution: {
@@ -128,6 +138,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-400)",
 		active: "color-mix(in srgb, var(--mo-red-700) 76%, var(--mo-red-400))",
 		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-cobalt-900))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** Success — likewise: green stays green, quiet in the strata. */
 	success: {
@@ -138,6 +150,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-700) 76%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-cobalt-900))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** Info — a brighter panel of the same lattice, lifted out of provenance. */
 	info: {
@@ -148,6 +162,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 86%, var(--mo-cobalt-900))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 36%, var(--mo-cobalt-900))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 };
 
@@ -167,6 +183,8 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-900) 68%, var(--mo-cobalt-700))",
 		disabled: "transparent",
+		ink: "var(--mo-cobalt-400)",
+		"ink-hover": "var(--mo-cobalt-300)",
 	},
 	/** Marginalia → a half-lit aside in the strata, softened ice. */
 	marginalia: {
@@ -177,6 +195,8 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-900) 54%, var(--mo-cobalt-700))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-900) 50%, var(--mo-cobalt-950))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-100)",
 	},
 	/** Seal → the authority mark: the deep navy charged toward the beacon. */
 	seal: {
@@ -187,6 +207,8 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 56%, var(--mo-cobalt-500))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 40%, var(--mo-cobalt-950))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 };
 

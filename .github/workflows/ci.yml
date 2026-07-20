@@ -165,6 +165,12 @@ jobs:
       - name: Edge source compiler-renderer contract (Chromium + Firefox)
         run: bun run test:edge-e2e
 
+      - name: WCAG 2.2 AA contrast matrix + composed a11y (Chromium + Firefox)
+        # Browser-computed contrast over every dialect x base/raised/sunken after
+        # var()/color-mix() resolution, plus reflow/zoom/keyboard/forced-colors/
+        # reduced-motion on the composed surface (KRA-796 Defect 3).
+        run: bun run test:contrast
+
   python:
     name: python (pytest · ruff · ty · schema stability)
     runs-on: ubuntu-latest

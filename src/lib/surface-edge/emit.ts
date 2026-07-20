@@ -612,8 +612,29 @@ function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): Node
 			: [tableCell(row, ctx)];
 	while (cells.length < columnCount) cells.push(emptyCell());
 	const grid: Grid = { kind: "grid", role: "inline", children: cells };
-	const alerts = row.strategy === "diagnostic-node" ? [] : row.diagnostics.map(alert);
-	return [grid, ...alerts];
+	// Both row- and cell-level diagnostics stay visible (D8) as SIBLINGS of the row
+	// grid, never wrappers: only a direct-child grid adopts the table's subgrid
+	// tracks, so a wrapped row/cell lands in the first track and stacks vertically.
+	// A cell diagnostic wrapped INSIDE its cell also inherits InlineAlert's inline
+	// min-size floor and paints over dense neighbours (KRA-796). Lifting it to the
+	// row lane lets the Grid rule span it 1/-1 across the full row instead. Row
+	// diagnostics come first, then leaf cell diagnostics in cell order.
+	if (row.strategy === "diagnostic-node") return [grid];
+	const rowAlerts = row.diagnostics.map(alert);
+	const cellAlerts = row.children.length > 0 ? liftedCellAlerts(row.children) : [];
+	return [grid, ...rowAlerts, ...cellAlerts];
+}
+
+function liftedCellAlerts(cells: readonly SurfaceNode[]): InlineAlert[] {
+	// Container cells self-head and render their own diagnostics; a diagnostic-node
+	// cell already IS its alert. Only leaf cells' diagnostics lift to the row lane,
+	// each carrying its field label so the copy stays anchored once it leaves the cell.
+	const alerts: InlineAlert[] = [];
+	for (const cell of cells) {
+		if (CONTAINER_STRATEGIES.has(cell.strategy) || cell.strategy === "diagnostic-node") continue;
+		for (const diagnostic of cell.diagnostics) alerts.push(labeledAlert(cell.label, diagnostic));
+	}
+	return alerts;
 }
 
 function tableCell(spec: SurfaceNode, ctx: EmitContext): Node {
@@ -622,11 +643,10 @@ function tableCell(spec: SurfaceNode, ctx: EmitContext): Node {
 	// Empty Text intentionally renders with display:none. In a grid that removes
 	// the item box and auto-placement shifts every following cell one track left.
 	// Spacer is the grammar's data-free, aria-hidden structural placeholder.
-	const inner = lowered.kind === "text" && lowered.value === "" ? emptyCell() : lowered;
-	const alerts = spec.strategy === "diagnostic-node" ? [] : spec.diagnostics.map(alert);
-	return alerts.length === 0
-		? inner
-		: { kind: "stack", role: "field-group", children: [inner, ...alerts] };
+	//
+	// Leaf cells render just their inner content — cell diagnostics are lifted to
+	// the row diagnostics lane by `tableRow` (KRA-796), never wrapped here.
+	return lowered.kind === "text" && lowered.value === "" ? emptyCell() : lowered;
 }
 
 function emptyCell(): Spacer {
@@ -731,6 +751,17 @@ function alert(diagnostic: CompilerDiagnostic): InlineAlert {
 		kind: "inline-alert",
 		tone: diagnostic.severity === "info" ? "info" : "caution",
 		title: diagnostic.code,
+		detail: diagnostic.message,
+	};
+}
+
+function labeledAlert(label: string, diagnostic: CompilerDiagnostic): InlineAlert {
+	// A cell diagnostic lifted out of its cell loses its spatial tie to the field,
+	// so the title names the field it refers to: "<Field label>: <code>" (KRA-796).
+	return {
+		kind: "inline-alert",
+		tone: diagnostic.severity === "info" ? "info" : "caution",
+		title: label ? `${label}: ${diagnostic.code}` : diagnostic.code,
 		detail: diagnostic.message,
 	};
 }

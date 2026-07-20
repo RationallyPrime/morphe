@@ -86,6 +86,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "var(--mo-cobalt-700)",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-600) 38%, var(--mo-bone-2))",
+		ink: "var(--mo-cobalt-700)",
+		"ink-hover": "color-mix(in srgb, var(--mo-cobalt-700) 80%, var(--mo-cobalt-500))",
 	},
 	/** Quiet paper chrome — plaster steps, ink text, no chroma. */
 	neutral: {
@@ -96,6 +98,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "var(--mo-bone-0)",
 		disabled: "color-mix(in srgb, var(--mo-bone-2) 60%, var(--mo-bone-4))",
+		ink: "var(--mo-cobalt-800)",
+		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/**
 	 * Provenance — the wall label: a solid ink-navy panel on the paper, the
@@ -109,6 +113,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "color-mix(in srgb, var(--mo-cobalt-800) 76%, var(--mo-cobalt-600))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-800) 40%, var(--mo-bone-2))",
+		ink: "var(--mo-cobalt-800)",
+		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/** Evidence — the record register: near-paper, ink forward, no chroma. */
 	evidence: {
@@ -119,6 +125,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "var(--mo-bone-1)",
 		disabled: "color-mix(in srgb, var(--mo-bone-3) 60%, var(--mo-bone-4))",
+		ink: "var(--mo-cobalt-800)",
+		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/**
 	 * Accession — the catalog accent: the faintest cobalt wash on the paper
@@ -133,6 +141,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "color-mix(in srgb, var(--mo-cobalt-500) 26%, var(--mo-bone-4))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-500) 6%, var(--mo-bone-3))",
+		ink: "var(--mo-cobalt-700)",
+		"ink-hover": "var(--mo-cobalt-800)",
 	},
 	/** Caution — light-theme form: a pale red wash, deep red text. Functional. */
 	caution: {
@@ -143,6 +153,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-500)",
 		active: "color-mix(in srgb, var(--mo-red-500) 28%, var(--mo-bone-5))",
 		disabled: "color-mix(in srgb, var(--mo-red-500) 8%, var(--mo-bone-3))",
+		ink: "var(--mo-red-700)",
+		"ink-hover": "color-mix(in srgb, var(--mo-red-700) 82%, var(--mo-red-500))",
 	},
 	/** Success — likewise: a pale green wash, deep green text. */
 	success: {
@@ -153,6 +165,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-500) 30%, var(--mo-bone-5))",
 		disabled: "color-mix(in srgb, var(--mo-green-500) 8%, var(--mo-bone-3))",
+		ink: "var(--mo-green-700)",
+		"ink-hover": "color-mix(in srgb, var(--mo-green-700) 78%, var(--mo-green-500))",
 	},
 	/** Info — a present cobalt wash, a step louder than the accession pencil. */
 	info: {
@@ -163,6 +177,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-500)",
 		active: "color-mix(in srgb, var(--mo-cobalt-500) 36%, var(--mo-bone-5))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-500) 10%, var(--mo-bone-3))",
+		ink: "var(--mo-cobalt-700)",
+		"ink-hover": "color-mix(in srgb, var(--mo-cobalt-700) 80%, var(--mo-cobalt-500))",
 	},
 };
 
@@ -182,6 +198,8 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "var(--mo-bone-2)",
 		disabled: "transparent",
+		ink: "var(--mo-cobalt-800)",
+		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/** Marginalia → the curator's pencil aside: a plaster panel, softened ink. */
 	marginalia: {
@@ -192,6 +210,8 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "var(--mo-bone-1)",
 		disabled: "color-mix(in srgb, var(--mo-bone-2) 50%, var(--mo-bone-4))",
+		ink: "var(--mo-cobalt-800)",
+		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/**
 	 * Seal → the authority stamp: deep lattice navy pressed into the paper —
@@ -206,6 +226,8 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-600)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 70%, var(--mo-cobalt-500))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 40%, var(--mo-bone-2))",
+		ink: "var(--mo-cobalt-700)",
+		"ink-hover": "var(--mo-cobalt-800)",
 	},
 };
 

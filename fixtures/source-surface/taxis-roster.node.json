@@ -207,22 +207,10 @@
                       "tone": "success"
                     },
                     {
-                      "children": [
-                        {
-                          "intent": "info",
-                          "kind": "progress",
-                          "label": "Allocation",
-                          "value": 0.8
-                        },
-                        {
-                          "detail": "Allocation reflects the signed planning window.",
-                          "kind": "inline-alert",
-                          "title": "TAXIS_ALLOCATION_SOURCE",
-                          "tone": "info"
-                        }
-                      ],
-                      "kind": "stack",
-                      "role": "field-group"
+                      "intent": "info",
+                      "kind": "progress",
+                      "label": "Allocation",
+                      "value": 0.8
                     },
                     {
                       "currency": "ISK",
@@ -239,6 +227,12 @@
                   ],
                   "kind": "grid",
                   "role": "inline"
+                },
+                {
+                  "detail": "Allocation reflects the signed planning window.",
+                  "kind": "inline-alert",
+                  "title": "Allocation: TAXIS_ALLOCATION_SOURCE",
+                  "tone": "info"
                 },
                 {
                   "children": [

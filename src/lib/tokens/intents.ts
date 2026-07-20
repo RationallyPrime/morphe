@@ -29,8 +29,28 @@ export type { CoreIntent, IntentRef, RegisterIntent };
  * (they shift with the chosen intent). They are OPTIONAL in a dialect's
  * `IntentDefinition` (Partial), so existing dialects need not define them and
  * primitives fall back through `slot(... , fallback)`.
+ *
+ * `ink` / `ink-hover` are the UNFILLED-ink channels (KRA-796). `surface + on` is
+ * the pair for a FILLED component: the intent paints its `surface` and text uses
+ * `on` — text-on-fill, contrast-guaranteed ONLY against that fill (badges,
+ * statuses, alerts, solid buttons). A FREESTANDING leaf (`Text`/`Number`/`Link`)
+ * paints no fill: it is ink on whatever page surface (base / raised / sunken) it
+ * sits on. Using `on` there is the bug this channel fixes — provenance's ice `on`
+ * is built for a navy panel and vanishes as inline text on paper. `ink` is the
+ * intent's hue rendered as contrast-guaranteed ink on the page grounds; `ink-hover`
+ * is its interactive-hover sibling (the Link affordance). Both are held to the
+ * WCAG 2.2 AA floor on base/raised/sunken by the browser contrast matrix gate.
  */
-export type IntentChannel = "surface" | "on" | "hover" | "border" | "ring" | "active" | "disabled";
+export type IntentChannel =
+	| "surface"
+	| "on"
+	| "hover"
+	| "border"
+	| "ring"
+	| "active"
+	| "disabled"
+	| "ink"
+	| "ink-hover";
 
 /** The core intents, as a runtime-iterable list (mirrors the CoreIntent type). */
 export const CORE_INTENTS: readonly CoreIntent[] = [

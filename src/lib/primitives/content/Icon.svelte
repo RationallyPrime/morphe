@@ -10,19 +10,20 @@
 	 *
 	 * Size follows the type context (`--mo-ctx-type`, which encodes scale_tier) so
 	 * an icon scales with the text it sits beside; color comes from the intent's
-	 * `on` channel, defaulting to `currentColor` so a bare icon inherits its
-	 * surrounding text color.
+	 * freestanding-INK channel (contrast-guaranteed on the page ground — a bare glyph
+	 * is ink, not text-on-fill, so `on` would be the unreadable choice; KRA-796),
+	 * defaulting to `currentColor` so a bare icon inherits its surrounding text color.
 	 *
 	 * Agent edits ONLY this file.
 	 */
 
 	import type { Icon } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
-	import { slot } from "../../tokens/slots.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node }: PrimitiveProps<Icon> = $props();
 
-	const color = $derived(node.intent ? slot(node.intent, "on") : "currentColor");
+	const color = $derived(node.intent ? SLOTS.content.ink(node.intent) : "currentColor");
 	const decorative = $derived(node.a11y.role === "decorative");
 	const label = $derived(node.a11y.role === "img" ? node.a11y.label : undefined);
 </script>

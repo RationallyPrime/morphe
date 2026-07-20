@@ -992,16 +992,19 @@ describe("Content leaves — inline color resolves to a CSS value in SSR, not a 
 	// its value, so server-rendered intent-colored text shipped `style="color:
 	// function (...){...}"` — invalid CSS, wrong color until hydration. The explicit
 	// `style:color={color}` form resolves the value. These pin the resolved var.
-	it("Text emits its intent color as a var(), never a serialized function", () => {
+	it("Text emits its intent color as the ink var(), never a serialized function", () => {
 		const html = ssr({ kind: "text", value: "x", as: "body", intent: "provenance" });
 		expect(html).not.toContain("color: function");
-		expect(html).toMatch(/color:\s*var\(--mo-intent-provenance-on\)/);
+		// Freestanding ink reads the `ink` channel (KRA-796), NOT `on` — `on` is
+		// text-on-fill (provenance's ice), unreadable as inline ink on paper.
+		expect(html).toMatch(/color:\s*var\(--mo-intent-provenance-ink/);
+		expect(html).not.toMatch(/color:\s*var\(--mo-intent-provenance-on\)/);
 	});
 
-	it("Number emits its intent color as a var(), never a serialized function", () => {
+	it("Number emits its intent color as the ink var(), never a serialized function", () => {
 		const html = ssr({ kind: "number", value: 42, format: "integer", intent: "evidence" });
 		expect(html).not.toContain("color: function");
-		expect(html).toMatch(/color:\s*var\(--mo-intent-evidence-on\)/);
+		expect(html).toMatch(/color:\s*var\(--mo-intent-evidence-ink/);
 	});
 
 	it("Number never throws on a malformed currency code — renders plain instead", () => {
@@ -1017,7 +1020,7 @@ describe("Content leaves — inline color resolves to a CSS value in SSR, not a 
 		expect(html).toContain("mo-number");
 	});
 
-	it("Icon emits its intent color as a var(), never a serialized function", () => {
+	it("Icon emits its intent color as the ink var(), never a serialized function", () => {
 		const html = ssr({
 			kind: "icon",
 			name: "circle",
@@ -1025,7 +1028,7 @@ describe("Content leaves — inline color resolves to a CSS value in SSR, not a 
 			intent: "caution",
 		});
 		expect(html).not.toContain("color: function");
-		expect(html).toMatch(/color:\s*var\(--mo-intent-caution-on\)/);
+		expect(html).toMatch(/color:\s*var\(--mo-intent-caution-ink/);
 	});
 });
 

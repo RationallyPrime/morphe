@@ -43,6 +43,16 @@ export function slot(intent: IntentRef, channel: IntentChannel, fallback?: strin
  * primitive. (Phase 0 keeps these pointing at the obvious core intents.)
  */
 export const SLOTS = {
+	/**
+	 * Freestanding CONTENT ink (Text / Number / Icon — the leaves that paint no
+	 * fill). A content leaf is ink on whatever page surface it sits on, so it reads
+	 * the intent's contrast-guaranteed `ink` channel, NOT `on` (which is text-on-fill
+	 * and only clears contrast against the intent's own `surface`). The bare
+	 * on-surface ink is the no-intent default the primitive supplies as the fallback.
+	 */
+	content: {
+		ink: (intent: IntentRef): string => slot(intent, "ink", `var(--mo-intent-on-surface)`),
+	},
 	/** Field/input chrome. */
 	field: {
 		surface: (): string => `var(--mo-intent-neutral-surface)`,
@@ -74,21 +84,21 @@ export const SLOTS = {
 	},
 	/**
 	 * Link chrome — text + underline (the underline IS the affordance; functional
-	 * colour is never the only signal). The DEFAULT (provenance/citation) link
-	 * routes through the dedicated `--mo-link-*` channel, which resolves via the
-	 * dialect's `on-surface` ink and is therefore contrast-guaranteed on every
-	 * ground — fixing the gallery bug where the provenance `on` ice tone (built
-	 * for a navy panel) was used as inline text on paper and vanished. A link that
-	 * carries an EXPLICIT non-provenance intent reads that intent's SURFACE hue as
-	 * its ink: a standalone link sits on the base ground, so the fill hue (the
-	 * beacon) is the readable channel — the `on` channel is text-on-fill and
-	 * vanishes off its fill (the same failure the provenance branch fixed).
+	 * colour is never the only signal). A link is FREESTANDING ink on the page
+	 * ground, so it reads the intent's contrast-guaranteed `ink` / `ink-hover`
+	 * channels — uniformly, for the provenance/citation default AND any explicit
+	 * intent (KRA-796). This is the fix for BOTH prior bugs: the provenance branch
+	 * used to route through `--mo-link-*` (which chained the beacon SURFACE on
+	 * hover — cobalt-600 on paper, ~3.9:1, sub-AA), and an explicit-intent link
+	 * used the intent's SURFACE/`on` hue as ink (the beacon fill as text — unreadable
+	 * off its fill). The `ink` channel is contrast-guaranteed on base/raised/sunken
+	 * by construction; `ink-hover` is its hover sibling, held to the same AA floor.
 	 */
 	link: {
 		on: (intent: IntentRef = "provenance"): string =>
-			intent === "provenance" ? `var(--mo-link-on)` : slot(intent, "surface"),
+			slot(intent, "ink", `var(--mo-intent-on-surface)`),
 		hover: (intent: IntentRef = "provenance"): string =>
-			intent === "provenance" ? `var(--mo-link-hover)` : slot(intent, "hover"),
+			slot(intent, "ink-hover", slot(intent, "ink", `var(--mo-intent-on-surface)`)),
 		ring: (intent: IntentRef = "provenance"): string => slot(intent, "ring"),
 	},
 	/**

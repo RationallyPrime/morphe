@@ -82,6 +82,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-500)",
 		active: "var(--mo-steel-600)",
 		disabled: "color-mix(in srgb, var(--mo-steel-500) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-steel-300)",
+		"ink-hover": "var(--mo-steel-400)",
 	},
 	/** neutral: cooler chrome than the warm Archive neutral. */
 	neutral: {
@@ -92,6 +94,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-500)",
 		active: "var(--mo-neutral-5)",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 50%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** provenance: spec-blue, forward (the lineage of a part/lot). */
 	provenance: {
@@ -102,6 +106,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 78%, var(--mo-blue-400))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 	/**
 	 * evidence: the record register — near-neutral but cooled toward the steel
@@ -116,6 +122,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-5) 86%, var(--mo-steel-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** accession: the catalog accent echoes the steel beacon (a lot/part stamp). */
 	accession: {
@@ -126,6 +134,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-500)",
 		active: "color-mix(in srgb, var(--mo-steel-700) 62%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-steel-700) 18%, var(--mo-neutral-3))",
+		ink: "var(--mo-steel-300)",
+		"ink-hover": "var(--mo-steel-400)",
 	},
 	/** caution: shop-floor red — a louder fault/reject red. */
 	caution: {
@@ -136,6 +146,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-500)",
 		active: "color-mix(in srgb, var(--mo-red-700) 74%, var(--mo-red-400))",
 		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** success: keep green, slightly cooler (a passed/within-spec state). */
 	success: {
@@ -146,6 +158,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-700) 74%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** info: blue family, brighter (an open work-order note). */
 	info: {
@@ -156,6 +170,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 80%, var(--mo-neutral-2))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 };
 
@@ -177,6 +193,8 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-3) 82%, var(--mo-steel-700))",
 		disabled: "transparent",
+		ink: "var(--mo-steel-400)",
+		"ink-hover": "var(--mo-steel-300)",
 	},
 	/** Marginalia → annotation/aside register: a steel-toned aside. */
 	marginalia: {
@@ -187,6 +205,8 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 72%, var(--mo-steel-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-10)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
 	 * Seal → the inspector's sign-off / quality-approval mark. The Foundry's
@@ -202,6 +222,8 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-steel-400)",
 		active: "color-mix(in srgb, var(--mo-steel-700) 70%, var(--mo-steel-300))",
 		disabled: "color-mix(in srgb, var(--mo-steel-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-steel-300)",
+		"ink-hover": "var(--mo-steel-400)",
 	},
 };
 

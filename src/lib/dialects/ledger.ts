@@ -82,6 +82,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-500)",
 		active: "var(--mo-teal-600)",
 		disabled: "color-mix(in srgb, var(--mo-teal-500) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-teal-300)",
+		"ink-hover": "var(--mo-teal-400)",
 	},
 	/** neutral: cooler chrome than the warm Archive neutral. */
 	neutral: {
@@ -92,6 +94,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-500)",
 		active: "var(--mo-neutral-5)",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 50%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** provenance: citation-blue, forward (the lineage of a posting). */
 	provenance: {
@@ -102,6 +106,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 78%, var(--mo-blue-400))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 	/**
 	 * evidence: the record register — near-neutral but cooled toward the teal
@@ -116,6 +122,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-5) 86%, var(--mo-teal-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** accession: the catalog accent echoes the teal beacon (a ledger account tag). */
 	accession: {
@@ -126,6 +134,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-500)",
 		active: "color-mix(in srgb, var(--mo-teal-700) 62%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-teal-700) 18%, var(--mo-neutral-3))",
+		ink: "var(--mo-teal-300)",
+		"ink-hover": "var(--mo-teal-400)",
 	},
 	/** caution: a louder ledger red — a variance/exception flag. */
 	caution: {
@@ -136,6 +146,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-500)",
 		active: "color-mix(in srgb, var(--mo-red-700) 74%, var(--mo-red-400))",
 		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** success: keep green, slightly cooler (a reconciled/affirmed state). */
 	success: {
@@ -146,6 +158,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-700) 74%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** info: blue family, brighter (an open line-item note). */
 	info: {
@@ -156,6 +170,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 80%, var(--mo-neutral-2))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 };
 
@@ -177,6 +193,8 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-3) 82%, var(--mo-teal-700))",
 		disabled: "transparent",
+		ink: "var(--mo-teal-400)",
+		"ink-hover": "var(--mo-teal-300)",
 	},
 	/** Marginalia → annotation/footnote register: a teal-toned aside. */
 	marginalia: {
@@ -187,6 +205,8 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 72%, var(--mo-teal-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-10)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
 	 * Seal → the controller's sign-off / authority mark. The Ledger's authority mark
@@ -201,6 +221,8 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-teal-400)",
 		active: "color-mix(in srgb, var(--mo-teal-700) 70%, var(--mo-teal-300))",
 		disabled: "color-mix(in srgb, var(--mo-teal-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-teal-300)",
+		"ink-hover": "var(--mo-teal-400)",
 	},
 };
 

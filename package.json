@@ -81,6 +81,7 @@
 		"sync:all": "svelte-kit sync && cd viewer && svelte-kit sync",
 		"test": "bun run sync:all && vitest run && vitest run --config vitest.dom.config.ts",
 		"test:edge-e2e": "playwright test e2e/edge-surface-contract.e2e.ts",
+		"test:contrast": "playwright test --config playwright.contrast.config.ts",
 		"test:edge-e2e:install": "playwright install chromium firefox",
 		"test:watch": "vitest",
 		"lint": "biome check .",

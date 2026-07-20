@@ -95,6 +95,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-500)",
 		active: "var(--mo-cobalt-600)",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-500) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Quiet constellation chrome — the neutral steps cooled into the navy. */
 	neutral: {
@@ -105,6 +107,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 84%, var(--mo-cobalt-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 46%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** Provenance — the wire of the constellation: deep lattice navy, full depth. */
 	provenance: {
@@ -115,6 +119,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 78%, var(--mo-cobalt-500))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Evidence — the record register; near-neutral, cooled to sit in the ground. */
 	evidence: {
@@ -125,6 +131,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-5) 86%, var(--mo-cobalt-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
 	 * Accession — the catalog accent echoes the lattice dimly (a half-lit node
@@ -139,6 +147,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-500)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 66%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 18%, var(--mo-neutral-3))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 	/** Caution — red survives the monochrome: functional color is never a mood. */
 	caution: {
@@ -149,6 +159,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-400)",
 		active: "color-mix(in srgb, var(--mo-red-700) 76%, var(--mo-red-400))",
 		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** Success — likewise: green stays green, quiet in the constellation dark. */
 	success: {
@@ -159,6 +171,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-700) 76%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** Info — a brighter panel of the same lattice, lifted out of provenance. */
 	info: {
@@ -169,6 +183,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 86%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 36%, var(--mo-neutral-3))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 };
 
@@ -190,6 +206,8 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-3) 82%, var(--mo-cobalt-700))",
 		disabled: "transparent",
+		ink: "var(--mo-cobalt-400)",
+		"ink-hover": "var(--mo-cobalt-300)",
 	},
 	/** Marginalia → annotation/aside register: a half-lit aside in the ground. */
 	marginalia: {
@@ -200,6 +218,8 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 74%, var(--mo-cobalt-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-9)",
+		"ink-hover": "var(--mo-neutral-11)",
 	},
 	/**
 	 * Seal → the Aition mark. B7 is explicit: the Philosopher-King "seals the
@@ -215,6 +235,8 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-cobalt-400)",
 		active: "color-mix(in srgb, var(--mo-cobalt-700) 56%, var(--mo-cobalt-500))",
 		disabled: "color-mix(in srgb, var(--mo-cobalt-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-cobalt-300)",
+		"ink-hover": "var(--mo-cobalt-400)",
 	},
 };
 

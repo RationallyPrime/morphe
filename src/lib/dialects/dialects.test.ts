@@ -47,7 +47,10 @@ import type { Dialect } from "./types.js";
 
 /** Shared register-extension names every shipped dialect re-reads (FP3). */
 const REGISTER_EXTENSIONS = REGISTER_INTENTS;
-const CHANNELS = ["surface", "on", "hover", "border", "ring"] as const;
+// The FILLED-pair channels plus the KRA-796 UNFILLED-ink channels (`ink` /
+// `ink-hover`): every shipped dialect must cover all of them for every intent, so
+// a freestanding Text/Number/Icon/Link always resolves a contrast-guaranteed ink.
+const CHANNELS = ["surface", "on", "hover", "border", "ring", "ink", "ink-hover"] as const;
 
 /**
  * EVERY shipped dialect, driven off the registry (not a literal list), so a new

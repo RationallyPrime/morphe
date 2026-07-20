@@ -479,12 +479,30 @@ def _table_row(row: SurfaceNode, column_count: int) -> list[Node]:
     cells = [_table_cell(cell) for cell in row.children] if row.children else [_table_cell(row)]
     cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
     grid: Node = {"kind": "grid", "role": "inline", "children": cells}
-    # Row-level diagnostics stay visible (D8) as SIBLINGS of the row grid, never a
-    # wrapper: only a direct-child grid adopts the table's subgrid tracks, so a
-    # wrapped row lands in the first track and stacks its cells vertically. The
-    # renderer spans a direct-child alert across the full row instead.
-    alerts = [] if row.strategy == "diagnostic-node" else [_alert(d) for d in row.diagnostics]
-    return [grid, *alerts]
+    # Both row- and cell-level diagnostics stay visible (D8) as SIBLINGS of the row
+    # grid, never wrappers: only a direct-child grid adopts the table's subgrid
+    # tracks, so a wrapped row/cell lands in the first track and stacks vertically.
+    # A cell diagnostic wrapped INSIDE its cell also inherits InlineAlert's inline
+    # min-size floor and paints over dense neighbours (KRA-796). Lifting it to the
+    # row lane lets the Grid rule span it 1/-1 across the full row instead. Row
+    # diagnostics come first, then leaf cell diagnostics in cell order.
+    if row.strategy == "diagnostic-node":
+        return [grid]
+    row_alerts = [_alert(d) for d in row.diagnostics]
+    cell_alerts = _lifted_cell_alerts(row.children) if row.children else []
+    return [grid, *row_alerts, *cell_alerts]
+
+
+def _lifted_cell_alerts(cells: tuple[SurfaceNode, ...]) -> list[Node]:
+    # Container cells self-head and render their own diagnostics; a diagnostic-node
+    # cell already IS its alert. Only leaf cells' diagnostics lift to the row lane,
+    # each carrying its field label so the copy stays anchored once it leaves the cell.
+    alerts: list[Node] = []
+    for cell in cells:
+        if cell.strategy in _CONTAINER or cell.strategy == "diagnostic-node":
+            continue
+        alerts.extend(_labeled_alert(cell.label, d) for d in cell.diagnostics)
+    return alerts
 
 
 def _table_cell(spec: SurfaceNode) -> Node:
@@ -494,14 +512,12 @@ def _table_cell(spec: SurfaceNode) -> Node:
     # Empty Text is deliberately display:none in the renderer. Inside a grid
     # that removes the item box and shifts every following cell one track left.
     # Spacer is the grammar's data-free, aria-hidden structural placeholder.
-    inner = (
+    #
+    # Leaf cells render just their inner content — cell diagnostics are lifted to
+    # the row diagnostics lane by ``_table_row`` (KRA-796), never wrapped here.
+    return (
         _empty_cell() if lowered.get("kind") == "text" and lowered.get("value") == "" else lowered
     )
-    # Cell-level diagnostics stay visible (D8); a diagnostic-node cell already IS its alert.
-    alerts = [] if spec.strategy == "diagnostic-node" else [_alert(d) for d in spec.diagnostics]
-    if not alerts:
-        return inner
-    return {"kind": "stack", "role": "field-group", "children": [inner, *alerts]}
 
 
 def _empty_cell() -> Node:
@@ -607,6 +623,18 @@ def _alert(diag: Diagnostic) -> Node:
         "kind": "inline-alert",
         "tone": _tone(diag.severity),
         "title": diag.code,
+        "detail": diag.message,
+    }
+
+
+def _labeled_alert(label: str, diag: Diagnostic) -> Node:
+    # A cell diagnostic lifted out of its cell loses its spatial tie to the field,
+    # so the title names the field it refers to: "<Field label>: <code>" (KRA-796).
+    title = f"{label}: {diag.code}" if label else diag.code
+    return {
+        "kind": "inline-alert",
+        "tone": _tone(diag.severity),
+        "title": title,
         "detail": diag.message,
     }
 
