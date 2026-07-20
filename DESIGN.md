@@ -116,8 +116,10 @@ The invariant is that every dialect:
 - leaves the authored tree untouched.
 
 The shipped dialects provide distinct intent maps, surface stacks, and priors. Their compound
-policies are explicit and generated from the Python catalog: `clinical` permits the promoted
-`SignalCard`, while the other eight remain unrestricted for compatibility. Every dialect ships a
+policies are explicit and generated from the Python catalog: `clinical` allowlists the full
+promoted package catalog (promoted-only — the restriction excludes unreviewed consumer
+compounds, never the reviewed package vocabulary; ratified KRA-788), while the other eight
+remain unrestricted for compatibility. Every dialect ships a
 versioned `G|D` decoder mask. Appearance still comes only from intents and bounded priors; a
 compound policy narrows structural vocabulary and never licenses geometry or consumer data.
 
