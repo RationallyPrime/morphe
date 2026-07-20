@@ -116,6 +116,34 @@ export interface Spacer {
 	readonly size?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
+export interface TableColumn {
+	readonly header: string;
+	readonly numeric?: boolean;
+	readonly priority?: "primary" | "secondary" | "detail";
+	readonly intent?: IntentRef;
+}
+
+export interface TableCell {
+	readonly children: readonly Node[];
+}
+
+export interface TableRow {
+	readonly cells: readonly TableCell[];
+	readonly diagnostics?: readonly Node[];
+}
+
+export interface Table {
+	readonly kind: "table";
+	readonly caption: string;
+	readonly captionHidden?: boolean;
+	readonly columns: readonly TableColumn[];
+	readonly rows: readonly TableRow[];
+	readonly rowHeader?: boolean;
+	readonly responsive?: "scroll" | "collapse" | "records";
+	readonly sticky?: boolean;
+	readonly emphasis?: EmphasisClaim;
+}
+
 export interface Text {
 	readonly kind: "text";
 	readonly value: string;
@@ -157,6 +185,20 @@ export interface Icon {
 	readonly name: string;
 	readonly a11y: IconA11y;
 	readonly intent?: IntentRef;
+}
+
+export interface TrendPoint {
+	readonly period: string;
+	readonly value: NumberValue;
+}
+
+export interface Trend {
+	readonly kind: "trend";
+	readonly points: readonly TrendPoint[];
+	readonly summary: string;
+	readonly baseline?: "zero" | "min";
+	readonly intent?: IntentRef;
+	readonly emphasis?: EmphasisClaim;
 }
 
 export interface MediaSource {
@@ -242,6 +284,7 @@ export interface InlineAlert {
 	readonly tone: "success" | "caution" | "info";
 	readonly title: string;
 	readonly detail?: string;
+	readonly repair?: string;
 	readonly live?: "polite" | "assertive";
 }
 
@@ -368,9 +411,9 @@ export type IconA11y = DecorativeIconA11y | ImageIconA11y;
 
 export type ControlLabel = AriaControlLabel | LabelledByControlLabel;
 
-export type LayoutNode = Stack | Grid | Cluster | Frame | Spacer;
+export type LayoutNode = Stack | Grid | Cluster | Frame | Spacer | Table;
 
-export type ContentNode = Text | NumberNode | Badge | Icon | Media;
+export type ContentNode = Text | NumberNode | Badge | Icon | Trend | Media;
 
 export type InputNode = Field | Select | Toggle | Range;
 
@@ -388,10 +431,12 @@ export type Node =
 	| Cluster
 	| Frame
 	| Spacer
+	| Table
 	| Text
 	| NumberNode
 	| Badge
 	| Icon
+	| Trend
 	| Media
 	| Field
 	| Select

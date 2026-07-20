@@ -46,7 +46,7 @@ class CompoundDefinition(GrammarModel):
 SIGNAL_CARD = CompoundDefinition.model_validate(
     {
         "name": "SignalCard",
-        "version": "1.1.0",
+        "version": "2.0.0",
         "grammar_version": GRAMMAR_VERSION,
         "lifecycle": "promoted",
         "params": {
@@ -62,58 +62,45 @@ SIGNAL_CARD = CompoundDefinition.model_validate(
                     "required": True,
                     "description": "Card title as an authored node.",
                 },
+                # 2.0.0: no default. An omitted measure falls to the factory's
+                # empty-text node, which renders display:none — a card without a
+                # measure asserts NOTHING, never a factual zero (KRA-788 repair a).
                 "measure": {
                     "type": "node",
-                    "default": {
-                        "kind": "number",
-                        "value": 0,
-                        "format": "integer",
-                        "intent": "neutral",
-                    },
                     "description": "A numeric or textual measure node.",
                 },
             },
         },
+        # 2.0.0: the raised Frame is gone — framing is COMPOSITION, not signal
+        # identity (KRA-788 repair c). A call site that genuinely needs a card
+        # wraps the compound in a Frame at the authored-tree level; a metric band
+        # composes cards into one calm region instead of a wall of raised boxes.
         "template": {
-            "kind": "frame",
+            "kind": "stack",
             "role": "panel",
-            "surface": "raised",
             "children": [
                 {
-                    "kind": "stack",
-                    "role": "panel",
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "center",
                     "children": [
-                        {
-                            "kind": "cluster",
-                            "role": "toolbar",
-                            "justify": "between",
-                            "align": "center",
-                            "children": [
-                                {"kind": "param-ref", "param": "kicker"},
-                                # 1.1.0: the corner signal is a SLOT (a Status/Badge the
-                                # call site owns), not a hardcoded "Ready" — a KPI card
-                                # must not certify readiness it knows nothing about. The
-                                # factory can't parameterise Status.signal.text (string
-                                # fields never interpolate), so a slot is the only
-                                # grammar-lawful variability here.
-                                {"kind": "slot", "name": "signal", "fallback": []},
-                            ],
-                        },
-                        {"kind": "param-ref", "param": "title"},
-                        {"kind": "param-ref", "param": "measure"},
-                        {
-                            "kind": "slot",
-                            "name": "body",
-                            "fallback": [
-                                {
-                                    "kind": "text",
-                                    "value": "No body supplied.",
-                                    "as": "caption",
-                                }
-                            ],
-                        },
+                        {"kind": "param-ref", "param": "kicker"},
+                        # The corner signal is a SLOT (a Status/Badge the call
+                        # site owns), not a hardcoded "Ready" — a KPI card must
+                        # not certify readiness it knows nothing about. The
+                        # factory can't parameterise Status.signal.text (string
+                        # fields never interpolate), so a slot is the only
+                        # grammar-lawful variability here.
+                        {"kind": "slot", "name": "signal", "fallback": []},
                     ],
-                }
+                },
+                {"kind": "param-ref", "param": "title"},
+                {"kind": "param-ref", "param": "measure"},
+                # 2.0.0: an unfilled body renders nothing. The old visible
+                # "No body supplied." fallback was compiler copy leaking into
+                # the product (KRA-788 repair b).
+                {"kind": "slot", "name": "body", "fallback": []},
             ],
         },
     }
@@ -122,7 +109,7 @@ SIGNAL_CARD = CompoundDefinition.model_validate(
 ENTITY_HEADER = CompoundDefinition.model_validate(
     {
         "name": "EntityHeader",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "grammar_version": GRAMMAR_VERSION,
         "lifecycle": "promoted",
         "params": {
@@ -138,16 +125,11 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
                     "required": True,
                     "description": "The entity's name at display/heading register.",
                 },
+                # 1.1.0: no default. An omitted keyFigure falls to the factory's
+                # empty-text node (display:none) — a header without a figure
+                # asserts nothing, never a factual zero (KRA-788 repair a).
                 "keyFigure": {
                     "type": "node",
-                    # The one number the entity leads with. Mirrors SignalCard's `measure`:
-                    # a neutral integer default lets the call site omit it entirely.
-                    "default": {
-                        "kind": "number",
-                        "value": 0,
-                        "format": "integer",
-                        "intent": "neutral",
-                    },
                     "description": "The one number this entity leads with.",
                 },
             },
@@ -258,7 +240,7 @@ BREAKDOWN = CompoundDefinition.model_validate(
 TRAIL_ENTRY = CompoundDefinition.model_validate(
     {
         "name": "TrailEntry",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "grammar_version": GRAMMAR_VERSION,
         "lifecycle": "promoted",
         "params": {
@@ -289,8 +271,16 @@ TRAIL_ENTRY = CompoundDefinition.model_validate(
                     "children": [
                         {"kind": "param-ref", "param": "stamp"},
                         {"kind": "param-ref", "param": "summary"},
+                        # 1.1.0: state chips (Status/Badge) ride the event line —
+                        # the arm that gave every event field a home (KRA-788 D3:
+                        # zygos rejected `trail` because valid fields classified
+                        # into no arm and disappeared).
+                        {"kind": "slot", "name": "signals", "fallback": []},
                     ],
                 },
+                # 1.1.0: everything the event carries beyond its line — amounts,
+                # facts, secondary values — at body register, never dropped.
+                {"kind": "slot", "name": "detail", "fallback": []},
                 # Relations the entry points to (linked-ref children the call site owns).
                 {"kind": "slot", "name": "ref", "fallback": []},
                 # Identifiers / provenance footer — the one place an id exists.

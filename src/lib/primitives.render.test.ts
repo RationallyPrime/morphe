@@ -1196,3 +1196,113 @@ describe("ledger affordances — Text.polarity / Grid.ruled / Stack.indent", () 
 		expect(zero).not.toContain("--mo-stack-indent");
 	});
 });
+
+/* ===========================================================================
+ * KRA-788 — the series Content kind (ADR-0019) and the data-table capability
+ * (ADR-0020), end to end through grammar -> registry -> component SSR.
+ * ========================================================================= */
+
+describe("Trend (ADR-0019) — the paired words are the primary channel", () => {
+	const points = [
+		{ period: "2026-05", value: 4 },
+		{ period: "2026-06", value: 7 },
+		{ period: "2026-07", value: 6 },
+	];
+
+	it("renders an aria-hidden figure beside the REQUIRED visible summary", () => {
+		const html = ssr({
+			kind: "trend",
+			points,
+			summary: "Rose to 7 in June, easing to 6 in July.",
+		});
+		expect(html).toContain("Rose to 7 in June, easing to 6 in July.");
+		expect(html).toContain('aria-hidden="true"');
+		expect(html).toContain("<svg");
+		expect(html).toContain("<path");
+	});
+
+	it("stays total over a degenerate series — summary only, no invented copy", () => {
+		const html = ssr({ kind: "trend", points: [], summary: "No samples in this window." });
+		expect(html).toContain("No samples in this window.");
+		expect(html).not.toContain("<svg");
+	});
+
+	it("marks the latest value with a terminal dot and never fills the shape", () => {
+		const html = ssr({ kind: "trend", points, summary: "Series." });
+		expect(html).toContain("mo-trend__dot");
+		expect(html).toContain('fill="none"');
+	});
+});
+
+describe("Table (ADR-0020) — genuine table semantics, declared responsive policy", () => {
+	const table: Node = {
+		kind: "table",
+		caption: "Open obligations",
+		columns: [
+			{ header: "Obligation" },
+			{ header: "Amount", numeric: true, priority: "primary" },
+			{ header: "Due", priority: "detail" },
+		],
+		rows: [
+			{
+				cells: [
+					{ children: [{ kind: "text", value: "VSK return" }] },
+					{ children: [{ kind: "number", value: 125000, format: "integer" }] },
+					{ children: [{ kind: "text", value: "2026-08-05", as: "caption" }] },
+				],
+				diagnostics: [{ kind: "inline-alert", tone: "caution", title: "OVERDUE" }],
+			},
+		],
+		rowHeader: true,
+		responsive: "records",
+		sticky: true,
+	};
+
+	it("renders a real <table> with caption, column heads, and a row header", () => {
+		const html = ssr(table);
+		expect(html).toContain("<table");
+		expect(html).toContain("Open obligations");
+		expect(html).toContain('scope="col"');
+		expect(html).toContain('scope="row"');
+		expect(html).toContain("VSK return");
+	});
+
+	it("stamps numeric alignment and per-cell header labels structurally", () => {
+		const html = ssr(table);
+		expect(html).toContain("data-numeric");
+		expect(html).toContain('data-header="Amount"');
+		expect(html).toContain('data-priority="detail"');
+	});
+
+	it("renders row diagnostics as a full-width lane after the row, never inside a cell", () => {
+		const html = ssr(table);
+		expect(html).toContain("mo-table__lane");
+		expect(html).toContain('colspan="3"');
+		expect(html).toContain("OVERDUE");
+	});
+
+	it("declares its responsive policy and sticky heads as data contracts", () => {
+		const html = ssr(table);
+		expect(html).toContain('data-responsive="records"');
+		expect(html).toContain("data-sticky");
+	});
+
+	it("scroll mode exposes a labelled, focusable region for keyboard operability", () => {
+		const scroller = ssr({ ...table, responsive: "scroll", sticky: undefined });
+		expect(scroller).toContain('role="region"');
+		expect(scroller).toContain('aria-label="Open obligations"');
+		expect(scroller).toContain('tabindex="0"');
+	});
+
+	it("captionHidden keeps the accessible name while visually deferring", () => {
+		const html = ssr({ ...table, captionHidden: true });
+		expect(html).toContain("Open obligations");
+		expect(html).toMatch(/mo-table__caption[^>]*data-hidden/);
+	});
+
+	it("cells render arbitrary grammar content through the ordinary node path", () => {
+		const html = ssr(table);
+		// The number cell rendered through the Number primitive, not a string dump.
+		expect(html).toContain("125");
+	});
+});

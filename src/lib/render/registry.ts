@@ -27,6 +27,7 @@ import Media from "../primitives/content/Media.svelte";
 import NumberView from "../primitives/content/Number.svelte";
 // Content
 import Text from "../primitives/content/Text.svelte";
+import Trend from "../primitives/content/Trend.svelte";
 import InlineAlert from "../primitives/feedback/InlineAlert.svelte";
 // Feedback
 import Progress from "../primitives/feedback/Progress.svelte";
@@ -42,6 +43,7 @@ import Grid from "../primitives/layout/Grid.svelte";
 import Spacer from "../primitives/layout/Spacer.svelte";
 // Layout
 import Stack from "../primitives/layout/Stack.svelte";
+import Table from "../primitives/layout/Table.svelte";
 // Overlay (native <dialog> / Popover API / <details>)
 import Dialog from "../primitives/overlay/Dialog.svelte";
 import Disclosure from "../primitives/overlay/Disclosure.svelte";
@@ -81,10 +83,12 @@ function primitivesMap(): PrimitiveMap {
 		cluster: Cluster,
 		frame: Frame,
 		spacer: Spacer,
+		table: Table,
 		text: Text,
 		number: NumberView,
 		badge: Badge,
 		icon: Icon,
+		trend: Trend,
 		media: Media,
 		field: Field,
 		select: Select,

@@ -22,6 +22,7 @@ from morphe_grammar.catalog import (
 from morphe_grammar.dialects import (
     DIALECT_CONSTRAINTS,
     DIALECT_IDS,
+    DialectNodeValidationError,
     constraints_typescript_document,
     dialect_constraint,
     validate_node_for_dialect,
@@ -69,9 +70,22 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
     validate_node(SIGNAL_CARD.template)
 
     payload = SIGNAL_CARD.template.model_dump(mode="json", by_alias=True, exclude_none=True)
-    assert payload["kind"] == "frame"
+    # 2.0.0 (KRA-788 repair c): framing is composition, not signal identity —
+    # the template root is a plain panel stack, never a raised Frame.
+    assert payload["kind"] == "stack"
     assert payload["role"] == "panel"
+    assert "surface" not in payload
     assert "persona" not in payload
+    # 2.0.0 (KRA-788 repairs a+b): an omitted measure asserts nothing (no
+    # factual-zero default), and an unfilled body renders nothing (no visible
+    # compiler copy).
+    assert SIGNAL_CARD.params.properties["measure"].default is None
+    body_slots = [
+        child
+        for child in payload["children"]
+        if isinstance(child, dict) and child.get("kind") == "slot" and child.get("name") == "body"
+    ]
+    assert body_slots == [{"kind": "slot", "name": "body", "fallback": []}]
 
 
 def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted() -> None:
@@ -279,7 +293,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert set(_object(trail_args["properties"])) == {"stamp", "summary"}
     assert trail_args["required"] == ["summary"]
     trail_slots = _object(trail_properties["slots"])
-    assert set(_object(trail_slots["properties"])) == {"ref", "provenance"}
+    assert set(_object(trail_slots["properties"])) == {"signals", "detail", "ref", "provenance"}
 
     # KeyValuePanel is pure tiering: no params, three field-row slots.
     key_value = _object(definitions["CompoundRef_KeyValuePanel"])
@@ -429,3 +443,29 @@ def test_committed_dialect_artifacts_are_byte_stable() -> None:
             package_dialect_mask_path(dialect_id),
         ):
             assert Path(relative_path).read_text(encoding="utf-8") == documents[relative_path]
+
+
+def test_dialect_compound_walk_reaches_table_cells_and_diagnostics() -> None:
+    # ADR-0020 §3: the dialect compound walk recurses into rows[].cells[].children
+    # and rows[].diagnostics, so an out-of-dialect compound cannot hide in a cell.
+    def table_with(cell_child: dict[str, object]) -> dict[str, object]:
+        return {
+            "kind": "table",
+            "caption": "Ledger",
+            "columns": [{"header": "Entry"}],
+            "rows": [{"cells": [{"children": [cell_child]}]}],
+        }
+
+    inside_allowlist = table_with(
+        {
+            "kind": "compound",
+            "name": "KeyValuePanel",
+            "args": {},
+        }
+    )
+    validate_node_for_dialect(inside_allowlist, "clinical")
+
+    outside_allowlist = table_with({"kind": "compound", "name": "ConsumerOnly", "args": {}})
+    with pytest.raises(DialectNodeValidationError) as excinfo:
+        validate_node_for_dialect(outside_allowlist, "clinical")
+    assert "rows[0].cells[0].children[0]" in excinfo.value.path

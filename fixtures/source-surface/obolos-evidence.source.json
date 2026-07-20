@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "6sP-xdLG_Dbahk7FPCqtlAxlYx6AHfkWYKPfK3dB6J3WgQGiO_I2CWOPpA1Tolyy4IpL-2yepcMbgw86jQMQCg"
+    "signature": "MjMuiSJr5rF9W3AQmaeDVbpQyi-k3iG2cXfs1iWvLlFNZL4r76gTgNt6OjLcwZ4fwWAzkrn5XumBGz7-1mOsDw"
   },
   "data": {
     "adjustment": null,
@@ -46,6 +46,8 @@
         "intent": "evidence",
         "kicker": "Gross",
         "label": "ISK exposure",
+        "signal": null,
+        "signal_intent": null,
         "temporal": null,
         "value": 1280000
       },
@@ -55,6 +57,8 @@
         "intent": "caution",
         "kicker": "Cross-border",
         "label": "EUR exceptions",
+        "signal": null,
+        "signal_intent": null,
         "temporal": null,
         "value": 735.5
       },
@@ -64,6 +68,8 @@
         "intent": null,
         "kicker": "Route",
         "label": "Evidence rail",
+        "signal": null,
+        "signal_intent": null,
         "temporal": null,
         "value": "SEPA + domestic"
       }
@@ -169,6 +175,29 @@
             "title": "Label",
             "type": "string"
           },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal"
+          },
+          "signal_intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "temporal": {
             "anyOf": [
               {
@@ -209,7 +238,9 @@
             "format",
             "temporal",
             "currency",
-            "intent"
+            "intent",
+            "signal",
+            "signal_intent"
           ]
         }
       },
@@ -464,9 +495,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:6ba45b7f6fdce0746f12cb522f49118d6f8bd615bb818d4c0d85d81e371d870e",
-    "schema_sha256": "sha256:368c8c4049680985d9af461bebb506173d969753f0a425d88008c8bcce8f788e",
-    "testimony_sha256": "sha256:ef157c534370f8ebcadee6b443da7db005024180c3920d7f4c89a8a7ad0d44a5"
+    "content_sha256": "sha256:a71409c86121aeb0d310b2a32bff8d18d185f36a6412d9d1f2bc22f06ded9457",
+    "schema_sha256": "sha256:cadf9f3efd29547ba8522a162378058eeabafba0ef0e87d51390bdea08c3fc9b",
+    "testimony_sha256": "sha256:e21f148447262c7bb8070da50b557e969d7537630c6ff48392669f9699c00f84"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",

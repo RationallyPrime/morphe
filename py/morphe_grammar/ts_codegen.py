@@ -29,8 +29,8 @@ _ALIAS_NAMES = {
     "ParamValue",
 }
 
-_LAYOUT_NODES = ("Stack", "Grid", "Cluster", "Frame", "Spacer")
-_CONTENT_NODES = ("Text", "NumberNode", "Badge", "Icon", "Media")
+_LAYOUT_NODES = ("Stack", "Grid", "Cluster", "Frame", "Spacer", "Table")
+_CONTENT_NODES = ("Text", "NumberNode", "Badge", "Icon", "Trend", "Media")
 _INPUT_NODES = ("Field", "Select", "Toggle", "Range")
 _FEEDBACK_NODES = ("Progress", "Status", "InlineAlert")
 _ACTION_NODES = ("Button", "Link")

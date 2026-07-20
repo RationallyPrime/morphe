@@ -14,7 +14,8 @@ const FIGURES_SCHEMA: JsonSchema = {
 };
 const FIGURES_DATA = [
 	{ label: "Net", value: 7, kicker: "Q4" },
-	{ label: "Rail", value: "bank_batch", kicker: "Route" },
+	// The corner-signal lever (KRA-757 §3.2): signal text + tone ride the cell.
+	{ label: "Rail", value: "bank_batch", kicker: "Route", signal: "Queued", signal_intent: "info" },
 ];
 
 // The SAME expected tree the Python twin asserts verbatim
@@ -37,7 +38,7 @@ const EXPECTED_BAND: Node = {
 							title: { kind: "text", value: "Net", as: "subheading" },
 							measure: { kind: "number", value: 7, emphasis: "strong" },
 						},
-						slots: { body: [] },
+						slots: { signal: [], body: [] },
 					},
 					{
 						kind: "compound",
@@ -47,7 +48,10 @@ const EXPECTED_BAND: Node = {
 							title: { kind: "text", value: "Rail", as: "subheading" },
 							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
 						},
-						slots: { body: [] },
+						slots: {
+							signal: [{ kind: "status", tone: "info", signal: { text: "Queued" } }],
+							body: [],
+						},
 					},
 				],
 			},
@@ -89,7 +93,8 @@ describe("StatBand factory gate", () => {
 		expect(expanded.kind).toBe("grid");
 		if (expanded.kind !== "grid") throw new Error("expected a grid");
 		expect(expanded.children).toHaveLength(2);
-		expect(expanded.children.every((child) => child.kind === "frame")).toBe(true);
+		// SignalCard 2.0.0: framing is composition, not signal identity — tiles are panel stacks.
+		expect(expanded.children.every((child) => child.kind === "stack")).toBe(true);
 		expect(json).toContain("bank_batch");
 	});
 

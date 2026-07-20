@@ -100,6 +100,7 @@
               {
                 "detail": "Reserve is below the target proportion.",
                 "kind": "inline-alert",
+                "repair": "Rebalance before the next settlement run.",
                 "title": "BUDGET_RESERVE_LOW",
                 "tone": "caution"
               }

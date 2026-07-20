@@ -333,9 +333,10 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
     presentation = _cell_presentation(cell)
     number = _coerce_number(cell.get("value"))
     number_format, currency = _currency_presentation(presentation.format, presentation.currency)
+    label = _string_or_none(cell.get("label")) or ctx.label
     return SurfaceNode(
         path=ctx.path,
-        label=_string_or_none(cell.get("label")) or ctx.label,
+        label=label,
         strategy="number" if number is not None else "scalar",
         value=number if number is not None else _as_scalar(cell.get("value")),
         intent=presentation.role,
@@ -343,7 +344,31 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
         temporal=presentation.temporal if number is None else None,
         currency=currency,
         kicker=_string_or_none(cell.get("kicker")),
+        children=_kpi_signal(cell, label, ctx),
         diagnostics=source_diagnostics,
+    )
+
+
+def _kpi_signal(cell: dict[str, Any], label: str, ctx: _Ctx) -> tuple[SurfaceNode, ...]:
+    # The corner-signal lever (KRA-757 §3.2): `signal` text plus an optional
+    # `signal_intent` tone lower to one status child the emitter routes into the
+    # SignalCard's `signal` slot. A malformed intent keeps the text and loses
+    # only the tone (totality, D8); absent/blank signal means no child at all.
+    signal = _string_or_none(cell.get("signal"))
+    if signal is None:
+        return ()
+    try:
+        tone = MorpheHint.model_validate({"role": cell.get("signal_intent")}).role
+    except ValidationError:
+        tone = None
+    return (
+        SurfaceNode(
+            path=f"{ctx.path}.signal",
+            label=label,
+            strategy="status",
+            value=signal,
+            intent=tone,
+        ),
     )
 
 

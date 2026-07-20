@@ -24,8 +24,8 @@ def _artifact(**overrides: object) -> CompiledSurface:
             "children": [{"kind": "text", "value": "Trusted", "as": "heading"}],
         },
         "grammar_version": GRAMMAR_VERSION,
-        "producer_version": "0.2.0",
-        "compiler_version": "0.2.0",
+        "producer_version": "0.3.0",
+        "compiler_version": "0.3.0",
         "diagnostics": [],
         "produced_at": "2026-07-13T00:00:00Z",
     }

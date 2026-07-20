@@ -73,7 +73,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   },
                   {
@@ -99,7 +100,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   },
                   {
@@ -125,7 +127,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   }
                 ]
@@ -276,6 +279,7 @@
                 {
                   "detail": "The second worker needs roster review.",
                   "kind": "inline-alert",
+                  "repair": "Confirm the allocation before dispatch.",
                   "title": "TAXIS_ROW_REVIEW",
                   "tone": "caution"
                 }

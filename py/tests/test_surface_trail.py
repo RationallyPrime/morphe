@@ -4,8 +4,10 @@ Like the other 0.5.0 additions, `trail` is hint-selected ONLY — structural inf
 never picks it, so the hint-free floor stays byte-identical. Each array item lowers to
 one promoted TrailEntry compound; child classification is deterministic and HINT-KEYED
 only (never name-based): temporal -> stamp; the primary string scalar -> summary;
-linked-ref -> ref slot; role:provenance -> provenance footer. The SAME expected tree is
-asserted verbatim by the TypeScript twin (src/lib/surface-edge/trail.test.ts).
+linked-ref -> ref slot; status/badge -> signals; role:provenance -> provenance footer;
+everything else -> detail (KRA-788 D3: every valid event field has exactly one home —
+zygos rejected `trail` precisely because leftovers were dropped). The SAME expected
+tree is asserted verbatim by the TypeScript twin (src/lib/surface-edge/trail.test.ts).
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ TRAIL_SCHEMA: dict[str, Any] = {
     "x-morphe": {"strategy": "trail", "heading": False},
     "items": {
         "type": "object",
-        "x-morphe": {"order": ["when", "what", "link", "ref"]},
+        "x-morphe": {"order": ["when", "what", "state", "amount", "link", "ref"]},
         "properties": {
             "when": {
                 "type": "string",
@@ -38,6 +40,8 @@ TRAIL_SCHEMA: dict[str, Any] = {
                 "x-morphe": {"temporal": "date-time-minute"},
             },
             "what": {"type": "string", "title": "What"},
+            "state": {"type": "string", "title": "State", "x-morphe": {"strategy": "status"}},
+            "amount": {"type": "number", "title": "Amount"},
             "link": {"type": "object", "title": "Link", "x-morphe": {"strategy": "linked-ref"}},
             "ref": {"type": "string", "title": "Ref", "x-morphe": {"role": "provenance"}},
         },
@@ -47,6 +51,8 @@ TRAIL_DATA: list[dict[str, object]] = [
     {
         "when": "2026-07-17T09:14:00Z",
         "what": "Admitted",
+        "state": "posted",
+        "amount": 1250,
         "link": {"label": "Open", "href": "/a/1"},
         "ref": "evt-001",
     },
@@ -69,6 +75,30 @@ EXPECTED_TRAIL: dict[str, Any] = {
                 },
             },
             "slots": {
+                # KRA-788 D3: state chips ride the event line; leftover fields keep
+                # their caption (the label IS the subject) in the detail slot.
+                "signals": [{"kind": "status", "tone": "neutral", "signal": {"text": "posted"}}],
+                "detail": [
+                    {
+                        "kind": "stack",
+                        "role": "field-group",
+                        "children": [
+                            {
+                                "kind": "text",
+                                "value": "Amount",
+                                "as": "caption",
+                                "intent": "neutral",
+                            },
+                            {
+                                "kind": "text",
+                                "value": "1250.0",
+                                "as": "body",
+                                "numeric": True,
+                                "polarity": "positive",
+                            },
+                        ],
+                    }
+                ],
                 "ref": [{"kind": "link", "href": "/a/1", "label": "Open"}],
                 "provenance": [
                     {"kind": "text", "value": "evt-001", "as": "body", "intent": "provenance"}

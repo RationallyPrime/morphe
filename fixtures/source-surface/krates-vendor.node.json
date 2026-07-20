@@ -35,6 +35,7 @@
               {
                 "detail": "This vendor is under standing review.",
                 "kind": "inline-alert",
+                "repair": "Confirm the exposure before the next settlement run.",
                 "title": "VENDOR_STANDING_REVIEW",
                 "tone": "caution"
               },

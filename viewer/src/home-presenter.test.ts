@@ -49,7 +49,7 @@ const dead: HomePanelView = { kind: "dead", sourceId: "krates", title: "Budget" 
 
 describe("homeTree composition", () => {
 	it("roots a single page frame and grafts every configured panel", () => {
-		const tree = homeTree({ title: "Home", grammarVersion: "0.2.0", panels: [live, stale, dead] });
+		const tree = homeTree({ title: "Home", grammarVersion: "0.3.0", panels: [live, stale, dead] });
 		expect(tree.kind).toBe("frame");
 		const html = ssr(tree);
 		// All three panels' ledes render.
@@ -59,7 +59,7 @@ describe("homeTree composition", () => {
 	});
 
 	it("achieves digest density via the substrate: density retier + collapse withhold per graft", () => {
-		const tree = homeTree({ title: "Home", grammarVersion: "0.2.0", panels: [live, stale] });
+		const tree = homeTree({ title: "Home", grammarVersion: "0.3.0", panels: [live, stale] });
 		// One density Within and one collapse Within per grafted panel — never a CSS hack.
 		expect(countWithin(tree, "density")).toBe(2);
 		expect(countWithin(tree, "collapse")).toBe(2);
@@ -77,20 +77,20 @@ describe("homeTree composition", () => {
 	});
 
 	it("stamps a stale panel and captions a resolved window, both at provenance", () => {
-		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.2.0", panels: [live, stale] }));
+		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.3.0", panels: [live, stale] }));
 		expect(html).toContain("resolved westfjords:2026-W29");
 		expect(html).toContain("as of 09:14 UTC");
 	});
 
 	it("degrades a dead panel to a quiet cell naming the source, never blank", () => {
-		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.2.0", panels: [dead] }));
+		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.3.0", panels: [dead] }));
 		expect(html).toContain("Source unavailable");
 		expect(html).toContain("Budget could not be reached");
 	});
 
 	it("echoes the requested as_of in the masthead and links the catalog from the footer", () => {
 		const html = ssr(
-			homeTree({ title: "Home", grammarVersion: "0.2.0", asOf: "2026-07-15", panels: [live] }),
+			homeTree({ title: "Home", grammarVersion: "0.3.0", asOf: "2026-07-15", panels: [live] }),
 		);
 		expect(html).toContain("as of 2026-07-15");
 		expect(html).toContain("/surfaces");
@@ -98,7 +98,7 @@ describe("homeTree composition", () => {
 	});
 
 	it("renders an empty-state alert when no source declares a home panel", () => {
-		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.2.0", panels: [] }));
+		const html = ssr(homeTree({ title: "Home", grammarVersion: "0.3.0", panels: [] }));
 		expect(html).toContain("No home panels configured");
 	});
 });

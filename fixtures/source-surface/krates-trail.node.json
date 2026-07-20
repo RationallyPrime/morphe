@@ -31,6 +31,7 @@
               "kind": "compound",
               "name": "TrailEntry",
               "slots": {
+                "detail": [],
                 "provenance": [
                   {
                     "detail": "Timestamp reflects the signed event log.",
@@ -52,7 +53,8 @@
                     "kind": "link",
                     "label": "Open admission"
                   }
-                ]
+                ],
+                "signals": []
               }
             },
             {
@@ -72,10 +74,12 @@
               "kind": "compound",
               "name": "TrailEntry",
               "slots": {
+                "detail": [],
                 "provenance": [
                   {
                     "detail": "The recompute event needs review.",
                     "kind": "inline-alert",
+                    "repair": "Confirm the exposure delta before settlement.",
                     "title": "TRAIL_EVENT_REVIEW",
                     "tone": "caution"
                   },
@@ -93,7 +97,8 @@
                     "kind": "link",
                     "label": "Open recompute"
                   }
-                ]
+                ],
+                "signals": []
               }
             }
           ],

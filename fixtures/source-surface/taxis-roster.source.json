@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "ryQ6ugQUpzUami-l4HSqygCC1MaOhtX1LjTyAt8bxmLImDrK2i7KRuttWY6tWbtLI8wIqqsP48WHAxlWGgclDQ"
+    "signature": "iu0evjbE6YMfc7jVW25Plx96izhj5JOd_K3Rx7ZRA2wrn-KRwBr_bBO_f7lQumsiM5TCt3-iTg3UxONMqZqABA"
   },
   "data": {
     "coverage": 0.75,
@@ -13,6 +13,8 @@
         "intent": "evidence",
         "kicker": "Window",
         "label": "Scheduled payroll",
+        "signal": null,
+        "signal_intent": null,
         "temporal": null,
         "value": 2450000
       },
@@ -22,6 +24,8 @@
         "intent": null,
         "kicker": "Operations",
         "label": "Dispatch mode",
+        "signal": null,
+        "signal_intent": null,
         "temporal": null,
         "value": "weather hold"
       },
@@ -31,6 +35,8 @@
         "intent": null,
         "kicker": "System time",
         "label": "Newest event",
+        "signal": null,
+        "signal_intent": null,
         "temporal": "date-time-minute",
         "value": "2026-07-17T11:59:14.582860Z"
       }
@@ -161,6 +167,29 @@
             "title": "Label",
             "type": "string"
           },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal"
+          },
+          "signal_intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "temporal": {
             "anyOf": [
               {
@@ -201,7 +230,9 @@
             "format",
             "temporal",
             "currency",
-            "intent"
+            "intent",
+            "signal",
+            "signal_intent"
           ]
         }
       },
@@ -402,9 +433,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:0c3e4f56d9b25ecd6e2e93bd2a9124b105e692d5561441b9da3aed7c6f452464",
-    "schema_sha256": "sha256:e12080456d3b31fdd2d75adce1da8a1a5c083648366cfa12053d2670e9a36e03",
-    "testimony_sha256": "sha256:aa75a4306e69b8353e38c3e9fb92673cb2530eb1171c4edc8a4938569d7614a1"
+    "content_sha256": "sha256:3d70259cafde795ca0fd88bf3029ebe2bf406c1f8c90a8034ef8488994b71de0",
+    "schema_sha256": "sha256:86118fa4dc9a76fd2cd1846fe3cad79e9d0594f3cc8ed06c0fbe54726ca3206e",
+    "testimony_sha256": "sha256:e58eecd632a0b0c573d8e5addf432687d2ce90b8170710831ebc6c2db270dd84"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
