@@ -19,14 +19,18 @@
 	import type { NumberNode } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
-	import { slot } from "../../tokens/slots.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<NumberNode> = $props();
 
 	// Render the emphasis the Layout parent GRANTED this leaf (the renormalized
 	// result), not a raw claim or a per-leaf self-clamp. Absent ⇒ normal baseline.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
-	const color = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
+	// Freestanding ink on the page ground — the `ink` channel (contrast-guaranteed),
+	// never `on` (text-on-fill). No intent ⇒ the bare on-surface ink.
+	const color = $derived(
+		node.intent ? SLOTS.content.ink(node.intent) : `var(${SURFACE_VARS.on})`,
+	);
 
 	/**
 	 * Currency codes reach `Intl.NumberFormat` from AUTHORED DATA, and a malformed

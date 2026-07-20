@@ -86,6 +86,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "var(--mo-blue-700)",
 		disabled: "color-mix(in srgb, var(--mo-blue-500) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 	/** Quiet console chrome — cooler neutral than the Archive's warm graphite. */
 	neutral: {
@@ -96,6 +98,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 84%, var(--mo-blue-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 46%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** Provenance — chain-of-custody slate; cooler, more legal than lyrical. */
 	provenance: {
@@ -106,6 +110,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 92%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 	/** Evidence — the record register; near-neutral but cooled toward slate. */
 	evidence: {
@@ -116,6 +122,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-5) 88%, var(--mo-blue-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 58%, var(--mo-neutral-1))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
 	 * Accession — in a controlled console this is the LOT / batch accent. Amber
@@ -130,6 +138,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-amber-500)",
 		active: "color-mix(in srgb, var(--mo-amber-600) 46%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-amber-600) 12%, var(--mo-neutral-3))",
+		ink: "var(--mo-amber-300)",
+		"ink-hover": "var(--mo-amber-400)",
 	},
 	/**
 	 * Caution — pushed FORWARD. In an exception-forward register a deviation must
@@ -144,6 +154,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-400)",
 		active: "color-mix(in srgb, var(--mo-red-500) 84%, var(--mo-red-700))",
 		disabled: "color-mix(in srgb, var(--mo-red-500) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** Success — likewise forward: a released/passing state should glow, calmly. */
 	success: {
@@ -154,6 +166,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-400)",
 		active: "color-mix(in srgb, var(--mo-green-500) 84%, var(--mo-green-700))",
 		disabled: "color-mix(in srgb, var(--mo-green-500) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** Info — bright clinical blue, distinct from the cooled provenance slate. */
 	info: {
@@ -164,6 +178,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 92%, var(--mo-blue-300))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 };
 
@@ -183,6 +199,8 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-3) 80%, var(--mo-blue-700))",
 		disabled: "transparent",
+		ink: "var(--mo-blue-400)",
+		"ink-hover": "var(--mo-blue-300)",
 	},
 	/** Marginalia → reviewer-note register: an aside, slate-toned. */
 	marginalia: {
@@ -193,6 +211,8 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-400)",
 		active: "color-mix(in srgb, var(--mo-neutral-6) 70%, var(--mo-blue-700))",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 42%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-10)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
 	 * Seal → SIGN-OFF / electronic-signature mark. In a regulated console the
@@ -207,6 +227,8 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-400)",
 		active: "color-mix(in srgb, var(--mo-green-700) 70%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 };
 

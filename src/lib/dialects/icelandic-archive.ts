@@ -79,6 +79,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-amber-500)",
 		active: "var(--mo-amber-600)",
 		disabled: "color-mix(in srgb, var(--mo-amber-500) 38%, var(--mo-neutral-3))",
+		ink: "var(--mo-amber-300)",
+		"ink-hover": "var(--mo-amber-400)",
 	},
 	/** Quiet surface-tone controls — the workhorse, no chroma. */
 	neutral: {
@@ -89,6 +91,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-neutral-8)",
 		active: "var(--mo-neutral-6)",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 50%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-11)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** Lineage / citation blue — "where this came from". */
 	provenance: {
@@ -99,6 +103,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-500)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 80%, var(--mo-blue-500))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 	/** The document register; on-surface forward, near-neutral. */
 	evidence: {
@@ -109,6 +115,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-neutral-8)",
 		active: "var(--mo-neutral-5)",
 		disabled: "color-mix(in srgb, var(--mo-neutral-3) 60%, var(--mo-neutral-1))",
+		ink: "var(--mo-neutral-10)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** The catalog accent — amber-dim, the archival shelfmark colour. */
 	accession: {
@@ -119,6 +127,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-amber-500)",
 		active: "color-mix(in srgb, var(--mo-amber-600) 50%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-amber-600) 14%, var(--mo-neutral-3))",
+		ink: "var(--mo-amber-300)",
+		"ink-hover": "var(--mo-amber-400)",
 	},
 	/** Caution — the red family, quiet by default in the Doxa register. */
 	caution: {
@@ -129,6 +139,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-red-400)",
 		active: "color-mix(in srgb, var(--mo-red-700) 78%, var(--mo-red-400))",
 		disabled: "color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-red-300)",
+		"ink-hover": "var(--mo-red-400)",
 	},
 	/** Success — the green family. */
 	success: {
@@ -139,6 +151,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-green-500)",
 		active: "color-mix(in srgb, var(--mo-green-700) 78%, var(--mo-green-400))",
 		disabled: "color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-green-400)",
+		"ink-hover": "var(--mo-green-500)",
 	},
 	/** Info — blue, brighter / more present than provenance. */
 	info: {
@@ -149,6 +163,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ring: "var(--mo-blue-500)",
 		active: "color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-neutral-3))",
 		disabled: "color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3))",
+		ink: "var(--mo-blue-300)",
+		"ink-hover": "var(--mo-blue-400)",
 	},
 };
 
@@ -171,6 +187,8 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-neutral-8)",
 		active: "var(--mo-neutral-3)",
 		disabled: "transparent",
+		ink: "var(--mo-neutral-10)",
+		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/** Marginalia — annotation/aside tone, a hair warmer than evidence. */
 	marginalia: {
@@ -181,6 +199,8 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-neutral-8)",
 		active: "var(--mo-neutral-5)",
 		disabled: "color-mix(in srgb, var(--mo-neutral-4) 40%, var(--mo-neutral-2))",
+		ink: "var(--mo-neutral-9)",
+		"ink-hover": "var(--mo-neutral-11)",
 	},
 	/** Seal / authority mark — the amber beacon's grave sibling (deep, rare). */
 	seal: {
@@ -191,6 +211,8 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ring: "var(--mo-amber-500)",
 		active: "color-mix(in srgb, var(--mo-amber-700) 70%, var(--mo-amber-500))",
 		disabled: "color-mix(in srgb, var(--mo-amber-700) 40%, var(--mo-neutral-3))",
+		ink: "var(--mo-amber-300)",
+		"ink-hover": "var(--mo-amber-400)",
 	},
 };
 

@@ -49,17 +49,17 @@
 	--mo-disabled-opacity: 0.5;
 
 	/*
-	 * Link text — dialect-agnostic globals (like the opacity above), so they
-	 * inherit into every dialect scope and re-resolve against that dialect's
-	 * `on-surface` / `primary-action` at the link itself. A link is body ink +
-	 * underline at rest (contrast-guaranteed on any ground by construction) and
-	 * shifts to the action beacon on hover (a recognisable interactive cue that
-	 * also contrasts). This is the fix for the gallery invisible-link bug: the
-	 * provenance `on` ice tone is correct for a navy label panel, not for inline
-	 * text on paper. An explicitly-intented link still reads its own channels.
+	 * Link text — LEGACY fallback globals. Since KRA-796 the Link primitive sets
+	 * `--mo-link-on` / `--mo-link-hover` inline from the chosen intent's `ink` /
+	 * `ink-hover` channels (SLOTS.link -> the contrast-guaranteed unfilled-ink
+	 * channels), so a link at rest and on hover is always AA on the page ground.
+	 * These `:root` values remain only as the last-resort fallback for a `.mo-link`
+	 * rendered without the inline vars; the earlier `--mo-link-hover ->
+	 * primary-action-surface` chain was itself sub-AA on paper (cobalt-600 ≈ 3.9:1),
+	 * which is exactly what the `ink-hover` channel now fixes.
 	 */
 	--mo-link-on: var(--mo-intent-on-surface);
-	--mo-link-hover: var(--mo-intent-primary-action-surface);
+	--mo-link-hover: var(--mo-intent-neutral-ink);
 
 	/* --- primary-action (the cobalt beacon on paper) ------------------------ */
 	--mo-intent-primary-action-surface: var(--mo-cobalt-600);
@@ -136,6 +136,35 @@
 	--mo-intent-info-ring: var(--mo-cobalt-500);
 	--mo-intent-info-active: color-mix(in srgb, var(--mo-cobalt-500) 36%, var(--mo-bone-5));
 	--mo-intent-info-disabled: color-mix(in srgb, var(--mo-cobalt-500) 10%, var(--mo-bone-3));
+
+	/*
+	 * --- Unfilled-ink channels (KRA-796) ------------------------------------
+	 * `surface + on` is the FILLED pair (badge/status/alert/solid button); a
+	 * freestanding leaf (Text/Number/Icon/Link) paints no fill and reads `ink` /
+	 * `ink-hover` — the intent hue rendered as contrast-guaranteed ink on the paper
+	 * grounds (base/raised/sunken), held to WCAG 2.2 AA by the browser contrast
+	 * matrix. On the light gallery wall the ink is the DEEP end of each hue.
+	 */
+	--mo-intent-primary-action-ink: var(--mo-cobalt-700);
+	--mo-intent-primary-action-ink-hover: color-mix(
+		in srgb,
+		var(--mo-cobalt-700) 80%,
+		var(--mo-cobalt-500)
+	);
+	--mo-intent-neutral-ink: var(--mo-cobalt-800);
+	--mo-intent-neutral-ink-hover: var(--mo-cobalt-700);
+	--mo-intent-provenance-ink: var(--mo-cobalt-800);
+	--mo-intent-provenance-ink-hover: var(--mo-cobalt-700);
+	--mo-intent-evidence-ink: var(--mo-cobalt-800);
+	--mo-intent-evidence-ink-hover: var(--mo-cobalt-700);
+	--mo-intent-accession-ink: var(--mo-cobalt-700);
+	--mo-intent-accession-ink-hover: var(--mo-cobalt-800);
+	--mo-intent-caution-ink: var(--mo-red-700);
+	--mo-intent-caution-ink-hover: color-mix(in srgb, var(--mo-red-700) 82%, var(--mo-red-500));
+	--mo-intent-success-ink: var(--mo-green-700);
+	--mo-intent-success-ink-hover: color-mix(in srgb, var(--mo-green-700) 78%, var(--mo-green-500));
+	--mo-intent-info-ink: var(--mo-cobalt-700);
+	--mo-intent-info-ink-hover: color-mix(in srgb, var(--mo-cobalt-700) 80%, var(--mo-cobalt-500));
 
 	/* --- Font family handles surfaced at the intent layer ------------------- */
 	--mo-font-headline: var(--mo-font-display);
@@ -233,6 +262,29 @@
 	--mo-intent-info-ring: var(--mo-blue-500);
 	--mo-intent-info-active: color-mix(in srgb, var(--mo-blue-700) 88%, var(--mo-neutral-3));
 	--mo-intent-info-disabled: color-mix(in srgb, var(--mo-blue-700) 36%, var(--mo-neutral-3));
+
+	/*
+	 * --- Unfilled-ink channels (KRA-796) ------------------------------------
+	 * The Archive is a DARK ground, so the freestanding ink is the LIGHT end of
+	 * each hue (contrast-guaranteed on neutral-0/1/4). Filled components keep the
+	 * `surface + on` pair unchanged.
+	 */
+	--mo-intent-primary-action-ink: var(--mo-amber-300);
+	--mo-intent-primary-action-ink-hover: var(--mo-amber-400);
+	--mo-intent-neutral-ink: var(--mo-neutral-11);
+	--mo-intent-neutral-ink-hover: var(--mo-neutral-9);
+	--mo-intent-provenance-ink: var(--mo-blue-300);
+	--mo-intent-provenance-ink-hover: var(--mo-blue-400);
+	--mo-intent-evidence-ink: var(--mo-neutral-10);
+	--mo-intent-evidence-ink-hover: var(--mo-neutral-9);
+	--mo-intent-accession-ink: var(--mo-amber-300);
+	--mo-intent-accession-ink-hover: var(--mo-amber-400);
+	--mo-intent-caution-ink: var(--mo-red-300);
+	--mo-intent-caution-ink-hover: var(--mo-red-400);
+	--mo-intent-success-ink: var(--mo-green-400);
+	--mo-intent-success-ink-hover: var(--mo-green-500);
+	--mo-intent-info-ink: var(--mo-blue-300);
+	--mo-intent-info-ink-hover: var(--mo-blue-400);
 }
 
 /*

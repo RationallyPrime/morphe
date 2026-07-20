@@ -26,7 +26,7 @@
 	import type { Text } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
-	import { slot } from "../../tokens/slots.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Text> = $props();
 
@@ -37,8 +37,15 @@
 	// less information. Absent grant (standalone render) ⇒ the normal baseline.
 	const emphasis = $derived(ctx.renderedEmphasis ?? "normal");
 
-	/** Base colour: the intent's `on` channel, or the bare on-surface var. */
-	const baseColor = $derived(node.intent ? slot(node.intent, "on") : `var(${SURFACE_VARS.on})`);
+	/**
+	 * Base colour: the intent's FREESTANDING-INK channel (contrast-guaranteed on the
+	 * page grounds), or the bare on-surface var when no intent is set. Text paints no
+	 * fill, so it must NOT use `on` (text-on-fill — unreadable as freestanding ink);
+	 * `SLOTS.content.ink` routes to the `ink` channel with the on-surface fallback.
+	 */
+	const baseColor = $derived(
+		node.intent ? SLOTS.content.ink(node.intent) : `var(${SURFACE_VARS.on})`,
+	);
 
 	/**
 	 * Color. With a sign POLARITY the amount tints through the dialect's
