@@ -75,7 +75,11 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	await expect(review).toHaveAttribute("data-tone", "caution");
 
 	await expect(page.getByText("TAXIS_ROW_REVIEW", { exact: true })).toBeVisible();
-	await expect(page.getByText("TAXIS_ALLOCATION_SOURCE", { exact: true })).toBeVisible();
+	// The cell diagnostic is lifted into the row lane (KRA-796 Defect 2) with the
+	// field label preserved in its visible copy, so the code now reads label-first.
+	await expect(
+		page.getByText("Allocation: TAXIS_ALLOCATION_SOURCE", { exact: true }),
+	).toBeVisible();
 	await expect(
 		page.getByText("The second worker needs roster review.", { exact: true }),
 	).toBeVisible();
@@ -151,15 +155,34 @@ async function assertTableContract(page: Page): Promise<void> {
 	}));
 	expect(relationship).toEqual({ parentIsTable: true, previousIsRow: true, wrapsRow: false });
 
-	const cellAlert = rows.nth(1).locator(".mo-alert").filter({
+	// Cell diagnostics are LIFTED into the row lane (KRA-796 Defect 2): the alert is
+	// no longer nested inside the cell's row grid (where a 12rem-min alert overpainted
+	// neighbouring cells), but a full-width sibling of the table, in the lane after the
+	// row it concerns — exactly like the row-level alert. Its visible copy keeps the
+	// field label ("Allocation:") so the lifted diagnostic still names its subject.
+	const cellAlert = table.locator(":scope > .mo-alert").filter({
 		hasText: "TAXIS_ALLOCATION_SOURCE",
 	});
 	await expect(cellAlert).toHaveCount(1);
+	await expect(cellAlert).toContainText("Allocation:");
+	const tableBoxForCell = await table.boundingBox();
+	if (tableBoxForCell === null) throw new Error("table must be visible for the cell-lane check");
 	expect(
-		await cellAlert.evaluate(
-			(alert) => alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
-		),
-	).toBe(false);
+		await cellAlert.evaluate((alert) => ({
+			parentIsTable: alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
+			wrapsRow: alert.querySelector(".mo-grid") !== null,
+		})),
+	).toEqual({ parentIsTable: true, wrapsRow: false });
+	// Lifted into the lane, it spans the full table width (no 12rem overpaint).
+	const cellAlertBox = await cellAlert.boundingBox();
+	if (cellAlertBox === null) throw new Error("cell alert must be visible");
+	expect(Math.abs(cellAlertBox.x - tableBoxForCell.x), "cell alert left edge").toBeLessThanOrEqual(
+		GEOMETRY_TOLERANCE_PX,
+	);
+	expect(
+		Math.abs(cellAlertBox.width - tableBoxForCell.width),
+		"cell alert spans full row",
+	).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
 
 	const nullableCell = rows.nth(2).locator(":scope > *").nth(4);
 	expect((await nullableCell.textContent())?.trim()).toBe("");
