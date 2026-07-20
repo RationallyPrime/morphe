@@ -27,6 +27,7 @@
 
 	import type { Trend } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Trend> = $props();
 
@@ -34,7 +35,9 @@
 	const baseline = $derived(node.baseline ?? "zero");
 
 	/**
-	 * Unfilled ink: the intent's ink channel, falling back to on-surface ink.
+	 * Unfilled ink through the KRA-796 contract: `SLOTS.content.ink` routes to
+	 * the intent's contrast-guaranteed `ink` channel with the on-surface
+	 * fallback — never `on` (text-on-fill) or `surface` as freestanding stroke.
 	 * A muted grant tones the whole figure through the muted ink (computed here
 	 * so the grant beats the inline custom property — the Text.svelte contract).
 	 */
@@ -42,7 +45,7 @@
 		emphasis === "muted"
 			? "var(--mo-intent-on-surface-muted)"
 			: node.intent
-				? `var(--mo-intent-${node.intent}-ink, var(--mo-intent-on-surface))`
+				? SLOTS.content.ink(node.intent)
 				: "var(--mo-intent-on-surface)",
 	);
 

@@ -774,12 +774,10 @@ function alert(diagnostic: CompilerDiagnostic): InlineAlert {
 function labeledAlert(label: string, diagnostic: CompilerDiagnostic): InlineAlert {
 	// A cell diagnostic lifted out of its cell loses its spatial tie to the field,
 	// so the title names the field it refers to: "<Field label>: <code>" (KRA-796).
-	return {
-		kind: "inline-alert",
-		tone: diagnostic.severity === "info" ? "info" : "caution",
-		title: label ? `${label}: ${diagnostic.code}` : diagnostic.code,
-		detail: diagnostic.message,
-	};
+	// The lifted alert keeps everything alert() renders — including the authored
+	// repair hint (KRA-788) — only the title gains the field name.
+	const base = alert(diagnostic);
+	return label ? { ...base, title: `${label}: ${diagnostic.code}` } : base;
 }
 
 function normalizeVisibleLabelText(value: string, fallback: string): string {
