@@ -385,27 +385,56 @@ export class CompoundRegistry implements CompoundResolver {
 					depth: env.depth + 1,
 				});
 			}
+			case "table": {
+				// A table is nested structure, not a flat child list: rebuild it
+				// cell-by-cell so each cell's children expand under the ordinary
+				// hygiene rules (ParamRefs resolve, Slots splice within the cell).
+				return {
+					...node,
+					rows: node.rows.map((row) => ({
+						...row,
+						cells: row.cells.map((cell) => ({
+							...cell,
+							children: this.#expandChildList(cell.children, env),
+						})),
+						...(row.diagnostics === undefined
+							? {}
+							: { diagnostics: this.#expandChildList(row.diagnostics, env) }),
+					})),
+				};
+			}
 			default: {
 				// Recurse into children, expanding Slots inline.
 				const kids = childrenOf(node);
 				if (kids.length === 0) return node;
-				const expandedKids: Node[] = [];
-				for (const kid of kids) {
-					const paramValue = kid.kind === "param-ref" ? env.args[kid.param] : undefined;
-					if (kid.kind === "slot") {
-						expandedKids.push(...this.#fillSlot(kid, env));
-					} else if (kid.kind === "param-ref" && Array.isArray(paramValue)) {
-						if (!paramValue.every(isNodeLike)) {
-							throw new Error(`Node-list parameter "${kid.param}" contains a non-node value.`);
-						}
-						expandedKids.push(...paramValue.map((item) => this.#expandNode(item, env)));
-					} else {
-						expandedKids.push(this.#expandNode(kid, env));
-					}
-				}
-				return withChildren(node, expandedKids);
+				return withChildren(node, this.#expandChildList(kids, env));
 			}
 		}
+	}
+
+	#expandChildList(
+		kids: readonly Node[],
+		env: {
+			readonly args: Readonly<Record<string, unknown>>;
+			readonly slots: Readonly<Record<string, readonly Node[]>>;
+			readonly depth: number;
+		},
+	): Node[] {
+		const expandedKids: Node[] = [];
+		for (const kid of kids) {
+			const paramValue = kid.kind === "param-ref" ? env.args[kid.param] : undefined;
+			if (kid.kind === "slot") {
+				expandedKids.push(...this.#fillSlot(kid, env));
+			} else if (kid.kind === "param-ref" && Array.isArray(paramValue)) {
+				if (!paramValue.every(isNodeLike)) {
+					throw new Error(`Node-list parameter "${kid.param}" contains a non-node value.`);
+				}
+				expandedKids.push(...paramValue.map((item) => this.#expandNode(item, env)));
+			} else {
+				expandedKids.push(this.#expandNode(kid, env));
+			}
+		}
+		return expandedKids;
 	}
 
 	#fillSlot(
@@ -500,10 +529,12 @@ const KNOWN_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>([
 	"cluster",
 	"frame",
 	"spacer",
+	"table",
 	"text",
 	"number",
 	"badge",
 	"icon",
+	"trend",
 	"media",
 	"field",
 	"select",
@@ -541,6 +572,14 @@ export function childrenOf(node: Node): readonly Node[] {
 			return node.fallback ?? [];
 		case "within":
 			return node.target === undefined ? [] : [node.target];
+		case "table":
+			// Read-only flattening for walks (type-check, ref/slot discovery,
+			// cycle detection). Expansion never uses this path — #expandNode
+			// rebuilds a table cell-by-cell so the nested shape is preserved.
+			return node.rows.flatMap((row) => [
+				...row.cells.flatMap((cell) => cell.children),
+				...(row.diagnostics ?? []),
+			]);
 		default:
 			return [];
 	}

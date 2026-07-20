@@ -186,13 +186,15 @@ def _signal_card(item: SurfaceNode) -> Node:
         if item.intent is not None:
             measure["intent"] = item.intent
     body = [_alert(diagnostic) for diagnostic in item.diagnostics]
+    # The corner signal (KRA-757 §3.2): a status/badge child authored on the cell
+    # rides the card's `signal` slot — the band carries state, not just numbers.
+    signal = [_slot_leaf(child) for child in item.children if child.strategy in {"status", "badge"}]
     return {
         "kind": "compound",
         "name": "SignalCard",
         "args": {"kicker": kicker, "title": title, "measure": measure},
-        # An explicit body fill beats the template's "No body supplied." fallback
-        # while keeping signed KPI diagnostics visible.
-        "slots": {"body": body},
+        # Signed KPI diagnostics stay visible through the body slot.
+        "slots": {"signal": signal, "body": body},
     }
 
 
@@ -324,27 +326,33 @@ def _breakdown(spec: SurfaceNode) -> Node:
 def _trail_entry(item: SurfaceNode) -> Node:
     # One event row -> one TrailEntry compound. Classification is deterministic and
     # HINT-KEYED only (never name-based): role:provenance -> provenance slot; a
-    # linked-ref child -> ref slot; the first temporal-hinted child -> stamp; the
-    # first string scalar among the rest -> summary. Identifiers therefore have
-    # exactly one home (provenance) and never bleed into the summary.
+    # linked-ref child -> ref slot; a status/badge child -> signals (the event's
+    # state chips); the first temporal-hinted child -> stamp; the first string
+    # scalar among the rest -> summary; EVERYTHING ELSE -> detail. Every valid
+    # event field has exactly one home — nothing authored disappears (KRA-788 D3;
+    # zygos rejected `trail` precisely because leftovers were dropped).
     stamp: SurfaceNode | None = None
     summary_child: SurfaceNode | None = None
+    signals: list[Node] = []
+    detail: list[Node] = []
     ref: list[Node] = []
     provenance: list[Node] = []
-    leftover_diagnostics: list[Node] = []
     for child in item.children:
         if child.intent == "provenance":
             provenance.append(_slot_leaf(child))
         elif child.strategy == "linked-ref":
             ref.append(_slot_leaf(child))
+        elif child.strategy in {"status", "badge"}:
+            signals.append(_slot_leaf(child))
         elif stamp is None and child.temporal is not None:
             stamp = child
         elif summary_child is None and _is_title_candidate(child):
             summary_child = child
-        elif child.strategy != "diagnostic-node":
-            # No general "meta" slot exists on a TrailEntry; keep any SIGNED child
-            # diagnostics (D8) at the provenance-footer head, drop only the value.
-            leftover_diagnostics.extend(_alert(d) for d in child.diagnostics)
+        else:
+            # A detail field keeps its caption (the label IS the subject — an
+            # unlabelled amount means nothing) and its own diagnostics; containers
+            # self-head through the ordinary field path.
+            detail.append(_field(child))
     if summary_child is not None:
         summary_value = display_scalar_text(
             summary_child.value, summary_child.temporal, summary_child.scalar_number_kind
@@ -379,7 +387,12 @@ def _trail_entry(item: SurfaceNode) -> Node:
         "kind": "compound",
         "name": "TrailEntry",
         "args": args,
-        "slots": {"ref": ref, "provenance": [*head_alerts, *leftover_diagnostics, *provenance]},
+        "slots": {
+            "signals": signals,
+            "detail": detail,
+            "ref": ref,
+            "provenance": [*head_alerts, *provenance],
+        },
     }
 
 
@@ -619,12 +632,18 @@ def _caption(label: str) -> Node:
 
 
 def _alert(diag: Diagnostic) -> Node:
-    return {
+    node: Node = {
         "kind": "inline-alert",
         "tone": _tone(diag.severity),
         "title": diag.code,
         "detail": diag.message,
     }
+    # The producer-authored next action renders as honest structure (KRA-757 §3.8):
+    # authored vocabulary is never dead vocabulary, and the human action never
+    # blurs into the machine detail.
+    if diag.repair_hint is not None:
+        node["repair"] = diag.repair_hint
+    return node
 
 
 def _labeled_alert(label: str, diag: Diagnostic) -> Node:

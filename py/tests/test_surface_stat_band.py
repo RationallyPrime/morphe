@@ -23,7 +23,14 @@ FIGURES_SCHEMA: dict[str, Any] = {
 }
 FIGURES_DATA: list[dict[str, object]] = [
     {"label": "Net", "value": 7, "kicker": "Q4"},
-    {"label": "Rail", "value": "bank_batch", "kicker": "Route"},
+    # The corner-signal lever (KRA-757 §3.2): signal text + tone ride the cell.
+    {
+        "label": "Rail",
+        "value": "bank_batch",
+        "kicker": "Route",
+        "signal": "Queued",
+        "signal_intent": "info",
+    },
 ]
 
 # The SAME expected tree asserted verbatim by the TypeScript twin
@@ -51,7 +58,7 @@ EXPECTED_BAND: dict[str, Any] = {
                             "title": {"kind": "text", "value": "Net", "as": "subheading"},
                             "measure": {"kind": "number", "value": 7, "emphasis": "strong"},
                         },
-                        "slots": {"body": []},
+                        "slots": {"signal": [], "body": []},
                     },
                     {
                         "kind": "compound",
@@ -71,7 +78,16 @@ EXPECTED_BAND: dict[str, Any] = {
                                 "emphasis": "strong",
                             },
                         },
-                        "slots": {"body": []},
+                        "slots": {
+                            "signal": [
+                                {
+                                    "kind": "status",
+                                    "tone": "info",
+                                    "signal": {"text": "Queued"},
+                                }
+                            ],
+                            "body": [],
+                        },
                     },
                 ]
             },

@@ -11,7 +11,7 @@ const compilationReceipt: CompilationReceipt = {
 	sourceTestimonySha256: hash("1"),
 	compilerVersion: "0.3.3",
 	compilerBuildSha256: hash("2"),
-	grammarVersion: "0.2.0",
+	grammarVersion: "0.3.0",
 	treeSha256: hash("3"),
 	diagnosticsSha256: hash("4"),
 	temporalPolicy: "minute",
@@ -23,7 +23,7 @@ function parsed(tree: Node, withReceipt = false) {
 		ok: true as const,
 		envelope: {
 			artifactId: "taxis:roster",
-			grammarVersion: "0.2.0",
+			grammarVersion: "0.3.0",
 			compilerVersion: "0.3.3",
 			dialectHint: "ledger",
 			tree,

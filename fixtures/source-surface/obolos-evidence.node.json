@@ -69,7 +69,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   },
                   {
@@ -97,7 +98,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   },
                   {
@@ -123,7 +125,8 @@
                     "kind": "compound",
                     "name": "SignalCard",
                     "slots": {
-                      "body": []
+                      "body": [],
+                      "signal": []
                     }
                   }
                 ]
@@ -377,6 +380,7 @@
                 {
                   "detail": "This evidence row needs manual adjudication.",
                   "kind": "inline-alert",
+                  "repair": "Attach the missing FX testimony.",
                   "title": "OBOLOS_EXCEPTION_ROW",
                   "tone": "caution"
                 }

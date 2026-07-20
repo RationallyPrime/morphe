@@ -4,7 +4,7 @@ import { type IndexModel, indexTree } from "./index-presenter.js";
 
 const MODEL: IndexModel = {
 	title: "Krates ehf — Timaeus",
-	grammarVersion: "0.2.0",
+	grammarVersion: "0.3.0",
 	sources: [
 		{
 			id: "taxis",

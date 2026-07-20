@@ -577,3 +577,74 @@ describe("dialect application (Lemma 4)", () => {
 		expect(applied.rootContext.density).toBe("regular");
 	});
 });
+
+/* ===========================================================================
+ * KRA-788 — table expansion hygiene (ADR-0020 §3): compound templates may
+ * contain tables; ParamRef/Slot leaves inside cells resolve under the ordinary
+ * hygiene rules, and the walks (type-check, ref discovery) reach every cell.
+ * ========================================================================= */
+
+describe("factory — tables inside compound templates", () => {
+	it("expands ParamRefs and Slots inside table cells and diagnostics lanes", () => {
+		const reg = new CompoundRegistry();
+		const ledger: CompoundDef = {
+			name: "ledger-proof",
+			version: "1.0.0",
+			grammarVersion: GRAMMAR_VERSION,
+			params: {
+				type: "object",
+				properties: { amount: { type: "node", required: true } },
+			},
+			template: {
+				kind: "table",
+				caption: "Ledger proof",
+				columns: [{ header: "Entry" }, { header: "Amount", numeric: true }],
+				rows: [
+					{
+						cells: [
+							{ children: [{ kind: "slot", name: "entry", fallback: [] }] },
+							{ children: [{ kind: "param-ref", param: "amount" }] },
+						],
+						diagnostics: [{ kind: "slot", name: "lane", fallback: [] }],
+					},
+				],
+			},
+		};
+		const result = reg.register(ledger);
+		expect(result.ok).toBe(true);
+		const expanded = reg.expand({
+			kind: "compound",
+			name: "ledger-proof",
+			args: { amount: { kind: "number", value: 42 } },
+			slots: {
+				entry: [{ kind: "text", value: "VSK return" }],
+				lane: [{ kind: "inline-alert", tone: "info", title: "NOTE" }],
+			},
+		});
+		const json = JSON.stringify(expanded);
+		expect(json).not.toContain("param-ref");
+		expect(json).not.toContain('"kind":"slot"');
+		expect(json).toContain("VSK return");
+		expect(json).toContain('"value":42');
+		expect(json).toContain('"title":"NOTE"');
+	});
+
+	it("the gate rejects an undeclared ParamRef hiding inside a table cell", () => {
+		const reg = new CompoundRegistry();
+		const result = reg.register({
+			name: "leaky-table",
+			version: "1.0.0",
+			grammarVersion: GRAMMAR_VERSION,
+			params: { type: "object", properties: {} },
+			template: {
+				kind: "table",
+				caption: "Leaky",
+				columns: [{ header: "Entry" }],
+				rows: [{ cells: [{ children: [{ kind: "param-ref", param: "ghost" }] }] }],
+			},
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) throw new Error("expected registration to fail");
+		expect(result.errors).toContain('Template ParamRef "ghost" has no declared parameter.');
+	});
+});

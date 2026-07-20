@@ -7,7 +7,7 @@ import type { CompoundDef } from "./factory.js";
 export const PROMOTED_COMPOUNDS = [
 	{
 		name: "SignalCard",
-		version: "1.1.0",
+		version: "2.0.0",
 		params: {
 			type: "object",
 			properties: {
@@ -24,70 +24,51 @@ export const PROMOTED_COMPOUNDS = [
 				measure: {
 					type: "node",
 					required: false,
-					default: {
-						kind: "number",
-						value: 0,
-						format: "integer",
-						intent: "neutral",
-					},
 					description: "A numeric or textual measure node.",
 				},
 			},
 		},
 		template: {
-			kind: "frame",
+			kind: "stack",
 			role: "panel",
-			surface: "raised",
 			children: [
 				{
-					kind: "stack",
-					role: "panel",
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "center",
 					children: [
 						{
-							kind: "cluster",
-							role: "toolbar",
-							justify: "between",
-							align: "center",
-							children: [
-								{
-									kind: "param-ref",
-									param: "kicker",
-								},
-								{
-									kind: "slot",
-									name: "signal",
-									fallback: [],
-								},
-							],
-						},
-						{
 							kind: "param-ref",
-							param: "title",
-						},
-						{
-							kind: "param-ref",
-							param: "measure",
+							param: "kicker",
 						},
 						{
 							kind: "slot",
-							name: "body",
-							fallback: [
-								{
-									kind: "text",
-									value: "No body supplied.",
-									as: "caption",
-								},
-							],
+							name: "signal",
+							fallback: [],
 						},
 					],
 				},
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "param-ref",
+					param: "measure",
+				},
+				{
+					kind: "slot",
+					name: "body",
+					fallback: [],
+				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 	{
 		name: "EntityHeader",
-		version: "1.0.0",
+		version: "1.1.0",
 		params: {
 			type: "object",
 			properties: {
@@ -104,12 +85,6 @@ export const PROMOTED_COMPOUNDS = [
 				keyFigure: {
 					type: "node",
 					required: false,
-					default: {
-						kind: "number",
-						value: 0,
-						format: "integer",
-						intent: "neutral",
-					},
 					description: "The one number this entity leads with.",
 				},
 			},
@@ -169,7 +144,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 	{
 		name: "StatBand",
@@ -190,7 +165,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 	{
 		name: "Breakdown",
@@ -231,11 +206,11 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 	{
 		name: "TrailEntry",
-		version: "1.0.0",
+		version: "1.1.0",
 		params: {
 			type: "object",
 			properties: {
@@ -273,7 +248,17 @@ export const PROMOTED_COMPOUNDS = [
 							kind: "param-ref",
 							param: "summary",
 						},
+						{
+							kind: "slot",
+							name: "signals",
+							fallback: [],
+						},
 					],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
 				},
 				{
 					kind: "slot",
@@ -287,7 +272,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 	{
 		name: "KeyValuePanel",
@@ -317,6 +302,6 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.2.0",
+		grammarVersion: "0.3.0",
 	},
 ] as const satisfies readonly CompoundDef[];

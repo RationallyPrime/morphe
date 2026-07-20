@@ -66,6 +66,12 @@
 		{#if node.detail}
 			<p class="mo-alert__detail">{node.detail}</p>
 		{/if}
+		{#if node.repair}
+			<!-- The producer-authored next action (ADR-agnostic honest structure,
+			     KRA-757 §3.8): visually distinct from the machine detail so the
+			     operator reads "what to do" apart from "what happened". -->
+			<p class="mo-alert__repair">{node.repair}</p>
+		{/if}
 	</div>
 </div>
 
@@ -120,5 +126,15 @@
 		line-height: var(--mo-leading-normal);
 		color: var(--mo-alert-on);
 		opacity: 0.85;
+	}
+	/* The next action reads at full ink and medium weight — the one line the
+	   operator acts on — while the machine detail above it stays quieter. */
+	.mo-alert__repair {
+		margin: 0;
+		font-family: var(--mo-font-body);
+		font-weight: 500;
+		font-size: var(--mo-ctx-type, var(--mo-type-3));
+		line-height: var(--mo-leading-normal);
+		color: var(--mo-alert-on);
 	}
 </style>

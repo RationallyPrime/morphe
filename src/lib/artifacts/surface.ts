@@ -363,11 +363,41 @@ function structuralNodeChildren(node: Record<string, unknown>): readonly Structu
 			return indexedStructuralChildren(node.fallback, ["fallback"]);
 		case "within":
 			return node.target === undefined ? [] : [{ node: node.target, path: ["target"] }];
+		case "table":
+			return tableStructuralChildren(node);
 		case "compound":
 			return compoundStructuralChildren(node);
 		default:
 			return [];
 	}
+}
+
+function tableStructuralChildren(node: Record<string, unknown>): readonly StructuralNodeChild[] {
+	if (!Array.isArray(node.rows)) return [];
+	const children: StructuralNodeChild[] = [];
+	node.rows.forEach((row, rowIndex) => {
+		if (!isRecord(row)) return;
+		if (Array.isArray(row.cells)) {
+			row.cells.forEach((cell, cellIndex) => {
+				if (!isRecord(cell)) return;
+				children.push(
+					...indexedStructuralChildren(cell.children, [
+						"rows",
+						rowIndex,
+						"cells",
+						cellIndex,
+						"children",
+					]),
+				);
+			});
+		}
+		if (Array.isArray(row.diagnostics)) {
+			children.push(
+				...indexedStructuralChildren(row.diagnostics, ["rows", rowIndex, "diagnostics"]),
+			);
+		}
+	});
+	return children;
 }
 
 /**
@@ -397,6 +427,27 @@ function semanticNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValid
 				path: current.path,
 				message: "button requires a visible label or explicit a11y name",
 			};
+		}
+		// Mirror of the Pydantic Table.require_rectangular_rows validator (a
+		// cross-field constraint JSON Schema cannot express): every row carries
+		// exactly as many cells as the declared columns.
+		if (
+			current.node.kind === "table" &&
+			Array.isArray(current.node.columns) &&
+			Array.isArray(current.node.rows)
+		) {
+			const width = current.node.columns.length;
+			for (let rowIndex = 0; rowIndex < current.node.rows.length; rowIndex += 1) {
+				const row: unknown = current.node.rows[rowIndex];
+				if (!isRecord(row) || !Array.isArray(row.cells)) continue;
+				if (row.cells.length !== width) {
+					return {
+						code: "schema",
+						path: [...current.path, "rows", rowIndex, "cells"],
+						message: `table row ${rowIndex} carries ${row.cells.length} cells; the declared columns require exactly ${width}`,
+					};
+				}
+			}
 		}
 		const children = structuralNodeChildren(current.node);
 		for (let index = children.length - 1; index >= 0; index -= 1) {

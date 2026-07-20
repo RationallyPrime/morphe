@@ -186,3 +186,111 @@ def test_collapse_within_accepts_visible_unicode_summary(summary: str) -> None:
 def test_within_rejects_inaccessible_or_irrelevant_summary(tree: NodeFixture) -> None:
     with pytest.raises(ValidationError):
         validate_node(tree)
+
+
+# --- Trend (ADR-0019) ------------------------------------------------------------------
+
+TREND_POINTS = [
+    {"period": "2026-05", "value": 4},
+    {"period": "2026-06", "value": 7},
+    {"period": "2026-07", "value": 6},
+]
+
+
+def test_trend_accepts_a_typed_series_with_a_visible_summary() -> None:
+    node = validate_node(
+        {
+            "kind": "trend",
+            "points": TREND_POINTS,
+            "summary": "Rose to 7 in June, easing to 6 in July.",
+            "baseline": "min",
+            "intent": "evidence",
+        }
+    )
+    assert node.kind == "trend"
+
+
+def test_trend_stays_total_over_degenerate_series() -> None:
+    # Zero and single-point series remain representable — the renderer degrades
+    # to summary-only / terminal-dot, never a crash and never invented copy.
+    for points in ([], TREND_POINTS[:1]):
+        validate_node({"kind": "trend", "points": points, "summary": "Flat."})
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        # The paired words are the primary channel: absent or invisible summaries
+        # are unrepresentable (the shape must never be the only signal).
+        {"kind": "trend", "points": TREND_POINTS},
+        {"kind": "trend", "points": TREND_POINTS, "summary": ""},
+        {"kind": "trend", "points": TREND_POINTS, "summary": " \t"},
+        # Pre-rendered values are not typed values.
+        {
+            "kind": "trend",
+            "points": [{"period": "2026-05", "value": "4 kr."}],
+            "summary": "Typed values only.",
+        },
+    ],
+)
+def test_trend_rejects_unlabelled_or_untyped_series(tree: NodeFixture) -> None:
+    with pytest.raises(ValidationError):
+        validate_node(tree)
+
+
+# --- Table (ADR-0020) ------------------------------------------------------------------
+
+
+def _table_fixture(**overrides: object) -> dict[str, object]:
+    tree: dict[str, object] = {
+        "kind": "table",
+        "caption": "Open obligations",
+        "columns": [
+            {"header": "Obligation"},
+            {"header": "Amount", "numeric": True, "priority": "primary"},
+            {"header": "Due", "priority": "detail"},
+        ],
+        "rows": [
+            {
+                "cells": [
+                    {"children": [{"kind": "text", "value": "VSK return"}]},
+                    {"children": [{"kind": "number", "value": 125000, "format": "integer"}]},
+                    {"children": [{"kind": "text", "value": "2026-08-05", "as": "caption"}]},
+                ],
+                "diagnostics": [{"kind": "inline-alert", "tone": "caution", "title": "OVERDUE"}],
+            }
+        ],
+        "responsive": "records",
+        "rowHeader": True,
+    }
+    tree.update(overrides)
+    return tree
+
+
+def test_table_accepts_the_full_capability_shape() -> None:
+    node = validate_node(_table_fixture())
+    assert node.kind == "table"
+
+
+def test_table_rejects_ragged_rows() -> None:
+    # The rectangularity validator: every row carries exactly len(columns) cells.
+    ragged = _table_fixture(rows=[{"cells": [{"children": [{"kind": "text", "value": "Lonely"}]}]}])
+    with pytest.raises(ValidationError, match="require exactly 3"):
+        validate_node(ragged)
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        # An unnamed table is unrepresentable.
+        _table_fixture(caption=""),
+        _table_fixture(caption=" \t"),
+        # A blank column head is unrepresentable.
+        _table_fixture(columns=[{"header": " "}], rows=[]),
+        # A table with no columns has no relationships to own.
+        _table_fixture(columns=[], rows=[]),
+    ],
+)
+def test_table_rejects_unnamable_shapes(tree: NodeFixture) -> None:
+    with pytest.raises(ValidationError):
+        validate_node(tree)

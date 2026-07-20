@@ -15,10 +15,12 @@ const TRAIL_SCHEMA: JsonSchema = {
 	"x-morphe": { strategy: "trail", heading: false },
 	items: {
 		type: "object",
-		"x-morphe": { order: ["when", "what", "link", "ref"] },
+		"x-morphe": { order: ["when", "what", "state", "amount", "link", "ref"] },
 		properties: {
 			when: { type: "string", title: "When", "x-morphe": { temporal: "date-time-minute" } },
 			what: { type: "string", title: "What" },
+			state: { type: "string", title: "State", "x-morphe": { strategy: "status" } },
+			amount: { type: "number", title: "Amount" },
 			link: { type: "object", title: "Link", "x-morphe": { strategy: "linked-ref" } },
 			ref: { type: "string", title: "Ref", "x-morphe": { role: "provenance" } },
 		},
@@ -28,6 +30,8 @@ const TRAIL_DATA = [
 	{
 		when: "2026-07-17T09:14:00Z",
 		what: "Admitted",
+		state: "posted",
+		amount: 1250,
 		link: { label: "Open", href: "/a/1" },
 		ref: "evt-001",
 	},
@@ -47,6 +51,19 @@ const EXPECTED_TRAIL: Node = {
 				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "marginalia" },
 			},
 			slots: {
+				// KRA-788 D3: state chips ride the event line; leftover fields keep
+				// their caption (the label IS the subject) in the detail slot.
+				signals: [{ kind: "status", tone: "neutral", signal: { text: "posted" } }],
+				detail: [
+					{
+						kind: "stack",
+						role: "field-group",
+						children: [
+							{ kind: "text", value: "Amount", as: "caption", intent: "neutral" },
+							{ kind: "text", value: "1250.0", as: "body", numeric: true, polarity: "positive" },
+						],
+					},
+				],
 				ref: [{ kind: "link", href: "/a/1", label: "Open" }],
 				provenance: [{ kind: "text", value: "evt-001", as: "body", intent: "provenance" }],
 			},
