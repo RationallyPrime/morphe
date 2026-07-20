@@ -294,11 +294,17 @@ function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
 			...(item.intent === undefined ? {} : { intent: item.intent }),
 		};
 	}
+	// The corner signal (KRA-757 §3.2): a status/badge child authored on the cell
+	// rides the card's `signal` slot — the band carries state, not just numbers.
+	const signal = item.children
+		.filter((child) => child.strategy === "status" || child.strategy === "badge")
+		.map((child) => slotLeaf(child, ctx));
 	return {
 		kind: "compound",
 		name: "SignalCard",
 		args: { kicker, title, measure },
-		slots: { body: item.diagnostics.map(alert) },
+		// Signed KPI diagnostics stay visible through the body slot.
+		slots: { signal, body: item.diagnostics.map(alert) },
 	} satisfies CompoundRef;
 }
 
@@ -441,27 +447,33 @@ function breakdown(spec: SurfaceNode, ctx: EmitContext): Node {
 function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 	// One event row -> one TrailEntry compound, mirroring the Python twin exactly.
 	// Classification is deterministic and HINT-KEYED only (never name-based):
-	// role:provenance -> provenance slot; a linked-ref child -> ref slot; the first
+	// role:provenance -> provenance slot; a linked-ref child -> ref slot; a
+	// status/badge child -> signals (the event's state chips); the first
 	// temporal-hinted child -> stamp; the first string scalar among the rest ->
-	// summary. Identifiers have exactly one home (provenance), never the summary.
+	// summary; EVERYTHING ELSE -> detail. Every valid event field has exactly one
+	// home — nothing authored disappears (KRA-788 D3).
 	let stamp: SurfaceNode | undefined;
 	let summaryChild: SurfaceNode | undefined;
+	const signals: Node[] = [];
+	const detail: Node[] = [];
 	const ref: Node[] = [];
 	const provenance: Node[] = [];
-	const leftoverDiagnostics: Node[] = [];
 	for (const child of item.children) {
 		if (child.intent === "provenance") {
 			provenance.push(slotLeaf(child, ctx));
 		} else if (child.strategy === "linked-ref") {
 			ref.push(slotLeaf(child, ctx));
+		} else if (child.strategy === "status" || child.strategy === "badge") {
+			signals.push(slotLeaf(child, ctx));
 		} else if (stamp === undefined && child.temporal !== undefined) {
 			stamp = child;
 		} else if (summaryChild === undefined && isTitleCandidate(child)) {
 			summaryChild = child;
-		} else if (child.strategy !== "diagnostic-node") {
-			// No general "meta" slot exists on a TrailEntry; keep any SIGNED child
-			// diagnostics (D8) at the provenance-footer head, drop only the value.
-			for (const d of child.diagnostics) leftoverDiagnostics.push(alert(d));
+		} else {
+			// A detail field keeps its caption (the label IS the subject — an
+			// unlabelled amount means nothing) and its own diagnostics; containers
+			// self-head through the ordinary field path.
+			detail.push(field(child, ctx));
 		}
 	}
 	let summaryValue: string;
@@ -513,7 +525,7 @@ function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 		kind: "compound",
 		name: "TrailEntry",
 		args,
-		slots: { ref, provenance: [...headAlerts, ...leftoverDiagnostics, ...provenance] },
+		slots: { signals, detail, ref, provenance: [...headAlerts, ...provenance] },
 	} satisfies CompoundRef;
 }
 
@@ -747,23 +759,25 @@ function caption(label: string): Text {
 }
 
 function alert(diagnostic: CompilerDiagnostic): InlineAlert {
+	// The producer-authored next action renders as honest structure (KRA-757 §3.8):
+	// authored vocabulary is never dead vocabulary, and the human action never
+	// blurs into the machine detail.
 	return {
 		kind: "inline-alert",
 		tone: diagnostic.severity === "info" ? "info" : "caution",
 		title: diagnostic.code,
 		detail: diagnostic.message,
+		...(diagnostic.repair_hint === undefined ? {} : { repair: diagnostic.repair_hint }),
 	};
 }
 
 function labeledAlert(label: string, diagnostic: CompilerDiagnostic): InlineAlert {
 	// A cell diagnostic lifted out of its cell loses its spatial tie to the field,
 	// so the title names the field it refers to: "<Field label>: <code>" (KRA-796).
-	return {
-		kind: "inline-alert",
-		tone: diagnostic.severity === "info" ? "info" : "caution",
-		title: label ? `${label}: ${diagnostic.code}` : diagnostic.code,
-		detail: diagnostic.message,
-	};
+	// The lifted alert keeps everything alert() renders — including the authored
+	// repair hint (KRA-788) — only the title gains the field name.
+	const base = alert(diagnostic);
+	return label ? { ...base, title: `${label}: ${diagnostic.code}` } : base;
 }
 
 function normalizeVisibleLabelText(value: string, fallback: string): string {

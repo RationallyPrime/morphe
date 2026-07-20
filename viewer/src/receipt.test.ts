@@ -9,7 +9,7 @@ const compilation: CompilationReceipt = {
 	sourceTestimonySha256: sha("1"),
 	compilerVersion: "0.3.3",
 	compilerBuildSha256: sha("2"),
-	grammarVersion: "0.2.0",
+	grammarVersion: "0.3.0",
 	treeSha256: sha("3"),
 	diagnosticsSha256: sha("4"),
 	temporalPolicy: "minute",

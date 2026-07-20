@@ -673,6 +673,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Live",
           "type": "string"
         },
+        "repair": {
+          "title": "Repair",
+          "type": "string"
+        },
         "title": {
           "title": "Title",
           "type": "string"
@@ -958,8 +962,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "spacer": "#/$defs/Spacer",
           "stack": "#/$defs/Stack",
           "status": "#/$defs/Status",
+          "table": "#/$defs/Table",
           "text": "#/$defs/Text",
           "toggle": "#/$defs/Toggle",
+          "trend": "#/$defs/Trend",
           "vary": "#/$defs/Vary",
           "within": "#/$defs/Within"
         },
@@ -982,6 +988,9 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "$ref": "#/$defs/Spacer"
         },
         {
+          "$ref": "#/$defs/Table"
+        },
+        {
           "$ref": "#/$defs/Text"
         },
         {
@@ -992,6 +1001,9 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
         },
         {
           "$ref": "#/$defs/Icon"
+        },
+        {
+          "$ref": "#/$defs/Trend"
         },
         {
           "$ref": "#/$defs/Media"
@@ -1474,6 +1486,142 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
       "title": "StatusSignal",
       "type": "object"
     },
+    "Table": {
+      "additionalProperties": false,
+      "properties": {
+        "caption": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Caption",
+          "type": "string"
+        },
+        "captionHidden": {
+          "title": "Captionhidden",
+          "type": "boolean"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/TableColumn"
+          },
+          "minItems": 1,
+          "title": "Columns",
+          "type": "array"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "table",
+          "title": "Kind",
+          "type": "string"
+        },
+        "responsive": {
+          "enum": [
+            "scroll",
+            "collapse",
+            "records"
+          ],
+          "title": "Responsive",
+          "type": "string"
+        },
+        "rowHeader": {
+          "title": "Rowheader",
+          "type": "boolean"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/TableRow"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "sticky": {
+          "title": "Sticky",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "caption",
+        "columns",
+        "rows"
+      ],
+      "title": "Table",
+      "type": "object"
+    },
+    "TableCell": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "children"
+      ],
+      "title": "TableCell",
+      "type": "object"
+    },
+    "TableColumn": {
+      "additionalProperties": false,
+      "properties": {
+        "header": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Header",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "numeric": {
+          "title": "Numeric",
+          "type": "boolean"
+        },
+        "priority": {
+          "enum": [
+            "primary",
+            "secondary",
+            "detail"
+          ],
+          "title": "Priority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "header"
+      ],
+      "title": "TableColumn",
+      "type": "object"
+    },
+    "TableRow": {
+      "additionalProperties": false,
+      "properties": {
+        "cells": {
+          "items": {
+            "$ref": "#/$defs/TableCell"
+          },
+          "title": "Cells",
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "$ref": "#/$defs/Node"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cells"
+      ],
+      "title": "TableRow",
+      "type": "object"
+    },
     "Text": {
       "additionalProperties": false,
       "properties": {
@@ -1563,6 +1711,69 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
         "a11y"
       ],
       "title": "Toggle",
+      "type": "object"
+    },
+    "Trend": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "enum": [
+            "zero",
+            "min"
+          ],
+          "title": "Baseline",
+          "type": "string"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "intent": {
+          "$ref": "#/$defs/IntentRef"
+        },
+        "kind": {
+          "const": "trend",
+          "title": "Kind",
+          "type": "string"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/TrendPoint"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "summary": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "points",
+        "summary"
+      ],
+      "title": "Trend",
+      "type": "object"
+    },
+    "TrendPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "minLength": 1,
+          "title": "Period",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/NumberValue"
+        }
+      },
+      "required": [
+        "period",
+        "value"
+      ],
+      "title": "TrendPoint",
       "type": "object"
     },
     "Vary": {

@@ -26,6 +26,7 @@ from .models import (
     Popover,
     Slot,
     Stack,
+    Table,
     Vary,
     Within,
     validate_node,
@@ -102,6 +103,12 @@ def _constraint(
 
 _DIALECT_CONSTRAINTS = (
     _constraint("icelandic-archive", "unrestricted"),
+    # Clinical's structural restriction is PROMOTED-ONLY (ratified KRA-788, repair d):
+    # the allowlist names the full promoted package catalog and thereby excludes
+    # unreviewed consumer compounds — it does not narrow the reviewed package
+    # vocabulary. Earlier doctrine describing a SignalCard-only clinical mask
+    # documented the first entry, not the policy; the live catalog is the truth.
+    # A compound promoted into the package catalog is added here in the same change.
     _constraint(
         "clinical",
         "allowlist",
@@ -285,6 +292,20 @@ def _walk_node(node: Node, constraint: DialectCompoundConstraint, path: str) -> 
         return
     if isinstance(node, Stack | Grid | Cluster | Frame | Dialog | Popover | Disclosure):
         _walk_children(node.children, constraint, f"{path}.children")
+    elif isinstance(node, Table):
+        for row_index, row in enumerate(node.rows):
+            for cell_index, cell in enumerate(row.cells):
+                _walk_children(
+                    cell.children,
+                    constraint,
+                    f"{path}.rows[{row_index}].cells[{cell_index}].children",
+                )
+            if row.diagnostics is not None:
+                _walk_children(
+                    row.diagnostics,
+                    constraint,
+                    f"{path}.rows[{row_index}].diagnostics",
+                )
     elif isinstance(node, Vary):
         _walk_children(node.options, constraint, f"{path}.options")
     elif isinstance(node, Within) and node.target is not None:

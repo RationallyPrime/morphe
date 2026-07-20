@@ -60,6 +60,12 @@ class KpiCell(ContractModel):
     temporal: TemporalFormat | None = None
     currency: str | None = None
     intent: IntentRef | None = None
+    # The corner signal (KRA-757 §3.2): short state text (e.g. "Breached") the
+    # card renders as a Status chip in its corner slot; `signal_intent` clamps to
+    # the status tone subset at emit — a KPI card never certifies state it was
+    # not told. Omitted -> the corner stays empty.
+    signal: str | None = None
+    signal_intent: IntentRef | None = None
 
     @model_validator(mode="after")
     def well_formed_currency(self) -> KpiCell:

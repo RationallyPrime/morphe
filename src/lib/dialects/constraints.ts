@@ -1,5 +1,5 @@
 import { isNodeLike, registry } from "../compounds/factory.js";
-import type { CompoundRef, Node } from "../grammar/types.js";
+import type { CompoundRef, Node, Table } from "../grammar/types.js";
 import { DIALECT_COMPOUND_CONSTRAINTS, type DialectConstraintId } from "./constraints.generated.js";
 
 export type DialectId = DialectConstraintId;
@@ -84,11 +84,31 @@ function children(node: Node): readonly ChildEntry[] {
 			return indexedChildren(node.fallback ?? [], "fallback");
 		case "within":
 			return node.target === undefined ? [] : [{ node: node.target, path: ["target"] }];
+		case "table":
+			return tableChildren(node);
 		case "compound":
 			return compoundChildren(node);
 		default:
 			return [];
 	}
+}
+
+function tableChildren(node: Table): readonly ChildEntry[] {
+	const entries: ChildEntry[] = [];
+	node.rows.forEach((row, rowIndex) => {
+		row.cells.forEach((cell, cellIndex) => {
+			cell.children.forEach((child, childIndex) => {
+				entries.push({
+					node: child,
+					path: ["rows", rowIndex, "cells", cellIndex, "children", childIndex],
+				});
+			});
+		});
+		(row.diagnostics ?? []).forEach((child, childIndex) => {
+			entries.push({ node: child, path: ["rows", rowIndex, "diagnostics", childIndex] });
+		});
+	});
+	return entries;
 }
 
 /** Enforce the generated `G|D` compound policy on an already grammar-valid tree. */

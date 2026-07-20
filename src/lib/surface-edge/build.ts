@@ -488,9 +488,10 @@ function buildKpiCell(row: unknown, context: BuildContext): SurfaceNode {
 	const number = coerceNumber(row.value);
 	const kicker = stringOrNull(row.kicker);
 	const [numberFormat, currency] = currencyPresentation(presentation.format, presentation.currency);
+	const label = stringOrNull(row.label) || context.label;
 	return surfaceNode({
 		path: context.path,
-		label: stringOrNull(row.label) || context.label,
+		label,
 		strategy: number === null ? "scalar" : "number",
 		value: number ?? asScalar(row.value),
 		...(presentation.role === undefined ? {} : { intent: presentation.role }),
@@ -500,8 +501,32 @@ function buildKpiCell(row: unknown, context: BuildContext): SurfaceNode {
 			: {}),
 		...(currency === undefined ? {} : { currency }),
 		...(kicker === null ? {} : { kicker }),
+		children: kpiSignal(row, label, context),
 		diagnostics: sourceDiagnostics,
 	});
+}
+
+function kpiSignal(
+	row: Readonly<Record<string, unknown>>,
+	label: string,
+	context: BuildContext,
+): SurfaceNode[] {
+	// The corner-signal lever (KRA-757 §3.2), mirroring the Python twin exactly:
+	// `signal` text plus an optional `signal_intent` tone lower to one status
+	// child the emitter routes into the SignalCard's `signal` slot. A malformed
+	// intent keeps the text and loses only the tone (totality, D8).
+	const signal = stringOrNull(row.signal);
+	if (signal === null) return [];
+	const tone = parseHint({ "x-morphe": { role: row.signal_intent ?? null } }).hint.role;
+	return [
+		surfaceNode({
+			path: `${context.path}.signal`,
+			label,
+			strategy: "status",
+			value: signal,
+			...(tone === undefined ? {} : { intent: tone }),
+		}),
+	];
 }
 
 function cellPresentation(cell: Readonly<Record<string, unknown>>): MorpheHint {

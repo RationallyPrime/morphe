@@ -143,6 +143,51 @@ class Spacer(GrammarModel):
     size: Literal["xs", "sm", "md", "lg", "xl"] | None = None
 
 
+class TableColumn(GrammarModel):
+    header: StrictStr = PydanticField(min_length=1, pattern=VISIBLE_LABEL_PATTERN)
+    numeric: StrictBool | None = None
+    priority: Literal["primary", "secondary", "detail"] | None = None
+    intent: IntentRef | None = None
+
+
+class TableCell(GrammarModel):
+    children: tuple[Node, ...]
+
+
+class TableRow(GrammarModel):
+    cells: tuple[TableCell, ...]
+    # The row-associated diagnostics lane (ADR-0020): full-width, immediately
+    # after its row, so an alert explains its subject without painting over it.
+    diagnostics: tuple[Node, ...] | None = None
+
+
+class Table(GrammarModel):
+    # ADR-0020: the data-table capability. Real <table>/<th scope> semantics,
+    # a required accessible name, and a DECLARED responsive policy — never a
+    # geometry that appears to fit while the information does not.
+    kind: Literal["table"]
+    caption: StrictStr = PydanticField(min_length=1, pattern=VISIBLE_LABEL_PATTERN)
+    captionHidden: StrictBool | None = None
+    columns: tuple[TableColumn, ...] = PydanticField(min_length=1)
+    rows: tuple[TableRow, ...]
+    rowHeader: StrictBool | None = None
+    responsive: Literal["scroll", "collapse", "records"] | None = None
+    sticky: StrictBool | None = None
+    emphasis: EmphasisClaim | None = None
+
+    @model_validator(mode="after")
+    def require_rectangular_rows(self) -> Self:
+        width = len(self.columns)
+        for index, row in enumerate(self.rows):
+            if len(row.cells) != width:
+                msg = (
+                    f"table row {index} carries {len(row.cells)} cells; "
+                    f"the declared columns require exactly {width}"
+                )
+                raise ValueError(msg)
+        return self
+
+
 class Text(GrammarModel):
     kind: Literal["text"]
     value: StrictStr
@@ -198,6 +243,24 @@ class Icon(GrammarModel):
 class MediaSource(GrammarModel):
     type: StrictStr
     srcset: StrictStr
+
+
+class TrendPoint(GrammarModel):
+    period: StrictStr = PydanticField(min_length=1)
+    value: NumberValue
+
+
+class Trend(GrammarModel):
+    # ADR-0019: the series Content kind. `summary` is the REQUIRED paired text —
+    # the figure is aria-hidden; the words are the primary channel, the shape is
+    # never the only signal. `baseline` is authored geometric honesty: "zero"
+    # (default) draws proportional truth; "min" is the explicit variation lens.
+    kind: Literal["trend"]
+    points: tuple[TrendPoint, ...]
+    summary: StrictStr = PydanticField(min_length=1, pattern=VISIBLE_LABEL_PATTERN)
+    baseline: Literal["zero", "min"] | None = None
+    intent: IntentRef | None = None
+    emphasis: EmphasisClaim | None = None
 
 
 class Media(GrammarModel):
@@ -278,6 +341,10 @@ class InlineAlert(GrammarModel):
     tone: Literal["success", "caution", "info"]
     title: StrictStr
     detail: StrictStr | None = None
+    # The producer-authored next action (KRA-757 §3.8 / KRA-788): a kernel's
+    # `Diagnostic.repair_hint` renders as honest structure, never concatenated
+    # into `detail` where the machine detail and the human action would blur.
+    repair: StrictStr | None = None
     live: Literal["polite", "assertive"] | None = None
 
 
@@ -495,10 +562,12 @@ type Node = Annotated[
         Cluster,
         Frame,
         Spacer,
+        Table,
         Text,
         NumberNode,
         Badge,
         Icon,
+        Trend,
         Media,
         Field,
         Select,
@@ -532,12 +601,18 @@ MODEL_TYPES: tuple[type[GrammarModel], ...] = (
     Cluster,
     Frame,
     Spacer,
+    TableColumn,
+    TableCell,
+    TableRow,
+    Table,
     Text,
     NumberNode,
     Badge,
     DecorativeIconA11y,
     ImageIconA11y,
     Icon,
+    TrendPoint,
+    Trend,
     MediaSource,
     Media,
     Field,
