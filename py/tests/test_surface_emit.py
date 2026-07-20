@@ -79,6 +79,17 @@ def _find(node: object, pred: Callable[[dict[str, Any]], bool]) -> dict[str, Any
     return None
 
 
+def _root_payload(node: dict[str, Any]) -> dict[str, Any]:
+    """Return a non-record root's payload beneath its compiler-owned task H1."""
+    assert node["kind"] == "stack"
+    assert node["role"] == "section"
+    task, payload = node["children"]
+    assert task["kind"] == "text"
+    assert task["as"] == "heading"
+    assert task["level"] == 1
+    return cast("dict[str, Any]", payload)
+
+
 def test_record_card_emits_valid_frame() -> None:
     node = emit_node(build_surface(WORKER, DATA, root=WORKER))
     assert node["kind"] == "frame"
@@ -89,8 +100,9 @@ def test_record_card_emits_valid_frame() -> None:
 def test_scalar_emits_text() -> None:
     spec = build_surface({"type": "string", "title": "Name"}, "Ada", root={})
     node = emit_node(spec)
-    assert node["kind"] == "text"
-    assert node["value"] == "Ada"
+    payload = _root_payload(node)
+    assert payload["kind"] == "text"
+    assert payload["value"] == "Ada"
     validate_node(node)
 
 
@@ -115,7 +127,7 @@ def test_scalar_rfc3339_display_is_minute_precise_and_total(raw: str, display: s
     spec = build_surface(schema, raw, root=schema)
 
     assert spec.value == raw
-    assert emit_node(spec)["value"] == display
+    assert _root_payload(emit_node(spec))["value"] == display
 
 
 def test_rfc3339_shaped_opaque_string_is_unchanged_without_temporal_policy() -> None:
@@ -123,7 +135,7 @@ def test_rfc3339_shaped_opaque_string_is_unchanged_without_temporal_policy() -> 
     spec = build_surface({"type": "string", "title": "Event ID"}, opaque, root={})
 
     assert spec.temporal is None
-    assert emit_node(spec)["value"] == opaque
+    assert _root_payload(emit_node(spec))["value"] == opaque
 
 
 def test_timestamp_floor_covers_table_cells_and_textual_kpis_without_mutating_ir() -> None:
@@ -175,13 +187,18 @@ def test_timestamp_floor_covers_table_cells_and_textual_kpis_without_mutating_ir
     validate_node(node)
 
 
-def test_root_identity_scalar_emits_display_critical_without_caption() -> None:
+def test_root_task_is_restrained_h1_and_identity_is_quiet_context() -> None:
     node = emit_node(build_surface(LEDGER_HEADER, LEDGER_HEADER_DATA, root=LEDGER_HEADER))
-    display = _find(node, lambda n: n.get("as") == "display")
+    task = _find(node, lambda n: n.get("as") == "heading" and n.get("level") == 1)
+    identity = _find(node, lambda n: n.get("value") == "Krates Main Ledger")
 
-    assert display is not None
-    assert display["value"] == "Krates Main Ledger"
-    assert display["emphasis"] == "critical"
+    assert task is not None
+    assert task["value"] == "Ledger header"
+    assert identity is not None
+    assert identity["as"] == "caption"
+    assert identity["emphasis"] == "muted"
+    assert identity["intent"] == "folio"
+    assert _find(node, lambda n: n.get("as") == "display") is None
     assert _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "Title") is None
     validate_node(node)
 
@@ -189,8 +206,9 @@ def test_root_identity_scalar_emits_display_critical_without_caption() -> None:
 def test_enum_emits_badge() -> None:
     spec = build_surface({"enum": ["active"], "title": "Status"}, "active", root={})
     node = emit_node(spec)
-    assert node["kind"] == "badge"
-    assert node["label"] == "active"
+    payload = _root_payload(node)
+    assert payload["kind"] == "badge"
+    assert payload["label"] == "active"
     validate_node(node)
 
 
@@ -302,9 +320,11 @@ def test_table_cell_diagnostics_stay_visible() -> None:
     assert alert in table["children"]
     assert not _find(
         node,
-        lambda n: n.get("kind") == "stack"
-        and n.get("role") == "field-group"
-        and any(c.get("kind") == "inline-alert" for c in n.get("children", [])),
+        lambda n: (
+            n.get("kind") == "stack"
+            and n.get("role") == "field-group"
+            and any(c.get("kind") == "inline-alert" for c in n.get("children", []))
+        ),
     )
     validate_node(node)
 
@@ -376,7 +396,7 @@ def test_nullable_table_cell_keeps_its_grid_position() -> None:
     validate_node(node)
 
 
-def test_heading_false_suppresses_section_heading() -> None:
+def test_heading_false_cannot_suppress_the_root_task_h1() -> None:
     schema = {
         "type": "object",
         "title": "BookOverviewSurface",
@@ -384,8 +404,13 @@ def test_heading_false_suppresses_section_heading() -> None:
         "properties": {"name": {"type": "string", "title": "Name"}},
     }
     node = emit_node(build_surface(schema, {"name": "Ledger"}, root=schema))
-    heading = _find(node, lambda n: n.get("as") == "heading")
-    assert heading is None
+    heading = _find(node, lambda n: n.get("as") == "heading" and n.get("level") == 1)
+    assert heading == {
+        "kind": "text",
+        "value": "BookOverviewSurface",
+        "as": "heading",
+        "level": 1,
+    }
     validate_node(node)
 
 
@@ -439,7 +464,7 @@ def test_empty_collection_uses_python_whitespace_for_its_fallback_label() -> Non
 def test_status_preserves_bom_because_python_strip_does_not_remove_it() -> None:
     schema = {"type": "string", "x-morphe": {"strategy": "status"}}
     node = emit_node(build_surface(schema, "\ufeffready\ufeff", root=schema))
-    assert node["signal"]["text"] == "\ufeffready\ufeff"
+    assert _root_payload(node)["signal"]["text"] == "\ufeffready\ufeff"
     validate_node(node)
 
 

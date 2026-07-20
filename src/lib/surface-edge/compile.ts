@@ -8,7 +8,7 @@ import { DEFAULT_EMIT_CONTEXT, type EmitContext, emitNode, SurfaceEmitLimitError
 import type { TrustedSourceSurface } from "./source.js";
 import type { CompilationResult, CompilerDiagnostic, SurfaceNode, TemporalPolicy } from "./spec.js";
 
-export const COMPILER_VERSION = "0.3.5";
+export const COMPILER_VERSION = "0.3.6";
 
 export class SurfaceCompilerInvariantError extends Error {}
 

@@ -5,7 +5,8 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_ProfileDetail"
+          "level": 1,
+          "value": "Profile detail"
         },
         {
           "args": {},
@@ -50,26 +51,33 @@
             ],
             "provenance": [
               {
-                "children": [
-                  {
-                    "as": "caption",
-                    "intent": "neutral",
-                    "kind": "text",
-                    "value": "Employee id"
-                  },
-                  {
-                    "as": "body",
-                    "intent": "provenance",
-                    "kind": "text",
-                    "value": "emp-001"
-                  }
-                ],
-                "columns": [
-                  "content",
-                  "flexible"
-                ],
-                "kind": "grid",
-                "role": "field-group"
+                "args": {},
+                "kind": "compound",
+                "name": "ProvenanceFooter",
+                "slots": {
+                  "facts": [
+                    {
+                      "children": [
+                        {
+                          "as": "caption",
+                          "intent": "neutral",
+                          "kind": "text",
+                          "value": "Employee id"
+                        },
+                        {
+                          "as": "body",
+                          "intent": "provenance",
+                          "kind": "text",
+                          "value": "emp-001"
+                        }
+                      ],
+                      "kind": "stack",
+                      "role": "field-group"
+                    }
+                  ],
+                  "links": [],
+                  "seals": []
+                }
               }
             ],
             "secondary": [
@@ -121,10 +129,25 @@
           }
         },
         {
-          "as": "display",
-          "emphasis": "critical",
-          "kind": "text",
-          "value": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Summary"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
         }
       ],
       "kind": "stack",

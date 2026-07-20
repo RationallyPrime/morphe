@@ -36,6 +36,7 @@ _COLLECTION = {"table", "card-stack", "kpi-row", "trail"}
 # a leading KPI row is a header, not the record's main body.
 _PROMOTABLE = {"table", "card-stack"}
 _IDENTITY_KEYS = ("name", "title")
+_PROVENANCE_ROLES = {"provenance", "accession", "seal"}
 _NUMERIC_TEXT = re.compile(r"^\(?[+-]?[0-9](?:[0-9 _.,]*[0-9])?\)?$")
 _COERCIBLE_NUMBER = re.compile(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$")
 _COERCIBLE_INTEGER = re.compile(r"^[+-]?[0-9]+$")
@@ -125,7 +126,11 @@ def _build(schema: dict[str, Any], data: object, ctx: _Ctx) -> SurfaceNode:
     if builder is not None or plan.strategy in _RECORD:
         if ctx.depth >= MAX_DEPTH or (plan.sid is not None and plan.sid in ctx.seen):
             return SurfaceNode(
-                path=ctx.path, label=plan.label, strategy="linked-ref", diagnostics=plan.diags
+                path=ctx.path,
+                label=plan.label,
+                strategy="linked-ref",
+                intent=plan.hint.role,
+                diagnostics=plan.diags,
             )
         return builder(plan, data, ctx) if builder is not None else _record(plan, data, ctx)
     if plan.strategy in _COLLECTION:
@@ -166,7 +171,7 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         for key, sub in prop_items
         if not _hidden(sub, ctx.root)
     )
-    identity_key = _identity_key(pairs, plan.resolved, ctx) if ctx.depth == 0 else None
+    identity_key = _identity_key(pairs, ctx) if ctx.depth == 0 else None
     primary_collection_key = _primary_collection_key(pairs, ctx) if ctx.depth == 0 else None
     children = tuple(
         _build(
@@ -185,6 +190,7 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy=eff,
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         collapse=collapse,
         children=children,
@@ -211,6 +217,7 @@ def _entity_header(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy="entity-header",
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         children=children,
         diagnostics=plan.diags,
@@ -236,6 +243,7 @@ def _key_value(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy="key-value",
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         children=children,
         diagnostics=plan.diags,
@@ -269,6 +277,7 @@ def _breakdown(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy="breakdown",
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         children=children,
         diagnostics=plan.diags,
@@ -295,6 +304,7 @@ def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy=plan.strategy,
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         emphasis="strong" if ctx.presentation == "primary-collection" else None,
         children=columns,
@@ -310,6 +320,7 @@ def _kpi_row(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         path=ctx.path,
         label=plan.label,
         strategy="kpi-row",
+        intent=plan.hint.role,
         heading=plan.hint.heading,
         items=items,
         diagnostics=plan.diags,
@@ -503,18 +514,32 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
     value = _as_scalar(data)
     scalar_number_kind = _scalar_number_kind(plan.resolved, value)
     numeric, polarity = _numeric_presentation(value)
-    identity = ctx.presentation == "identity" and plan.strategy == "scalar"
+    # An explicit provenance claim outranks the conventional name/title socket.
+    # Leaving it out of identity presentation preserves its field label inside
+    # audit proof instead of turning it into an ambiguous self-labelled caption.
+    identity = (
+        ctx.presentation == "identity"
+        and plan.strategy == "scalar"
+        and plan.hint.role not in _PROVENANCE_ROLES
+    )
     return SurfaceNode(
         path=ctx.path,
         label=plan.label,
         strategy=plan.strategy,
         value=value,
         scalar_number_kind=scalar_number_kind,
-        intent=_value_intent(plan.hint, value, scalar_number_kind)
-        if plan.strategy == "badge"
-        else plan.hint.role,
-        text_as="display" if identity else None,
-        emphasis="critical"
+        intent=(plan.hint.role or "folio")
+        if identity
+        else (
+            _value_intent(plan.hint, value, scalar_number_kind)
+            if plan.strategy == "badge"
+            else plan.hint.role
+        ),
+        # Root identity is context, not the task. The operational section label
+        # owns the logical h1 at emit time; organization/book identity stays
+        # visible in the quiet caption register and never auto-claims display.
+        text_as="caption" if identity else None,
+        emphasis="muted"
         if identity
         else (plan.hint.emphasis if plan.strategy == "scalar" else None),
         numeric=numeric if plan.strategy == "scalar" else None,
@@ -670,7 +695,6 @@ def _child_presentation(
 
 def _identity_key(
     pairs: tuple[tuple[str, dict[str, Any]], ...],
-    schema: dict[str, Any],
     ctx: _Ctx,
 ) -> str | None:
     for key in _IDENTITY_KEYS:
@@ -678,14 +702,9 @@ def _identity_key(
         if match is not None and _scalarish(match, ctx):
             return key
 
-    required = schema.get("required")
-    required_keys = required if isinstance(required, list) else []
-    for key in required_keys:
-        if not isinstance(key, str):
-            continue
-        match = next((schema for candidate, schema in pairs if candidate == key), None)
-        if match is not None and _scalarish(match, ctx):
-            return key
+    # A merely-required scalar is not identity. Promoting the first required
+    # field turned descriptions, codes, and status machinery into fake page
+    # titles; only the conventional identity sockets are contextualized.
     return None
 
 

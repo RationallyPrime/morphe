@@ -36,6 +36,13 @@ def _child(spec: SurfaceNode, path: str) -> SurfaceNode:
     return next(c for c in spec.children if c.path == path)
 
 
+def _root_payload(node: dict[str, Any]) -> dict[str, Any]:
+    assert node["kind"] == "stack"
+    assert node["children"][0]["as"] == "heading"
+    assert node["children"][0]["level"] == 1
+    return cast("dict[str, Any]", node["children"][1])
+
+
 TREASURY = {
     "type": "object",
     "title": "Treasury",
@@ -190,7 +197,7 @@ def test_badge_numeric_spelling_is_schema_normalized(
     schema: dict[str, Any], value: float, label: str
 ) -> None:
     node = emit_node(_build(schema, value))
-    assert node["label"] == label
+    assert _root_payload(node)["label"] == label
 
 
 def test_scalar_numeric_presentation_uses_ascii_digits_and_python_strip() -> None:

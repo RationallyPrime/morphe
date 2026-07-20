@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "XUsEujx4feE2zMDqhaaLpQFqHwwP21qpPyrBfXl7-dIBsQ0MmiifhxUiPFlswg2VSwlmlKUQKsIuNiDOYTipDw"
+    "signature": "whsxAJxaiWAxIwX2Fw5Ls4kny78d6e_9J4bgDcC43NStGMvQhCcxM095-3aa9PsQ6vKDbKoRmjmJUQiHgVldCQ"
   },
   "data": {
     "profile": {
@@ -101,7 +101,7 @@
       "profile",
       "summary"
     ],
-    "title": "_ProfileDetail",
+    "title": "Profile detail",
     "type": "object",
     "x-morphe": {
       "order": [
@@ -112,8 +112,8 @@
   },
   "seals": {
     "content_sha256": "sha256:1b4e5a5cc21cf4b4269666ed378469c48a87bdd5d81510d2bf3ffba26e62f13f",
-    "schema_sha256": "sha256:805b863320413b6d485daeb691fa5caf91b5a5a1d8ca868e90ecd7381dccdbbf",
-    "testimony_sha256": "sha256:5d01bdfb19bc3b21802e446e09e15f0784a2ba28db4817fc9bd1d29dd5d1e9ab"
+    "schema_sha256": "sha256:0d30fcb27066cb0cb3ce6508a302a5199d5a2276c4715716da017282d1edc776",
+    "testimony_sha256": "sha256:3673977c5df7cab760c00cdf33b17fbf359e1d76a76bd54731d1b597313cc531"
   },
   "source_revision": "krates-profile-fixture-rev-0001",
   "surface_id": "krates.profile:krates-ehf",

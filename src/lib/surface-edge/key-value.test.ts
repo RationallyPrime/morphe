@@ -40,10 +40,41 @@ const EXPECTED_PANEL: Node = {
 		],
 		secondary: [grid(caption("Dept"), { kind: "text", value: "Treasury", as: "body" })],
 		provenance: [
-			grid(caption("Id"), { kind: "text", value: "emp-1", as: "body", intent: "provenance" }),
+			{
+				kind: "compound",
+				name: "ProvenanceFooter",
+				args: {},
+				slots: {
+					facts: [
+						{
+							kind: "stack",
+							role: "field-group",
+							children: [
+								caption("Id"),
+								{ kind: "text", value: "emp-1", as: "body", intent: "provenance" },
+							],
+						},
+					],
+					seals: [],
+					links: [],
+				},
+			},
 		],
 	},
 };
+
+function panelPayload(node: Node): Node {
+	if (node.kind !== "stack" || node.role !== "section") throw new Error("expected root task stack");
+	expect(node.children[0]).toEqual({
+		kind: "text",
+		value: "Panel",
+		as: "heading",
+		level: 1,
+	});
+	const panel = node.children[1];
+	if (panel === undefined) throw new Error("expected KeyValuePanel payload");
+	return panel;
+}
 
 describe("key-value lowering (KRA-787)", () => {
 	it("is hint-selected only — structural inference never returns it", () => {
@@ -61,7 +92,7 @@ describe("key-value lowering (KRA-787)", () => {
 
 	it("tiers fields into the promoted KeyValuePanel — byte-identical to the Python oracle", () => {
 		const node = emitNode(buildSurface(PANEL_SCHEMA, PANEL_DATA, { root: PANEL_SCHEMA }));
-		expect(node).toEqual(EXPECTED_PANEL);
+		expect(panelPayload(node)).toEqual(EXPECTED_PANEL);
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
@@ -73,7 +104,9 @@ describe("key-value lowering (KRA-787)", () => {
 		const section = floorEmitted.children[0];
 		if (section?.kind !== "stack") throw new Error("expected a section");
 		const floorGrid = section.children.find((child) => child.kind === "grid");
-		const panel = emitNode(buildSurface(PANEL_SCHEMA, PANEL_DATA, { root: PANEL_SCHEMA }));
+		const panel = panelPayload(
+			emitNode(buildSurface(PANEL_SCHEMA, PANEL_DATA, { root: PANEL_SCHEMA })),
+		);
 		if (panel.kind !== "compound") throw new Error("expected a panel");
 		const secondaryGrid = panel.slots?.secondary?.[0];
 		if (floorGrid?.kind !== "grid" || secondaryGrid?.kind !== "grid") {

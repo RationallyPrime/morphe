@@ -5,11 +5,13 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_ObolosEvidence"
+          "level": 1,
+          "value": "Evidence review"
         },
         {
-          "as": "display",
-          "emphasis": "critical",
+          "as": "caption",
+          "emphasis": "muted",
+          "intent": "folio",
           "kind": "text",
           "value": "Settlement evidence 2026-07-17"
         },

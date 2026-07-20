@@ -148,6 +148,7 @@ export interface Text {
 	readonly kind: "text";
 	readonly value: string;
 	readonly as?: "display" | "heading" | "subheading" | "body" | "caption";
+	readonly level?: 1 | 2 | 3;
 	readonly emphasis?: EmphasisClaim;
 	readonly intent?: IntentRef;
 	readonly clamp?: NumberValue;

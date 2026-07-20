@@ -56,7 +56,7 @@ def _row(label: str, value: object, fraction: float | None) -> dict[str, Any]:
 EXPECTED_BREAKDOWN: dict[str, Any] = {
     "kind": "compound",
     "name": "Breakdown",
-    "args": {"title": {"kind": "text", "value": "Split", "as": "heading"}},
+    "args": {},
     "slots": {
         "rows": [
             _row("Alpha", 1, 0.25),
@@ -69,6 +69,15 @@ EXPECTED_BREAKDOWN: dict[str, Any] = {
 
 def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
     return build_surface(schema, data, root=schema)
+
+
+def _breakdown_payload(node: dict[str, Any]) -> dict[str, Any]:
+    assert node["kind"] == "stack"
+    assert node["role"] == "section"
+    assert node["children"][0]["kind"] == "text"
+    assert node["children"][0]["as"] == "heading"
+    assert node["children"][0]["level"] == 1
+    return node["children"][1]
 
 
 # --- resolve: hint-selected only; the structural floor is untouched -------------------
@@ -93,7 +102,8 @@ def test_hint_free_object_still_lowers_to_record_card() -> None:
 def test_breakdown_lowers_to_promoted_compound_with_fractions() -> None:
     node = emit_node(_build(SPLIT_SCHEMA, SPLIT_DATA))
     validate_node(node)
-    assert node == EXPECTED_BREAKDOWN
+    assert node["children"][0]["value"] == "Split"
+    assert _breakdown_payload(node) == EXPECTED_BREAKDOWN
 
 
 def test_breakdown_pins_a_non_trivial_repeating_fraction() -> None:
@@ -109,7 +119,8 @@ def test_breakdown_pins_a_non_trivial_repeating_fraction() -> None:
     }
     node = emit_node(_build(schema, {"r": 100_000, "o": 250_000}))
     validate_node(node)
-    fractions = [row["children"][1].get("value") for row in node["slots"]["rows"]]
+    breakdown = _breakdown_payload(node)
+    fractions = [row["children"][1].get("value") for row in breakdown["slots"]["rows"]]
     assert fractions == [0.2857142857142857, 0.7142857142857143]
 
 
@@ -124,7 +135,7 @@ def test_breakdown_degrades_non_numeric_and_zero_sum_to_indeterminate() -> None:
     }
     node = emit_node(_build(schema, {"a": "hello", "b": 0}))
     validate_node(node)
-    rows = node["slots"]["rows"]
+    rows = _breakdown_payload(node)["slots"]["rows"]
     # Non-numeric row: indeterminate progress, value renders as its natural text leaf.
     assert "value" not in rows[0]["children"][1]
     assert rows[0]["children"][2] == {"kind": "text", "value": "hello", "as": "body"}
@@ -137,7 +148,7 @@ def test_breakdown_node_diagnostics_ride_the_rows_head() -> None:
     spec = build_surface(SPLIT_SCHEMA, SPLIT_DATA, root=SPLIT_SCHEMA, diagnostics=diagnostics)
     node = emit_node(spec)
     validate_node(node)
-    head = node["slots"]["rows"][0]
+    head = _breakdown_payload(node)["slots"]["rows"][0]
     assert head == {
         "kind": "inline-alert",
         "tone": "info",

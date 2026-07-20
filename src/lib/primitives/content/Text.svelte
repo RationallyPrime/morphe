@@ -10,7 +10,8 @@
 	 * semantic `as` level modulates that tier with a relative step (Lemma 2: "the
 	 * algebra maps `as` onto the type scale + tier").
 	 *
-	 * Headings vs body are a Text concern (the `as` prop), not separate primitives.
+	 * Heading semantics stay a Text concern (`level` selects the native element;
+	 * `as` selects its visual register), not separate primitives.
 	 *
 	 * Emphasis is a CLAIM the Layout parent renormalizes against the budget B (the
 	 * one place the whole sibling set + B are in scope); this leaf renders the
@@ -31,6 +32,11 @@
 	let { node, ctx }: PrimitiveProps<Text> = $props();
 
 	const as = $derived(node.as ?? "body");
+	type HeadingTag = "h1" | "h2" | "h3";
+	const headingTag = $derived.by<HeadingTag>(() => {
+		const defaultLevel = as === "display" ? 1 : as === "heading" ? 2 : 3;
+		return `h${node.level ?? defaultLevel}` as HeadingTag;
+	});
 
 	// Render the emphasis the Layout parent GRANTED this leaf (it renormalized the
 	// sibling set against B). No per-leaf self-clamp: that duplicated the law with
@@ -71,18 +77,10 @@
 	const polarity = $derived(node.polarity);
 </script>
 
-{#if as === "display"}
-	<h1 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
+{#if node.level !== undefined || as === "display" || as === "heading" || as === "subheading"}
+	<svelte:element this={headingTag} class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}
-	</h1>
-{:else if as === "heading"}
-	<h2 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
-		{node.value}
-	</h2>
-{:else if as === "subheading"}
-	<h3 class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
-		{node.value}
-	</h3>
+	</svelte:element>
 {:else if as === "caption"}
 	<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
 		{node.value}

@@ -98,6 +98,7 @@ const RECORD_STRATEGIES = new Set<Strategy>(["record-card", "collapsed-section"]
 const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row", "trail"]);
 const PROMOTABLE_STRATEGIES = new Set<Strategy>(["table", "card-stack"]);
 const IDENTITY_KEYS = ["name", "title"] as const;
+const PROVENANCE_ROLES: ReadonlySet<string> = new Set(["provenance", "accession", "seal"]);
 const NUMERIC_TEXT = /^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$/;
 const WELL_FORMED_CURRENCY = /^[A-Za-z]{3}$/;
 
@@ -211,6 +212,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				path: context.path,
 				label: plan.label,
 				strategy: "linked-ref",
+				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -226,6 +228,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				path: context.path,
 				label: plan.label,
 				strategy: "linked-ref",
+				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -241,6 +244,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				path: context.path,
 				label: plan.label,
 				strategy: "linked-ref",
+				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -255,6 +259,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				path: context.path,
 				label: plan.label,
 				strategy: "linked-ref",
+				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -339,7 +344,7 @@ function buildRecord(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 	const pairs = orderedProperties(properties, plan.hint.order).filter(
 		([, childSchema]) => !hidden(childSchema, context.root),
 	);
-	const identityKey = context.depth === 0 ? identityField(pairs, plan.resolved, context) : null;
+	const identityKey = context.depth === 0 ? identityField(pairs, context) : null;
 	const primaryKey = context.depth === 0 ? primaryCollectionField(pairs, context) : null;
 	const children = pairs.map(([key, childSchema]) =>
 		build(
@@ -352,6 +357,7 @@ function buildRecord(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 		path: context.path,
 		label: plan.label,
 		strategy,
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		...(strategy === "collapsed-section" ? { collapse: plan.hint.collapse !== false } : {}),
 		children,
@@ -374,6 +380,7 @@ function buildEntityHeader(plan: Plan, data: unknown, context: BuildContext): Su
 		path: context.path,
 		label: plan.label,
 		strategy: "entity-header",
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -405,6 +412,7 @@ function buildBreakdown(plan: Plan, data: unknown, context: BuildContext): Surfa
 		path: context.path,
 		label: plan.label,
 		strategy: "breakdown",
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -427,6 +435,7 @@ function buildKeyValue(plan: Plan, data: unknown, context: BuildContext): Surfac
 		path: context.path,
 		label: plan.label,
 		strategy: "key-value",
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -446,6 +455,7 @@ function buildCollection(plan: Plan, data: unknown, context: BuildContext): Surf
 		path: context.path,
 		label: plan.label,
 		strategy: plan.strategy,
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		...(context.presentation === "primary-collection" ? { emphasis: "strong" as const } : {}),
 		children: columns,
@@ -460,6 +470,7 @@ function buildKpiRow(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 		path: context.path,
 		label: plan.label,
 		strategy: "kpi-row",
+		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
 		heading: plan.hint.heading,
 		items: rows.map((row, index) => buildKpiCell(row, itemContext(context, index, plan.label))),
 		diagnostics: plan.diagnostics,
@@ -603,21 +614,29 @@ function buildLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNod
 
 	const value = asScalar(data);
 	const [numeric, polarity] = numericPresentation(value);
-	const identity = context.presentation === "identity" && plan.strategy === "scalar";
+	// An explicit provenance claim outranks the conventional name/title socket.
+	// Keep its ordinary labelled-field presentation inside audit proof.
+	const identity =
+		context.presentation === "identity" &&
+		plan.strategy === "scalar" &&
+		(plan.hint.role === undefined || !PROVENANCE_ROLES.has(plan.hint.role));
 	const scalarKind =
 		typeof value === "number" ? scalarNumberKindFor(plan.resolved, value) : "integer";
 	const intent =
 		plan.strategy === "badge" ? valueIntent(plan.hint, value, scalarKind) : plan.hint.role;
+	const presentedIntent = identity ? (plan.hint.role ?? "folio") : intent;
 	return surfaceNode(
 		{
 			path: context.path,
 			label: plan.label,
 			strategy: plan.strategy,
 			value,
-			...(intent === undefined ? {} : { intent }),
-			...(identity ? { text_as: "display" as const } : {}),
+			...(presentedIntent === undefined ? {} : { intent: presentedIntent }),
+			// Root identity is quiet context; the root section label becomes the
+			// operational h1 during emission. Never infer editorial display type.
+			...(identity ? { text_as: "caption" as const } : {}),
 			...(identity
-				? { emphasis: "critical" as const }
+				? { emphasis: "muted" as const }
 				: plan.strategy === "scalar" && plan.hint.emphasis !== undefined
 					? { emphasis: plan.hint.emphasis }
 					: {}),
@@ -787,19 +806,14 @@ function childPresentation(
 
 function identityField(
 	pairs: readonly (readonly [string, JsonSchema])[],
-	schema: JsonSchema,
 	context: BuildContext,
 ): string | null {
 	for (const key of IDENTITY_KEYS) {
 		const match = pairs.find(([candidate]) => candidate === key)?.[1];
 		if (match !== undefined && scalarish(match, context)) return key;
 	}
-	if (!Array.isArray(schema.required)) return null;
-	for (const key of schema.required) {
-		if (typeof key !== "string") continue;
-		const match = pairs.find(([candidate]) => candidate === key)?.[1];
-		if (match !== undefined && scalarish(match, context)) return key;
-	}
+	// Required does not mean identity: descriptions, codes, and status machinery
+	// must not become page context merely because the wire contract requires them.
 	return null;
 }
 

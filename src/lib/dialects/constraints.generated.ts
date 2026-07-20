@@ -12,6 +12,7 @@ export const DIALECT_COMPOUND_CONSTRAINTS = {
 		compounds: [
 			"SignalCard",
 			"EntityHeader",
+			"ProvenanceFooter",
 			"StatBand",
 			"Breakdown",
 			"TrailEntry",

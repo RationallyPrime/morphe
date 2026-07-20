@@ -1,0 +1,51 @@
+import { render } from "svelte/server";
+import { describe, expect, it, vi } from "vitest";
+import ViewerChrome from "./ViewerChrome.svelte";
+
+vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
+
+describe("ViewerChrome operator and inspection modes", () => {
+	it("keeps task controls in operator chrome and collapses dialect inspection by default", () => {
+		const html = render(ViewerChrome, {
+			props: {
+				dialects: ["gallery", "ledger"],
+				current: "gallery",
+				crumbs: [
+					{ label: "Home", href: "/" },
+					{ label: "Surfaces", href: "/surfaces" },
+					{ label: "Taxis fixture" },
+					{ label: "Weekly roster" },
+				],
+				temporalPolicies: ["minute", "exact"],
+				temporalPolicy: "minute",
+			},
+		}).body;
+
+		expect(html).toContain('aria-label="Breadcrumb"');
+		expect(html.match(/aria-current="page"/g) ?? []).toHaveLength(1);
+		expect(html).toMatch(/<span[^>]*aria-current="page"[^>]*>Weekly roster<\/span>/);
+		expect(html).not.toMatch(/<span[^>]*aria-current="page"[^>]*>Taxis fixture<\/span>/);
+		expect(html).toContain("Operator controls");
+		expect(html).toContain("Substrate inspection");
+
+		const inspectionStart = html.indexOf("<details");
+		expect(inspectionStart).toBeGreaterThan(0);
+		expect(html.indexOf("Time")).toBeLessThan(inspectionStart);
+		expect(html.indexOf("Dialect")).toBeGreaterThan(inspectionStart);
+		expect(html).not.toMatch(/<details[^>]*\sopen(?:[\s=>])/);
+	});
+
+	it("retains inspection mode without inventing operator controls on a catalog route", () => {
+		const html = render(ViewerChrome, {
+			props: {
+				dialects: ["gallery", "ledger"],
+				current: "ledger",
+				crumbs: [{ label: "Surfaces" }],
+			},
+		}).body;
+
+		expect(html).not.toContain("Operator controls");
+		expect(html).toContain("Substrate inspection");
+		expect(html).toContain("Dialect");
+	});
+});

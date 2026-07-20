@@ -73,20 +73,18 @@
     {
       "children": [],
       "diagnostics": [],
-      "emphasis": "critical",
       "heading": true,
       "items": [],
       "label": "Summary",
       "path": "$.summary",
       "strategy": "scalar",
-      "text_as": "display",
       "value": "One profile detail pane; the fields lower to a promoted KeyValuePanel."
     }
   ],
   "diagnostics": [],
   "heading": true,
   "items": [],
-  "label": "_ProfileDetail",
+  "label": "Profile detail",
   "path": "$",
   "strategy": "record-card"
 }

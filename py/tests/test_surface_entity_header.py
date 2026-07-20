@@ -64,8 +64,13 @@ EXPECTED_COMPOUND: dict[str, Any] = {
     "kind": "compound",
     "name": "EntityHeader",
     "args": {
-        "kicker": {"kind": "text", "value": "Vendor", "as": "caption", "intent": "folio"},
-        "title": {"kind": "text", "value": "Krates ehf", "as": "heading"},
+        "kicker": {
+            "kind": "text",
+            "value": "Krates ehf",
+            "as": "caption",
+            "intent": "folio",
+        },
+        "title": {"kind": "text", "value": "Vendor", "as": "heading", "level": 1},
         "keyFigure": {
             "kind": "number",
             "value": 2_450_000,
@@ -92,7 +97,37 @@ EXPECTED_COMPOUND: dict[str, Any] = {
                 ],
             }
         ],
-        "provenance": [{"kind": "text", "value": "vnd-001", "as": "body", "intent": "provenance"}],
+        "provenance": [
+            {
+                "kind": "compound",
+                "name": "ProvenanceFooter",
+                "args": {},
+                "slots": {
+                    "facts": [
+                        {
+                            "kind": "stack",
+                            "role": "field-group",
+                            "children": [
+                                {
+                                    "kind": "text",
+                                    "value": "Ledger id",
+                                    "as": "caption",
+                                    "intent": "neutral",
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "vnd-001",
+                                    "as": "body",
+                                    "intent": "provenance",
+                                },
+                            ],
+                        }
+                    ],
+                    "seals": [],
+                    "links": [],
+                },
+            }
+        ],
     },
 }
 
@@ -149,7 +184,13 @@ def test_entity_header_omits_keyfigure_without_a_number() -> None:
     validate_node(node)
     # Omitting the arg lets the template's neutral-integer default apply.
     assert "keyFigure" not in node["args"]
-    assert node["args"]["title"]["value"] == "Ada"
+    assert node["args"]["title"] == {
+        "kind": "text",
+        "value": "Person",
+        "as": "heading",
+        "level": 1,
+    }
+    assert node["args"]["kicker"]["value"] == "Ada"
 
 
 def test_entity_header_diagnostics_ride_the_meta_alert_head() -> None:

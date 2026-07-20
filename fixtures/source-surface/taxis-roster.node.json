@@ -5,34 +5,15 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_TaxisRoster"
+          "level": 1,
+          "value": "Weekly roster"
         },
         {
-          "as": "display",
-          "emphasis": "critical",
+          "as": "caption",
+          "emphasis": "muted",
+          "intent": "folio",
           "kind": "text",
           "value": "Vestfir\u00f0ir \u2014 \"night\"\nroster"
-        },
-        {
-          "children": [
-            {
-              "as": "caption",
-              "intent": "neutral",
-              "kind": "text",
-              "value": "Window"
-            },
-            {
-              "as": "body",
-              "kind": "text",
-              "value": "2026-W29"
-            }
-          ],
-          "columns": [
-            "content",
-            "flexible"
-          ],
-          "kind": "grid",
-          "role": "field-group"
         },
         {
           "intent": "info",
@@ -299,6 +280,27 @@
           ],
           "kind": "stack",
           "role": "section"
+        },
+        {
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Window"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "2026-W29"
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
         }
       ],
       "kind": "stack",

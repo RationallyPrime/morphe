@@ -19,7 +19,7 @@
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
 	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} showAsOf asOf={data.asOf} />
-	<main class="viewer-home">
+	<main class="viewer-home" aria-label="Operational overview">
 		<MorpheRoot tree={data.tree} {dialect} />
 	</main>
 </div>

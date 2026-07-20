@@ -17,6 +17,7 @@ import {
 	pythonStrip,
 	type SurfaceNode,
 	scalarNumberKind,
+	surfaceNode,
 	type TemporalPolicy,
 } from "./spec.js";
 
@@ -41,6 +42,10 @@ const CONTAINER_STRATEGIES = new Set([
 	"key-value",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
+const PROVENANCE_INTENTS: ReadonlySet<string> = new Set(["provenance", "accession", "seal"]);
+const ATTENTION_STRATEGIES: ReadonlySet<string> = new Set(["status", "badge", "kpi-row"]);
+const ATTENTION_INTENTS: ReadonlySet<string> = new Set(["caution", "success", "info"]);
+const PRIMARY_WORKLIST_STRATEGIES: ReadonlySet<string> = new Set(["table", "card-stack"]);
 
 export interface EmitLimits {
 	readonly maxSpecDepth: number;
@@ -138,6 +143,10 @@ export function emitNode(
 }
 
 function emit(spec: SurfaceNode, ctx: EmitContext): Node {
+	return ensureRootTask(spec, emitRaw(spec, ctx));
+}
+
+function emitRaw(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (LEAF_STRATEGIES.has(spec.strategy)) return leaf(spec, ctx);
 	if (spec.strategy === "collapsed-section") return collapsible(spec, ctx);
 	if (spec.strategy === "table") return table(spec, ctx);
@@ -330,15 +339,29 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 	// twin exactly: explicit `role: provenance` wins; then first number is the key
 	// figure; then status/badge feed signal; then the first title candidate; the
 	// rest are meta facts.
-	const kicker: Text = { kind: "text", value: spec.label, as: "caption", intent: "folio" };
-	const provenance: Node[] = [];
+	const provenanceFacts: Node[] = [];
+	const provenanceSeals: Node[] = [];
+	const provenanceLinks: Node[] = [];
+	const provenanceSpecs: SurfaceNode[] = [];
 	const signal: Node[] = [];
 	const metaChildren: SurfaceNode[] = [];
 	let keyFigure: SurfaceNode | undefined;
 	let titleChild: SurfaceNode | undefined;
 	for (const child of spec.children) {
-		if (child.intent === "provenance") {
-			provenance.push(slotLeaf(child, ctx));
+		if (child.intent !== undefined && PROVENANCE_INTENTS.has(child.intent)) {
+			provenanceSpecs.push(child);
+			const quietChild = withoutDiagnostics(child);
+			if (quietChild !== null) {
+				routeProvenanceNode(
+					child,
+					child.strategy === "linked-ref" ? slotLeaf(quietChild, ctx) : field(quietChild, ctx),
+					{
+						facts: provenanceFacts,
+						seals: provenanceSeals,
+						links: provenanceLinks,
+					},
+				);
+			}
 		} else if (child.strategy === "number" && keyFigure === undefined) {
 			keyFigure = child;
 		} else if (child.strategy === "status" || child.strategy === "badge") {
@@ -349,18 +372,26 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 			metaChildren.push(child);
 		}
 	}
+	const contextValue =
+		titleChild === undefined
+			? ""
+			: displayScalarText(
+					titleChild.value ?? null,
+					scalarNumberKind(titleChild),
+					ctx.temporalPolicy,
+					ctx.now,
+				);
+	const kicker: Text = {
+		kind: "text",
+		value: contextValue,
+		as: "caption",
+		intent: "folio",
+	};
 	const title: Text = {
 		kind: "text",
-		value:
-			titleChild === undefined
-				? spec.label
-				: displayScalarText(
-						titleChild.value ?? null,
-						scalarNumberKind(titleChild),
-						ctx.temporalPolicy,
-						ctx.now,
-					),
+		value: spec.label,
 		as: "heading",
+		...(spec.path === "$" ? { level: 1 as const } : {}),
 	};
 	const args: Record<string, Node> = { kicker, title };
 	if (keyFigure !== undefined) {
@@ -374,13 +405,23 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 		...(titleChild === undefined ? [] : [titleChild]),
 		...(keyFigure === undefined ? [] : [keyFigure]),
 	];
-	const headAlerts = promoted.flatMap((node) => node.diagnostics.map(alert));
+	const headAlerts = [
+		...promoted.flatMap((node) => node.diagnostics.map(alert)),
+		...provenanceDiagnosticAlerts(provenanceSpecs),
+	];
 	const meta: Node[] = [...headAlerts, ...fields(metaChildren, ctx)];
 	return {
 		kind: "compound",
 		name: "EntityHeader",
 		args,
-		slots: { signal, meta, provenance },
+		slots: {
+			signal,
+			meta,
+			provenance:
+				provenanceFacts.length > 0 || provenanceSeals.length > 0 || provenanceLinks.length > 0
+					? [provenanceFooter(provenanceFacts, provenanceSeals, provenanceLinks)]
+					: [],
+		},
 	} satisfies CompoundRef;
 }
 
@@ -431,7 +472,7 @@ function breakdown(spec: SurfaceNode, ctx: EmitContext): Node {
 		rows.push(...breakdownRow(child, numbers[index] ?? null, positiveSum, ctx));
 	});
 	const args: Record<string, Node> = {};
-	if (spec.heading) {
+	if (spec.path !== "$" && spec.heading) {
 		args.title = { kind: "text", value: spec.label, as: "heading" };
 	}
 	// Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
@@ -457,10 +498,10 @@ function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 	const signals: Node[] = [];
 	const detail: Node[] = [];
 	const ref: Node[] = [];
-	const provenance: Node[] = [];
+	const provenanceSpecs: SurfaceNode[] = [];
 	for (const child of item.children) {
-		if (child.intent === "provenance") {
-			provenance.push(slotLeaf(child, ctx));
+		if (child.intent !== undefined && PROVENANCE_INTENTS.has(child.intent)) {
+			provenanceSpecs.push(child);
 		} else if (child.strategy === "linked-ref") {
 			ref.push(slotLeaf(child, ctx));
 		} else if (child.strategy === "status" || child.strategy === "badge") {
@@ -521,11 +562,18 @@ function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 	const headAlerts = promoted.flatMap((node) =>
 		node.strategy === "diagnostic-node" ? [] : node.diagnostics.map(alert),
 	);
+	headAlerts.push(...provenanceDiagnosticAlerts(provenanceSpecs));
+	const provenanceFooterNode = surfaceProvenanceFooter(provenanceSpecs, ctx);
 	return {
 		kind: "compound",
 		name: "TrailEntry",
 		args,
-		slots: { signals, detail, ref, provenance: [...headAlerts, ...provenance] },
+		slots: {
+			signals,
+			detail,
+			ref,
+			provenance: [...headAlerts, ...(provenanceFooterNode === null ? [] : [provenanceFooterNode])],
+		},
 	} satisfies CompoundRef;
 }
 
@@ -543,7 +591,7 @@ function keyValue(spec: SurfaceNode, ctx: EmitContext): Node {
 	const secondary: SurfaceNode[] = [];
 	const provenance: SurfaceNode[] = [];
 	for (const child of spec.children) {
-		if (child.intent === "provenance") {
+		if (child.intent !== undefined && PROVENANCE_INTENTS.has(child.intent)) {
 			provenance.push(child);
 		} else if (child.emphasis !== undefined) {
 			primary.push(child);
@@ -551,11 +599,12 @@ function keyValue(spec: SurfaceNode, ctx: EmitContext): Node {
 			secondary.push(child);
 		}
 	}
-	const nodeAlerts = spec.diagnostics.map(alert);
+	const nodeAlerts = [...spec.diagnostics.map(alert), ...provenanceDiagnosticAlerts(provenance)];
 	const primaryFill: Node[] = [
 		...nodeAlerts,
 		...(primary.length > 0 ? [definitionGrid(primary, ctx)] : []),
 	];
+	const provenanceFill = surfaceProvenanceFooter(provenance, ctx);
 	return {
 		kind: "compound",
 		name: "KeyValuePanel",
@@ -563,7 +612,7 @@ function keyValue(spec: SurfaceNode, ctx: EmitContext): Node {
 		slots: {
 			primary: primaryFill,
 			secondary: secondary.length > 0 ? [definitionGrid(secondary, ctx)] : [],
-			provenance: provenance.length > 0 ? [definitionGrid(provenance, ctx)] : [],
+			provenance: provenanceFill === null ? [] : [provenanceFill],
 		},
 	} satisfies CompoundRef;
 }
@@ -573,7 +622,150 @@ function frame(spec: SurfaceNode, ctx: EmitContext): Node {
 		kind: "frame",
 		role: "page",
 		surface: "base",
-		children: [section(spec, fields(spec.children, ctx))],
+		children: [
+			spec.path === "$" ? operationalPage(spec, ctx) : section(spec, fields(spec.children, ctx)),
+		],
+	};
+}
+
+function ensureRootTask(spec: SurfaceNode, node: Node): Node {
+	if (spec.path !== "$" || spec.strategy === "record-card" || spec.strategy === "entity-header") {
+		return node;
+	}
+	return {
+		kind: "stack",
+		role: "section",
+		children: [heading(spec.label, spec.emphasis, 1), node],
+	};
+}
+
+function operationalPage(spec: SurfaceNode, ctx: EmitContext): Stack {
+	const context: SurfaceNode[] = [];
+	const attention: SurfaceNode[] = [];
+	const primaryWorklist: SurfaceNode[] = [];
+	const content: SurfaceNode[] = [];
+	const provenance: SurfaceNode[] = [];
+	for (const child of spec.children) {
+		// Explicit signed provenance wins over inferred identity/context.
+		if (child.intent !== undefined && PROVENANCE_INTENTS.has(child.intent)) {
+			provenance.push(child);
+		} else if (isContextIdentity(child)) {
+			context.push(child);
+		} else if (isPrimaryWorklist(child)) {
+			primaryWorklist.push(child);
+		} else if (isAttention(child)) {
+			attention.push(child);
+		} else {
+			content.push(child);
+		}
+	}
+	const footer = surfaceProvenanceFooter(provenance, ctx);
+	const provenanceAlerts = provenanceDiagnosticAlerts(provenance);
+	return {
+		kind: "stack",
+		role: "section",
+		children: [
+			// The root task remains the document H1 even for legacy `heading:false`
+			// producers that previously delegated the title to route chrome.
+			heading(spec.label, spec.emphasis, 1),
+			...fields(context, ctx),
+			...spec.diagnostics.map(alert),
+			...provenanceAlerts,
+			...fields(attention, ctx),
+			...fields(primaryWorklist, ctx),
+			...fields(content, ctx),
+			...(footer === null ? [] : [footer]),
+		],
+	};
+}
+
+function isContextIdentity(spec: SurfaceNode): boolean {
+	return spec.text_as === "caption" && spec.emphasis === "muted";
+}
+
+function isAttention(spec: SurfaceNode): boolean {
+	return (
+		spec.diagnostics.length > 0 ||
+		spec.emphasis === "strong" ||
+		spec.emphasis === "critical" ||
+		ATTENTION_STRATEGIES.has(spec.strategy) ||
+		(spec.intent !== undefined && ATTENTION_INTENTS.has(spec.intent))
+	);
+}
+
+function isPrimaryWorklist(spec: SurfaceNode): boolean {
+	return PRIMARY_WORKLIST_STRATEGIES.has(spec.strategy) && spec.emphasis === "strong";
+}
+
+function surfaceProvenanceFooter(specs: readonly SurfaceNode[], ctx: EmitContext): Node | null {
+	const facts: Node[] = [];
+	const seals: Node[] = [];
+	const links: Node[] = [];
+	for (const spec of specs) {
+		const quietSpec = withoutDiagnostics(spec);
+		if (quietSpec === null) continue;
+		// A Link already carries its visible label. The ordinary field path would
+		// repeat it as both caption and link inside the audit disclosure.
+		const lowered =
+			spec.strategy === "linked-ref" ? slotLeaf(quietSpec, ctx) : field(quietSpec, ctx);
+		routeProvenanceNode(spec, lowered, { facts, seals, links });
+	}
+	return facts.length === 0 && seals.length === 0 && links.length === 0
+		? null
+		: provenanceFooter(facts, seals, links);
+}
+
+function withoutDiagnostics(spec: SurfaceNode): SurfaceNode | null {
+	// A diagnostic-node's visible payload is the diagnostic itself. Hoisting the
+	// alert and retaining that node would duplicate its detail inside audit proof.
+	if (spec.strategy === "diagnostic-node" && spec.diagnostics.length > 0) return null;
+	const children = spec.children.flatMap((child) => {
+		const quiet = withoutDiagnostics(child);
+		return quiet === null ? [] : [quiet];
+	});
+	const items = spec.items.flatMap((item) => {
+		const quiet = withoutDiagnostics(item);
+		return quiet === null ? [] : [quiet];
+	});
+	return surfaceNode(
+		{
+			...spec,
+			diagnostics: [],
+			children,
+			items,
+		},
+		{ scalarNumberKind: scalarNumberKind(spec) },
+	);
+}
+
+function provenanceDiagnosticAlerts(specs: readonly SurfaceNode[]): InlineAlert[] {
+	return specs.flatMap((spec) => [
+		...spec.diagnostics.map((diagnostic) => labeledAlert(spec.label, diagnostic)),
+		...provenanceDiagnosticAlerts(spec.children),
+		...provenanceDiagnosticAlerts(spec.items),
+	]);
+}
+
+function routeProvenanceNode(
+	spec: SurfaceNode,
+	node: Node,
+	lanes: { facts: Node[]; seals: Node[]; links: Node[] },
+): void {
+	if (spec.strategy === "linked-ref") {
+		lanes.links.push(node);
+	} else if (spec.intent === "seal") {
+		lanes.seals.push(node);
+	} else {
+		lanes.facts.push(node);
+	}
+}
+
+function provenanceFooter(facts: Node[], seals: Node[], links: Node[]): CompoundRef {
+	return {
+		kind: "compound",
+		name: "ProvenanceFooter",
+		args: {},
+		slots: { facts, seals, links },
 	};
 }
 
@@ -666,7 +858,8 @@ function emptyCell(): Spacer {
 }
 
 function section(spec: SurfaceNode, children: readonly Node[], includeHeading = true): Stack {
-	const head = includeHeading && spec.heading ? [heading(spec.label, spec.emphasis)] : [];
+	const head =
+		includeHeading && spec.heading && spec.path !== "$" ? [heading(spec.label, spec.emphasis)] : [];
 	return {
 		kind: "stack",
 		role: "section",
@@ -674,11 +867,12 @@ function section(spec: SurfaceNode, children: readonly Node[], includeHeading = 
 	};
 }
 
-function heading(label: string, emphasis: SurfaceNode["emphasis"]): Text {
+function heading(label: string, emphasis: SurfaceNode["emphasis"], level?: 1 | 2 | 3): Text {
 	return {
 		kind: "text",
 		value: label,
 		as: "heading",
+		...(level === undefined ? {} : { level }),
 		...(emphasis === undefined ? {} : { emphasis }),
 	};
 }

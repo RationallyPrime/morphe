@@ -64,10 +64,30 @@ EXPECTED_PANEL: dict[str, Any] = {
         ],
         "secondary": [_grid(_caption("Dept"), {"kind": "text", "value": "Treasury", "as": "body"})],
         "provenance": [
-            _grid(
-                _caption("Id"),
-                {"kind": "text", "value": "emp-1", "as": "body", "intent": "provenance"},
-            )
+            {
+                "kind": "compound",
+                "name": "ProvenanceFooter",
+                "args": {},
+                "slots": {
+                    "facts": [
+                        {
+                            "kind": "stack",
+                            "role": "field-group",
+                            "children": [
+                                _caption("Id"),
+                                {
+                                    "kind": "text",
+                                    "value": "emp-1",
+                                    "as": "body",
+                                    "intent": "provenance",
+                                },
+                            ],
+                        }
+                    ],
+                    "seals": [],
+                    "links": [],
+                },
+            }
         ],
     },
 }
@@ -75,6 +95,18 @@ EXPECTED_PANEL: dict[str, Any] = {
 
 def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
     return build_surface(schema, data, root=schema)
+
+
+def _panel_payload(node: dict[str, Any]) -> dict[str, Any]:
+    assert node["kind"] == "stack"
+    assert node["role"] == "section"
+    assert node["children"][0] == {
+        "kind": "text",
+        "value": "Panel",
+        "as": "heading",
+        "level": 1,
+    }
+    return node["children"][1]
 
 
 # --- resolve: hint-selected only; the structural floor is untouched -------------------
@@ -97,7 +129,7 @@ def test_hint_free_object_still_lowers_to_record_card() -> None:
 def test_key_value_tiers_fields_into_the_promoted_panel() -> None:
     node = emit_node(_build(PANEL_SCHEMA, PANEL_DATA))
     validate_node(node)
-    assert node == EXPECTED_PANEL
+    assert _panel_payload(node) == EXPECTED_PANEL
 
 
 def test_key_value_reuses_the_definition_grid_idiom_verbatim() -> None:
@@ -105,10 +137,9 @@ def test_key_value_reuses_the_definition_grid_idiom_verbatim() -> None:
     # definition grid; the key-value panel reuses that exact grid shape per tier.
     floor = {k: v for k, v in PANEL_SCHEMA.items() if k != "x-morphe"}
     floor_node = emit_node(_build(floor, PANEL_DATA))
-    floor_grid = next(
-        c for c in floor_node["children"][0]["children"] if c.get("kind") == "grid"
-    )
-    panel_secondary_grid = emit_node(_build(PANEL_SCHEMA, PANEL_DATA))["slots"]["secondary"][0]
+    floor_grid = next(c for c in floor_node["children"][0]["children"] if c.get("kind") == "grid")
+    panel = _panel_payload(emit_node(_build(PANEL_SCHEMA, PANEL_DATA)))
+    panel_secondary_grid = panel["slots"]["secondary"][0]
     assert floor_grid["role"] == panel_secondary_grid["role"] == "field-group"
     assert floor_grid["columns"] == panel_secondary_grid["columns"] == ["content", "flexible"]
 
@@ -118,7 +149,7 @@ def test_key_value_node_diagnostics_ride_the_primary_head() -> None:
     spec = build_surface(PANEL_SCHEMA, PANEL_DATA, root=PANEL_SCHEMA, diagnostics=diagnostics)
     node = emit_node(spec)
     validate_node(node)
-    head = node["slots"]["primary"][0]
+    head = _panel_payload(node)["slots"]["primary"][0]
     assert head == {
         "kind": "inline-alert",
         "tone": "info",

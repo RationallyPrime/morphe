@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { Node } from "$lib";
+import { GRAMMAR_VERSION, type Node } from "$lib";
 import type { Sha256 } from "$lib/artifacts/source-types.generated.js";
 import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
 import { dialectGateReason, loadGatedSurface } from "./surface-load.server.js";
@@ -11,7 +11,7 @@ const compilationReceipt: CompilationReceipt = {
 	sourceTestimonySha256: hash("1"),
 	compilerVersion: "0.3.3",
 	compilerBuildSha256: hash("2"),
-	grammarVersion: "0.3.0",
+	grammarVersion: GRAMMAR_VERSION,
 	treeSha256: hash("3"),
 	diagnosticsSha256: hash("4"),
 	temporalPolicy: "minute",
@@ -23,7 +23,7 @@ function parsed(tree: Node, withReceipt = false) {
 		ok: true as const,
 		envelope: {
 			artifactId: "taxis:roster",
-			grammarVersion: "0.3.0",
+			grammarVersion: GRAMMAR_VERSION,
 			compilerVersion: "0.3.3",
 			dialectHint: "ledger",
 			tree,

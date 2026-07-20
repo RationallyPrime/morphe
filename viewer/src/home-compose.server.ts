@@ -59,7 +59,9 @@ export async function composeHomePanels(options: ComposeHomeOptions): Promise<Ho
 			views.push({
 				kind: "live",
 				sourceId: source.id,
+				sourceTitle: source.title,
 				title,
+				href: `/s/${source.id}/${entry.id}`,
 				tree: pane.surface.tree,
 				...(pane.resolvedWindow === undefined ? {} : { resolvedWindow: pane.resolvedWindow }),
 			});
@@ -69,13 +71,21 @@ export async function composeHomePanels(options: ComposeHomeOptions): Promise<Ho
 				views.push({
 					kind: "stale",
 					sourceId: source.id,
+					sourceTitle: source.title,
 					title,
+					href: `/s/${source.id}/${entry.id}`,
 					tree: cached.tree,
 					...(cached.resolvedWindow === undefined ? {} : { resolvedWindow: cached.resolvedWindow }),
 					staleAsOf: staleStamp(cached.admittedAt),
 				});
 			} else {
-				views.push({ kind: "dead", sourceId: source.id, title });
+				views.push({
+					kind: "dead",
+					sourceId: source.id,
+					sourceTitle: source.title,
+					title,
+					href: `/s/${source.id}/${entry.id}`,
+				});
 			}
 		}
 	}

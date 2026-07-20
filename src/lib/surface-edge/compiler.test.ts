@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateNodeDocument } from "../artifacts/surface.js";
+import type { Node } from "../grammar/types.js";
 import { buildSurface } from "./build.js";
 import { COMPILER_BUILD_SHA256 } from "./build-id.generated.js";
 import { compileSourceSurface } from "./compile.js";
@@ -10,6 +11,17 @@ import type { TrustedSourceSurface } from "./source.js";
 import { surfaceNode } from "./spec.js";
 
 const HASH = `sha256:${"0".repeat(64)}` as const;
+
+function rootPayload(node: Node): Node {
+	if (node.kind !== "stack" || node.role !== "section") throw new Error("expected root task stack");
+	const task = node.children[0];
+	if (task?.kind !== "text" || task.as !== "heading" || task.level !== 1) {
+		throw new Error("expected task H1");
+	}
+	const payload = node.children[1];
+	if (payload === undefined) throw new Error("expected root payload");
+	return payload;
+}
 
 describe("surface-edge compiler adjudications", () => {
 	it("retains known hint fields and reports unknown fields", () => {
@@ -254,7 +266,7 @@ describe("surface-edge compiler adjudications", () => {
 			raw,
 		);
 		expect(spec.value).toBe(raw);
-		expect(emitNode(spec)).toMatchObject({ kind: "text", value: display });
+		expect(rootPayload(emitNode(spec))).toMatchObject({ kind: "text", value: display });
 	});
 
 	it("floors an unhinted RFC 3339 instant under the default policy, exact one toggle away (KRA-767)", () => {
@@ -265,10 +277,13 @@ describe("surface-edge compiler adjudications", () => {
 		const spec = buildSurface({ type: "string", title: "System Time" }, instant);
 		expect(spec.temporal).toBeUndefined();
 		expect(spec.value).toBe(instant); // IR stays exact beneath display
-		expect(emitNode(spec)).toMatchObject({ kind: "text", value: "2026-07-17 15:40 UTC" });
+		expect(rootPayload(emitNode(spec))).toMatchObject({
+			kind: "text",
+			value: "2026-07-17 15:40 UTC",
+		});
 		// Exact is one toggle away: policy=exact renders the full RFC 3339 value.
 		expect(
-			emitNode(spec, undefined, { temporalPolicy: "exact", now: () => new Date(0) }),
+			rootPayload(emitNode(spec, undefined, { temporalPolicy: "exact", now: () => new Date(0) })),
 		).toMatchObject({ kind: "text", value: instant });
 	});
 
@@ -279,7 +294,12 @@ describe("surface-edge compiler adjudications", () => {
 		const spec = buildSurface({ type: "string", title: "Event ID" }, opaque);
 		for (const temporalPolicy of ["exact", "minute", "date", "relative"] as const) {
 			expect(
-				emitNode(spec, undefined, { temporalPolicy, now: () => new Date("2026-07-17T16:00:00Z") }),
+				rootPayload(
+					emitNode(spec, undefined, {
+						temporalPolicy,
+						now: () => new Date("2026-07-17T16:00:00Z"),
+					}),
+				),
 			).toMatchObject({ kind: "text", value: opaque });
 		}
 	});
@@ -288,8 +308,10 @@ describe("surface-edge compiler adjudications", () => {
 		const instant = "2026-07-17T15:40:14Z";
 		const spec = buildSurface({ type: "string", title: "System Time" }, instant);
 		const at = () => new Date("2026-07-17T15:45:14Z"); // exactly 5 minutes later
-		const value = (temporalPolicy: "exact" | "minute" | "date" | "relative"): unknown =>
-			(emitNode(spec, undefined, { temporalPolicy, now: at }) as { value: unknown }).value;
+		const value = (temporalPolicy: "exact" | "minute" | "date" | "relative"): unknown => {
+			const node = rootPayload(emitNode(spec, undefined, { temporalPolicy, now: at }));
+			return node.kind === "text" ? node.value : undefined;
+		};
 		expect(value("exact")).toBe(instant);
 		expect(value("minute")).toBe("2026-07-17 15:40 UTC");
 		expect(value("date")).toBe("2026-07-17");
@@ -371,7 +393,11 @@ describe("surface-edge compiler adjudications", () => {
 				{ label: "", href: "/receipts/r-1" },
 			),
 		);
-		expect(linked).toMatchObject({ kind: "link", label: "Receipt", href: "/receipts/r-1" });
+		expect(rootPayload(linked)).toMatchObject({
+			kind: "link",
+			label: "Receipt",
+			href: "/receipts/r-1",
+		});
 	});
 
 	it("uses own-property semantics for intent maps and optional prototype-named fields", () => {
@@ -413,7 +439,7 @@ describe("surface-edge compiler adjudications", () => {
 			[1e-6, "1e-06"],
 			[1e21, "1e+21"],
 		] as const) {
-			expect(emitNode(buildSurface({ type: "number" }, value))).toMatchObject({
+			expect(rootPayload(emitNode(buildSurface({ type: "number" }, value)))).toMatchObject({
 				kind: "text",
 				value: expected,
 			});
@@ -422,7 +448,7 @@ describe("surface-edge compiler adjudications", () => {
 		const badge = emitNode(
 			buildSurface({ type: "number", enum: [1], "x-morphe": { intents: { "1.0": "success" } } }, 1),
 		);
-		expect(badge).toMatchObject({ kind: "badge", label: "1.0", intent: "success" });
+		expect(rootPayload(badge)).toMatchObject({ kind: "badge", label: "1.0", intent: "success" });
 		const status = emitNode(
 			buildSurface(
 				{
@@ -432,7 +458,11 @@ describe("surface-edge compiler adjudications", () => {
 				1,
 			),
 		);
-		expect(status).toMatchObject({ kind: "status", tone: "success", signal: { text: "1.0" } });
+		expect(rootPayload(status)).toMatchObject({
+			kind: "status",
+			tone: "success",
+			signal: { text: "1.0" },
+		});
 	});
 
 	it.each([
@@ -441,7 +471,10 @@ describe("surface-edge compiler adjudications", () => {
 		[{ type: "number", enum: [1] }, 1, "1.0"],
 		[{ enum: [0.00001] }, 0.00001, "1e-05"],
 	] as const)("normalizes badge numeric spelling by schema", (schema, value, label) => {
-		expect(emitNode(buildSurface(schema, value))).toMatchObject({ kind: "badge", label });
+		expect(rootPayload(emitNode(buildSurface(schema, value)))).toMatchObject({
+			kind: "badge",
+			label,
+		});
 	});
 
 	it("canonicalizes explicitly scalarized containers independently of transport order", () => {
@@ -449,7 +482,7 @@ describe("surface-edge compiler adjudications", () => {
 		const first = emitNode(buildSurface(schema, { a: "A", b: "B" }));
 		const second = emitNode(buildSurface(schema, { b: "B", a: "A" }));
 		expect(first).toEqual(second);
-		expect(first).toMatchObject({ kind: "text", value: '{"a":"A","b":"B"}' });
+		expect(rootPayload(first)).toMatchObject({ kind: "text", value: '{"a":"A","b":"B"}' });
 	});
 
 	it("uses one deterministic sentinel for scalarized values outside the JCS domain", () => {
@@ -461,16 +494,24 @@ describe("surface-edge compiler adjudications", () => {
 			value: "unrenderable: scalarized value is outside the RFC 8785 domain",
 		};
 
-		expect(emitNode(buildSurface(schema, { value: 1n }))).toMatchObject(expected);
-		expect(emitNode(buildSurface(schema, cyclic))).toMatchObject(expected);
-		expect(emitNode(buildSurface(schema, { value: undefined }))).toMatchObject(expected);
-		expect(emitNode(buildSurface(schema, { value: "\ud800" }))).toMatchObject(expected);
-		expect(emitNode(buildSurface({ type: "number" }, Number.NaN))).toMatchObject(expected);
+		expect(rootPayload(emitNode(buildSurface(schema, { value: 1n })))).toMatchObject(expected);
+		expect(rootPayload(emitNode(buildSurface(schema, cyclic)))).toMatchObject(expected);
+		expect(rootPayload(emitNode(buildSurface(schema, { value: undefined })))).toMatchObject(
+			expected,
+		);
+		expect(rootPayload(emitNode(buildSurface(schema, { value: "\ud800" })))).toMatchObject(
+			expected,
+		);
+		expect(rootPayload(emitNode(buildSurface({ type: "number" }, Number.NaN)))).toMatchObject(
+			expected,
+		);
 		expect(
-			emitNode(
-				buildSurface(
-					{ type: "number", "x-morphe": { strategy: "number" } },
-					Number.POSITIVE_INFINITY,
+			rootPayload(
+				emitNode(
+					buildSurface(
+						{ type: "number", "x-morphe": { strategy: "number" } },
+						Number.POSITIVE_INFINITY,
+					),
 				),
 			),
 		).toMatchObject(expected);
@@ -482,7 +523,7 @@ describe("surface-edge compiler adjudications", () => {
 		const status = emitNode(
 			buildSurface({ type: "string", "x-morphe": { strategy: "status" } }, "\ufeffready\ufeff"),
 		);
-		expect(status).toMatchObject({ signal: { text: "\ufeffready\ufeff" } });
+		expect(rootPayload(status)).toMatchObject({ signal: { text: "\ufeffready\ufeff" } });
 	});
 
 	it("degrades compiler recursion exhaustion to a bounded diagnostic node", () => {
@@ -510,8 +551,8 @@ describe("surface-edge compiler adjudications", () => {
 	it("keeps Python scalar spelling for booleans and schema-number integral floats", () => {
 		const boolean = buildSurface({ type: "boolean" }, true);
 		const floating = buildSurface({ type: "number" }, 100);
-		expect(emitNode(boolean)).toMatchObject({ kind: "text", value: "True" });
-		expect(emitNode(floating)).toMatchObject({ kind: "text", value: "100.0" });
+		expect(rootPayload(emitNode(boolean))).toMatchObject({ kind: "text", value: "True" });
+		expect(rootPayload(emitNode(floating))).toMatchObject({ kind: "text", value: "100.0" });
 	});
 
 	it("retains a grid item for a nullable table cell without inventing data", () => {
@@ -539,10 +580,9 @@ describe("surface-edge compiler adjudications", () => {
 			},
 			[{ name: "Ada", rate: null, profile: { label: "Open Ada", href: "/workers/ada" } }],
 		);
-		expect(emitNode(spec)).toMatchObject({
+		expect(rootPayload(emitNode(spec))).toMatchObject({
 			kind: "stack",
 			children: [
-				{ kind: "text", value: "Roster" },
 				{
 					kind: "grid",
 					children: [

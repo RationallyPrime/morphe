@@ -3,13 +3,14 @@
     {
       "children": [],
       "diagnostics": [],
-      "emphasis": "critical",
+      "emphasis": "muted",
       "heading": true,
+      "intent": "folio",
       "items": [],
       "label": "Evidence case",
       "path": "$.name",
       "strategy": "scalar",
-      "text_as": "display",
+      "text_as": "caption",
       "value": "Settlement evidence 2026-07-17"
     },
     {
@@ -398,7 +399,7 @@
   "diagnostics": [],
   "heading": true,
   "items": [],
-  "label": "_ObolosEvidence",
+  "label": "Evidence review",
   "path": "$",
   "strategy": "record-card"
 }

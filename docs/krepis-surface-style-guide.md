@@ -1,8 +1,8 @@
 # Krepis surface style guide
 
 How a kernel authors a Morphe surface that reads as one product across the family.
-Written against `morphe-grammar` **py-v0.6.1** (grammar 0.2.0, compiler 0.3.1 — the
-floor for link-intent fidelity and producer-labelled absent relations). The
+Written against `morphe-grammar` **py-v0.8.0** (grammar 0.4.0, compiler 0.3.5 — the
+floor for operator-first hierarchy and audit-proof composition). The
 authority order: the grammar (`py/morphe_grammar/models.py`) > this guide > per-kernel
 taste. If the guide fights the grammar, the grammar wins and the guide has a bug.
 
@@ -29,10 +29,12 @@ kernel-local `_morphe_hint` / `_hint` copies when adopting py-v0.6.0.
 Every org-scoped pane composes the same five bands, in order. Omit a band when the
 domain genuinely has nothing for it — never reorder.
 
-1. **Identity line.** The org/book display name as the root's identity field (a
-   top-level `name`/`title` scalar — the compiler promotes it to display/critical
-   automatically). Roots set `morphe_hint(heading=False)` so route chrome owns the page
-   title; the identity field IS the in-tree title.
+1. **Task and identity.** Author the operational task in the root schema title/label; the
+   compiler renders it as the pane's restrained logical H1. Carry the org/book display name in a
+   top-level `name`/`title` scalar, which the compiler demotes to quiet context. Do not set
+   `morphe_hint(heading=False)` on the root: legacy copies of that hint no longer suppress the
+   required task H1 (nested section suppression remains valid). Every root strategy receives
+   exactly one task H1.
 2. **KPI band.** One `list[KpiCell]` field, `morphe_hint(strategy="kpi-row",
    heading=False)`, 3–5 cells. Kickers are short register words ("Treasury",
    "Week 30", "Run"), labels name the measure, values are raw numbers (see Money).
@@ -53,6 +55,11 @@ domain genuinely has nothing for it — never reorder.
    (`result_hash`, `payload_hash`) — the seal register intent is exactly for this.
    Wire-only fields the pane shouldn't paint keep `hidden=True`, they never get
    deleted from the wire model.
+
+The compiler's fixed decision order is identity context -> diagnostics/attention -> primary
+collection -> other task content -> provenance. Source order remains stable inside each lane.
+An explicit provenance role wins over inferred identity, so an audit field never occupies both
+context and footer.
 
 Detail records nest as objects (the compiler collapses them behind a native
 disclosure); default-open only when the pane exists to show that detail

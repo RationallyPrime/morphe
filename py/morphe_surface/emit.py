@@ -28,6 +28,10 @@ _CONTAINER = {
     "key-value",
 }
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
+_PROVENANCE_INTENTS = {"provenance", "accession", "seal"}
+_ATTENTION_STRATEGIES = {"status", "badge", "kpi-row"}
+_ATTENTION_INTENTS = {"caution", "success", "info"}
+_PRIMARY_WORKLIST_STRATEGIES = {"table", "card-stack"}
 
 
 def emit_node(spec: SurfaceNode) -> Node:
@@ -37,11 +41,13 @@ def emit_node(spec: SurfaceNode) -> Node:
     `validate_node`-valid tree; `Within(collapse)` owns the region it adapts (D5).
     """
     if spec.strategy in _LEAF:
-        return _leaf(spec)
-    # A container dispatch TABLE, mirroring _LEAF_EMITTERS: the strategy vocabulary is
-    # closed, so container emitters are enumerable data. record-card is the default.
-    emitter = _CONTAINER_EMITTERS.get(spec.strategy)
-    return emitter(spec) if emitter is not None else _frame(spec)
+        node = _leaf(spec)
+    else:
+        # A container dispatch TABLE, mirroring _LEAF_EMITTERS: the strategy vocabulary is
+        # closed, so container emitters are enumerable data. record-card is the default.
+        emitter = _CONTAINER_EMITTERS.get(spec.strategy)
+        node = emitter(spec) if emitter is not None else _frame(spec)
+    return _ensure_root_task(spec, node)
 
 
 def _card_stack(spec: SurfaceNode) -> Node:
@@ -224,15 +230,28 @@ def _entity_header(spec: SurfaceNode) -> Node:
     # `role: provenance` child wins outright; then the first number is the key
     # figure; then status/badge feed the signal slot; then the first title
     # candidate; everything else is a meta fact.
-    kicker: Node = {"kind": "text", "value": spec.label, "as": "caption", "intent": "folio"}
-    provenance: list[Node] = []
+    provenance_facts: list[Node] = []
+    provenance_seals: list[Node] = []
+    provenance_links: list[Node] = []
+    provenance_specs: list[SurfaceNode] = []
     signal: list[Node] = []
     meta_children: list[SurfaceNode] = []
     key_figure: SurfaceNode | None = None
     title_child: SurfaceNode | None = None
     for child in spec.children:
-        if child.intent == "provenance":
-            provenance.append(_slot_leaf(child))
+        if child.intent in _PROVENANCE_INTENTS:
+            provenance_specs.append(child)
+            quiet_child = _without_diagnostics(child)
+            if quiet_child is not None:
+                _route_provenance_node(
+                    child,
+                    _slot_leaf(quiet_child)
+                    if child.strategy == "linked-ref"
+                    else _field(quiet_child),
+                    facts=provenance_facts,
+                    seals=provenance_seals,
+                    links=provenance_links,
+                )
         elif child.strategy == "number" and key_figure is None:
             key_figure = child
         elif child.strategy in {"status", "badge"}:
@@ -242,12 +261,21 @@ def _entity_header(spec: SurfaceNode) -> Node:
         else:
             meta_children.append(child)
     if title_child is not None:
-        title_value = display_scalar_text(
+        context_value = display_scalar_text(
             title_child.value, title_child.temporal, title_child.scalar_number_kind
         )
     else:
-        title_value = spec.label
-    title: Node = {"kind": "text", "value": title_value, "as": "heading"}
+        context_value = ""
+    # Entity identity is context beneath the task, never an inferred display/H1.
+    kicker: Node = {
+        "kind": "text",
+        "value": context_value,
+        "as": "caption",
+        "intent": "folio",
+    }
+    title: Node = {"kind": "text", "value": spec.label, "as": "heading"}
+    if spec.path == "$":
+        title["level"] = 1
     args: Node = {"kicker": kicker, "title": title}
     if key_figure is not None:
         measure = _number(key_figure)
@@ -261,13 +289,22 @@ def _entity_header(spec: SurfaceNode) -> Node:
         *([title_child] if title_child is not None else []),
         *([key_figure] if key_figure is not None else []),
     ]
-    head_alerts = [_alert(d) for node in promoted for d in node.diagnostics]
+    head_alerts = [
+        *[_alert(d) for node in promoted for d in node.diagnostics],
+        *_provenance_diagnostic_alerts(provenance_specs),
+    ]
     meta = [*head_alerts, *_fields(tuple(meta_children))]
     return {
         "kind": "compound",
         "name": "EntityHeader",
         "args": args,
-        "slots": {"signal": signal, "meta": meta, "provenance": provenance},
+        "slots": {
+            "signal": signal,
+            "meta": meta,
+            "provenance": [_provenance_footer(provenance_facts, provenance_seals, provenance_links)]
+            if provenance_facts or provenance_seals or provenance_links
+            else [],
+        },
     }
 
 
@@ -311,7 +348,7 @@ def _breakdown(spec: SurfaceNode) -> Node:
     for child, number in zip(spec.children, numbers, strict=True):
         rows.extend(_breakdown_row(child, number, positive_sum))
     args: Node = {}
-    if spec.heading:
+    if spec.path != "$" and spec.heading:
         args["title"] = {"kind": "text", "value": spec.label, "as": "heading"}
     # Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
     head_alerts = [_alert(d) for d in spec.diagnostics]
@@ -336,10 +373,10 @@ def _trail_entry(item: SurfaceNode) -> Node:
     signals: list[Node] = []
     detail: list[Node] = []
     ref: list[Node] = []
-    provenance: list[Node] = []
+    provenance_specs: list[SurfaceNode] = []
     for child in item.children:
-        if child.intent == "provenance":
-            provenance.append(_slot_leaf(child))
+        if child.intent in _PROVENANCE_INTENTS:
+            provenance_specs.append(child)
         elif child.strategy == "linked-ref":
             ref.append(_slot_leaf(child))
         elif child.strategy in {"status", "badge"}:
@@ -383,6 +420,8 @@ def _trail_entry(item: SurfaceNode) -> Node:
         if node.strategy != "diagnostic-node"
         for d in node.diagnostics
     ]
+    head_alerts.extend(_provenance_diagnostic_alerts(provenance_specs))
+    provenance_footer = _surface_provenance_footer(provenance_specs)
     return {
         "kind": "compound",
         "name": "TrailEntry",
@@ -391,7 +430,10 @@ def _trail_entry(item: SurfaceNode) -> Node:
             "signals": signals,
             "detail": detail,
             "ref": ref,
-            "provenance": [*head_alerts, *provenance],
+            "provenance": [
+                *head_alerts,
+                *([provenance_footer] if provenance_footer is not None else []),
+            ],
         },
     }
 
@@ -411,14 +453,18 @@ def _key_value(spec: SurfaceNode) -> Node:
     secondary: list[SurfaceNode] = []
     provenance: list[SurfaceNode] = []
     for child in spec.children:
-        if child.intent == "provenance":
+        if child.intent in _PROVENANCE_INTENTS:
             provenance.append(child)
         elif child.emphasis is not None:
             primary.append(child)
         else:
             secondary.append(child)
-    node_alerts = [_alert(d) for d in spec.diagnostics]
+    node_alerts = [
+        *[_alert(d) for d in spec.diagnostics],
+        *_provenance_diagnostic_alerts(provenance),
+    ]
     primary_fill = [*node_alerts, *([_definition_grid(primary)] if primary else [])]
+    provenance_fill = _surface_provenance_footer(provenance)
     return {
         "kind": "compound",
         "name": "KeyValuePanel",
@@ -426,14 +472,176 @@ def _key_value(spec: SurfaceNode) -> Node:
         "slots": {
             "primary": primary_fill,
             "secondary": [_definition_grid(secondary)] if secondary else [],
-            "provenance": [_definition_grid(provenance)] if provenance else [],
+            "provenance": [provenance_fill] if provenance_fill is not None else [],
         },
     }
 
 
 def _frame(spec: SurfaceNode) -> Node:
-    body = _section(spec, _fields(spec.children))
+    body = _operational_page(spec) if spec.path == "$" else _section(spec, _fields(spec.children))
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
+
+
+def _ensure_root_task(spec: SurfaceNode, node: Node) -> Node:
+    """Give every valid root strategy one compiler-owned operational task H1.
+
+    Record-card and EntityHeader already place that heading inside their canonical
+    composition. Every other closed strategy is wrapped once at the root; nested
+    ``heading: false`` semantics remain unchanged.
+    """
+    if spec.path != "$" or spec.strategy in {"record-card", "entity-header"}:
+        return node
+    return {
+        "kind": "stack",
+        "role": "section",
+        "children": [_heading(spec.label, spec.emphasis, level=1), node],
+    }
+
+
+def _operational_page(spec: SurfaceNode) -> Node:
+    """Compose the root pane in decision order without dropping signed fields.
+
+    The compiler has only signed hints, never kernel vocabulary. It therefore
+    uses the existing generic claims: inferred identity is context; status-like
+    or emphasized children are attention/work; unclaimed content keeps source
+    order; provenance intents move to one trailing native disclosure.
+    """
+    context: list[SurfaceNode] = []
+    attention: list[SurfaceNode] = []
+    primary_worklist: list[SurfaceNode] = []
+    content: list[SurfaceNode] = []
+    provenance: list[SurfaceNode] = []
+    for child in spec.children:
+        # Explicit signed provenance wins over inferred identity/context.
+        if child.intent in _PROVENANCE_INTENTS:
+            provenance.append(child)
+        elif _is_context_identity(child):
+            context.append(child)
+        elif _is_primary_worklist(child):
+            primary_worklist.append(child)
+        elif _is_attention(child):
+            attention.append(child)
+        else:
+            content.append(child)
+
+    # A root operational task is the document title even when a legacy producer
+    # carried ``heading: false`` to let the old route chrome own that title. The
+    # hint still suppresses nested section headings; it cannot erase the pane H1.
+    head = [_heading(spec.label, spec.emphasis, level=1)]
+    alerts = [_alert(d) for d in spec.diagnostics]
+    provenance_alerts = _provenance_diagnostic_alerts(provenance)
+    footer = _surface_provenance_footer(provenance)
+    return {
+        "kind": "stack",
+        "role": "section",
+        "children": [
+            *head,
+            *_fields(tuple(context)),
+            *alerts,
+            *provenance_alerts,
+            *_fields(tuple(attention)),
+            *_fields(tuple(primary_worklist)),
+            *_fields(tuple(content)),
+            *([footer] if footer is not None else []),
+        ],
+    }
+
+
+def _is_context_identity(spec: SurfaceNode) -> bool:
+    return spec.text_as == "caption" and spec.emphasis == "muted"
+
+
+def _is_attention(spec: SurfaceNode) -> bool:
+    return (
+        bool(spec.diagnostics)
+        or spec.emphasis in {"strong", "critical"}
+        or spec.strategy in _ATTENTION_STRATEGIES
+        or spec.intent in _ATTENTION_INTENTS
+    )
+
+
+def _is_primary_worklist(spec: SurfaceNode) -> bool:
+    return spec.strategy in _PRIMARY_WORKLIST_STRATEGIES and spec.emphasis == "strong"
+
+
+def _surface_provenance_footer(specs: list[SurfaceNode]) -> Node | None:
+    facts: list[Node] = []
+    seals: list[Node] = []
+    links: list[Node] = []
+    for spec in specs:
+        quiet_spec = _without_diagnostics(spec)
+        if quiet_spec is None:
+            continue
+        # A Link already carries its visible label. Sending it through ``_field``
+        # would repeat that signed label as both a caption and link in the audit
+        # disclosure; use the same bare-plus-diagnostics slot path as compounds.
+        lowered = _slot_leaf(quiet_spec) if spec.strategy == "linked-ref" else _field(quiet_spec)
+        _route_provenance_node(spec, lowered, facts=facts, seals=seals, links=links)
+    if not facts and not seals and not links:
+        return None
+    return _provenance_footer(facts, seals, links)
+
+
+def _without_diagnostics(spec: SurfaceNode) -> SurfaceNode | None:
+    """Clone a provenance subtree without diagnostics for its quiet audit lane.
+
+    Diagnostics are decision material, not provenance furniture. Their signed code,
+    detail, and repair are hoisted by ``_provenance_diagnostic_alerts`` while this
+    clone keeps every provenance value in the default-closed footer exactly once.
+    """
+    # A diagnostic-node's rendered value *is* its diagnostic. Once that alert is
+    # hoisted, retaining the intrinsic node would repeat the same detail inside
+    # the closed footer. Direct-IR diagnostic nodes without a Diagnostic remain.
+    if spec.strategy == "diagnostic-node" and spec.diagnostics:
+        return None
+
+    quiet_children = tuple(
+        quiet for child in spec.children if (quiet := _without_diagnostics(child)) is not None
+    )
+    quiet_items = tuple(
+        quiet for item in spec.items if (quiet := _without_diagnostics(item)) is not None
+    )
+    return spec.model_copy(
+        update={
+            "diagnostics": (),
+            "children": quiet_children,
+            "items": quiet_items,
+        }
+    )
+
+
+def _provenance_diagnostic_alerts(specs: list[SurfaceNode]) -> list[Node]:
+    alerts: list[Node] = []
+    for spec in specs:
+        alerts.extend(_labeled_alert(spec.label, diagnostic) for diagnostic in spec.diagnostics)
+        alerts.extend(_provenance_diagnostic_alerts(list(spec.children)))
+        alerts.extend(_provenance_diagnostic_alerts(list(spec.items)))
+    return alerts
+
+
+def _route_provenance_node(
+    spec: SurfaceNode,
+    node: Node,
+    *,
+    facts: list[Node],
+    seals: list[Node],
+    links: list[Node],
+) -> None:
+    if spec.strategy == "linked-ref":
+        links.append(node)
+    elif spec.intent == "seal":
+        seals.append(node)
+    else:
+        facts.append(node)
+
+
+def _provenance_footer(facts: list[Node], seals: list[Node], links: list[Node]) -> Node:
+    return {
+        "kind": "compound",
+        "name": "ProvenanceFooter",
+        "args": {},
+        "slots": {"facts": facts, "seals": seals, "links": links},
+    }
 
 
 def _collapsible(spec: SurfaceNode) -> Node:
@@ -539,14 +747,18 @@ def _empty_cell() -> Node:
 
 def _section(spec: SurfaceNode, children: list[Node], *, include_heading: bool = True) -> Node:
     head: list[Node] = (
-        [_heading(spec.label, spec.emphasis)] if include_heading and spec.heading else []
+        [_heading(spec.label, spec.emphasis)]
+        if include_heading and spec.heading and spec.path != "$"
+        else []
     )
     alerts = [_alert(d) for d in spec.diagnostics]
     return {"kind": "stack", "role": "section", "children": [*head, *alerts, *children]}
 
 
-def _heading(label: str, emphasis: str | None) -> Node:
+def _heading(label: str, emphasis: str | None, *, level: int | None = None) -> Node:
     node: Node = {"kind": "text", "value": label, "as": "heading"}
+    if level is not None:
+        node["level"] = level
     if emphasis is not None:
         node["emphasis"] = emphasis
     return node

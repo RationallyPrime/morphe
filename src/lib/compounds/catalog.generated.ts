@@ -64,23 +64,23 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
 	},
 	{
 		name: "EntityHeader",
-		version: "1.1.0",
+		version: "2.0.0",
 		params: {
 			type: "object",
 			properties: {
 				kicker: {
 					type: "node",
 					required: true,
-					description: "Small register line naming the collection this entity is in.",
+					description: "Contextual entity or organization identity beneath the task heading.",
 				},
 				title: {
 					type: "node",
 					required: true,
-					description: "The entity's name at display/heading register.",
+					description: "The operational task heading for this entity surface.",
 				},
 				keyFigure: {
 					type: "node",
@@ -99,6 +99,10 @@ export const PROMOTED_COMPOUNDS = [
 					role: "panel",
 					children: [
 						{
+							kind: "param-ref",
+							param: "title",
+						},
+						{
 							kind: "cluster",
 							role: "toolbar",
 							justify: "between",
@@ -114,10 +118,6 @@ export const PROMOTED_COMPOUNDS = [
 									fallback: [],
 								},
 							],
-						},
-						{
-							kind: "param-ref",
-							param: "title",
 						},
 						{
 							kind: "cluster",
@@ -144,7 +144,58 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
+	},
+	{
+		name: "ProvenanceFooter",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				heading: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional authored heading inside the audit disclosure.",
+				},
+			},
+		},
+		template: {
+			kind: "disclosure",
+			summary: "Audit proof",
+			children: [
+				{
+					kind: "param-ref",
+					param: "heading",
+				},
+				{
+					kind: "stack",
+					role: "field-group",
+					children: [
+						{
+							kind: "slot",
+							name: "facts",
+							fallback: [],
+						},
+						{
+							kind: "slot",
+							name: "seals",
+							fallback: [],
+						},
+						{
+							kind: "slot",
+							name: "links",
+							fallback: [],
+						},
+					],
+				},
+			],
+		},
+		grammarVersion: "0.4.0",
 	},
 	{
 		name: "StatBand",
@@ -165,7 +216,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
 	},
 	{
 		name: "Breakdown",
@@ -206,7 +257,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
 	},
 	{
 		name: "TrailEntry",
@@ -272,7 +323,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
 	},
 	{
 		name: "KeyValuePanel",
@@ -302,6 +353,6 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.3.0",
+		grammarVersion: "0.4.0",
 	},
 ] as const satisfies readonly CompoundDef[];

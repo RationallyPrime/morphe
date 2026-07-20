@@ -5,7 +5,8 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_BudgetDetail"
+          "level": 1,
+          "value": "Budget detail"
         },
         {
           "args": {
@@ -108,10 +109,25 @@
           }
         },
         {
-          "as": "display",
-          "emphasis": "critical",
-          "kind": "text",
-          "value": "One budget detail pane; the allocation lowers to a promoted Breakdown."
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Summary"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "One budget detail pane; the allocation lowers to a promoted Breakdown."
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
         }
       ],
       "kind": "stack",

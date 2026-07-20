@@ -51,8 +51,8 @@ const EXPECTED_COMPOUND: Node = {
 	kind: "compound",
 	name: "EntityHeader",
 	args: {
-		kicker: { kind: "text", value: "Vendor", as: "caption", intent: "folio" },
-		title: { kind: "text", value: "Krates ehf", as: "heading" },
+		kicker: { kind: "text", value: "Krates ehf", as: "caption", intent: "folio" },
+		title: { kind: "text", value: "Vendor", as: "heading", level: 1 },
 		keyFigure: {
 			kind: "number",
 			value: 2_450_000,
@@ -74,7 +74,27 @@ const EXPECTED_COMPOUND: Node = {
 				],
 			},
 		],
-		provenance: [{ kind: "text", value: "vnd-001", as: "body", intent: "provenance" }],
+		provenance: [
+			{
+				kind: "compound",
+				name: "ProvenanceFooter",
+				args: {},
+				slots: {
+					facts: [
+						{
+							kind: "stack",
+							role: "field-group",
+							children: [
+								{ kind: "text", value: "Ledger id", as: "caption", intent: "neutral" },
+								{ kind: "text", value: "vnd-001", as: "body", intent: "provenance" },
+							],
+						},
+					],
+					seals: [],
+					links: [],
+				},
+			},
+		],
 	},
 };
 
@@ -123,6 +143,8 @@ describe("entity-header lowering (0.5.0)", () => {
 		expect(validateNodeDocument(node).ok).toBe(true);
 		if (node.kind !== "compound") throw new Error("expected a compound");
 		expect(Object.hasOwn(node.args, "keyFigure")).toBe(false);
+		expect(node.args.title).toEqual({ kind: "text", value: "Person", as: "heading", level: 1 });
+		expect(node.args.kicker).toMatchObject({ value: "Ada", as: "caption", intent: "folio" });
 	});
 
 	it("surfaces node-level and promoted-arg diagnostics at the head of the meta row", () => {

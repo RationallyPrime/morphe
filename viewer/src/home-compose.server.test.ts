@@ -53,7 +53,9 @@ describe("composeHomePanels", () => {
 		expect(views[0]).toMatchObject({
 			kind: "live",
 			sourceId: "taxis",
+			sourceTitle: "Taxis",
 			title: "Roster panel",
+			href: "/s/taxis/roster",
 			resolvedWindow: "westfjords:2026-W29",
 		});
 	});
@@ -96,7 +98,13 @@ describe("composeHomePanels", () => {
 				throw new Error("upstream unreachable");
 			},
 		});
-		expect(views[0]).toEqual({ kind: "dead", sourceId: "taxis", title: "Roster panel" });
+		expect(views[0]).toEqual({
+			kind: "dead",
+			sourceId: "taxis",
+			sourceTitle: "Taxis",
+			title: "Roster panel",
+			href: "/s/taxis/roster",
+		});
 	});
 
 	it("one dead kernel never blanks its live neighbours", async () => {

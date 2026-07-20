@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "MjMuiSJr5rF9W3AQmaeDVbpQyi-k3iG2cXfs1iWvLlFNZL4r76gTgNt6OjLcwZ4fwWAzkrn5XumBGz7-1mOsDw"
+    "signature": "0aSIgjnUSex7-AdDWR5usVx8_Z7dOBkNHGSMavKN_pwE_AynEg7p0DdqSV3DmtU-htcf05fWdO2dSsgF296JDQ"
   },
   "data": {
     "adjustment": null,
@@ -482,7 +482,7 @@
       "keyFigures",
       "evidence"
     ],
-    "title": "_ObolosEvidence",
+    "title": "Evidence review",
     "type": "object",
     "x-morphe": {
       "order": [
@@ -496,8 +496,8 @@
   },
   "seals": {
     "content_sha256": "sha256:a71409c86121aeb0d310b2a32bff8d18d185f36a6412d9d1f2bc22f06ded9457",
-    "schema_sha256": "sha256:cadf9f3efd29547ba8522a162378058eeabafba0ef0e87d51390bdea08c3fc9b",
-    "testimony_sha256": "sha256:e21f148447262c7bb8070da50b557e969d7537630c6ff48392669f9699c00f84"
+    "schema_sha256": "sha256:c3a401e069a04af3f1d7c753b47ee2dfdabde12d7e9d8407fa550668c51815e6",
+    "testimony_sha256": "sha256:0ea7eb89fbd178bef9990bf28c2ad33510d2efaf6ae2b8645db2fc27ece37c50"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",

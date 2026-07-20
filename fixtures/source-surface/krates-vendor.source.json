@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "rKAUgJIrd5Tn1Bt0qcYkSkdCrRi-GVvo4_KWGJPAJwK8QyZM3b1cL-YWTpPoKRSz3vG1l_qTCQ8zwBC8Wpu0Dg"
+    "signature": "0KaA1so_MTbDiKl8PkVIGO6776Wgel1ksV3HmxE1LrTZ7MQ0Qo6CvTj8lOyUTB_Hdh-N5U-XwsgD8S0D1C_OAg"
   },
   "data": {
     "header": {
@@ -120,7 +120,7 @@
       "header",
       "summary"
     ],
-    "title": "_VendorDetail",
+    "title": "Vendor detail",
     "type": "object",
     "x-morphe": {
       "order": [
@@ -131,8 +131,8 @@
   },
   "seals": {
     "content_sha256": "sha256:0dabf7db4395c56cfecce6cd2aed34ae2ea26ff6490011c5df67aefcd55764b6",
-    "schema_sha256": "sha256:311953ce3c9c4196623d1d6d1fe851504c581c279c94a4ded8459a737e5aa001",
-    "testimony_sha256": "sha256:ad5498783443579f5a04c50358021901c72b3940feb171b538d86b95ed37e284"
+    "schema_sha256": "sha256:93be60ae90670f97865a0dd7915bedbe1a8e9b958dcfd579b66672c3142a2e67",
+    "testimony_sha256": "sha256:34b0fc988be150b0e6ccd8030f9fa8c51cc917dd52b565d68b4145965c0aac43"
   },
   "source_revision": "krates-fixture-rev-0001",
   "surface_id": "krates.vendor:krates-ehf",

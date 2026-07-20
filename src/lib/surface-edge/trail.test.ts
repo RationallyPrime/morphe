@@ -65,11 +65,44 @@ const EXPECTED_TRAIL: Node = {
 					},
 				],
 				ref: [{ kind: "link", href: "/a/1", label: "Open" }],
-				provenance: [{ kind: "text", value: "evt-001", as: "body", intent: "provenance" }],
+				provenance: [
+					{
+						kind: "compound",
+						name: "ProvenanceFooter",
+						args: {},
+						slots: {
+							facts: [
+								{
+									kind: "stack",
+									role: "field-group",
+									children: [
+										{ kind: "text", value: "Ref", as: "caption", intent: "neutral" },
+										{ kind: "text", value: "evt-001", as: "body", intent: "provenance" },
+									],
+								},
+							],
+							seals: [],
+							links: [],
+						},
+					},
+				],
 			},
 		},
 	],
 };
+
+function trailPayload(node: Node) {
+	if (node.kind !== "stack" || node.role !== "section") throw new Error("expected root task stack");
+	expect(node.children[0]).toEqual({
+		kind: "text",
+		value: "Trail",
+		as: "heading",
+		level: 1,
+	});
+	const payload = node.children[1];
+	if (payload?.kind !== "stack") throw new Error("expected trail payload");
+	return payload;
+}
 
 describe("trail lowering (KRA-786)", () => {
 	it("is hint-selected only — structural inference never returns it", () => {
@@ -92,18 +125,18 @@ describe("trail lowering (KRA-786)", () => {
 
 	it("lowers each item to a promoted TrailEntry — byte-identical to the Python oracle", () => {
 		const node = emitNode(buildSurface(TRAIL_SCHEMA, TRAIL_DATA, { root: TRAIL_SCHEMA }));
-		expect(node).toEqual(EXPECTED_TRAIL);
+		expect(trailPayload(node)).toEqual(EXPECTED_TRAIL);
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
 	it("keeps identifiers out of the summary — provenance is their only home", () => {
 		const node = emitNode(buildSurface(TRAIL_SCHEMA, TRAIL_DATA, { root: TRAIL_SCHEMA }));
-		if (node.kind !== "stack") throw new Error("expected a stack");
-		const entry = node.children[0];
+		const entry = trailPayload(node).children[0];
 		if (entry?.kind !== "compound") throw new Error("expected a TrailEntry");
 		expect((entry.args.summary as { value: string }).value).toBe("Admitted");
 		const prov = entry.slots?.provenance?.[0];
-		expect(prov).toEqual({ kind: "text", value: "evt-001", as: "body", intent: "provenance" });
+		expect(prov).toMatchObject({ kind: "compound", name: "ProvenanceFooter" });
+		expect(JSON.stringify(prov)).toContain("evt-001");
 	});
 
 	it("preserves promoted-arg and item diagnostics at the provenance head", () => {
@@ -116,8 +149,7 @@ describe("trail lowering (KRA-786)", () => {
 				],
 			}),
 		);
-		if (node.kind !== "stack") throw new Error("expected a stack");
-		const entry = node.children[0];
+		const entry = trailPayload(node).children[0];
 		if (entry?.kind !== "compound") throw new Error("expected a TrailEntry");
 		const alerts = (entry.slots?.provenance ?? [])
 			.filter((item) => item.kind === "inline-alert")

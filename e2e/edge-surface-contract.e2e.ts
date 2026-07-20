@@ -4,6 +4,7 @@ const SURFACE_PATH = "/s/taxis/roster";
 const HIDDEN_FIELD = "dispatchSecret";
 const HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42";
 const GEOMETRY_TOLERANCE_PX = 0.5;
+const TOUCH_TARGET_FLOOR_PX = 44;
 const SHIPPED_DIALECTS = [
 	"icelandic-archive",
 	"clinical",
@@ -59,8 +60,12 @@ async function semanticSkeleton(surface: Locator): Promise<unknown> {
 }
 
 async function assertSemanticSurface(page: Page): Promise<void> {
-	await expect(page.getByRole("heading", { level: 2, name: "_TaxisRoster" })).toBeVisible();
-	await expect(page.getByRole("heading", { level: 1, name: /Vestfirðir.*roster/ })).toBeVisible();
+	const taskHeading = page.getByRole("heading", { level: 1, name: "Weekly roster" });
+	await expect(taskHeading).toBeVisible();
+	await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+	await expect(
+		page.locator('.mo-text[data-as="caption"]').filter({ hasText: /Vestfirðir[\s\S]*roster/ }),
+	).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Scheduled payroll" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Dispatch mode" })).toBeVisible();
 	await expect(page.getByText("weather hold", { exact: true })).toBeVisible();
@@ -219,6 +224,7 @@ test.describe("dialect-independent source compilation", () => {
 		expect(compilationTreeSha256).toMatch(/^sha256:[0-9a-f]{64}$/);
 
 		await page.waitForLoadState("networkidle");
+		await page.getByText("Substrate inspection", { exact: true }).click();
 		await page.getByLabel("Dialect").selectOption("ledger");
 		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=ledger$`));
 		await expect(page.locator(".viewer-surface .mo-root")).toHaveAttribute(
@@ -234,10 +240,198 @@ test.describe("dialect-independent source compilation", () => {
 
 		for (const dialect of SHIPPED_DIALECTS) {
 			await openSurface(page, dialect);
+			await expect(page.getByRole("heading", { level: 1, name: "Weekly roster" })).toBeVisible();
+			await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
 			await expect(
-				page.getByRole("heading", { level: 1, name: /Vestfirðir.*roster/ }),
+				page.locator('.mo-text[data-as="caption"]').filter({
+					hasText: /Vestfirðir[\s\S]*roster/,
+				}),
 			).toBeVisible();
 		}
+	});
+});
+
+test.describe("operator-first viewer chrome", () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test("preserves breadcrumbs, collapses inspection, and keeps 44px native targets", async ({
+		page,
+	}) => {
+		await openSurface(page);
+
+		const chrome = page.locator("header.chrome");
+		const breadcrumb = chrome.getByRole("navigation", { name: "Breadcrumb" });
+		const inspection = chrome.locator("details.chrome__inspection");
+		const inspectionSummary = inspection.locator("summary");
+		await expect(breadcrumb).toBeVisible();
+		await expect(breadcrumb.locator('[aria-current="page"]')).toHaveCount(1);
+		await expect(breadcrumb.getByRole("link", { name: "Home" })).toBeVisible();
+		await expect(chrome.getByLabel("Time")).toBeVisible();
+		await expect(inspection).not.toHaveAttribute("open", "");
+		await expect(chrome.getByLabel("Dialect")).toBeHidden();
+
+		const chromeOverflow = await chrome.evaluate(
+			(element) => element.scrollWidth - element.clientWidth,
+		);
+		expect(chromeOverflow, "390px chrome must not overflow horizontally").toBeLessThanOrEqual(1);
+
+		await inspectionSummary.focus();
+		await page.keyboard.press("Enter");
+		await expect(inspection).toHaveAttribute("open", "");
+		await expect(chrome.getByLabel("Dialect")).toBeVisible();
+		expect(
+			await chrome.evaluate((element) => element.scrollWidth - element.clientWidth),
+			"open inspection mode must still fit the 390px chrome",
+		).toBeLessThanOrEqual(1);
+
+		const visibleTargets = await chrome
+			.locator("a, summary, select, input")
+			.evaluateAll((targets) =>
+				targets
+					.map((target) => {
+						const box = target.getBoundingClientRect();
+						return { label: target.textContent?.trim() ?? target.tagName, ...box.toJSON() };
+					})
+					.filter((box) => box.width > 0 && box.height > 0),
+			);
+		for (const target of visibleTargets) {
+			expect(target.width, `${target.label} target width`).toBeGreaterThanOrEqual(
+				TOUCH_TARGET_FLOOR_PX,
+			);
+			expect(target.height, `${target.label} target height`).toBeGreaterThanOrEqual(
+				TOUCH_TARGET_FLOOR_PX,
+			);
+		}
+	});
+});
+
+test.describe("operator-first composed home", () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test("prioritizes live attention, keeps testimony reachable, and remains usable at 390px", async ({
+		page,
+	}) => {
+		const response = await page.goto("/", { waitUntil: "networkidle" });
+		expect(response?.ok(), "the configured composed home must answer").toBe(true);
+
+		const home = page.locator("main.viewer-home");
+		await expect(home.locator(".mo-root")).toHaveAttribute("data-mo-dialect", "gallery");
+		await expect(
+			home.getByRole("heading", { level: 1, name: "Edge surface contract" }),
+		).toBeVisible();
+		await expect(home.getByRole("heading", { level: 2, name: "Source freshness" })).toBeVisible();
+		await expect(home.getByRole("heading", { level: 2, name: "Needs attention" })).toBeVisible();
+		await expect(home.getByRole("heading", { level: 2, name: "Domains" })).toBeVisible();
+
+		const visibleHeadings = await home.getByRole("heading").evaluateAll((headings) =>
+			headings
+				.filter((heading) => {
+					const style = getComputedStyle(heading);
+					return style.display !== "none" && style.visibility !== "hidden";
+				})
+				.map((heading) => heading.textContent?.trim()),
+		);
+		expect(visibleHeadings.slice(0, 4)).toEqual([
+			"Edge surface contract",
+			"Source freshness",
+			"Needs attention",
+			"Domains",
+		]);
+
+		await expect(home.getByText("Weekly roster reports attention", { exact: true })).toBeVisible();
+		const attentionSummary = home
+			.locator(".mo-alert")
+			.filter({ hasText: "Weekly roster reports attention" })
+			.first();
+		await expect(attentionSummary).toContainText("The second worker needs roster review.");
+		await expect(attentionSummary).toContainText("Confirm the allocation before dispatch.");
+		await expect(attentionSummary).not.toContainText("TAXIS_ROW_REVIEW");
+		const testimony = home.locator("details").filter({ hasText: "Review Weekly roster" });
+		await expect(testimony).not.toHaveAttribute("open", "");
+		await expect(
+			home.getByRole("link", { name: "Open Taxis fixture", exact: true }),
+		).toHaveAttribute("href", "/s/taxis/roster");
+		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(0);
+
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		);
+		expect(overflow, "390px home must not overflow horizontally").toBeLessThanOrEqual(1);
+
+		const asOf = page.getByLabel("As of");
+		await expect(asOf).toBeVisible();
+		const asOfBox = await asOf.boundingBox();
+		if (asOfBox === null) throw new Error("As-of control must have a visible target");
+		expect(asOfBox.width, "As-of target width").toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
+		expect(asOfBox.height, "As-of target height").toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
+
+		await page.keyboard.press("Tab");
+		await expect(asOf).toBeFocused();
+		expect(
+			await asOf.evaluate((control) => {
+				const style = getComputedStyle(control);
+				return style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0;
+			}),
+			"keyboard focus on As-of must remain visible",
+		).toBe(true);
+
+		await testimony.locator("summary").click();
+		await expect(testimony).toHaveAttribute("open", "");
+		await expect(
+			testimony.getByRole("heading", { level: 2, name: "Weekly roster", exact: true }),
+		).toBeVisible();
+		await expect(home.locator("h1")).toHaveCount(1);
+		await expect(testimony).toContainText("TAXIS_ROW_REVIEW");
+
+		const contrastRatios = await home
+			.locator('h1, h2, a.mo-link, .mo-alert[data-tone="caution"] .mo-alert__title')
+			.evaluateAll((elements) => {
+				const canvas = document.createElement("canvas");
+				canvas.width = canvas.height = 1;
+				const context = canvas.getContext("2d", { willReadFrequently: true });
+				if (context === null) throw new Error("No canvas context for contrast probe");
+				const rgb = (value: string): [number, number, number] => {
+					context.clearRect(0, 0, 1, 1);
+					context.fillStyle = "#000";
+					context.fillStyle = value;
+					context.fillRect(0, 0, 1, 1);
+					const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+					return [red ?? 0, green ?? 0, blue ?? 0];
+				};
+				const background = (element: Element): string => {
+					let current: Element | null = element;
+					while (current !== null) {
+						const value = getComputedStyle(current).backgroundColor;
+						if (value !== "rgba(0, 0, 0, 0)" && value !== "transparent") return value;
+						current = current.parentElement;
+					}
+					return "rgb(255, 255, 255)";
+				};
+				const luminance = ([r, g, b]: [number, number, number]): number => {
+					const linear = (channel: number): number => {
+						const srgb = channel / 255;
+						return srgb <= 0.03928 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+					};
+					return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+				};
+				return elements
+					.filter((element) => element.getClientRects().length > 0)
+					.map((element) => {
+						const foregroundColor = rgb(getComputedStyle(element).color);
+						const backgroundColor = rgb(background(element));
+						const foreground = luminance(foregroundColor);
+						const ground = luminance(backgroundColor);
+						return {
+							label: element.textContent?.trim() ?? element.tagName,
+							ratio: (Math.max(foreground, ground) + 0.05) / (Math.min(foreground, ground) + 0.05),
+							foregroundColor,
+							backgroundColor,
+						};
+					});
+			});
+		expect(contrastRatios.length, "home contrast probes must render").toBeGreaterThan(0);
+		const contrastFailures = contrastRatios.filter((probe) => probe.ratio < 4.5);
+		expect(contrastFailures, "visible home copy must clear WCAG AA").toEqual([]);
 	});
 });
 
