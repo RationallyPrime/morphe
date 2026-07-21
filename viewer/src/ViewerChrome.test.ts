@@ -48,4 +48,19 @@ describe("ViewerChrome operator and inspection modes", () => {
 		expect(html).toContain("Substrate inspection");
 		expect(html).toContain("Dialect");
 	});
+
+	it("renders the selected as-of date when the route enables the control", () => {
+		const html = render(ViewerChrome, {
+			props: {
+				dialects: ["gallery", "ledger"],
+				current: "gallery",
+				showAsOf: true,
+				asOf: "2026-07-15",
+			},
+		}).body;
+
+		expect(html).toContain("Operator controls");
+		expect(html).toContain("As of");
+		expect(html).toMatch(/<input type="date" value="2026-07-15"/);
+	});
 });
