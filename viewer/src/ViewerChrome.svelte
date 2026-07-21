@@ -34,9 +34,10 @@
 		temporalPolicies?: readonly string[];
 		temporalPolicy?: string | null;
 		/*
-		 * The ONE `as_of` date control (KRA-789). Present only in the home chrome
-		 * (`showAsOf`): selecting a date fans `?as_of=` to every home panel's kernel
-		 * fetch. Empty is today's behavior — no `as_of` forwarded. Built the same way
+		 * The ONE `as_of` date control (KRA-789, extended to source panes by KRA-779).
+		 * Shown wherever the host route opts in (`showAsOf`): home fans `?as_of=` to
+		 * every panel's kernel fetch; a source-v1 pane forwards it on its own fetch.
+		 * Empty is today's behavior — no `as_of` forwarded. Built the same way
 		 * as the KRA-767 temporal control: a native control writing a query param.
 		 */
 		showAsOf?: boolean;
