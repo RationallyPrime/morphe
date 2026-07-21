@@ -259,16 +259,23 @@ describe("surface compiler temporal-policy totality", () => {
 
 			let exactText: string | undefined;
 			for (const temporalPolicy of TEMPORAL_POLICIES) {
-				const node = emitNode(spec, undefined, { temporalPolicy, now }) as { value: unknown };
+				const node = emitNode(spec, undefined, { temporalPolicy, now });
 				expect(
 					validateNodeDocument(node).ok,
 					`case ${index} under ${temporalPolicy}: ${instant}`,
 				).toBe(true);
-				expect(typeof node.value, `case ${index} under ${temporalPolicy}`).toBe("string");
+				if (node.kind !== "stack" || node.role !== "section")
+					throw new Error("expected root task stack");
+				const valueNode = node.children[1];
+				if (valueNode?.kind !== "text") throw new Error("expected temporal text payload");
+				expect(typeof valueNode.value, `case ${index} under ${temporalPolicy}`).toBe("string");
 				// Determinism: identical (spec, policy, now) yields identical text.
-				const again = emitNode(spec, undefined, { temporalPolicy, now }) as { value: unknown };
-				expect(again.value).toBe(node.value);
-				if (temporalPolicy === "exact") exactText = node.value as string;
+				const again = emitNode(spec, undefined, { temporalPolicy, now });
+				if (again.kind !== "stack" || again.children[1]?.kind !== "text") {
+					throw new Error("expected deterministic temporal text payload");
+				}
+				expect(again.children[1].value).toBe(valueNode.value);
+				if (temporalPolicy === "exact") exactText = valueNode.value;
 			}
 			// Exact is always recoverable: `exact` renders the instant verbatim.
 			expect(exactText, `case ${index}`).toBe(instant);

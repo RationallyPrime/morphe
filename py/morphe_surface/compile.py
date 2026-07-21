@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
     from .spec import SurfaceNode
 
-COMPILER_VERSION = "0.3.4"
+COMPILER_VERSION = "0.3.5"
 
 
 def compile_surface(

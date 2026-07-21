@@ -59,17 +59,30 @@ const EXPECTED_BAND: Node = {
 	],
 };
 
+function bandPayload(node: Node) {
+	if (node.kind !== "stack" || node.role !== "section") throw new Error("expected root task stack");
+	expect(node.children[0]).toEqual({
+		kind: "text",
+		value: "Figures",
+		as: "heading",
+		level: 1,
+	});
+	const payload = node.children[1];
+	if (payload?.kind !== "stack") throw new Error("expected StatBand section payload");
+	return payload;
+}
+
 describe("StatBand lowering (KRA-784)", () => {
 	it("lowers a kpi-row to a promoted StatBand of SignalCards — byte-identical to the Python oracle", () => {
 		const node = emitNode(buildSurface(FIGURES_SCHEMA, FIGURES_DATA, { root: FIGURES_SCHEMA }));
-		expect(node).toEqual(EXPECTED_BAND);
+		expect(bandPayload(node)).toEqual(EXPECTED_BAND);
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
 	it("keeps the empty-collection floor for an empty kpi-row", () => {
 		const node = emitNode(buildSurface(FIGURES_SCHEMA, [], { root: FIGURES_SCHEMA }));
 		expect(validateNodeDocument(node).ok).toBe(true);
-		expect(node).toEqual({
+		expect(bandPayload(node)).toEqual({
 			kind: "stack",
 			role: "section",
 			children: [{ kind: "text", value: "No figures.", as: "caption", intent: "neutral" }],

@@ -202,7 +202,7 @@ Table    { kind:"table";   caption:string; captionHidden?:boolean; columns:Table
 ### Content
 
 ```ts
-Text       { kind:"text";   value:string; as?:"display"|"heading"|"subheading"|"body"|"caption"; emphasis?:EmphasisClaim; intent?:IntentRef; clamp?:number }
+Text       { kind:"text";   value:string; as?:"display"|"heading"|"subheading"|"body"|"caption"; level?:1|2|3; emphasis?:EmphasisClaim; intent?:IntentRef; clamp?:number }
 NumberNode { kind:"number"; value:number; format?:"plain"|"integer"|"currency"|"percent"|"compact"; currency?:string; emphasis?:EmphasisClaim; intent?:IntentRef }
 Badge      { kind:"badge";  label:string; intent?:IntentRef; icon?:string }
 Icon       { kind:"icon";   name:string; a11y:{role:"decorative"}|{role:"img";label:string}; intent?:IntentRef }
@@ -212,6 +212,14 @@ Icon       { kind:"icon";   name:string; a11y:{role:"decorative"}|{role:"img";la
 Trend      { kind:"trend";  points:{period:string;value:number}[]; summary:string; baseline?:"zero"|"min"; emphasis?:EmphasisClaim; intent?:IntentRef }
 Media      { kind:"media";  src:string; alt:string; aspect?:"square"|"video"|"portrait"|"auto" }   // alt required ("" = decorative)
 ```
+
+`Text.as` is the visual register; `Text.level` is the document-outline claim. They are independent:
+an explicit `level` may pair with any visual register. The renderer styles by `as` and chooses the
+native heading element by `level`. When `level` is absent, the compatibility
+mapping remains `display -> h1`, `heading -> h2`, and `subheading -> h3`; body and caption remain
+paragraph text. An explicit level therefore lets an operational task be the sole logical `h1` while
+keeping the restrained `heading` register. The schema compiler emits that task with the `heading`
+register; `display` is not an automatic synonym for root identity.
 
 ### Input (a11y REQUIRED)
 
@@ -703,6 +711,21 @@ sees only choices. The mid-loop seam is `MidLoopDelegate.propose(digest,
 liveVaryIds): Delta[]`; hosts run those proposals through `applyDelta` and then
 re-render with the returned choice map. The substrate ships a dev-only static
 choice delegate only to prove the plug-in path; the renderer never imports it.
+
+**Operational compiler projection (ADR-0021).** Stage 1 treats only a conventional root
+`name`/`title` scalar as identity context (`caption`, muted, `folio`); it never promotes the first
+required scalar as identity. Stage 2 gives every root strategy exactly one producer-authored task
+label as `Text(as:"heading", level:1)`; a legacy root `heading:false` cannot erase it, while nested
+records never mint another level-1 heading. Root children are stably partitioned into identity
+context, diagnostics/attention, the primary worklist, other task content, and a trailing audit-proof
+lane. Ordering inside each partition remains source order, and explicit provenance outranks inferred
+identity. Children hinted with `provenance`, `accession`, or `seal` are not discarded or rewritten:
+their values and labels move once into the promoted `ProvenanceFooter@1.0.0`, a native `Disclosure`
+with an optional node-valued `heading` parameter, `facts`/`seals`/`links` slots, and no `Frame` reset.
+Their recursive diagnostics remain visible exactly once in the attention lane outside the initially
+closed footer. This is presentation order only; signed testimony and values remain byte-for-byte
+present (D8). `EntityHeader@2.0.0` follows the same task-before-context order. `SignalCard` remains
+the already-unframed `2.0.0` definition.
 
 **One schema, three jobs — shipped.** Projection M's schema source and code-generation jobs
 have landed: `py/morphe_grammar/models.py` (Pydantic) is the source of truth;

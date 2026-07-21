@@ -1645,6 +1645,15 @@
           "title": "Kind",
           "type": "string"
         },
+        "level": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "title": "Level",
+          "type": "integer"
+        },
         "numeric": {
           "title": "Numeric",
           "type": "boolean"

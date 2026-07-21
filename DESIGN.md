@@ -73,10 +73,17 @@ font pipeline and may override the public font tokens.
 
 Use registers semantically:
 
-- `display` is rare and page-level;
+- `display` is rare, deliberate editorial emphasis; it is never inferred from an organization,
+  book, account, or other contextual identity;
 - `heading` and `subheading` express actual document structure;
 - `body` carries the main reading flow;
 - `caption` carries provenance, identifiers, and secondary explanation.
+
+Visual register and outline level are independent. `Text.as` controls the type treatment;
+`Text.level` controls the native `h1`/`h2`/`h3` element and may pair with any visual register.
+The schema compiler emits operational pane tasks with the calm `heading` register at `level:1`;
+identity context stays a caption below it. Older authored text without `level` keeps the established
+display/heading/subheading element mapping.
 
 Do not place a tiny uppercase mono eyebrow above every heading. Repetition is not hierarchy.
 
@@ -128,8 +135,16 @@ compound policy narrows structural vocabulary and never licenses geometry or con
 Schema-derived surfaces should be intentional projections, not pretty-printed API responses.
 
 - Define a purpose-built Pydantic view model at the producer boundary.
-- Hide hashes, internal sequence machinery, idempotency keys, and other implementation fields
-  unless the operator genuinely needs them.
+- Lead with the pane's operational task. Every root strategy receives exactly one compiler-owned
+  logical `h1`, even when a legacy root carries `heading:false`; organization, book, account, and
+  record identity are context, not a billboard above it. Nested heading suppression is unchanged.
+- Order the primary scan as context, diagnostics/attention, the primary worklist, other task
+  content, then audit proof. This is a stable projection: source order is retained inside each
+  tier, and no signed field is duplicated, rewritten, or dropped. An explicit provenance hint wins
+  over inferred identity, so audit material has one unambiguous trailing home.
+- Keep hashes, receipts, seals, accession ids, and similar lineage out of the primary scan unless
+  the operator genuinely needs them there. When explicitly hinted as provenance, preserve them in
+  the trailing `ProvenanceFooter` disclosure; quiet does not mean absent.
 - Format quantities, dates, references, and lineage before compilation when their display needs
   domain knowledge.
 - An explicit `temporal: date-time-minute` policy gives compiler-generated scalar text one generic

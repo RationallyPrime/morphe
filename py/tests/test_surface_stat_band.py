@@ -96,17 +96,29 @@ EXPECTED_BAND: dict[str, Any] = {
 }
 
 
+def _band_payload(node: dict[str, Any]) -> dict[str, Any]:
+    assert node["kind"] == "stack"
+    assert node["role"] == "section"
+    assert node["children"][0] == {
+        "kind": "text",
+        "value": "Figures",
+        "as": "heading",
+        "level": 1,
+    }
+    return node["children"][1]
+
+
 def test_kpi_row_lowers_to_a_stat_band_of_signal_cards() -> None:
     node = emit_node(build_surface(FIGURES_SCHEMA, FIGURES_DATA, root=FIGURES_SCHEMA))
     validate_node(node)
-    assert node == EXPECTED_BAND
+    assert _band_payload(node) == EXPECTED_BAND
 
 
 def test_empty_kpi_row_keeps_the_empty_collection_floor() -> None:
     node = emit_node(build_surface(FIGURES_SCHEMA, [], root=FIGURES_SCHEMA))
     validate_node(node)
     # An empty band degrades to the "No <label>." text, not an empty StatBand.
-    assert node == {
+    assert _band_payload(node) == {
         "kind": "stack",
         "role": "section",
         "children": [

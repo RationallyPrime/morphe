@@ -10,6 +10,7 @@ from pydantic import (
     StrictInt,
     StrictStr,
     TypeAdapter,
+    field_validator,
     model_validator,
 )
 from pydantic import Field as PydanticField
@@ -195,11 +196,28 @@ class Text(GrammarModel):
         default=None,
         alias="as",
     )
+    # Visual register and document-outline level are deliberately independent.
+    # Existing trees keep their fixed point (display -> h1, heading -> h2,
+    # subheading -> h3); an explicit level lets an operational pane use the
+    # restrained ``heading`` register for its one logical h1 without borrowing
+    # editorial ``display`` typography (ADR-0021 / KRA-798).
+    level: Literal[1, 2, 3] | None = None
     emphasis: EmphasisClaim | None = None
     intent: IntentRef | None = None
     clamp: NumberValue | None = None
     numeric: StrictBool | None = None
     polarity: Literal["positive", "negative"] | None = None
+
+    @field_validator("level", mode="before")
+    @classmethod
+    def require_integer_heading_level(cls, value: object) -> object:
+        # ``bool`` is an ``int`` subclass in Python; without this boundary the
+        # Python authority accepted ``true`` as level 1 while JSON Schema/TS
+        # correctly rejected it. Keep the three runtimes byte-contract aligned.
+        if value is not None and (type(value) is not int or value not in {1, 2, 3}):
+            msg = "level must be the integer 1, 2, or 3"
+            raise ValueError(msg)
+        return value
 
 
 class NumberNode(GrammarModel):

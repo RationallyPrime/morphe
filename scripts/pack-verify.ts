@@ -369,6 +369,7 @@ try {
 					JSON.stringify([
 						"SignalCard",
 						"EntityHeader",
+						"ProvenanceFooter",
 						"StatBand",
 						"Breakdown",
 						"TrailEntry",
@@ -394,7 +395,7 @@ try {
 			const artifact = {
 				artifact_version: "1.0.0",
 				tree: { kind: "frame", role: "page", children: [] },
-				grammar_version: "0.3.0",
+				grammar_version: installedGrammarVersion,
 				producer_version: "0.3.0",
 				compiler_version: "0.3.0",
 				diagnostics: [],

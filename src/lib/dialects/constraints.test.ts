@@ -21,6 +21,7 @@ describe("generated dialect constraints", () => {
 		expect(PROMOTED_COMPOUNDS.map((definition) => definition.name)).toEqual([
 			"SignalCard",
 			"EntityHeader",
+			"ProvenanceFooter",
 			"StatBand",
 			"Breakdown",
 			"TrailEntry",
@@ -28,6 +29,7 @@ describe("generated dialect constraints", () => {
 		]);
 		expect(registry.has("SignalCard")).toBe(true);
 		expect(registry.has("EntityHeader")).toBe(true);
+		expect(registry.has("ProvenanceFooter")).toBe(true);
 		expect(registry.has("StatBand")).toBe(true);
 		expect(registry.has("Breakdown")).toBe(true);
 		expect(registry.has("TrailEntry")).toBe(true);

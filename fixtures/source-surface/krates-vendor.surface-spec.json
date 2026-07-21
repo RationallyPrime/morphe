@@ -82,20 +82,18 @@
     {
       "children": [],
       "diagnostics": [],
-      "emphasis": "critical",
       "heading": true,
       "items": [],
       "label": "Summary",
       "path": "$.summary",
       "strategy": "scalar",
-      "text_as": "display",
       "value": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
     }
   ],
   "diagnostics": [],
   "heading": true,
   "items": [],
-  "label": "_VendorDetail",
+  "label": "Vendor detail",
   "path": "$",
   "strategy": "record-card"
 }

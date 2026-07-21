@@ -201,6 +201,9 @@
           "$ref": "#/$defs/CompoundRef_EntityHeader"
         },
         {
+          "$ref": "#/$defs/CompoundRef_ProvenanceFooter"
+        },
+        {
           "$ref": "#/$defs/CompoundRef_StatBand"
         },
         {
@@ -278,11 +281,11 @@
             },
             "kicker": {
               "$ref": "#/$defs/Node",
-              "description": "Small register line naming the collection this entity is in."
+              "description": "Contextual entity or organization identity beneath the task heading."
             },
             "title": {
               "$ref": "#/$defs/Node",
-              "description": "The entity's name at display/heading register."
+              "description": "The operational task heading for this entity surface."
             }
           },
           "required": [
@@ -387,6 +390,69 @@
         "args"
       ],
       "title": "KeyValuePanel",
+      "type": "object"
+    },
+    "CompoundRef_ProvenanceFooter": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "heading": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional authored heading inside the audit disclosure."
+            }
+          },
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "ProvenanceFooter",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "facts": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "links": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "seals": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "ProvenanceFooter",
       "type": "object"
     },
     "CompoundRef_SignalCard": {
@@ -1944,6 +2010,15 @@
           "title": "Kind",
           "type": "string"
         },
+        "level": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "title": "Level",
+          "type": "integer"
+        },
         "numeric": {
           "title": "Numeric",
           "type": "boolean"
@@ -2417,6 +2492,7 @@
     "compounds": [
       "SignalCard",
       "EntityHeader",
+      "ProvenanceFooter",
       "StatBand",
       "Breakdown",
       "TrailEntry",

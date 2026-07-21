@@ -5,7 +5,8 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_VendorDetail"
+          "level": 1,
+          "value": "Vendor detail"
         },
         {
           "args": {
@@ -20,12 +21,12 @@
               "as": "caption",
               "intent": "folio",
               "kind": "text",
-              "value": "Vendor"
+              "value": "Krates ehf"
             },
             "title": {
               "as": "heading",
               "kind": "text",
-              "value": "Krates ehf"
+              "value": "Vendor"
             }
           },
           "kind": "compound",
@@ -69,10 +70,33 @@
             ],
             "provenance": [
               {
-                "as": "body",
-                "intent": "provenance",
-                "kind": "text",
-                "value": "vendor:krates-ehf"
+                "args": {},
+                "kind": "compound",
+                "name": "ProvenanceFooter",
+                "slots": {
+                  "facts": [
+                    {
+                      "children": [
+                        {
+                          "as": "caption",
+                          "intent": "neutral",
+                          "kind": "text",
+                          "value": "Ledger id"
+                        },
+                        {
+                          "as": "body",
+                          "intent": "provenance",
+                          "kind": "text",
+                          "value": "vendor:krates-ehf"
+                        }
+                      ],
+                      "kind": "stack",
+                      "role": "field-group"
+                    }
+                  ],
+                  "links": [],
+                  "seals": []
+                }
               }
             ],
             "signal": [
@@ -87,10 +111,25 @@
           }
         },
         {
-          "as": "display",
-          "emphasis": "critical",
-          "kind": "text",
-          "value": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Summary"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "One vendor detail pane; the lede lowers to a promoted EntityHeader."
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
         }
       ],
       "kind": "stack",

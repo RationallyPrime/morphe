@@ -40,7 +40,7 @@ def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
 
 
 def test_surface_compiler_uses_current_grammar_version() -> None:
-    assert GRAMMAR_VERSION == "0.3.0"
+    assert GRAMMAR_VERSION == "0.4.0"
 
 
 def test_record_card_has_scalar_child() -> None:
@@ -49,8 +49,9 @@ def test_record_card_has_scalar_child() -> None:
     name = next(c for c in spec.children if c.path == "$.name")
     assert name.strategy == "scalar"
     assert name.value == "Ada"
-    assert name.text_as == "display"
-    assert name.emphasis == "critical"
+    assert name.text_as == "caption"
+    assert name.emphasis == "muted"
+    assert name.intent == "folio"
 
 
 def test_signed_property_order_controls_record_children() -> None:
@@ -398,7 +399,7 @@ def test_amount_strings_keep_text_value_with_numeric_polarity() -> None:
     assert reversal.polarity == "negative"
 
 
-def test_first_required_scalar_becomes_identity_when_name_and_title_absent() -> None:
+def test_required_scalar_does_not_become_identity_when_name_and_title_absent() -> None:
     schema = {
         "type": "object",
         "required": ["code"],
@@ -411,6 +412,6 @@ def test_first_required_scalar_becomes_identity_when_name_and_title_absent() -> 
     code = next(c for c in spec.children if c.path == "$.code")
     status = next(c for c in spec.children if c.path == "$.status")
 
-    assert code.text_as == "display"
-    assert code.emphasis == "critical"
+    assert code.text_as is None
+    assert code.emphasis is None
     assert status.text_as is None

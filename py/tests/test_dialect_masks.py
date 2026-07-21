@@ -16,8 +16,10 @@ if TYPE_CHECKING:
 from morphe_grammar.artifacts import ARTIFACT_PATHS, artifact_documents
 from morphe_grammar.catalog import (
     PROMOTED_COMPOUNDS,
+    PROVENANCE_FOOTER,
     SIGNAL_CARD,
     catalog_typescript_document,
+    compound_slot_names,
 )
 from morphe_grammar.dialects import (
     DIALECT_CONSTRAINTS,
@@ -56,6 +58,7 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
     assert tuple(PROMOTED_COMPOUNDS) == (
         "SignalCard",
         "EntityHeader",
+        "ProvenanceFooter",
         "StatBand",
         "Breakdown",
         "TrailEntry",
@@ -87,6 +90,16 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
     ]
     assert body_slots == [{"kind": "slot", "name": "body", "fallback": []}]
 
+    footer = PROVENANCE_FOOTER.template.model_dump(mode="json", by_alias=True, exclude_none=True)
+    assert footer["kind"] == "disclosure"
+    assert footer["summary"] == "Audit proof"
+    heading = PROVENANCE_FOOTER.params.properties["heading"]
+    assert heading.required is False
+    assert heading.default == {"kind": "text", "value": "", "as": "caption"}
+    assert footer["children"][0] == {"kind": "param-ref", "param": "heading"}
+    assert compound_slot_names(PROVENANCE_FOOTER) == ("facts", "links", "seals")
+    assert '"kind": "frame"' not in json.dumps(footer)
+
 
 def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted() -> None:
     assert DIALECT_IDS == (
@@ -105,6 +118,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
     assert DIALECT_CONSTRAINTS["clinical"].compounds == (
         "SignalCard",
         "EntityHeader",
+        "ProvenanceFooter",
         "StatBand",
         "Breakdown",
         "TrailEntry",
@@ -252,6 +266,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert options == [
         {"$ref": "#/$defs/CompoundRef_SignalCard"},
         {"$ref": "#/$defs/CompoundRef_EntityHeader"},
+        {"$ref": "#/$defs/CompoundRef_ProvenanceFooter"},
         {"$ref": "#/$defs/CompoundRef_StatBand"},
         {"$ref": "#/$defs/CompoundRef_Breakdown"},
         {"$ref": "#/$defs/CompoundRef_TrailEntry"},
@@ -265,6 +280,15 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert header_args["required"] == ["kicker", "title"]
     header_slots = _object(header_properties["slots"])
     assert set(_object(header_slots["properties"])) == {"signal", "meta", "provenance"}
+
+    provenance_footer = _object(definitions["CompoundRef_ProvenanceFooter"])
+    footer_properties = _object(provenance_footer["properties"])
+    assert _object(footer_properties["name"])["const"] == "ProvenanceFooter"
+    footer_args = _object(footer_properties["args"])
+    assert set(_object(footer_args["properties"])) == {"heading"}
+    assert "required" not in footer_args
+    footer_slots = _object(footer_properties["slots"])
+    assert set(_object(footer_slots["properties"])) == {"facts", "seals", "links"}
 
     # StatBand is a layout band: no params (it owns the grid), one `tiles` slot.
     stat_band = _object(definitions["CompoundRef_StatBand"])
@@ -325,6 +349,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
         "compounds": [
             "SignalCard",
             "EntityHeader",
+            "ProvenanceFooter",
             "StatBand",
             "Breakdown",
             "TrailEntry",
@@ -416,6 +441,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
         "compounds": [
             "SignalCard",
             "EntityHeader",
+            "ProvenanceFooter",
             "StatBand",
             "Breakdown",
             "TrailEntry",

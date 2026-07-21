@@ -29,6 +29,7 @@ const sources = JSON.stringify({
 		kind: "kernel",
 		base_url: `http://127.0.0.1:${STUB_PORT}`,
 		dialect_hint: "gallery",
+		home_panel: { pane: "roster", title: "Weekly roster" },
 		source_trust: {
 			issuer: taxis.expected.issuer,
 			public_keys: {

@@ -5,7 +5,8 @@
         {
           "as": "heading",
           "kind": "text",
-          "value": "_AuditTrailDetail"
+          "level": 1,
+          "value": "Audit trail"
         },
         {
           "children": [
@@ -40,10 +41,33 @@
                     "tone": "info"
                   },
                   {
-                    "as": "body",
-                    "intent": "provenance",
-                    "kind": "text",
-                    "value": "evt-001"
+                    "args": {},
+                    "kind": "compound",
+                    "name": "ProvenanceFooter",
+                    "slots": {
+                      "facts": [
+                        {
+                          "children": [
+                            {
+                              "as": "caption",
+                              "intent": "neutral",
+                              "kind": "text",
+                              "value": "Event id"
+                            },
+                            {
+                              "as": "body",
+                              "intent": "provenance",
+                              "kind": "text",
+                              "value": "evt-001"
+                            }
+                          ],
+                          "kind": "stack",
+                          "role": "field-group"
+                        }
+                      ],
+                      "links": [],
+                      "seals": []
+                    }
                   }
                 ],
                 "ref": [
@@ -84,10 +108,33 @@
                     "tone": "caution"
                   },
                   {
-                    "as": "body",
-                    "intent": "provenance",
-                    "kind": "text",
-                    "value": "evt-002"
+                    "args": {},
+                    "kind": "compound",
+                    "name": "ProvenanceFooter",
+                    "slots": {
+                      "facts": [
+                        {
+                          "children": [
+                            {
+                              "as": "caption",
+                              "intent": "neutral",
+                              "kind": "text",
+                              "value": "Event id"
+                            },
+                            {
+                              "as": "body",
+                              "intent": "provenance",
+                              "kind": "text",
+                              "value": "evt-002"
+                            }
+                          ],
+                          "kind": "stack",
+                          "role": "field-group"
+                        }
+                      ],
+                      "links": [],
+                      "seals": []
+                    }
                   }
                 ],
                 "ref": [
@@ -106,10 +153,25 @@
           "role": "section"
         },
         {
-          "as": "display",
-          "emphasis": "critical",
-          "kind": "text",
-          "value": "Two audit events; each lowers to a promoted TrailEntry."
+          "children": [
+            {
+              "as": "caption",
+              "intent": "neutral",
+              "kind": "text",
+              "value": "Summary"
+            },
+            {
+              "as": "body",
+              "kind": "text",
+              "value": "Two audit events; each lowers to a promoted TrailEntry."
+            }
+          ],
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "kind": "grid",
+          "role": "field-group"
         }
       ],
       "kind": "stack",

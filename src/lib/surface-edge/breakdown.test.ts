@@ -39,9 +39,20 @@ function row(label: string, value: number, fraction: number | null): Node {
 const EXPECTED_BREAKDOWN: Node = {
 	kind: "compound",
 	name: "Breakdown",
-	args: { title: { kind: "text", value: "Split", as: "heading" } },
+	args: {},
 	slots: { rows: [row("Alpha", 1, 0.25), row("Beta", 2, 0.5), row("Gamma", 1, 0.25)] },
 };
+
+function breakdownPayload(node: Node) {
+	if (node.kind !== "stack" || node.role !== "section") throw new Error("expected root task stack");
+	const task = node.children[0];
+	if (task?.kind !== "text" || task.as !== "heading" || task.level !== 1) {
+		throw new Error("expected task H1");
+	}
+	const breakdown = node.children[1];
+	if (breakdown?.kind !== "compound") throw new Error("expected a Breakdown compound");
+	return breakdown;
+}
 
 describe("breakdown lowering (KRA-785)", () => {
 	it("is hint-selected only — structural inference never returns it", () => {
@@ -59,7 +70,8 @@ describe("breakdown lowering (KRA-785)", () => {
 
 	it("lowers to the promoted Breakdown compound — byte-identical to the Python oracle", () => {
 		const node = emitNode(buildSurface(SPLIT_SCHEMA, SPLIT_DATA, { root: SPLIT_SCHEMA }));
-		expect(node).toEqual(EXPECTED_BREAKDOWN);
+		expect(node.kind === "stack" ? node.children[0] : undefined).toMatchObject({ value: "Split" });
+		expect(breakdownPayload(node)).toEqual(EXPECTED_BREAKDOWN);
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
@@ -71,8 +83,8 @@ describe("breakdown lowering (KRA-785)", () => {
 		};
 		const node = emitNode(buildSurface(schema, { r: 100_000, o: 250_000 }, { root: schema }));
 		expect(validateNodeDocument(node).ok).toBe(true);
-		if (node.kind !== "compound") throw new Error("expected a compound");
-		const fractions = (node.slots?.rows ?? []).map((r) =>
+		const breakdown = breakdownPayload(node);
+		const fractions = (breakdown.slots?.rows ?? []).map((r) =>
 			r.kind === "cluster" && r.children[1]?.kind === "progress" ? r.children[1].value : undefined,
 		);
 		expect(fractions).toEqual([0.2857142857142857, 0.7142857142857143]);
@@ -86,8 +98,7 @@ describe("breakdown lowering (KRA-785)", () => {
 		};
 		const node = emitNode(buildSurface(schema, { a: "hello", b: 0 }, { root: schema }));
 		expect(validateNodeDocument(node).ok).toBe(true);
-		if (node.kind !== "compound") throw new Error("expected a compound");
-		const rows = node.slots?.rows ?? [];
+		const rows = breakdownPayload(node).slots?.rows ?? [];
 		const first = rows[0];
 		const second = rows[1];
 		if (first?.kind !== "cluster" || second?.kind !== "cluster") throw new Error("expected rows");

@@ -5,6 +5,7 @@
         "compounds": [
           "SignalCard",
           "EntityHeader",
+          "ProvenanceFooter",
           "StatBand",
           "Breakdown",
           "TrailEntry",
@@ -13,7 +14,7 @@
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "435bf6cb02bbf800c584ae0b917270acc289f466e135b8635c45708dd2fb71e6"
+      "sha256": "687381bf8935d055ca6748499e3b3a40ef85c3df030a3e82cc03b22705c2fd34"
     },
     "estate": {
       "compound_policy": {
@@ -21,7 +22,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.estate.schema.json",
-      "sha256": "e4e92dc11d0a96fe091135e4e7f2721251e77b2b0d6abfe579ceaa27c445a49c"
+      "sha256": "2600584729736297e89c67debdb2f9f897d37e24d827180cfc06bcbd752eb97b"
     },
     "foundry": {
       "compound_policy": {
@@ -29,7 +30,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.foundry.schema.json",
-      "sha256": "5b3eca49ae6388149d2de0c9a2628611ff6c70697402ed93781076df5847d802"
+      "sha256": "f37611d9fd5febe64f31ef9fde0ae20189d8a1a01add13f5cbe217eaa9ca2733"
     },
     "gallery": {
       "compound_policy": {
@@ -37,7 +38,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.gallery.schema.json",
-      "sha256": "4d41f979b1de3ce1860d7c21f330e4fce44f960c0cb059b1d6e78f90dbd3230e"
+      "sha256": "b6563b4e7e071d99a92ba3ec384bc3c5f35b10c0d4b36405aacc8c70012b4694"
     },
     "icelandic-archive": {
       "compound_policy": {
@@ -45,7 +46,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.icelandic-archive.schema.json",
-      "sha256": "aefc970c41a88d9633d16af9bee9b02d897811810f396f3a931d0d641506a87a"
+      "sha256": "c248652345999fa8addbb70b245e6efd708b459cfa04daa4d72664fc5edd6699"
     },
     "ledger": {
       "compound_policy": {
@@ -53,7 +54,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.ledger.schema.json",
-      "sha256": "2e4898c269293e851fd5663b2c32441e5a16edf63d72a4b66067bded1187a81b"
+      "sha256": "14c12dfab8e70e3fcc4dea3cf1a98433c2ab6cc280c7db22b687ee2c4a8da0de"
     },
     "night": {
       "compound_policy": {
@@ -61,7 +62,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.night.schema.json",
-      "sha256": "07fbdb44835929a39bfc4ab477a1c456419a84a2642997aaa434c5f648b3b386"
+      "sha256": "ff79399ff05d1cdf20eb68a0afb95ab28844a151aab253923b0ac83f2cd3dc21"
     },
     "reykjavik-registry": {
       "compound_policy": {
@@ -69,7 +70,7 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.reykjavik-registry.schema.json",
-      "sha256": "c9c530f7b6cb1d205f3702d5d6faad286917c78a3b60f0dcee56de1caca57ac5"
+      "sha256": "a6b256594ed830308b07f99d585cf83c6f2002ba315d2d8620c0c12222f2c60f"
     },
     "timaeus": {
       "compound_policy": {
@@ -77,9 +78,9 @@
         "mode": "unrestricted"
       },
       "schema": "dialects/morphe-node.timaeus.schema.json",
-      "sha256": "521e4a41a3e757e66a60a5fc00d8556a0dc030aad4c4b6d749393922502b3c38"
+      "sha256": "20dfdc26518b8929bb7acbc67e21e154023a0af4b1ed232a615d409f059fd235"
     }
   },
   "format_version": 1,
-  "grammar_version": "0.3.0"
+  "grammar_version": "0.4.0"
 }

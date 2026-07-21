@@ -114,6 +114,7 @@ _DIALECT_CONSTRAINTS = (
         "allowlist",
         "SignalCard",
         "EntityHeader",
+        "ProvenanceFooter",
         "StatBand",
         "Breakdown",
         "TrailEntry",

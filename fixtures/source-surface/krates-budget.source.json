@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "c0sJ4BlviUC4pF1kZZrFtAZANlWr6qUV3JeADuF7QvpB0s9tYyiZFwikD_SAYzVbcEQ-YZQ861ZyudP8ok0oCQ"
+    "signature": "5jbymPA0FCCMN3EkoQghQAthhziioozinjvr8IebeWBACcGj-xQUhZuLWeZ4ZCKNr8i6bgIaRX96dM8ZoPuLAA"
   },
   "data": {
     "allocation": {
@@ -100,7 +100,7 @@
       "allocation",
       "summary"
     ],
-    "title": "_BudgetDetail",
+    "title": "Budget detail",
     "type": "object",
     "x-morphe": {
       "order": [
@@ -111,8 +111,8 @@
   },
   "seals": {
     "content_sha256": "sha256:d19db84dea1c6cc83daa537b5604ef81dd1f3cb7e8c9fb1d5db00f12bcb6b204",
-    "schema_sha256": "sha256:bc8c747b4a55bf1a3429a2d21f9c24748836b3f6f156794b55039d9e58410ca5",
-    "testimony_sha256": "sha256:f81efb4337d025139f3d9ba520a84d5cb769559a292ae4979c03fddd155b3032"
+    "schema_sha256": "sha256:c88452bb0a5c65806a80f6cb36bf99caadfa9052bf171fe9f267877f846ac4e5",
+    "testimony_sha256": "sha256:f2249d6ed13f56cba14d453020453e50d3adbffdfe905a38f1715dc1ef36e0f5"
   },
   "source_revision": "krates-budget-fixture-rev-0001",
   "surface_id": "krates.budget:krates-ehf",

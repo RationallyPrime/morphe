@@ -9,6 +9,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from morphe_grammar.artifacts import artifact_documents
+from morphe_grammar.models import validate_node
 from morphe_grammar.schema import schema_document
 from morphe_grammar.ts_codegen import typescript_document
 from morphe_grammar.wire import delta_schema_document
@@ -49,8 +50,25 @@ def test_delta_schema_document_names_delta_root() -> None:
 def test_schema_exposes_live_typescript_grammar_affordance_fields() -> None:
     assert {"indent"} <= schema_properties("Stack")
     assert {"columns", "ruled"} <= schema_properties("Grid")
-    assert {"numeric", "polarity"} <= schema_properties("Text")
+    assert {"level", "numeric", "polarity"} <= schema_properties("Text")
     assert {"id"} <= schema_properties("Button")
+
+
+def test_text_heading_level_is_additive_and_bounded() -> None:
+    validator = Draft202012Validator(schema_document())
+
+    assert validator.is_valid({"kind": "text", "value": "Obligations", "as": "heading", "level": 1})
+    assert validator.is_valid({"kind": "text", "value": "Legacy", "as": "heading"})
+    assert not validator.is_valid(
+        {"kind": "text", "value": "Too deep", "as": "heading", "level": 4}
+    )
+    assert not validator.is_valid(
+        {"kind": "text", "value": "Boolean is not one", "as": "heading", "level": True}
+    )
+    with pytest.raises(ValueError, match="level must be the integer"):
+        validate_node(
+            {"kind": "text", "value": "Boolean is not one", "as": "heading", "level": True}
+        )
 
 
 @pytest.mark.parametrize("dimension", ["density", "emphasis", "collapse"])

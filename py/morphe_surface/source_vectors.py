@@ -165,6 +165,8 @@ class _TaxisRosterRow(_FixtureModel):
 
 
 class _TaxisRoster(_FixtureModel):
+    model_config = ConfigDict(title="Weekly roster")
+
     name: str = Field(title="Roster")
     window: str | None = Field(default=None, alias="windowLabel", title="Window")
     coverage: float = Field(
@@ -221,6 +223,8 @@ class _ObolosEvidenceRow(_FixtureModel):
 
 
 class _ObolosEvidence(_FixtureModel):
+    model_config = ConfigDict(title="Evidence review")
+
     case_name: str = Field(alias="name", title="Evidence case")
     decision: Literal["settled", "review", "blocked"] = Field(
         title="Decision status",
@@ -280,6 +284,8 @@ class _VendorLede(_FixtureModel):
 
 
 class _VendorDetail(_FixtureModel):
+    model_config = ConfigDict(title="Vendor detail")
+
     header: _VendorLede = Field(
         title="Vendor",
         json_schema_extra=morphe_hint(strategy="entity-header"),
@@ -318,6 +324,8 @@ class _BudgetAllocation(_FixtureModel):
 
 
 class _BudgetDetail(_FixtureModel):
+    model_config = ConfigDict(title="Budget detail")
+
     allocation: _BudgetAllocation = Field(
         title="Allocation",
         json_schema_extra=morphe_hint(strategy="breakdown"),
@@ -355,6 +363,8 @@ class _TrailEvent(_FixtureModel):
 
 
 class _AuditTrailDetail(_FixtureModel):
+    model_config = ConfigDict(title="Audit trail")
+
     events: list[_TrailEvent] = Field(
         alias="events",
         title="Audit trail",
@@ -395,6 +405,8 @@ class _ProfilePanel(_FixtureModel):
 
 
 class _ProfileDetail(_FixtureModel):
+    model_config = ConfigDict(title="Profile detail")
+
     profile: _ProfilePanel = Field(
         title="Profile",
         json_schema_extra=morphe_hint(strategy="key-value"),

@@ -101,7 +101,35 @@ EXPECTED_TRAIL: dict[str, Any] = {
                 ],
                 "ref": [{"kind": "link", "href": "/a/1", "label": "Open"}],
                 "provenance": [
-                    {"kind": "text", "value": "evt-001", "as": "body", "intent": "provenance"}
+                    {
+                        "kind": "compound",
+                        "name": "ProvenanceFooter",
+                        "args": {},
+                        "slots": {
+                            "facts": [
+                                {
+                                    "kind": "stack",
+                                    "role": "field-group",
+                                    "children": [
+                                        {
+                                            "kind": "text",
+                                            "value": "Ref",
+                                            "as": "caption",
+                                            "intent": "neutral",
+                                        },
+                                        {
+                                            "kind": "text",
+                                            "value": "evt-001",
+                                            "as": "body",
+                                            "intent": "provenance",
+                                        },
+                                    ],
+                                }
+                            ],
+                            "seals": [],
+                            "links": [],
+                        },
+                    }
                 ],
             },
         }
@@ -111,6 +139,18 @@ EXPECTED_TRAIL: dict[str, Any] = {
 
 def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
     return build_surface(schema, data, root=schema)
+
+
+def _trail_payload(node: dict[str, Any]) -> dict[str, Any]:
+    assert node["kind"] == "stack"
+    assert node["role"] == "section"
+    assert node["children"][0] == {
+        "kind": "text",
+        "value": "Trail",
+        "as": "heading",
+        "level": 1,
+    }
+    return node["children"][1]
 
 
 # --- resolve: hint-selected only; the structural floor is untouched -------------------
@@ -134,21 +174,23 @@ def test_hint_free_array_still_lowers_structurally() -> None:
 def test_trail_lowers_each_item_to_a_promoted_trail_entry() -> None:
     node = emit_node(_build(TRAIL_SCHEMA, TRAIL_DATA))
     validate_node(node)
-    assert node == EXPECTED_TRAIL
+    assert _trail_payload(node) == EXPECTED_TRAIL
 
 
 def test_trail_keeps_identifiers_out_of_the_summary() -> None:
     node = emit_node(_build(TRAIL_SCHEMA, TRAIL_DATA))
-    entry = node["children"][0]
+    entry = _trail_payload(node)["children"][0]
     # The provenance id lives ONLY in the provenance footer, never in the summary text.
     assert entry["args"]["summary"]["value"] == "Admitted"
-    assert entry["slots"]["provenance"][0]["value"] == "evt-001"
+    footer = entry["slots"]["provenance"][0]
+    assert footer["name"] == "ProvenanceFooter"
+    assert footer["slots"]["facts"][0]["children"][1]["value"] == "evt-001"
 
 
 def test_empty_trail_keeps_the_empty_collection_floor() -> None:
     node = emit_node(_build(TRAIL_SCHEMA, []))
     validate_node(node)
-    assert node == {
+    assert _trail_payload(node) == {
         "kind": "stack",
         "role": "section",
         "children": [{"kind": "text", "value": "No trail.", "as": "caption", "intent": "neutral"}],
@@ -165,7 +207,7 @@ def test_trail_preserves_promoted_arg_and_item_diagnostics() -> None:
     spec = build_surface(TRAIL_SCHEMA, TRAIL_DATA, root=TRAIL_SCHEMA, diagnostics=diagnostics)
     node = emit_node(spec)
     validate_node(node)
-    provenance = node["children"][0]["slots"]["provenance"]
+    provenance = _trail_payload(node)["children"][0]["slots"]["provenance"]
     alerts = [item["title"] for item in provenance if item.get("kind") == "inline-alert"]
     # Event-level AND the stamp child's (a bare arg) diagnostics both surface (D8).
     assert alerts == ["EVT", "STAMP"]

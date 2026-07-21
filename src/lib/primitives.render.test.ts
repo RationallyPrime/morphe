@@ -987,6 +987,23 @@ describe("emphasis subalgebra — renormalization reaches the SSR tree (Budget-c
 });
 
 describe("Content leaves — inline color resolves to a CSS value in SSR, not a Svelte signal", () => {
+	it("separates restrained heading register from explicit document-outline level", () => {
+		const operational = ssr({
+			kind: "text",
+			value: "Obligations",
+			as: "heading",
+			level: 1,
+		});
+		const bodyOutline = ssr({ kind: "text", value: "Quiet outline", as: "body", level: 2 });
+		const legacy = ssr({ kind: "text", value: "Section", as: "heading" });
+
+		expect(operational).toContain("<h1");
+		expect(operational).toContain('data-as="heading"');
+		expect(bodyOutline).toContain("<h2");
+		expect(bodyOutline).toContain('data-as="body"');
+		expect(legacy).toContain("<h2");
+	});
+
 	// REGRESSION: `style:color` (the shorthand) on Text/Number serialized the
 	// $derived SIGNAL (a getter function) into the SSR style attribute instead of
 	// its value, so server-rendered intent-colored text shipped `style="color:

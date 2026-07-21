@@ -3,13 +3,14 @@
     {
       "children": [],
       "diagnostics": [],
-      "emphasis": "critical",
+      "emphasis": "muted",
       "heading": true,
+      "intent": "folio",
       "items": [],
       "label": "Roster",
       "path": "$.name",
       "strategy": "scalar",
-      "text_as": "display",
+      "text_as": "caption",
       "value": "Vestfir\u00f0ir \u2014 \"night\"\nroster"
     },
     {
@@ -324,7 +325,7 @@
   "diagnostics": [],
   "heading": true,
   "items": [],
-  "label": "_TaxisRoster",
+  "label": "Weekly roster",
   "path": "$",
   "strategy": "record-card"
 }

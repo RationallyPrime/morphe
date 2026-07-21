@@ -138,20 +138,18 @@
     {
       "children": [],
       "diagnostics": [],
-      "emphasis": "critical",
       "heading": true,
       "items": [],
       "label": "Summary",
       "path": "$.summary",
       "strategy": "scalar",
-      "text_as": "display",
       "value": "Two audit events; each lowers to a promoted TrailEntry."
     }
   ],
   "diagnostics": [],
   "heading": true,
   "items": [],
-  "label": "_AuditTrailDetail",
+  "label": "Audit trail",
   "path": "$",
   "strategy": "record-card"
 }

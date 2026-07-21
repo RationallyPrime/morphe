@@ -1650,6 +1650,15 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Kind",
           "type": "string"
         },
+        "level": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "title": "Level",
+          "type": "integer"
+        },
         "numeric": {
           "title": "Numeric",
           "type": "boolean"

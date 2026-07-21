@@ -109,7 +109,7 @@ SIGNAL_CARD = CompoundDefinition.model_validate(
 ENTITY_HEADER = CompoundDefinition.model_validate(
     {
         "name": "EntityHeader",
-        "version": "1.1.0",
+        "version": "2.0.0",
         "grammar_version": GRAMMAR_VERSION,
         "lifecycle": "promoted",
         "params": {
@@ -118,12 +118,14 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
                 "kicker": {
                     "type": "node",
                     "required": True,
-                    "description": "Small register line naming the collection this entity is in.",
+                    "description": (
+                        "Contextual entity or organization identity beneath the task heading."
+                    ),
                 },
                 "title": {
                     "type": "node",
                     "required": True,
-                    "description": "The entity's name at display/heading register.",
+                    "description": "The operational task heading for this entity surface.",
                 },
                 # 1.1.0: no default. An omitted keyFigure falls to the factory's
                 # empty-text node (display:none) — a header without a figure
@@ -143,6 +145,11 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
                     "kind": "stack",
                     "role": "panel",
                     "children": [
+                        # 2.0.0: the task title comes first in document order. The
+                        # contextual entity identity rides ``kicker`` below it, so
+                        # neither a metric label nor organization name can precede
+                        # the pane's logical h1 (KRA-798).
+                        {"kind": "param-ref", "param": "title"},
                         {
                             "kind": "cluster",
                             "role": "toolbar",
@@ -157,7 +164,6 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
                                 {"kind": "slot", "name": "signal", "fallback": []},
                             ],
                         },
-                        {"kind": "param-ref", "param": "title"},
                         {
                             "kind": "cluster",
                             "role": "inline",
@@ -175,6 +181,51 @@ ENTITY_HEADER = CompoundDefinition.model_validate(
         },
     }
 )
+
+
+PROVENANCE_FOOTER = CompoundDefinition.model_validate(
+    {
+        "name": "ProvenanceFooter",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "node",
+                    # Optional and silent by default. Callers that need a visible
+                    # provenance-region heading author the node; the native
+                    # disclosure summary remains its accessible control label.
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional authored heading inside the audit disclosure.",
+                }
+            },
+        },
+        # Audit proof is structurally present but leaves the primary scan path:
+        # one native disclosure, no Frame reset, and three caller-owned lanes.
+        # The fixed summary is intentional — Disclosure.summary is a raw string
+        # field and therefore cannot lawfully be parameterized by the compound
+        # factory. Signed values stay in node-valued slots (D8).
+        "template": {
+            "kind": "disclosure",
+            "summary": "Audit proof",
+            "children": [
+                {"kind": "param-ref", "param": "heading"},
+                {
+                    "kind": "stack",
+                    "role": "field-group",
+                    "children": [
+                        {"kind": "slot", "name": "facts", "fallback": []},
+                        {"kind": "slot", "name": "seals", "fallback": []},
+                        {"kind": "slot", "name": "links", "fallback": []},
+                    ],
+                },
+            ],
+        },
+    }
+)
+
 
 STAT_BAND = CompoundDefinition.model_validate(
     {
@@ -321,6 +372,7 @@ PROMOTED_COMPOUNDS = MappingProxyType(
     {
         SIGNAL_CARD.name: SIGNAL_CARD,
         ENTITY_HEADER.name: ENTITY_HEADER,
+        PROVENANCE_FOOTER.name: PROVENANCE_FOOTER,
         STAT_BAND.name: STAT_BAND,
         BREAKDOWN.name: BREAKDOWN,
         TRAIL_ENTRY.name: TRAIL_ENTRY,
@@ -471,6 +523,7 @@ __all__ = [
     "ENTITY_HEADER",
     "KEY_VALUE_PANEL",
     "PROMOTED_COMPOUNDS",
+    "PROVENANCE_FOOTER",
     "SIGNAL_CARD",
     "STAT_BAND",
     "TRAIL_ENTRY",
