@@ -31,6 +31,8 @@
 		{crumbs}
 		temporalPolicies={TEMPORAL_POLICIES}
 		temporalPolicy={data.temporalPolicy}
+		showAsOf
+		asOf={data.asOf}
 	/>
 	<main
 		class="viewer-surface"

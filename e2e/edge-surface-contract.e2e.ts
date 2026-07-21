@@ -254,6 +254,30 @@ test.describe("dialect-independent source compilation", () => {
 test.describe("operator-first viewer chrome", () => {
 	test.use({ viewport: { width: 390, height: 844 } });
 
+	test("navigates a seeded pane across dates and clears back to the current frontier", async ({
+		page,
+	}) => {
+		await openSurface(page);
+		await page.waitForLoadState("networkidle");
+		const asOf = page.getByLabel("As of");
+		await expect(asOf).toBeVisible();
+
+		await asOf.fill("2026-07-15");
+		await asOf.dispatchEvent("change");
+		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=gallery&as_of=2026-07-15$`));
+		await expect(page.getByLabel("As of")).toHaveValue("2026-07-15");
+
+		await page.getByLabel("As of").fill("2026-07-08");
+		await page.getByLabel("As of").dispatchEvent("change");
+		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=gallery&as_of=2026-07-08$`));
+		await expect(page.getByLabel("As of")).toHaveValue("2026-07-08");
+
+		await page.getByLabel("As of").fill("");
+		await page.getByLabel("As of").dispatchEvent("change");
+		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=gallery$`));
+		await expect(page.getByLabel("As of")).toHaveValue("");
+	});
+
 	test("preserves breadcrumbs, collapses inspection, and keeps 44px native targets", async ({
 		page,
 	}) => {

@@ -20,6 +20,8 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	if (source === undefined) error(404, { message: "Unknown source." });
 	const entry = source.surfaces.find((surface) => surface.id === params.surfaceId);
 	if (entry === undefined) error(404, { message: "Unknown surface." });
+	const rawAsOf = url.searchParams.get("as_of");
+	const asOf = rawAsOf !== null && rawAsOf !== "" ? rawAsOf : undefined;
 
 	const pane = await loadSourcePane({
 		source,
@@ -37,5 +39,6 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		collectionHref: pane.collectionHref,
 		temporalPolicy: pane.temporalPolicy,
 		resolvedWindow: pane.resolvedWindow,
+		asOf,
 	};
 };
