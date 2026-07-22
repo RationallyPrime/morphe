@@ -1,8 +1,9 @@
 import type { Node } from "$lib";
 import { GRAMMAR_VERSION } from "$lib";
-import { compileSourceSurface } from "$lib/surface-edge/compile.js";
+import { compileSourceSurfaceDetailed } from "$lib/surface-edge/compile.js";
+import type { EmitContext } from "$lib/surface-edge/emit.js";
 import { admitSourceSurfaceJson, type SourceAdmissionOptions } from "$lib/surface-edge/source.js";
-import type { CompilationReceipt, TemporalPolicy } from "$lib/surface-edge/spec.js";
+import type { CompilationReceipt, SurfaceNode, TemporalPolicy } from "$lib/surface-edge/spec.js";
 import { readSourceSurfaceResponse } from "./surface-reader.js";
 
 export interface CompiledSourceEnvelope {
@@ -12,6 +13,10 @@ export interface CompiledSourceEnvelope {
 	readonly dialectHint: string;
 	readonly tree: Node;
 	readonly compilationReceipt: CompilationReceipt;
+	/** Server-only retained IR for exact-path board delivery paints. */
+	readonly sourceIr: SurfaceNode;
+	/** The exact compiler presentation context reused by the host re-emission. */
+	readonly sourceEmitContext: Readonly<EmitContext>;
 	/**
 	 * The concrete `surface_id` the admission gate actually accepted. For a family-mode
 	 * drill-through (KRA-776/777) this is the producer's family-canonical instance — the
@@ -58,9 +63,9 @@ export async function parseSourceSurfaceResponse(
 		};
 	}
 
-	let compiled: ReturnType<typeof compileSourceSurface>;
+	let compiled: ReturnType<typeof compileSourceSurfaceDetailed>;
 	try {
-		compiled = compileSourceSurface(admitted.value, {
+		compiled = compileSourceSurfaceDetailed(admitted.value, {
 			...(options.temporalPolicy === undefined ? {} : { temporalPolicy: options.temporalPolicy }),
 		});
 	} catch (error) {
@@ -87,6 +92,8 @@ export async function parseSourceSurfaceResponse(
 			dialectHint: options.dialectHint,
 			tree: compiled.tree,
 			compilationReceipt: compiled.receipt,
+			sourceIr: compiled.ir,
+			sourceEmitContext: compiled.emitContext,
 			admittedSurfaceId: admitted.value.surface_id,
 		},
 	};

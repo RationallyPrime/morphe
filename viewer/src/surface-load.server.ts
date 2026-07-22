@@ -11,7 +11,8 @@ import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
 import { GRAMMAR_VERSION, getDialect, hasDialect, validateNodeForDialect } from "$lib";
 import { validateNodeDocument } from "$lib/artifacts";
-import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
+import type { EmitContext } from "$lib/surface-edge/emit.js";
+import type { CompilationReceipt, SurfaceNode } from "$lib/surface-edge/spec.js";
 import type { DeliveryReceipt } from "./receipt.js";
 import { createDeliveryReceipt } from "./receipt.js";
 
@@ -41,9 +42,15 @@ export interface GatedSurfaceRequest {
 	readonly accept?: string;
 	readonly parse: (response: Response) => Promise<GatedParseResult>;
 	/** Host-bound transform (for example viewer link rewriting) applied before the final gate. */
-	readonly transformTree?: (tree: Node) => Node;
+	readonly transformTree?: (tree: Node, context: GatedTransformContext) => Node;
 	/** Raw `?dialect=` query value; honored only when it names a shipped dialect. */
 	readonly dialectOverride: string | null;
+}
+
+export interface GatedTransformContext {
+	readonly admittedSurfaceId?: string;
+	readonly sourceIr?: SurfaceNode;
+	readonly sourceEmitContext?: Readonly<EmitContext>;
 }
 
 export interface GatedSurface {
@@ -63,6 +70,8 @@ interface GatedParsedEnvelope {
 	readonly tree: Node;
 	readonly compilationReceipt?: CompilationReceipt;
 	readonly admittedSurfaceId?: string;
+	readonly sourceIr?: SurfaceNode;
+	readonly sourceEmitContext?: Readonly<EmitContext>;
 }
 
 type GatedParseResult =
@@ -142,7 +151,27 @@ export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<Ga
 			? request.dialectOverride
 			: parsed.envelope.dialectHint;
 	const dialectId = getDialect(requestedDialectId).id;
-	const transformedTree = request.transformTree?.(parsed.envelope.tree) ?? parsed.envelope.tree;
+	let transformedTree: Node;
+	try {
+		transformedTree =
+			request.transformTree?.(parsed.envelope.tree, {
+				...(parsed.envelope.admittedSurfaceId === undefined
+					? {}
+					: { admittedSurfaceId: parsed.envelope.admittedSurfaceId }),
+				...(parsed.envelope.sourceIr === undefined ? {} : { sourceIr: parsed.envelope.sourceIr }),
+				...(parsed.envelope.sourceEmitContext === undefined
+					? {}
+					: { sourceEmitContext: parsed.envelope.sourceEmitContext }),
+			}) ?? parsed.envelope.tree;
+	} catch (transformError) {
+		error(502, {
+			message: `The delivered tree transform failed: ${
+				transformError instanceof Error ? transformError.message : "unknown host transform failure"
+			}.`,
+			code: "invalid-artifact",
+			artifactId: request.artifactId,
+		});
+	}
 	const validatedTree = validateNodeDocument(transformedTree);
 	if (!validatedTree.ok) {
 		const issue = validatedTree.issues[0];

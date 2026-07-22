@@ -27,41 +27,49 @@ result carries a dialect-aware delivery receipt for the exact tree that renders.
 
 ## Configuration (KRA-752 §4)
 
-`MORPHE_SOURCES` — JSON object mapping a path-safe source id to a source:
+`MORPHE_SOURCES` — one exact version-2 board envelope. The former flat source
+map is retired and rejected; joins and mounts travel atomically:
 
 ```json
 {
-	"taxis": {
-		"kind": "kernel",
-		"title": "Taxis — workforce time",
-		"base_url": "http://taxis:8205",
-		"dialect_hint": "timaeus",
-		"token_env": "VIEWER_TAXIS_TOKEN",
-		"source_trust": {
-			"issuer": "taxis",
-			"public_keys": {
-				"taxis-fixture-2026-01": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
+	"version": 2,
+	"board": "timaeus-demo",
+	"sources": {
+		"taxis": {
+			"kind": "kernel",
+			"title": "Taxis — workforce time",
+			"base_url": "http://taxis:8205",
+			"dialect_hint": "timaeus",
+			"token_env": "VIEWER_TAXIS_TOKEN",
+			"source_trust": {
+				"issuer": "taxis",
+				"public_keys": {
+					"taxis-fixture-2026-01": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
+				},
+				"max_age_seconds": 300,
+				"max_future_skew_seconds": 30
 			},
-			"max_age_seconds": 300,
-			"max_future_skew_seconds": 30
-		},
-		"surfaces": [
-			{
-				"id": "orgs",
-				"title": "Organizations",
-				"path": "/surfaces/orgs",
-				"representation": "source-v1",
-				"surface_id": "taxis.orgs:<org-id>:<period>"
-			},
-			{
-				"id": "roster",
-				"title": "Weekly roster",
-				"path": "/orgs/<org-id>/surfaces/roster",
-				"representation": "source-v1",
-				"surface_id": "taxis.roster:<org-id>:<period>"
-			}
-		]
-	}
+			"surfaces": [
+				{
+					"id": "orgs",
+					"title": "Organizations",
+					"path": "/surfaces/orgs",
+					"representation": "source-v1",
+					"surface_id": "taxis.orgs:<org-id>:<period>",
+					"route_only": false
+				},
+				{
+					"id": "employee",
+					"title": "Employee",
+					"path": "/orgs/<org-id>/surfaces/employee?worker_id=<worker-id>",
+					"representation": "source-v1",
+					"surface_id": "taxis.employee:<org-id>:<worker-id>:<date>",
+					"route_only": true
+				}
+			]
+		}
+	},
+	"joins": []
 }
 ```
 
@@ -74,6 +82,13 @@ result carries a dialect-aware delivery receipt for the exact tree that renders.
   that exact response `Content-Type`. The entry's `surface_id` must equal the
   signed concrete identity. An omitted or `legacy` representation fails closed
   (the legacy bare-`CompiledSurface` reader is retired).
+- `route_only` — required on every surface. Route-only panes are legal declared
+  `/s/...` destinations but never become catalog tiles, collection roots, or
+  home panels.
+- `joins` — strict directional board declarations. Active detail joins extract
+  identity only from the admitted signed `surface_id`; collection joins consume
+  exact signed ExternalRef carriers. The viewer never falls back to request
+  queries, labels, displayed values, or legacy field names.
 - `source_trust` — required whenever a source declares surfaces. `issuer` and
   `surface_id` are exact pins; `public_keys` maps an allowed signed `key_id` to
   its canonical unpadded base64url **raw 32-byte Ed25519 public key**. Rotation

@@ -8,17 +8,17 @@
 
 import { error } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
-import { parseSourcesConfig, type SourceConfig } from "./sources.js";
+import { type BoardConfig, parseBoardConfig, type SourceConfig } from "./sources.js";
 
-export function loadSources(): ReadonlyMap<string, SourceConfig> {
-	const parsed = parseSourcesConfig(env.MORPHE_SOURCES);
+export function loadBoard(): BoardConfig {
+	const parsed = parseBoardConfig(env.MORPHE_SOURCES);
 	if (!parsed.ok) {
 		error(503, {
 			message: `MORPHE_SOURCES is invalid: ${parsed.reason}.`,
 			code: "not-configured",
 		});
 	}
-	return parsed.sources;
+	return parsed.config;
 }
 
 export function bearerFor(source: SourceConfig): string | undefined {

@@ -98,13 +98,13 @@ jobs:
       - name: Viewer SSR smoke (stripped app · fail-closed trust + retirement gates)
         env:
           MORPHE_SOURCES: >-
-            {"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:westfjords:2026-W29"},{"id":"roster-wrong-pin","title":"Wrong identity pin","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:someone-else:2026-W29"}]}}
+            {"version":2,"board":"ci-smoke","sources":{"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:westfjords:2026-W29","route_only":false},{"id":"roster-wrong-pin","title":"Wrong identity pin","path":"/source/taxis-roster","representation":"source-v1","surface_id":"taxis.roster:someone-else:2026-W29","route_only":false}]}},"joins":[]}
           # A config that still declares the retired legacy representation must
           # fail the whole source CLOSED (KRA-775 Stage 5) — asserted on a
           # second viewer instance so the assertion is deliberate, not a side
           # effect of breaking the main fixture.
           MORPHE_SOURCES_LEGACY_DECLARATION: >-
-            {"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/legacy/taxis-roster","representation":"legacy"}]}}
+            {"version":2,"board":"ci-legacy-retirement","sources":{"taxis":{"kind":"kernel","title":"Taxis fixture","base_url":"http://127.0.0.1:4401","source_trust":{"issuer":"taxis","public_keys":{"taxis-fixture-2026-01":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"},"max_age_seconds":3153600000},"surfaces":[{"id":"roster","title":"Weekly roster","path":"/legacy/taxis-roster","representation":"legacy","route_only":false}]}},"joins":[]}
         run: |
           node scripts/stub-source-surface-store.mjs &
           source_store_pid=$!

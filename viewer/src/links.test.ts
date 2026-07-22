@@ -16,6 +16,7 @@ const ZYGOS: SourceConfig = {
 			path: "/surfaces/books",
 			representation: "source-v1",
 			sourceSurfaceId: "zygos.books:demo",
+			routeOnly: false,
 		},
 		{
 			id: "overview",
@@ -23,6 +24,7 @@ const ZYGOS: SourceConfig = {
 			path: "/books/b-1/surfaces/overview?window=2026-07",
 			representation: "source-v1",
 			sourceSurfaceId: "zygos.overview:b-1:2026-07",
+			routeOnly: false,
 		},
 	],
 };
@@ -190,5 +192,32 @@ describe("rewriteKernelLinks", () => {
 		expect(rewriteKernelLinks(tree, ZYGOS, new URLSearchParams())).toEqual(
 			rewriteKernelLinks(tree, ZYGOS),
 		);
+	});
+
+	it("preserves only exact host-painted objects, not producer links with the same href", () => {
+		const allowed = "/s/taxis/employee?worker_id=worker-1";
+		const painted = link(allowed, "Matthías");
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				painted,
+				link(allowed, "Producer duplicate"),
+				link("/s/taxis/employee?worker_id=forged", "Forged"),
+			],
+		};
+		const rewritten = rewriteKernelLinks(
+			tree,
+			ZYGOS,
+			undefined,
+			new Set([painted as object]),
+		) as unknown as {
+			children: Node[];
+		};
+		expect(rewritten.children).toEqual([
+			painted,
+			{ kind: "text", value: "Producer duplicate", as: "body" },
+			{ kind: "text", value: "Forged", as: "body" },
+		]);
 	});
 });
