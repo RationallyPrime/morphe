@@ -119,8 +119,12 @@ jobs:
             sleep 1
           done
           fail=0
-          # /healthz reports the supported grammar_version (deploy-to-box asserts this).
-          curl -s http://localhost:4174/healthz | grep -q '"grammar_version":"0.4.0"' || fail=1
+          # /healthz reports the supported generated grammar contract. Derive the
+          # expectation from the same checked-in authority so a grammar bump cannot
+          # leave this smoke test pinned to the previous release.
+          expected_grammar_version=$(bun -e 'import { GRAMMAR_VERSION } from "./src/lib/grammar/version.ts"; process.stdout.write(GRAMMAR_VERSION)')
+          curl -s http://localhost:4174/healthz \
+            | grep -q "\"grammar_version\":\"${expected_grammar_version}\"" || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"edge_compiler_version":"0.3.6"' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"compiler_build_sha256":"sha256:' || fail=1
           curl -s http://localhost:4174/healthz | grep -q '"source_surface_wire_version":"1.0"' || fail=1
