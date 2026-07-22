@@ -352,6 +352,7 @@ class Status(GrammarModel):
     kind: Literal["status"]
     tone: Literal["success", "caution", "info", "neutral"]
     signal: StatusSignal
+    href: StrictStr | None = None
 
 
 class InlineAlert(GrammarModel):
@@ -364,6 +365,7 @@ class InlineAlert(GrammarModel):
     # into `detail` where the machine detail and the human action would blur.
     repair: StrictStr | None = None
     live: Literal["polite", "assertive"] | None = None
+    href: StrictStr | None = None
 
 
 class AriaControlLabel(GrammarModel):

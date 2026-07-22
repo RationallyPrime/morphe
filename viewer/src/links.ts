@@ -2,8 +2,9 @@
  * Kernel-link rewiring at the trust gate.
  *
  * A kernel compiles links against ITS OWN origin (`/books/{id}/surfaces/overview`);
- * inside the viewer those hrefs are meaningless. After the gate passes, every link in
- * a kernel tree is resolved against the source's DECLARED surface paths:
+ * inside the viewer those hrefs are meaningless. After the gate passes, every navigable
+ * link, status, and inline alert in a kernel tree is resolved against the source's
+ * DECLARED surface paths:
  *
  * - path matches a declared entry → rewritten to `/s/{source}/{id}`, and the
  *   original query is CARRIED FORWARD onto the viewer href so a filtered link
@@ -15,8 +16,10 @@
  *
  * The degrade mirrors the compiler's own absent-href rule (a relation that cannot
  * resolve is not a link) — a dead in-viewer 404 is worse than honest text. The
- * transform maps link→link or link→text, both valid in every Node position, so the
- * gated tree stays gate-valid by construction.
+ * An unresolved ordinary link becomes text; an unresolved feedback drill keeps its
+ * feedback node and loses only `href`, so the evidence signal remains honest and inert.
+ * Every result is valid in the original Node position, so the gated tree stays gate-valid
+ * by construction.
  */
 
 import type { Node } from "$lib";
@@ -75,8 +78,11 @@ function walk(
 	}
 	if (typeof value !== "object" || value === null) return value;
 	const record = value as Record<string, unknown>;
-	if (record.kind === "link" && typeof record.href === "string") {
-		return rewriteLink(record, routes, carry);
+	if (
+		(record.kind === "link" || record.kind === "status" || record.kind === "inline-alert") &&
+		typeof record.href === "string"
+	) {
+		return rewriteNavigable(record, routes, carry);
 	}
 	const out: Record<string, unknown> = {};
 	for (const [key, child] of Object.entries(record)) {
@@ -97,17 +103,21 @@ function withCarriedQuery(paneHref: string, carry: URLSearchParams | undefined):
 	return query === "" ? base : `${base}?${query}`;
 }
 
-function rewriteLink(
-	link: Record<string, unknown>,
+function rewriteNavigable(
+	node: Record<string, unknown>,
 	routes: ReadonlyMap<string, string>,
 	carry: URLSearchParams | undefined,
 ): Record<string, unknown> {
-	const href = link.href as string;
-	if (isExternal(href)) return link;
+	const href = node.href as string;
+	if (isExternal(href)) return node;
 	const pane = routes.get(pathOnly(href));
 	if (pane !== undefined) {
-		return { ...link, href: withCarriedQuery(`${pane}${querySuffix(href)}`, carry) };
+		return { ...node, href: withCarriedQuery(`${pane}${querySuffix(href)}`, carry) };
 	}
-	const label = typeof link.label === "string" ? link.label : "";
-	return { kind: "text", value: label, as: "body" };
+	if (node.kind === "link") {
+		const label = typeof node.label === "string" ? node.label : "";
+		return { kind: "text", value: label, as: "body" };
+	}
+	const { href: _unresolved, ...inert } = node;
+	return inert;
 }

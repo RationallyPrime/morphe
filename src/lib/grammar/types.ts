@@ -278,6 +278,7 @@ export interface Status {
 	readonly kind: "status";
 	readonly tone: "success" | "caution" | "info" | "neutral";
 	readonly signal: StatusSignal;
+	readonly href?: string;
 }
 
 export interface InlineAlert {
@@ -287,6 +288,7 @@ export interface InlineAlert {
 	readonly detail?: string;
 	readonly repair?: string;
 	readonly live?: "polite" | "assertive";
+	readonly href?: string;
 }
 
 export interface AriaControlLabel {

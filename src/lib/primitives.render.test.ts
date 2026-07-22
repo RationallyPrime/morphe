@@ -79,6 +79,46 @@ describe("render totality — Action + Overlay kinds resolve through the registr
 		expect(html).toContain("Catalogue");
 	});
 
+	it("renders href-bearing feedback as native links and href-less feedback as inert", () => {
+		const statusLink = ssr({
+			kind: "status",
+			tone: "caution",
+			signal: { text: "1 live violation" },
+			href: "/workers/w-1/rest-debts",
+		});
+		expect(statusLink).toMatch(/<a\b[^>]*class="mo-status/);
+		expect(statusLink).toContain('href="/workers/w-1/rest-debts"');
+		expect(statusLink).toContain("--mo-status-ring:");
+		expect(statusLink).not.toContain('role="status"');
+
+		const inertStatus = ssr({
+			kind: "status",
+			tone: "caution",
+			signal: { text: "1 inert violation" },
+		});
+		expect(inertStatus).toMatch(/<span\b[^>]*class="mo-status/);
+		expect(inertStatus).toContain('role="status"');
+		expect(inertStatus).not.toContain("<a");
+
+		const alertLink = ssr({
+			kind: "inline-alert",
+			tone: "info",
+			title: "Evidence available",
+			live: "assertive",
+			href: "/seals/s-1",
+		});
+		expect(alertLink).toMatch(/<a\b[^>]*class="mo-alert/);
+		expect(alertLink).toContain('href="/seals/s-1"');
+		expect(alertLink).toContain('aria-live="assertive"');
+		expect(alertLink).toContain("--mo-alert-ring:");
+		expect(alertLink).not.toContain('role="alert"');
+
+		const inertAlert = ssr({ kind: "inline-alert", tone: "info", title: "Inert notice" });
+		expect(inertAlert).toMatch(/<div\b[^>]*class="mo-alert/);
+		expect(inertAlert).toContain('role="status"');
+		expect(inertAlert).not.toContain("<a");
+	});
+
 	it("renders a Dialog (native <dialog>) through MorpheRoot", () => {
 		const html = ssr({
 			kind: "dialog",
