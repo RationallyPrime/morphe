@@ -37,6 +37,7 @@ import {
 	DEFAULT_DIALECT,
 	DEFAULT_DIALECT_ID,
 	DIALECT_IDS,
+	DIALECT_LIST,
 	DIALECTS,
 	getDialect,
 	hasDialect,
@@ -427,6 +428,15 @@ describe("data ⇄ CSS agreement — each static block equals its dialect's data
 });
 
 describe("dialect registry — named lookup for the subtree-boundary swap", () => {
+	it("gives every picker entry a human label and inline plain-language gloss", () => {
+		expect(DIALECT_LIST).toEqual(DIALECT_IDS.map((id) => DIALECTS[id]));
+		for (const dialect of DIALECT_LIST) {
+			expect(dialect.label.trim().length, `${dialect.id} label`).toBeGreaterThan(0);
+			expect(dialect.label, `${dialect.id} label differs from id`).not.toBe(dialect.id);
+			expect(dialect.gloss.trim().length, `${dialect.id} gloss`).toBeGreaterThan(0);
+		}
+	});
+
 	it("registers every shipped dialect, keyed by id", () => {
 		expect(DIALECT_IDS).toContain("icelandic-archive");
 		expect(DIALECT_IDS).toContain("clinical");

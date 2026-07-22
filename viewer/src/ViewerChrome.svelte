@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import type { Dialect } from "$lib";
+	import { Gloss } from "$lib/components";
 
 	/*
 	 * Host-level viewer chrome (the native-control-surface idiom): a slim bar of
@@ -23,8 +25,10 @@
 	}
 
 	interface Props {
-		dialects: readonly string[];
+		dialects: readonly Dialect[];
 		current: string;
+		/** Two-way pane inspection state shared with the pane's MorpheRoot. */
+		explainGlosses?: boolean;
 		crumbs?: readonly Crumb[];
 		/*
 		 * Temporal presentation control (KRA-767). Present only on source-v1 panes —
@@ -47,6 +51,7 @@
 	let {
 		dialects,
 		current,
+		explainGlosses = $bindable(false),
 		crumbs,
 		temporalPolicies,
 		temporalPolicy,
@@ -89,6 +94,9 @@
 			temporalPolicies.length > 0,
 	);
 	const showOperatorControls = $derived(Boolean(showAsOf) || showTemporal);
+	const selectedDialect = $derived(
+		dialects.find((dialect) => dialect.id === current) ?? dialects[0],
+	);
 </script>
 
 <header class="chrome">
@@ -136,14 +144,29 @@
 		<details class="chrome__inspection">
 			<summary>Substrate inspection</summary>
 			<div class="chrome__inspection-panel">
+				<label class="chrome__control chrome__explain">
+					<input type="checkbox" bind:checked={explainGlosses} />
+					<span>Explain this pane</span>
+				</label>
 				<label class="chrome__control">
 					<span>Dialect</span>
 					<select value={current} onchange={onDialectChange}>
-						{#each dialects as dialect (dialect)}
-							<option value={dialect}>{dialect}</option>
+						{#each dialects as dialect (dialect.id)}
+							<option value={dialect.id}>{dialect.label}</option>
 						{/each}
 					</select>
 				</label>
+				{#if selectedDialect}
+					<div class="chrome__dialect-gloss">
+						<Gloss
+							label={selectedDialect.label}
+							gloss={selectedDialect.gloss}
+							revealAll={explainGlosses}
+						>
+							{#snippet children()}{selectedDialect.label}{/snippet}
+						</Gloss>
+					</div>
+				{/if}
 			</div>
 		</details>
 	</div>
@@ -251,7 +274,8 @@
 	}
 
 	.chrome__control select,
-	.chrome__control input[type="date"] {
+	.chrome__control input[type="date"],
+	.chrome__control input[type="checkbox"] {
 		min-block-size: 2.75rem;
 		max-inline-size: 100%;
 		background: var(--mo-intent-surface-sunken);
@@ -260,6 +284,13 @@
 		border-radius: 0.25rem;
 		padding: 0.5rem 0.625rem;
 		font: inherit;
+	}
+
+	.chrome__control input[type="checkbox"] {
+		inline-size: 2.75rem;
+		block-size: 2.75rem;
+		margin: 0;
+		accent-color: var(--mo-intent-primary-action-surface);
 	}
 
 	.chrome__inspection {
@@ -287,7 +318,10 @@
 
 	.chrome__inspection-panel {
 		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
 		justify-content: flex-end;
+		gap: 0.75rem 1rem;
 		margin-block-start: 0.5rem;
 		padding: 0.75rem;
 		border: 1px solid var(--mo-intent-outline);
@@ -295,10 +329,17 @@
 		background: var(--mo-intent-surface-sunken);
 	}
 
+	.chrome__dialect-gloss {
+		flex: 1 1 100%;
+		text-align: end;
+		color: var(--mo-intent-on-surface-muted);
+	}
+
 	.chrome__crumb:focus-visible,
 	.chrome__inspection summary:focus-visible,
 	.chrome__control select:focus-visible,
-	.chrome__control input[type="date"]:focus-visible {
+	.chrome__control input[type="date"]:focus-visible,
+	.chrome__control input[type="checkbox"]:focus-visible {
 		outline: 2px solid var(--mo-intent-primary-action-ring);
 		outline-offset: 2px;
 	}
@@ -336,12 +377,18 @@
 		}
 
 		.chrome__control select,
-		.chrome__control input[type="date"] {
+		.chrome__control input[type="date"],
+		.chrome__control input[type="checkbox"] {
 			min-width: 0;
 		}
 
 		.chrome__inspection-panel {
 			justify-content: stretch;
+		}
+
+		.chrome__explain,
+		.chrome__dialect-gloss {
+			text-align: start;
 		}
 	}
 </style>

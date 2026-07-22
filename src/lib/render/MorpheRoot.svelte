@@ -19,6 +19,7 @@
 	import { activeDialect } from "../dialects/active.svelte.js";
 	import { applyDialect, dialectStyle, unknownIntentsIn } from "../dialects/provider.svelte.js";
 	import type { Dialect } from "../dialects/types.js";
+	import { provideGlossReveal } from "../gloss/state.svelte.js";
 	import type { Node as MorpheNode } from "../grammar/types.js";
 	import type { ActionMap } from "../state/actions.js";
 	import { provideActions } from "../state/actions.js";
@@ -60,6 +61,8 @@
 		 * never a store write. Omit it and tier-2 affordances are simply inert.
 		 */
 		onEscalate?: EscalationHandler;
+		/** Host inspection state: reveal every authored gloss in this rendered pane. */
+		explainGlosses?: boolean;
 	}
 
 	let {
@@ -71,7 +74,14 @@
 		showCandidates = false,
 		choices,
 		onEscalate,
+		explainGlosses = false,
 	}: Props = $props();
+
+	provideGlossReveal({
+		get current() {
+			return explainGlosses;
+		},
+	});
 
 	// An explicit `dialect` prop OVERRIDES (preserving the subtree-boundary swap);
 	// when OMITTED, follow the GLOBAL active dialect reactively, so flipping it

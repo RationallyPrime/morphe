@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "0aSIgjnUSex7-AdDWR5usVx8_Z7dOBkNHGSMavKN_pwE_AynEg7p0DdqSV3DmtU-htcf05fWdO2dSsgF296JDQ"
+    "signature": "eNB4vpZORUeTetzBU3cT4Mg27jA2_ccQkr-UHHc4MDY4pXjbXksFSUbq2ql86HOwiyYMTgLJeXUMbFjnn6fnDQ"
   },
   "data": {
     "adjustment": null,
@@ -43,10 +43,13 @@
       {
         "currency": "ISK",
         "format": "currency",
+        "gloss": null,
         "intent": "evidence",
         "kicker": "Gross",
+        "kicker_gloss": null,
         "label": "ISK exposure",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": null,
         "value": 1280000
@@ -54,10 +57,13 @@
       {
         "currency": "EUR",
         "format": "currency",
+        "gloss": null,
         "intent": "caution",
         "kicker": "Cross-border",
+        "kicker_gloss": null,
         "label": "EUR exceptions",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": null,
         "value": 735.5
@@ -65,10 +71,13 @@
       {
         "currency": null,
         "format": null,
+        "gloss": null,
         "intent": null,
         "kicker": "Route",
+        "kicker_gloss": null,
         "label": "Evidence rail",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": null,
         "value": "SEPA + domestic"
@@ -148,6 +157,20 @@
             ],
             "default": null
           },
+          "gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gloss"
+          },
           "intent": {
             "anyOf": [
               {
@@ -171,6 +194,20 @@
             "default": null,
             "title": "Kicker"
           },
+          "kicker_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker Gloss"
+          },
           "label": {
             "title": "Label",
             "type": "string"
@@ -186,6 +223,20 @@
             ],
             "default": null,
             "title": "Signal"
+          },
+          "signal_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal Gloss"
           },
           "signal_intent": {
             "anyOf": [
@@ -235,12 +286,15 @@
             "label",
             "value",
             "kicker",
+            "gloss",
+            "kicker_gloss",
             "format",
             "temporal",
             "currency",
             "intent",
             "signal",
-            "signal_intent"
+            "signal_intent",
+            "signal_gloss"
           ]
         }
       },
@@ -495,15 +549,15 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:a71409c86121aeb0d310b2a32bff8d18d185f36a6412d9d1f2bc22f06ded9457",
-    "schema_sha256": "sha256:c3a401e069a04af3f1d7c753b47ee2dfdabde12d7e9d8407fa550668c51815e6",
-    "testimony_sha256": "sha256:0ea7eb89fbd178bef9990bf28c2ad33510d2efaf6ae2b8645db2fc27ece37c50"
+    "content_sha256": "sha256:8e69b5781abe083cab060555d5107cb5b0df8cc4b33396d4564c8935eeb47543",
+    "schema_sha256": "sha256:fd9bbacf5e3fcf4d23c467b02ad2c9e8e61706bfb1326860fe644664a876be57",
+    "testimony_sha256": "sha256:a4e1d6fe97c599e9e6c0b9994203abb47569e22d75bf7bfa9c2063415b6085ce"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.5.0",
+    "hint_vocabulary": "0.6.0",
     "id": "obolos.evidence",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

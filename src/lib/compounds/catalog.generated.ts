@@ -64,7 +64,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "EntityHeader",
@@ -144,7 +144,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "ProvenanceFooter",
@@ -195,7 +195,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "StatBand",
@@ -216,7 +216,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "Breakdown",
@@ -257,7 +257,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "TrailEntry",
@@ -323,7 +323,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 	{
 		name: "KeyValuePanel",
@@ -353,6 +353,6 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.5.0",
+		grammarVersion: "0.6.0",
 	},
 ] as const satisfies readonly CompoundDef[];

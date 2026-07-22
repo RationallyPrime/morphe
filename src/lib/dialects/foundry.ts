@@ -230,6 +230,7 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const foundry: Dialect = {
 	id: "foundry",
 	label: "Foundry",
+	gloss: "A steel-blue industrial register for quality, specifications, and production records.",
 	persona: { vertical: "industrial", role: "quality" },
 	intents: {
 		...CORE,

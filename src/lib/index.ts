@@ -72,6 +72,7 @@ export {
 	DEFAULT_DIALECT,
 	DEFAULT_DIALECT_ID,
 	DIALECT_IDS,
+	DIALECT_LIST,
 	DIALECTS,
 	getDialect,
 	hasDialect,

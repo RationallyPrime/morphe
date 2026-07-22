@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "8sAZNYM5BEcu6AfUuMzrgdvd5rEqKtsI6XUnFwuqn73xYGqpbwN5YTw5gLNcnhRYitI_nki2QoSYXMrTb9YuBw"
+    "signature": "R-KjyRMOvjRo0G9NIZikD1Hf31XeH8Y07b5pLzD9B5noAbeis0Cg6BaZwuZ9wADvdmuqJ5v4Ju_JcWoQsDF-Cw"
   },
   "data": {
     "coverage": 0.75,
@@ -10,10 +10,13 @@
       {
         "currency": "ISK",
         "format": "currency",
+        "gloss": null,
         "intent": "evidence",
         "kicker": "Window",
+        "kicker_gloss": null,
         "label": "Scheduled payroll",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": null,
         "value": 2450000
@@ -21,10 +24,13 @@
       {
         "currency": null,
         "format": null,
+        "gloss": null,
         "intent": null,
         "kicker": "Operations",
+        "kicker_gloss": null,
         "label": "Dispatch mode",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": null,
         "value": "weather hold"
@@ -32,10 +38,13 @@
       {
         "currency": null,
         "format": null,
+        "gloss": null,
         "intent": null,
         "kicker": "System time",
+        "kicker_gloss": null,
         "label": "Newest event",
         "signal": null,
+        "signal_gloss": null,
         "signal_intent": null,
         "temporal": "date-time-minute",
         "value": "2026-07-17T11:59:14.582860Z"
@@ -140,6 +149,20 @@
             ],
             "default": null
           },
+          "gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gloss"
+          },
           "intent": {
             "anyOf": [
               {
@@ -163,6 +186,20 @@
             "default": null,
             "title": "Kicker"
           },
+          "kicker_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker Gloss"
+          },
           "label": {
             "title": "Label",
             "type": "string"
@@ -178,6 +215,20 @@
             ],
             "default": null,
             "title": "Signal"
+          },
+          "signal_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal Gloss"
           },
           "signal_intent": {
             "anyOf": [
@@ -227,12 +278,15 @@
             "label",
             "value",
             "kicker",
+            "gloss",
+            "kicker_gloss",
             "format",
             "temporal",
             "currency",
             "intent",
             "signal",
-            "signal_intent"
+            "signal_intent",
+            "signal_gloss"
           ]
         }
       },
@@ -433,15 +487,15 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:3d70259cafde795ca0fd88bf3029ebe2bf406c1f8c90a8034ef8488994b71de0",
-    "schema_sha256": "sha256:6c07c7d9765e6eec4ff589d549250b9a35846c13e8446116dc5401a0da5b9529",
-    "testimony_sha256": "sha256:9b41aed7383cbac058e029de800e5bd3d84dcdc6487568442e1e0463bb7a32a2"
+    "content_sha256": "sha256:9d946614eeb167623b68fe395f7154d088909960d1351c410d348e82444e6704",
+    "schema_sha256": "sha256:b949aa547d53810868864d1206cf8106df469ea45c6a6ae3b28e1e311a941229",
+    "testimony_sha256": "sha256:e7b3755854a3ae66b1a04b2a799507e431deb0c5ab5da074e168b54ab77b57a3"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.5.0",
+    "hint_vocabulary": "0.6.0",
     "id": "taxis.roster",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

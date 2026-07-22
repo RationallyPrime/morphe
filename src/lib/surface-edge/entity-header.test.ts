@@ -18,30 +18,57 @@ const VENDOR_SCHEMA: JsonSchema = {
 	// insertion order, TypeScript sorts) — a pre-existing, out-of-scope asymmetry.
 	"x-morphe": {
 		strategy: "entity-header",
-		order: ["name", "exposure", "standing", "contact", "ledgerRef"],
+		gloss: "The vendor identity and decision summary.",
+		order: ["name", "exposure", "standing", "tier", "contact", "ledgerRef", "details"],
 	},
 	properties: {
 		name: { type: "string", title: "Name" },
 		exposure: {
 			type: "integer",
 			title: "Exposure",
-			"x-morphe": { strategy: "number", format: "currency", currency: "ISK" },
+			"x-morphe": {
+				strategy: "number",
+				format: "currency",
+				currency: "ISK",
+				gloss: "The current financial amount at risk.",
+			},
 		},
 		standing: {
 			type: "string",
 			title: "Standing",
-			"x-morphe": { strategy: "status", intents: { active: "success" } },
+			"x-morphe": {
+				strategy: "status",
+				intents: { active: "success" },
+				gloss: "Whether this vendor may receive new work.",
+			},
+		},
+		tier: {
+			type: "string",
+			title: "Tier",
+			enum: ["core"],
+			"x-morphe": { strategy: "badge", gloss: "The vendor review tier." },
 		},
 		contact: { type: "string", title: "Primary contact" },
 		ledgerRef: { type: "string", title: "Ledger id", "x-morphe": { role: "provenance" } },
+		details: {
+			type: "object",
+			title: "Details",
+			"x-morphe": {
+				strategy: "linked-ref",
+				role: "provenance",
+				gloss: "Open the authoritative vendor record.",
+			},
+		},
 	},
 };
 const VENDOR_DATA = {
 	name: "Krates ehf",
 	exposure: 2_450_000,
 	standing: "active",
+	tier: "core",
 	contact: "Sok",
 	ledgerRef: "vnd-001",
+	details: { label: "Open vendor", href: "/vendors/vnd-001" },
 };
 
 // The SAME expected tree the Python twin asserts verbatim
@@ -52,17 +79,33 @@ const EXPECTED_COMPOUND: Node = {
 	name: "EntityHeader",
 	args: {
 		kicker: { kind: "text", value: "Krates ehf", as: "caption", intent: "folio" },
-		title: { kind: "text", value: "Vendor", as: "heading", level: 1 },
+		title: {
+			kind: "text",
+			value: "Vendor",
+			as: "heading",
+			level: 1,
+			gloss: "The vendor identity and decision summary.",
+		},
 		keyFigure: {
 			kind: "number",
 			value: 2_450_000,
 			format: "currency",
 			currency: "ISK",
 			emphasis: "strong",
+			label: "Exposure",
+			gloss: "The current financial amount at risk.",
 		},
 	},
 	slots: {
-		signal: [{ kind: "status", tone: "success", signal: { text: "active" } }],
+		signal: [
+			{
+				kind: "status",
+				tone: "success",
+				signal: { text: "active" },
+				gloss: "Whether this vendor may receive new work.",
+			},
+			{ kind: "badge", label: "core", intent: "neutral", gloss: "The vendor review tier." },
+		],
 		meta: [
 			{
 				kind: "grid",
@@ -91,14 +134,22 @@ const EXPECTED_COMPOUND: Node = {
 						},
 					],
 					seals: [],
-					links: [],
+					links: [
+						{
+							kind: "link",
+							href: "/vendors/vnd-001",
+							label: "Open vendor",
+							intent: "provenance",
+							gloss: "Open the authoritative vendor record.",
+						},
+					],
 				},
 			},
 		],
 	},
 };
 
-describe("entity-header lowering (0.5.0)", () => {
+describe("entity-header lowering", () => {
 	it("is hint-selected only — structural inference never returns it", () => {
 		const obj: JsonSchema = { type: "object", properties: { name: { type: "string" } } };
 		expect(resolveStrategy(obj, EMPTY_HINT)).toBe("record-card");
@@ -120,8 +171,10 @@ describe("entity-header lowering (0.5.0)", () => {
 			"scalar",
 			"number",
 			"status",
+			"badge",
 			"scalar",
 			"scalar",
+			"linked-ref",
 		]);
 		expect(spec.children.every((child) => child.text_as === undefined)).toBe(true);
 	});

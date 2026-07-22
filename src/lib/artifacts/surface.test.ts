@@ -142,6 +142,51 @@ describe("validateNodeDocument", () => {
 	});
 
 	it.each([
+		{ kind: "badge", label: "core", gloss: "The review tier." },
+		{
+			kind: "status",
+			tone: "success",
+			signal: { text: "ready" },
+			gloss: "Ready for the next operation.",
+		},
+		{
+			kind: "link",
+			href: "/records/1",
+			label: "Open record",
+			gloss: "Open the authoritative record.",
+		},
+		{ kind: "text", value: "Exposure", as: "caption", gloss: "Amount at risk." },
+		{ kind: "text", value: "Vendor", as: "heading", gloss: "Vendor summary." },
+		{ kind: "number", value: 7, label: "Exposure", gloss: "Amount at risk." },
+	])("accepts a label-bearing gloss: $kind", (tree) => {
+		expect(validateNodeDocument(tree).ok).toBe(true);
+	});
+
+	it.each([
+		{ kind: "text", value: "Open data", gloss: "Not a label." },
+		{ kind: "text", value: "Open data", as: "body", gloss: "Not a label." },
+		{
+			kind: "text",
+			value: "Open data",
+			as: "body",
+			level: 1,
+			gloss: "Still not a label.",
+		},
+		{ kind: "number", value: 7, gloss: "An unlabeled quantity." },
+		{ kind: "badge", label: "\u200b", gloss: "No visible term." },
+		{
+			kind: "status",
+			tone: "neutral",
+			signal: { text: "" },
+			gloss: "No visible term.",
+		},
+		{ kind: "link", href: "/", label: "", gloss: "No visible term." },
+		{ kind: "progress", label: "Complete", value: 0.5, gloss: "Dead vocabulary." },
+	])("rejects gloss on open data or a non-label node: $kind", (tree) => {
+		expect(validateNodeDocument(tree).ok).toBe(false);
+	});
+
+	it.each([
 		["density", undefined],
 		["emphasis", undefined],
 		["collapse", "More detail"],

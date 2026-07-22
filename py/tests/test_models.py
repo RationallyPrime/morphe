@@ -80,12 +80,67 @@ def test_feedback_href_round_trips_through_the_authoritative_grammar(
     tree: NodeFixture,
 ) -> None:
     admitted = validate_node(tree)
-    round_tripped = NODE_ADAPTER.validate_json(
-        NODE_ADAPTER.dump_json(admitted, exclude_none=True)
-    )
+    round_tripped = NODE_ADAPTER.validate_json(NODE_ADAPTER.dump_json(admitted, exclude_none=True))
 
     assert round_tripped == admitted
     assert round_tripped.model_dump()["href"] == tree["href"]
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {"kind": "badge", "label": "core", "gloss": "The review tier."},
+        {
+            "kind": "status",
+            "tone": "success",
+            "signal": {"text": "ready"},
+            "gloss": "Ready for the next operation.",
+        },
+        {
+            "kind": "link",
+            "href": "/records/1",
+            "label": "Open record",
+            "gloss": "Open the authoritative record.",
+        },
+        {"kind": "text", "value": "Exposure", "as": "caption", "gloss": "Amount at risk."},
+        {"kind": "text", "value": "Vendor", "as": "heading", "gloss": "Vendor summary."},
+        {"kind": "number", "value": 7, "label": "Exposure", "gloss": "Amount at risk."},
+    ],
+)
+def test_label_bearing_gloss_round_trips(tree: NodeFixture) -> None:
+    admitted = validate_node(tree)
+    assert (
+        NODE_ADAPTER.validate_json(NODE_ADAPTER.dump_json(admitted, exclude_none=True)) == admitted
+    )
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {"kind": "text", "value": "Open data", "gloss": "Not a label."},
+        {"kind": "text", "value": "Open data", "as": "body", "gloss": "Not a label."},
+        {
+            "kind": "text",
+            "value": "Open data",
+            "as": "body",
+            "level": 1,
+            "gloss": "Still not a label.",
+        },
+        {"kind": "number", "value": 7, "gloss": "An unlabeled quantity."},
+        {"kind": "badge", "label": "\u200b", "gloss": "No visible term."},
+        {
+            "kind": "status",
+            "tone": "neutral",
+            "signal": {"text": ""},
+            "gloss": "No visible term.",
+        },
+        {"kind": "link", "href": "/", "label": "", "gloss": "No visible term."},
+        {"kind": "progress", "label": "Complete", "value": 0.5, "gloss": "Dead vocabulary."},
+    ],
+)
+def test_open_data_and_non_label_nodes_reject_gloss(tree: NodeFixture) -> None:
+    with pytest.raises(ValidationError):
+        validate_node(tree)
 
 
 def test_register_intent_validates() -> None:

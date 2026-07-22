@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "yZuR46gkkhKiE-759iXfibEK5uf3sBum2Bt4AxfUOBI8D8I0EUrGfmZG0XK89CEmyXn3kjMcWyzrUSGx-A5VDw"
+    "signature": "XVy0_FX79GdvNJ4HqGgS8S35IQp9fedP35wcps80aMLps-Qu4oBZM_cNeClHN9t5ZBuZWrcmme360EvpeMxLBg"
   },
   "data": {
     "events": [
@@ -156,13 +156,13 @@
   "seals": {
     "content_sha256": "sha256:0b3f90230eccd7ba7b016c14687798e5c68999700e8677f9e7cd515c39a8f548",
     "schema_sha256": "sha256:3ae6ffa207611386db7a02991bc041b74f1225deb8475c0ff3c7279c27adeac6",
-    "testimony_sha256": "sha256:a10112d980a52586ce7b68d4d8069ccd96d682d4bf36e8e4e725f4b5d4d31a41"
+    "testimony_sha256": "sha256:5393cdee1d25364daf84f96096915f7118154caebb6a114ec5df438c61c624ca"
   },
   "source_revision": "krates-trail-fixture-rev-0001",
   "surface_id": "krates.trail:krates-ehf",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.5.0",
+    "hint_vocabulary": "0.6.0",
     "id": "krates.trail",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

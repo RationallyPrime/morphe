@@ -9,6 +9,7 @@ import rfc8785
 from pydantic import ValidationError
 
 from morphe_contracts import Diagnostic
+from morphe_grammar.labels import has_visible_label_text
 
 from .hints import MorpheHint, parse_hint
 from .refs import resolve_ref, schema_type, unwrap_nullable
@@ -130,6 +131,7 @@ def _build(schema: dict[str, Any], data: object, ctx: _Ctx) -> SurfaceNode:
                 label=plan.label,
                 strategy="linked-ref",
                 intent=plan.hint.role,
+                gloss=plan.hint.gloss,
                 diagnostics=plan.diags,
             )
         return builder(plan, data, ctx) if builder is not None else _record(plan, data, ctx)
@@ -192,6 +194,7 @@ def _record(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy=eff,
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         collapse=collapse,
         children=children,
         diagnostics=plan.diags,
@@ -219,6 +222,7 @@ def _entity_header(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy="entity-header",
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         children=children,
         diagnostics=plan.diags,
     )
@@ -245,6 +249,7 @@ def _key_value(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy="key-value",
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         children=children,
         diagnostics=plan.diags,
     )
@@ -279,6 +284,7 @@ def _breakdown(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy="breakdown",
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         children=children,
         diagnostics=plan.diags,
     )
@@ -306,6 +312,7 @@ def _collection(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy=plan.strategy,
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         emphasis="strong" if ctx.presentation == "primary-collection" else None,
         children=columns,
         items=items,
@@ -322,6 +329,7 @@ def _kpi_row(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy="kpi-row",
         intent=plan.hint.role,
         heading=plan.hint.heading,
+        gloss=plan.hint.gloss,
         items=items,
         diagnostics=plan.diags,
     )
@@ -355,6 +363,8 @@ def _kpi_cell(row: object, ctx: _Ctx) -> SurfaceNode:
         temporal=presentation.temporal if number is None else None,
         currency=currency,
         kicker=_string_or_none(cell.get("kicker")),
+        gloss=presentation.gloss,
+        kicker_gloss=_visible_string_or_none(cell.get("kicker_gloss")),
         children=_kpi_signal(cell, label, ctx),
         diagnostics=source_diagnostics,
     )
@@ -379,6 +389,7 @@ def _kpi_signal(cell: dict[str, Any], label: str, ctx: _Ctx) -> tuple[SurfaceNod
             strategy="status",
             value=signal,
             intent=tone,
+            gloss=_visible_string_or_none(cell.get("signal_gloss")),
         ),
     )
 
@@ -393,6 +404,7 @@ def _cell_presentation(cell: dict[str, Any]) -> MorpheHint:
                 "format": cell.get("format"),
                 "temporal": cell.get("temporal"),
                 "currency": cell.get("currency"),
+                "gloss": cell.get("gloss"),
             }
         )
     except ValidationError:
@@ -447,7 +459,12 @@ def _table_column(key: str, schema: dict[str, Any], ctx: _Ctx) -> SurfaceNode:
     hint = _hint_for(schema, resolved)
     label = _label(schema, hint.label, key)
     return SurfaceNode(
-        path=f"{ctx.path}.{key}", label=label, strategy="scalar", value=label, intent=hint.role
+        path=f"{ctx.path}.{key}",
+        label=label,
+        strategy="scalar",
+        value=label,
+        intent=hint.role,
+        gloss=hint.gloss,
     )
 
 
@@ -493,6 +510,7 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             href=href,
             value=data_label,
             intent=plan.hint.role,
+            gloss=plan.hint.gloss,
             diagnostics=plan.diags,
         )
     if plan.strategy == "diagnostic-node":
@@ -545,6 +563,7 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         numeric=numeric if plan.strategy == "scalar" else None,
         polarity=polarity if plan.strategy == "scalar" else None,
         temporal=plan.hint.temporal if plan.strategy == "scalar" else None,
+        gloss=plan.hint.gloss,
         diagnostics=plan.diags,
     )
 
@@ -567,6 +586,7 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
             numeric=numeric,
             polarity=polarity,
             temporal=plan.hint.temporal,
+            gloss=plan.hint.gloss,
             diagnostics=plan.diags,
         )
     number_format, currency = _currency_presentation(plan.hint.format, plan.hint.currency)
@@ -579,6 +599,7 @@ def _number_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         emphasis=plan.hint.emphasis,
         number_format=number_format,
         currency=currency,
+        gloss=plan.hint.gloss,
         diagnostics=plan.diags,
     )
 
@@ -607,6 +628,7 @@ def _status_leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy="status",
         value=text,
         intent=_value_intent(plan.hint, value, scalar_number_kind),
+        gloss=plan.hint.gloss,
         diagnostics=plan.diags,
     )
 
@@ -742,6 +764,10 @@ def _linked_ref_data_label(data: object) -> str | None:
 
 def _string_or_none(value: object) -> str | None:
     return value if isinstance(value, str) else None
+
+
+def _visible_string_or_none(value: object) -> str | None:
+    return value if isinstance(value, str) and has_visible_label_text(value) else None
 
 
 def _numeric_presentation(value: object) -> tuple[bool | None, Polarity | None]:

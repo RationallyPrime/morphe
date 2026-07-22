@@ -24,6 +24,7 @@
 	 * Agent edits ONLY this file.
 	 */
 
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { Text } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
@@ -77,18 +78,34 @@
 	const polarity = $derived(node.polarity);
 </script>
 
-{#if node.level !== undefined || as === "display" || as === "heading" || as === "subheading"}
-	<svelte:element this={headingTag} class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
-		{node.value}
-	</svelte:element>
-{:else if as === "caption"}
-	<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
-		{node.value}
-	</small>
+{#if node.gloss}
+	{#if node.level !== undefined || as === "display" || as === "heading" || as === "subheading"}
+		<svelte:element this={headingTag} class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
+			<Gloss label={node.value} gloss={node.gloss}>
+				{#snippet children()}{node.value}{/snippet}
+			</Gloss>
+		</svelte:element>
+	{:else if as === "caption"}
+		<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
+			<Gloss label={node.value} gloss={node.gloss}>
+				{#snippet children()}{node.value}{/snippet}
+			</Gloss>
+		</small>
+	{:else}
+		<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
+			<Gloss label={node.value} gloss={node.gloss}>
+				{#snippet children()}{node.value}{/snippet}
+			</Gloss>
+		</p>
+	{/if}
 {:else}
-	<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>
-		{node.value}
-	</p>
+	{#if node.level !== undefined || as === "display" || as === "heading" || as === "subheading"}
+		<svelte:element this={headingTag} class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>{node.value}</svelte:element>
+	{:else if as === "caption"}
+		<small class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>{node.value}</small>
+	{:else}
+		<p class="mo-text" data-as={as} data-emphasis={emphasis} data-numeric={numeric} data-polarity={polarity} style:color={color} style:--mo-text-clamp={clampLines}>{node.value}</p>
+	{/if}
 {/if}
 
 <style>

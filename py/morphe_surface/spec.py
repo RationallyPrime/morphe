@@ -123,6 +123,8 @@ class SurfaceNode(ContractModel):
     temporal: TemporalFormat | None = None
     currency: str | None = None
     kicker: str | None = None
+    gloss: str | None = None
+    kicker_gloss: str | None = None
     # Containers self-head by default; ``x-morphe: {heading: false}`` suppresses it (KRA-677).
     heading: bool = True
     # Record fields — or, on a "table" node, the column heads (label + optional intent).

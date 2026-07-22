@@ -1,4 +1,5 @@
 import { fromJSONSchema } from "zod";
+import { hasVisibleLabelText } from "../grammar/labels.js";
 import type { Node } from "../grammar/types.js";
 import { SURFACE_ARTIFACT_JSON_SCHEMA } from "./surface-schema.generated.js";
 
@@ -408,7 +409,9 @@ function tableStructuralChildren(node: Record<string, unknown>): readonly Struct
  * on the TS ingress ("schema-complete" really means schema + this walk). If
  * py/morphe_grammar ever emits another cross-field constraint, it must be
  * mirrored here; surface.test.ts pins the gap so a zod fix surfaces as a
- * failing test rather than a silently redundant walk.
+ * failing test rather than a silently redundant walk. KRA-804 adds two more
+ * cross-field guards here: body/open-data text cannot carry a gloss, and a
+ * quantity needs a visible label before it can carry one.
  */
 function semanticNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValidationIssue | null {
 	const pending: Array<{ readonly node: unknown; readonly path: ValidationPath }> = [
@@ -427,6 +430,49 @@ function semanticNodeIssue(root: unknown, prefix: ValidationPath): ArtifactValid
 				path: current.path,
 				message: "button requires a visible label or explicit a11y name",
 			};
+		}
+		if (current.node.kind === "text" && typeof current.node.gloss === "string") {
+			const register = typeof current.node.as === "string" ? current.node.as : "body";
+			if (!["display", "heading", "subheading", "caption"].includes(register)) {
+				return {
+					code: "schema",
+					path: current.path,
+					message: "text gloss is only valid on a kicker/caption or title-bearing text node",
+				};
+			}
+			if (typeof current.node.value !== "string" || !hasVisibleLabelText(current.node.value)) {
+				return {
+					code: "schema",
+					path: current.path,
+					message: "text gloss requires visible term text",
+				};
+			}
+		}
+		if (
+			current.node.kind === "number" &&
+			typeof current.node.gloss === "string" &&
+			typeof current.node.label !== "string"
+		) {
+			return {
+				code: "schema",
+				path: current.path,
+				message: "number gloss requires a visible label",
+			};
+		}
+		if (typeof current.node.gloss === "string") {
+			const term =
+				current.node.kind === "badge" || current.node.kind === "link"
+					? current.node.label
+					: current.node.kind === "status" && isRecord(current.node.signal)
+						? current.node.signal.text
+						: undefined;
+			if (term !== undefined && (typeof term !== "string" || !hasVisibleLabelText(term))) {
+				return {
+					code: "schema",
+					path: current.path,
+					message: `${String(current.node.kind)} gloss requires visible label text`,
+				};
+			}
 		}
 		// Mirror of the Pydantic Table.require_rectangular_rows validator (a
 		// cross-field constraint JSON Schema cannot express): every row carries

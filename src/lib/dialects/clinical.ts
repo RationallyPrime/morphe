@@ -235,6 +235,7 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const clinical: Dialect = {
 	id: "clinical",
 	label: "Clinical Console",
+	gloss: "A compact, exception-forward register that emphasizes live status and controlled review.",
 	persona: { vertical: "regulated-operations", role: "exception-review" },
 	intents: {
 		...CORE,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Final
 
-GRAMMAR_VERSION: Final = "0.5.0"
+GRAMMAR_VERSION: Final = "0.6.0"
 
 
 def version_typescript_document() -> str:

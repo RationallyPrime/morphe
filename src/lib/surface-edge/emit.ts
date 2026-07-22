@@ -195,6 +195,10 @@ function scalar(spec: SurfaceNode, ctx: EmitContext): Text {
 		...(spec.intent === undefined ? {} : { intent: spec.intent }),
 		...(spec.numeric ? { numeric: true } : {}),
 		...(spec.polarity === undefined ? {} : { polarity: spec.polarity }),
+		...(spec.gloss !== undefined &&
+		["display", "heading", "subheading", "caption"].includes(spec.text_as ?? "body")
+			? { gloss: spec.gloss }
+			: {}),
 	};
 }
 
@@ -203,6 +207,7 @@ function badge(spec: SurfaceNode): Node {
 		kind: "badge",
 		label: pythonScalarText(spec.value ?? null, scalarNumberKind(spec)),
 		intent: spec.intent ?? "neutral",
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
 	};
 }
 
@@ -215,6 +220,7 @@ function link(spec: SurfaceNode): Node {
 		href: spec.href,
 		label: spec.label,
 		...(spec.intent === undefined ? {} : { intent: spec.intent }),
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
 	};
 }
 
@@ -225,6 +231,7 @@ function status(spec: SurfaceNode): Node {
 		signal: {
 			text: normalizeVisibleLabelText(pythonScalarText(spec.value ?? null), "—"),
 		},
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
 	};
 }
 
@@ -284,8 +291,14 @@ function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
 		value: item.kicker ?? "",
 		as: "caption",
 		intent: "folio",
+		...(item.kicker_gloss === undefined ? {} : { gloss: item.kicker_gloss }),
 	};
-	const title: Text = { kind: "text", value: item.label, as: "subheading" };
+	const title: Text = {
+		kind: "text",
+		value: item.label,
+		as: "subheading",
+		...(item.gloss === undefined ? {} : { gloss: item.gloss }),
+	};
 	let measure: Node;
 	if (item.strategy === "number") {
 		measure = { ...numberNode(item), emphasis: "strong" };
@@ -392,10 +405,15 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 		value: spec.label,
 		as: "heading",
 		...(spec.path === "$" ? { level: 1 as const } : {}),
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
 	};
 	const args: Record<string, Node> = { kicker, title };
 	if (keyFigure !== undefined) {
-		args.keyFigure = { ...numberNode(keyFigure), emphasis: "strong" };
+		args.keyFigure = {
+			...numberNode(keyFigure),
+			emphasis: "strong",
+			...(keyFigure.gloss === undefined ? {} : { label: keyFigure.label, gloss: keyFigure.gloss }),
+		};
 	}
 	// Diagnostics on the node itself and on the two children promoted to BARE args
 	// (title, keyFigure) would otherwise lose their alert path. Surface them all at
@@ -438,7 +456,13 @@ function breakdownRow(
 	ctx: EmitContext,
 ): Node[] {
 	// One proportion row: label + progress + value cluster (D8 keeps child alerts).
-	const label: Text = { kind: "text", value: child.label, as: "caption", intent: "neutral" };
+	const label: Text = {
+		kind: "text",
+		value: child.label,
+		as: "caption",
+		intent: "neutral",
+		...(child.gloss === undefined ? {} : { gloss: child.gloss }),
+	};
 	const progressNode: Node = {
 		kind: "progress",
 		label: normalizeVisibleLabelText(child.label, "Proportion"),
@@ -473,7 +497,7 @@ function breakdown(spec: SurfaceNode, ctx: EmitContext): Node {
 	});
 	const args: Record<string, Node> = {};
 	if (spec.path !== "$" && spec.heading) {
-		args.title = { kind: "text", value: spec.label, as: "heading" };
+		args.title = heading(spec.label, spec.emphasis, undefined, spec.gloss);
 	}
 	// Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
 	const headAlerts = spec.diagnostics.map(alert);
@@ -635,7 +659,7 @@ function ensureRootTask(spec: SurfaceNode, node: Node): Node {
 	return {
 		kind: "stack",
 		role: "section",
-		children: [heading(spec.label, spec.emphasis, 1), node],
+		children: [heading(spec.label, spec.emphasis, 1, spec.gloss), node],
 	};
 }
 
@@ -667,7 +691,7 @@ function operationalPage(spec: SurfaceNode, ctx: EmitContext): Stack {
 		children: [
 			// The root task remains the document H1 even for legacy `heading:false`
 			// producers that previously delegated the title to route chrome.
-			heading(spec.label, spec.emphasis, 1),
+			heading(spec.label, spec.emphasis, 1, spec.gloss),
 			...fields(context, ctx),
 			...spec.diagnostics.map(alert),
 			...provenanceAlerts,
@@ -804,7 +828,7 @@ function tableHeader(columns: readonly SurfaceNode[]): Grid {
 
 function headerCell(column: SurfaceNode): Text {
 	return {
-		...caption(column.label),
+		...caption(column.label, column.gloss),
 		...(column.intent === undefined ? {} : { intent: column.intent }),
 	};
 }
@@ -859,7 +883,9 @@ function emptyCell(): Spacer {
 
 function section(spec: SurfaceNode, children: readonly Node[], includeHeading = true): Stack {
 	const head =
-		includeHeading && spec.heading && spec.path !== "$" ? [heading(spec.label, spec.emphasis)] : [];
+		includeHeading && spec.heading && spec.path !== "$"
+			? [heading(spec.label, spec.emphasis, undefined, spec.gloss)]
+			: [];
 	return {
 		kind: "stack",
 		role: "section",
@@ -867,13 +893,19 @@ function section(spec: SurfaceNode, children: readonly Node[], includeHeading = 
 	};
 }
 
-function heading(label: string, emphasis: SurfaceNode["emphasis"], level?: 1 | 2 | 3): Text {
+function heading(
+	label: string,
+	emphasis: SurfaceNode["emphasis"],
+	level?: 1 | 2 | 3,
+	gloss?: string,
+): Text {
 	return {
 		kind: "text",
 		value: label,
 		as: "heading",
 		...(level === undefined ? {} : { level }),
 		...(emphasis === undefined ? {} : { emphasis }),
+		...(gloss === undefined ? {} : { gloss }),
 	};
 }
 
@@ -905,7 +937,10 @@ function definitionCandidate(spec: SurfaceNode): boolean {
 
 function definitionGrid(specs: readonly SurfaceNode[], ctx: EmitContext): Grid {
 	const children: Node[] = [];
-	for (const spec of specs) children.push(caption(spec.label), definitionValue(spec, ctx));
+	for (const spec of specs) {
+		const gloss = spec.strategy === "scalar" || spec.strategy === "number" ? spec.gloss : undefined;
+		children.push(caption(spec.label, gloss), definitionValue(spec, ctx));
+	}
 	return {
 		kind: "grid",
 		role: "field-group",
@@ -934,7 +969,14 @@ function field(spec: SurfaceNode, ctx: EmitContext): Node {
 	return {
 		kind: "stack",
 		role: "field-group",
-		children: [caption(spec.label), inner, ...alerts],
+		children: [
+			caption(
+				spec.label,
+				spec.strategy === "scalar" || spec.strategy === "number" ? spec.gloss : undefined,
+			),
+			inner,
+			...alerts,
+		],
 	};
 }
 
@@ -948,8 +990,14 @@ function emptyCollection(spec: SurfaceNode): Text {
 	};
 }
 
-function caption(label: string): Text {
-	return { kind: "text", value: label, as: "caption", intent: "neutral" };
+function caption(label: string, gloss?: string): Text {
+	return {
+		kind: "text",
+		value: label,
+		as: "caption",
+		intent: "neutral",
+		...(gloss === undefined ? {} : { gloss }),
+	};
 }
 
 function alert(diagnostic: CompilerDiagnostic): InlineAlert {
