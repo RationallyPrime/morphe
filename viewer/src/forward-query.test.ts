@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { forwardedRequest, withForwardedQuery, withoutGovernedParams } from "./forward-query.js";
+import {
+	forwardedRequest,
+	normalizeViewerQuery,
+	withForwardedQuery,
+	withoutGovernedParams,
+} from "./forward-query.js";
+
+describe("normalizeViewerQuery", () => {
+	it("uses one last-value-wins identity for duplicate parameters", () => {
+		const raw = new URLSearchParams("as_of=A&worker_id=first&as_of=B&worker_id=last");
+		const normalized = normalizeViewerQuery(raw);
+		expect(normalized.getAll("as_of")).toEqual(["B"]);
+		expect(normalized.getAll("worker_id")).toEqual(["last"]);
+		expect(raw.getAll("as_of")).toEqual(["A", "B"]);
+	});
+});
 
 // The pane route strips `dialect` (render-only) and forwards the rest of the
 // viewer query onto the kernel fetch, so a filter that survived the link

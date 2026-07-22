@@ -36,10 +36,11 @@ export function rewriteKernelLinks(
 	tree: Node,
 	source: SourceConfig,
 	carry?: URLSearchParams,
+	hostLinks: ReadonlySet<object> = new Set(),
 ): Node {
 	const routes = declaredRoutes(source);
 	const carried = carry !== undefined && [...carry].length > 0 ? carry : undefined;
-	return walk(tree, routes, carried) as Node;
+	return walk(tree, routes, carried, hostLinks) as Node;
 }
 
 /** Declared path (query stripped) → viewer pane href. First declaration wins. */
@@ -72,9 +73,10 @@ function walk(
 	value: unknown,
 	routes: ReadonlyMap<string, string>,
 	carry: URLSearchParams | undefined,
+	hostLinks: ReadonlySet<object>,
 ): unknown {
 	if (Array.isArray(value)) {
-		return value.map((item) => walk(item, routes, carry));
+		return value.map((item) => walk(item, routes, carry, hostLinks));
 	}
 	if (typeof value !== "object" || value === null) return value;
 	const record = value as Record<string, unknown>;
@@ -82,11 +84,11 @@ function walk(
 		(record.kind === "link" || record.kind === "status" || record.kind === "inline-alert") &&
 		typeof record.href === "string"
 	) {
-		return rewriteNavigable(record, routes, carry);
+		return rewriteNavigable(record, routes, carry, hostLinks);
 	}
 	const out: Record<string, unknown> = {};
 	for (const [key, child] of Object.entries(record)) {
-		out[key] = walk(child, routes, carry);
+		out[key] = walk(child, routes, carry, hostLinks);
 	}
 	return out;
 }
@@ -107,8 +109,13 @@ function rewriteNavigable(
 	node: Record<string, unknown>,
 	routes: ReadonlyMap<string, string>,
 	carry: URLSearchParams | undefined,
+	hostLinks: ReadonlySet<object>,
 ): Record<string, unknown> {
 	const href = node.href as string;
+	// Preserve only the exact link objects minted by the host paint pass. String
+	// equality is insufficient: a producer-authored link may duplicate a valid
+	// board href but still has no authority to create another navigation position.
+	if (hostLinks.has(node)) return node;
 	if (isExternal(href)) return node;
 	const pane = routes.get(pathOnly(href));
 	if (pane !== undefined) {

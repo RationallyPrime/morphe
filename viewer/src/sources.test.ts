@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSourcesConfig } from "./sources.js";
+import { parseBoardConfig } from "./sources.js";
 
 const sourceTrust = {
 	issuer: "taxis",
@@ -10,292 +10,435 @@ const sourceTrust = {
 	max_future_skew_seconds: 30,
 };
 
-const kernelSource = {
-	kind: "kernel",
-	base_url: "http://taxis:8205/",
-	title: "Taxis",
-	dialect_hint: "timaeus",
-	token_env: "VIEWER_TAXIS_TOKEN",
-	source_trust: sourceTrust,
-	surfaces: [
-		{
-			id: "orgs",
-			title: "Organizations",
-			path: "/surfaces/orgs",
-			representation: "source-v1",
-			surface_id: "taxis.orgs:westfjords:2026-W29",
+function surface(
+	id: string,
+	family = `taxis.${id}`,
+	options: { routeOnly?: boolean; path?: string } = {},
+): Record<string, unknown> {
+	return {
+		id,
+		title: id,
+		path: options.path ?? `/surfaces/${id}`,
+		representation: "source-v1",
+		surface_id: `${family}:westfjords:2026-W29`,
+		route_only: options.routeOnly ?? false,
+	};
+}
+
+function kernelSource(
+	id: string,
+	surfaces: readonly Record<string, unknown>[] = [surface("orgs")],
+	overrides: Record<string, unknown> = {},
+) {
+	return {
+		kind: "kernel",
+		base_url: `http://${id}:8205/`,
+		title: id,
+		dialect_hint: "timaeus",
+		token_env: `VIEWER_${id.toUpperCase()}_TOKEN`,
+		source_trust: { ...sourceTrust, issuer: id },
+		surfaces,
+		...overrides,
+	};
+}
+
+function board(sources: Record<string, unknown>, joins: readonly unknown[] = [], extra = {}) {
+	return JSON.stringify({
+		version: 2,
+		board: "timaeus-demo",
+		sources,
+		joins,
+		...extra,
+	});
+}
+
+function admittedJoin(overrides: Record<string, unknown> = {}) {
+	return {
+		id: "employee-to-payslip",
+		scope: "board",
+		from: {
+			source: "taxis",
+			family: "taxis.employee",
+			selector: { kind: "admitted-surface-id", instance_segment: 1 },
+			paint: { path: "$.worker_id", mode: "scalar-value" },
 		},
-		{
-			id: "roster",
-			path: "/orgs/1/surfaces/roster",
-			dialect_hint: "ledger",
-			representation: "source-v1",
-			surface_id: "taxis.roster:westfjords:2026-W29",
+		target: {
+			source: "misthos",
+			pane: "payslip",
+			query: { parameter: "worker_id" },
 		},
-	],
+		...overrides,
+	};
+}
+
+const twoSources = {
+	taxis: kernelSource("taxis", [surface("employee", "taxis.employee")]),
+	misthos: kernelSource("misthos", [
+		surface("run-summary", "misthos.run-summary"),
+		surface("payslip", "misthos.payslip", { routeOnly: true }),
+	]),
 };
 
-const storeSource = {
-	kind: "store",
-	base_url: "http://topos:8000/api/v1/surfaces",
-	surfaces: [{ id: "digest", title: "Balance digest", artifact_id: "surface:digest:run-1" }],
-};
-
-describe("parseSourcesConfig", () => {
-	it("returns an empty map when nothing is configured", () => {
-		const result = parseSourcesConfig(undefined);
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.size).toBe(0);
+describe("parseBoardConfig source contract", () => {
+	it("returns an explicit empty board only when the environment is unset", () => {
+		const result = parseBoardConfig(undefined);
+		expect(result).toEqual({
+			ok: true,
+			config: { version: 2, board: null, sources: new Map(), joins: [] },
+		});
+		expect(parseBoardConfig("").ok).toBe(false);
 	});
 
-	it("parses a source-v1 kernel config", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
+	it("parses the exact v2 root and source-v1 config", () => {
+		const result = parseBoardConfig(
+			board({
+				taxis: kernelSource("taxis", [
+					surface("orgs"),
+					{
+						...surface("roster", "taxis.roster"),
+						dialect_hint: "ledger",
+						title: undefined,
+					},
+				]),
+			}),
+		);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		const taxis = result.sources.get("taxis");
-		expect(taxis?.kind).toBe("kernel");
+		expect(result.config.board).toBe("timaeus-demo");
+		const taxis = result.config.sources.get("taxis");
 		expect(taxis?.baseUrl).toBe("http://taxis:8205");
 		expect(taxis?.tokenEnv).toBe("VIEWER_TAXIS_TOKEN");
 		expect(taxis?.surfaces).toHaveLength(2);
-		const roster = taxis?.surfaces[1];
-		expect(roster?.dialectHint).toBe("ledger");
-		expect(roster?.representation).toBe("source-v1");
-		expect(roster?.sourceSurfaceId).toBe("taxis.roster:westfjords:2026-W29");
-		const orgs = taxis?.surfaces[0];
-		expect(orgs?.title).toBe("Organizations");
+		expect(taxis?.surfaces[1]).toMatchObject({
+			id: "roster",
+			dialectHint: "ledger",
+			representation: "source-v1",
+			sourceSurfaceId: "taxis.roster:westfjords:2026-W29",
+			routeOnly: false,
+		});
+		expect(taxis?.surfaces[1]?.title).toBe("roster");
 	});
 
-	it("pins the source-v1 trust roots by issuer and key id", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
+	it("pins trust roots and preserves governed parameter behavior", () => {
+		const result = parseBoardConfig(
+			board({
+				taxis: kernelSource("taxis", undefined, {
+					governed_params: ["include_pii", "as_of_sequence", "include_pii"],
+				}),
+			}),
+		);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		const source = result.sources.get("taxis");
+		const source = result.config.sources.get("taxis");
 		expect(source?.sourceTrust?.issuer).toBe("taxis");
 		expect(source?.sourceTrust?.publicKeys.get("taxis")?.get("taxis-2026-01")).toBe(
 			"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		);
 		expect(source?.sourceTrust?.maxAgeSeconds).toBe(300);
 		expect(source?.sourceTrust?.maxFutureSkewSeconds).toBe(30);
+		expect(source?.governedParams).toEqual(["include_pii", "as_of_sequence"]);
 	});
 
-	// Stage-5 retirement (KRA-775): the store reader and the legacy
-	// bare-CompiledSurface representation are gone — configs that declare either
-	// fail closed with an error naming the retirement.
-	it("rejects a store source with the retirement error", () => {
-		const result = parseSourcesConfig(JSON.stringify({ default: storeSource }));
-		expect(result).toEqual({
-			ok: false,
-			reason:
-				"source default: store sources are retired (KRA-775 Stage 5) — the viewer admits kernel source-v1 only",
-		});
-	});
-
-	it("rejects a kernel surface with no declared representation (the retired legacy default)", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [{ id: "orgs", title: "Organizations", path: "/surfaces/orgs" }],
-				},
+	it("defaults governed params and honors an explicit empty opt-out", () => {
+		const defaults = parseBoardConfig(board({ taxis: kernelSource("taxis") }));
+		expect(defaults.ok && defaults.config.sources.get("taxis")?.governedParams).toEqual([
+			"include_pii",
+		]);
+		const optedOut = parseBoardConfig(
+			board({
+				taxis: kernelSource("taxis", undefined, { governed_params: [] }),
 			}),
 		);
-		expect(result).toEqual({
-			ok: false,
-			reason:
-				'source taxis: kernel surface orgs: the legacy representation is retired (KRA-775 Stage 5) — declare representation "source-v1"',
-		});
+		expect(optedOut.ok && optedOut.config.sources.get("taxis")?.governedParams).toEqual([]);
 	});
 
-	it("rejects an explicit legacy representation with the retirement error", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [{ id: "orgs", path: "/surfaces/orgs", representation: "legacy" }],
-				},
-			}),
+	it("rejects flat/v1/partial roots and unknown keys without an alias path", () => {
+		expect(parseBoardConfig(JSON.stringify({ taxis: kernelSource("taxis") })).ok).toBe(false);
+		expect(
+			parseBoardConfig(JSON.stringify({ version: 1, board: "old", sources: {}, joins: [] })).ok,
+		).toBe(false);
+		expect(parseBoardConfig(JSON.stringify({ version: 2, board: "x", sources: {} })).ok).toBe(
+			false,
 		);
-		expect(result).toEqual({
-			ok: false,
-			reason:
-				'source taxis: kernel surface orgs: the legacy representation is retired (KRA-775 Stage 5) — declare representation "source-v1"',
-		});
+		expect(parseBoardConfig(board({}, [], { dimensions: {} })).ok).toBe(false);
+		expect(parseBoardConfig(board({})).ok).toBe(false);
 	});
 
-	it("rejects a pinned surface_id that does not parse under the family grammar (KRA-777)", () => {
-		// A misconfigured `<source>:<pane>:…` pin would collapse the admission family to
-		// `<source>` at request time; the boot check fails config load instead.
-		const result = parseSourcesConfig(
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [
-						{
-							id: "orgs",
-							path: "/surfaces/orgs",
-							representation: "source-v1",
-							surface_id: "taxis:orgs:westfjords",
-						},
-					],
-				},
-			}),
-		);
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.reason).toContain("surface_id");
-			expect(result.reason).toContain("<source>.<pane>");
-		}
+	it("requires route_only on every surface and rejects unknown nested keys", () => {
+		const noRouteOnly = { ...surface("employee") } as Record<string, unknown>;
+		delete noRouteOnly.route_only;
+		expect(parseBoardConfig(board({ taxis: kernelSource("taxis", [noRouteOnly]) })).ok).toBe(false);
+		expect(
+			parseBoardConfig(
+				board({
+					taxis: kernelSource("taxis", [{ ...surface("employee"), surprise: true }]),
+				}),
+			).ok,
+		).toBe(false);
+		expect(
+			parseBoardConfig(board({ taxis: kernelSource("taxis", undefined, { surprise: true }) })).ok,
+		).toBe(false);
 	});
 
-	it("rejects non-empty surfaces without source_trust", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({ taxis: { ...kernelSource, source_trust: undefined } }),
-		);
-		expect(result).toEqual({
-			ok: false,
-			reason: "source taxis: source-v1 surfaces require source_trust",
-		});
-	});
-
-	it("parses a declared collection_root that names an existing surface", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({ taxis: { ...kernelSource, collection_root: "orgs" } }),
-		);
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.collectionRoot).toBe("orgs");
-	});
-
-	it("leaves collectionRoot undefined when the source does not declare one", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.collectionRoot).toBeUndefined();
-	});
-
-	// governed_params is fail-closed: an undeclared source gets the Krepis
-	// default deny (`include_pii`); only an explicit [] opts out.
-	it("defaults governedParams to include_pii when undeclared", () => {
-		const result = parseSourcesConfig(JSON.stringify({ taxis: kernelSource }));
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.governedParams).toEqual(["include_pii"]);
-	});
-
-	it("parses a declared governed_params list, deduplicated", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					governed_params: ["include_pii", "as_of_sequence", "include_pii"],
-				},
-			}),
-		);
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.governedParams).toEqual(["include_pii", "as_of_sequence"]);
-	});
-
-	it("honors an explicit empty governed_params as the deliberate opt-out", () => {
-		const result = parseSourcesConfig(
-			JSON.stringify({ taxis: { ...kernelSource, governed_params: [] } }),
-		);
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.governedParams).toEqual([]);
+	it("keeps route-only panes out of collection and home declarations", () => {
+		const route = surface("employee", "taxis.employee", { routeOnly: true });
+		expect(
+			parseBoardConfig(
+				board({
+					taxis: kernelSource("taxis", [route], {
+						collection_root: "employee",
+					}),
+				}),
+			).ok,
+		).toBe(false);
+		expect(
+			parseBoardConfig(
+				board({
+					taxis: kernelSource("taxis", [route], {
+						home_panel: { pane: "employee" },
+					}),
+				}),
+			).ok,
+		).toBe(false);
 	});
 
 	it.each([
-		["invalid JSON", "{nope"],
-		["non-object root", JSON.stringify([kernelSource])],
-		["path-unsafe source id", JSON.stringify({ "Bad Id!": kernelSource })],
-		["missing kind", JSON.stringify({ taxis: { ...kernelSource, kind: undefined } })],
-		["non-http base_url", JSON.stringify({ taxis: { ...kernelSource, base_url: "file:///x" } })],
+		["non-object root", JSON.stringify([])],
+		[
+			"path-unsafe board id",
+			JSON.stringify({ version: 2, board: "Bad Id!", sources: {}, joins: [] }),
+		],
+		["path-unsafe source id", board({ "Bad Id!": kernelSource("taxis") })],
+		["missing kind", board({ taxis: kernelSource("taxis", undefined, { kind: undefined }) })],
+		[
+			"non-http base_url",
+			board({
+				taxis: kernelSource("taxis", undefined, { base_url: "file:///x" }),
+			}),
+		],
 		[
 			"non-array governed_params",
-			JSON.stringify({ taxis: { ...kernelSource, governed_params: "include_pii" } }),
+			board({
+				taxis: kernelSource("taxis", undefined, {
+					governed_params: "include_pii",
+				}),
+			}),
 		],
 		[
-			"governed_params with an empty entry",
-			JSON.stringify({ taxis: { ...kernelSource, governed_params: ["include_pii", ""] } }),
+			"invalid governed param",
+			board({
+				taxis: kernelSource("taxis", undefined, {
+					governed_params: ["Bad param"],
+				}),
+			}),
 		],
 		[
-			"kernel surface with relative path",
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [
-						{
-							id: "orgs",
-							path: "surfaces/orgs",
-							representation: "source-v1",
-							surface_id: "taxis.orgs:westfjords:2026-W29",
-						},
-					],
-				},
+			"relative path",
+			board({
+				taxis: kernelSource("taxis", [surface("orgs", "taxis.orgs", { path: "surfaces/orgs" })]),
 			}),
 		],
 		[
 			"unsupported representation",
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [
-						{
-							id: "orgs",
-							path: "/surfaces/orgs",
-							representation: "source-v2",
-							surface_id: "taxis.orgs:westfjords:2026-W29",
-						},
-					],
-				},
+			board({
+				taxis: kernelSource("taxis", [{ ...surface("orgs"), representation: "source-v2" }]),
 			}),
 		],
 		[
 			"duplicate surface ids",
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [
-						{ id: "orgs", path: "/a", representation: "source-v1", surface_id: "taxis.orgs:a" },
-						{ id: "orgs", path: "/b", representation: "source-v1", surface_id: "taxis.orgs:b" },
-					],
-				},
+			board({
+				taxis: kernelSource("taxis", [surface("orgs"), surface("orgs")]),
 			}),
 		],
 		[
-			"source-v1 without trust pins",
-			JSON.stringify({
-				taxis: { ...kernelSource, source_trust: undefined },
+			"source-v1 without trust",
+			board({
+				taxis: kernelSource("taxis", undefined, { source_trust: undefined }),
 			}),
 		],
 		[
-			"source-v1 without a concrete signed identity",
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					surfaces: [{ id: "roster", path: "/roster", representation: "source-v1" }],
-				},
+			"missing signed identity",
+			board({
+				taxis: kernelSource("taxis", [{ ...surface("orgs"), surface_id: undefined }]),
 			}),
 		],
 		[
-			"malformed raw public key",
-			JSON.stringify({
-				taxis: {
-					...kernelSource,
-					source_trust: {
-						...sourceTrust,
-						public_keys: { bad: "not-a-key" },
-					},
-				},
+			"malformed raw key",
+			board({
+				taxis: kernelSource("taxis", undefined, {
+					source_trust: { ...sourceTrust, public_keys: { bad: "not-a-key" } },
+				}),
 			}),
 		],
 		[
-			"collection_root naming an undeclared surface",
-			JSON.stringify({ taxis: { ...kernelSource, collection_root: "ghost" } }),
+			"undeclared collection",
+			board({
+				taxis: kernelSource("taxis", undefined, { collection_root: "ghost" }),
+			}),
 		],
 	])("rejects %s", (_label, raw) => {
-		expect(parseSourcesConfig(raw).ok).toBe(false);
+		expect(parseBoardConfig(raw).ok).toBe(false);
+	});
+});
+
+describe("parseBoardConfig directional joins", () => {
+	it("parses and camel-cases an admitted-surface-id join", () => {
+		const result = parseBoardConfig(board(twoSources, [admittedJoin()]));
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.config.joins).toEqual([
+			{
+				id: "employee-to-payslip",
+				scope: "board",
+				from: {
+					source: "taxis",
+					family: "taxis.employee",
+					selector: { kind: "admitted-surface-id", instanceSegment: 1 },
+					paint: { path: "$.worker_id", mode: "scalar-value" },
+				},
+				target: {
+					source: "misthos",
+					pane: "payslip",
+					queryParameter: "worker_id",
+				},
+			},
+		]);
+	});
+
+	it("parses the external-ref/linked-ref-label matrix", () => {
+		const join = admittedJoin({
+			id: "run-worker-to-employee",
+			from: {
+				source: "misthos",
+				family: "misthos.run-summary",
+				selector: { kind: "external-ref", scheme: "workforce" },
+				paint: { path: "$.rows[*].worker", mode: "linked-ref-label" },
+			},
+			target: {
+				source: "taxis",
+				pane: "employee",
+				query: { parameter: "worker_id" },
+			},
+		});
+		const sources = {
+			...twoSources,
+			taxis: kernelSource("taxis", [surface("employee", "taxis.employee", { routeOnly: true })]),
+		};
+		const result = parseBoardConfig(board(sources, [join]));
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.config.joins[0]?.from.selector).toEqual({
+			kind: "external-ref",
+			scheme: "workforce",
+		});
+	});
+
+	it("keeps a join dormant when only its target source is unmounted", () => {
+		const result = parseBoardConfig(
+			board(
+				{
+					taxis: kernelSource("taxis", [surface("employee", "taxis.employee")]),
+				},
+				[admittedJoin()],
+			),
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.config.joins).toHaveLength(1);
+	});
+
+	it("requires a mounted from source and family", () => {
+		expect(parseBoardConfig(board({}, [admittedJoin()])).ok).toBe(false);
+		expect(
+			parseBoardConfig(
+				board({ taxis: kernelSource("taxis", [surface("roster", "taxis.roster")]) }, [
+					admittedJoin(),
+				]),
+			).ok,
+		).toBe(false);
+	});
+
+	it("requires a mounted target pane to exist and be route-only", () => {
+		const ordinary = {
+			...twoSources,
+			misthos: kernelSource("misthos", [surface("payslip", "misthos.payslip")]),
+		};
+		expect(parseBoardConfig(board(ordinary, [admittedJoin()])).ok).toBe(false);
+		const absent = {
+			...twoSources,
+			misthos: kernelSource("misthos", [surface("other", "misthos.other", { routeOnly: true })]),
+		};
+		expect(parseBoardConfig(board(absent, [admittedJoin()])).ok).toBe(false);
+	});
+
+	it("rejects governed and viewer-reserved target query parameters", () => {
+		const governed = {
+			...twoSources,
+			misthos: kernelSource(
+				"misthos",
+				[surface("payslip", "misthos.payslip", { routeOnly: true })],
+				{ governed_params: ["worker_id"] },
+			),
+		};
+		expect(parseBoardConfig(board(governed, [admittedJoin()])).ok).toBe(false);
+		for (const parameter of ["as_of", "dialect", "temporal"]) {
+			const reserved = admittedJoin({
+				target: {
+					source: "misthos",
+					pane: "payslip",
+					query: { parameter },
+				},
+			});
+			expect(parseBoardConfig(board(twoSources, [reserved])).ok).toBe(false);
+		}
+	});
+
+	it("rejects duplicate ids and overlapping source/family/paint declarations", () => {
+		expect(parseBoardConfig(board(twoSources, [admittedJoin(), admittedJoin()])).ok).toBe(false);
+		const overlap = admittedJoin({
+			id: "same-field-elsewhere",
+			target: {
+				source: "elsewhere",
+				pane: "worker",
+				query: { parameter: "worker_id" },
+			},
+		});
+		expect(parseBoardConfig(board(twoSources, [admittedJoin(), overlap])).ok).toBe(false);
+	});
+
+	it("rejects selector/paint mismatch and malformed join atoms", () => {
+		const mismatch = admittedJoin({
+			from: {
+				source: "taxis",
+				family: "taxis.employee",
+				selector: { kind: "external-ref", scheme: "workforce" },
+				paint: { path: "$.worker_id", mode: "scalar-value" },
+			},
+		});
+		expect(parseBoardConfig(board(twoSources, [mismatch])).ok).toBe(false);
+
+		const cases = [
+			admittedJoin({ id: "Bad id" }),
+			admittedJoin({ scope: "org" }),
+			admittedJoin({
+				from: { ...(admittedJoin().from as object), family: "not-a-family" },
+			}),
+			admittedJoin({
+				from: {
+					...(admittedJoin().from as object),
+					paint: { path: "worker_id", mode: "scalar-value" },
+				},
+			}),
+			admittedJoin({
+				target: {
+					source: "misthos",
+					pane: "payslip",
+					query: { parameter: "Bad-param" },
+				},
+			}),
+			{ ...admittedJoin(), surprise: true },
+			admittedJoin({ target: { ...admittedJoin().target, surprise: true } }),
+		];
+		for (const join of cases) expect(parseBoardConfig(board(twoSources, [join])).ok).toBe(false);
 	});
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSourcesConfig } from "./sources.js";
+import { parseBoardConfig } from "./sources.js";
 
 /** A minimal valid kernel source; `home_panel` is layered on per test. */
 function kernelSource(homePanel?: unknown) {
@@ -9,7 +9,9 @@ function kernelSource(homePanel?: unknown) {
 		title: "Taxis",
 		source_trust: {
 			issuer: "taxis",
-			public_keys: { "taxis-2026-01": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" },
+			public_keys: {
+				"taxis-2026-01": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			},
 		},
 		surfaces: [
 			{
@@ -18,6 +20,7 @@ function kernelSource(homePanel?: unknown) {
 				path: "/orgs/1/surfaces/roster",
 				representation: "source-v1",
 				surface_id: "taxis.roster:westfjords:2026-W29",
+				route_only: false,
 			},
 		],
 		...(homePanel === undefined ? {} : { home_panel: homePanel }),
@@ -25,7 +28,14 @@ function kernelSource(homePanel?: unknown) {
 }
 
 function parseOne(homePanel?: unknown) {
-	return parseSourcesConfig(JSON.stringify({ taxis: kernelSource(homePanel) }));
+	return parseBoardConfig(
+		JSON.stringify({
+			version: 2,
+			board: "home-panel-test",
+			sources: { taxis: kernelSource(homePanel) },
+			joins: [],
+		}),
+	);
 }
 
 describe("home_panel roster config (KRA-789)", () => {
@@ -33,14 +43,14 @@ describe("home_panel roster config (KRA-789)", () => {
 		const result = parseOne();
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.homePanel).toBeUndefined();
+		expect(result.config.sources.get("taxis")?.homePanel).toBeUndefined();
 	});
 
 	it("parses a declared pane + title", () => {
 		const result = parseOne({ pane: "roster", title: "This week's roster" });
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.homePanel).toEqual({
+		expect(result.config.sources.get("taxis")?.homePanel).toEqual({
 			pane: "roster",
 			title: "This week's roster",
 		});
@@ -50,7 +60,10 @@ describe("home_panel roster config (KRA-789)", () => {
 		const result = parseOne({ pane: "roster" });
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.sources.get("taxis")?.homePanel).toEqual({ pane: "roster", title: "Taxis" });
+		expect(result.config.sources.get("taxis")?.homePanel).toEqual({
+			pane: "roster",
+			title: "Taxis",
+		});
 	});
 
 	it("fails config load when the declared pane is not a declared surface (boot validation)", () => {

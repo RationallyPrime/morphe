@@ -1,7 +1,7 @@
 import { env } from "$env/dynamic/private";
 import { DEFAULT_DIALECT_ID, GRAMMAR_VERSION, hasDialect } from "$lib";
 import { type IndexSource, indexTree } from "../../index-presenter.js";
-import { loadSources } from "../../sources.server.js";
+import { loadBoard } from "../../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -16,7 +16,7 @@ import type { PageServerLoad } from "./$types.js";
  */
 
 export const load: PageServerLoad = ({ url }) => {
-	const sources = loadSources();
+	const { sources } = loadBoard();
 	const declared = env.MORPHE_INDEX_DIALECT;
 	const override = url.searchParams.get("dialect");
 	const dialectId =
@@ -33,10 +33,12 @@ export const load: PageServerLoad = ({ url }) => {
 		kind: source.kind,
 		dialectId: source.dialectHint ?? "ledger",
 		icon: source.icon,
-		surfaces: source.surfaces.map((entry) => ({
-			title: entry.title,
-			href: `/s/${source.id}/${entry.id}`,
-		})),
+		surfaces: source.surfaces
+			.filter((entry) => !entry.routeOnly)
+			.map((entry) => ({
+				title: entry.title,
+				href: `/s/${source.id}/${entry.id}`,
+			})),
 	}));
 
 	return {

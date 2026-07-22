@@ -21,6 +21,17 @@ export interface ForwardedRequest {
 }
 
 /**
+ * Collapse duplicate viewer parameters with one declared rule: the last value wins.
+ * Every downstream consumer (chrome, producer fetch, join carry, cache) must read this
+ * same object so a duplicate query cannot split one request into two identities.
+ */
+export function normalizeViewerQuery(query: URLSearchParams): URLSearchParams {
+	const normalized = new URLSearchParams();
+	for (const [key, value] of query) normalized.set(key, value);
+	return normalized;
+}
+
+/**
  * Merge a viewer pane's forwarded filter onto its kernel path AND report whether
  * doing so changed the request. `derived` is false when nothing is forwarded, and
  * also when every forwarded param merely restates a value the declared path already

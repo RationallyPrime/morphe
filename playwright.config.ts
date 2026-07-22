@@ -24,47 +24,55 @@ if (taxis === undefined) throw new Error("source conformance manifest has no Tax
 const taxisPublicKey = Buffer.from(taxis.expected.public_key_raw_hex, "hex").toString("base64url");
 
 const sources = JSON.stringify({
-	taxis: {
-		title: "Taxis fixture",
-		kind: "kernel",
-		base_url: `http://127.0.0.1:${STUB_PORT}`,
-		dialect_hint: "gallery",
-		home_panel: { pane: "roster", title: "Weekly roster" },
-		source_trust: {
-			issuer: taxis.expected.issuer,
-			public_keys: {
-				[taxis.expected.key_id]: taxisPublicKey,
+	version: 2,
+	board: "edge-contract",
+	sources: {
+		taxis: {
+			title: "Taxis fixture",
+			kind: "kernel",
+			base_url: `http://127.0.0.1:${STUB_PORT}`,
+			dialect_hint: "gallery",
+			home_panel: { pane: "roster", title: "Weekly roster" },
+			source_trust: {
+				issuer: taxis.expected.issuer,
+				public_keys: {
+					[taxis.expected.key_id]: taxisPublicKey,
+				},
+				max_age_seconds: MAX_FIXTURE_AGE_SECONDS,
 			},
-			max_age_seconds: MAX_FIXTURE_AGE_SECONDS,
+			surfaces: [
+				{
+					id: "roster",
+					title: "Weekly roster",
+					path: "/source/taxis-roster",
+					representation: "source-v1",
+					surface_id: taxis.expected.surface_id,
+					dialect_hint: "gallery",
+					route_only: false,
+				},
+				// Link-rewrite targets only (asserted as rewritten hrefs, never
+				// navigated): declared source-v1 like every admitted entry —
+				// the legacy representation is retired (KRA-775 Stage 5).
+				{
+					id: "worker-arna",
+					title: "Arna K.",
+					path: "/workers/wrk-001",
+					representation: "source-v1",
+					surface_id: "taxis.worker:wrk-001",
+					route_only: false,
+				},
+				{
+					id: "worker-baldur",
+					title: "Baldur R.",
+					path: "/workers/wrk-002",
+					representation: "source-v1",
+					surface_id: "taxis.worker:wrk-002",
+					route_only: false,
+				},
+			],
 		},
-		surfaces: [
-			{
-				id: "roster",
-				title: "Weekly roster",
-				path: "/source/taxis-roster",
-				representation: "source-v1",
-				surface_id: taxis.expected.surface_id,
-				dialect_hint: "gallery",
-			},
-			// Link-rewrite targets only (asserted as rewritten hrefs, never
-			// navigated): declared source-v1 like every admitted entry —
-			// the legacy representation is retired (KRA-775 Stage 5).
-			{
-				id: "worker-arna",
-				title: "Arna K.",
-				path: "/workers/wrk-001",
-				representation: "source-v1",
-				surface_id: "taxis.worker:wrk-001",
-			},
-			{
-				id: "worker-baldur",
-				title: "Baldur R.",
-				path: "/workers/wrk-002",
-				representation: "source-v1",
-				surface_id: "taxis.worker:wrk-002",
-			},
-		],
 	},
+	joins: [],
 });
 
 export default defineConfig({

@@ -1,6 +1,7 @@
 import { error } from "@sveltejs/kit";
+import { normalizeViewerQuery } from "../../../../forward-query.js";
 import { loadSourcePane } from "../../../../pane-load.server.js";
-import { bearerFor, loadSources } from "../../../../sources.server.js";
+import { bearerFor, loadBoard } from "../../../../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -15,21 +16,23 @@ import type { PageServerLoad } from "./$types.js";
  */
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {
-	const sources = loadSources();
-	const source = sources.get(params.source);
+	const board = loadBoard();
+	const query = normalizeViewerQuery(url.searchParams);
+	const source = board.sources.get(params.source);
 	if (source === undefined) error(404, { message: "Unknown source." });
 	const entry = source.surfaces.find((surface) => surface.id === params.surfaceId);
 	if (entry === undefined) error(404, { message: "Unknown surface." });
-	const rawAsOf = url.searchParams.get("as_of");
+	const rawAsOf = query.get("as_of");
 	const asOf = rawAsOf !== null && rawAsOf !== "" ? rawAsOf : undefined;
 
 	const pane = await loadSourcePane({
+		board,
 		source,
 		entry,
-		searchParams: url.searchParams,
+		searchParams: query,
 		fetch,
 		bearer: bearerFor(source),
-		dialectOverride: url.searchParams.get("dialect"),
+		dialectOverride: query.get("dialect"),
 	});
 
 	return {

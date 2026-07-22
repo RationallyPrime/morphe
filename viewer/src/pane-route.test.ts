@@ -3,17 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaneLoad } from "./pane-load.server.js";
 import { load } from "./routes/s/[source]/[surfaceId]/+page.server.js";
 import PanePage from "./routes/s/[source]/[surfaceId]/+page.svelte";
-import type { SourceConfig } from "./sources.js";
+import type { BoardConfig, SourceConfig } from "./sources.js";
 
-const { bearerFor, loadSourcePane, loadSources } = vi.hoisted(() => ({
+const { bearerFor, loadSourcePane, loadBoard } = vi.hoisted(() => ({
 	bearerFor: vi.fn(),
 	loadSourcePane: vi.fn(),
-	loadSources: vi.fn(),
+	loadBoard: vi.fn(),
 }));
 
 vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 vi.mock("./pane-load.server.js", () => ({ loadSourcePane }));
-vi.mock("./sources.server.js", () => ({ bearerFor, loadSources }));
+vi.mock("./sources.server.js", () => ({ bearerFor, loadBoard }));
 
 const entry = {
 	id: "roster",
@@ -21,6 +21,7 @@ const entry = {
 	path: "/source/taxis-roster",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.roster:westfjords:2026-W29",
+	routeOnly: false,
 } as const;
 const source = {
 	id: "taxis",
@@ -30,6 +31,12 @@ const source = {
 	governedParams: [],
 	surfaces: [entry],
 } satisfies SourceConfig;
+const board = {
+	version: 2,
+	board: "test-board",
+	sources: new Map([[source.id, source]]),
+	joins: [],
+} satisfies BoardConfig;
 
 const pane = {
 	surface: {
@@ -64,10 +71,10 @@ function pageData(asOf?: string) {
 describe("source-v1 pane route as-of chrome", () => {
 	beforeEach(() => {
 		bearerFor.mockReset();
-		loadSources.mockReset();
+		loadBoard.mockReset();
 		loadSourcePane.mockReset();
 		bearerFor.mockReturnValue(undefined);
-		loadSources.mockReturnValue(new Map([[source.id, source]]));
+		loadBoard.mockReturnValue(board);
 		loadSourcePane.mockResolvedValue(pane);
 	});
 

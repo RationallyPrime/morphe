@@ -1,8 +1,10 @@
 import { env } from "$env/dynamic/private";
 import { DEFAULT_DIALECT_ID, GRAMMAR_VERSION, hasDialect } from "$lib";
+import { boardLinkPolicyKey } from "../board-links.js";
+import { normalizeViewerQuery } from "../forward-query.js";
 import { composeHomePanels, type HomePanelSource } from "../home-compose.server.js";
 import { homeTree } from "../home-presenter.js";
-import { bearerFor, loadSources } from "../sources.server.js";
+import { bearerFor, loadBoard } from "../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
 
 /*
@@ -21,9 +23,11 @@ import type { PageServerLoad } from "./$types.js";
  */
 
 export const load: PageServerLoad = async ({ url, fetch }) => {
-	const sources = loadSources();
+	const board = loadBoard();
+	const { sources } = board;
+	const query = normalizeViewerQuery(url.searchParams);
 	const declared = env.MORPHE_INDEX_DIALECT;
-	const override = url.searchParams.get("dialect");
+	const override = query.get("dialect");
 	const dialectId =
 		override !== null && hasDialect(override)
 			? override
@@ -32,7 +36,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 				: DEFAULT_DIALECT_ID;
 
 	const title = env.MORPHE_HOME_TITLE ?? env.MORPHE_INDEX_TITLE ?? "Home";
-	const rawAsOf = url.searchParams.get("as_of");
+	const rawAsOf = query.get("as_of");
 	const asOf = rawAsOf !== null && rawAsOf !== "" ? rawAsOf : undefined;
 
 	const roster: HomePanelSource[] = [];
@@ -47,10 +51,12 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 	}
 
 	const panels = await composeHomePanels({
+		board,
 		panels: roster,
-		searchParams: url.searchParams,
+		searchParams: query,
 		fetch,
 		dialectId,
+		boardPolicyKey: boardLinkPolicyKey(board),
 	});
 
 	return {
