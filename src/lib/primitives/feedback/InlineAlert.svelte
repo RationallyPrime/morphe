@@ -8,8 +8,9 @@
 	 * and reflected as `data-tone` for non-visual styling. `live` selects the
 	 * announcement politeness: "assertive" -> role="alert" (interrupts, for errors
 	 * that must be heard now); "polite" -> role="status" (announced at the next
-	 * idle point). The leading icon is decorative to AT — the container's role +
-	 * the title text are the announced payload, so the icon must not double-speak.
+	 * idle point). An href-bearing alert instead keeps its native link role and uses
+	 * explicit `aria-live`/`aria-atomic` attributes for the same announcement policy.
+	 * The leading icon is decorative to AT so it never double-speaks the title.
 	 *
 	 * Context (Lemma 2): the banner reads the DISCRETE `density` from `ctx` to pick
 	 * its internal padding step (a continuous value emitted as this boundary's own
@@ -21,13 +22,14 @@
 
 	import type { InlineAlert } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
-	import { slot } from "../../tokens/slots.js";
+	import { SLOTS, slot, toneIntent } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<InlineAlert> = $props();
 
 	const on = $derived(slot(node.tone, "on"));
 	const surface = $derived(slot(node.tone, "surface"));
 	const border = $derived(slot(node.tone, "border"));
+	const ring = $derived(SLOTS.focus.ring(toneIntent(node.tone)));
 
 	const live = $derived(node.live ?? "polite");
 	const role = $derived(live === "assertive" ? "alert" : "status");
@@ -50,16 +52,7 @@
 	);
 </script>
 
-<div
-	class="mo-alert"
-	{role}
-	aria-live={live}
-	data-tone={node.tone}
-	style:--mo-alert-on={on}
-	style:--mo-alert-surface={surface}
-	style:--mo-alert-border={border}
-	style:--mo-alert-pad={padStep}
->
+{#snippet content()}
 	<span class="mo-alert__icon material-symbols-outlined" aria-hidden="true">{icon}</span>
 	<div class="mo-alert__body">
 		<p class="mo-alert__title">{node.title}</p>
@@ -73,7 +66,37 @@
 			<p class="mo-alert__repair">{node.repair}</p>
 		{/if}
 	</div>
-</div>
+{/snippet}
+
+{#if node.href !== undefined}
+	<a
+		class="mo-alert"
+		href={node.href}
+		aria-live={live}
+		aria-atomic="true"
+		data-tone={node.tone}
+		style:--mo-alert-on={on}
+		style:--mo-alert-surface={surface}
+		style:--mo-alert-border={border}
+		style:--mo-alert-pad={padStep}
+		style:--mo-alert-ring={ring}
+	>
+		{@render content()}
+	</a>
+{:else}
+	<div
+		class="mo-alert"
+		{role}
+		aria-live={live}
+		data-tone={node.tone}
+		style:--mo-alert-on={on}
+		style:--mo-alert-surface={surface}
+		style:--mo-alert-border={border}
+		style:--mo-alert-pad={padStep}
+	>
+		{@render content()}
+	</div>
+{/if}
 
 <style>
 	.mo-alert {
@@ -136,5 +159,26 @@
 		font-size: var(--mo-ctx-type, var(--mo-type-3));
 		line-height: var(--mo-leading-normal);
 		color: var(--mo-alert-on);
+	}
+	a.mo-alert {
+		cursor: pointer;
+		text-decoration: none;
+	}
+	a.mo-alert .mo-alert__title {
+		text-decoration-line: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.18em;
+	}
+	a.mo-alert:hover .mo-alert__title {
+		text-decoration-thickness: 2px;
+	}
+	a.mo-alert:focus-visible {
+		outline: var(--mo-ring-width) solid var(--mo-alert-ring);
+		outline-offset: var(--mo-ring-offset);
+	}
+	@media (forced-colors: active) {
+		a.mo-alert:focus-visible {
+			outline-color: Highlight;
+		}
 	}
 </style>

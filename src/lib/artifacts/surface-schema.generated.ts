@@ -660,6 +660,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Detail",
           "type": "string"
         },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "kind": {
           "const": "inline-alert",
           "title": "Kind",
@@ -1441,6 +1445,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
     "Status": {
       "additionalProperties": false,
       "properties": {
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "kind": {
           "const": "status",
           "title": "Kind",

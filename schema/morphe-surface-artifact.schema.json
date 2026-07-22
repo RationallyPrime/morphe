@@ -655,6 +655,10 @@
           "title": "Detail",
           "type": "string"
         },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "kind": {
           "const": "inline-alert",
           "title": "Kind",
@@ -1436,6 +1440,10 @@
     "Status": {
       "additionalProperties": false,
       "properties": {
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "kind": {
           "const": "status",
           "title": "Kind",

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from morphe_grammar import validate_node
+from morphe_grammar import NODE_ADAPTER, validate_node
 
 from .fixtures import VALID_TREES, NodeFixture
 
@@ -56,6 +56,36 @@ def test_icon_only_unlabelled_button_fails_validation() -> None:
 )
 def test_live_typescript_grammar_affordance_fields_validate(tree: NodeFixture) -> None:
     validate_node(tree)
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {
+            "kind": "status",
+            "tone": "caution",
+            "signal": {"text": "1 live violation", "icon": "warning"},
+            "href": "/workers/w-1/rest-debts",
+        },
+        {
+            "kind": "inline-alert",
+            "tone": "info",
+            "title": "Evidence is available",
+            "detail": "Open the pane for the complete set.",
+            "href": "/seals/s-1",
+        },
+    ],
+)
+def test_feedback_href_round_trips_through_the_authoritative_grammar(
+    tree: NodeFixture,
+) -> None:
+    admitted = validate_node(tree)
+    round_tripped = NODE_ADAPTER.validate_json(
+        NODE_ADAPTER.dump_json(admitted, exclude_none=True)
+    )
+
+    assert round_tripped == admitted
+    assert round_tripped.model_dump()["href"] == tree["href"]
 
 
 def test_register_intent_validates() -> None:

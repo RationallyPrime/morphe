@@ -31,6 +31,15 @@ function link(href: string, label = "Open"): Node {
 	return { kind: "link", href, label };
 }
 
+function alert(href?: string): Node {
+	return {
+		kind: "inline-alert",
+		tone: "caution",
+		title: "1 live violation",
+		...(href === undefined ? {} : { href }),
+	};
+}
+
 describe("rewriteKernelLinks", () => {
 	it("rewrites a declared kernel path (matched by path) to the viewer pane", () => {
 		const tree: Node = {
@@ -80,6 +89,42 @@ describe("rewriteKernelLinks", () => {
 		};
 		const rewritten = rewriteKernelLinks(tree, ZYGOS) as unknown as { children: Node[] };
 		expect(rewritten.children[0]).toEqual(link("https://example.is/docs", "Docs"));
+	});
+
+	it("rewrites feedback drills through the same declared-pane map", () => {
+		const tree: Node = {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "status",
+					tone: "caution",
+					signal: { text: "1 live violation" },
+					href: "/books/b-1/surfaces/overview?party_id=p-7",
+				},
+				alert("/surfaces/books"),
+			],
+		};
+		const rewritten = rewriteKernelLinks(tree, ZYGOS) as unknown as { children: Node[] };
+		expect(rewritten.children).toEqual([
+			{
+				kind: "status",
+				tone: "caution",
+				signal: { text: "1 live violation" },
+				href: "/s/zygos/overview?party_id=p-7",
+			},
+			alert("/s/zygos/books"),
+		]);
+	});
+
+	it("keeps an unresolved feedback signal but removes its dead href", () => {
+		const unresolved = alert("/books/OTHER/surfaces/overview");
+		expect(rewriteKernelLinks(unresolved, ZYGOS)).toEqual(alert());
+	});
+
+	it("leaves href-less feedback inert and byte-equivalent", () => {
+		const inert = alert();
+		expect(rewriteKernelLinks(inert, ZYGOS)).toEqual(inert);
 	});
 
 	it("reaches links nested in within targets, compound slots, and vary options", () => {

@@ -254,8 +254,8 @@ for that primitive must handle BOTH modes inside the SAME `.svelte` file:
 
 ```ts
 Progress    { kind:"progress";     value?:number; label:string; intent?:IntentRef }   // label required
-Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal }
-InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; repair?:string; live?:"polite"|"assertive" }   // repair = the producer-authored next action (KRA-757 §3.8)
+Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal; href?:string }
+InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; repair?:string; live?:"polite"|"assertive"; href?:string }   // repair = the producer-authored next action (KRA-757 §3.8)
 ```
 
 ### Action (real `<button>`/`<a>` — genuine browser capability, NOT compounds)
@@ -547,6 +547,9 @@ re-read the keyset; they do not accept arbitrary extra intent strings.
 - **Link** must carry the external-tab affordance when it opens a new tab:
   `rel="noopener noreferrer"` + a visible indicator + an SR-only
   "(opens in new tab)" span. Externality is server-decided (no `window` read).
+- An href-bearing **Status** or **InlineAlert** is an evidence drill: it renders as
+  a native anchor with the feedback node's visible signal as its accessible name,
+  while an href-less node keeps its inert live-region semantics.
 - **Dialog** REQUIRES `title` (wired `aria-labelledby`); the close affordance
   carries an `aria-label`. **Disclosure** REQUIRES `summary` (the trigger label).
   **Popover** REQUIRES `anchor` + `id`; its `role` picks the keyboard contract.
