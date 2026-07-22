@@ -11,8 +11,9 @@
 	 * crosses an enumerated threshold (handled inside `descend`).
 	 *
 	 * `direction:"auto"` flips the main axis with a CONTAINER QUERY — no JS in that
-	 * loop. The nearest Frame / MorpheRoot establishes `container-type: inline-size`,
-	 * so a Stack reads its own available inline size, not the viewport.
+	 * loop. The nearest Grid-owned cell / Frame / MorpheRoot establishes
+	 * `container-type: inline-size`, so a Stack reads its own available inline size,
+	 * not the viewport.
 	 *
 	 * Geometry never hardcodes pixels: gap comes from the density→space boundary
 	 * var; the inline-flip breakpoint is expressed in `rem` so it tracks the user's

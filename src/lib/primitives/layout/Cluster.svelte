@@ -65,6 +65,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--mo-ctx-space, var(--mo-space-5));
+		/* Match Stack/Frame: a Cluster may shrink below its children's min-content
+		   contribution when it is itself a flex/grid child. Without this floor reset,
+		   long labels force the whole toolbar past its owning card or track. */
+		min-inline-size: 0;
 		/* Defaults; overridden by the data-attr maps below. */
 		justify-content: flex-start;
 		align-items: center;

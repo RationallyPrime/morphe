@@ -39,6 +39,55 @@
 		};
 	}
 
+	/** Parent-owned layout regressions (KRA-800): chips, local queries, min-width. */
+	function signalCard(label: string, token?: string): Node {
+		return {
+			kind: "compound",
+			name: "SignalCard",
+			args: {
+				kicker:
+					token === undefined
+						? { kind: "text", value: "cell-local", as: "caption", intent: "folio" }
+						: {
+								kind: "cluster",
+								role: "inline",
+								children: [{ kind: "text", value: token, as: "caption" }],
+							},
+				title: { kind: "text", value: label, as: "subheading" },
+				measure: { kind: "number", value: 32, format: "integer", intent: "evidence" },
+			},
+			slots: { body: [] },
+		};
+	}
+
+	const clusterPressureToken = "KRA800_CLUSTER_PRESSURE_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const layoutProofs: readonly Node[] = [
+		{ kind: "text", value: "Layout ownership lab", as: "heading" },
+		{
+			kind: "grid",
+			role: "field-group",
+			columns: ["content", "flexible"],
+			children: [
+				{ kind: "text", value: "Status chip probe", as: "caption" },
+				{ kind: "status", tone: "success", signal: { text: "open" } },
+				{ kind: "text", value: "Badge chip probe", as: "caption" },
+				{ kind: "badge", label: "classified", intent: "provenance" },
+				{ kind: "text", value: "Button chip probe", as: "caption" },
+				{ kind: "button", label: "Review", action: "layout-proof.review" },
+			],
+		},
+		{
+			kind: "grid",
+			role: "list",
+			minTrack: "regular",
+			children: [
+				signalCard("Layout card A", clusterPressureToken),
+				signalCard("Layout card B"),
+				signalCard("Layout card C"),
+			],
+		},
+	];
+
 	const tree = $derived<Node>({
 		kind: "stack",
 		role: "page",
@@ -47,6 +96,7 @@
 			surfaceBlock("base"),
 			surfaceBlock("raised"),
 			surfaceBlock("sunken"),
+			...layoutProofs,
 		],
 	});
 </script>
