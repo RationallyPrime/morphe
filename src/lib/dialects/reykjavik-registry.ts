@@ -231,6 +231,7 @@ const REYKJAVIK_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const reykjavikRegistry: Dialect = {
 	id: "reykjavik-registry",
 	label: "Reykjavík Registry",
+	gloss: "A formal registry register with violet amendment accents and citation-led lineage.",
 	persona: { vertical: "legal", role: "registrar" },
 	intents: {
 		...CORE,

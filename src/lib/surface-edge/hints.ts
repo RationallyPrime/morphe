@@ -1,3 +1,4 @@
+import { hasVisibleLabelText } from "../grammar/labels.js";
 import type { EmphasisClaim, IntentRef } from "../grammar/types.js";
 import type { JsonSchema, NumberFormat, Strategy, TemporalFormat } from "./spec.js";
 
@@ -53,6 +54,7 @@ const KNOWN_HINT_KEYS = new Set([
 	"currency",
 	"intents",
 	"emphasis",
+	"gloss",
 	"order",
 ]);
 
@@ -68,6 +70,7 @@ export interface MorpheHint {
 	readonly currency?: string;
 	readonly intents?: Readonly<Record<string, IntentRef>>;
 	readonly emphasis?: EmphasisClaim;
+	readonly gloss?: string;
 	/** Signed deterministic property order; remainder keys use a sorted floor. */
 	readonly order?: readonly string[];
 }
@@ -129,6 +132,10 @@ function isString(value: unknown): value is string {
 	return typeof value === "string";
 }
 
+function isVisibleString(value: unknown): value is string {
+	return typeof value === "string" && hasVisibleLabelText(value);
+}
+
 function isBoolean(value: unknown): value is boolean {
 	return typeof value === "boolean";
 }
@@ -175,6 +182,7 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 	const currency = optionalMember(raw, "currency", isString);
 	const intents = intentMap(raw.intents);
 	const emphasis = optionalMember(raw, "emphasis", isEmphasis);
+	const gloss = optionalMember(raw, "gloss", isVisibleString);
 	const parsedOrder = orderList(raw.order);
 	// A present-but-malformed signed order uses an empty authenticated prefix;
 	// orderedProperties then appends every known key in its deterministic sorted
@@ -191,7 +199,8 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 		temporal === INVALID ||
 		currency === INVALID ||
 		intents === INVALID ||
-		emphasis === INVALID
+		emphasis === INVALID ||
+		gloss === INVALID
 	) {
 		return {
 			hint: order === undefined ? EMPTY_HINT : { ...EMPTY_HINT, order },
@@ -212,6 +221,7 @@ export function parseHint(schema: JsonSchema): ParsedHint {
 			...(currency === undefined ? {} : { currency }),
 			...(intents === undefined ? {} : { intents }),
 			...(emphasis === undefined ? {} : { emphasis }),
+			...(gloss === undefined ? {} : { gloss }),
 			...(order === undefined ? {} : { order }),
 		},
 		unknownKeys,

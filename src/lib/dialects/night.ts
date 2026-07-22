@@ -215,6 +215,7 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const night: Dialect = {
 	id: "night",
 	label: "Night",
+	gloss: "An immersive blue-black register with luminous cobalt accents for low-light viewing.",
 	persona: { vertical: "editorial-gallery", role: "immersion" },
 	intents: {
 		...CORE,

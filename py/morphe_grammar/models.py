@@ -15,7 +15,7 @@ from pydantic import (
 )
 from pydantic import Field as PydanticField
 
-from .labels import VISIBLE_LABEL_PATTERN
+from .labels import VISIBLE_LABEL_PATTERN, has_visible_label_text
 
 type NumberValue = StrictInt | StrictFloat
 type JsonValue = None | bool | NumberValue | str | list[JsonValue] | dict[str, JsonValue]
@@ -207,6 +207,14 @@ class Text(GrammarModel):
     clamp: NumberValue | None = None
     numeric: StrictBool | None = None
     polarity: Literal["positive", "negative"] | None = None
+    # KRA-804: explanations belong only to text that paints a TERM rather than
+    # arbitrary prose/value copy. The register validator below keeps ``gloss``
+    # off body text while admitting kickers/captions and compound/page titles.
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
 
     @field_validator("level", mode="before")
     @classmethod
@@ -219,6 +227,19 @@ class Text(GrammarModel):
             raise ValueError(msg)
         return value
 
+    @model_validator(mode="after")
+    def require_label_bearing_gloss_register(self) -> Self:
+        if self.gloss is None:
+            return self
+        register = self.as_ or "body"
+        if register not in {"display", "heading", "subheading", "caption"}:
+            msg = "text gloss is only valid on a kicker/caption or title-bearing text node"
+            raise ValueError(msg)
+        if not has_visible_label_text(self.value):
+            msg = "text gloss requires visible term text"
+            raise ValueError(msg)
+        return self
+
 
 class NumberNode(GrammarModel):
     kind: Literal["number"]
@@ -227,6 +248,25 @@ class NumberNode(GrammarModel):
     currency: StrictStr | None = None
     emphasis: EmphasisClaim | None = None
     intent: IntentRef | None = None
+    # A number becomes glossary-bearing only when it owns the visible label the
+    # explanation names. Bare quantities remain open data and expose no gloss.
+    label: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+
+    @model_validator(mode="after")
+    def require_label_for_gloss(self) -> Self:
+        if self.gloss is not None and self.label is None:
+            msg = "number gloss requires a visible label"
+            raise ValueError(msg)
+        return self
 
 
 class Badge(GrammarModel):
@@ -234,6 +274,18 @@ class Badge(GrammarModel):
     label: StrictStr
     intent: IntentRef | None = None
     icon: StrictStr | None = None
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+
+    @model_validator(mode="after")
+    def require_visible_label_for_gloss(self) -> Self:
+        if self.gloss is not None and not has_visible_label_text(self.label):
+            msg = "badge gloss requires a visible label"
+            raise ValueError(msg)
+        return self
 
 
 class DecorativeIconA11y(GrammarModel):
@@ -353,6 +405,18 @@ class Status(GrammarModel):
     tone: Literal["success", "caution", "info", "neutral"]
     signal: StatusSignal
     href: StrictStr | None = None
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+
+    @model_validator(mode="after")
+    def require_visible_signal_for_gloss(self) -> Self:
+        if self.gloss is not None and not has_visible_label_text(self.signal.text):
+            msg = "status gloss requires visible signal text"
+            raise ValueError(msg)
+        return self
 
 
 class InlineAlert(GrammarModel):
@@ -420,6 +484,18 @@ class Link(GrammarModel):
     label: StrictStr
     intent: IntentRef | None = None
     external: Literal["auto", "force", "hide"] | None = None
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
+
+    @model_validator(mode="after")
+    def require_visible_label_for_gloss(self) -> Self:
+        if self.gloss is not None and not has_visible_label_text(self.label):
+            msg = "link gloss requires a visible label"
+            raise ValueError(msg)
+        return self
 
 
 class Dialog(GrammarModel):

@@ -10,12 +10,29 @@ import type { JsonSchema } from "./spec.js";
 const FIGURES_SCHEMA: JsonSchema = {
 	type: "array",
 	title: "Figures",
-	"x-morphe": { strategy: "kpi-row", heading: false },
+	"x-morphe": {
+		strategy: "kpi-row",
+		heading: false,
+		gloss: "The current operating signals.",
+	},
 };
 const FIGURES_DATA = [
-	{ label: "Net", value: 7, kicker: "Q4" },
+	{
+		label: "Net",
+		value: 7,
+		kicker: "Q4",
+		gloss: "Net settled value in this period.",
+		kicker_gloss: "The reporting quarter.",
+	},
 	// The corner-signal lever (KRA-757 §3.2): signal text + tone ride the cell.
-	{ label: "Rail", value: "bank_batch", kicker: "Route", signal: "Queued", signal_intent: "info" },
+	{
+		label: "Rail",
+		value: "bank_batch",
+		kicker: "Route",
+		signal: "Queued",
+		signal_intent: "info",
+		signal_gloss: "The batch is waiting to be sent.",
+	},
 ];
 
 // The SAME expected tree the Python twin asserts verbatim
@@ -34,8 +51,19 @@ const EXPECTED_BAND: Node = {
 						kind: "compound",
 						name: "SignalCard",
 						args: {
-							kicker: { kind: "text", value: "Q4", as: "caption", intent: "folio" },
-							title: { kind: "text", value: "Net", as: "subheading" },
+							kicker: {
+								kind: "text",
+								value: "Q4",
+								as: "caption",
+								intent: "folio",
+								gloss: "The reporting quarter.",
+							},
+							title: {
+								kind: "text",
+								value: "Net",
+								as: "subheading",
+								gloss: "Net settled value in this period.",
+							},
 							measure: { kind: "number", value: 7, emphasis: "strong" },
 						},
 						slots: { signal: [], body: [] },
@@ -49,7 +77,14 @@ const EXPECTED_BAND: Node = {
 							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
 						},
 						slots: {
-							signal: [{ kind: "status", tone: "info", signal: { text: "Queued" } }],
+							signal: [
+								{
+									kind: "status",
+									tone: "info",
+									signal: { text: "Queued" },
+									gloss: "The batch is waiting to be sent.",
+								},
+							],
 							body: [],
 						},
 					},
@@ -66,6 +101,7 @@ function bandPayload(node: Node) {
 		value: "Figures",
 		as: "heading",
 		level: 1,
+		gloss: "The current operating signals.",
 	});
 	const payload = node.children[1];
 	if (payload?.kind !== "stack") throw new Error("expected StatBand section payload");
@@ -87,6 +123,34 @@ describe("StatBand lowering (KRA-784)", () => {
 			role: "section",
 			children: [{ kind: "text", value: "No figures.", as: "caption", intent: "neutral" }],
 		});
+	});
+
+	it("degrades malformed inline KPI glosses without emitting invalid grammar", () => {
+		const node = emitNode(
+			buildSurface(
+				FIGURES_SCHEMA,
+				[
+					{
+						label: "Net",
+						value: 7,
+						kicker: "Q4",
+						kicker_gloss: "\u200b",
+						signal: "Queued",
+						signal_gloss: "",
+					},
+				],
+				{ root: FIGURES_SCHEMA },
+			),
+		);
+		expect(validateNodeDocument(node).ok).toBe(true);
+		const band = bandPayload(node);
+		if (band.kind !== "stack") throw new Error("expected StatBand section payload");
+		const compound = band.children[0];
+		if (compound?.kind !== "compound") throw new Error("expected StatBand");
+		const tile = compound.slots?.tiles?.[0];
+		if (tile?.kind !== "compound") throw new Error("expected SignalCard tile");
+		expect(tile.args?.kicker).not.toHaveProperty("gloss");
+		expect(tile.slots?.signal?.[0]).not.toHaveProperty("gloss");
 	});
 });
 

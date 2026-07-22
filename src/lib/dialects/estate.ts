@@ -229,6 +229,7 @@ const ESTATE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const estate: Dialect = {
 	id: "estate",
 	label: "Estate",
+	gloss: "A warm copper register for portfolio-wide operational oversight.",
 	persona: { vertical: "platform", role: "operator" },
 	intents: {
 		...CORE,

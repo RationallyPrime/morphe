@@ -234,6 +234,7 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const gallery: Dialect = {
 	id: "gallery",
 	label: "Gallery",
+	gloss: "A calm light-paper register with cobalt accents for neutral inspection and presentation.",
 	persona: { vertical: "editorial-gallery", role: "museum" },
 	intents: {
 		...CORE,

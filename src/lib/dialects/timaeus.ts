@@ -243,6 +243,7 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const timaeus: Dialect = {
 	id: "timaeus",
 	label: "Timaeus",
+	gloss: "A cool graphite-and-blue register tuned for structured temporal and systems work.",
 	persona: { vertical: "editorial-narrative", role: "cosmology" },
 	intents: {
 		...CORE,

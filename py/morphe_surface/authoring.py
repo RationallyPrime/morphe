@@ -11,9 +11,10 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from pydantic import ConfigDict, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from morphe_contracts import ContractModel, IntentRef
+from morphe_grammar.labels import VISIBLE_LABEL_PATTERN
 
 from .hints import MorpheHint, NumberFormat, TemporalFormat
 
@@ -56,6 +57,9 @@ class KpiCell(ContractModel):
     label: str
     value: str | int | float
     kicker: str | None = None
+    # Plain explanations are serialized inline; consumers never resolve glossary ids.
+    gloss: str | None = Field(default=None, min_length=1, pattern=VISIBLE_LABEL_PATTERN)
+    kicker_gloss: str | None = Field(default=None, min_length=1, pattern=VISIBLE_LABEL_PATTERN)
     format: NumberFormat | None = None
     temporal: TemporalFormat | None = None
     currency: str | None = None
@@ -66,6 +70,7 @@ class KpiCell(ContractModel):
     # not told. Omitted -> the corner stays empty.
     signal: str | None = None
     signal_intent: IntentRef | None = None
+    signal_gloss: str | None = Field(default=None, min_length=1, pattern=VISIBLE_LABEL_PATTERN)
 
     @model_validator(mode="after")
     def well_formed_currency(self) -> KpiCell:

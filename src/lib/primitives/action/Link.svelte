@@ -34,6 +34,7 @@
 	 * `--mo-link-*` CSS vars (the C9 carrier).
 	 */
 
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { Link } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SLOTS } from "../../tokens/slots.js";
@@ -65,13 +66,12 @@
 	style:--mo-link-hover={hoverColor}
 	style:--mo-link-ring={ringColor}
 >
-	<span class="mo-link__label">{node.label}</span>{#if isExternal}<span
-			class="mo-link__cue"
-			><span class="mo-link__ext material-symbols-outlined" aria-hidden="true"
-				>open_in_new</span
+	<span class="mo-link__label">{node.label}</span>{#if isExternal}<span class="mo-link__cue"
+			><span class="mo-link__ext material-symbols-outlined" aria-hidden="true">open_in_new</span
 			><span class="mo-link__sr"> (opens in new tab)</span></span
 		>{/if}
 </a>
+{#if node.gloss}<Gloss label={node.label} gloss={node.gloss} ink={onColor} />{/if}
 
 <style>
 	.mo-link {

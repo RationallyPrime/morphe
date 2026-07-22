@@ -65,6 +65,9 @@ export const DEFAULT_DIALECT_ID: string = DEFAULT_DIALECT.id;
 /** Every registered dialect id, in insertion order. */
 export const DIALECT_IDS: readonly string[] = Object.keys(DIALECTS);
 
+/** Every complete registry entry, for pickers that paint human labels and glosses. */
+export const DIALECT_LIST: readonly Dialect[] = Object.freeze(Object.values(DIALECTS));
+
 /**
  * Resolve a dialect by id. Falls back to the default dialect for an unknown id
  * so a stray/legacy id can never make the renderer non-total (Definition 1).

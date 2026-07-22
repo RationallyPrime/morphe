@@ -1,3 +1,4 @@
+import { hasVisibleLabelText } from "../grammar/labels.js";
 import type { IntentRef } from "../grammar/types.js";
 import { type MorpheHint, type ParsedHint, parseHint } from "./hints.js";
 import { isSchema, resolveRef, schemaType, unwrapNullable } from "./refs.js";
@@ -213,6 +214,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				label: plan.label,
 				strategy: "linked-ref",
 				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+				...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -229,6 +231,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				label: plan.label,
 				strategy: "linked-ref",
 				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+				...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -245,6 +248,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				label: plan.label,
 				strategy: "linked-ref",
 				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+				...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -260,6 +264,7 @@ function build(schema: JsonSchema, data: unknown, context: BuildContext): Surfac
 				label: plan.label,
 				strategy: "linked-ref",
 				...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+				...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 				diagnostics: plan.diagnostics,
 			});
 		}
@@ -358,6 +363,7 @@ function buildRecord(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 		label: plan.label,
 		strategy,
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		...(strategy === "collapsed-section" ? { collapse: plan.hint.collapse !== false } : {}),
 		children,
@@ -381,6 +387,7 @@ function buildEntityHeader(plan: Plan, data: unknown, context: BuildContext): Su
 		label: plan.label,
 		strategy: "entity-header",
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -413,6 +420,7 @@ function buildBreakdown(plan: Plan, data: unknown, context: BuildContext): Surfa
 		label: plan.label,
 		strategy: "breakdown",
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -436,6 +444,7 @@ function buildKeyValue(plan: Plan, data: unknown, context: BuildContext): Surfac
 		label: plan.label,
 		strategy: "key-value",
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		children,
 		diagnostics: plan.diagnostics,
@@ -456,6 +465,7 @@ function buildCollection(plan: Plan, data: unknown, context: BuildContext): Surf
 		label: plan.label,
 		strategy: plan.strategy,
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		...(context.presentation === "primary-collection" ? { emphasis: "strong" as const } : {}),
 		children: columns,
@@ -471,6 +481,7 @@ function buildKpiRow(plan: Plan, data: unknown, context: BuildContext): SurfaceN
 		label: plan.label,
 		strategy: "kpi-row",
 		...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		heading: plan.hint.heading,
 		items: rows.map((row, index) => buildKpiCell(row, itemContext(context, index, plan.label))),
 		diagnostics: plan.diagnostics,
@@ -498,6 +509,7 @@ function buildKpiCell(row: unknown, context: BuildContext): SurfaceNode {
 	const presentation = cellPresentation(row);
 	const number = coerceNumber(row.value);
 	const kicker = stringOrNull(row.kicker);
+	const kickerGloss = visibleStringOrNull(row.kicker_gloss);
 	const [numberFormat, currency] = currencyPresentation(presentation.format, presentation.currency);
 	const label = stringOrNull(row.label) || context.label;
 	return surfaceNode({
@@ -512,6 +524,8 @@ function buildKpiCell(row: unknown, context: BuildContext): SurfaceNode {
 			: {}),
 		...(currency === undefined ? {} : { currency }),
 		...(kicker === null ? {} : { kicker }),
+		...(presentation.gloss === undefined ? {} : { gloss: presentation.gloss }),
+		...(kickerGloss === null ? {} : { kicker_gloss: kickerGloss }),
 		children: kpiSignal(row, label, context),
 		diagnostics: sourceDiagnostics,
 	});
@@ -528,6 +542,7 @@ function kpiSignal(
 	// intent keeps the text and loses only the tone (totality, D8).
 	const signal = stringOrNull(row.signal);
 	if (signal === null) return [];
+	const signalGloss = visibleStringOrNull(row.signal_gloss);
 	const tone = parseHint({ "x-morphe": { role: row.signal_intent ?? null } }).hint.role;
 	return [
 		surfaceNode({
@@ -536,6 +551,7 @@ function kpiSignal(
 			strategy: "status",
 			value: signal,
 			...(tone === undefined ? {} : { intent: tone }),
+			...(signalGloss === null ? {} : { gloss: signalGloss }),
 		}),
 	];
 }
@@ -547,6 +563,7 @@ function cellPresentation(cell: Readonly<Record<string, unknown>>): MorpheHint {
 			format: cell.format ?? null,
 			temporal: cell.temporal ?? null,
 			currency: cell.currency ?? null,
+			gloss: cell.gloss ?? null,
 		},
 	};
 	return parseHint(schema).hint;
@@ -571,6 +588,7 @@ function tableColumn(key: string, schema: JsonSchema, context: BuildContext): Su
 		strategy: "scalar",
 		value: label,
 		...(hint.role === undefined ? {} : { intent: hint.role }),
+		...(hint.gloss === undefined ? {} : { gloss: hint.gloss }),
 	});
 }
 
@@ -589,6 +607,7 @@ function buildLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNod
 			...(href === null ? {} : { href }),
 			...(dataLabel === null ? {} : { value: dataLabel }),
 			...(plan.hint.role === undefined ? {} : { intent: plan.hint.role }),
+			...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 			diagnostics: plan.diagnostics,
 		});
 	}
@@ -645,6 +664,7 @@ function buildLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNod
 			...(plan.strategy === "scalar" && plan.hint.temporal !== undefined
 				? { temporal: plan.hint.temporal }
 				: {}),
+			...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 			diagnostics: plan.diagnostics,
 		},
 		typeof value === "number" ? { scalarNumberKind: scalarKind } : {},
@@ -669,6 +689,7 @@ function numberLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNo
 				...(numeric === null ? {} : { numeric }),
 				...(polarity === null ? {} : { polarity }),
 				...(plan.hint.temporal === undefined ? {} : { temporal: plan.hint.temporal }),
+				...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 				diagnostics: plan.diagnostics,
 			},
 			scalarKind === undefined ? {} : { scalarNumberKind: scalarKind },
@@ -684,6 +705,7 @@ function numberLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNo
 		...(plan.hint.emphasis === undefined ? {} : { emphasis: plan.hint.emphasis }),
 		...(format === undefined ? {} : { number_format: format }),
 		...(currency === undefined ? {} : { currency }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		diagnostics: plan.diagnostics,
 	});
 }
@@ -713,6 +735,7 @@ function statusLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNo
 		strategy: "status",
 		value: text,
 		...(intent === undefined ? {} : { intent }),
+		...(plan.hint.gloss === undefined ? {} : { gloss: plan.hint.gloss }),
 		diagnostics: plan.diagnostics,
 	});
 }
@@ -849,6 +872,10 @@ function linkedRefDataLabel(data: unknown): string | null {
 
 function stringOrNull(value: unknown): string | null {
 	return typeof value === "string" ? value : null;
+}
+
+function visibleStringOrNull(value: unknown): string | null {
+	return typeof value === "string" && hasVisibleLabelText(value) ? value : null;
 }
 
 function numericPresentation(value: ScalarValue): readonly [boolean | null, Polarity | null] {

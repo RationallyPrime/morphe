@@ -26,7 +26,13 @@
 		const inkLines: Node[] = INTENTS.flatMap((intent) => [
 			{ kind: "text", value: `${intent} ink`, as: "body", intent } as Node,
 			{ kind: "number", value: 1234.56, format: "currency", currency: "ISK", intent } as Node,
-			{ kind: "link", href: `/lab/${intent}`, label: `${intent} link`, intent } as Node,
+			{
+				kind: "link",
+				href: `/lab/${intent}`,
+				label: `${intent} link`,
+				intent,
+				gloss: "A contrast-test navigation link.",
+			} as Node,
 		]);
 		return {
 			kind: "frame",
@@ -69,7 +75,13 @@
 			columns: ["content", "flexible"],
 			children: [
 				{ kind: "text", value: "Status chip probe", as: "caption" },
-				{ kind: "status", tone: "success", signal: { text: "open" } },
+				{
+					kind: "status",
+					tone: "success",
+					signal: { text: "open" },
+					href: "/lab/open",
+					gloss: "The layout probe is open.",
+				},
 				{ kind: "text", value: "Badge chip probe", as: "caption" },
 				{ kind: "badge", label: "classified", intent: "provenance" },
 				{ kind: "text", value: "Button chip probe", as: "caption" },

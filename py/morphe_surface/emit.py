@@ -34,6 +34,12 @@ _ATTENTION_INTENTS = {"caution", "success", "info"}
 _PRIMARY_WORKLIST_STRATEGIES = {"table", "card-stack"}
 
 
+def _with_gloss(node: Node, gloss: str | None) -> Node:
+    if gloss is not None:
+        node["gloss"] = gloss
+    return node
+
+
 def emit_node(spec: SurfaceNode) -> Node:
     """Stage 2 (ADR-0014 D2): mechanically render a SurfaceNode into a grammar Node dict.
 
@@ -75,15 +81,25 @@ def _scalar(spec: SurfaceNode) -> Node:
         node["numeric"] = True
     if spec.polarity is not None:
         node["polarity"] = spec.polarity
+    if spec.gloss is not None and (spec.text_as or "body") in {
+        "display",
+        "heading",
+        "subheading",
+        "caption",
+    }:
+        node["gloss"] = spec.gloss
     return node
 
 
 def _badge(spec: SurfaceNode) -> Node:
-    return {
-        "kind": "badge",
-        "label": scalar_text(spec.value, spec.scalar_number_kind),
-        "intent": spec.intent or "neutral",
-    }
+    return _with_gloss(
+        {
+            "kind": "badge",
+            "label": scalar_text(spec.value, spec.scalar_number_kind),
+            "intent": spec.intent or "neutral",
+        },
+        spec.gloss,
+    )
 
 
 def _link(spec: SurfaceNode) -> Node:
@@ -98,12 +114,15 @@ def _link(spec: SurfaceNode) -> Node:
         # The one drill-in per pane keeps its declared register — a
         # ``primary-action`` linked-ref must not demote to a body link.
         node["intent"] = spec.intent
-    return node
+    return _with_gloss(node, spec.gloss)
 
 
 def _status(spec: SurfaceNode) -> Node:
     text = normalize_visible_label_text(_str(spec.value), fallback="—")
-    return {"kind": "status", "tone": _status_tone(spec.intent), "signal": {"text": text}}
+    return _with_gloss(
+        {"kind": "status", "tone": _status_tone(spec.intent), "signal": {"text": text}},
+        spec.gloss,
+    )
 
 
 def _progress(spec: SurfaceNode) -> Node:
@@ -172,13 +191,16 @@ def _kpi_row(spec: SurfaceNode) -> Node:
 def _signal_card(item: SurfaceNode) -> Node:
     if item.strategy == "diagnostic-node":
         return _leaf(item)
-    kicker: Node = {
-        "kind": "text",
-        "value": item.kicker or "",
-        "as": "caption",
-        "intent": "folio",
-    }
-    title: Node = {"kind": "text", "value": item.label, "as": "subheading"}
+    kicker = _with_gloss(
+        {
+            "kind": "text",
+            "value": item.kicker or "",
+            "as": "caption",
+            "intent": "folio",
+        },
+        item.kicker_gloss,
+    )
+    title = _with_gloss({"kind": "text", "value": item.label, "as": "subheading"}, item.gloss)
     if item.strategy == "number":
         measure: Node = _number(item)
         measure["emphasis"] = "strong"
@@ -273,13 +295,14 @@ def _entity_header(spec: SurfaceNode) -> Node:
         "as": "caption",
         "intent": "folio",
     }
-    title: Node = {"kind": "text", "value": spec.label, "as": "heading"}
+    title = _with_gloss({"kind": "text", "value": spec.label, "as": "heading"}, spec.gloss)
     if spec.path == "$":
         title["level"] = 1
     args: Node = {"kicker": kicker, "title": title}
     if key_figure is not None:
         measure = _number(key_figure)
         measure["emphasis"] = "strong"
+        _label_number(measure, key_figure)
         args["keyFigure"] = measure
     # Diagnostics on the node itself and on the two children promoted to BARE args
     # (title, keyFigure) would otherwise lose their alert path. Surface them all at
@@ -317,9 +340,18 @@ def _breakdown_numeric(child: SurfaceNode) -> float | None:
     return float(value)
 
 
+def _label_number(node: Node, spec: SurfaceNode) -> None:
+    if spec.gloss is not None:
+        node["label"] = spec.label
+        node["gloss"] = spec.gloss
+
+
 def _breakdown_row(child: SurfaceNode, number: float | None, positive_sum: float) -> list[Node]:
     # One proportion row: label + progress + value cluster (D8 keeps child alerts).
-    label: Node = {"kind": "text", "value": child.label, "as": "caption", "intent": "neutral"}
+    label = _with_gloss(
+        {"kind": "text", "value": child.label, "as": "caption", "intent": "neutral"},
+        child.gloss,
+    )
     progress: Node = {
         "kind": "progress",
         "label": normalize_visible_label_text(child.label, fallback="Proportion"),
@@ -349,7 +381,7 @@ def _breakdown(spec: SurfaceNode) -> Node:
         rows.extend(_breakdown_row(child, number, positive_sum))
     args: Node = {}
     if spec.path != "$" and spec.heading:
-        args["title"] = {"kind": "text", "value": spec.label, "as": "heading"}
+        args["title"] = _heading(spec.label, spec.emphasis, gloss=spec.gloss)
     # Node-level diagnostics ride the head of the rows slot so nothing signed is dropped.
     head_alerts = [_alert(d) for d in spec.diagnostics]
     return {
@@ -494,7 +526,7 @@ def _ensure_root_task(spec: SurfaceNode, node: Node) -> Node:
     return {
         "kind": "stack",
         "role": "section",
-        "children": [_heading(spec.label, spec.emphasis, level=1), node],
+        "children": [_heading(spec.label, spec.emphasis, level=1, gloss=spec.gloss), node],
     }
 
 
@@ -527,7 +559,7 @@ def _operational_page(spec: SurfaceNode) -> Node:
     # A root operational task is the document title even when a legacy producer
     # carried ``heading: false`` to let the old route chrome own that title. The
     # hint still suppresses nested section headings; it cannot erase the pane H1.
-    head = [_heading(spec.label, spec.emphasis, level=1)]
+    head = [_heading(spec.label, spec.emphasis, level=1, gloss=spec.gloss)]
     alerts = [_alert(d) for d in spec.diagnostics]
     provenance_alerts = _provenance_diagnostic_alerts(provenance)
     footer = _surface_provenance_footer(provenance)
@@ -688,7 +720,7 @@ def _table_header(columns: tuple[SurfaceNode, ...]) -> Node:
 
 
 def _header_cell(column: SurfaceNode) -> Node:
-    cell = _caption(column.label)
+    cell = _caption(column.label, column.gloss)
     if column.intent is not None:
         cell["intent"] = column.intent
     return cell
@@ -747,7 +779,7 @@ def _empty_cell() -> Node:
 
 def _section(spec: SurfaceNode, children: list[Node], *, include_heading: bool = True) -> Node:
     head: list[Node] = (
-        [_heading(spec.label, spec.emphasis)]
+        [_heading(spec.label, spec.emphasis, gloss=spec.gloss)]
         if include_heading and spec.heading and spec.path != "$"
         else []
     )
@@ -755,13 +787,19 @@ def _section(spec: SurfaceNode, children: list[Node], *, include_heading: bool =
     return {"kind": "stack", "role": "section", "children": [*head, *alerts, *children]}
 
 
-def _heading(label: str, emphasis: str | None, *, level: int | None = None) -> Node:
+def _heading(
+    label: str,
+    emphasis: str | None,
+    *,
+    level: int | None = None,
+    gloss: str | None = None,
+) -> Node:
     node: Node = {"kind": "text", "value": label, "as": "heading"}
     if level is not None:
         node["level"] = level
     if emphasis is not None:
         node["emphasis"] = emphasis
-    return node
+    return _with_gloss(node, gloss)
 
 
 def _fields(specs: tuple[SurfaceNode, ...]) -> list[Node]:
@@ -794,7 +832,8 @@ def _definition_candidate(spec: SurfaceNode) -> bool:
 def _definition_grid(specs: list[SurfaceNode]) -> Node:
     children: list[Node] = []
     for spec in specs:
-        children.extend((_caption(spec.label), _definition_value(spec)))
+        caption_gloss = spec.gloss if spec.strategy in {"scalar", "number"} else None
+        children.extend((_caption(spec.label, caption_gloss), _definition_value(spec)))
     return {
         "kind": "grid",
         "role": "field-group",
@@ -825,7 +864,11 @@ def _field(spec: SurfaceNode) -> Node:
     return {
         "kind": "stack",
         "role": "field-group",
-        "children": [_caption(spec.label), inner, *alerts],
+        "children": [
+            _caption(spec.label, spec.gloss if spec.strategy in {"scalar", "number"} else None),
+            inner,
+            *alerts,
+        ],
     }
 
 
@@ -839,8 +882,10 @@ def _empty_collection(spec: SurfaceNode) -> Node:
     }
 
 
-def _caption(label: str) -> Node:
-    return {"kind": "text", "value": label, "as": "caption", "intent": "neutral"}
+def _caption(label: str, gloss: str | None = None) -> Node:
+    return _with_gloss(
+        {"kind": "text", "value": label, "as": "caption", "intent": "neutral"}, gloss
+    )
 
 
 def _alert(diag: Diagnostic) -> Node:

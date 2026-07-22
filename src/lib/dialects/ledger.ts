@@ -229,6 +229,7 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const ledger: Dialect = {
 	id: "ledger",
 	label: "Ledger",
+	gloss: "A dense teal register for financial controls, balances, and operational evidence.",
 	persona: { vertical: "finance", role: "controller" },
 	intents: {
 		...CORE,

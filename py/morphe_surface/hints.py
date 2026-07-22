@@ -2,15 +2,16 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from pydantic import ConfigDict, ValidationError
+from pydantic import ConfigDict, Field, ValidationError
 
 from morphe_contracts import ContractModel, EmphasisClaim, IntentRef
+from morphe_grammar.labels import VISIBLE_LABEL_PATTERN
 
 from .strategies import Strategy
 
 type NumberFormat = Literal["plain", "integer", "currency", "percent", "compact"]
 type TemporalFormat = Literal["date-time-minute"]
-HINT_VOCABULARY_VERSION = "0.5.0"
+HINT_VOCABULARY_VERSION = "0.6.0"
 
 
 class MorpheHint(ContractModel):
@@ -38,6 +39,9 @@ class MorpheHint(ContractModel):
     currency: str | None = None
     intents: dict[str, IntentRef] | None = None
     emphasis: EmphasisClaim | None = None
+    # Plain producer text compiled directly into a label-bearing grammar leaf.
+    # There is deliberately no glossary id or viewer-side lookup seam.
+    gloss: str | None = Field(default=None, min_length=1, pattern=VISIBLE_LABEL_PATTERN)
     # JSON object member order is not part of RFC 8785's authenticated value.
     # Source-v1 authoring therefore stamps the producer's visible property order
     # into this signed array.  Legacy schemas omit it and retain their in-memory

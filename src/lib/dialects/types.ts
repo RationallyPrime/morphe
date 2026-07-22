@@ -53,6 +53,8 @@ export interface Dialect {
 	readonly id: string;
 	/** Human-readable name. */
 	readonly label: string;
+	/** Plain-language explanation painted by the shared Gloss disclosure. */
+	readonly gloss: string;
 	/** The (vertical, role) persona this dialect serves, if specialized. */
 	readonly persona?: { readonly vertical: string; readonly role?: string };
 	/** Intent extension/override — the heart of the τ_frame injection. */

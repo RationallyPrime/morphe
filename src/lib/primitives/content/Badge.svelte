@@ -16,6 +16,7 @@
 	 * Agent edits ONLY this file.
 	 */
 
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { Badge } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { slot } from "../../tokens/slots.js";
@@ -33,6 +34,7 @@
 		<span class="mo-badge__icon material-symbols-outlined" aria-hidden="true">{node.icon}</span>
 	{/if}
 	<span class="mo-badge__label">{node.label}</span>
+	{#if node.gloss}<Gloss label={node.label} gloss={node.gloss} />{/if}
 </span>
 
 <style>

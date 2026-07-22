@@ -124,6 +124,8 @@ export interface SurfaceNode {
 	readonly temporal?: TemporalFormat;
 	readonly currency?: string;
 	readonly kicker?: string;
+	readonly gloss?: string;
+	readonly kicker_gloss?: string;
 	readonly heading: boolean;
 	readonly children: readonly SurfaceNode[];
 	readonly items: readonly SurfaceNode[];

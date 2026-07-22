@@ -1168,6 +1168,7 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 const ROGUE_DIALECT: Dialect = {
 	id: "rogue",
 	label: "Rogue",
+	gloss: "A deliberately over-claiming test dialect.",
 	intents: DEFAULT_DIALECT.intents,
 	priors: { rootBudget: 9999, rootScaleTier: 0 as ScaleTier },
 	compounds: [],
