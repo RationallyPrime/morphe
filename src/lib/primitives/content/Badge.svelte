@@ -39,14 +39,6 @@
 	.mo-badge {
 		display: inline-flex;
 		align-items: center;
-		/*
-		 * A badge is a chip, never a fill: as a grid/flex item it must keep its
-		 * intrinsic size instead of inheriting the `stretch` default (which painted
-		 * classification chips as full-width bars across a ledger track).
-		 */
-		inline-size: max-content;
-		justify-self: start;
-		align-self: center;
 		gap: var(--mo-space-2);
 		padding: var(--mo-space-1) var(--mo-space-3);
 		border-radius: var(--mo-radius-2);

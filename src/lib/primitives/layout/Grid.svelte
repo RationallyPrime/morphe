@@ -56,6 +56,19 @@
 			? node.columns.map((c) => (c === "flexible" ? "minmax(0, 1fr)" : "max-content")).join(" ")
 			: undefined,
 	);
+
+	// A ruled, explicit-column Grid is the table parent: its direct-child row Grids
+	// must stay direct children so they can adopt the parent's tracks as a subgrid.
+	// Every other Grid child gets a layout-owned cell below. The cell is the local
+	// query container for card tracks and flexible columns; content columns remain
+	// intrinsic so max-content labels still size their track honestly.
+	const tabular = $derived(Boolean(node.ruled && columnTemplate));
+	const itemContainers = $derived(
+		node.children.map((_, index) => {
+			if (!node.columns || node.columns.length === 0) return true;
+			return node.columns[index % node.columns.length] === "flexible";
+		}),
+	);
 </script>
 
 <div
@@ -70,7 +83,13 @@
 	style:--mo-grid-template={columnTemplate}
 >
 	{#each node.children as c, i (i)}
-		<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
+		{#if tabular}
+			<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
+		{:else}
+			<div class="mo-grid__item" data-container={itemContainers[i] ? "" : undefined}>
+				<Node node={c} ctx={{ ...child, renderedEmphasis: grants[i] }} />
+			</div>
+		{/if}
 	{/each}
 </div>
 
@@ -85,8 +104,28 @@
 		 * (the classic auto-fit overflow bug). --mo-track is the compiled intent.
 		 */
 		grid-template-columns: repeat(auto-fit, minmax(min(var(--mo-track, 16rem), 100%), 1fr));
-		/* Items stretch to fill their track height so cards in a row align. */
-		align-items: stretch;
+		/* Layout defaults to intrinsic, top-aligned content. A child that needs a
+		   whole track gets that geometry from the Grid-owned cell below. */
+		justify-items: start;
+		align-items: start;
+	}
+
+	/*
+	 * The Grid owns each ordinary cell. Flexible/card cells fill their assigned
+	 * track and establish the inline-size container that direction:auto descendants
+	 * query. The rendered Node sits INSIDE that container, so inline leaves keep
+	 * their intrinsic width while block layouts still fill the cell naturally.
+	 *
+	 * Content-column cells intentionally omit size containment: a contained box has
+	 * no intrinsic inline contribution, which would collapse max-content labels.
+	 */
+	.mo-grid__item {
+		min-inline-size: 0;
+		align-self: start;
+	}
+	.mo-grid__item[data-container] {
+		inline-size: 100%;
+		container-type: inline-size;
 	}
 
 	/*
@@ -101,6 +140,11 @@
 		grid-template-columns: var(--mo-grid-template);
 		/* Rows size to content and read top-to-bottom; no card-height stretch. */
 		align-items: start;
+	}
+	/* The ruled table parent is the one mode that deliberately stretches its
+	   direct row/diagnostic items across the shared track set. */
+	.mo-grid[data-ruled][data-columns] {
+		justify-items: stretch;
 	}
 	.mo-grid[data-columns] > :global(.mo-grid) {
 		grid-column: 1 / -1;
