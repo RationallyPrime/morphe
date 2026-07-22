@@ -67,6 +67,58 @@ export interface EmitContext {
 	readonly now: () => Date;
 }
 
+/**
+ * One host-authored navigation paint over an exact compiler-IR path.
+ *
+ * The mode is deliberately explicit: a board host may either turn a scalar's
+ * displayed value into the link label or retarget an already-authored linked-ref
+ * while keeping its signed label. A mode/type mismatch is an error, never an
+ * inference opportunity.
+ */
+export interface LinkPaint {
+	readonly mode: "scalar-value" | "linked-ref-label";
+	readonly href: string;
+}
+
+export type SurfaceLinkPaintErrorCode =
+	| "LINK_PAINT_INVALID"
+	| "LINK_PAINT_UNSAFE_HREF"
+	| "LINK_PAINT_MISSING_PATH"
+	| "LINK_PAINT_AMBIGUOUS_PATH"
+	| "LINK_PAINT_MODE_MISMATCH"
+	| "LINK_PAINT_UNPAINTABLE";
+
+/** A host link declaration failed closed before a painted tree could escape. */
+export class SurfaceLinkPaintError extends Error {
+	constructor(
+		readonly code: SurfaceLinkPaintErrorCode,
+		readonly path: string,
+		message: string,
+	) {
+		super(message);
+		this.name = "SurfaceLinkPaintError";
+	}
+}
+
+interface LinkPaintRuntime {
+	readonly paints: ReadonlyMap<string, LinkPaint>;
+	readonly consumed: Set<string>;
+	/** Exact emitted objects authored by paints; never inferred from href equality. */
+	readonly paintedLinks: Set<object>;
+}
+
+export interface LinkPaintEmission {
+	readonly tree: Node;
+	/** Object identities the host may preserve through its producer-link rewrite. */
+	readonly paintedLinks: ReadonlySet<object>;
+}
+
+const LINK_PAINT_RUNTIME = Symbol("morphe.surface.link-paint-runtime");
+
+type EmitContextWithLinkPaints = EmitContext & {
+	readonly [LINK_PAINT_RUNTIME]?: LinkPaintRuntime;
+};
+
 export const DEFAULT_EMIT_CONTEXT: EmitContext = Object.freeze({
 	temporalPolicy: DEFAULT_TEMPORAL_POLICY,
 	now: (): Date => new Date(),
@@ -142,6 +194,223 @@ export function emitNode(
 	return node;
 }
 
+const INTERNAL_LINK_BASE = "https://morphe.invalid";
+
+function hasUnsafeInternalHrefCharacter(href: string): boolean {
+	for (const character of href) {
+		const codePoint = character.codePointAt(0);
+		if (codePoint === undefined || codePoint <= 0x20 || codePoint === 0x7f || character === "\\") {
+			return true;
+		}
+	}
+	return false;
+}
+
+function isSafeInternalHref(href: string): boolean {
+	if (!href.startsWith("/") || href.startsWith("//")) return false;
+	if (hasUnsafeInternalHrefCharacter(href)) return false;
+	try {
+		return new URL(href, INTERNAL_LINK_BASE).origin === INTERNAL_LINK_BASE;
+	} catch {
+		return false;
+	}
+}
+
+function nodesByExactPath(root: SurfaceNode): ReadonlyMap<string, readonly SurfaceNode[]> {
+	const grouped = new Map<string, SurfaceNode[]>();
+	const pending = [root];
+	while (pending.length > 0) {
+		const current = pending.pop();
+		if (current === undefined) break;
+		const matches = grouped.get(current.path) ?? [];
+		matches.push(current);
+		grouped.set(current.path, matches);
+		pending.push(...current.children, ...current.items);
+	}
+	return grouped;
+}
+
+function expectedStrategy(mode: LinkPaint["mode"]): SurfaceNode["strategy"] {
+	return mode === "scalar-value" ? "scalar" : "linked-ref";
+}
+
+function prepareLinkPaintRuntime(
+	spec: SurfaceNode,
+	paints: ReadonlyMap<string, LinkPaint>,
+): LinkPaintRuntime {
+	const paths = nodesByExactPath(spec);
+	const snapshot = new Map<string, LinkPaint>();
+	for (const [path, candidate] of paints) {
+		if (
+			typeof path !== "string" ||
+			candidate === null ||
+			typeof candidate !== "object" ||
+			(candidate.mode !== "scalar-value" && candidate.mode !== "linked-ref-label") ||
+			typeof candidate.href !== "string"
+		) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_INVALID",
+				typeof path === "string" ? path : "",
+				"link paint must declare an exact path, mode, and href",
+			);
+		}
+		if (!isSafeInternalHref(candidate.href)) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_UNSAFE_HREF",
+				path,
+				`link paint at ${path} must target a safe internal href`,
+			);
+		}
+		const matches = paths.get(path) ?? [];
+		if (matches.length === 0) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_MISSING_PATH",
+				path,
+				`link paint path ${path} does not exist in the compiler IR`,
+			);
+		}
+		if (matches.length !== 1) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_AMBIGUOUS_PATH",
+				path,
+				`link paint path ${path} is not unique in the compiler IR`,
+			);
+		}
+		const expected = expectedStrategy(candidate.mode);
+		if (matches[0]?.strategy !== expected) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_MODE_MISMATCH",
+				path,
+				`link paint mode ${candidate.mode} requires a ${expected} IR node at ${path}`,
+			);
+		}
+		snapshot.set(path, Object.freeze({ mode: candidate.mode, href: candidate.href }));
+	}
+	return { paints: snapshot, consumed: new Set(), paintedLinks: new Set() };
+}
+
+function consumeLinkPaint(
+	spec: SurfaceNode,
+	ctx: EmitContext,
+	mode: LinkPaint["mode"],
+): LinkPaint | undefined {
+	const runtime = (ctx as EmitContextWithLinkPaints)[LINK_PAINT_RUNTIME];
+	const paint = runtime?.paints.get(spec.path);
+	if (paint === undefined) return undefined;
+	if (paint.mode !== mode || runtime === undefined || runtime.consumed.has(spec.path)) {
+		throw new SurfaceLinkPaintError(
+			"LINK_PAINT_UNPAINTABLE",
+			spec.path,
+			`link paint at ${spec.path} cannot be lowered at this output position`,
+		);
+	}
+	runtime.consumed.add(spec.path);
+	return paint;
+}
+
+function paintedScalar(spec: SurfaceNode, ctx: EmitContext, paint: LinkPaint): Node {
+	const label = displayScalarText(
+		spec.value ?? null,
+		scalarNumberKind(spec),
+		ctx.temporalPolicy,
+		ctx.now,
+	);
+	if (!hasVisibleLabelText(label)) {
+		throw new SurfaceLinkPaintError(
+			"LINK_PAINT_UNPAINTABLE",
+			spec.path,
+			`scalar at ${spec.path} has no visible value to use as a link label`,
+		);
+	}
+	return {
+		kind: "link",
+		href: paint.href,
+		label,
+		...(spec.intent === undefined ? {} : { intent: spec.intent }),
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
+	};
+}
+
+function paintedLinkedRef(spec: SurfaceNode, paint: LinkPaint): Node {
+	if (!hasVisibleLabelText(spec.label)) {
+		throw new SurfaceLinkPaintError(
+			"LINK_PAINT_UNPAINTABLE",
+			spec.path,
+			`linked-ref at ${spec.path} has no visible signed label`,
+		);
+	}
+	return {
+		kind: "link",
+		href: paint.href,
+		label: spec.label,
+		...(spec.intent === undefined ? {} : { intent: spec.intent }),
+		...(spec.gloss === undefined ? {} : { gloss: spec.gloss }),
+	};
+}
+
+function recordPaintedLink(ctx: EmitContext, node: Node): Node {
+	const runtime = (ctx as EmitContextWithLinkPaints)[LINK_PAINT_RUNTIME];
+	if (runtime === undefined || typeof node !== "object" || node === null) {
+		throw new SurfaceLinkPaintError(
+			"LINK_PAINT_UNPAINTABLE",
+			"",
+			"painted link could not be bound to its exact emitted object",
+		);
+	}
+	runtime.paintedLinks.add(node);
+	return node;
+}
+
+/**
+ * TS-host-only re-emission that paints exact IR paths as internal links.
+ *
+ * Paints never participate in source compilation or its receipt. The host must
+ * name a concrete path and the expected IR leaf mode; absent, ambiguous,
+ * mismatched, invisible, promoted-but-unsupported, or unsafe declarations throw.
+ * An empty map delegates directly to {@link emitNode}, preserving the default
+ * compiler output byte for byte.
+ */
+export function emitNodeWithLinkPaints(
+	spec: SurfaceNode,
+	paints: ReadonlyMap<string, LinkPaint>,
+	overrides?: Partial<EmitLimits>,
+	context: EmitContext = DEFAULT_EMIT_CONTEXT,
+): Node {
+	return emitNodeWithTrackedLinkPaints(spec, paints, overrides, context).tree;
+}
+
+/**
+ * Re-emit with exact link paints and retain the painted node identities.
+ * The identities let a downstream host distinguish links it just authored from
+ * producer-authored links that happen to carry the same href string.
+ */
+export function emitNodeWithTrackedLinkPaints(
+	spec: SurfaceNode,
+	paints: ReadonlyMap<string, LinkPaint>,
+	overrides?: Partial<EmitLimits>,
+	context: EmitContext = DEFAULT_EMIT_CONTEXT,
+): LinkPaintEmission {
+	if (paints.size === 0) {
+		return { tree: emitNode(spec, overrides, context), paintedLinks: new Set() };
+	}
+	const runtime = prepareLinkPaintRuntime(spec, paints);
+	const paintedContext: EmitContextWithLinkPaints = {
+		...context,
+		[LINK_PAINT_RUNTIME]: runtime,
+	};
+	const node = emitNode(spec, overrides, paintedContext);
+	for (const path of runtime.paints.keys()) {
+		if (!runtime.consumed.has(path)) {
+			throw new SurfaceLinkPaintError(
+				"LINK_PAINT_UNPAINTABLE",
+				path,
+				`link paint at ${path} targets a scalar or linked-ref that is not paintable in its promoted output position`,
+			);
+		}
+	}
+	return { tree: node, paintedLinks: runtime.paintedLinks };
+}
+
 function emit(spec: SurfaceNode, ctx: EmitContext): Node {
 	return ensureRootTask(spec, emitRaw(spec, ctx));
 }
@@ -163,6 +432,14 @@ function emitRaw(spec: SurfaceNode, ctx: EmitContext): Node {
 }
 
 function leaf(spec: SurfaceNode, ctx: EmitContext): Node {
+	if (spec.strategy === "scalar") {
+		const paint = consumeLinkPaint(spec, ctx, "scalar-value");
+		if (paint !== undefined) return recordPaintedLink(ctx, paintedScalar(spec, ctx, paint));
+	}
+	if (spec.strategy === "linked-ref") {
+		const paint = consumeLinkPaint(spec, ctx, "linked-ref-label");
+		if (paint !== undefined) return recordPaintedLink(ctx, paintedLinkedRef(spec, paint));
+	}
 	switch (spec.strategy) {
 		case "scalar":
 			return scalar(spec, ctx);
@@ -385,21 +662,25 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 			metaChildren.push(child);
 		}
 	}
-	const contextValue =
-		titleChild === undefined
-			? ""
-			: displayScalarText(
-					titleChild.value ?? null,
-					scalarNumberKind(titleChild),
-					ctx.temporalPolicy,
-					ctx.now,
-				);
-	const kicker: Text = {
-		kind: "text",
-		value: contextValue,
-		as: "caption",
-		intent: "folio",
-	};
+	const identityPaint =
+		titleChild === undefined ? undefined : consumeLinkPaint(titleChild, ctx, "scalar-value");
+	const kicker: Node =
+		titleChild !== undefined && identityPaint !== undefined
+			? recordPaintedLink(ctx, paintedScalar(titleChild, ctx, identityPaint))
+			: {
+					kind: "text",
+					value:
+						titleChild === undefined
+							? ""
+							: displayScalarText(
+									titleChild.value ?? null,
+									scalarNumberKind(titleChild),
+									ctx.temporalPolicy,
+									ctx.now,
+								),
+					as: "caption",
+					intent: "folio",
+				};
 	const title: Text = {
 		kind: "text",
 		value: spec.label,

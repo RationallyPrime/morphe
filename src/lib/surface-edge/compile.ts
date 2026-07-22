@@ -61,6 +61,16 @@ export interface CompileSourceSurfaceOptions {
 }
 
 /**
+ * The host-facing form of a pure compilation. It retains the exact IR and the
+ * immutable presentation context used for the receipt-bearing default tree so a
+ * TS host can re-emit that IR with downstream-only navigation paints.
+ */
+export interface DetailedCompilationResult extends CompilationResult {
+	readonly ir: SurfaceNode;
+	readonly emitContext: Readonly<EmitContext>;
+}
+
+/**
  * Pure, dialect-free edge compilation over already-admitted testimony.
  * Dialect policy and its delivery receipt are intentionally downstream.
  *
@@ -73,10 +83,31 @@ export function compileSourceSurface(
 	source: TrustedSourceSurface,
 	options: CompileSourceSurfaceOptions = {},
 ): CompilationResult {
-	const context: EmitContext = {
+	const {
+		ir: _ir,
+		emitContext: _emitContext,
+		...result
+	} = compileSourceSurfaceDetailed(source, options);
+	return result;
+}
+
+/**
+ * Compile admitted testimony while retaining the TS IR and frozen emit context.
+ * The extra host data is not part of the receipt and does not alter the default
+ * grammar tree; {@link compileSourceSurface} returns that original narrow result.
+ */
+export function compileSourceSurfaceDetailed(
+	source: TrustedSourceSurface,
+	options: CompileSourceSurfaceOptions = {},
+): DetailedCompilationResult {
+	// One compile has one presentation instant. The host may re-emit retained IR
+	// after resolving board links; pinning the clock keeps every unrelated
+	// relative-time label byte-identical to the receipt-bearing base tree.
+	const presentationNow = (options.now ?? DEFAULT_EMIT_CONTEXT.now)();
+	const context: Readonly<EmitContext> = Object.freeze({
 		temporalPolicy: options.temporalPolicy ?? DEFAULT_EMIT_CONTEXT.temporalPolicy,
-		now: options.now ?? DEFAULT_EMIT_CONTEXT.now,
-	};
+		now: () => new Date(presentationNow.getTime()),
+	});
 	const spec = buildSurface(source.schema, source.data, {
 		root: source.schema,
 		diagnostics: source.diagnostics,
@@ -112,6 +143,8 @@ export function compileSourceSurface(
 	return {
 		tree: validated.value,
 		diagnostics,
+		ir: spec,
+		emitContext: context,
 		receipt: {
 			sourceTestimonySha256: source.sourceTestimonySha256,
 			compilerVersion: COMPILER_VERSION,
