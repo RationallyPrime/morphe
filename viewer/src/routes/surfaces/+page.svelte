@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { applyDialect, DIALECT_IDS, dialectStyle, getDialect } from "$lib";
+	import { applyDialect, DIALECT_LIST, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { catalogCrumbs } from "../../crumbs.js";
 	import ViewerChrome from "../../ViewerChrome.svelte";
@@ -8,6 +8,7 @@
 
 	const dialect = $derived(getDialect(data.dialectId));
 	const applied = $derived(applyDialect(dialect));
+	let explainGlosses = $state(false);
 
 	// Home (root) › Surfaces catalog (current), reachable from and linking back to home.
 	const crumbs = catalogCrumbs();
@@ -18,9 +19,14 @@
 </svelte:head>
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
-	<ViewerChrome dialects={DIALECT_IDS} current={data.dialectId} {crumbs} />
+	<ViewerChrome
+		dialects={DIALECT_LIST}
+		current={data.dialectId}
+		{crumbs}
+		bind:explainGlosses
+	/>
 	<main class="viewer-index">
-		<MorpheRoot tree={data.tree} {dialect} />
+		<MorpheRoot tree={data.tree} {dialect} {explainGlosses} />
 	</main>
 </div>
 

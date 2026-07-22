@@ -202,9 +202,9 @@ Table    { kind:"table";   caption:string; captionHidden?:boolean; columns:Table
 ### Content
 
 ```ts
-Text       { kind:"text";   value:string; as?:"display"|"heading"|"subheading"|"body"|"caption"; level?:1|2|3; emphasis?:EmphasisClaim; intent?:IntentRef; clamp?:number }
-NumberNode { kind:"number"; value:number; format?:"plain"|"integer"|"currency"|"percent"|"compact"; currency?:string; emphasis?:EmphasisClaim; intent?:IntentRef }
-Badge      { kind:"badge";  label:string; intent?:IntentRef; icon?:string }
+Text       { kind:"text";   value:string; as?:"display"|"heading"|"subheading"|"body"|"caption"; level?:1|2|3; emphasis?:EmphasisClaim; intent?:IntentRef; clamp?:number; gloss?:string }
+NumberNode { kind:"number"; value:number; format?:"plain"|"integer"|"currency"|"percent"|"compact"; currency?:string; emphasis?:EmphasisClaim; intent?:IntentRef; label?:string; gloss?:string }
+Badge      { kind:"badge";  label:string; intent?:IntentRef; icon?:string; gloss?:string }
 Icon       { kind:"icon";   name:string; a11y:{role:"decorative"}|{role:"img";label:string}; intent?:IntentRef }
 // ADR-0019: a sampled quantity over a period axis. `summary` is REQUIRED visible text and
 // the PRIMARY channel (the SVG figure is aria-hidden — shape is never the only signal);
@@ -220,6 +220,13 @@ mapping remains `display -> h1`, `heading -> h2`, and `subheading -> h3`; body a
 paragraph text. An explicit level therefore lets an operational task be the sole logical `h1` while
 keeping the restrained `heading` register. The schema compiler emits that task with the `heading`
 register; `display` is not an automatic synonym for root identity.
+
+`gloss` is optional producer-authored plain text, never a glossary id or runtime lookup. It is
+admitted only where the same node paints the term it explains: `Badge`, `Status`, `Link`, a
+`NumberNode` with a visible `label`, and `Text` in `display`/`heading`/`subheading`/`caption`
+registers (including compound titles and kickers). Body/open-data `Text`, bare numbers, and all
+other node kinds reject it. The shared `Gloss` disclosure paints a native button beside the term;
+an interactive term and that button are siblings, never nested interactive controls.
 
 ### Input (a11y REQUIRED)
 
@@ -254,7 +261,7 @@ for that primitive must handle BOTH modes inside the SAME `.svelte` file:
 
 ```ts
 Progress    { kind:"progress";     value?:number; label:string; intent?:IntentRef }   // label required
-Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal; href?:string }
+Status      { kind:"status";       tone:"success"|"caution"|"info"|"neutral"; signal:StatusSignal; href?:string; gloss?:string }
 InlineAlert { kind:"inline-alert"; tone:"success"|"caution"|"info"; title:string; detail?:string; repair?:string; live?:"polite"|"assertive"; href?:string }   // repair = the producer-authored next action (KRA-757 §3.8)
 ```
 
@@ -282,7 +289,7 @@ Button (kind:"button"):
   & ( { label:string;       a11y?:ControlLabel }     // visible-text label IS the name
     | { label?:undefined;   a11y:ControlLabel } )    // icon-only ⇒ a11y name REQUIRED
 
-Link { kind:"link"; href:string; label:string; intent?:IntentRef; external?:"auto"|"force"|"hide" }
+Link { kind:"link"; href:string; label:string; intent?:IntentRef; external?:"auto"|"force"|"hide"; gloss?:string }
 ```
 
 - **Button variant is channel SELECTION, never a className matrix:** solid paints
@@ -550,6 +557,10 @@ re-read the keyset; they do not accept arbitrary extra intent strings.
 - An href-bearing **Status** or **InlineAlert** is an evidence drill: it renders as
   a native anchor with the feedback node's visible signal as its accessible name,
   while an href-less node keeps its inert live-region semantics.
+- **Gloss** uses a real button with `aria-controls`/`aria-expanded`; click/tap,
+  native keyboard activation, focus rings, and screen-reader naming share one
+  disclosure. `MorpheRoot.explainGlosses` reveals the same definitions in flow for
+  pane inspection. Hover is never the only activation path.
 - **Dialog** REQUIRES `title` (wired `aria-labelledby`); the close affordance
   carries an `aria-label`. **Disclosure** REQUIRES `summary` (the trigger label).
   **Popover** REQUIRES `anchor` + `id`; its `role` picks the keyboard contract.
@@ -562,7 +573,7 @@ re-read the keyset; they do not accept arbitrary extra intent strings.
 
 ```ts
 interface Dialect {
-  id:string; label:string; persona?:{vertical:string; role?:string};
+  id:string; label:string; gloss:string; persona?:{vertical:string; role?:string};
   intents: Record<IntentRef, Partial<Record<IntentChannel,string>>>;  // values MUST be var(--mo-…scale…), never hex
   priors: { rootDensity?:Density; rootScaleTier?:ScaleTier; rootBudget?:number };
   compounds: string[];   // render-gated allowlist (G|D): empty = unrestricted; see §5
@@ -574,6 +585,8 @@ dialectStyle(applied): string                  // inline style for the overrides
 `MorpheRoot.svelte` is the τ_frame injection point: it `applyDialect`s, sets the
 `data-mo-dialect` attribute (selecting the intent block), spreads any intent
 overrides as CSS vars, seeds the root context, and renders the tree via `<Node>`.
+Every registry entry carries a human label plus an inline plain-language gloss; pickers paint the
+label and route the explanation through the same `Gloss` primitive as authored vocabulary.
 The default is `gallery` (ADR-0005). Priors are clamped (budget 1..6, scaleTier
 2..4) so Lemma 2's laws survive any dialect.
 

@@ -398,7 +398,7 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
-    assert HINT_VOCABULARY_VERSION == "0.5.0"
+    assert HINT_VOCABULARY_VERSION == "0.6.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
     assert morphe_hint(temporal="date-time-minute") == {
@@ -416,6 +416,9 @@ def test_morphe_hint_is_strict_at_authoring_time() -> None:
         morphe_hint(strategy="nubmer")
     with pytest.raises(ValueError, match="temporal"):
         morphe_hint(temporal="minute")
+    for field in ("gloss", "kicker_gloss", "signal_gloss"):
+        with pytest.raises(ValueError, match=field):
+            KpiCell.model_validate({"label": "Net", "value": 7, field: "\u200b"})
 
 
 def test_malformed_currency_degrades_to_plain_number() -> None:

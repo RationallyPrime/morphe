@@ -219,6 +219,7 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 export const icelandicArchive: Dialect = {
 	id: "icelandic-archive",
 	label: "Icelandic Archive",
+	gloss: "A restrained graphite-and-amber archival register for evidence-rich editorial surfaces.",
 	persona: { vertical: "editorial-archive", role: "doxa" },
 	intents: {
 		...CORE,

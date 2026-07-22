@@ -154,6 +154,7 @@ export interface Text {
 	readonly clamp?: NumberValue;
 	readonly numeric?: boolean;
 	readonly polarity?: "positive" | "negative";
+	readonly gloss?: string;
 }
 
 export interface NumberNode {
@@ -163,6 +164,8 @@ export interface NumberNode {
 	readonly currency?: string;
 	readonly emphasis?: EmphasisClaim;
 	readonly intent?: IntentRef;
+	readonly label?: string;
+	readonly gloss?: string;
 }
 
 export interface Badge {
@@ -170,6 +173,7 @@ export interface Badge {
 	readonly label: string;
 	readonly intent?: IntentRef;
 	readonly icon?: string;
+	readonly gloss?: string;
 }
 
 export interface DecorativeIconA11y {
@@ -279,6 +283,7 @@ export interface Status {
 	readonly tone: "success" | "caution" | "info" | "neutral";
 	readonly signal: StatusSignal;
 	readonly href?: string;
+	readonly gloss?: string;
 }
 
 export interface InlineAlert {
@@ -323,6 +328,7 @@ export interface Link {
 	readonly label: string;
 	readonly intent?: IntentRef;
 	readonly external?: "auto" | "force" | "hide";
+	readonly gloss?: string;
 }
 
 export interface Dialog {

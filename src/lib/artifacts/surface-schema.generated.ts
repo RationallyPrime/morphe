@@ -48,6 +48,12 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
     "Badge": {
       "additionalProperties": false,
       "properties": {
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
+        },
         "icon": {
           "title": "Icon",
           "type": "string"
@@ -840,6 +846,12 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "External",
           "type": "string"
         },
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
+        },
         "href": {
           "title": "Href",
           "type": "string"
@@ -1086,12 +1098,24 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Format",
           "type": "string"
         },
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
+        },
         "intent": {
           "$ref": "#/$defs/IntentRef"
         },
         "kind": {
           "const": "number",
           "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Label",
           "type": "string"
         },
         "value": {
@@ -1445,6 +1469,12 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
     "Status": {
       "additionalProperties": false,
       "properties": {
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
+        },
         "href": {
           "title": "Href",
           "type": "string"
@@ -1649,6 +1679,12 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
         },
         "emphasis": {
           "$ref": "#/$defs/EmphasisClaim"
+        },
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
         },
         "intent": {
           "$ref": "#/$defs/IntentRef"

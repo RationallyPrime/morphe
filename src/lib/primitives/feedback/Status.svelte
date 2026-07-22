@@ -22,6 +22,7 @@
 	 * Tokens (Lemma 3): scales -> intents -> slots only, via `toneIntent` + `slot`.
 	 */
 
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { Status } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SLOTS, slot, toneIntent } from "../../tokens/slots.js";
@@ -63,6 +64,9 @@
 		<span class="mo-status__icon material-symbols-outlined" aria-hidden="true">{icon}</span>
 		<span class="mo-status__text">{node.signal.text}</span>
 	</a>
+	{#if node.gloss}
+		<Gloss label={node.signal.text} gloss={node.gloss} ink="var(--mo-intent-on-surface)" />
+	{/if}
 {:else}
 	<span
 		class="mo-status"
@@ -76,6 +80,9 @@
 		<span class="mo-status__icon material-symbols-outlined" aria-hidden="true">{icon}</span>
 		<span class="mo-status__text">{node.signal.text}</span>
 	</span>
+	{#if node.gloss}
+		<Gloss label={node.signal.text} gloss={node.gloss} ink="var(--mo-intent-on-surface)" />
+	{/if}
 {/if}
 
 <style>

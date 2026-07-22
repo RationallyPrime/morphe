@@ -6,6 +6,7 @@
  * imports into `primitives/` stay private to the package.
  */
 
+export { default as Gloss } from "./gloss/Gloss.svelte";
 export { default as Button } from "./primitives/action/Button.svelte";
 export { default as Link } from "./primitives/action/Link.svelte";
 export { default as Badge } from "./primitives/content/Badge.svelte";

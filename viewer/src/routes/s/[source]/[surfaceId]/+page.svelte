@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { applyDialect, DIALECT_IDS, dialectStyle, getDialect } from "$lib";
+	import { applyDialect, DIALECT_LIST, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { paneCrumbs } from "../../../../crumbs.js";
 	import { TEMPORAL_POLICIES } from "../../../../temporal.js";
@@ -9,6 +9,7 @@
 
 	const dialect = $derived(getDialect(data.dialectId));
 	const applied = $derived(applyDialect(dialect));
+	let explainGlosses = $state(false);
 
 	// Home (root) › Surfaces catalog › Source collection › this pane (KRA-789 re-root).
 	const crumbs = $derived(
@@ -26,13 +27,14 @@
 
 <div class="viewer-shell" style={dialectStyle(applied)}>
 	<ViewerChrome
-		dialects={DIALECT_IDS}
+		dialects={DIALECT_LIST}
 		current={data.dialectId}
 		{crumbs}
 		temporalPolicies={TEMPORAL_POLICIES}
 		temporalPolicy={data.temporalPolicy}
 		showAsOf
 		asOf={data.asOf}
+		bind:explainGlosses
 	/>
 	<main
 		class="viewer-surface"
@@ -42,7 +44,7 @@
 		data-dialect-policy-sha256={data.deliveryReceipt?.dialectPolicySha256}
 		data-source-testimony-sha256={data.deliveryReceipt?.sourceTestimonySha256}
 	>
-		<MorpheRoot tree={data.tree} {dialect} />
+		<MorpheRoot tree={data.tree} {dialect} {explainGlosses} />
 	</main>
 </div>
 

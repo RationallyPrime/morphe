@@ -561,6 +561,7 @@ describe("dialect application (Lemma 4)", () => {
 		const applied = applyDialect({
 			id: "rogue",
 			label: "Rogue",
+			gloss: "A deliberately over-claiming test dialect.",
 			intents: DEFAULT_DIALECT.intents,
 			priors: { rootBudget: 999, rootScaleTier: 4 },
 			compounds: [],

@@ -31,30 +31,57 @@ VENDOR_SCHEMA: dict[str, Any] = {
     # insertion order, TypeScript sorts) — a pre-existing, out-of-scope asymmetry.
     "x-morphe": {
         "strategy": "entity-header",
-        "order": ["name", "exposure", "standing", "contact", "ledgerRef"],
+        "gloss": "The vendor identity and decision summary.",
+        "order": ["name", "exposure", "standing", "tier", "contact", "ledgerRef", "details"],
     },
     "properties": {
         "name": {"type": "string", "title": "Name"},
         "exposure": {
             "type": "integer",
             "title": "Exposure",
-            "x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"},
+            "x-morphe": {
+                "strategy": "number",
+                "format": "currency",
+                "currency": "ISK",
+                "gloss": "The current financial amount at risk.",
+            },
         },
         "standing": {
             "type": "string",
             "title": "Standing",
-            "x-morphe": {"strategy": "status", "intents": {"active": "success"}},
+            "x-morphe": {
+                "strategy": "status",
+                "intents": {"active": "success"},
+                "gloss": "Whether this vendor may receive new work.",
+            },
+        },
+        "tier": {
+            "type": "string",
+            "title": "Tier",
+            "enum": ["core"],
+            "x-morphe": {"strategy": "badge", "gloss": "The vendor review tier."},
         },
         "contact": {"type": "string", "title": "Primary contact"},
         "ledgerRef": {"type": "string", "title": "Ledger id", "x-morphe": {"role": "provenance"}},
+        "details": {
+            "type": "object",
+            "title": "Details",
+            "x-morphe": {
+                "strategy": "linked-ref",
+                "role": "provenance",
+                "gloss": "Open the authoritative vendor record.",
+            },
+        },
     },
 }
 VENDOR_DATA: dict[str, object] = {
     "name": "Krates ehf",
     "exposure": 2_450_000,
     "standing": "active",
+    "tier": "core",
     "contact": "Sok",
     "ledgerRef": "vnd-001",
+    "details": {"label": "Open vendor", "href": "/vendors/vnd-001"},
 }
 
 # The SAME expected tree is asserted verbatim by the TypeScript twin
@@ -70,17 +97,38 @@ EXPECTED_COMPOUND: dict[str, Any] = {
             "as": "caption",
             "intent": "folio",
         },
-        "title": {"kind": "text", "value": "Vendor", "as": "heading", "level": 1},
+        "title": {
+            "kind": "text",
+            "value": "Vendor",
+            "as": "heading",
+            "level": 1,
+            "gloss": "The vendor identity and decision summary.",
+        },
         "keyFigure": {
             "kind": "number",
             "value": 2_450_000,
             "format": "currency",
             "currency": "ISK",
             "emphasis": "strong",
+            "label": "Exposure",
+            "gloss": "The current financial amount at risk.",
         },
     },
     "slots": {
-        "signal": [{"kind": "status", "tone": "success", "signal": {"text": "active"}}],
+        "signal": [
+            {
+                "kind": "status",
+                "tone": "success",
+                "signal": {"text": "active"},
+                "gloss": "Whether this vendor may receive new work.",
+            },
+            {
+                "kind": "badge",
+                "label": "core",
+                "intent": "neutral",
+                "gloss": "The vendor review tier.",
+            },
+        ],
         "meta": [
             {
                 "kind": "grid",
@@ -124,7 +172,15 @@ EXPECTED_COMPOUND: dict[str, Any] = {
                         }
                     ],
                     "seals": [],
-                    "links": [],
+                    "links": [
+                        {
+                            "kind": "link",
+                            "href": "/vendors/vnd-001",
+                            "label": "Open vendor",
+                            "intent": "provenance",
+                            "gloss": "Open the authoritative vendor record.",
+                        }
+                    ],
                 },
             }
         ],
@@ -159,7 +215,15 @@ def test_entity_header_builds_children_plainly() -> None:
     spec = _build(VENDOR_SCHEMA, VENDOR_DATA)
     assert spec.strategy == "entity-header"
     strategies = [child.strategy for child in spec.children]
-    assert strategies == ["scalar", "number", "status", "scalar", "scalar"]
+    assert strategies == [
+        "scalar",
+        "number",
+        "status",
+        "badge",
+        "scalar",
+        "scalar",
+        "linked-ref",
+    ]
     # No identity promotion runs for an entity-header, so no child is display/critical.
     assert all(child.text_as is None for child in spec.children)
 

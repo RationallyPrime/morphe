@@ -13,6 +13,23 @@ const ROUTE = "/substrate";
 // three surface tiers (the app's other routes gate their links behind disclosures).
 const LAB = "/contrast-lab";
 const GEOMETRY_TOLERANCE_PX = 0.5;
+const AA_NORMAL = 4.5;
+
+type Rgb = [number, number, number];
+function relativeLuminance([red, green, blue]: Rgb): number {
+	const channel = (value: number): number => {
+		const srgb = value / 255;
+		return srgb <= 0.03928 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+	};
+	return 0.2126 * channel(red) + 0.7152 * channel(green) + 0.0722 * channel(blue);
+}
+
+function contrastRatio(foreground: Rgb, background: Rgb): number {
+	const first = relativeLuminance(foreground);
+	const second = relativeLuminance(background);
+	const [high, low] = first >= second ? [first, second] : [second, first];
+	return (high + 0.05) / (low + 0.05);
+}
 
 test.describe("composed surface — reflow / zoom / keyboard / forced-colors / reduced-motion", () => {
 	test("390px: the authored surface reflows with no horizontal overflow (WCAG 1.4.10)", async ({
@@ -77,6 +94,75 @@ test.describe("composed surface — reflow / zoom / keyboard / forced-colors / r
 			duration.split(",").every((d) => d.trim() === "0s"),
 			`transitions not disabled under reduced-motion: ${duration}`,
 		).toBe(true);
+	});
+
+	test("Gloss markers use sibling-safe contrast ink and keep a visible keyboard ring", async ({
+		page,
+	}) => {
+		await page.goto(LAB, { waitUntil: "networkidle" });
+		for (const probe of [
+			{ name: /^Explain .* link$/, term: "a.mo-link", matchesTerm: true },
+			{ name: "Explain open", term: "a.mo-status", matchesTerm: false },
+		] as const) {
+			const trigger = page.getByRole("button", { name: probe.name }).first();
+			await expect(trigger).toBeVisible();
+			const contrastCarrier = await trigger.evaluate(
+				(element, { termSelector, matchesTerm }) => {
+					const term = element.previousElementSibling;
+					if (!(term instanceof HTMLElement) || !term.matches(termSelector)) return null;
+					const markerStyle = getComputedStyle(element);
+					const canvas = document.createElement("canvas");
+					canvas.width = canvas.height = 1;
+					const context = canvas.getContext("2d", {
+						willReadFrequently: true,
+					}) as CanvasRenderingContext2D;
+					const toRgb = (color: string): Rgb => {
+						context.clearRect(0, 0, 1, 1);
+						context.fillStyle = "#000";
+						context.fillStyle = color;
+						context.fillRect(0, 0, 1, 1);
+						const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+						return [red, green, blue];
+					};
+					const backgroundOf = (start: Element): string => {
+						let current: Element | null = start;
+						while (current) {
+							const color = getComputedStyle(current).backgroundColor;
+							if (color && color !== "rgba(0, 0, 0, 0)" && color !== "transparent") return color;
+							current = current.parentElement;
+						}
+						return "rgb(255, 255, 255)";
+					};
+					return {
+						marker: markerStyle.color,
+						term: getComputedStyle(term).color,
+						markerRgb: toRgb(markerStyle.color),
+						backgroundRgb: toRgb(backgroundOf(element)),
+						opacity: markerStyle.opacity,
+						matchesTerm,
+					};
+				},
+				{ termSelector: probe.term, matchesTerm: probe.matchesTerm },
+			);
+			expect(contrastCarrier).not.toBeNull();
+			if (contrastCarrier?.matchesTerm) {
+				expect(contrastCarrier.marker).toBe(contrastCarrier.term);
+			}
+			if (contrastCarrier) {
+				expect(
+					contrastRatio(contrastCarrier.markerRgb, contrastCarrier.backgroundRgb),
+					`${probe.term} Gloss marker must clear WCAG AA`,
+				).toBeGreaterThanOrEqual(AA_NORMAL);
+			}
+			expect(contrastCarrier?.opacity).toBe("1");
+
+			await trigger.focus();
+			const ring = await trigger.evaluate((element) => {
+				const style = getComputedStyle(element);
+				return style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0;
+			});
+			expect(ring, "focused Gloss marker has no visible focus indicator").toBe(true);
+		}
 	});
 });
 

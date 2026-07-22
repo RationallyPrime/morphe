@@ -19,10 +19,20 @@ from morphe_surface.emit import emit_node
 FIGURES_SCHEMA: dict[str, Any] = {
     "type": "array",
     "title": "Figures",
-    "x-morphe": {"strategy": "kpi-row", "heading": False},
+    "x-morphe": {
+        "strategy": "kpi-row",
+        "heading": False,
+        "gloss": "The current operating signals.",
+    },
 }
 FIGURES_DATA: list[dict[str, object]] = [
-    {"label": "Net", "value": 7, "kicker": "Q4"},
+    {
+        "label": "Net",
+        "value": 7,
+        "kicker": "Q4",
+        "gloss": "Net settled value in this period.",
+        "kicker_gloss": "The reporting quarter.",
+    },
     # The corner-signal lever (KRA-757 §3.2): signal text + tone ride the cell.
     {
         "label": "Rail",
@@ -30,6 +40,7 @@ FIGURES_DATA: list[dict[str, object]] = [
         "kicker": "Route",
         "signal": "Queued",
         "signal_intent": "info",
+        "signal_gloss": "The batch is waiting to be sent.",
     },
 ]
 
@@ -54,8 +65,14 @@ EXPECTED_BAND: dict[str, Any] = {
                                 "value": "Q4",
                                 "as": "caption",
                                 "intent": "folio",
+                                "gloss": "The reporting quarter.",
                             },
-                            "title": {"kind": "text", "value": "Net", "as": "subheading"},
+                            "title": {
+                                "kind": "text",
+                                "value": "Net",
+                                "as": "subheading",
+                                "gloss": "Net settled value in this period.",
+                            },
                             "measure": {"kind": "number", "value": 7, "emphasis": "strong"},
                         },
                         "slots": {"signal": [], "body": []},
@@ -84,6 +101,7 @@ EXPECTED_BAND: dict[str, Any] = {
                                     "kind": "status",
                                     "tone": "info",
                                     "signal": {"text": "Queued"},
+                                    "gloss": "The batch is waiting to be sent.",
                                 }
                             ],
                             "body": [],
@@ -104,6 +122,7 @@ def _band_payload(node: dict[str, Any]) -> dict[str, Any]:
         "value": "Figures",
         "as": "heading",
         "level": 1,
+        "gloss": "The current operating signals.",
     }
     return node["children"][1]
 
@@ -125,6 +144,29 @@ def test_empty_kpi_row_keeps_the_empty_collection_floor() -> None:
             {"kind": "text", "value": "No figures.", "as": "caption", "intent": "neutral"}
         ],
     }
+
+
+def test_malformed_inline_kpi_glosses_degrade_without_invalid_grammar() -> None:
+    node = emit_node(
+        build_surface(
+            FIGURES_SCHEMA,
+            [
+                {
+                    "label": "Net",
+                    "value": 7,
+                    "kicker": "Q4",
+                    "kicker_gloss": "\u200b",
+                    "signal": "Queued",
+                    "signal_gloss": "",
+                }
+            ],
+            root=FIGURES_SCHEMA,
+        )
+    )
+    validate_node(node)
+    tile = _band_payload(node)["children"][0]["slots"]["tiles"][0]
+    assert "gloss" not in tile["args"]["kicker"]
+    assert "gloss" not in tile["slots"]["signal"][0]
 
 
 def test_generated_catalog_registers_stat_band() -> None:

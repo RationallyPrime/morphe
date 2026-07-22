@@ -59,8 +59,8 @@ The package root is `src/lib`. It contains the reusable core only.
 
 - `@rationallyprime/morphe` — engine: grammar, context, compounds, dialects, delegation,
   state, render contracts, token helper types.
-- `@rationallyprime/morphe/components` — `MorpheRoot`, `RenderNode`, and primitive Svelte
-  components for harnesses and downstream inspection.
+- `@rationallyprime/morphe/components` — `MorpheRoot`, `RenderNode`, the shared `Gloss`
+  disclosure, and primitive Svelte components for harnesses and downstream inspection.
 - `@rationallyprime/morphe/tokens` — intent constants and slot helper functions.
 - `@rationallyprime/morphe/styles.css` — global token CSS (`scales.css` + `intents.css`).
 - `@rationallyprime/morphe/tokens/scales.css` and

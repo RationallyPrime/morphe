@@ -16,6 +16,7 @@
 	 * Agent edits ONLY this file.
 	 */
 
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { NumberNode } from "../../grammar/types.js";
 	import type { PrimitiveProps } from "../../render/props.js";
 	import { SURFACE_VARS } from "../../tokens/intents.js";
@@ -76,9 +77,36 @@
 	const sign = $derived(node.value < 0 ? "negative" : node.value > 0 ? "positive" : "zero");
 </script>
 
-<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color={color}>{formatted}</span>
+{#if node.label}
+	<span class="mo-number-group">
+		<span class="mo-number__label">
+			{node.label}
+			{#if node.gloss}<Gloss label={node.label} gloss={node.gloss} />{/if}
+		</span>
+		<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color={color}
+			>{formatted}</span
+		>
+	</span>
+{:else}
+	<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color={color}
+		>{formatted}</span
+	>
+{/if}
 
 <style>
+	.mo-number-group {
+		display: inline-flex;
+		align-items: baseline;
+		gap: var(--mo-space-2);
+	}
+
+	.mo-number__label {
+		color: var(--mo-intent-on-surface-muted);
+		font-family: var(--mo-font-label);
+		font-size: var(--mo-type-2);
+		line-height: var(--mo-leading-snug);
+	}
+
 	.mo-number {
 		font-family: var(--mo-font-mono);
 		/* Tabular, lining figures so numeric columns align. */

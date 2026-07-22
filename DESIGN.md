@@ -116,6 +116,7 @@ Nine dialects currently ship: `gallery` (default), `night`, `icelandic-archive`,
 The default is one fixed point in dialect-space, not the design system. No palette is sacred.
 The invariant is that every dialect:
 
+- carries a human-readable label and plain-language gloss for inspection pickers;
 - covers the same intent/channel keyset;
 - maps through neutral scale variables or permitted color expressions;
 - preserves readable contrast and visible focus;
@@ -226,6 +227,9 @@ Accessibility is part of the grammar:
 - buttons and links use native elements;
 - focus is visible through tokenized rings;
 - overlays use the platform's focus and dismissal semantics.
+- label-bearing vocabulary may carry an inline plain-string gloss; one native-button disclosure
+  serves click/tap, keyboard, and assistive technology, while pane inspection reveals the same
+  definitions in flow. Links and linked status chips remain siblings of the disclosure button.
 
 Motion explains state change; it never supplies meaning. Every transition must respect
 `prefers-reduced-motion`. Indeterminate progress may animate, but determinate progress and status
