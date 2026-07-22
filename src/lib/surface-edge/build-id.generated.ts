@@ -19,4 +19,4 @@
  * - src/lib/surface-edge/spec.ts
  */
 export const COMPILER_BUILD_SHA256 =
-	"sha256:a89fd538ca5c648c157124663cd8ae2964b52d80dc5e8c96d0bfc82aed204569" as const;
+	"sha256:e2ddc267bf2f7799a06c821f4d43e9ebabca268b577f4c62c58457e98a30d8c8" as const;
