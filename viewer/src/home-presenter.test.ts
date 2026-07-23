@@ -177,7 +177,12 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain("Review the payroll run");
 		expect(html).toContain("signed payroll testimony");
 		expect(html).toContain("PAYROLL_APPROVAL_REQUIRED");
-		expect(html).toContain("Current · 1 attention signal");
+		// One region owns a lifted source (KRA-819): the attention queue carries
+		// it, so Domains must NOT restate it as a second row — only the calm
+		// panel keeps a Domains row.
+		expect(html).not.toContain("Current · 1 attention signal");
+		expect(html).not.toContain("Open Payroll</span>");
+		expect(html).toContain("Open Workforce");
 		expect(liveAttention.tree).toEqual(original);
 		expect(containsReference(tree, liveAttention.tree)).toBe(false);
 		const embedded = findRecord(

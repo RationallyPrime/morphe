@@ -116,10 +116,19 @@ function emptyState(): Node {
 
 function homeContent(panels: readonly HomePanelView[], asOf?: string): Node[] {
 	const exceptions = attentionQueue(panels);
+	// One region owns a source (KRA-819): a panel already lifted into the
+	// attention queue carries its own status, context, and pane link there, so
+	// repeating it as a Domains row restates the same testimony a second time —
+	// the schema-dump repetition PRODUCT.md forbids. Domains keeps only the calm
+	// remainder and disappears entirely when the queue owns every panel.
+	const attended = new Set(
+		exceptions.map((item) => ("view" in item ? item.view.sourceId : item.sourceId)),
+	);
+	const calmPanels = panels.filter((panel) => !attended.has(panel.sourceId));
 	return [
 		freshnessSection(panels),
 		...(exceptions.length === 0 ? [] : [exceptionSection(exceptions, asOf)]),
-		domainNavigation(panels, asOf),
+		...(calmPanels.length === 0 ? [] : [domainNavigation(calmPanels, asOf)]),
 	];
 }
 
@@ -227,18 +236,26 @@ function freshnessSection(panels: readonly HomePanelView[]): Node {
 					},
 				};
 
+	// The counts breakdown earns its line only when there is more than one
+	// source to break down; for a single source it restates the status above.
+	const counts: Node[] =
+		panels.length > 1
+			? [
+					{
+						kind: "text",
+						value: `${live} current · ${stale} cached · ${dead} unavailable`,
+						as: "caption",
+						intent: "provenance",
+					} as Node,
+				]
+			: [];
 	return {
 		kind: "stack",
 		role: "section",
 		children: [
 			{ kind: "text", value: "Source freshness", as: "heading", emphasis: "strong" },
 			summary,
-			{
-				kind: "text",
-				value: `${live} current · ${stale} cached · ${dead} unavailable`,
-				as: "caption",
-				intent: "provenance",
-			},
+			...counts,
 			{ kind: "spacer", size: "md" },
 		],
 	};
@@ -288,10 +305,27 @@ function exceptionItem(view: HomeException, asOf?: string): Node {
 				title: `${view.title} is using cached data`,
 				detail: `Current admission failed. The last admitted surface from ${view.staleAsOf} remains available.`,
 			},
+			...resolvedWindowContext(view),
 			staleDigest(view),
 			paneLink(view, asOf, true),
 		],
 	};
+}
+
+/**
+ * The attention queue owns a lifted panel outright, so the context its Domains
+ * row used to carry (the resolved window) rides the attention item instead.
+ */
+function resolvedWindowContext(view: LivePanelView | StalePanelView): Node[] {
+	if (view.resolvedWindow === undefined) return [];
+	return [
+		{
+			kind: "text",
+			value: `Resolved ${view.resolvedWindow}`,
+			as: "caption",
+			intent: "provenance",
+		},
+	];
 }
 
 function liveAttentionItem(attention: TestimonyAttention, asOf?: string): Node {
@@ -306,6 +340,7 @@ function liveAttentionItem(attention: TestimonyAttention, asOf?: string): Node {
 				title: `${view.title} reports attention`,
 				detail: signals.join(" · "),
 			},
+			...resolvedWindowContext(view),
 			testimonyDigest(view, `Review ${view.title}`),
 			paneLink(view, asOf, true),
 		],
