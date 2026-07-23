@@ -11,6 +11,7 @@ const entry: SurfaceEntry = {
 	path: "/orgs/1/surfaces/roster",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.roster:westfjords:2026-W29",
+	governedParams: [],
 	routeOnly: false,
 };
 
@@ -25,7 +26,7 @@ const source = {
 
 const roster: HomePanelSource[] = [{ source, entry, title: "Roster panel" }];
 const board = {
-	version: 2,
+	version: 3,
 	board: "test-board",
 	dimensions: { includePii: false, justification: "Public home fixture" },
 	sources: new Map([[source.id, source]]),

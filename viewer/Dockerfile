@@ -4,7 +4,7 @@
 #   docker build -f viewer/Dockerfile -t morphe-viewer .
 #
 # Runtime contract:
-#   MORPHE_SOURCES            exact v2 board envelope: dimensions, declared
+#   MORPHE_SOURCES            exact v3 board envelope: dimensions, declared
 #                             source-v1 mounts, trust policy, route-only panes,
 #                             and joins.
 #   VIEWER_*_TOKEN            optional named kernel bearer tokens, referenced

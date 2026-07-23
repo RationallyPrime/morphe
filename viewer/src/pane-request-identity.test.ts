@@ -8,7 +8,18 @@ const entry: SurfaceEntry = {
 	path: "/orgs/o-1/surfaces/party",
 	representation: "source-v1",
 	sourceSurfaceId: "chreos.party:o-1:p-7:2026-07-22",
+	governedParams: ["include_pii"],
 	routeOnly: true,
+};
+
+const publicEntry: SurfaceEntry = {
+	id: "overview",
+	title: "Overview",
+	path: "/orgs/o-1/surfaces/overview",
+	representation: "source-v1",
+	sourceSurfaceId: "chreos.overview:o-1:2026-07-22",
+	governedParams: [],
+	routeOnly: false,
 };
 
 function source(governedParams: readonly string[] = ["include_pii"]): SourceConfig {
@@ -18,14 +29,14 @@ function source(governedParams: readonly string[] = ["include_pii"]): SourceConf
 		kind: "kernel",
 		baseUrl: "http://chreos.test",
 		governedParams,
-		surfaces: [entry],
+		surfaces: [entry, publicEntry],
 	};
 }
 
 function board(includePii: boolean): BoardConfig {
 	const mounted = source();
 	return {
-		version: 2,
+		version: 3,
 		board: "request-identity",
 		dimensions: {
 			includePii,
@@ -80,13 +91,19 @@ describe("paneRequestIdentity board dimensions", () => {
 		expect(governed.forwarded.derived).toBe(true);
 	});
 
-	it("does not inject include_pii for a source that explicitly opts out", () => {
-		const identity = paneRequestIdentity(board(true), source([]), entry, new URLSearchParams());
+	it("keeps source-wide stripping but injects only on a capable pane in the same source", () => {
+		const identity = paneRequestIdentity(
+			board(true),
+			source(),
+			publicEntry,
+			new URLSearchParams({ include_pii: "true", account_id: "a-2" }),
+		);
 
 		expect(identity.producerQuery.has("include_pii")).toBe(false);
+		expect(identity.carriedQuery.has("include_pii")).toBe(false);
 		expect(identity.forwarded).toEqual({
-			path: "/orgs/o-1/surfaces/party",
-			derived: false,
+			path: "/orgs/o-1/surfaces/overview?account_id=a-2",
+			derived: true,
 		});
 	});
 });

@@ -46,7 +46,7 @@ const EXTERNAL_JOIN: BoardJoin = {
 
 function config(joins: readonly BoardJoin[], mounted = ["taxis", "misthos"]): BoardConfig {
 	return {
-		version: 2,
+		version: 3,
 		board: "test-board",
 		dimensions: { includePii: false, justification: "Public link fixture" },
 		sources: new Map(

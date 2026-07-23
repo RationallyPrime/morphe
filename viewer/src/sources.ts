@@ -1,7 +1,7 @@
 /**
  * Versioned board configuration for the box viewer (KRA-806/KRA-811).
  *
- * `MORPHE_SOURCES` is one exact v2 board object: `{ version, board, dimensions,
+ * `MORPHE_SOURCES` is one exact v3 board object: `{ version, board, dimensions,
  * sources, joins }`. The former flat source map is deliberately not accepted;
  * a board declaration is now the only runtime contract.
  * The only source kind is `"kernel"`: a kernel-direct source (Taxis/chreos/…
@@ -36,6 +36,11 @@ export interface KernelSurfaceEntry {
 	readonly representation: "source-v1";
 	/** Concrete signed testimony identity; deliberately distinct from the viewer route id. */
 	readonly sourceSurfaceId: string;
+	/**
+	 * Board-governed selectors this exact upstream route supports. Required on
+	 * every v3 surface and restricted to a subset of its source denylist.
+	 */
+	readonly governedParams: readonly string[];
 	/** A declared destination only; omitted from the catalog, collection, and home UI. */
 	readonly routeOnly: boolean;
 }
@@ -71,10 +76,10 @@ export interface SourceConfig {
 	/**
 	 * Query params the viewer must never accept from browser authority —
 	 * governed-read selectors that flip a surface into a privileged
-	 * representation (Krepis convention: `include_pii`). Defaults to
-	 * `["include_pii"]` when undeclared, so a new source is protected without
-	 * remembering to configure it. A trusted board dimension may separately
-	 * inject `include_pii=true`; an explicit empty array opts this source out.
+	 * representation (Krepis convention: `include_pii`). Required explicitly
+	 * on every v3 source. Each surface separately declares the subset it can
+	 * accept from trusted board policy; an explicit empty source array opts the
+	 * whole source out.
 	 */
 	readonly governedParams: readonly string[];
 	/**
@@ -140,7 +145,7 @@ export interface BoardDimensions {
 }
 
 export interface BoardConfig {
-	readonly version: 2;
+	readonly version: 3;
 	/** Null only for the explicit no-environment configuration result. */
 	readonly board: string | null;
 	/** Null only when no board environment is configured. */
@@ -258,6 +263,7 @@ function parseEntry(
 		"dialect_hint",
 		"representation",
 		"surface_id",
+		"governed_params",
 		"route_only",
 	]);
 	if (extra !== undefined) return extra;
@@ -294,6 +300,13 @@ function parseEntry(
 	if (sourceSurfaceId === null) {
 		return `source ${sourceId}: source-v1 surface ${id} needs surface_id`;
 	}
+	const surfaceGovernedParams = parseSurfaceGovernedParams(
+		sourceId,
+		id,
+		raw.governed_params,
+		governedParams,
+	);
+	if (typeof surfaceGovernedParams === "string") return surfaceGovernedParams;
 	// Boot-time pin check (KRA-777): the pinned surface_id is the family the admission gate
 	// keys on, so a misconfigured `<source>:<pane>:…` (or otherwise malformed) pin must fail
 	// config load fast rather than silently collapse the family at request time.
@@ -310,6 +323,7 @@ function parseEntry(
 		dialectHint,
 		representation,
 		sourceSurfaceId,
+		governedParams: surfaceGovernedParams,
 		routeOnly: raw.route_only,
 	};
 }
@@ -424,12 +438,11 @@ function parseHomePanel(
 }
 
 /**
- * `governed_params` is fail-closed: undeclared means the Krepis default
- * (`include_pii`); only an explicit empty array opts a source out of both
- * public stripping and board-trusted injection.
+ * Source `governed_params` is required in v3. No inferred default or legacy
+ * fallback exists; an explicit empty array opts a source out of public
+ * stripping and therefore out of every surface capability.
  */
 function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] | string {
-	if (raw === undefined) return ["include_pii"];
 	if (!Array.isArray(raw)) return `source ${sourceId}: governed_params must be an array`;
 	const params: string[] = [];
 	for (const value of raw) {
@@ -439,6 +452,30 @@ function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] 
 		if (!params.includes(value)) params.push(value);
 	}
 	return params;
+}
+
+/**
+ * A v3 surface must explicitly declare which board-governed selectors its
+ * concrete producer route accepts. Today that vocabulary is closed to
+ * `include_pii`, and every declaration must be a subset of the source-wide
+ * browser denylist.
+ */
+function parseSurfaceGovernedParams(
+	sourceId: string,
+	surfaceId: string,
+	raw: unknown,
+	sourceGovernedParams: readonly string[],
+): readonly string[] | string {
+	const at = `source ${sourceId}: kernel surface ${surfaceId} governed_params`;
+	if (!Array.isArray(raw)) return `${at} must be an array`;
+	if (raw.length === 0) return [];
+	if (raw.length !== 1 || raw[0] !== "include_pii") {
+		return `${at} may contain only "include_pii"`;
+	}
+	if (!sourceGovernedParams.includes("include_pii")) {
+		return `${at} must be a subset of source ${sourceId} governed_params`;
+	}
+	return ["include_pii"];
 }
 
 function parseDimensions(raw: unknown): BoardDimensions | string {
@@ -627,8 +664,8 @@ function parseJoins(
 }
 
 /**
- * Parse the exact v2 `MORPHE_SOURCES` board contract. An unset environment is
- * the sole empty-board case; empty text, flat source maps, v1 boards, aliases,
+ * Parse the exact v3 `MORPHE_SOURCES` board contract. An unset environment is
+ * the sole empty-board case; empty text, older boards, flat source maps, aliases,
  * and unknown keys all fail closed.
  */
 export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
@@ -636,7 +673,7 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 		return {
 			ok: true,
 			config: {
-				version: 2,
+				version: 3,
 				board: null,
 				dimensions: null,
 				sources: new Map(),
@@ -665,8 +702,8 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 			return { ok: false, reason: `MORPHE_SOURCES needs ${required}` };
 		}
 	}
-	if (decoded.version !== 2) {
-		return { ok: false, reason: "MORPHE_SOURCES.version must be 2" };
+	if (decoded.version !== 3) {
+		return { ok: false, reason: "MORPHE_SOURCES.version must be 3" };
 	}
 	const board = stringField(decoded, "board");
 	if (board === null || !SLUG_RE.test(board)) {
@@ -692,5 +729,5 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 	}
 	const joins = parseJoins(decoded.joins, sources);
 	if (typeof joins === "string") return { ok: false, reason: joins };
-	return { ok: true, config: { version: 2, board, dimensions, sources, joins } };
+	return { ok: true, config: { version: 3, board, dimensions, sources, joins } };
 }

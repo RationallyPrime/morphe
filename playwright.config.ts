@@ -24,7 +24,7 @@ if (taxis === undefined) throw new Error("source conformance manifest has no Tax
 const taxisPublicKey = Buffer.from(taxis.expected.public_key_raw_hex, "hex").toString("base64url");
 
 const sources = JSON.stringify({
-	version: 2,
+	version: 3,
 	board: "edge-contract",
 	dimensions: {
 		include_pii: false,
@@ -36,6 +36,7 @@ const sources = JSON.stringify({
 			kind: "kernel",
 			base_url: `http://127.0.0.1:${STUB_PORT}`,
 			dialect_hint: "gallery",
+			governed_params: ["include_pii"],
 			home_panel: { pane: "roster", title: "Weekly roster" },
 			source_trust: {
 				issuer: taxis.expected.issuer,
@@ -52,6 +53,7 @@ const sources = JSON.stringify({
 					representation: "source-v1",
 					surface_id: taxis.expected.surface_id,
 					dialect_hint: "gallery",
+					governed_params: [],
 					route_only: false,
 				},
 				// Link-rewrite targets only (asserted as rewritten hrefs, never
@@ -63,6 +65,7 @@ const sources = JSON.stringify({
 					path: "/workers/wrk-001",
 					representation: "source-v1",
 					surface_id: "taxis.worker:wrk-001",
+					governed_params: [],
 					route_only: false,
 				},
 				{
@@ -71,6 +74,7 @@ const sources = JSON.stringify({
 					path: "/workers/wrk-002",
 					representation: "source-v1",
 					surface_id: "taxis.worker:wrk-002",
+					governed_params: [],
 					route_only: false,
 				},
 			],

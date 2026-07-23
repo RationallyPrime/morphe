@@ -21,6 +21,7 @@ const entry = {
 	path: "/source/taxis-roster",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.roster:westfjords:2026-W29",
+	governedParams: [],
 	routeOnly: false,
 } as const;
 const source = {
@@ -32,7 +33,7 @@ const source = {
 	surfaces: [entry],
 } satisfies SourceConfig;
 const board = {
-	version: 2,
+	version: 3,
 	board: "test-board",
 	dimensions: { includePii: false, justification: "Public pane fixture" },
 	sources: new Map([[source.id, source]]),

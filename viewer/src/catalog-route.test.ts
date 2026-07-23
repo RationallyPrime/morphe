@@ -11,6 +11,7 @@ const listed: SurfaceEntry = {
 	path: "/orgs/o/surfaces/employees",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.employees:o:2026-07-22",
+	governedParams: [],
 	routeOnly: false,
 };
 const routeOnly: SurfaceEntry = {
@@ -19,6 +20,7 @@ const routeOnly: SurfaceEntry = {
 	path: "/orgs/o/surfaces/employee?worker_id=representative",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.employee:o:representative:2026-07-22",
+	governedParams: [],
 	routeOnly: true,
 };
 const source: SourceConfig = {
@@ -30,7 +32,7 @@ const source: SourceConfig = {
 	surfaces: [listed, routeOnly],
 };
 const board: BoardConfig = {
-	version: 2,
+	version: 3,
 	board: "test-board",
 	dimensions: { includePii: false, justification: "Public catalog fixture" },
 	sources: new Map([[source.id, source]]),

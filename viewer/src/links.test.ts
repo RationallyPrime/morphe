@@ -16,6 +16,7 @@ const ZYGOS: SourceConfig = {
 			path: "/surfaces/books",
 			representation: "source-v1",
 			sourceSurfaceId: "zygos.books:demo",
+			governedParams: [],
 			routeOnly: false,
 		},
 		{
@@ -24,6 +25,7 @@ const ZYGOS: SourceConfig = {
 			path: "/books/b-1/surfaces/overview?window=2026-07",
 			representation: "source-v1",
 			sourceSurfaceId: "zygos.overview:b-1:2026-07",
+			governedParams: [],
 			routeOnly: false,
 		},
 	],

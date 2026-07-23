@@ -78,6 +78,7 @@ const TAXIS_ENTRY: SurfaceEntry = {
 	path: "/orgs/taxis-org/surfaces/employee?worker_id=representative",
 	representation: "source-v1",
 	sourceSurfaceId: "taxis.employee:taxis-org:representative:2026-07-22",
+	governedParams: [],
 	routeOnly: true,
 };
 const MISTHOS_ENTRY: SurfaceEntry = {
@@ -86,11 +87,12 @@ const MISTHOS_ENTRY: SurfaceEntry = {
 	path: "/orgs/misthos-org/surfaces/payslip?run_id=run-7&worker_id=representative",
 	representation: "source-v1",
 	sourceSurfaceId: "misthos.payslip:misthos-org:run-7:representative",
+	governedParams: [],
 	routeOnly: true,
 };
 const TAXIS = source("taxis", TAXIS_ENTRY);
 const BOARD: BoardConfig = {
-	version: 2,
+	version: 3,
 	board: "signed-fixture",
 	dimensions: { includePii: false, justification: "Public signed-delivery fixture" },
 	sources: new Map([

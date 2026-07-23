@@ -86,7 +86,9 @@ export function paneRequestIdentity(
 	const carriedQuery = withoutGovernedParams(rawQuery, source.governedParams);
 	const producerQuery = new URLSearchParams(carriedQuery);
 	const injectTrustedPii =
-		board.dimensions?.includePii === true && source.governedParams.includes("include_pii");
+		board.dimensions?.includePii === true &&
+		source.governedParams.includes("include_pii") &&
+		entry.governedParams.includes("include_pii");
 	if (injectTrustedPii) producerQuery.set("include_pii", "true");
 	const effectiveRequest = forwardedRequest(entry.path, producerQuery);
 	const forwarded = injectTrustedPii

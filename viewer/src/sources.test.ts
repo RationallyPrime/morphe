@@ -13,7 +13,7 @@ const sourceTrust = {
 function surface(
 	id: string,
 	family = `taxis.${id}`,
-	options: { routeOnly?: boolean; path?: string } = {},
+	options: { routeOnly?: boolean; path?: string; governedParams?: readonly string[] } = {},
 ): Record<string, unknown> {
 	return {
 		id,
@@ -21,6 +21,7 @@ function surface(
 		path: options.path ?? `/surfaces/${id}`,
 		representation: "source-v1",
 		surface_id: `${family}:westfjords:2026-W29`,
+		governed_params: options.governedParams ?? [],
 		route_only: options.routeOnly ?? false,
 	};
 }
@@ -36,6 +37,7 @@ function kernelSource(
 		title: id,
 		dialect_hint: "timaeus",
 		token_env: `VIEWER_${id.toUpperCase()}_TOKEN`,
+		governed_params: ["include_pii"],
 		source_trust: { ...sourceTrust, issuer: id },
 		surfaces,
 		...overrides,
@@ -44,7 +46,7 @@ function kernelSource(
 
 function board(sources: Record<string, unknown>, joins: readonly unknown[] = [], extra = {}) {
 	return JSON.stringify({
-		version: 2,
+		version: 3,
 		board: "timaeus-demo",
 		dimensions: {
 			include_pii: false,
@@ -89,7 +91,7 @@ describe("parseBoardConfig source contract", () => {
 		expect(result).toEqual({
 			ok: true,
 			config: {
-				version: 2,
+				version: 3,
 				board: null,
 				dimensions: null,
 				sources: new Map(),
@@ -99,13 +101,15 @@ describe("parseBoardConfig source contract", () => {
 		expect(parseBoardConfig("").ok).toBe(false);
 	});
 
-	it("parses the exact v2 root and source-v1 config", () => {
+	it("parses the exact v3 root and source-v1 config", () => {
 		const result = parseBoardConfig(
 			board({
 				taxis: kernelSource("taxis", [
 					surface("orgs"),
 					{
-						...surface("roster", "taxis.roster"),
+						...surface("roster", "taxis.roster", {
+							governedParams: ["include_pii"],
+						}),
 						dialect_hint: "ledger",
 						title: undefined,
 					},
@@ -128,12 +132,13 @@ describe("parseBoardConfig source contract", () => {
 			dialectHint: "ledger",
 			representation: "source-v1",
 			sourceSurfaceId: "taxis.roster:westfjords:2026-W29",
+			governedParams: ["include_pii"],
 			routeOnly: false,
 		});
 		expect(taxis?.surfaces[1]?.title).toBe("roster");
 	});
 
-	it("requires dimensions on every configured v2 board", () => {
+	it("requires dimensions on every configured v3 board", () => {
 		const configured = JSON.parse(board({ taxis: kernelSource("taxis") })) as Record<
 			string,
 			unknown
@@ -185,17 +190,62 @@ describe("parseBoardConfig source contract", () => {
 		expect(source?.governedParams).toEqual(["include_pii", "as_of_sequence"]);
 	});
 
-	it("defaults governed params and honors an explicit empty opt-out", () => {
-		const defaults = parseBoardConfig(board({ taxis: kernelSource("taxis") }));
-		expect(defaults.ok && defaults.config.sources.get("taxis")?.governedParams).toEqual([
-			"include_pii",
-		]);
+	it("requires source governed params and honors an explicit empty opt-out", () => {
+		const missing = parseBoardConfig(
+			board({
+				taxis: kernelSource("taxis", undefined, { governed_params: undefined }),
+			}),
+		);
+		expect(missing).toEqual({
+			ok: false,
+			reason: "source taxis: governed_params must be an array",
+		});
 		const optedOut = parseBoardConfig(
 			board({
 				taxis: kernelSource("taxis", undefined, { governed_params: [] }),
 			}),
 		);
 		expect(optedOut.ok && optedOut.config.sources.get("taxis")?.governedParams).toEqual([]);
+	});
+
+	it("requires each surface capability and closes it to the source-governed board vocabulary", () => {
+		const missing = { ...surface("orgs") };
+		delete missing.governed_params;
+		expect(parseBoardConfig(board({ taxis: kernelSource("taxis", [missing]) }))).toEqual({
+			ok: false,
+			reason: "source taxis: kernel surface orgs governed_params must be an array",
+		});
+
+		expect(
+			parseBoardConfig(
+				board({
+					taxis: kernelSource(
+						"taxis",
+						[surface("orgs", "taxis.orgs", { governedParams: ["as_of_sequence"] })],
+						{ governed_params: ["include_pii", "as_of_sequence"] },
+					),
+				}),
+			),
+		).toEqual({
+			ok: false,
+			reason: 'source taxis: kernel surface orgs governed_params may contain only "include_pii"',
+		});
+
+		expect(
+			parseBoardConfig(
+				board({
+					taxis: kernelSource(
+						"taxis",
+						[surface("orgs", "taxis.orgs", { governedParams: ["include_pii"] })],
+						{ governed_params: [] },
+					),
+				}),
+			),
+		).toEqual({
+			ok: false,
+			reason:
+				"source taxis: kernel surface orgs governed_params must be a subset of source taxis governed_params",
+		});
 	});
 
 	it.each([
@@ -219,12 +269,21 @@ describe("parseBoardConfig source contract", () => {
 		});
 	});
 
-	it("rejects flat/v1/partial roots and unknown keys without an alias path", () => {
+	it("rejects flat/v1/v2/partial roots and unknown keys without an alias path", () => {
 		expect(parseBoardConfig(JSON.stringify({ taxis: kernelSource("taxis") })).ok).toBe(false);
 		expect(
 			parseBoardConfig(JSON.stringify({ version: 1, board: "old", sources: {}, joins: [] })).ok,
 		).toBe(false);
-		expect(parseBoardConfig(JSON.stringify({ version: 2, board: "x", sources: {} })).ok).toBe(
+		const retiredV2 = JSON.parse(board({ taxis: kernelSource("taxis") })) as Record<
+			string,
+			unknown
+		>;
+		retiredV2.version = 2;
+		expect(parseBoardConfig(JSON.stringify(retiredV2))).toEqual({
+			ok: false,
+			reason: "MORPHE_SOURCES.version must be 3",
+		});
+		expect(parseBoardConfig(JSON.stringify({ version: 3, board: "x", sources: {} })).ok).toBe(
 			false,
 		);
 		expect(parseBoardConfig(board({}, [], { dimensions: {} })).ok).toBe(false);
@@ -273,7 +332,7 @@ describe("parseBoardConfig source contract", () => {
 		["non-object root", JSON.stringify([])],
 		[
 			"path-unsafe board id",
-			JSON.stringify({ version: 2, board: "Bad Id!", sources: {}, joins: [] }),
+			JSON.stringify({ version: 3, board: "Bad Id!", sources: {}, joins: [] }),
 		],
 		["path-unsafe source id", board({ "Bad Id!": kernelSource("taxis") })],
 		["missing kind", board({ taxis: kernelSource("taxis", undefined, { kind: undefined }) })],

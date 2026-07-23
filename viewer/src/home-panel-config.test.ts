@@ -7,6 +7,7 @@ function kernelSource(homePanel?: unknown) {
 		kind: "kernel",
 		base_url: "http://taxis:8205/",
 		title: "Taxis",
+		governed_params: ["include_pii"],
 		source_trust: {
 			issuer: "taxis",
 			public_keys: {
@@ -20,6 +21,7 @@ function kernelSource(homePanel?: unknown) {
 				path: "/orgs/1/surfaces/roster",
 				representation: "source-v1",
 				surface_id: "taxis.roster:westfjords:2026-W29",
+				governed_params: [],
 				route_only: false,
 			},
 		],
@@ -30,7 +32,7 @@ function kernelSource(homePanel?: unknown) {
 function parseOne(homePanel?: unknown) {
 	return parseBoardConfig(
 		JSON.stringify({
-			version: 2,
+			version: 3,
 			board: "home-panel-test",
 			dimensions: {
 				include_pii: false,

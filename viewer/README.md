@@ -27,12 +27,13 @@ result carries a dialect-aware delivery receipt for the exact tree that renders.
 
 ## Configuration (KRA-752 §4)
 
-`MORPHE_SOURCES` — one exact version-2 board envelope. The former flat source
-map is retired and rejected; joins and mounts travel atomically:
+`MORPHE_SOURCES` — one exact version-3 board envelope. Older board versions and
+the former flat source map are retired and rejected; joins and mounts travel
+atomically:
 
 ```json
 {
-	"version": 2,
+	"version": 3,
 	"board": "timaeus-demo",
 	"dimensions": {
 		"include_pii": false,
@@ -45,6 +46,7 @@ map is retired and rejected; joins and mounts travel atomically:
 			"base_url": "http://taxis:8205",
 			"dialect_hint": "timaeus",
 			"token_env": "VIEWER_TAXIS_TOKEN",
+			"governed_params": ["include_pii"],
 			"source_trust": {
 				"issuer": "taxis",
 				"public_keys": {
@@ -60,6 +62,7 @@ map is retired and rejected; joins and mounts travel atomically:
 					"path": "/surfaces/orgs",
 					"representation": "source-v1",
 					"surface_id": "taxis.orgs:<org-id>:<period>",
+					"governed_params": [],
 					"route_only": false
 				},
 				{
@@ -68,6 +71,7 @@ map is retired and rejected; joins and mounts travel atomically:
 					"path": "/orgs/<org-id>/surfaces/employee?worker_id=<worker-id>",
 					"representation": "source-v1",
 					"surface_id": "taxis.employee:<org-id>:<worker-id>:<date>",
+					"governed_params": [],
 					"route_only": true
 				}
 			]
@@ -89,6 +93,13 @@ map is retired and rejected; joins and mounts travel atomically:
 - `route_only` — required on every surface. Route-only panes are legal declared
   `/s/...` destinations but never become catalog tiles, collection roots, or
   home panels.
+- `governed_params` has two deliberately separate scopes. On a source it is the
+  required browser-authority denylist. On every surface it is a required
+  producer-capability declaration, closed to either `[]` or
+  `["include_pii"]` and required to be a subset of the source denylist. The
+  viewer therefore strips a browser-authored governed selector source-wide but
+  injects trusted board policy only for the exact pane that declares support;
+  neither policy nor capability is inferred.
 - `joins` — strict directional board declarations. Active detail joins extract
   identity only from the admitted signed `surface_id`; collection joins consume
   exact signed ExternalRef carriers. The viewer never falls back to request
@@ -96,7 +107,8 @@ map is retired and rejected; joins and mounts travel atomically:
 - `dimensions` — required board policy. `include_pii` is a trusted server-side
   dimension, never browser authority: the viewer strips hand-typed and
   link-carried governed parameters, then requests `include_pii=true` only when
-  this board value is true and the source governs that parameter.
+  this board value is true and the selected surface declares that governed
+  capability.
   `justification` is a required nonempty declaration of why the board chose the
   dimension. The trusted parameter affects upstream admission and cache identity
   but is never carried into rewritten browser links.
