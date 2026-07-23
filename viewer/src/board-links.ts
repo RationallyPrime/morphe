@@ -90,7 +90,13 @@ export function resolveBoardLinks(
 
 		const matches = exactPathMatches(spec, join.from.paint.path);
 		for (const node of matches) {
-			if (node.strategy !== "linked-ref" || node.href === undefined) {
+			if (node.strategy !== "linked-ref") {
+				throw new BoardLinkResolutionError(
+					`join ${join.id}: ${node.path} is not a signed linked-ref carrier`,
+				);
+			}
+			if (node.href === undefined) {
+				if (node.value === undefined) continue;
 				throw new BoardLinkResolutionError(
 					`join ${join.id}: ${node.path} is not a signed linked-ref carrier`,
 				);

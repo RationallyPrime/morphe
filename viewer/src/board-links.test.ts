@@ -44,6 +44,18 @@ const EXTERNAL_JOIN: BoardJoin = {
 	target: { source: "taxis", pane: "employee", queryParameter: "worker_id" },
 };
 
+const OPTIONAL_EXTERNAL_JOIN: BoardJoin = {
+	id: "instruction-to-obligation",
+	scope: "board",
+	from: {
+		source: "obolos",
+		family: "obolos.instruction",
+		selector: { kind: "external-ref", scheme: "commitment" },
+		paint: { path: "$.details.commitment", mode: "linked-ref-label" },
+	},
+	target: { source: "chreos", pane: "obligation", queryParameter: "obligation_id" },
+};
+
 function config(joins: readonly BoardJoin[], mounted = ["taxis", "misthos"]): BoardConfig {
 	return {
 		version: 2,
@@ -137,6 +149,47 @@ describe("board link resolution", () => {
 			spec,
 		);
 		expect(plan.paints.size).toBe(0);
+	});
+
+	it("treats an absent optional ExternalRef as a valid zero-paint result", () => {
+		const spec = node("$", "record-card", {
+			children: [
+				node("$.details", "record-card", {
+					children: [node("$.details.commitment", "linked-ref")],
+				}),
+			],
+		});
+		const plan = resolveBoardLinks(
+			config([OPTIONAL_EXTERNAL_JOIN], ["obolos", "chreos"]),
+			"obolos",
+			"obolos.instruction:obolos-org:instruction-1",
+			spec,
+		);
+
+		expect(plan.paints.size).toBe(0);
+	});
+
+	it("rejects an href-less ExternalRef that still claims a display value", () => {
+		const spec = node("$", "record-card", {
+			children: [
+				node("$.details", "record-card", {
+					children: [
+						node("$.details.commitment", "linked-ref", {
+							value: "Unresolved commitment",
+						}),
+					],
+				}),
+			],
+		});
+
+		expect(() =>
+			resolveBoardLinks(
+				config([OPTIONAL_EXTERNAL_JOIN], ["obolos", "chreos"]),
+				"obolos",
+				"obolos.instruction:obolos-org:instruction-1",
+				spec,
+			),
+		).toThrow("is not a signed linked-ref carrier");
 	});
 
 	it("leaves a declaration dormant when its target source is unmounted", () => {
