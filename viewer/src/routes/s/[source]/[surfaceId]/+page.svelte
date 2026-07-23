@@ -32,6 +32,7 @@
 		dialects={DIALECT_LIST}
 		current={data.dialectId}
 		{crumbs}
+		paneNav={data.paneNav}
 		temporalPolicies={TEMPORAL_POLICIES}
 		temporalPolicy={data.temporalPolicy}
 		showAsOf

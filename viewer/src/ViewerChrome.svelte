@@ -24,12 +24,24 @@
 		href?: string;
 	}
 
+	/*
+	 * A pane-nav rung is one declared sibling pane of the current source
+	 * (`pane-nav.ts` owns the trail). A rung with an `href` navigates; the rung
+	 * without one is the current pane and renders as inert `aria-current` text.
+	 */
+	interface PaneNavItem {
+		label: string;
+		href?: string;
+	}
+
 	interface Props {
 		dialects: readonly Dialect[];
 		current: string;
 		/** Two-way pane inspection state shared with the pane's MorpheRoot. */
 		explainGlosses?: boolean;
 		crumbs?: readonly Crumb[];
+		/** Sibling panes of the current source; omitted everywhere but pane routes. */
+		paneNav?: readonly PaneNavItem[];
 		/*
 		 * Temporal presentation control (KRA-767). Present only on source-v1 panes —
 		 * a legacy tree carries baked timestamp text nothing here could re-floor. When
@@ -53,6 +65,7 @@
 		current,
 		explainGlosses = $bindable(false),
 		crumbs,
+		paneNav,
 		temporalPolicies,
 		temporalPolicy,
 		showAsOf,
@@ -170,6 +183,17 @@
 			</div>
 		</details>
 	</div>
+	{#if paneNav !== undefined && paneNav.length > 0}
+		<nav class="chrome__panes" aria-label="Source panes">
+			{#each paneNav as item, index (index)}
+				{#if item.href !== undefined}
+					<a class="chrome__pane" href={item.href}>{item.label}</a>
+				{:else}
+					<span class="chrome__pane chrome__pane--current" aria-current="page">{item.label}</span>
+				{/if}
+			{/each}
+		</nav>
+	{/if}
 </header>
 
 <style>
@@ -216,6 +240,36 @@
 
 	.chrome__sep {
 		color: var(--mo-intent-on-surface-muted);
+	}
+
+	.chrome__panes {
+		display: flex;
+		flex-basis: 100%;
+		flex-wrap: wrap;
+		align-items: center;
+		column-gap: 1.25rem;
+		border-top: 1px solid var(--mo-intent-outline);
+		padding-block-start: 0.25rem;
+	}
+
+	.chrome__pane {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-block-size: 2.75rem;
+		min-inline-size: 2.75rem;
+		color: var(--mo-intent-primary-action-ink);
+		text-decoration: none;
+	}
+
+	.chrome__pane:hover {
+		color: var(--mo-intent-primary-action-ink-hover);
+		text-decoration: underline;
+	}
+
+	.chrome__pane--current {
+		color: var(--mo-intent-on-surface);
+		font-weight: 600;
 	}
 
 	.chrome__title {
@@ -336,6 +390,7 @@
 	}
 
 	.chrome__crumb:focus-visible,
+	.chrome__pane:focus-visible,
 	.chrome__inspection summary:focus-visible,
 	.chrome__control select:focus-visible,
 	.chrome__control input[type="date"]:focus-visible,
