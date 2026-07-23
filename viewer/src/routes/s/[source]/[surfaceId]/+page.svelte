@@ -2,6 +2,7 @@
 	import { applyDialect, DIALECT_LIST, dialectStyle, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { paneCrumbs } from "../../../../crumbs.js";
+	import DocumentGround from "../../../../DocumentGround.svelte";
 	import { TEMPORAL_POLICIES } from "../../../../temporal.js";
 	import ViewerChrome from "../../../../ViewerChrome.svelte";
 
@@ -25,6 +26,7 @@
 	<title>{data.surfaceTitle} — {data.sourceTitle} — Morphe viewer</title>
 </svelte:head>
 
+<DocumentGround {applied} />
 <div class="viewer-shell" style={dialectStyle(applied)}>
 	<ViewerChrome
 		dialects={DIALECT_LIST}
