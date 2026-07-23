@@ -198,6 +198,27 @@ describe("parseBoardConfig source contract", () => {
 		expect(optedOut.ok && optedOut.config.sources.get("taxis")?.governedParams).toEqual([]);
 	});
 
+	it.each([
+		"?include_pii=true",
+		"?%69nclude_pii=true",
+	])("rejects board-governed PII authority baked into a configured path (%s)", (query) => {
+		const result = parseBoardConfig(
+			board({
+				taxis: kernelSource(
+					"taxis",
+					[surface("orgs", "taxis.orgs", { path: `/surfaces/orgs${query}` })],
+					{ governed_params: [] },
+				),
+			}),
+		);
+
+		expect(result).toEqual({
+			ok: false,
+			reason:
+				'source taxis: kernel surface orgs path must not declare governed parameter "include_pii"',
+		});
+	});
+
 	it("rejects flat/v1/partial roots and unknown keys without an alias path", () => {
 		expect(parseBoardConfig(JSON.stringify({ taxis: kernelSource("taxis") })).ok).toBe(false);
 		expect(

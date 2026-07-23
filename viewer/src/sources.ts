@@ -26,6 +26,7 @@ const QUERY_PARAMETER_RE = /^[a-z][a-z0-9_]*$/;
 const URI_SCHEME_RE = /^[a-z][a-z0-9+.-]*$/;
 const PAINT_PATH_RE = /^\$(?:\.[A-Za-z_][A-Za-z0-9_]*(?:\[\*\])?)+$/;
 const RESERVED_VIEWER_QUERY_PARAMETERS = new Set(["as_of", "dialect", "temporal"]);
+const BOARD_DIMENSION_QUERY_PARAMETERS = new Set(["include_pii"]);
 
 export interface KernelSurfaceEntry {
 	readonly id: string;
@@ -243,7 +244,12 @@ function parseSourceTrust(sourceId: string, raw: unknown): SourceTrustConfig | s
 	return { issuer, publicKeys, maxAgeSeconds, maxFutureSkewSeconds };
 }
 
-function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry | string {
+function parseEntry(
+	sourceId: string,
+	raw: unknown,
+	index: number,
+	governedParams: readonly string[],
+): SurfaceEntry | string {
 	if (!isRecord(raw)) return `source ${sourceId}: surfaces[${index}] is not an object`;
 	const extra = unknownKey(`source ${sourceId}: surfaces[${index}]`, raw, [
 		"id",
@@ -263,6 +269,18 @@ function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry
 	const path = stringField(raw, "path");
 	if (path === null || !path.startsWith("/")) {
 		return `source ${sourceId}: kernel surface ${id} needs an absolute path`;
+	}
+	const queryStart = path.indexOf("?");
+	if (queryStart !== -1) {
+		const fragmentStart = path.indexOf("#", queryStart);
+		const configuredQuery = new URLSearchParams(
+			path.slice(queryStart + 1, fragmentStart === -1 ? undefined : fragmentStart),
+		);
+		const forbidden = new Set([...BOARD_DIMENSION_QUERY_PARAMETERS, ...governedParams]);
+		const governedKey = [...forbidden].find((key) => configuredQuery.has(key));
+		if (governedKey !== undefined) {
+			return `source ${sourceId}: kernel surface ${id} path must not declare governed parameter "${governedKey}"`;
+		}
 	}
 	const dialectHint = stringField(raw, "dialect_hint") ?? undefined;
 	const representation = raw.representation;
@@ -329,12 +347,14 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	const icon = stringField(raw, "icon") ?? undefined;
 	const sourceTrust = parseSourceTrust(sourceId, raw.source_trust);
 	if (typeof sourceTrust === "string") return sourceTrust;
+	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
+	if (typeof governedParams === "string") return governedParams;
 	const rawSurfaces = raw.surfaces ?? [];
 	if (!Array.isArray(rawSurfaces)) return `source ${sourceId}: surfaces must be an array`;
 	const surfaces: SurfaceEntry[] = [];
 	const seen = new Set<string>();
 	for (const [index, entry] of rawSurfaces.entries()) {
-		const parsed = parseEntry(sourceId, entry, index);
+		const parsed = parseEntry(sourceId, entry, index, governedParams);
 		if (typeof parsed === "string") return parsed;
 		if (seen.has(parsed.id)) return `source ${sourceId}: duplicate surface id ${parsed.id}`;
 		seen.add(parsed.id);
@@ -353,8 +373,6 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	) {
 		return `source ${sourceId}: collection_root "${collectionRoot}" cannot name a route-only surface`;
 	}
-	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
-	if (typeof governedParams === "string") return governedParams;
 	const homePanel = parseHomePanel(sourceId, raw.home_panel, seen, title);
 	if (typeof homePanel === "string") return homePanel;
 	if (
