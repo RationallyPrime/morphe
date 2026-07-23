@@ -312,6 +312,10 @@
           "title": "Code",
           "type": "string"
         },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "message": {
           "title": "Message",
           "type": "string"

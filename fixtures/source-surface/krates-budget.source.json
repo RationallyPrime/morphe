@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "JHeevLY5bShezkdYk67VKWkkKNmn7exY2LX-_a49nTgzyR8tdDECz8dCRCYdNrsOZ-IQiCOte7cOIhQn9648Cw"
+    "signature": "6ZjvsHbZImR47i-FApUohR3AghtvSFlLXh11VQIq_FO7TtK738m_BW1CimTPdGfxmBMRIzWdXzYWsIpNQnbzAw"
   },
   "data": {
     "allocation": {
@@ -15,6 +15,7 @@
   "diagnostics": [
     {
       "code": "BUDGET_ALLOCATION_SOURCE",
+      "href": null,
       "message": "Allocation reflects the signed planning window.",
       "path": "$.allocation",
       "repair_hint": null,
@@ -22,6 +23,7 @@
     },
     {
       "code": "BUDGET_RESERVE_LOW",
+      "href": null,
       "message": "Reserve is below the target proportion.",
       "path": "$.allocation.reserveIsk",
       "repair_hint": "Rebalance before the next settlement run.",
@@ -110,9 +112,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:d19db84dea1c6cc83daa537b5604ef81dd1f3cb7e8c9fb1d5db00f12bcb6b204",
+    "content_sha256": "sha256:0a0c1ea18acfd42469cb24d5b7941e3a6d7bfb101b4609dcd7134ea2b4d7b609",
     "schema_sha256": "sha256:c88452bb0a5c65806a80f6cb36bf99caadfa9052bf171fe9f267877f846ac4e5",
-    "testimony_sha256": "sha256:656a70ea3d5827e081221098065efcc90418a8f7bd741823c106549a271bb9fe"
+    "testimony_sha256": "sha256:32a143efb3b253ad8db21f77d9b52c87fc511ea7bebb340efaeaa5b486274af8"
   },
   "source_revision": "krates-budget-fixture-rev-0001",
   "surface_id": "krates.budget:krates-ehf",

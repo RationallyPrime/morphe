@@ -21,6 +21,7 @@ export interface Diagnostic {
 	readonly path: string;
 	readonly message: string;
 	readonly repair_hint?: string | null;
+	readonly href?: string | null;
 }
 
 export interface ViewModelContract {

@@ -102,6 +102,8 @@ export interface CompilerDiagnostic {
 	readonly path: string;
 	readonly message: string;
 	readonly repair_hint?: string;
+	/** Producer-relative drill-through to the offending entries; the host's link-rewrite gate resolves or strips it. */
+	readonly href?: string;
 }
 
 /**

@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "aX-JfGvagZxC-CGuNfBR4eWaeEaYCpqTn3Y_pQU5lnXktU74r9q5mYASTswkr8xdfyC83y3mepP26bnB2nuZDg"
+    "signature": "Em5WBYY6q-4ODiZvwVlbGJUkWTrwo5bw90y2rsPWIAU7wDIpVQMaQBfrOu4UYF8XE_gvQKqsquUq0l8kkK9QBA"
   },
   "data": {
     "header": {
@@ -17,6 +17,7 @@
   "diagnostics": [
     {
       "code": "VENDOR_STANDING_REVIEW",
+      "href": null,
       "message": "This vendor is under standing review.",
       "path": "$.header",
       "repair_hint": "Confirm the exposure before the next settlement run.",
@@ -24,6 +25,7 @@
     },
     {
       "code": "VENDOR_EXPOSURE_SOURCE",
+      "href": null,
       "message": "Exposure reflects the signed ledger position.",
       "path": "$.header.exposureIsk",
       "repair_hint": null,
@@ -130,9 +132,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:0dabf7db4395c56cfecce6cd2aed34ae2ea26ff6490011c5df67aefcd55764b6",
+    "content_sha256": "sha256:6332d852b42b9b7842cb3ed8cacd19428983a289d3f0314490ab156b567c0801",
     "schema_sha256": "sha256:93be60ae90670f97865a0dd7915bedbe1a8e9b958dcfd579b66672c3142a2e67",
-    "testimony_sha256": "sha256:b5ac8c7910eb3104e4cd386d0ac61c917992e61886ced44507de6422b4d66b61"
+    "testimony_sha256": "sha256:ff9ec7b99c09bb34b14b724e5299519120b6e56fed0993dc3dc7158646f61d79"
   },
   "source_revision": "krates-fixture-rev-0001",
   "surface_id": "krates.vendor:krates-ehf",

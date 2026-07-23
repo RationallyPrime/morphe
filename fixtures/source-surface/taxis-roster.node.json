@@ -259,6 +259,7 @@
                 },
                 {
                   "detail": "The second worker needs roster review.",
+                  "href": "/workers/wrk-002",
                   "kind": "inline-alert",
                   "repair": "Confirm the allocation before dispatch.",
                   "title": "TAXIS_ROW_REVIEW",

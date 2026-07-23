@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "eNB4vpZORUeTetzBU3cT4Mg27jA2_ccQkr-UHHc4MDY4pXjbXksFSUbq2ql86HOwiyYMTgLJeXUMbFjnn6fnDQ"
+    "signature": "zH75yhyDmQ3IuAMS0x-e5NxIdMQNejOappavbr-pGFWjR6ZqZVhZwCttuCvMKvc4SiO0T_La6Eh5b_-hI4NRDg"
   },
   "data": {
     "adjustment": null,
@@ -88,6 +88,7 @@
   "diagnostics": [
     {
       "code": "OBOLOS_EXCEPTION_ROW",
+      "href": null,
       "message": "This evidence row needs manual adjudication.",
       "path": "$.evidence[1]",
       "repair_hint": "Attach the missing FX testimony.",
@@ -95,6 +96,7 @@
     },
     {
       "code": "OBOLOS_AMOUNT_ROUNDING",
+      "href": null,
       "message": "The amount is represented at settlement precision.",
       "path": "$.evidence[0].amount",
       "repair_hint": null,
@@ -549,9 +551,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:8e69b5781abe083cab060555d5107cb5b0df8cc4b33396d4564c8935eeb47543",
+    "content_sha256": "sha256:9f43c84bcea80a6583ca1b2473c142bde8b4a57c8fc6c79e069c8981b369f4e4",
     "schema_sha256": "sha256:fd9bbacf5e3fcf4d23c467b02ad2c9e8e61706bfb1326860fe644664a876be57",
-    "testimony_sha256": "sha256:a4e1d6fe97c599e9e6c0b9994203abb47569e22d75bf7bfa9c2063415b6085ce"
+    "testimony_sha256": "sha256:b0e3b20ddd0fc58d2ad8fd1c297330c830fffb3d5a8fb6278da25b5d4381a967"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",

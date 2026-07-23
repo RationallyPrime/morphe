@@ -327,6 +327,7 @@ function sourceContentDocument(artifact: NormalizedSourceSurfaceArtifact): JsonV
 			path: diagnostic.path,
 			message: diagnostic.message,
 			repair_hint: diagnostic.repair_hint,
+			href: diagnostic.href,
 		})),
 	};
 }

@@ -1291,6 +1291,10 @@ function alert(diagnostic: CompilerDiagnostic): InlineAlert {
 		title: diagnostic.code,
 		detail: diagnostic.message,
 		...(diagnostic.repair_hint === undefined ? {} : { repair: diagnostic.repair_hint }),
+		// A diagnostic that names where its offending entries live renders as a
+		// feedback drill; the host's link-rewrite gate resolves the href against
+		// declared surfaces and strips anything unresolvable.
+		...(diagnostic.href === undefined ? {} : { href: diagnostic.href }),
 	};
 }
 

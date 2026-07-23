@@ -159,6 +159,7 @@ function normalizedDiagnostics(artifact: SourceSurfaceArtifactV1) {
 		path: diagnostic.path,
 		message: diagnostic.message,
 		repair_hint: diagnostic.repair_hint ?? null,
+		href: diagnostic.href ?? null,
 	}));
 }
 

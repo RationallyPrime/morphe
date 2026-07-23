@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "XVy0_FX79GdvNJ4HqGgS8S35IQp9fedP35wcps80aMLps-Qu4oBZM_cNeClHN9t5ZBuZWrcmme360EvpeMxLBg"
+    "signature": "W_abFAJd0uIsLkcmHvwyAO28iSiiPRZmoCYHWp0hGUTsVjYGHyn-YonFTr8MipfXmWtBbYF5LTd-27BoJ2MaAQ"
   },
   "data": {
     "events": [
@@ -30,6 +30,7 @@
   "diagnostics": [
     {
       "code": "TRAIL_EVENT_REVIEW",
+      "href": null,
       "message": "The recompute event needs review.",
       "path": "$.events[1]",
       "repair_hint": "Confirm the exposure delta before settlement.",
@@ -37,6 +38,7 @@
     },
     {
       "code": "TRAIL_EVENT_SOURCE",
+      "href": null,
       "message": "Timestamp reflects the signed event log.",
       "path": "$.events[0].occurredAt",
       "repair_hint": null,
@@ -154,9 +156,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:0b3f90230eccd7ba7b016c14687798e5c68999700e8677f9e7cd515c39a8f548",
+    "content_sha256": "sha256:379fcf83344ec985b37728cf3eb67b4b6662e7380647da325e3632acf6e89673",
     "schema_sha256": "sha256:3ae6ffa207611386db7a02991bc041b74f1225deb8475c0ff3c7279c27adeac6",
-    "testimony_sha256": "sha256:5393cdee1d25364daf84f96096915f7118154caebb6a114ec5df438c61c624ca"
+    "testimony_sha256": "sha256:be402fc4f9aa0f1281ca6354ca52d6a23638c6429bd09143a9111881ed0edc98"
   },
   "source_revision": "krates-trail-fixture-rev-0001",
   "surface_id": "krates.trail:krates-ehf",

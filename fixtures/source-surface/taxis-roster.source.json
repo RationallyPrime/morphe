@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "R-KjyRMOvjRo0G9NIZikD1Hf31XeH8Y07b5pLzD9B5noAbeis0Cg6BaZwuZ9wADvdmuqJ5v4Ju_JcWoQsDF-Cw"
+    "signature": "6xm24O-YViQOKk59Tlvb9vCiKKJglAc8gYBSGt2iHYBC1YExTfA9wpQt0IQ3AhaAR0oS9Cymfcnvj9eRTYF2DQ"
   },
   "data": {
     "coverage": 0.75,
@@ -80,6 +80,7 @@
   "diagnostics": [
     {
       "code": "TAXIS_ROW_REVIEW",
+      "href": "/workers/wrk-002",
       "message": "The second worker needs roster review.",
       "path": "$.workers[1]",
       "repair_hint": "Confirm the allocation before dispatch.",
@@ -87,6 +88,7 @@
     },
     {
       "code": "TAXIS_ALLOCATION_SOURCE",
+      "href": null,
       "message": "Allocation reflects the signed planning window.",
       "path": "$.workers[0].allocation",
       "repair_hint": null,
@@ -487,9 +489,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:9d946614eeb167623b68fe395f7154d088909960d1351c410d348e82444e6704",
+    "content_sha256": "sha256:6db2ea7d05970c0f6d4460209b79d8f2fc96d11ba61920f35320cd4a8e2cc529",
     "schema_sha256": "sha256:b949aa547d53810868864d1206cf8106df469ea45c6a6ae3b28e1e311a941229",
-    "testimony_sha256": "sha256:e7b3755854a3ae66b1a04b2a799507e431deb0c5ab5da074e168b54ab77b57a3"
+    "testimony_sha256": "sha256:4d57a67ad73789732a6c274a75010fc3818cdce5f386b58fd1b3ce665e1736ab"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",

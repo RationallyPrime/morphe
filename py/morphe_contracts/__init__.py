@@ -60,6 +60,12 @@ class Diagnostic(ContractModel):
     path: str
     message: str
     repair_hint: str | None = None
+    # Where the offending entries live: a producer-relative path (or absolute
+    # http(s) URL) the edge renders as the alert's drill-through. The viewer's
+    # trust gate rewrites it against the source's DECLARED surface paths and
+    # strips anything unresolvable, so a warning can name its evidence without
+    # the producer gaining a new navigation authority.
+    href: str | None = None
 
 
 class RenderHints(ContractModel):
