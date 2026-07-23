@@ -278,9 +278,7 @@ test.describe("operator-first viewer chrome", () => {
 		await expect(page.getByLabel("As of")).toHaveValue("");
 	});
 
-	test("offers every visible sibling pane from a pane route, carrying as_of", async ({
-		page,
-	}) => {
+	test("offers every visible sibling pane from a pane route, carrying as_of", async ({ page }) => {
 		await openSurface(page);
 
 		const paneNav = page.getByRole("navigation", { name: "Source panes" });
