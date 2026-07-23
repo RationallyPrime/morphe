@@ -166,9 +166,14 @@
 	--mo-intent-info-ink: var(--mo-cobalt-700);
 	--mo-intent-info-ink-hover: color-mix(in srgb, var(--mo-cobalt-700) 80%, var(--mo-cobalt-500));
 
-	/* --- Font family handles surfaced at the intent layer ------------------- */
+	/* --- Font family handles surfaced at the intent layer -------------------
+	 * Labels speak the product sans: a label names a thing for a human, and a
+	 * mono label on every field/chip/caption reads as a terminal, not a product
+	 * (PRODUCT.md anti-reference; audit Phase 3). Mono stays reserved for what
+	 * must align or be copied exactly — Number values and identifiers — which
+	 * take --mo-font-mono directly, never through this handle. */
 	--mo-font-headline: var(--mo-font-display);
-	--mo-font-label: var(--mo-font-mono);
+	--mo-font-label: var(--mo-font-body);
 }
 
 /*
@@ -237,22 +242,22 @@
 	--mo-intent-accession-disabled: color-mix(in srgb, var(--mo-amber-600) 14%, var(--mo-neutral-3));
 
 	/* --- caution (red) ----------------------------------------------------- */
-	--mo-intent-caution-surface: var(--mo-red-700);
+	--mo-intent-caution-surface: color-mix(in srgb, var(--mo-red-700) 30%, var(--mo-neutral-2));
 	--mo-intent-caution-on: var(--mo-red-300);
-	--mo-intent-caution-hover: color-mix(in srgb, var(--mo-red-700) 86%, var(--mo-red-300));
+	--mo-intent-caution-hover: color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-2));
 	--mo-intent-caution-border: var(--mo-red-400);
 	--mo-intent-caution-ring: var(--mo-red-400);
-	--mo-intent-caution-active: color-mix(in srgb, var(--mo-red-700) 78%, var(--mo-red-400));
-	--mo-intent-caution-disabled: color-mix(in srgb, var(--mo-red-700) 40%, var(--mo-neutral-3));
+	--mo-intent-caution-active: color-mix(in srgb, var(--mo-red-700) 48%, var(--mo-neutral-2));
+	--mo-intent-caution-disabled: color-mix(in srgb, var(--mo-red-700) 16%, var(--mo-neutral-3));
 
 	/* --- success (green) --------------------------------------------------- */
-	--mo-intent-success-surface: var(--mo-green-700);
+	--mo-intent-success-surface: color-mix(in srgb, var(--mo-green-700) 30%, var(--mo-neutral-2));
 	--mo-intent-success-on: var(--mo-green-400);
-	--mo-intent-success-hover: color-mix(in srgb, var(--mo-green-700) 86%, var(--mo-green-400));
+	--mo-intent-success-hover: color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-2));
 	--mo-intent-success-border: var(--mo-green-500);
 	--mo-intent-success-ring: var(--mo-green-500);
-	--mo-intent-success-active: color-mix(in srgb, var(--mo-green-700) 78%, var(--mo-green-400));
-	--mo-intent-success-disabled: color-mix(in srgb, var(--mo-green-700) 40%, var(--mo-neutral-3));
+	--mo-intent-success-active: color-mix(in srgb, var(--mo-green-700) 48%, var(--mo-neutral-2));
+	--mo-intent-success-disabled: color-mix(in srgb, var(--mo-green-700) 16%, var(--mo-neutral-3));
 
 	/* --- info (blue, brighter than provenance) ----------------------------- */
 	--mo-intent-info-surface: color-mix(in srgb, var(--mo-blue-700) 70%, var(--mo-neutral-3));

@@ -33,8 +33,15 @@
 	{#if node.icon}
 		<span class="mo-badge__icon material-symbols-outlined" aria-hidden="true">{node.icon}</span>
 	{/if}
-	<span class="mo-badge__label">{node.label}</span>
-	{#if node.gloss}<Gloss label={node.label} gloss={node.gloss} />{/if}
+	<span class="mo-badge__label">
+		{#if node.gloss}
+			<Gloss label={node.label} gloss={node.gloss}>
+				{#snippet children()}{node.label}{/snippet}
+			</Gloss>
+		{:else}
+			{node.label}
+		{/if}
+	</span>
 </span>
 
 <style>

@@ -53,24 +53,44 @@
 	}
 </script>
 
-{#if children}<span class="mo-gloss__term">{@render children()}</span>{/if}
 {#if globallyRevealed}
+	{#if children}<span class="mo-gloss__term">{@render children()}</span>{/if}
 	<span id={panelId} class="mo-gloss__definition" role="note" data-revealed>
 		<span class="mo-gloss__sr">Explanation for {label}: </span>{gloss}
 	</span>
 {:else}
-	<button
-		type="button"
-		class="mo-gloss__trigger"
-		aria-label={`Explain ${label}`}
-		aria-controls={panelId}
-		aria-expanded={open}
-		onclick={toggle}
-		style:color={ink}
-		style:--mo-gloss-anchor={anchorName}
-	>
-		<span aria-hidden="true">?</span>
-	</button>
+	{#if children}
+		<!-- The glossed term IS the trigger: a quiet dotted underline instead of
+		     appended chrome, so a pane of glosses reads as typography, not as a
+		     row of floating buttons. Inline-text targets take the WCAG 2.5.8
+		     inline exception; the padding/margin pair still widens the hit area
+		     without shifting layout. -->
+		<button
+			type="button"
+			class="mo-gloss__trigger mo-gloss__trigger--term"
+			aria-label={`Explain ${label}`}
+			aria-controls={panelId}
+			aria-expanded={open}
+			onclick={toggle}
+			style:color={ink}
+			style:--mo-gloss-anchor={anchorName}
+		>
+			{@render children()}
+		</button>
+	{:else}
+		<button
+			type="button"
+			class="mo-gloss__trigger mo-gloss__trigger--mark"
+			aria-label={`Explain ${label}`}
+			aria-controls={panelId}
+			aria-expanded={open}
+			onclick={toggle}
+			style:color={ink}
+			style:--mo-gloss-anchor={anchorName}
+		>
+			<span aria-hidden="true">?</span>
+		</button>
+	{/if}
 	<span
 		bind:this={panel}
 		id={panelId}
@@ -92,28 +112,56 @@
 	}
 
 	.mo-gloss__trigger {
-		display: inline-grid;
-		place-items: center;
-		min-inline-size: var(--mo-space-6);
-		min-block-size: var(--mo-space-6);
-		margin-inline-start: var(--mo-space-1);
-		padding: 0;
-		border: 1px solid currentColor;
-		border-radius: 999rem;
+		border: 0;
 		background: transparent;
 		color: currentColor;
-		font: 600 var(--mo-type-1) / 1 var(--mo-font-label);
-		letter-spacing: normal;
-		text-transform: none;
-		white-space: normal;
-		vertical-align: 0.1em;
 		cursor: help;
 		anchor-name: var(--mo-gloss-anchor);
 	}
 
-	.mo-gloss__trigger:hover {
-		opacity: 1;
-		background: color-mix(in srgb, currentColor 10%, transparent);
+	/* Term trigger: inherit the term's own typography completely; the only added
+	   signal is the dotted rule, solidified on hover. */
+	.mo-gloss__trigger--term {
+		display: inline;
+		padding: 0.2em;
+		margin: -0.2em;
+		font: inherit;
+		letter-spacing: inherit;
+		text-transform: inherit;
+		text-align: inherit;
+		white-space: inherit;
+		text-decoration-line: underline;
+		text-decoration-style: dotted;
+		text-decoration-thickness: 1px;
+		text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+		text-underline-offset: 0.24em;
+	}
+
+	.mo-gloss__trigger--term:hover {
+		text-decoration-style: solid;
+		text-decoration-color: currentColor;
+	}
+
+	/* Mark trigger — for terms whose anchor is already interactive (Link, linked
+	   Status): a small superscript mark, no ring chrome. Quietness comes from
+	   the reduced size and dotted rule, NEVER from alpha — the ink it carries is
+	   contrast-guaranteed and must stay at full opacity (contrast-a11y gate). */
+	.mo-gloss__trigger--mark {
+		display: inline-grid;
+		place-items: center;
+		padding: 0.3em;
+		margin: -0.15em 0 -0.15em;
+		margin-inline-start: 0.05em;
+		font: 500 0.8em / 1 var(--mo-font-body);
+		vertical-align: super;
+		text-decoration-line: underline;
+		text-decoration-style: dotted;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+	}
+
+	.mo-gloss__trigger--mark:hover {
+		text-decoration-style: solid;
 	}
 
 	.mo-gloss__trigger:focus-visible {
@@ -176,8 +224,9 @@
 	}
 
 	@media (forced-colors: active) {
-		.mo-gloss__trigger {
-			border-color: ButtonText;
+		.mo-gloss__trigger--term,
+		.mo-gloss__trigger--mark {
+			text-decoration-color: ButtonText;
 		}
 		.mo-gloss__trigger:focus-visible {
 			outline-color: Highlight;

@@ -80,8 +80,13 @@
 {#if node.label}
 	<span class="mo-number-group">
 		<span class="mo-number__label">
-			{node.label}
-			{#if node.gloss}<Gloss label={node.label} gloss={node.gloss} />{/if}
+			{#if node.gloss}
+				<Gloss label={node.label} gloss={node.gloss}>
+					{#snippet children()}{node.label}{/snippet}
+				</Gloss>
+			{:else}
+				{node.label}
+			{/if}
 		</span>
 		<span class="mo-number" data-emphasis={emphasis} data-sign={sign} style:color={color}
 			>{formatted}</span

@@ -58,21 +58,16 @@ export function indexTree(model: IndexModel): Node {
 }
 
 function masthead(model: IndexModel): Node {
+	// Task-first hierarchy (audit P1): the operator's task — the surface
+	// catalog — is the H1; the deployment identity is demoted to context. The
+	// grammar version is substrate provenance and rides the footer, not the
+	// operator's masthead.
 	return {
-		kind: "cluster",
-		role: "toolbar",
-		justify: "between",
-		align: "baseline",
+		kind: "stack",
+		role: "section",
 		children: [
-			{
-				kind: "stack",
-				role: "section",
-				children: [
-					{ kind: "text", value: "Surfaces", as: "caption", intent: "folio" },
-					{ kind: "text", value: model.title, as: "display", emphasis: "strong" },
-				],
-			},
-			{ kind: "badge", label: `grammar ${model.grammarVersion}`, intent: "provenance" },
+			{ kind: "text", value: model.title, as: "caption", intent: "folio" },
+			{ kind: "text", value: "Surfaces", as: "heading", level: 1, emphasis: "strong" },
 		],
 	};
 }
@@ -132,12 +127,27 @@ function kicker(source: IndexSource): Node {
 }
 
 function surfaceMeasure(source: IndexSource): Node {
+	// A naked integer asserts nothing (audit finding 6) — the count carries its
+	// unit so "5" reads as "5 panes" without leaving the measure slot.
 	return {
-		kind: "number",
-		value: source.surfaces.length,
-		format: "integer",
-		emphasis: "strong",
-		intent: source.surfaces.length === 0 ? "neutral" : "evidence",
+		kind: "cluster",
+		role: "inline",
+		align: "baseline",
+		children: [
+			{
+				kind: "number",
+				value: source.surfaces.length,
+				format: "integer",
+				emphasis: "strong",
+				intent: source.surfaces.length === 0 ? "neutral" : "evidence",
+			},
+			{
+				kind: "text",
+				value: source.surfaces.length === 1 ? "pane" : "panes",
+				as: "caption",
+				intent: "folio",
+			},
+		],
 	};
 }
 
@@ -179,6 +189,7 @@ function footer(model: IndexModel, surfaceCount: number): Node {
 				as: "caption",
 				intent: "marginalia",
 			},
+			{ kind: "badge", label: `grammar ${model.grammarVersion}`, intent: "provenance" },
 		],
 	};
 }
