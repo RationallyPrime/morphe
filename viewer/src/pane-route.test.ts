@@ -63,6 +63,7 @@ function pageData(asOf?: string) {
 		sourceTitle: source.title,
 		surfaceTitle: pane.surfaceTitle,
 		collectionHref: undefined,
+		paneNav: [],
 		temporalPolicy: pane.temporalPolicy,
 		resolvedWindow: undefined,
 		asOf,
