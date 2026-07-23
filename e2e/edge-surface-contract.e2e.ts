@@ -345,7 +345,10 @@ test.describe("operator-first composed home", () => {
 		).toBeVisible();
 		await expect(home.getByRole("heading", { level: 2, name: "Source freshness" })).toBeVisible();
 		await expect(home.getByRole("heading", { level: 2, name: "Needs attention" })).toBeVisible();
-		await expect(home.getByRole("heading", { level: 2, name: "Domains" })).toBeVisible();
+		// One region owns a source (KRA-819): the fixture's only panel is lifted
+		// into the attention queue, so a Domains section restating it must NOT
+		// render — the queue carries the status, context, and pane link.
+		await expect(home.getByRole("heading", { level: 2, name: "Domains" })).toHaveCount(0);
 
 		const visibleHeadings = await home.getByRole("heading").evaluateAll((headings) =>
 			headings
@@ -355,11 +358,10 @@ test.describe("operator-first composed home", () => {
 				})
 				.map((heading) => heading.textContent?.trim()),
 		);
-		expect(visibleHeadings.slice(0, 4)).toEqual([
+		expect(visibleHeadings.slice(0, 3)).toEqual([
 			"Edge surface contract",
 			"Source freshness",
 			"Needs attention",
-			"Domains",
 		]);
 
 		await expect(home.getByText("Weekly roster reports attention", { exact: true })).toBeVisible();
@@ -373,7 +375,7 @@ test.describe("operator-first composed home", () => {
 		const testimony = home.locator("details").filter({ hasText: "Review Weekly roster" });
 		await expect(testimony).not.toHaveAttribute("open", "");
 		await expect(
-			home.getByRole("link", { name: "Open Taxis fixture", exact: true }),
+			home.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
 		).toHaveAttribute("href", "/s/taxis/roster");
 		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(0);
 
