@@ -46,6 +46,10 @@ function board(sources: Record<string, unknown>, joins: readonly unknown[] = [],
 	return JSON.stringify({
 		version: 2,
 		board: "timaeus-demo",
+		dimensions: {
+			include_pii: false,
+			justification: "Public test board",
+		},
 		sources,
 		joins,
 		...extra,
@@ -84,7 +88,13 @@ describe("parseBoardConfig source contract", () => {
 		const result = parseBoardConfig(undefined);
 		expect(result).toEqual({
 			ok: true,
-			config: { version: 2, board: null, sources: new Map(), joins: [] },
+			config: {
+				version: 2,
+				board: null,
+				dimensions: null,
+				sources: new Map(),
+				joins: [],
+			},
 		});
 		expect(parseBoardConfig("").ok).toBe(false);
 	});
@@ -105,6 +115,10 @@ describe("parseBoardConfig source contract", () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.config.board).toBe("timaeus-demo");
+		expect(result.config.dimensions).toEqual({
+			includePii: false,
+			justification: "Public test board",
+		});
 		const taxis = result.config.sources.get("taxis");
 		expect(taxis?.baseUrl).toBe("http://taxis:8205");
 		expect(taxis?.tokenEnv).toBe("VIEWER_TAXIS_TOKEN");
@@ -117,6 +131,38 @@ describe("parseBoardConfig source contract", () => {
 			routeOnly: false,
 		});
 		expect(taxis?.surfaces[1]?.title).toBe("roster");
+	});
+
+	it("requires dimensions on every configured v2 board", () => {
+		const configured = JSON.parse(board({ taxis: kernelSource("taxis") })) as Record<
+			string,
+			unknown
+		>;
+		delete configured.dimensions;
+		const result = parseBoardConfig(JSON.stringify(configured));
+
+		expect(result).toEqual({
+			ok: false,
+			reason: "MORPHE_SOURCES needs dimensions",
+		});
+	});
+
+	it.each([
+		["non-object", null],
+		["missing fields", {}],
+		["non-boolean include_pii", { include_pii: "true", justification: "Operator demo" }],
+		["missing justification", { include_pii: true }],
+		["empty justification", { include_pii: true, justification: "" }],
+		["whitespace justification", { include_pii: true, justification: "   " }],
+		["unknown field", { include_pii: true, justification: "Operator demo", surprise: true }],
+	])("rejects %s dimensions", (_label, dimensions) => {
+		expect(
+			parseBoardConfig(
+				board({ taxis: kernelSource("taxis") }, [], {
+					dimensions,
+				}),
+			).ok,
+		).toBe(false);
 	});
 
 	it("pins trust roots and preserves governed parameter behavior", () => {
@@ -150,6 +196,27 @@ describe("parseBoardConfig source contract", () => {
 			}),
 		);
 		expect(optedOut.ok && optedOut.config.sources.get("taxis")?.governedParams).toEqual([]);
+	});
+
+	it.each([
+		"?include_pii=true",
+		"?%69nclude_pii=true",
+	])("rejects board-governed PII authority baked into a configured path (%s)", (query) => {
+		const result = parseBoardConfig(
+			board({
+				taxis: kernelSource(
+					"taxis",
+					[surface("orgs", "taxis.orgs", { path: `/surfaces/orgs${query}` })],
+					{ governed_params: [] },
+				),
+			}),
+		);
+
+		expect(result).toEqual({
+			ok: false,
+			reason:
+				'source taxis: kernel surface orgs path must not declare governed parameter "include_pii"',
+		});
 	});
 
 	it("rejects flat/v1/partial roots and unknown keys without an alias path", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SurfaceNode } from "$lib/surface-edge/spec.js";
-import { BoardLinkResolutionError, resolveBoardLinks } from "./board-links.js";
+import { BoardLinkResolutionError, boardLinkPolicyKey, resolveBoardLinks } from "./board-links.js";
 import type { BoardConfig, BoardJoin, SourceConfig } from "./sources.js";
 
 function node(
@@ -48,6 +48,7 @@ function config(joins: readonly BoardJoin[], mounted = ["taxis", "misthos"]): Bo
 	return {
 		version: 2,
 		board: "test-board",
+		dimensions: { includePii: false, justification: "Public link fixture" },
 		sources: new Map(
 			mounted.map((id) => [
 				id,
@@ -59,6 +60,16 @@ function config(joins: readonly BoardJoin[], mounted = ["taxis", "misthos"]): Bo
 }
 
 describe("board link resolution", () => {
+	it("namespaces cached trees by the board dimensions", () => {
+		const publicBoard = config([]);
+		const governedBoard: BoardConfig = {
+			...publicBoard,
+			dimensions: { includePii: true, justification: "Named operator demo" },
+		};
+
+		expect(boardLinkPolicyKey(governedBoard)).not.toBe(boardLinkPolicyKey(publicBoard));
+	});
+
 	it("takes a detail key only from the admitted surface identity", () => {
 		const spec = node("$", "record-card", {
 			children: [node("$.header.employee", "scalar", { value: "Matthías" })],

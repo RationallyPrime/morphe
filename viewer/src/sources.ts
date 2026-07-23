@@ -1,9 +1,9 @@
 /**
  * Versioned board configuration for the box viewer (KRA-806/KRA-811).
  *
- * `MORPHE_SOURCES` is one exact v2 board object: `{ version, board, sources,
- * joins }`. The former flat source map is deliberately not accepted; a board
- * declaration is now the only runtime contract.
+ * `MORPHE_SOURCES` is one exact v2 board object: `{ version, board, dimensions,
+ * sources, joins }`. The former flat source map is deliberately not accepted;
+ * a board declaration is now the only runtime contract.
  * The only source kind is `"kernel"`: a kernel-direct source (Taxis/chreos/…
  * shape) whose entries name a concrete route `path` and negotiate signed
  * source-v1 testimony under source-level trust pins. Store sources and the
@@ -26,6 +26,7 @@ const QUERY_PARAMETER_RE = /^[a-z][a-z0-9_]*$/;
 const URI_SCHEME_RE = /^[a-z][a-z0-9+.-]*$/;
 const PAINT_PATH_RE = /^\$(?:\.[A-Za-z_][A-Za-z0-9_]*(?:\[\*\])?)+$/;
 const RESERVED_VIEWER_QUERY_PARAMETERS = new Set(["as_of", "dialect", "temporal"]);
+const BOARD_DIMENSION_QUERY_PARAMETERS = new Set(["include_pii"]);
 
 export interface KernelSurfaceEntry {
 	readonly id: string;
@@ -68,12 +69,12 @@ export interface SourceConfig {
 	 */
 	readonly collectionRoot?: string;
 	/**
-	 * Query params the public viewer must never forward to this producer —
+	 * Query params the viewer must never accept from browser authority —
 	 * governed-read selectors that flip a surface into a privileged
-	 * representation on the caller's authority (Krepis convention:
-	 * `include_pii`). Defaults to `["include_pii"]` when undeclared, so a new
-	 * source is protected without remembering to configure it; an explicit
-	 * empty array is the deliberate opt-out.
+	 * representation (Krepis convention: `include_pii`). Defaults to
+	 * `["include_pii"]` when undeclared, so a new source is protected without
+	 * remembering to configure it. A trusted board dimension may separately
+	 * inject `include_pii=true`; an explicit empty array opts this source out.
 	 */
 	readonly governedParams: readonly string[];
 	/**
@@ -133,10 +134,17 @@ export interface BoardJoin {
 	readonly target: BoardJoinTarget;
 }
 
+export interface BoardDimensions {
+	readonly includePii: boolean;
+	readonly justification: string;
+}
+
 export interface BoardConfig {
 	readonly version: 2;
 	/** Null only for the explicit no-environment configuration result. */
 	readonly board: string | null;
+	/** Null only when no board environment is configured. */
+	readonly dimensions: BoardDimensions | null;
 	readonly sources: ReadonlyMap<string, SourceConfig>;
 	readonly joins: readonly BoardJoin[];
 }
@@ -236,7 +244,12 @@ function parseSourceTrust(sourceId: string, raw: unknown): SourceTrustConfig | s
 	return { issuer, publicKeys, maxAgeSeconds, maxFutureSkewSeconds };
 }
 
-function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry | string {
+function parseEntry(
+	sourceId: string,
+	raw: unknown,
+	index: number,
+	governedParams: readonly string[],
+): SurfaceEntry | string {
 	if (!isRecord(raw)) return `source ${sourceId}: surfaces[${index}] is not an object`;
 	const extra = unknownKey(`source ${sourceId}: surfaces[${index}]`, raw, [
 		"id",
@@ -256,6 +269,18 @@ function parseEntry(sourceId: string, raw: unknown, index: number): SurfaceEntry
 	const path = stringField(raw, "path");
 	if (path === null || !path.startsWith("/")) {
 		return `source ${sourceId}: kernel surface ${id} needs an absolute path`;
+	}
+	const queryStart = path.indexOf("?");
+	if (queryStart !== -1) {
+		const fragmentStart = path.indexOf("#", queryStart);
+		const configuredQuery = new URLSearchParams(
+			path.slice(queryStart + 1, fragmentStart === -1 ? undefined : fragmentStart),
+		);
+		const forbidden = new Set([...BOARD_DIMENSION_QUERY_PARAMETERS, ...governedParams]);
+		const governedKey = [...forbidden].find((key) => configuredQuery.has(key));
+		if (governedKey !== undefined) {
+			return `source ${sourceId}: kernel surface ${id} path must not declare governed parameter "${governedKey}"`;
+		}
 	}
 	const dialectHint = stringField(raw, "dialect_hint") ?? undefined;
 	const representation = raw.representation;
@@ -322,12 +347,14 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	const icon = stringField(raw, "icon") ?? undefined;
 	const sourceTrust = parseSourceTrust(sourceId, raw.source_trust);
 	if (typeof sourceTrust === "string") return sourceTrust;
+	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
+	if (typeof governedParams === "string") return governedParams;
 	const rawSurfaces = raw.surfaces ?? [];
 	if (!Array.isArray(rawSurfaces)) return `source ${sourceId}: surfaces must be an array`;
 	const surfaces: SurfaceEntry[] = [];
 	const seen = new Set<string>();
 	for (const [index, entry] of rawSurfaces.entries()) {
-		const parsed = parseEntry(sourceId, entry, index);
+		const parsed = parseEntry(sourceId, entry, index, governedParams);
 		if (typeof parsed === "string") return parsed;
 		if (seen.has(parsed.id)) return `source ${sourceId}: duplicate surface id ${parsed.id}`;
 		seen.add(parsed.id);
@@ -346,8 +373,6 @@ function parseSource(sourceId: string, raw: unknown): SourceConfig | string {
 	) {
 		return `source ${sourceId}: collection_root "${collectionRoot}" cannot name a route-only surface`;
 	}
-	const governedParams = parseGovernedParams(sourceId, raw.governed_params);
-	if (typeof governedParams === "string") return governedParams;
 	const homePanel = parseHomePanel(sourceId, raw.home_panel, seen, title);
 	if (typeof homePanel === "string") return homePanel;
 	if (
@@ -400,7 +425,8 @@ function parseHomePanel(
 
 /**
  * `governed_params` is fail-closed: undeclared means the Krepis default
- * (`include_pii`); only an explicit empty array opts a source out.
+ * (`include_pii`); only an explicit empty array opts a source out of both
+ * public stripping and board-trusted injection.
  */
 function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] | string {
 	if (raw === undefined) return ["include_pii"];
@@ -413,6 +439,20 @@ function parseGovernedParams(sourceId: string, raw: unknown): readonly string[] 
 		if (!params.includes(value)) params.push(value);
 	}
 	return params;
+}
+
+function parseDimensions(raw: unknown): BoardDimensions | string {
+	if (!isRecord(raw)) return "MORPHE_SOURCES.dimensions must be an object";
+	const extra = unknownKey("MORPHE_SOURCES.dimensions", raw, ["include_pii", "justification"]);
+	if (extra !== undefined) return extra;
+	if (typeof raw.include_pii !== "boolean") {
+		return "MORPHE_SOURCES.dimensions.include_pii must be a boolean";
+	}
+	const justification = raw.justification;
+	if (typeof justification !== "string" || justification.trim().length === 0) {
+		return "MORPHE_SOURCES.dimensions.justification must be a nonempty string";
+	}
+	return { includePii: raw.include_pii, justification };
 }
 
 function parseSelector(joinId: string, raw: unknown): BoardJoinSelector | string {
@@ -595,7 +635,13 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 	if (rawBoard === undefined) {
 		return {
 			ok: true,
-			config: { version: 2, board: null, sources: new Map(), joins: [] },
+			config: {
+				version: 2,
+				board: null,
+				dimensions: null,
+				sources: new Map(),
+				joins: [],
+			},
 		};
 	}
 
@@ -606,9 +652,15 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 		return { ok: false, reason: "MORPHE_SOURCES is not valid JSON" };
 	}
 	if (!isRecord(decoded)) return { ok: false, reason: "MORPHE_SOURCES must be a JSON object" };
-	const extra = unknownKey("MORPHE_SOURCES", decoded, ["version", "board", "sources", "joins"]);
+	const extra = unknownKey("MORPHE_SOURCES", decoded, [
+		"version",
+		"board",
+		"dimensions",
+		"sources",
+		"joins",
+	]);
 	if (extra !== undefined) return { ok: false, reason: extra };
-	for (const required of ["version", "board", "sources", "joins"] as const) {
+	for (const required of ["version", "board", "dimensions", "sources", "joins"] as const) {
 		if (!Object.hasOwn(decoded, required)) {
 			return { ok: false, reason: `MORPHE_SOURCES needs ${required}` };
 		}
@@ -620,6 +672,8 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 	if (board === null || !SLUG_RE.test(board)) {
 		return { ok: false, reason: "MORPHE_SOURCES.board must be a lowercase slug" };
 	}
+	const dimensions = parseDimensions(decoded.dimensions);
+	if (typeof dimensions === "string") return { ok: false, reason: dimensions };
 	if (!isRecord(decoded.sources)) {
 		return { ok: false, reason: "MORPHE_SOURCES.sources must be an object" };
 	}
@@ -638,5 +692,5 @@ export function parseBoardConfig(rawBoard: string | undefined): BoardResult {
 	}
 	const joins = parseJoins(decoded.joins, sources);
 	if (typeof joins === "string") return { ok: false, reason: joins };
-	return { ok: true, config: { version: 2, board, sources, joins } };
+	return { ok: true, config: { version: 2, board, dimensions, sources, joins } };
 }

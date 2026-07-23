@@ -32,6 +32,10 @@ function parseOne(homePanel?: unknown) {
 		JSON.stringify({
 			version: 2,
 			board: "home-panel-test",
+			dimensions: {
+				include_pii: false,
+				justification: "Public home-panel fixture",
+			},
 			sources: { taxis: kernelSource(homePanel) },
 			joins: [],
 		}),

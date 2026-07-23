@@ -96,9 +96,10 @@ describe("forwardedRequest derived detection", () => {
 	});
 });
 
-// Governed-read selectors must never leave the public edge: the strip happens
-// before forwarding, at the same choke point every filter passes, so neither a
-// hand-typed `?include_pii=true` nor a link-carried one reaches the producer.
+// Browser-authored governed selectors must never leave the public edge: the
+// strip happens before forwarding, at the same choke point every filter passes,
+// so neither a hand-typed nor link-carried value reaches the trusted board
+// dimension injection that follows.
 describe("withoutGovernedParams", () => {
 	it("strips a governed key including repeated values", () => {
 		const cleaned = withoutGovernedParams(

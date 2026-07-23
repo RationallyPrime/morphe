@@ -68,13 +68,12 @@ export function withForwardedQuery(path: string, forward: URLSearchParams): stri
  * Drop governed-read params from a viewer-edge filter before it is forwarded.
  *
  * A governed param (Krepis convention: `include_pii`) selects a privileged
- * representation the producer serves on the caller's own authority — an
- * authority the anonymous public edge never carries, and one that demo
- * deployments running with producer auth disabled cannot re-check downstream.
- * The public viewer therefore refuses to forward them, at the same single
- * choke point every filter passes (link-carried and hand-typed alike).
- * Stripping rather than erroring: the pane degrades to its masked public
- * representation instead of breaking the link.
+ * representation the producer must never serve on browser authority. The
+ * viewer therefore strips it at the single choke point every public filter
+ * passes (link-carried and hand-typed alike). A trusted board dimension may
+ * inject a governed value only after this function returns; that injected
+ * value never returns to browser-carried query state. Stripping rather than
+ * erroring keeps a public pane on its masked representation.
  */
 export function withoutGovernedParams(
 	forward: URLSearchParams,

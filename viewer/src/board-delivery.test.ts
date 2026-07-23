@@ -92,6 +92,7 @@ const TAXIS = source("taxis", TAXIS_ENTRY);
 const BOARD: BoardConfig = {
 	version: 2,
 	board: "signed-fixture",
+	dimensions: { includePii: false, justification: "Public signed-delivery fixture" },
 	sources: new Map([
 		["taxis", TAXIS],
 		["misthos", source("misthos", MISTHOS_ENTRY)],
