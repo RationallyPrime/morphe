@@ -1,6 +1,7 @@
 import { error } from "@sveltejs/kit";
 import { normalizeViewerQuery } from "../../../../forward-query.js";
 import { loadSourcePane } from "../../../../pane-load.server.js";
+import { paneNav } from "../../../../pane-nav.js";
 import { bearerFor, loadBoard } from "../../../../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
 
@@ -40,6 +41,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		sourceTitle: source.title,
 		surfaceTitle: pane.surfaceTitle,
 		collectionHref: pane.collectionHref,
+		paneNav: paneNav(source, entry.id, asOf),
 		temporalPolicy: pane.temporalPolicy,
 		resolvedWindow: pane.resolvedWindow,
 		asOf,

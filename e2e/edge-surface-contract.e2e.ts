@@ -285,6 +285,33 @@ test.describe("operator-first viewer chrome", () => {
 		await expect(page.getByLabel("As of")).toHaveValue("");
 	});
 
+	test("offers every visible sibling pane from a pane route, carrying as_of", async ({ page }) => {
+		await openSurface(page);
+
+		const paneNav = page.getByRole("navigation", { name: "Source panes" });
+		await expect(paneNav).toBeVisible();
+		// The current pane is present but inert; siblings are real links.
+		await expect(paneNav.locator('[aria-current="page"]')).toHaveText("Weekly roster");
+		await expect(paneNav.getByRole("link", { name: "Arna K." })).toHaveAttribute(
+			"href",
+			"/s/taxis/worker-arna",
+		);
+		await expect(paneNav.getByRole("link", { name: "Baldur R." })).toHaveAttribute(
+			"href",
+			"/s/taxis/worker-baldur",
+		);
+
+		// The one cross-pane operator state (as_of) rides sibling links; pane-local
+		// filters and render-only params do not.
+		const asOf = page.getByLabel("As of");
+		await asOf.fill("2026-07-15");
+		await asOf.dispatchEvent("change");
+		await expect(paneNav.getByRole("link", { name: "Arna K." })).toHaveAttribute(
+			"href",
+			"/s/taxis/worker-arna?as_of=2026-07-15",
+		);
+	});
+
 	test("preserves breadcrumbs, collapses inspection, and keeps 44px native targets", async ({
 		page,
 	}) => {
