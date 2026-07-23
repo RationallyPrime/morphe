@@ -138,6 +138,33 @@ describe("board link resolution", () => {
 		]);
 	});
 
+	it("resolves the exact signed instruction commitment carrier", () => {
+		const obligationId = "00000000-0000-4000-8000-000000000823";
+		const spec = node("$", "record-card", {
+			children: [
+				node("$.details", "record-card", {
+					children: [
+						node("$.details.commitment", "linked-ref", {
+							label: "Purchase obligation",
+							href: `commitment:///${obligationId}`,
+						}),
+					],
+				}),
+			],
+		});
+		const plan = resolveBoardLinks(
+			config([OPTIONAL_EXTERNAL_JOIN], ["obolos", "chreos"]),
+			"obolos",
+			"obolos.instruction:obolos-org:instruction-1",
+			spec,
+		);
+
+		expect(plan.paints.get("$.details.commitment")).toEqual({
+			href: `/s/chreos/obligation?obligation_id=${obligationId}`,
+			mode: "linked-ref-label",
+		});
+	});
+
 	it("treats an existing empty collection as a valid zero-paint result", () => {
 		const spec = node("$", "record-card", {
 			children: [node("$.rows", "table", { items: [] })],
