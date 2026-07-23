@@ -95,18 +95,28 @@ function sourceCard(source: IndexSource): Node {
 		source.dialectId === undefined
 			? []
 			: [{ kind: "badge", label: source.dialectId, intent: "info" }];
+	// SignalCard no longer forces a raised frame (KRA-798); the catalog is the
+	// caller that genuinely wants card objects, so it wraps at the authored
+	// level — a tonal raised surface, not a shadow.
 	return {
-		kind: "compound",
-		name: "SignalCard",
-		args: {
-			kicker: kicker(source),
-			title: { kind: "text", value: source.title, as: "subheading" },
-			measure: surfaceMeasure(source),
-		},
-		slots: {
-			signal,
-			body: [surfaceLinks(source)],
-		},
+		kind: "frame",
+		role: "panel",
+		surface: "raised",
+		children: [
+			{
+				kind: "compound",
+				name: "SignalCard",
+				args: {
+					kicker: kicker(source),
+					title: { kind: "text", value: source.title, as: "subheading" },
+					measure: surfaceMeasure(source),
+				},
+				slots: {
+					signal,
+					body: [surfaceLinks(source)],
+				},
+			},
+		],
 	};
 }
 
