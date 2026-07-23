@@ -30,6 +30,7 @@ export class BoardLinkResolutionError extends Error {}
 export function boardLinkPolicyKey(config: BoardConfig): string {
 	return JSON.stringify({
 		board: config.board,
+		dimensions: config.dimensions,
 		sources: [...config.sources].map(([id, source]) => ({
 			id,
 			title: source.title,

@@ -32,6 +32,7 @@ const source: SourceConfig = {
 const board: BoardConfig = {
 	version: 2,
 	board: "test-board",
+	dimensions: { includePii: false, justification: "Public catalog fixture" },
 	sources: new Map([[source.id, source]]),
 	joins: [],
 };

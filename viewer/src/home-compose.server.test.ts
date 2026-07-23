@@ -27,6 +27,7 @@ const roster: HomePanelSource[] = [{ source, entry, title: "Roster panel" }];
 const board = {
 	version: 2,
 	board: "test-board",
+	dimensions: { includePii: false, justification: "Public home fixture" },
 	sources: new Map([[source.id, source]]),
 	joins: [],
 } as BoardConfig;

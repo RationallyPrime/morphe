@@ -49,7 +49,7 @@ export async function composeHomePanels(options: ComposeHomeOptions): Promise<Ho
 	const views: HomePanelView[] = [];
 
 	for (const { source, entry, bearer, title } of options.panels) {
-		const requestIdentity = paneRequestIdentity(source, entry, options.searchParams);
+		const requestIdentity = paneRequestIdentity(options.board, source, entry, options.searchParams);
 		const deliveryRequestKey = requestIdentity.cacheKey;
 		try {
 			const pane = await load({

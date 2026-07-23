@@ -2,11 +2,12 @@
  * Shared per-pane admission + compile pipeline (KRA-789).
  *
  * ONE function admits a single configured pane the way `/s/[source]/[surfaceId]` always
- * has: build the kernel request (dropping render-only overrides, stripping governed-read
- * selectors), negotiate signed source-v1 testimony, verify + edge-compile under the
- * source trust pins, run the shared grammar/dialect gate, and rewrite kernel links. The
- * pane route and the composed home route both call this so admission can never fork:
- * the home surface is exactly N pane admissions grafted into one authored tree.
+ * has: build the kernel request (dropping render-only overrides, stripping browser-authored
+ * governed selectors, then injecting any trusted board dimension), negotiate signed source-v1
+ * testimony, verify + edge-compile under the source trust pins, run the shared grammar/dialect
+ * gate, and rewrite kernel links. The pane route and the composed home route both call this so
+ * admission can never fork: the home surface is exactly N pane admissions grafted into one
+ * authored tree.
  *
  * `as_of` is an ORDINARY presentation/filter param here (KRA-779/KRA-789): it is neither
  * `dialect` nor `temporal`, so it flows onto the kernel fetch as a forwarded filter,
@@ -56,7 +57,10 @@ export interface PaneLoad {
 export interface PaneRequestIdentity {
 	readonly normalizedQuery: URLSearchParams;
 	readonly temporalPolicy: ReturnType<typeof resolveTemporalPolicy>;
-	readonly forwardedQuery: URLSearchParams;
+	/** Public filters safe to carry into rewritten browser links. */
+	readonly carriedQuery: URLSearchParams;
+	/** Effective producer query, including any board-trusted governed dimension. */
+	readonly producerQuery: URLSearchParams;
 	readonly forwarded: ReturnType<typeof forwardedRequest>;
 	/** Bounded-cache discriminator for the exact effective delivery request. */
 	readonly cacheKey: string;
@@ -65,9 +69,11 @@ export interface PaneRequestIdentity {
 /**
  * Resolve the single request identity shared by fetch, admission mode, and home cache.
  * Dialect is keyed separately; temporal affects compilation, while the governed-cleaned
- * effective path identifies exactly what the producer is asked to sign.
+ * public query and separately injected trusted dimension determine exactly what the producer
+ * is asked to sign. Only the public-safe query may be carried back into browser links.
  */
 export function paneRequestIdentity(
+	board: BoardConfig,
 	source: SourceConfig,
 	entry: SurfaceEntry,
 	searchParams: URLSearchParams,
@@ -77,14 +83,22 @@ export function paneRequestIdentity(
 	const rawQuery = new URLSearchParams(normalizedQuery);
 	rawQuery.delete("dialect");
 	rawQuery.delete(TEMPORAL_QUERY_KEY);
-	const forwardedQuery = withoutGovernedParams(rawQuery, source.governedParams);
-	const forwarded = forwardedRequest(entry.path, forwardedQuery);
+	const carriedQuery = withoutGovernedParams(rawQuery, source.governedParams);
+	const producerQuery = new URLSearchParams(carriedQuery);
+	const injectTrustedPii =
+		board.dimensions?.includePii === true && source.governedParams.includes("include_pii");
+	if (injectTrustedPii) producerQuery.set("include_pii", "true");
+	const effectiveRequest = forwardedRequest(entry.path, producerQuery);
+	const forwarded = injectTrustedPii
+		? { path: effectiveRequest.path, derived: true as const }
+		: effectiveRequest;
 	return {
 		normalizedQuery,
 		temporalPolicy,
-		forwardedQuery,
+		carriedQuery,
+		producerQuery,
 		forwarded,
-		cacheKey: JSON.stringify([forwarded.path, temporalPolicy]),
+		cacheKey: JSON.stringify([forwarded.path, temporalPolicy, { includePii: injectTrustedPii }]),
 	};
 }
 
@@ -96,7 +110,8 @@ function surfaceInstance(surfaceId: string): string | undefined {
 
 export async function loadSourcePane(request: PaneLoadRequest): Promise<PaneLoad> {
 	const { board, source, entry, searchParams, fetch, bearer, dialectOverride } = request;
-	const { temporalPolicy, forwardedQuery, forwarded } = paneRequestIdentity(
+	const { temporalPolicy, carriedQuery, forwarded } = paneRequestIdentity(
+		board,
 		source,
 		entry,
 		searchParams,
@@ -109,7 +124,7 @@ export async function loadSourcePane(request: PaneLoadRequest): Promise<PaneLoad
 
 	// Preserve `as_of` (and any surviving viewer filter) on rewritten drill-through links so a
 	// panel click keeps the selected date (KRA-768 query preservation, KRA-789 fan-out).
-	const carry = new URLSearchParams(forwardedQuery);
+	const carry = new URLSearchParams(carriedQuery);
 
 	const artifactId = `${source.id}:${entry.id}`;
 	const dialectHint = entry.dialectHint ?? source.dialectHint ?? "ledger";

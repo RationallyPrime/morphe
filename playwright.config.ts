@@ -26,6 +26,10 @@ const taxisPublicKey = Buffer.from(taxis.expected.public_key_raw_hex, "hex").toS
 const sources = JSON.stringify({
 	version: 2,
 	board: "edge-contract",
+	dimensions: {
+		include_pii: false,
+		justification: "Public edge-contract fixture",
+	},
 	sources: {
 		taxis: {
 			title: "Taxis fixture",

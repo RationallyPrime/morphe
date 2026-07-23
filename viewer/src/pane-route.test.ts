@@ -34,6 +34,7 @@ const source = {
 const board = {
 	version: 2,
 	board: "test-board",
+	dimensions: { includePii: false, justification: "Public pane fixture" },
 	sources: new Map([[source.id, source]]),
 	joins: [],
 } satisfies BoardConfig;

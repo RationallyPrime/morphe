@@ -34,6 +34,10 @@ map is retired and rejected; joins and mounts travel atomically:
 {
 	"version": 2,
 	"board": "timaeus-demo",
+	"dimensions": {
+		"include_pii": false,
+		"justification": "Public demo board keeps governed identities redacted"
+	},
 	"sources": {
 		"taxis": {
 			"kind": "kernel",
@@ -89,6 +93,13 @@ map is retired and rejected; joins and mounts travel atomically:
   identity only from the admitted signed `surface_id`; collection joins consume
   exact signed ExternalRef carriers. The viewer never falls back to request
   queries, labels, displayed values, or legacy field names.
+- `dimensions` — required board policy. `include_pii` is a trusted server-side
+  dimension, never browser authority: the viewer strips hand-typed and
+  link-carried governed parameters, then requests `include_pii=true` only when
+  this board value is true and the source governs that parameter.
+  `justification` is a required nonempty declaration of why the board chose the
+  dimension. The trusted parameter affects upstream admission and cache identity
+  but is never carried into rewritten browser links.
 - `source_trust` — required whenever a source declares surfaces. `issuer` and
   `surface_id` are exact pins; `public_keys` maps an allowed signed `key_id` to
   its canonical unpadded base64url **raw 32-byte Ed25519 public key**. Rotation
