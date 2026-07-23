@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "mzKG-K-mzY92nQebJeB4UaYJ_c-67Tj6KhZSXMp5iRcWozw3qxcRnPwbnYAU2ZfOjQb8UdiA2LCYchi63oeMAw"
+    "signature": "w0BIQ-GhGyDByV3grVNoO-TKAQ6wKTUU0SVs34L8HsXnlMS5Mrpwn-m7vbTCn97B9mpW53fGcWOvBu5IMCzFCw"
   },
   "data": {
     "profile": {
@@ -17,6 +17,7 @@
   "diagnostics": [
     {
       "code": "PROFILE_LOCATION_STALE",
+      "href": null,
       "message": "Location was last confirmed a quarter ago.",
       "path": "$.profile.location",
       "repair_hint": null,
@@ -111,9 +112,9 @@
     }
   },
   "seals": {
-    "content_sha256": "sha256:1b4e5a5cc21cf4b4269666ed378469c48a87bdd5d81510d2bf3ffba26e62f13f",
+    "content_sha256": "sha256:36f88c000223ca49436d37f6e1c51c96ff241c29b64b6ad7e0508bb704c7c351",
     "schema_sha256": "sha256:0d30fcb27066cb0cb3ce6508a302a5199d5a2276c4715716da017282d1edc776",
-    "testimony_sha256": "sha256:5ac25f31b478e250e2ac26179bb22ebc72b477664091b305391ea55de9d3f280"
+    "testimony_sha256": "sha256:32b2d64ac15c137e89b9e22b452000f2c4c779d839565e229a1b189a0b9826b0"
   },
   "source_revision": "krates-profile-fixture-rev-0001",
   "surface_id": "krates.profile:krates-ehf",

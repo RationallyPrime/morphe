@@ -72,6 +72,7 @@ async function resign(
 		diagnostics: (artifact.diagnostics ?? []).map((diagnostic) => ({
 			...diagnostic,
 			repair_hint: diagnostic.repair_hint ?? null,
+			href: diagnostic.href ?? null,
 		})),
 		required_capabilities: artifact.required_capabilities ?? [],
 	});

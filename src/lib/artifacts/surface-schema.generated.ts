@@ -317,6 +317,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Code",
           "type": "string"
         },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        },
         "message": {
           "title": "Message",
           "type": "string"

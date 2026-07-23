@@ -520,6 +520,9 @@ def _taxis_fixture() -> _Fixture:
             path="$.workers[1]",
             message="The second worker needs roster review.",
             repair_hint="Confirm the allocation before dispatch.",
+            # Producer-relative drill to the offending entry: the viewer's
+            # link-rewrite gate resolves it against the declared surfaces.
+            href="/workers/wrk-002",
         ),
         Diagnostic(
             code="TAXIS_ALLOCATION_SOURCE",

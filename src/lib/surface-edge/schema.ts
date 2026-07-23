@@ -27,6 +27,7 @@ export const DEFAULT_SOURCE_VALIDATION_LIMITS: SourceValidationLimits = Object.f
 
 export interface NormalizedDiagnostic extends Diagnostic {
 	readonly repair_hint: string | null;
+	readonly href: string | null;
 }
 
 export type NormalizedSourceSurfaceArtifact = Omit<
@@ -151,6 +152,7 @@ function normalizeDiagnostic(diagnostic: Diagnostic): NormalizedDiagnostic {
 		path: diagnostic.path,
 		message: diagnostic.message,
 		repair_hint: diagnostic.repair_hint ?? null,
+		href: diagnostic.href ?? null,
 	};
 }
 

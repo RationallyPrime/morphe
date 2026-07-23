@@ -900,6 +900,12 @@ def _alert(diag: Diagnostic) -> Node:
     # blurs into the machine detail.
     if diag.repair_hint is not None:
         node["repair"] = diag.repair_hint
+    # A diagnostic that names where its offending entries live renders as a
+    # feedback drill: the host's link-rewrite gate resolves the href against the
+    # source's declared surfaces and strips anything unresolvable, so authoring
+    # it here can never mint a navigation position the board did not declare.
+    if diag.href is not None:
+        node["href"] = diag.href
     return node
 
 

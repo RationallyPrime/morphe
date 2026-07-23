@@ -80,6 +80,13 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	await expect(review).toHaveAttribute("data-tone", "caution");
 
 	await expect(page.getByText("TAXIS_ROW_REVIEW", { exact: true })).toBeVisible();
+	// The producer named where the offending entry lives (Diagnostic.href); the
+	// trust gate rewrote it against the declared surfaces, so the warning IS the
+	// drill-through to the entry it indicts.
+	await expect(page.locator("a.mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" })).toHaveAttribute(
+		"href",
+		"/s/taxis/worker-baldur",
+	);
 	// The cell diagnostic is lifted into the row lane (KRA-796 Defect 2) with the
 	// field label preserved in its visible copy, so the code now reads label-first.
 	await expect(

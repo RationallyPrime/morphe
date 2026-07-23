@@ -304,6 +304,7 @@
           "diagnostics": [
             {
               "code": "TAXIS_ROW_REVIEW",
+              "href": "/workers/wrk-002",
               "message": "The second worker needs roster review.",
               "path": "$.workers[1]",
               "repair_hint": "Confirm the allocation before dispatch.",

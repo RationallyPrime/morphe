@@ -12,6 +12,18 @@ export const SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
           "title": "Code",
           "type": "string"
         },
+        "href": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Href"
+        },
         "message": {
           "title": "Message",
           "type": "string"

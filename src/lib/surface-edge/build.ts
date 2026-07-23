@@ -29,8 +29,9 @@ export const DEFAULT_COMPILER_BUILD_LIMITS: CompilerBuildLimits = Object.freeze(
 	maxSurfaceNodes: 50_000,
 });
 
-export type DiagnosticInput = Omit<CompilerDiagnostic, "repair_hint"> & {
+export type DiagnosticInput = Omit<CompilerDiagnostic, "repair_hint" | "href"> & {
 	readonly repair_hint?: string | null;
+	readonly href?: string | null;
 };
 
 export interface BuildSurfaceOptions {
@@ -114,6 +115,7 @@ function normalizedDiagnostic(diagnostic: DiagnosticInput): CompilerDiagnostic {
 		path: diagnostic.path,
 		message: diagnostic.message,
 		...(typeof diagnostic.repair_hint === "string" ? { repair_hint: diagnostic.repair_hint } : {}),
+		...(typeof diagnostic.href === "string" ? { href: diagnostic.href } : {}),
 	};
 }
 
