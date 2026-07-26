@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "6ZjvsHbZImR47i-FApUohR3AghtvSFlLXh11VQIq_FO7TtK738m_BW1CimTPdGfxmBMRIzWdXzYWsIpNQnbzAw"
+    "signature": "VL3_kxB_TYWmWeRJKIQ06PQ1_sdUo32fNirOXYMtfdwaSrLCRPBzr60BVXYhwXIlk4_rUYIwqOgI_CFzE-KyDA"
   },
   "data": {
     "allocation": {
@@ -114,13 +114,13 @@
   "seals": {
     "content_sha256": "sha256:0a0c1ea18acfd42469cb24d5b7941e3a6d7bfb101b4609dcd7134ea2b4d7b609",
     "schema_sha256": "sha256:c88452bb0a5c65806a80f6cb36bf99caadfa9052bf171fe9f267877f846ac4e5",
-    "testimony_sha256": "sha256:32a143efb3b253ad8db21f77d9b52c87fc511ea7bebb340efaeaa5b486274af8"
+    "testimony_sha256": "sha256:96357c3f503757f6a3e1e0a9befcd92991fcda0f0fc9f18e92be6ac28d3df60d"
   },
   "source_revision": "krates-budget-fixture-rev-0001",
   "surface_id": "krates.budget:krates-ehf",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.6.0",
+    "hint_vocabulary": "0.7.0",
     "id": "krates.budget",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

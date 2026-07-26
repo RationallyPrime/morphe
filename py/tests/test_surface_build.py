@@ -40,7 +40,7 @@ def _build(schema: dict[str, Any], data: object) -> SurfaceNode:
 
 
 def test_surface_compiler_uses_current_grammar_version() -> None:
-    assert GRAMMAR_VERSION == "0.6.0"
+    assert GRAMMAR_VERSION == "0.7.0"
 
 
 def test_record_card_has_scalar_child() -> None:
@@ -51,7 +51,7 @@ def test_record_card_has_scalar_child() -> None:
     assert name.value == "Ada"
     assert name.text_as == "caption"
     assert name.emphasis == "muted"
-    assert name.intent == "folio"
+    assert name.intent == "footnote"
 
 
 def test_signed_property_order_controls_record_children() -> None:

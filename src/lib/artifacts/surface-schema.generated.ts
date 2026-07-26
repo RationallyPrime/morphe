@@ -1299,9 +1299,9 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
     },
     "RegisterIntent": {
       "enum": [
-        "folio",
-        "marginalia",
-        "seal"
+        "footnote",
+        "aside",
+        "authority"
       ],
       "type": "string"
     },

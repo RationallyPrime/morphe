@@ -65,7 +65,11 @@ export const CORE_INTENTS: readonly CoreIntent[] = [
 ] as const;
 
 /** Shared register-extension names every shipped dialect re-reads. */
-export const REGISTER_INTENTS: readonly RegisterIntent[] = ["folio", "marginalia", "seal"] as const;
+export const REGISTER_INTENTS: readonly RegisterIntent[] = [
+	"footnote",
+	"aside",
+	"authority",
+] as const;
 
 /** Every authorable intent ref, as a runtime list for tests and validators. */
 export const INTENT_REFS: readonly IntentRef[] = [...CORE_INTENTS, ...REGISTER_INTENTS] as const;

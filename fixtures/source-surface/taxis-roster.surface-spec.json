@@ -5,7 +5,7 @@
       "diagnostics": [],
       "emphasis": "muted",
       "heading": true,
-      "intent": "folio",
+      "intent": "footnote",
       "items": [],
       "label": "Roster",
       "path": "$.name",

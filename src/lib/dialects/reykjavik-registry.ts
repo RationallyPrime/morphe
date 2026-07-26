@@ -26,8 +26,8 @@
  *   - it defines all EIGHT core intents (incl. `evidence`, the record register);
  *   - every intent carries all SEVEN channels (surface/on/hover/border/ring +
  *     the action `active`/`disabled` pressed/disabled states);
- *   - it contributes the SAME register extensions the others do (folio /
- *     marginalia / seal), re-read for a court record;
+ *   - it contributes the SAME register extensions the others do (footnote /
+ *     aside / authority), re-read for a court record;
  *   - it ships a surface stack (REYKJAVIK_SURFACES) so the page substrate cools
  *     to the court-record reading too, instead of staying Archive-warm.
  */
@@ -127,7 +127,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ink: "var(--mo-neutral-11)",
 		"ink-hover": "var(--mo-neutral-9)",
 	},
-	/** accession: the catalog accent echoes the amethyst beacon (a registry folio). */
+	/** accession: the catalog accent echoes the amethyst beacon (a registry footnote). */
 	accession: {
 		surface: "color-mix(in srgb, var(--mo-violet-700) 42%, var(--mo-neutral-3))",
 		on: "var(--mo-violet-300)",
@@ -179,15 +179,15 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the Archive and Clinical contribute, re-read
- * for a court record. Identical NAMES (so an authored `intent: "seal"` keeps
+ * for a court record. Identical NAMES (so an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed-point demonstration at the
- * extension tier. Without these, an authored `intent: "folio"` would fall through
+ * extension tier. Without these, an authored `intent: "footnote"` would fall through
  * to the warm Archive register while the rest of the page reads cool.
  * ------------------------------------------------------------------------- */
 
 const REYKJAVIK_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → docket/case-number register: an amethyst-toned mono label. */
-	folio: {
+	/** Footnote → docket/case-number register: an amethyst-toned mono label. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-violet-300) 72%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-violet-700))",
@@ -198,8 +198,8 @@ const REYKJAVIK_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-violet-400)",
 		"ink-hover": "var(--mo-violet-300)",
 	},
-	/** Marginalia → annotation/aside register: an amethyst-toned aside. */
-	marginalia: {
+	/** Aside → the annotation register: an amethyst-toned note. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-violet-700))",
 		on: "var(--mo-neutral-10)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-violet-700))",
@@ -211,11 +211,11 @@ const REYKJAVIK_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
-	 * Seal → the registrar's stamp / authority mark. The Registry's authority mark
+	 * Authority → the registrar's stamp. The Registry's authority mark
 	 * is a deliberate AMETHYST stamp — the violet counterpart of the Archive's grave
-	 * amber seal and the Clinical green sign-off, same name, same slot, its own hue.
+	 * amber authority mark and the Clinical green sign-off, same name, same slot, its own hue.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-violet-700)",
 		on: "var(--mo-violet-300)",
 		hover: "color-mix(in srgb, var(--mo-violet-700) 82%, var(--mo-violet-300))",

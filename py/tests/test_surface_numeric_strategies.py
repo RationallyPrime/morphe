@@ -297,11 +297,13 @@ def test_emit_status_clamps_rich_intents_to_neutral() -> None:
     spec = _build(TREASURY, _treasury_data())
     node = emit_node(_child(spec, "$.finality"))
     assert node == {"kind": "status", "tone": "success", "signal": {"text": "settled"}}
-    sealed = {
+    certified = {
         "type": "object",
-        "properties": {"h": {"type": "string", "x-morphe": {"strategy": "status", "role": "seal"}}},
+        "properties": {
+            "h": {"type": "string", "x-morphe": {"strategy": "status", "role": "authority"}}
+        },
     }
-    clamped = emit_node(_child(_build(sealed, {"h": "sha256:abc"}), "$.h"))
+    clamped = emit_node(_child(_build(certified, {"h": "sha256:abc"}), "$.h"))
     assert clamped["tone"] == "neutral"
 
 
@@ -325,7 +327,7 @@ def test_emit_kpi_row_is_a_stat_band_of_signal_cards() -> None:
     assert cards[0]["name"] == "SignalCard"
     assert cards[0]["args"]["measure"]["kind"] == "number"
     assert cards[0]["args"]["measure"]["emphasis"] == "strong"
-    assert cards[0]["args"]["kicker"]["intent"] == "folio"
+    assert cards[0]["args"]["kicker"]["intent"] == "footnote"
     assert cards[0]["slots"] == {"signal": [], "body": []}
     assert cards[1]["args"]["measure"]["kind"] == "text"
 
@@ -398,7 +400,7 @@ def test_kpi_row_with_garbage_rows_still_compiles() -> None:
 
 
 def test_morphe_hint_is_strict_at_authoring_time() -> None:
-    assert HINT_VOCABULARY_VERSION == "0.6.0"
+    assert HINT_VOCABULARY_VERSION == "0.7.0"
     block = morphe_hint(strategy="number", format="currency", currency="ISK")
     assert block == {"x-morphe": {"strategy": "number", "format": "currency", "currency": "ISK"}}
     assert morphe_hint(temporal="date-time-minute") == {

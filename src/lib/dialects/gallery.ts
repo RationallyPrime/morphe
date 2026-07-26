@@ -19,7 +19,7 @@
  *   - The beacon is the ELECTRIC COBALT on paper: the deep 600 step (the 500
  *     lattice light is tuned for dark grounds and goes thin on bone), with
  *     ice text. Same scarcity discipline as every beacon before it.
- *   - The dark registers INVERT: provenance and seal become solid navy panels
+ *   - The dark registers INVERT: provenance and authority become solid navy panels
  *     on the paper — museum wall labels and stamps — so the vitrine darkness
  *     has typographic echoes on the wall around it.
  *   - FUNCTIONAL color flips to light-theme form: caution/success/info become
@@ -29,7 +29,7 @@
  * PARITY (CONTRACT §8 fixed point): globally shipped and globally selectable,
  * so it meets the same bar as the other shipped dialects — all EIGHT core
  * intents, all SEVEN channels each, the same register extensions
- * (folio/marginalia/seal), and a full surface stack.
+ * (footnote/aside/authority), and a full surface stack.
  *
  * THE DISCIPLINE (Lemma 3): every value below references a NEUTRAL scale var
  * (`--mo-bone-*`, `--mo-cobalt-*`, `--mo-red-*`, `--mo-green-*`) or a
@@ -184,13 +184,13 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the other dialects contribute, re-read for
- * the museum wall. Identical NAMES (an authored `intent: "seal"` keeps
+ * the museum wall. Identical NAMES (an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed point at the extension tier.
  * ------------------------------------------------------------------------- */
 
 const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → the catalogue number: dim ink, mono, the quietest mark on the wall. */
-	folio: {
+	/** Footnote → the catalogue number: dim ink, mono, the quietest mark on the wall. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-cobalt-800) 64%, transparent)",
 		hover: "var(--mo-bone-3)",
@@ -201,8 +201,8 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-cobalt-800)",
 		"ink-hover": "var(--mo-cobalt-700)",
 	},
-	/** Marginalia → the curator's pencil aside: a plaster panel, softened ink. */
-	marginalia: {
+	/** Aside → the curator's pencil note: a plaster panel, softened ink. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-bone-2) 70%, var(--mo-bone-4))",
 		on: "color-mix(in srgb, var(--mo-cobalt-800) 80%, transparent)",
 		hover: "var(--mo-bone-2)",
@@ -214,11 +214,11 @@ const GALLERY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-cobalt-700)",
 	},
 	/**
-	 * Seal → the authority stamp: deep lattice navy pressed into the paper —
+	 * Authority → the stamp: deep lattice navy pressed into the paper —
 	 * the grave sibling of the cobalt beacon, same slot the Archive's grave
 	 * amber held, its own world.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-cobalt-700)",
 		on: "var(--mo-cobalt-100)",
 		hover: "color-mix(in srgb, var(--mo-cobalt-700) 84%, var(--mo-cobalt-500))",

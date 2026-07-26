@@ -1,10 +1,18 @@
 # Krepis surface style guide
 
 How a kernel authors a Morphe surface that reads as one product across the family.
-Written against `morphe-grammar` **py-v0.8.0** (grammar 0.4.0, compiler 0.3.5 — the
+Written against `morphe-grammar` **py-v0.11.0** (grammar 0.7.0, compiler 0.3.5 — the
 floor for operator-first hierarchy and audit-proof composition). The
 authority order: the grammar (`py/morphe_grammar/models.py`) > this guide > per-kernel
 taste. If the guide fights the grammar, the grammar wins and the guide has a bug.
+
+> **Grammar 0.7.0 rename (KRA-831).** The register-tier intent words are now
+> `footnote`, `aside`, `authority` — renamed from `folio`, `marginalia`, `seal`.
+> This is a hard wire break with no alias window: a kernel still authoring
+> `role="seal"` compiles an artifact the viewer's trust gate rejects with a 409
+> naming both grammar versions. `authority` also disentangles the intent from a
+> kernel's DOMAIN seals (misthos's seal state, a content hash's attestation) —
+> those are domain concepts and keep their own names.
 
 ## The one rule
 
@@ -51,8 +59,8 @@ domain genuinely has nothing for it — never reorder.
    foreign keys are pre-resolved `SurfaceRef {label, href}` with
    `strategy="linked-ref"` — never a raw UUID column (zygos's `_account_href` pattern).
 5. **Provenance footer.** Ids, hashes, timestamps as a trailing section:
-   `role="provenance"` on ids/timestamps, `role="seal"` on content hashes
-   (`result_hash`, `payload_hash`) — the seal register intent is exactly for this.
+   `role="provenance"` on ids/timestamps, `role="authority"` on content hashes
+   (`result_hash`, `payload_hash`) — the authority register intent is exactly for this.
    Wire-only fields the pane shouldn't paint keep `hidden=True`, they never get
    deleted from the wire model.
 
@@ -104,9 +112,9 @@ Copy zygos's discipline verbatim:
 - `accession` — names, labels, "what is this" identity fields
 - `evidence` — canonical quantities/amounts (the auditable values)
 - `info` — kind/category tags
-- `seal` — content hashes that certify (result_hash) — footer only
-- `folio` — KPI kickers get this automatically from the compiler
-- `marginalia` — asides/redaction notes (e.g. "PII redacted — governed read")
+- `authority` — content hashes that certify (result_hash) — footer only
+- `footnote` — KPI kickers get this automatically from the compiler
+- `aside` — asides/redaction notes (e.g. "PII redacted — governed read")
 - `primary-action` — at most ONE per pane, on the pane's single drill-in link
 
 ## Progress (use sparingly, honestly)
@@ -226,7 +234,7 @@ tone map.
 
 **Misthos** — `run-summary`: KPI band (gross, net, employer cost, headcount); seal
 state + compliance signal band; per-worker table w/ net `number` column + status; earn/
-deduct/employer breakdown as collapsed sections; `result_hash` in footer as `seal`.
+deduct/employer breakdown as collapsed sections; `result_hash` in footer as `authority`.
 `period`: seal-state progression (status w/ tone map), inputs coverage progress,
 filings table. ADD `payslip` (Auður): earning/deduction sides w/ signed numbers,
 garnishment/pension/union lines visible.
@@ -235,7 +243,7 @@ garnishment/pension/union lines visible.
 (active=success, expiring/breached=caution + Diagnostic on breached,
 pending_signature=caution, draft/terminated/withdrawn/expired/closed=neutral —
 "expired" ran its course; the bad ending is "breached"); counterparty as linked-ref
-where PII allows, else "PII redacted" marginalia note. `horizon`: days-to-due as
+where PII allows, else "PII redacted" aside note. `horizon`: days-to-due as
 signed numbers (negative = overdue), urgency tone map, next-duty identity.
 `overview`: KPI band (total, active, expiring, breached, open adjudications) —
 "expiring" is the CLASSIFIER's count under the org's bound expiry_horizon rules,

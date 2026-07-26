@@ -1156,7 +1156,7 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
  * The DEFAULT dialect (`icelandic-archive`) and the real, intentionally
  * CONTRASTING 2nd dialect (`clinical`) are the §13 Lemma-4 demonstration shipped
  * in the codebase: the same intent NAMES (core eight + the register slots
- * folio/marginalia/seal) re-mapped onto different NEUTRAL scale chains, plus
+ * footnote/aside/authority) re-mapped onto different NEUTRAL scale chains, plus
  * different bounded priors. `clinical` is not yet wired into the barrel, so it is
  * imported directly from its module (as core.test.ts imports the default).
  *

@@ -99,7 +99,7 @@ Authored trees may reference only the closed `IntentRef` vocabulary:
 
 - core: `primary-action`, `neutral`, `provenance`, `evidence`, `accession`, `caution`,
   `success`, `info`;
-- register: `folio`, `marginalia`, `seal`.
+- register: `footnote`, `aside`, `authority`.
 
 Primitive components consume slots. Dialects map intents and surfaces onto neutral scale values.
 No authored tree, primitive, or dialect may bypass this direction with an ad hoc hex value.

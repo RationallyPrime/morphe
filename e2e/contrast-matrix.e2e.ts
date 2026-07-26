@@ -152,7 +152,7 @@ test.describe("contrast matrix — freestanding ink clears AA on every ground (K
 					const s = getComputedStyle(el);
 					// The filled `surface + on` contract only applies to intents that paint
 					// an OPAQUE fill (badge/status/alert/solid button). A register intent
-					// with a `transparent` surface (folio, a bare catalogue number) is
+					// with a `transparent` surface (footnote, a bare catalogue number) is
 					// freestanding ink, not a fill — skip it here; its `ink` channel is
 					// what the probe rows above already hold to AA.
 					if (alphaOf(s.backgroundColor) < 250) continue;

@@ -37,9 +37,9 @@ const INTENTS = new Set<IntentRef>([
 	"caution",
 	"success",
 	"info",
-	"folio",
-	"marginalia",
-	"seal",
+	"footnote",
+	"aside",
+	"authority",
 ]);
 const EMPHASES = new Set<EmphasisClaim>(["muted", "normal", "strong", "critical"]);
 const KNOWN_HINT_KEYS = new Set([

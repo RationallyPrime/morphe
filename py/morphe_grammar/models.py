@@ -44,7 +44,7 @@ type CoreIntent = Literal[
     "success",
     "info",
 ]
-type RegisterIntent = Literal["folio", "marginalia", "seal"]
+type RegisterIntent = Literal["footnote", "aside", "authority"]
 type IntentRef = CoreIntent | RegisterIntent
 
 

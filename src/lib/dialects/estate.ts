@@ -4,7 +4,7 @@
  * Estate is the platform reading of the SAME core intents: one operating map laid
  * across a portfolio of acquired holdings, read by an operator (not an editor, not
  * a registrar). Its vertical vocabulary — the holdings accent, the consolidated
- * folio, the operator's stamp — lives ONLY here, at the intent layer, mapped onto
+ * footnote, the operator's stamp — lives ONLY here, at the intent layer, mapped onto
  * the NEUTRAL scales plus the single identity hue. The scale names stay
  * vertical-neutral; the platform vocabulary is an injection (Lemma 4).
  *
@@ -24,8 +24,8 @@
  *   - it defines all EIGHT core intents (incl. `evidence`, the record register);
  *   - every intent carries all SEVEN channels (surface/on/hover/border/ring +
  *     the action `active`/`disabled` pressed/disabled states);
- *   - it contributes the SAME register extensions the others do (folio /
- *     marginalia / seal), re-read for an operating estate;
+ *   - it contributes the SAME register extensions the others do (footnote /
+ *     aside / authority), re-read for an operating estate;
  *   - it ships a surface stack (ESTATE_SURFACES) so the page substrate warms
  *     to the holdings reading too, instead of staying default-cool.
  */
@@ -125,7 +125,7 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 		ink: "var(--mo-neutral-11)",
 		"ink-hover": "var(--mo-neutral-9)",
 	},
-	/** accession: the catalog accent echoes the copper beacon (a holdings folio). */
+	/** accession: the catalog accent echoes the copper beacon (a holdings footnote). */
 	accession: {
 		surface: "color-mix(in srgb, var(--mo-copper-700) 42%, var(--mo-neutral-3))",
 		on: "var(--mo-copper-300)",
@@ -177,15 +177,15 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the other dialects contribute, re-read for
- * an operating estate. Identical NAMES (so an authored `intent: "seal"` keeps
+ * an operating estate. Identical NAMES (so an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed-point demonstration at the
- * extension tier. Without these, an authored `intent: "folio"` would fall through
+ * extension tier. Without these, an authored `intent: "footnote"` would fall through
  * to the default register while the rest of the page reads warm.
  * ------------------------------------------------------------------------- */
 
 const ESTATE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → holding/asset-id register: a copper-toned mono label. */
-	folio: {
+	/** Footnote → holding/asset-id register: a copper-toned mono label. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-copper-300) 72%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-copper-700))",
@@ -196,8 +196,8 @@ const ESTATE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-copper-400)",
 		"ink-hover": "var(--mo-copper-300)",
 	},
-	/** Marginalia → annotation/aside register: a copper-toned aside. */
-	marginalia: {
+	/** Aside → the annotation register: a copper-toned note. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-copper-700))",
 		on: "var(--mo-neutral-10)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-copper-700))",
@@ -209,11 +209,11 @@ const ESTATE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
-	 * Seal → the operator's stamp / authority mark. The Estate's authority mark
+	 * Authority → the operator's stamp. The Estate's authority mark
 	 * is a deliberate COPPER stamp — the bronze counterpart of the Registry's
-	 * amethyst seal, same name, same slot, its own hue.
+	 * amethyst authority mark, same name, same slot, its own hue.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-copper-700)",
 		on: "var(--mo-copper-300)",
 		hover: "color-mix(in srgb, var(--mo-copper-700) 82%, var(--mo-copper-300))",

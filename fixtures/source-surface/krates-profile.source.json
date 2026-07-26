@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "krates-fixture-2026-01",
-    "signature": "w0BIQ-GhGyDByV3grVNoO-TKAQ6wKTUU0SVs34L8HsXnlMS5Mrpwn-m7vbTCn97B9mpW53fGcWOvBu5IMCzFCw"
+    "signature": "tUD4KdvCiCPdF_m6t_5vC7XXBfkIK6Lrcee29bj8la1u4127QrdwglnuoASRBC-9ohPa5oiHp1CKpEhOCFlcDA"
   },
   "data": {
     "profile": {
@@ -114,13 +114,13 @@
   "seals": {
     "content_sha256": "sha256:36f88c000223ca49436d37f6e1c51c96ff241c29b64b6ad7e0508bb704c7c351",
     "schema_sha256": "sha256:0d30fcb27066cb0cb3ce6508a302a5199d5a2276c4715716da017282d1edc776",
-    "testimony_sha256": "sha256:32b2d64ac15c137e89b9e22b452000f2c4c779d839565e229a1b189a0b9826b0"
+    "testimony_sha256": "sha256:d7cc121536131ddd7f0d373634b3ae24489ac368e114c0af0a64c2f31eed29f3"
   },
   "source_revision": "krates-profile-fixture-rev-0001",
   "surface_id": "krates.profile:krates-ehf",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.6.0",
+    "hint_vocabulary": "0.7.0",
     "id": "krates.profile",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

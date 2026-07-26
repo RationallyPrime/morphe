@@ -43,7 +43,7 @@ PANE_SCHEMA: dict[str, Any] = {
         "seal": {
             "type": "string",
             "title": "Testimony seal",
-            "x-morphe": {"role": "seal"},
+            "x-morphe": {"role": "authority"},
         },
         "proof": {
             "type": "object",
@@ -70,7 +70,7 @@ def test_stage_one_demotes_only_conventional_root_identity() -> None:
 
     assert identity.text_as == "caption"
     assert identity.emphasis == "muted"
-    assert identity.intent == "folio"
+    assert identity.intent == "footnote"
 
     required_only = {
         "type": "object",
@@ -100,7 +100,7 @@ def test_stage_two_orders_decisions_and_preserves_audit_proof() -> None:
         "value": "Main book",
         "as": "caption",
         "emphasis": "muted",
-        "intent": "folio",
+        "intent": "footnote",
     }
     assert children[2]["kind"] == "grid"
     assert children[2]["children"][1]["kind"] == "status"

@@ -37,7 +37,7 @@ _COLLECTION = {"table", "card-stack", "kpi-row", "trail"}
 # a leading KPI row is a header, not the record's main body.
 _PROMOTABLE = {"table", "card-stack"}
 _IDENTITY_KEYS = ("name", "title")
-_PROVENANCE_ROLES = {"provenance", "accession", "seal"}
+_PROVENANCE_ROLES = {"provenance", "accession", "authority"}
 _NUMERIC_TEXT = re.compile(r"^\(?[+-]?[0-9](?:[0-9 _.,]*[0-9])?\)?$")
 _COERCIBLE_NUMBER = re.compile(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$")
 _COERCIBLE_INTEGER = re.compile(r"^[+-]?[0-9]+$")
@@ -546,7 +546,7 @@ def _leaf(plan: _Plan, data: object, ctx: _Ctx) -> SurfaceNode:
         strategy=plan.strategy,
         value=value,
         scalar_number_kind=scalar_number_kind,
-        intent=(plan.hint.role or "folio")
+        intent=(plan.hint.role or "footnote")
         if identity
         else (
             _value_intent(plan.hint, value, scalar_number_kind)

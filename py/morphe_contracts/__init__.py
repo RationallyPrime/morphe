@@ -23,7 +23,7 @@ type CoreIntent = Literal[
     "info",
 ]
 
-type RegisterIntent = Literal["folio", "marginalia", "seal"]
+type RegisterIntent = Literal["footnote", "aside", "authority"]
 
 # Closed Literal mirror of morphe_grammar IntentRef (CONTRACT.md §8): core intents plus
 # the shared register tier. Exported JSON Schema constrains agent generation instead of

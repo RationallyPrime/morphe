@@ -144,7 +144,7 @@ def test_open_data_and_non_label_nodes_reject_gloss(tree: NodeFixture) -> None:
 
 
 def test_register_intent_validates() -> None:
-    validate_node({"kind": "text", "value": "p. 12", "as": "caption", "intent": "folio"})
+    validate_node({"kind": "text", "value": "p. 12", "as": "caption", "intent": "footnote"})
 
 
 def test_unknown_intent_fails_validation() -> None:

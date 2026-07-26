@@ -55,7 +55,7 @@ const EXPECTED_BAND: Node = {
 								kind: "text",
 								value: "Q4",
 								as: "caption",
-								intent: "folio",
+								intent: "footnote",
 								gloss: "The reporting quarter.",
 							},
 							title: {
@@ -72,7 +72,7 @@ const EXPECTED_BAND: Node = {
 						kind: "compound",
 						name: "SignalCard",
 						args: {
-							kicker: { kind: "text", value: "Route", as: "caption", intent: "folio" },
+							kicker: { kind: "text", value: "Route", as: "caption", intent: "footnote" },
 							title: { kind: "text", value: "Rail", as: "subheading" },
 							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
 						},

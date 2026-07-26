@@ -37,7 +37,7 @@ const PANE_SCHEMA: JsonSchema = {
 		seal: {
 			type: "string",
 			title: "Testimony seal",
-			"x-morphe": { role: "seal" },
+			"x-morphe": { role: "authority" },
 		},
 		proof: {
 			type: "object",
@@ -61,7 +61,7 @@ describe("operator-first surface compilation (KRA-798)", () => {
 	it("matches the Python stage-one identity/context contract", () => {
 		const spec = buildSurface(PANE_SCHEMA, PANE_DATA, { root: PANE_SCHEMA });
 		const identity = spec.children.find((child) => child.path === "$.name");
-		expect(identity).toMatchObject({ text_as: "caption", emphasis: "muted", intent: "folio" });
+		expect(identity).toMatchObject({ text_as: "caption", emphasis: "muted", intent: "footnote" });
 
 		const requiredOnly: JsonSchema = {
 			type: "object",
@@ -92,7 +92,7 @@ describe("operator-first surface compilation (KRA-798)", () => {
 			value: "Main book",
 			as: "caption",
 			emphasis: "muted",
-			intent: "folio",
+			intent: "footnote",
 		});
 		expect(section.children.slice(2, 5).map((child) => child.kind)).toEqual([
 			"grid",

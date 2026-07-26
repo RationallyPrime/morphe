@@ -18,12 +18,12 @@ const compilationReceipt: CompilationReceipt = {
 	surfaceIdGate: "exact",
 };
 
-function parsed(tree: Node, withReceipt = false) {
+function parsed(tree: Node, withReceipt = false, grammarVersion = GRAMMAR_VERSION) {
 	return {
 		ok: true as const,
 		envelope: {
 			artifactId: "taxis:roster",
-			grammarVersion: GRAMMAR_VERSION,
+			grammarVersion,
 			compilerVersion: "0.3.3",
 			dialectHint: "ledger",
 			tree,
@@ -76,6 +76,56 @@ describe("loadGatedSurface", () => {
 		).rejects.toMatchObject({
 			status: 502,
 			body: { code: "invalid-artifact", artifactId: "taxis:roster" },
+		});
+	});
+
+	// KRA-831 made the register-tier rename a HARD wire break with no alias window,
+	// on the explicit ground that this 409 — naming both versions — IS the migration
+	// UX. Both arms are gated: a stale artifact that still parses, and one whose
+	// foreign grammar makes it fail the schema pass before any version check runs.
+	it("names both versions when a pre-0.7.0 artifact parses under a foreign grammar", async () => {
+		await expect(
+			loadGatedSurface({
+				fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+				url: "http://taxis.test/roster",
+				artifactId: "taxis:roster",
+				parse: async () => parsed({ kind: "text", value: "stale", as: "body" }, true, "0.6.0"),
+				transformTree: (tree) => tree,
+				dialectOverride: null,
+			}),
+		).rejects.toMatchObject({
+			status: 409,
+			body: {
+				code: "grammar-mismatch",
+				artifactId: "taxis:roster",
+				artifactVersion: "0.6.0",
+				supportedVersion: GRAMMAR_VERSION,
+			},
+		});
+	});
+
+	it("prefers the 409 over a generic 502 when a foreign-grammar artifact fails its schema pass", async () => {
+		await expect(
+			loadGatedSurface({
+				fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+				url: "http://taxis.test/roster",
+				artifactId: "taxis:roster",
+				// What a real 0.6.0 artifact does: `intent: "seal"` is no longer in the
+				// grammar, so the trust gate rejects it before the envelope version is read.
+				parse: async () => ({
+					ok: false as const,
+					reason: "unknown intent 'seal'",
+					rawGrammarVersion: "0.6.0",
+				}),
+				dialectOverride: null,
+			}),
+		).rejects.toMatchObject({
+			status: 409,
+			body: {
+				code: "grammar-mismatch",
+				artifactVersion: "0.6.0",
+				supportedVersion: GRAMMAR_VERSION,
+			},
 		});
 	});
 

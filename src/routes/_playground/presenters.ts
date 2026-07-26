@@ -138,7 +138,7 @@ function presentGrammarStudio(variant: GrammarVariant): Node {
 					kind: "text",
 					value: JSON.stringify({ family: variant, primitives: labels }, null, 2),
 					as: "caption",
-					intent: "marginalia",
+					intent: "aside",
 				},
 			],
 		},
@@ -216,7 +216,7 @@ function presentStateActions(snapshot: JsonRecord, actionLog: readonly string[])
 					actionLog.length === 0 ? "none" : actionLog.join(", ")
 				}`,
 				as: "caption",
-				intent: "marginalia",
+				intent: "aside",
 			},
 		],
 	);

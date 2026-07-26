@@ -78,7 +78,7 @@ const EXPECTED_COMPOUND: Node = {
 	kind: "compound",
 	name: "EntityHeader",
 	args: {
-		kicker: { kind: "text", value: "Krates ehf", as: "caption", intent: "folio" },
+		kicker: { kind: "text", value: "Krates ehf", as: "caption", intent: "footnote" },
 		title: {
 			kind: "text",
 			value: "Vendor",
@@ -197,7 +197,7 @@ describe("entity-header lowering", () => {
 		if (node.kind !== "compound") throw new Error("expected a compound");
 		expect(Object.hasOwn(node.args, "keyFigure")).toBe(false);
 		expect(node.args.title).toEqual({ kind: "text", value: "Person", as: "heading", level: 1 });
-		expect(node.args.kicker).toMatchObject({ value: "Ada", as: "caption", intent: "folio" });
+		expect(node.args.kicker).toMatchObject({ value: "Ada", as: "caption", intent: "footnote" });
 	});
 
 	it("surfaces node-level and promoted-arg diagnostics at the head of the meta row", () => {

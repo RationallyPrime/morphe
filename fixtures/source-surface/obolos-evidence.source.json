@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "obolos-fixture-2026-01",
-    "signature": "zH75yhyDmQ3IuAMS0x-e5NxIdMQNejOappavbr-pGFWjR6ZqZVhZwCttuCvMKvc4SiO0T_La6Eh5b_-hI4NRDg"
+    "signature": "XWCa6hJLpxUEU9hHjpJKVTmt82fDc601Lj5GqlqXtWa9CUdxSlTofhg4cHAqRoTkTS9ZrvzgsIVZXunO9C1UAw"
   },
   "data": {
     "adjustment": null,
@@ -312,9 +312,9 @@
       },
       "RegisterIntent": {
         "enum": [
-          "folio",
-          "marginalia",
-          "seal"
+          "footnote",
+          "aside",
+          "authority"
         ],
         "type": "string"
       },
@@ -552,14 +552,14 @@
   },
   "seals": {
     "content_sha256": "sha256:9f43c84bcea80a6583ca1b2473c142bde8b4a57c8fc6c79e069c8981b369f4e4",
-    "schema_sha256": "sha256:fd9bbacf5e3fcf4d23c467b02ad2c9e8e61706bfb1326860fe644664a876be57",
-    "testimony_sha256": "sha256:b0e3b20ddd0fc58d2ad8fd1c297330c830fffb3d5a8fb6278da25b5d4381a967"
+    "schema_sha256": "sha256:1ecd19e07d34bd8728d77e0ab3d9df08a50c8d41eca50c13fc37e1c83d558821",
+    "testimony_sha256": "sha256:a33323a662b6302d79508e59f4c0e31a73f08e08f5b7d0ce057c7005d116eeff"
   },
   "source_revision": "obolos-fixture-rev-0001",
   "surface_id": "obolos.evidence:settlement-2026-07-17",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.6.0",
+    "hint_vocabulary": "0.7.0",
     "id": "obolos.evidence",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

@@ -157,7 +157,7 @@ type EmphasisClaim  = "muted" | "normal" | "strong" | "critical";   // a CLAIM; 
 type CoreIntent =
   "primary-action" | "neutral" | "provenance" | "evidence" | "accession"
   | "caution" | "success" | "info";
-type RegisterIntent = "folio" | "marginalia" | "seal";
+type RegisterIntent = "footnote" | "aside" | "authority";
 type IntentRef      = CoreIntent | RegisterIntent;                  // closed authorable keyset
 ```
 
@@ -527,8 +527,8 @@ fixed point.
 cobalt under the default `gallery` dialect, used sparingly), `neutral`,
 `provenance` (lineage/citation blue), `evidence` (the
 document register), `accession` (the catalog accent), `caution`, `success`,
-`info`. **Register intents** (shared discourse roles): `folio`, `marginalia`,
-`seal`. The authored intent namespace is closed: adding another intent tier is a
+`info`. **Register intents** (shared discourse roles): `footnote`, `aside`,
+`authority`. The authored intent namespace is closed: adding another intent tier is a
 grammar/contract change, and every shipped dialect must cover it. Dialects
 re-read the keyset; they do not accept arbitrary extra intent strings.
 
@@ -729,13 +729,13 @@ re-render with the returned choice map. The substrate ships a dev-only static
 choice delegate only to prove the plug-in path; the renderer never imports it.
 
 **Operational compiler projection (ADR-0021).** Stage 1 treats only a conventional root
-`name`/`title` scalar as identity context (`caption`, muted, `folio`); it never promotes the first
+`name`/`title` scalar as identity context (`caption`, muted, `footnote`); it never promotes the first
 required scalar as identity. Stage 2 gives every root strategy exactly one producer-authored task
 label as `Text(as:"heading", level:1)`; a legacy root `heading:false` cannot erase it, while nested
 records never mint another level-1 heading. Root children are stably partitioned into identity
 context, diagnostics/attention, the primary worklist, other task content, and a trailing audit-proof
 lane. Ordering inside each partition remains source order, and explicit provenance outranks inferred
-identity. Children hinted with `provenance`, `accession`, or `seal` are not discarded or rewritten:
+identity. Children hinted with `provenance`, `accession`, or `authority` are not discarded or rewritten:
 their values and labels move once into the promoted `ProvenanceFooter@1.0.0`, a native `Disclosure`
 with an optional node-valued `heading` parameter, `facts`/`seals`/`links` slots, and no `Frame` reset.
 Their recursive diagnostics remain visible exactly once in the attention lane outside the initially

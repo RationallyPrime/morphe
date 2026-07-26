@@ -89,7 +89,7 @@ function masthead(model: HomeModel): Node {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "Home", as: "caption", intent: "folio" },
+			{ kind: "text", value: "Home", as: "caption", intent: "footnote" },
 			{ kind: "text", value: model.title, as: "display", emphasis: "strong" },
 			...(model.asOf === undefined
 				? []

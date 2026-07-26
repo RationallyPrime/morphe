@@ -95,7 +95,7 @@ EXPECTED_COMPOUND: dict[str, Any] = {
             "kind": "text",
             "value": "Krates ehf",
             "as": "caption",
-            "intent": "folio",
+            "intent": "footnote",
         },
         "title": {
             "kind": "text",

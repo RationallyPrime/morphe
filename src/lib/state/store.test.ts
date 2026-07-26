@@ -27,7 +27,7 @@ describe("Morphe client store — ADR-0003 contract", () => {
 			null,
 			true,
 			42,
-			"folio",
+			"footnote",
 			["a", 1, false, null],
 			{ filters: ["open", "late"], range: { min: 3, max: 9 }, visible: true },
 		];
@@ -42,7 +42,7 @@ describe("Morphe client store — ADR-0003 contract", () => {
 			"case.0": null,
 			"case.1": true,
 			"case.2": 42,
-			"case.3": "folio",
+			"case.3": "footnote",
 			"case.4": ["a", 1, false, null],
 			"case.5": { filters: ["open", "late"], range: { min: 3, max: 9 }, visible: true },
 		});

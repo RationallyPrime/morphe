@@ -10,7 +10,7 @@
 		"success",
 		"info"
 	],
-	"register": ["folio", "marginalia", "seal"],
-	"$grandfathered": "The archive-vertical words below predate this gate and are registered as-is; renaming them to neutral vocabulary is a grammar-versioned breaking change (0.5.x -> 0.6) tracked separately from KRA-825. New vertical/domain words must NOT be added: domain meaning lives in dialect-layer display metadata, never in the grammar unions.",
-	"grandfathered_vertical": ["provenance", "accession", "folio", "marginalia", "seal"]
+	"register": ["footnote", "aside", "authority"],
+	"$grandfathered": "EMPTY as of KRA-831 (grammar 0.6.0 -> 0.7.0). The register tier was renamed to neutral vocabulary — folio -> footnote, marginalia -> aside, seal -> authority (the last also ends the collision with kernel-side DOMAIN seals, which are content attestations and not intents). `provenance` and `accession` were RE-CLASSIFIED, not grandfathered: they are neutral discourse roles ('where this came from' / 'its registered identity'), so CONTRACT.md §8's core-keyset stability promise stands unamended and they carry no rename debt. The key survives with an empty list so the gate shape is stable: new vertical/domain words must NOT be added here or anywhere in the grammar unions — domain meaning lives in dialect-layer display metadata.",
+	"grandfathered_vertical": []
 }

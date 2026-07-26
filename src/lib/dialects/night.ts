@@ -26,7 +26,7 @@
  * PARITY (CONTRACT §8 fixed point): globally shipped and globally selectable,
  * so it meets the same bar as the other shipped dialects — all EIGHT core
  * intents, all SEVEN channels each, the same register extensions
- * (folio/marginalia/seal), and a full surface stack.
+ * (footnote/aside/authority), and a full surface stack.
  *
  * THE DISCIPLINE (Lemma 3): every value below references a NEUTRAL scale var
  * (`--mo-cobalt-*`, `--mo-red-*`, `--mo-green-*`) or a `color-mix` of them.
@@ -174,8 +174,8 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * ------------------------------------------------------------------------- */
 
 const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → the plate number glowing dimly in the dark: lattice blue, mono. */
-	folio: {
+	/** Footnote → the plate number glowing dimly in the dark: lattice blue, mono. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-cobalt-400) 76%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-cobalt-900) 80%, var(--mo-cobalt-700))",
@@ -186,8 +186,8 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-cobalt-400)",
 		"ink-hover": "var(--mo-cobalt-300)",
 	},
-	/** Marginalia → a half-lit aside in the strata, softened ice. */
-	marginalia: {
+	/** Aside → a half-lit note in the strata, softened ice. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-cobalt-900) 72%, var(--mo-cobalt-700))",
 		on: "color-mix(in srgb, var(--mo-cobalt-100) 70%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-cobalt-900) 62%, var(--mo-cobalt-700))",
@@ -198,8 +198,8 @@ const NIGHT_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-cobalt-300)",
 		"ink-hover": "var(--mo-cobalt-100)",
 	},
-	/** Seal → the authority mark: the deep navy charged toward the beacon. */
-	seal: {
+	/** Authority → the stamp: the deep navy charged toward the beacon. */
+	authority: {
 		surface: "color-mix(in srgb, var(--mo-cobalt-700) 76%, var(--mo-cobalt-500))",
 		on: "var(--mo-cobalt-100)",
 		hover: "color-mix(in srgb, var(--mo-cobalt-700) 64%, var(--mo-cobalt-500))",

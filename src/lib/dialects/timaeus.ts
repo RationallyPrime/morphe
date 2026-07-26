@@ -31,8 +31,8 @@
  *   - it defines all EIGHT core intents (incl. `evidence`, the record register);
  *   - every intent carries all SEVEN channels (surface/on/hover/border/ring +
  *     the action `active`/`disabled` pressed/disabled states);
- *   - it contributes the SAME register extensions the others do (folio /
- *     marginalia / seal), re-read for the plate world;
+ *   - it contributes the SAME register extensions the others do (footnote /
+ *     aside / authority), re-read for the plate world;
  *   - it ships a surface stack (TIMAEUS_SURFACES) so the page substrate drops
  *     into the constellation darkness too, instead of staying Archive-warm.
  *
@@ -190,15 +190,15 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the other dialects contribute, re-read for
- * the plate world. Identical NAMES (so an authored `intent: "seal"` keeps
+ * the plate world. Identical NAMES (so an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed-point demonstration at the
  * extension tier. The plates already speak this register: each carries its
- * plate number ("B7") as a folio mark in the lattice blue.
+ * plate number ("B7") as a footnote mark in the lattice blue.
  * ------------------------------------------------------------------------- */
 
 const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → the plate-number register: a dim lattice-blue mono label. */
-	folio: {
+	/** Footnote → the plate-number register: a dim lattice-blue mono label. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-cobalt-400) 78%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-cobalt-700))",
@@ -209,8 +209,8 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-cobalt-400)",
 		"ink-hover": "var(--mo-cobalt-300)",
 	},
-	/** Marginalia → annotation/aside register: a half-lit aside in the ground. */
-	marginalia: {
+	/** Aside → the annotation register: a half-lit note in the ground. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 74%, var(--mo-cobalt-700))",
 		on: "var(--mo-neutral-9)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 74%, var(--mo-cobalt-700))",
@@ -222,12 +222,12 @@ const TIMAEUS_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-11)",
 	},
 	/**
-	 * Seal → the Aition mark. B7 is explicit: the Philosopher-King "seals the
+	 * Authority → the Aition mark. B7 is explicit: the Philosopher-King "seals the
 	 * act in an Aition" — so the authority mark is the energized deep stamp of
 	 * the lattice (navy charged toward the beacon), same name, same slot as the
-	 * Archive's grave amber seal, its own world.
+	 * Archive's grave amber authority mark, its own world.
 	 */
-	seal: {
+	authority: {
 		surface: "color-mix(in srgb, var(--mo-cobalt-700) 76%, var(--mo-cobalt-500))",
 		on: "var(--mo-cobalt-300)",
 		hover: "color-mix(in srgb, var(--mo-cobalt-700) 64%, var(--mo-cobalt-500))",
