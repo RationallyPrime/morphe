@@ -133,6 +133,21 @@ describe("FP2 — both dialects keep the scales neutral (no welded vertical)", (
 		// immediately followed by `(`), so the `srgb` colour-SPACE keyword inside
 		// `color-mix(in srgb, …)` is not mistaken for an `rgb(` literal.
 		if (/\b(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch|hwb)\(/.test(v)) return false;
+		// A color-mix interior is scale refs ONLY (KRA-825 gate 2 hardening): a
+		// NAMED color smuggled as a mix argument (`color-mix(in srgb, red, …)`)
+		// passes every check above, so validate the argument grammar explicitly —
+		// `in <space>`, then exactly two of `var(--mo-…)`/`transparent`, each with
+		// an optional percentage. Nested mixes are not part of the dialect idiom.
+		if (v.startsWith("color-mix(")) {
+			const inner = v.slice("color-mix(".length, v.endsWith(")") ? -1 : undefined);
+			const args = inner.split(",").map((s) => s.trim().replace(/\s+/g, " "));
+			if (args.length !== 3) return false;
+			if (!/^in [a-z-]+( (?:shorter|longer|increasing|decreasing) hue)?$/.test(args[0] ?? "")) {
+				return false;
+			}
+			const colorArg = /^(?:var\(--mo-[a-z0-9-]+\)|transparent)(?: \d+(?:\.\d+)?%)?$/;
+			return args.slice(1).every((a) => colorArg.test(a));
+		}
 		// Every var() reference must point at the --mo- scale namespace.
 		const refs = v.match(/var\((--[a-z0-9-]+)/g) ?? [];
 		return refs.every((r) => r.includes("--mo-"));

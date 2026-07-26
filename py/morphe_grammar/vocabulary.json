@@ -1,0 +1,16 @@
+{
+	"$comment": "KRA-825 gate 1 — the REGISTERED intent vocabulary, the single source of truth for every authored-facing intent name in the grammar. The Python grammar (models.py CoreIntent/RegisterIntent) and the emitted TS/JSON artifacts must agree with this file exactly; CI fails on any union member outside it (py/tests/test_vocabulary.py, src/lib/grammar/vocabulary.test.ts). Adding an intent name is a grammar-contract change: it lands HERE first, in the same change as the union edit, never as an arbitrary string escape.",
+	"core": [
+		"primary-action",
+		"neutral",
+		"provenance",
+		"evidence",
+		"accession",
+		"caution",
+		"success",
+		"info"
+	],
+	"register": ["folio", "marginalia", "seal"],
+	"$grandfathered": "The archive-vertical words below predate this gate and are registered as-is; renaming them to neutral vocabulary is a grammar-versioned breaking change (0.5.x -> 0.6) tracked separately from KRA-825. New vertical/domain words must NOT be added: domain meaning lives in dialect-layer display metadata, never in the grammar unions.",
+	"grandfathered_vertical": ["provenance", "accession", "folio", "marginalia", "seal"]
+}
