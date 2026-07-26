@@ -11,7 +11,7 @@
         {
           "as": "caption",
           "emphasis": "muted",
-          "intent": "folio",
+          "intent": "footnote",
           "kind": "text",
           "value": "Vestfir\u00f0ir \u2014 \"night\"\nroster"
         },
@@ -33,7 +33,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "Window"
                       },
@@ -62,7 +62,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "Operations"
                       },
@@ -89,7 +89,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "System time"
                       },

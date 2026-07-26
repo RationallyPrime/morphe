@@ -48,7 +48,7 @@ const EXPECTED_TRAIL: Node = {
 			name: "TrailEntry",
 			args: {
 				summary: { kind: "text", value: "Admitted", as: "body" },
-				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "marginalia" },
+				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "aside" },
 			},
 			slots: {
 				// KRA-788 D3: state chips ride the event line; leftover fields keep

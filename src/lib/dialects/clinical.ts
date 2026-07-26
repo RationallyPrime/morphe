@@ -27,8 +27,8 @@
  *      `color-mix` of them. There is NO literal hex, NO new scale, NO scale
  *      rename. The scales stay vertical-neutral (Lemma 3).
  *   2. The intent NAMES are exactly the core eight plus the same register slots
- *      the Archive uses (`folio`/`marginalia`/`seal`) re-read for a console, so
- *      an authored tree referencing `intent: "caution"` (or `"seal"`) keeps
+ *      the Archive uses (`footnote`/`aside`/`authority`) re-read for a console, so
+ *      an authored tree referencing `intent: "caution"` (or `"authority"`) keeps
  *      working unchanged — only the channel→scale map underneath moves.
  *   3. The only other surface a dialect touches is `priors`, which the provider
  *      CLAMPS into the design system's range (budget 1..6, scaleTier 2..4), so
@@ -185,13 +185,13 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the Archive contributes, re-read for the
- * console. Identical NAMES (so an authored `intent: "seal"` keeps resolving),
+ * console. Identical NAMES (so an authored `intent: "authority"` keeps resolving),
  * different scale mapping — the fixed-point demonstration at the extension tier.
  * ------------------------------------------------------------------------- */
 
 const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → row/record-id register: a cold mono label tone. */
-	folio: {
+	/** Footnote → row/record-id register: a cold mono label tone. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-blue-300) 70%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 80%, var(--mo-blue-700))",
@@ -202,8 +202,8 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-blue-400)",
 		"ink-hover": "var(--mo-blue-300)",
 	},
-	/** Marginalia → reviewer-note register: an aside, slate-toned. */
-	marginalia: {
+	/** Aside → reviewer-note register: slate-toned. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 70%, var(--mo-blue-700))",
 		on: "var(--mo-neutral-10)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 70%, var(--mo-blue-700))",
@@ -215,11 +215,11 @@ const CLINICAL_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
-	 * Seal → SIGN-OFF / electronic-signature mark. In a regulated console the
+	 * Authority → SIGN-OFF / electronic-signature mark. In a regulated console the
 	 * authority mark is a deliberate, high-contrast green commit — the opposite
-	 * of the Archive's grave amber seal, same name, same slot.
+	 * of the Archive's grave amber authority mark, same name, same slot.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-green-700)",
 		on: "var(--mo-green-400)",
 		hover: "color-mix(in srgb, var(--mo-green-700) 82%, var(--mo-green-400))",

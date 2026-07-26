@@ -540,9 +540,9 @@
     },
     "RegisterIntent": {
       "enum": [
-        "folio",
-        "marginalia",
-        "seal"
+        "footnote",
+        "aside",
+        "authority"
       ],
       "type": "string"
     },

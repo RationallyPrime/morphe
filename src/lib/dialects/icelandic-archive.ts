@@ -173,13 +173,13 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
  * intent-layer vocabulary the editorial/archive register needs beyond the core
  * eight — the shared register tier in the closed authorable keyset.
  * Each is still a pure neutral-scale mapping. Authored trees opt into them by
- * name (`intent: "folio"`); they degrade to their `, fallback` in `slot()` when
+ * name (`intent: "footnote"`); they degrade to their `, fallback` in `slot()` when
  * a non-Archive dialect is active, so portability is preserved.
  * ------------------------------------------------------------------------- */
 
 const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio / page-number register — the quietest label tone (mono, dim). */
-	folio: {
+	/** Footnote / page-number register — the quietest label tone (mono, dim). */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-neutral-10) 72%, transparent)",
 		hover: "var(--mo-neutral-2)",
@@ -190,8 +190,8 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-neutral-10)",
 		"ink-hover": "var(--mo-neutral-9)",
 	},
-	/** Marginalia — annotation/aside tone, a hair warmer than evidence. */
-	marginalia: {
+	/** Aside — the annotation tone, a hair warmer than evidence. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 60%, var(--mo-neutral-2))",
 		on: "var(--mo-neutral-9)",
 		hover: "var(--mo-neutral-4)",
@@ -202,8 +202,8 @@ const ARCHIVE_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-neutral-9)",
 		"ink-hover": "var(--mo-neutral-11)",
 	},
-	/** Seal / authority mark — the amber beacon's grave sibling (deep, rare). */
-	seal: {
+	/** Authority mark — the amber beacon's grave sibling (deep, rare). */
+	authority: {
 		surface: "var(--mo-amber-700)",
 		on: "var(--mo-amber-300)",
 		hover: "color-mix(in srgb, var(--mo-amber-700) 84%, var(--mo-amber-500))",

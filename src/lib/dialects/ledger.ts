@@ -25,8 +25,8 @@
  *   - it defines all EIGHT core intents (incl. `evidence`, the record register);
  *   - every intent carries all SEVEN channels (surface/on/hover/border/ring +
  *     the action `active`/`disabled` pressed/disabled states);
- *   - it contributes the SAME register extensions the others do (folio /
- *     marginalia / seal), re-read for a financial ledger;
+ *   - it contributes the SAME register extensions the others do (footnote /
+ *     aside / authority), re-read for a financial ledger;
  *   - it ships a surface stack (LEDGER_SURFACES) so the page substrate cools to
  *     the instrument-panel reading too, instead of staying Archive-warm.
  */
@@ -177,15 +177,15 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the Archive and Clinical contribute, re-read
- * for a financial ledger. Identical NAMES (so an authored `intent: "seal"` keeps
+ * for a financial ledger. Identical NAMES (so an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed-point demonstration at the
- * extension tier. Without these, an authored `intent: "folio"` would fall through
+ * extension tier. Without these, an authored `intent: "footnote"` would fall through
  * to the warm Archive register while the rest of the page reads cool.
  * ------------------------------------------------------------------------- */
 
 const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → account-number/reference register: a teal-toned mono label. */
-	folio: {
+	/** Footnote → account-number/reference register: a teal-toned mono label. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-teal-300) 72%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-teal-700))",
@@ -196,8 +196,8 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-teal-400)",
 		"ink-hover": "var(--mo-teal-300)",
 	},
-	/** Marginalia → annotation/footnote register: a teal-toned aside. */
-	marginalia: {
+	/** Aside → the annotation register: a teal-toned note. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-teal-700))",
 		on: "var(--mo-neutral-10)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-teal-700))",
@@ -209,11 +209,11 @@ const LEDGER_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
-	 * Seal → the controller's sign-off / authority mark. The Ledger's authority mark
+	 * Authority → the controller's sign-off. The Ledger's authority mark
 	 * is a deliberate TEAL stamp — the blue-green counterpart of the Archive's grave
-	 * amber seal and the Registry's amethyst stamp, same name, same slot, its own hue.
+	 * amber authority mark and the Registry's amethyst stamp, same name, same slot, its own hue.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-teal-700)",
 		on: "var(--mo-teal-300)",
 		hover: "color-mix(in srgb, var(--mo-teal-700) 82%, var(--mo-teal-300))",

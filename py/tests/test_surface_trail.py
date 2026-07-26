@@ -71,7 +71,7 @@ EXPECTED_TRAIL: dict[str, Any] = {
                     "kind": "text",
                     "value": "2026-07-17 09:14 UTC",
                     "as": "caption",
-                    "intent": "marginalia",
+                    "intent": "aside",
                 },
             },
             "slots": {

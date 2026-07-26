@@ -54,4 +54,16 @@ describe("the registered intent vocabulary is the single source of truth (KRA-82
 			expect(registered.has(name), `${name} grandfathered but not registered`).toBe(true);
 		}
 	});
+
+	it("the grandfather list stays empty and the retired vertical names stay retired", () => {
+		// KRA-831 ratchet (grammar 0.7.0): folio/marginalia/seal became
+		// footnote/aside/authority, and provenance/accession were re-classified as
+		// neutral discourse roles rather than grandfathered. A new vertical word
+		// gets no grandfather slot — domain meaning belongs to dialect metadata.
+		expect([...vocabulary.grandfathered_vertical]).toEqual([]);
+		const registered = new Set([...vocabulary.core, ...vocabulary.register]);
+		for (const retired of ["folio", "marginalia", "seal"]) {
+			expect(registered.has(retired), `${retired} was retired at 0.7.0`).toBe(false);
+		}
+	});
 });

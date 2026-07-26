@@ -39,7 +39,7 @@ export type CoreIntent =
 	| "success"
 	| "info";
 
-export type RegisterIntent = "folio" | "marginalia" | "seal";
+export type RegisterIntent = "footnote" | "aside" | "authority";
 
 export type IntentRef = CoreIntent | RegisterIntent;
 

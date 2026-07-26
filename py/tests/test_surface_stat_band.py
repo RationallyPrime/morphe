@@ -64,7 +64,7 @@ EXPECTED_BAND: dict[str, Any] = {
                                 "kind": "text",
                                 "value": "Q4",
                                 "as": "caption",
-                                "intent": "folio",
+                                "intent": "footnote",
                                 "gloss": "The reporting quarter.",
                             },
                             "title": {
@@ -85,7 +85,7 @@ EXPECTED_BAND: dict[str, Any] = {
                                 "kind": "text",
                                 "value": "Route",
                                 "as": "caption",
-                                "intent": "folio",
+                                "intent": "footnote",
                             },
                             "title": {"kind": "text", "value": "Rail", "as": "subheading"},
                             "measure": {

@@ -11,7 +11,7 @@
         {
           "as": "caption",
           "emphasis": "muted",
-          "intent": "folio",
+          "intent": "footnote",
           "kind": "text",
           "value": "Settlement evidence 2026-07-17"
         },
@@ -50,7 +50,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "Gross"
                       },
@@ -79,7 +79,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "Cross-border"
                       },
@@ -108,7 +108,7 @@
                     "args": {
                       "kicker": {
                         "as": "caption",
-                        "intent": "folio",
+                        "intent": "footnote",
                         "kind": "text",
                         "value": "Route"
                       },

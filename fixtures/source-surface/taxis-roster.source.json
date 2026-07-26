@@ -2,7 +2,7 @@
   "attestation": {
     "algorithm": "Ed25519",
     "key_id": "taxis-fixture-2026-01",
-    "signature": "6xm24O-YViQOKk59Tlvb9vCiKKJglAc8gYBSGt2iHYBC1YExTfA9wpQt0IQ3AhaAR0oS9Cymfcnvj9eRTYF2DQ"
+    "signature": "LR49IMvWuS6B129KYqOUU75Fmm-sC54yQLO0ckOOrkWYb7dIQaaZDTs3ioPcNaHWzBpy1Tcb2NwaCTxGdz4aBg"
   },
   "data": {
     "coverage": 0.75,
@@ -304,9 +304,9 @@
       },
       "RegisterIntent": {
         "enum": [
-          "folio",
-          "marginalia",
-          "seal"
+          "footnote",
+          "aside",
+          "authority"
         ],
         "type": "string"
       },
@@ -490,14 +490,14 @@
   },
   "seals": {
     "content_sha256": "sha256:6db2ea7d05970c0f6d4460209b79d8f2fc96d11ba61920f35320cd4a8e2cc529",
-    "schema_sha256": "sha256:b949aa547d53810868864d1206cf8106df469ea45c6a6ae3b28e1e311a941229",
-    "testimony_sha256": "sha256:4d57a67ad73789732a6c274a75010fc3818cdce5f386b58fd1b3ce665e1736ab"
+    "schema_sha256": "sha256:f532e892c94eec35c6b217472fca1e742bfeca3441eec5a141d7f224dd46d0cd",
+    "testimony_sha256": "sha256:e1fc3e342edc7a70af73c35951a8ad0480e90be92928f63c20f560b75fbcd052"
   },
   "source_revision": "taxis-fixture-rev-0001",
   "surface_id": "taxis.roster:westfjords:2026-W29",
   "valid_until": null,
   "view_model": {
-    "hint_vocabulary": "0.6.0",
+    "hint_vocabulary": "0.7.0",
     "id": "taxis.roster",
     "revision": 1,
     "schema_dialect": "https://json-schema.org/draft/2020-12/schema"

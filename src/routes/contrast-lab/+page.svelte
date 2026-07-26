@@ -53,7 +53,7 @@
 			args: {
 				kicker:
 					token === undefined
-						? { kind: "text", value: "cell-local", as: "caption", intent: "folio" }
+						? { kind: "text", value: "cell-local", as: "caption", intent: "footnote" }
 						: {
 								kind: "cluster",
 								role: "inline",

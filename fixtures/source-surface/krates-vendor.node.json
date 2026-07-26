@@ -19,7 +19,7 @@
             },
             "kicker": {
               "as": "caption",
-              "intent": "folio",
+              "intent": "footnote",
               "kind": "text",
               "value": "Krates ehf"
             },

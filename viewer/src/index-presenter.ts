@@ -66,7 +66,7 @@ function masthead(model: IndexModel): Node {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: model.title, as: "caption", intent: "folio" },
+			{ kind: "text", value: model.title, as: "caption", intent: "footnote" },
 			{ kind: "text", value: "Surfaces", as: "heading", level: 1, emphasis: "strong" },
 		],
 	};
@@ -125,7 +125,7 @@ function kicker(source: IndexSource): Node {
 		kind: "text",
 		value: KIND_LABEL[source.kind],
 		as: "caption",
-		intent: "folio",
+		intent: "footnote",
 	};
 	if (source.icon === undefined) return label;
 	return {
@@ -155,7 +155,7 @@ function surfaceMeasure(source: IndexSource): Node {
 				kind: "text",
 				value: source.surfaces.length === 1 ? "pane" : "panes",
 				as: "caption",
-				intent: "folio",
+				intent: "footnote",
 			},
 		],
 	};
@@ -167,7 +167,7 @@ function surfaceLinks(source: IndexSource): Node {
 			kind: "text",
 			value: "No declared surfaces.",
 			as: "caption",
-			intent: "marginalia",
+			intent: "aside",
 		};
 	}
 	return {
@@ -197,7 +197,7 @@ function footer(model: IndexModel, surfaceCount: number): Node {
 				kind: "text",
 				value: "Declared surfaces only — this viewer is not an open proxy.",
 				as: "caption",
-				intent: "marginalia",
+				intent: "aside",
 			},
 			{ kind: "badge", label: `grammar ${model.grammarVersion}`, intent: "provenance" },
 		],

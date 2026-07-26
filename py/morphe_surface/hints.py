@@ -11,7 +11,7 @@ from .strategies import Strategy
 
 type NumberFormat = Literal["plain", "integer", "currency", "percent", "compact"]
 type TemporalFormat = Literal["date-time-minute"]
-HINT_VOCABULARY_VERSION = "0.6.0"
+HINT_VOCABULARY_VERSION = "0.7.0"
 
 
 class MorpheHint(ContractModel):

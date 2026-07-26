@@ -91,7 +91,7 @@ const authoredTree: Node = {
 		{ kind: "text", value: "Batch 0xA3", as: "heading", intent: "accession" },
 		{ kind: "badge", label: "Released", intent: "success", icon: "check_circle" },
 		{ kind: "badge", label: "Deviation", intent: "caution", icon: "warning" },
-		{ kind: "text", value: "p. 12", as: "caption", intent: "folio" },
+		{ kind: "text", value: "p. 12", as: "caption", intent: "footnote" },
 		{
 			kind: "status",
 			tone: "info",
@@ -337,15 +337,15 @@ describe("FP4 — the swap is a clean subtree-boundary injection", () => {
 	});
 
 	it("a shared register-extension intent is re-read, not dropped, by every swap", () => {
-		const sealSurface = intentVar("seal", "surface");
-		const defSeal = applyDialect(DEFAULT_DIALECT).vars[sealSurface];
-		expect(defSeal, "default missing seal surface").toBeDefined();
+		const authoritySurface = intentVar("authority", "surface");
+		const defAuthority = applyDialect(DEFAULT_DIALECT).vars[authoritySurface];
+		expect(defAuthority, "default missing authority surface").toBeDefined();
 		for (const dialect of SHIPPED_DIALECTS) {
-			const v = applyDialect(dialect).vars[sealSurface];
-			expect(v, `${dialect.id} missing seal surface`).toBeDefined();
+			const v = applyDialect(dialect).vars[authoritySurface];
+			expect(v, `${dialect.id} missing authority surface`).toBeDefined();
 			if (dialect.id !== DEFAULT_DIALECT.id) {
 				// A different scale mapping per register — the extension-tier fixed point.
-				expect(v, `${dialect.id} seal not remapped`).not.toBe(defSeal);
+				expect(v, `${dialect.id} authority not remapped`).not.toBe(defAuthority);
 			}
 		}
 	});

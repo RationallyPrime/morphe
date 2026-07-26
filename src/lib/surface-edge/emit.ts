@@ -42,7 +42,7 @@ const CONTAINER_STRATEGIES = new Set([
 	"key-value",
 ]);
 const STATUS_TONES = new Set(["success", "caution", "info", "neutral"]);
-const PROVENANCE_INTENTS: ReadonlySet<string> = new Set(["provenance", "accession", "seal"]);
+const PROVENANCE_INTENTS: ReadonlySet<string> = new Set(["provenance", "accession", "authority"]);
 const ATTENTION_STRATEGIES: ReadonlySet<string> = new Set(["status", "badge", "kpi-row"]);
 const ATTENTION_INTENTS: ReadonlySet<string> = new Set(["caution", "success", "info"]);
 const PRIMARY_WORKLIST_STRATEGIES: ReadonlySet<string> = new Set(["table", "card-stack"]);
@@ -567,7 +567,7 @@ function signalCard(item: SurfaceNode, ctx: EmitContext): Node {
 		kind: "text",
 		value: item.kicker ?? "",
 		as: "caption",
-		intent: "folio",
+		intent: "footnote",
 		...(item.kicker_gloss === undefined ? {} : { gloss: item.kicker_gloss }),
 	};
 	const title: Text = {
@@ -679,7 +679,7 @@ function entityHeader(spec: SurfaceNode, ctx: EmitContext): Node {
 									ctx.now,
 								),
 					as: "caption",
-					intent: "folio",
+					intent: "footnote",
 				};
 	const title: Text = {
 		kind: "text",
@@ -853,7 +853,7 @@ function trailEntry(item: SurfaceNode, ctx: EmitContext): Node {
 				ctx.now,
 			),
 			as: "caption",
-			intent: "marginalia",
+			intent: "aside",
 		};
 	}
 	// The event object itself and the children promoted to BARE args (stamp, summary)
@@ -1058,7 +1058,7 @@ function routeProvenanceNode(
 ): void {
 	if (spec.strategy === "linked-ref") {
 		lanes.links.push(node);
-	} else if (spec.intent === "seal") {
+	} else if (spec.intent === "authority") {
 		lanes.seals.push(node);
 	} else {
 		lanes.facts.push(node);

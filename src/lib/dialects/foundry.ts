@@ -25,8 +25,8 @@
  *   - it defines all EIGHT core intents (incl. `evidence`, the record register);
  *   - every intent carries all SEVEN channels (surface/on/hover/border/ring +
  *     the action `active`/`disabled` pressed/disabled states);
- *   - it contributes the SAME register extensions the others do (folio /
- *     marginalia / seal), re-read for a quality record;
+ *   - it contributes the SAME register extensions the others do (footnote /
+ *     aside / authority), re-read for a quality record;
  *   - it ships a surface stack (FOUNDRY_SURFACES) so the page substrate cools to
  *     the blueprint reading too, instead of staying Archive-warm.
  */
@@ -177,15 +177,15 @@ const CORE: Readonly<Record<CoreIntent, IntentDefinition>> = {
 
 /* ------------------------------------------------------------------------- *
  * The SAME register-extension names the Archive and Clinical contribute, re-read
- * for a quality record. Identical NAMES (so an authored `intent: "seal"` keeps
+ * for a quality record. Identical NAMES (so an authored `intent: "authority"` keeps
  * resolving), different scale mapping — the fixed-point demonstration at the
- * extension tier. Without these, an authored `intent: "folio"` would fall through
+ * extension tier. Without these, an authored `intent: "footnote"` would fall through
  * to the warm Archive register while the rest of the page reads cool.
  * ------------------------------------------------------------------------- */
 
 const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
-	/** Folio → lot/serial-number register: a steel-toned mono label. */
-	folio: {
+	/** Footnote → lot/serial-number register: a steel-toned mono label. */
+	footnote: {
 		surface: "transparent",
 		on: "color-mix(in srgb, var(--mo-steel-300) 72%, transparent)",
 		hover: "color-mix(in srgb, var(--mo-neutral-2) 82%, var(--mo-steel-700))",
@@ -196,8 +196,8 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		ink: "var(--mo-steel-400)",
 		"ink-hover": "var(--mo-steel-300)",
 	},
-	/** Marginalia → annotation/aside register: a steel-toned aside. */
-	marginalia: {
+	/** Aside → the annotation register: a steel-toned note. */
+	aside: {
 		surface: "color-mix(in srgb, var(--mo-neutral-4) 72%, var(--mo-steel-700))",
 		on: "var(--mo-neutral-10)",
 		hover: "color-mix(in srgb, var(--mo-neutral-5) 72%, var(--mo-steel-700))",
@@ -209,12 +209,12 @@ const FOUNDRY_REGISTER: Readonly<Record<RegisterIntent, IntentDefinition>> = {
 		"ink-hover": "var(--mo-neutral-9)",
 	},
 	/**
-	 * Seal → the inspector's sign-off / quality-approval mark. The Foundry's
+	 * Authority → the inspector's sign-off / quality-approval mark. The Foundry's
 	 * authority mark is a deliberate STEEL stamp — the greyed-blue counterpart of
-	 * the Archive's grave amber seal and the Clinical green sign-off, same name,
+	 * the Archive's grave amber authority mark and the Clinical green sign-off, same name,
 	 * same slot, its own hue.
 	 */
-	seal: {
+	authority: {
 		surface: "var(--mo-steel-700)",
 		on: "var(--mo-steel-300)",
 		hover: "color-mix(in srgb, var(--mo-steel-700) 82%, var(--mo-steel-300))",

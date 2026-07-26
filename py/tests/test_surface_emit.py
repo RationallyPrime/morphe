@@ -197,7 +197,7 @@ def test_root_task_is_restrained_h1_and_identity_is_quiet_context() -> None:
     assert identity is not None
     assert identity["as"] == "caption"
     assert identity["emphasis"] == "muted"
-    assert identity["intent"] == "folio"
+    assert identity["intent"] == "footnote"
     assert _find(node, lambda n: n.get("as") == "display") is None
     assert _find(node, lambda n: n.get("as") == "caption" and n.get("value") == "Title") is None
     validate_node(node)

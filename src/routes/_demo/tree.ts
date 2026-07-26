@@ -181,7 +181,7 @@ export const dignityTree: Node = {
 			kind: "compound",
 			name: "EntityHeader",
 			args: {
-				kicker: { kind: "text", value: "Detail pane", as: "caption", intent: "folio" },
+				kicker: { kind: "text", value: "Detail pane", as: "caption", intent: "footnote" },
 				title: { kind: "text", value: "Vestfjörður roster", as: "heading" },
 				keyFigure: {
 					kind: "number",
@@ -228,7 +228,7 @@ export const dignityTree: Node = {
 						kind: "compound",
 						name: "SignalCard",
 						args: {
-							kicker: { kind: "text", value: "Treasury", as: "caption", intent: "folio" },
+							kicker: { kind: "text", value: "Treasury", as: "caption", intent: "footnote" },
 							title: { kind: "text", value: "Net position", as: "subheading" },
 							measure: {
 								kind: "number",
@@ -245,7 +245,7 @@ export const dignityTree: Node = {
 						kind: "compound",
 						name: "SignalCard",
 						args: {
-							kicker: { kind: "text", value: "Route", as: "caption", intent: "folio" },
+							kicker: { kind: "text", value: "Route", as: "caption", intent: "footnote" },
 							title: { kind: "text", value: "Rail", as: "subheading" },
 							measure: { kind: "text", value: "bank_batch", as: "body", emphasis: "strong" },
 						},
@@ -309,7 +309,7 @@ export const dignityTree: Node = {
 			kind: "compound",
 			name: "TrailEntry",
 			args: {
-				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "marginalia" },
+				stamp: { kind: "text", value: "2026-07-17 09:14 UTC", as: "caption", intent: "aside" },
 				summary: { kind: "text", value: "Vendor admitted to the settlement roster.", as: "body" },
 			},
 			slots: {

@@ -100,7 +100,7 @@ const RECORD_STRATEGIES = new Set<Strategy>(["record-card", "collapsed-section"]
 const COLLECTION_STRATEGIES = new Set<Strategy>(["table", "card-stack", "kpi-row", "trail"]);
 const PROMOTABLE_STRATEGIES = new Set<Strategy>(["table", "card-stack"]);
 const IDENTITY_KEYS = ["name", "title"] as const;
-const PROVENANCE_ROLES: ReadonlySet<string> = new Set(["provenance", "accession", "seal"]);
+const PROVENANCE_ROLES: ReadonlySet<string> = new Set(["provenance", "accession", "authority"]);
 const NUMERIC_TEXT = /^\(?[+-]?\d(?:[\d _.,]*\d)?\)?$/;
 const WELL_FORMED_CURRENCY = /^[A-Za-z]{3}$/;
 
@@ -645,7 +645,7 @@ function buildLeaf(plan: Plan, data: unknown, context: BuildContext): SurfaceNod
 		typeof value === "number" ? scalarNumberKindFor(plan.resolved, value) : "integer";
 	const intent =
 		plan.strategy === "badge" ? valueIntent(plan.hint, value, scalarKind) : plan.hint.role;
-	const presentedIntent = identity ? (plan.hint.role ?? "folio") : intent;
+	const presentedIntent = identity ? (plan.hint.role ?? "footnote") : intent;
 	return surfaceNode(
 		{
 			path: context.path,

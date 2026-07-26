@@ -77,7 +77,13 @@
 
 - **Intent** — a semantic color/register name (`provenance`, `caution`, …) —
   the ONLY vocabulary authored trees may use for appearance. Never a scale,
-  never a hex.
+  never a hex. Intent names are **vertical-neutral discourse roles**: the
+  register tier is `footnote`/`aside`/`authority` (renamed from the
+  archive-vertical `folio`/`marginalia`/`seal` at grammar 0.7.0, KRA-831), and
+  `provenance`/`accession` are neutral by ruling — "where this came from" and
+  "its registered identity", not archive words. Domain readings of an intent
+  (a registrar's stamp, a lot number, a kernel's content seal) live in
+  dialect-layer display metadata, never in the grammar union.
 - **Compound** — a vocabulary item defined as data (params + template) over
   primitives, admitted through the validation gate. Open vocabulary, closed
   capability.

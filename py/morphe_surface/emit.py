@@ -28,7 +28,7 @@ _CONTAINER = {
     "key-value",
 }
 _STATUS_TONES = {"success", "caution", "info", "neutral"}
-_PROVENANCE_INTENTS = {"provenance", "accession", "seal"}
+_PROVENANCE_INTENTS = {"provenance", "accession", "authority"}
 _ATTENTION_STRATEGIES = {"status", "badge", "kpi-row"}
 _ATTENTION_INTENTS = {"caution", "success", "info"}
 _PRIMARY_WORKLIST_STRATEGIES = {"table", "card-stack"}
@@ -162,7 +162,7 @@ def _number(spec: SurfaceNode) -> Node:
 
 def _status_tone(intent: str | None) -> str:
     # Status tones are the subset of intents a chip can carry; any richer intent
-    # (provenance, seal, primary-action, …) clamps to neutral rather than lying.
+    # (provenance, authority, primary-action, …) clamps to neutral rather than lying.
     return intent if intent in _STATUS_TONES else "neutral"
 
 
@@ -196,7 +196,7 @@ def _signal_card(item: SurfaceNode) -> Node:
             "kind": "text",
             "value": item.kicker or "",
             "as": "caption",
-            "intent": "folio",
+            "intent": "footnote",
         },
         item.kicker_gloss,
     )
@@ -293,7 +293,7 @@ def _entity_header(spec: SurfaceNode) -> Node:
         "kind": "text",
         "value": context_value,
         "as": "caption",
-        "intent": "folio",
+        "intent": "footnote",
     }
     title = _with_gloss({"kind": "text", "value": spec.label, "as": "heading"}, spec.gloss)
     if spec.path == "$":
@@ -436,7 +436,7 @@ def _trail_entry(item: SurfaceNode) -> Node:
             "kind": "text",
             "value": display_scalar_text(stamp.value, stamp.temporal, stamp.scalar_number_kind),
             "as": "caption",
-            "intent": "marginalia",
+            "intent": "aside",
         }
     # The event object itself and the children promoted to BARE args (stamp, summary)
     # would otherwise lose their alert path. Surface them at the provenance-footer
@@ -661,7 +661,7 @@ def _route_provenance_node(
 ) -> None:
     if spec.strategy == "linked-ref":
         links.append(node)
-    elif spec.intent == "seal":
+    elif spec.intent == "authority":
         seals.append(node)
     else:
         facts.append(node)

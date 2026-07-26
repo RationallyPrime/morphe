@@ -72,6 +72,33 @@ def test_grandfathered_names_are_a_subset_of_the_registered_vocabulary() -> None
     )
 
 
+def test_grandfathered_vertical_is_empty() -> None:
+    """KRA-831 ratchet: the vertical-vocabulary debt is paid and stays paid.
+
+    The register tier was renamed to neutral words at grammar 0.7.0 and
+    ``provenance``/``accession`` were re-classified as neutral discourse roles
+    rather than grandfathered. The list must stay empty: a new vertical or
+    domain word does not get a grandfather slot, it gets rejected — domain
+    meaning lives in dialect-layer display metadata, never in a grammar union.
+    """
+    assert _registry()["grandfathered_vertical"] == [], (
+        "grandfathered_vertical is closed. A vertical/domain intent name may not "
+        "be registered here; express the domain reading in dialect display "
+        "metadata instead"
+    )
+
+
+def test_retired_vertical_names_never_return() -> None:
+    registry = _registry()
+    registered = set(registry["core"]) | set(registry["register"])
+    retired = {"folio", "marginalia", "seal"}
+    assert not registered & retired, (
+        "folio/marginalia/seal were renamed to footnote/aside/authority at "
+        "grammar 0.7.0 (KRA-831); re-registering one reopens the archive-vertical "
+        "leak the rename closed"
+    )
+
+
 def test_vocabulary_has_no_duplicates_across_tiers() -> None:
     registry = _registry()
     core = registry["core"]
