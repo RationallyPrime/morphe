@@ -16,6 +16,16 @@
  * The chromatic values are PORTED from the Sokrates "Icelandic Archive" palette
  * (dark surface #121416, amber beacon #f2ca50), but re-expressed as neutral
  * ramps so the same scales can back any dialect.
+ *
+ * LADDER FILL (KRA-826): each step-numbered chromatic family carries the full
+ * {50..950} ladder. Pre-existing steps are FROZEN (exact value + name); the
+ * fill steps are new tokens only — values transcribed from the Tailwind CSS v4
+ * default theme (MIT) where the family has a Tailwind source hue and the value
+ * preserves OKLab-lightness monotonicity against the frozen anchors, otherwise
+ * OKLCH interpolations/extrapolations against the family's own anchors (custom
+ * families never borrow a Tailwind hue). Tailwind's METHODOLOGY (utilities,
+ * @theme, styling in markup) remains banned; only ramp VALUES are borrowed.
+ * The gate for all of this is scales.test.ts.
  */
 
 :root {
@@ -104,30 +114,59 @@
 	--mo-neutral-11: #e2e2e5; /* on-surface / on-background */
 
 	/* --- Amber ramp (the Archive beacon, #f2ca50) --------------------------- */
+	--mo-amber-50: oklch(98.7% 0.022 95.277); /* ladder fill — Tailwind v4 amber-50 */
+	--mo-amber-100: oklch(96.2% 0.059 95.617); /* ladder fill — Tailwind v4 amber-100 */
+	--mo-amber-200: oklch(92.4% 0.12 95.746); /* ladder fill — Tailwind v4 amber-200 */
 	--mo-amber-300: #ffe088;
 	--mo-amber-400: #e9c349;
 	--mo-amber-500: #f2ca50; /* the beacon */
 	--mo-amber-600: #d4af37;
 	--mo-amber-700: #735c00;
+	--mo-amber-800: oklch(47.3% 0.137 46.201); /* ladder fill — Tailwind v4 amber-800 */
+	--mo-amber-900: oklch(41.4% 0.112 45.904); /* ladder fill — Tailwind v4 amber-900 */
+	--mo-amber-950: oklch(27.9% 0.077 45.635); /* ladder fill — Tailwind v4 amber-950 */
 	--mo-amber-on: #3c2f00; /* on-amber (dark text on the beacon) */
 
 	/* --- Chromatic ramps (neutral names; dialects assign meaning) ----------- */
-	/* Blue (Archive tertiary) */
+	/* Blue (Archive tertiary) — a CUSTOM periwinkle family: fills interpolate /
+	   extrapolate its own anchors, never a Tailwind hue. */
+	--mo-blue-50: oklch(98.8% 0.005 276.592); /* ladder fill — periwinkle light-end extrapolation */
+	--mo-blue-100: oklch(97.2% 0.013 276.592); /* ladder fill — periwinkle light-end extrapolation */
+	--mo-blue-200: oklch(94.9% 0.025 276.592); /* ladder fill — periwinkle light-end extrapolation */
 	--mo-blue-300: #dbe1ff;
 	--mo-blue-400: #b4c5ff;
 	--mo-blue-500: #bfcdff;
+	--mo-blue-600: oklch(62.5% 0.098 268.819); /* ladder fill — OKLCH interpolation 500→700 */
 	--mo-blue-700: #254188;
+	--mo-blue-800: oklch(34.2% 0.102 265.032); /* ladder fill — navy dark-end extrapolation */
+	--mo-blue-900: oklch(30.2% 0.081 265.032); /* ladder fill — navy dark-end extrapolation */
+	--mo-blue-950: oklch(21.2% 0.056 265.032); /* ladder fill — navy dark-end extrapolation */
 	--mo-blue-on: #082b72;
 	/* Green (success family) */
+	--mo-green-50: oklch(98.2% 0.018 155.826); /* ladder fill — Tailwind v4 green-50 */
+	--mo-green-100: oklch(96.2% 0.044 156.743); /* ladder fill — Tailwind v4 green-100 */
+	--mo-green-200: oklch(92.5% 0.084 155.995); /* ladder fill — Tailwind v4 green-200 */
+	--mo-green-300: oklch(87.1% 0.15 154.449); /* ladder fill — Tailwind v4 green-300 */
 	--mo-green-400: #8fd19a;
 	--mo-green-500: #5fb06f;
+	--mo-green-600: oklch(62.7% 0.194 149.214); /* ladder fill — Tailwind v4 green-600 */
 	--mo-green-700: #1d4a2a;
+	--mo-green-800: oklch(31.3% 0.057 151.927); /* ladder fill — dark-end extrapolation */
+	--mo-green-900: oklch(27.4% 0.046 153.134); /* ladder fill — dark-end extrapolation */
+	--mo-green-950: oklch(26.6% 0.065 152.934); /* ladder fill — Tailwind v4 green-950 */
 	--mo-green-on: #03210b;
 	/* Red (error / caution family) */
+	--mo-red-50: oklch(98.8% 0.005 23.035); /* ladder fill — light-end extrapolation */
+	--mo-red-100: oklch(97.3% 0.012 23.372); /* ladder fill — light-end extrapolation */
+	--mo-red-200: oklch(95.1% 0.023 23.989); /* ladder fill — light-end extrapolation */
 	--mo-red-300: #ffdad6;
 	--mo-red-400: #ffb4ab;
 	--mo-red-500: #ff897d;
+	--mo-red-600: oklch(57.7% 0.245 27.325); /* ladder fill — Tailwind v4 red-600 */
 	--mo-red-700: #93000a;
+	--mo-red-800: oklch(36.7% 0.141 26.76); /* ladder fill — dark-end extrapolation */
+	--mo-red-900: oklch(32.7% 0.113 25.584); /* ladder fill — dark-end extrapolation */
+	--mo-red-950: oklch(25.8% 0.092 26.042); /* ladder fill — Tailwind v4 red-950 */
 	--mo-red-on: #690005;
 	/* Violet (amethyst) — a THIRD chromatic family so a dialect's beacon can be a
 	   distinct hue from the amber (Archive) and periwinkle-blue (Clinical) ones.
@@ -135,11 +174,17 @@
 	   intent layer assigns meaning to (the Reykjavík Registry reads it as its
 	   amendment/registrar accent). 500 is the on-dark beacon tone; 700 the deep
 	   surface tone; `on` the dark text that rides the bright 500 fill. */
+	--mo-violet-50: oklch(98.5% 0.008 302.984); /* ladder fill — light-end extrapolation */
+	--mo-violet-100: oklch(97.2% 0.014 303.816); /* ladder fill — light-end extrapolation */
+	--mo-violet-200: oklch(94.7% 0.028 302.511); /* ladder fill — light-end extrapolation */
 	--mo-violet-300: #e7d8ff;
 	--mo-violet-400: #cbb0ff;
 	--mo-violet-500: #b794f6; /* the amethyst beacon */
 	--mo-violet-600: #9b73ec;
 	--mo-violet-700: #34245f;
+	--mo-violet-800: oklch(27.6% 0.086 292.279); /* ladder fill — dark-end extrapolation */
+	--mo-violet-900: oklch(24.3% 0.07 293.265); /* ladder fill — dark-end extrapolation */
+	--mo-violet-950: oklch(18.1% 0.053 290.609); /* ladder fill — dark-end extrapolation */
 	--mo-violet-on: #241046; /* on-violet (dark text on the beacon) */
 	/* Cobalt — a FOURTH chromatic family: the saturated electric-blue band (the
 	   #3b82f6–#60a5fa lattice light of the Timaeus plates), which the existing
@@ -149,7 +194,9 @@
 	   reads it as its lattice beacon and constellation grounds). 500 is the
 	   on-dark beacon tone; 700 the deep lattice-navy surface tone; `on` the
 	   near-black navy text that rides the bright 500 fill. */
+	--mo-cobalt-50: oklch(97% 0.014 254.604); /* ladder fill — Tailwind v4 blue-50 */
 	--mo-cobalt-100: #e9f0fa; /* ice — the white-hot core tint (light end) */
+	--mo-cobalt-200: oklch(91.8% 0.036 255.663); /* ladder fill — OKLCH interpolation 100→300 */
 	--mo-cobalt-300: #bfdbfe; /* white-blue highlight (the lattice hot edge) */
 	--mo-cobalt-400: #60a5fa;
 	--mo-cobalt-500: #3b82f6; /* the lattice beacon */
@@ -185,11 +232,17 @@
 	   progression the intent layer assigns meaning to. 500 is the on-dark beacon
 	   tone; 700 the deep surface tone the substrate cools toward; `on` the dark text
 	   that rides the bright 500 fill. */
+	--mo-teal-50: oklch(98.4% 0.014 180.72); /* ladder fill — Tailwind v4 teal-50 */
+	--mo-teal-100: oklch(95.3% 0.051 180.801); /* ladder fill — Tailwind v4 teal-100 */
+	--mo-teal-200: oklch(94.4% 0.064 179.781); /* ladder fill — light-end extrapolation */
 	--mo-teal-300: #99f6e4;
 	--mo-teal-400: #5eead4;
 	--mo-teal-500: #2dd4bf; /* the ledger beacon */
 	--mo-teal-600: #14b8a6;
 	--mo-teal-700: #123f3b; /* deep ledger surface tone */
+	--mo-teal-800: oklch(28.7% 0.04 188.687); /* ladder fill — dark-end extrapolation */
+	--mo-teal-900: oklch(25.4% 0.032 188.887); /* ladder fill — dark-end extrapolation */
+	--mo-teal-950: oklch(18.2% 0.023 192.995); /* ladder fill — dark-end extrapolation */
 	--mo-teal-on: #04302c; /* on-teal (dark text on the beacon) */
 
 	/* Copper — a SEVENTH chromatic family: a warm bronze/holdings accent, minted for
@@ -198,11 +251,17 @@
 	   of consolidated holdings, not the Archive's gold. Vertical-NEUTRAL: a raw
 	   copper progression the intent layer assigns meaning to. 500 is the on-dark
 	   beacon tone; 700 the deep surface tone; `on` the dark text on the 500 fill. */
+	--mo-copper-50: oklch(98.4% 0.007 67.913); /* ladder fill — bronze light-end extrapolation */
+	--mo-copper-100: oklch(96.3% 0.017 67.913); /* ladder fill — bronze light-end extrapolation */
+	--mo-copper-200: oklch(93.1% 0.033 67.913); /* ladder fill — bronze light-end extrapolation */
 	--mo-copper-300: #f2d3b3;
 	--mo-copper-400: #e0a96b;
 	--mo-copper-500: #d2924f; /* the estate beacon */
 	--mo-copper-600: #a96b2c;
 	--mo-copper-700: #432a14; /* deep estate surface tone */
+	--mo-copper-800: oklch(26.8% 0.042 60.575); /* ladder fill — bronze dark-end extrapolation */
+	--mo-copper-900: oklch(23.7% 0.033 60.575); /* ladder fill — bronze dark-end extrapolation */
+	--mo-copper-950: oklch(16.6% 0.023 60.575); /* ladder fill — bronze dark-end extrapolation */
 	--mo-copper-on: #2a1808; /* on-copper (dark text on the beacon) */
 
 	/* Steel — an EIGHTH chromatic family: a machined blue-grey blueprint accent,
@@ -212,11 +271,17 @@
 	   Vertical-NEUTRAL: a raw steel progression the intent layer assigns meaning to.
 	   500 is the on-dark beacon tone; 700 the deep surface tone; `on` the dark text
 	   on the 500 fill. */
+	--mo-steel-50: oklch(98.3% 0.003 250.094); /* ladder fill — steel light-end extrapolation */
+	--mo-steel-100: oklch(96% 0.008 250.094); /* ladder fill — steel light-end extrapolation */
+	--mo-steel-200: oklch(92.6% 0.015 250.094); /* ladder fill — steel light-end extrapolation */
 	--mo-steel-300: #cbd8e6;
 	--mo-steel-400: #9db4cc;
 	--mo-steel-500: #7b9cba; /* the foundry beacon */
 	--mo-steel-600: #4f6e8c;
 	--mo-steel-700: #243748; /* deep foundry surface tone */
+	--mo-steel-800: oklch(28.4% 0.032 246.326); /* ladder fill — steel dark-end extrapolation */
+	--mo-steel-900: oklch(25.1% 0.026 246.326); /* ladder fill — steel dark-end extrapolation */
+	--mo-steel-950: oklch(17.6% 0.018 246.326); /* ladder fill — steel dark-end extrapolation */
 	--mo-steel-on: #081626; /* on-steel (dark text on the beacon) */
 
 	/* --- Font families (pulled through from the Archive; the three families) - */
