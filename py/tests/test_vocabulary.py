@@ -1,22 +1,34 @@
 """Grammar vocabulary-neutrality gate (KRA-825 gate 1).
 
-The intent unions in ``morphe_grammar.models`` are the grammar's only
-authored-facing intent vocabulary. Every member must come from the registered
-vocabulary file (``py/morphe_grammar/vocabulary.json``) — the single source of
-truth shared with the TS mirror gate (``src/lib/grammar/vocabulary.test.ts``).
-An intent added to a union without registering it here fails CI; in an
-agent-heavy workflow an invariant that is not a gate is a suggestion.
+The intent unions in ``morphe_grammar.models`` — and their closed producer-side
+mirror in ``morphe_contracts`` (the CONTRACT §8 keyset that constrains CMS and
+surface authoring) — are the only authored-facing intent vocabulary. Every
+member of EVERY mirror must come from the registered vocabulary file
+(``py/morphe_grammar/vocabulary.json``) — the single source of truth shared
+with the TS mirror gate (``src/lib/grammar/vocabulary.test.ts``). An intent
+added to one union without registering it here fails CI; in an agent-heavy
+workflow an invariant that is not a gate is a suggestion.
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import get_args
+from typing import TYPE_CHECKING, get_args
 
-from morphe_grammar.models import CoreIntent, RegisterIntent
+import pytest
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+import morphe_contracts
+from morphe_grammar import models
 
 VOCABULARY_PATH = Path(__file__).resolve().parent.parent / "morphe_grammar" / "vocabulary.json"
+
+# Every Python module carrying a closed intent union. A new mirror module must
+# be added here in the same change that introduces it.
+INTENT_UNION_MODULES = [models, morphe_contracts]
 
 
 def _registry() -> dict[str, list[str]]:
@@ -31,18 +43,22 @@ def _members(alias: object) -> tuple[str, ...]:
     return get_args(value)
 
 
-def test_core_intent_union_equals_the_registered_vocabulary() -> None:
+@pytest.mark.parametrize("module", INTENT_UNION_MODULES, ids=lambda m: m.__name__)
+def test_core_intent_union_equals_the_registered_vocabulary(module: ModuleType) -> None:
     registry = _registry()
-    assert list(_members(CoreIntent)) == registry["core"], (
-        "CoreIntent must match vocabulary.json 'core' exactly (order included): "
-        "register the name there in the same change, or remove it from the union"
+    assert list(_members(module.CoreIntent)) == registry["core"], (
+        f"{module.__name__}.CoreIntent must match vocabulary.json 'core' exactly "
+        "(order included): register the name there in the same change, or remove "
+        "it from the union"
     )
 
 
-def test_register_intent_union_equals_the_registered_vocabulary() -> None:
+@pytest.mark.parametrize("module", INTENT_UNION_MODULES, ids=lambda m: m.__name__)
+def test_register_intent_union_equals_the_registered_vocabulary(module: ModuleType) -> None:
     registry = _registry()
-    assert list(_members(RegisterIntent)) == registry["register"], (
-        "RegisterIntent must match vocabulary.json 'register' exactly (order included)"
+    assert list(_members(module.RegisterIntent)) == registry["register"], (
+        f"{module.__name__}.RegisterIntent must match vocabulary.json 'register' "
+        "exactly (order included)"
     )
 
 

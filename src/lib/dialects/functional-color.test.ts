@@ -143,8 +143,12 @@ function resolve(value: string): Rgba {
 		const total = (w1 as number) + (w2 as number);
 		const f1 = (w1 as number) / total;
 		const f2 = (w2 as number) / total;
-		// CSS color-mix premultiplied-alpha interpolation in srgb.
-		const a = parts[0].color.a * f1 + parts[1].color.a * f2;
+		// CSS color-mix premultiplied-alpha interpolation in srgb. When BOTH
+		// arguments carry explicit percentages summing under 100%, the spec
+		// multiplies the result's alpha by that sum (an "under-filled" mix).
+		const alphaMultiplier =
+			parts[0].pct !== null && parts[1].pct !== null && total < 100 ? total / 100 : 1;
+		const a = (parts[0].color.a * f1 + parts[1].color.a * f2) * alphaMultiplier;
 		const pm = (ch: "r" | "g" | "b"): number =>
 			a === 0
 				? 0
@@ -218,8 +222,36 @@ const GREEN_BAND: readonly [number, number] = [110, 170];
  */
 const CHROMA_FLOOR = 0.02;
 
-/** The channels a functional intent must keep in-family. */
-const ASSERTED_CHANNELS = ["surface", "on", "ink", "ink-hover", "border", "ring"] as const;
+/**
+ * `disabled` states are deliberate ghost washes (8–16% tints whose hue is
+ * owned by the ground, e.g. gallery's warm paper at C≈0.022) — they get a
+ * higher floor so only a genuinely SATURATED off-family disabled state is
+ * asserted, while near-neutral washes stay exempt.
+ */
+const DISABLED_CHROMA_FLOOR = 0.035;
+
+function chromaFloorFor(channel: string): number {
+	return channel === "disabled" ? DISABLED_CHROMA_FLOOR : CHROMA_FLOOR;
+}
+
+/**
+ * The channels a functional intent must keep in-family — including every
+ * interaction state (hover/active/disabled), so a dialect cannot remap a
+ * caution button to an unrelated hue only while hovered, pressed, or disabled.
+ * `disabled` states are deliberately near-neutral washes and ride the chroma
+ * floor rather than a hue mandate.
+ */
+const ASSERTED_CHANNELS = [
+	"surface",
+	"on",
+	"hover",
+	"active",
+	"disabled",
+	"ink",
+	"ink-hover",
+	"border",
+	"ring",
+] as const;
 /** The channels that must always carry an assertable hue (text/ink bearing). */
 const HUE_MANDATORY = new Set(["on", "ink", "ink-hover"]);
 
@@ -250,7 +282,7 @@ describe("functional color is never a mood (KRA-825 gate 3)", () => {
 							`${id}.${intent}.${channel} (${raw}) is near-neutral — a text channel must carry the family hue`,
 						).toBeGreaterThanOrEqual(CHROMA_FLOOR);
 					}
-					if (C >= CHROMA_FLOOR) {
+					if (C >= chromaFloorFor(channel)) {
 						expect(
 							inBand(H, band),
 							`${id}.${intent}.${channel} (${raw}) resolves to hue ${H.toFixed(1)}° C=${C.toFixed(3)} — outside the ${family} band [${band[0]}°, ${band[1]}°]`,

@@ -139,7 +139,8 @@ describe("FP2 — both dialects keep the scales neutral (no welded vertical)", (
 		// `in <space>`, then exactly two of `var(--mo-…)`/`transparent`, each with
 		// an optional percentage. Nested mixes are not part of the dialect idiom.
 		if (v.startsWith("color-mix(")) {
-			const inner = v.slice("color-mix(".length, v.endsWith(")") ? -1 : undefined);
+			if (!v.endsWith(")")) return false; // an unterminated mix is invalid CSS
+			const inner = v.slice("color-mix(".length, -1);
 			const args = inner.split(",").map((s) => s.trim().replace(/\s+/g, " "));
 			if (args.length !== 3) return false;
 			if (!/^in [a-z-]+( (?:shorter|longer|increasing|decreasing) hue)?$/.test(args[0] ?? "")) {
