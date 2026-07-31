@@ -83,7 +83,7 @@ describe("surface-edge compiler adjudications", () => {
 		expect(state?.diagnostics).toEqual([
 			expect.objectContaining({ code: "UNKNOWN_HINT", path: "$.state" }),
 		]);
-		expect(JSON.stringify(emitNode(spec))).toContain('"title":"Unknown hint"');
+		expect(JSON.stringify(emitNode(spec))).toContain('"title":"UNKNOWN_HINT"');
 	});
 
 	it("uses signed order once, then deterministically sorts the remainder", () => {
@@ -408,7 +408,7 @@ describe("surface-edge compiler adjudications", () => {
 			},
 		);
 		expect(spec.items[0]?.diagnostics[0]?.code).toBe("KPI_SOURCE");
-		expect(JSON.stringify(emitNode(spec))).toContain('"title":"Kpi source"');
+		expect(JSON.stringify(emitNode(spec))).toContain('"title":"KPI_SOURCE"');
 	});
 
 	it("uses generated labels when KPI or linked-ref data labels are empty", () => {
@@ -688,6 +688,44 @@ describe("surface-edge compiler adjudications", () => {
 			],
 		});
 		expect(validateNodeDocument(emitNode(spec)).ok).toBe(true);
+	});
+
+	it("infers columns from every row and preserves later-row evidence", () => {
+		const first = surfaceNode({
+			path: "$.rows[0]",
+			label: "Row 0",
+			strategy: "record-card",
+			children: [
+				surfaceNode({ path: "$.rows[0].name", label: "Name", strategy: "scalar", value: "Ada" }),
+			],
+		});
+		const second = surfaceNode({
+			path: "$.rows[1]",
+			label: "Row 1",
+			strategy: "record-card",
+			children: [
+				surfaceNode({ path: "$.rows[1].name", label: "Name", strategy: "scalar", value: "Lin" }),
+				surfaceNode({
+					path: "$.rows[1].role",
+					label: "Role",
+					strategy: "scalar",
+					value: "Operator",
+				}),
+			],
+		});
+		const emitted = emitNode(
+			surfaceNode({ path: "$.rows", label: "Rows", strategy: "table", items: [first, second] }),
+		);
+		if (emitted.kind !== "stack" || emitted.children[1]?.kind !== "table") {
+			throw new Error("expected table section");
+		}
+		const table = emitted.children[1];
+		expect(table.columns.map((column) => column.header)).toEqual(["Name", "Role"]);
+		expect(table.rows.map((row) => row.cells.length)).toEqual([2, 2]);
+		expect(table.rows[0]?.cells[1]?.children).toEqual([{ kind: "spacer", size: "xs" }]);
+		expect(table.rows[1]?.cells[1]?.children).toEqual([
+			{ kind: "text", value: "Operator", as: "body" },
+		]);
 	});
 
 	it("returns a dialect-free deterministic compilation receipt", () => {

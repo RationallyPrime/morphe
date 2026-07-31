@@ -32,7 +32,6 @@ _PROVENANCE_INTENTS = {"provenance", "accession", "authority"}
 _ATTENTION_STRATEGIES = {"status", "badge", "kpi-row"}
 _ATTENTION_INTENTS = {"caution", "success", "info"}
 _PRIMARY_WORKLIST_STRATEGIES = {"table", "card-stack"}
-_TABLE_STICKY_ROW_THRESHOLD = 6
 
 
 def _with_gloss(node: Node, gloss: str | None) -> Node:
@@ -697,7 +696,8 @@ def _collapsible(spec: SurfaceNode) -> Node:
 def _table(spec: SurfaceNode) -> Node:
     if not spec.items:
         return _section(spec, [_empty_collection(spec)])
-    column_specs = spec.children or _columns_from_rows(spec.items)
+    inferred_columns = _columns_from_rows(spec.items)
+    column_specs = (*spec.children, *inferred_columns[len(spec.children) :])
     columns = (
         [_table_column(column, index, spec.items) for index, column in enumerate(column_specs)]
         if column_specs
@@ -717,8 +717,6 @@ def _table(spec: SurfaceNode) -> Node:
         "rowHeader": True,
         "responsive": "records",
     }
-    if len(spec.items) > _TABLE_STICKY_ROW_THRESHOLD:
-        table["sticky"] = True
     if spec.emphasis is not None:
         table["emphasis"] = spec.emphasis
     return _section(spec, [table])
@@ -730,7 +728,11 @@ def _disclosure_summary(label: str) -> str:
 
 
 def _columns_from_rows(rows: tuple[SurfaceNode, ...]) -> tuple[SurfaceNode, ...]:
-    return rows[0].children if rows else ()
+    width = max((len(row.children) for row in rows), default=0)
+    return tuple(
+        next(row.children[index] for row in rows if index < len(row.children))
+        for index in range(width)
+    )
 
 
 def _table_column(column: SurfaceNode, index: int, rows: tuple[SurfaceNode, ...]) -> Node:
@@ -757,6 +759,8 @@ def _table_column(column: SurfaceNode, index: int, rows: tuple[SurfaceNode, ...]
         cell["numeric"] = True
     if column.intent is not None:
         cell["intent"] = column.intent
+    if column.gloss is not None:
+        cell["gloss"] = column.gloss
     return cell
 
 
@@ -774,7 +778,7 @@ def _table_row(row: SurfaceNode, column_count: int) -> Node:
         ]
     )
     emitted: Node = {
-        "cells": [{"children": [cell]} for cell in cells[:column_count]],
+        "cells": [{"children": [cell]} for cell in cells],
     }
     if diagnostics:
         emitted["diagnostics"] = diagnostics
@@ -927,7 +931,7 @@ def _alert(diag: Diagnostic) -> Node:
     node: Node = {
         "kind": "inline-alert",
         "tone": _tone(diag.severity),
-        "title": _humanize_diagnostic_code(diag.code),
+        "title": diag.code,
         "detail": diag.message,
     }
     # The producer-authored next action renders as honest structure (KRA-757 §3.8):
@@ -951,37 +955,8 @@ def _labeled_alert(label: str, diag: Diagnostic) -> Node:
     # repair hint (KRA-788) — only the title gains the field name.
     node = _alert(diag)
     if label:
-        node["title"] = f"{label}: {_humanize_diagnostic_code(diag.code)}"
+        node["title"] = f"{label}: {diag.code}"
     return node
-
-
-_DIAGNOSTIC_ACRONYMS = {"api", "id", "po", "sla", "uuid", "vat"}
-_DIAGNOSTIC_EXPANSIONS = {"max": "maximum", "min": "minimum", "qty": "quantity"}
-
-
-def _humanize_diagnostic_code(code: str) -> str:
-    expanded_camel = "".join(
-        f" {char}" if index and char.isupper() and code[index - 1].islower() else char
-        for index, char in enumerate(code.strip())
-    )
-    raw_words = (
-        expanded_camel.replace(".", " ")
-        .replace("_", " ")
-        .replace("/", " ")
-        .replace("-", " ")
-        .split()
-    )
-    if not raw_words:
-        return "Needs attention"
-    words = []
-    for word in raw_words:
-        lowered = word.lower()
-        if lowered in _DIAGNOSTIC_ACRONYMS:
-            words.append(lowered.upper())
-        else:
-            words.append(_DIAGNOSTIC_EXPANSIONS.get(lowered, lowered))
-    first, *rest = words
-    return " ".join([first[:1].upper() + first[1:], *rest])
 
 
 def _tone(severity: str) -> str:

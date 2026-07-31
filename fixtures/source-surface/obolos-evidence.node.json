@@ -303,7 +303,7 @@
                     {
                       "detail": "The amount is represented at settlement precision.",
                       "kind": "inline-alert",
-                      "title": "Amount: Obolos amount rounding",
+                      "title": "Amount: OBOLOS_AMOUNT_ROUNDING",
                       "tone": "info"
                     }
                   ]
@@ -427,7 +427,7 @@
                       "detail": "This evidence row needs manual adjudication.",
                       "kind": "inline-alert",
                       "repair": "Attach the missing FX testimony.",
-                      "title": "Obolos exception row",
+                      "title": "OBOLOS_EXCEPTION_ROW",
                       "tone": "caution"
                     }
                   ]

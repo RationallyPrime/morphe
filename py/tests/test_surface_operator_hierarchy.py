@@ -259,10 +259,10 @@ def test_nested_provenance_container_keeps_content_and_hoists_diagnostics_once()
     encoded = json.dumps(node)
 
     assert alert["kind"] == "inline-alert"
-    assert alert["title"] == "Receipt id: Bundle receipt review"
+    assert alert["title"] == "Receipt id: BUNDLE_RECEIPT_REVIEW"
     assert footer["name"] == "ProvenanceFooter"
-    assert "Bundle receipt review" not in json.dumps(footer)
-    assert encoded.count("Bundle receipt review") == 1
+    assert "BUNDLE_RECEIPT_REVIEW" not in json.dumps(footer)
+    assert encoded.count("BUNDLE_RECEIPT_REVIEW") == 1
     assert encoded.count("Receipt bundle") == 1
     assert encoded.count("bundle-receipt-798") == 1
     validate_node(node)
@@ -288,11 +288,11 @@ def test_provenance_container_does_not_repeat_an_intrinsic_diagnostic_node() -> 
     footer = children[-1]
     encoded = json.dumps(node)
 
-    assert encoded.count("Unrenderable") == 1
+    assert encoded.count("UNRENDERABLE") == 1
     assert encoded.count("unrenderable: unknown construct") == 1
-    assert "Unrenderable" not in json.dumps(footer)
+    assert "UNRENDERABLE" not in json.dumps(footer)
     assert "unrenderable: unknown construct" not in json.dumps(footer)
-    assert children[1]["title"] == "Mystery: Unrenderable"
+    assert children[1]["title"] == "Mystery: UNRENDERABLE"
     validate_node(node)
 
 
@@ -327,7 +327,7 @@ def test_child_diagnostic_precedes_the_primary_worklist() -> None:
     node = emit_node(root)
     encoded = json.dumps(node)
 
-    assert encoded.index("Field review") < encoded.index("Worklist")
+    assert encoded.index("FIELD_REVIEW") < encoded.index("Worklist")
     validate_node(node)
 
 
@@ -362,11 +362,11 @@ def test_provenance_diagnostic_stays_visible_outside_audit_proof_once() -> None:
     footer = children[2]
 
     assert alert["kind"] == "inline-alert"
-    assert alert["title"] == "Receipt id: Seal mismatch"
+    assert alert["title"] == "Receipt id: SEAL_MISMATCH"
     assert alert["repair"] == "Request a fresh receipt."
     assert footer["name"] == "ProvenanceFooter"
-    assert "Seal mismatch" not in json.dumps(footer)
-    assert json.dumps(node).count("Seal mismatch") == 1
+    assert "SEAL_MISMATCH" not in json.dumps(footer)
+    assert json.dumps(node).count("SEAL_MISMATCH") == 1
     assert json.dumps(node).count("receipt-798") == 1
     validate_node(node)
 
@@ -403,7 +403,7 @@ def test_trail_provenance_diagnostic_precedes_closed_footer_once() -> None:
 
     node = emit_node(root)
     encoded = json.dumps(node)
-    assert encoded.count("Event receipt review") == 1
+    assert encoded.count("EVENT_RECEIPT_REVIEW") == 1
     assert encoded.count("event-receipt-798") == 1
-    assert encoded.index("Event receipt review") < encoded.index("ProvenanceFooter")
+    assert encoded.index("EVENT_RECEIPT_REVIEW") < encoded.index("ProvenanceFooter")
     validate_node(node)

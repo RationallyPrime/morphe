@@ -1,0 +1,489 @@
+{
+  "attestation": {
+    "algorithm": "Ed25519",
+    "key_id": "taxis-fixture-2026-01",
+    "signature": "sHFwLuSMrRqZWgpRMDbTWaie_Oj_fwQ8U70JvYBAxOKwadbEhSqf3RIFsYitDPj0BRHWTJ_x5m5OCQ6Wd4DiCw"
+  },
+  "data": {
+    "coverage": 1.0,
+    "keyFigures": [
+      {
+        "currency": "ISK",
+        "format": "currency",
+        "gloss": null,
+        "intent": "evidence",
+        "kicker": "Window",
+        "kicker_gloss": null,
+        "label": "Scheduled payroll",
+        "signal": null,
+        "signal_gloss": null,
+        "signal_intent": null,
+        "temporal": null,
+        "value": 2180000
+      },
+      {
+        "currency": null,
+        "format": null,
+        "gloss": null,
+        "intent": null,
+        "kicker": "Operations",
+        "kicker_gloss": null,
+        "label": "Dispatch mode",
+        "signal": null,
+        "signal_gloss": null,
+        "signal_intent": null,
+        "temporal": null,
+        "value": "normal"
+      },
+      {
+        "currency": null,
+        "format": null,
+        "gloss": null,
+        "intent": null,
+        "kicker": "System time",
+        "kicker_gloss": null,
+        "label": "Newest event",
+        "signal": null,
+        "signal_gloss": null,
+        "signal_intent": null,
+        "temporal": "date-time-minute",
+        "value": "2026-07-10T11:59:14.582860Z"
+      }
+    ],
+    "name": "Vestfir\u00f0ir \u2014 \"night\"\nroster",
+    "windowLabel": "2026-W28",
+    "workers": [
+      {
+        "allocation": 0.8,
+        "hourlyRate": 7950,
+        "name": "Arna K.",
+        "profile": {
+          "href": "/workers/wrk-001",
+          "label": "Open Arna"
+        },
+        "state": "active",
+        "workerId": "wrk-001"
+      },
+      {
+        "allocation": 0.8,
+        "hourlyRate": 7950,
+        "name": "Baldur R.",
+        "profile": {
+          "href": "/workers/wrk-002",
+          "label": "Open Baldur"
+        },
+        "state": "active",
+        "workerId": "wrk-002"
+      }
+    ]
+  },
+  "diagnostics": [],
+  "issuer": "taxis",
+  "kind": "morphe.source-surface",
+  "produced_at": "2026-07-10T12:00:00Z",
+  "required_capabilities": [],
+  "schema": {
+    "$defs": {
+      "CoreIntent": {
+        "enum": [
+          "primary-action",
+          "neutral",
+          "provenance",
+          "evidence",
+          "accession",
+          "caution",
+          "success",
+          "info"
+        ],
+        "type": "string"
+      },
+      "IntentRef": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CoreIntent"
+          },
+          {
+            "$ref": "#/$defs/RegisterIntent"
+          }
+        ]
+      },
+      "KpiCell": {
+        "additionalProperties": false,
+        "description": "One card in a ``strategy=\"kpi-row\"`` collection \u2014 the typed row contract.\n\nEmbed ``list[KpiCell]`` (or any model with these field names) in a surface view\nmodel; the compiler lowers each cell to a promoted ``SignalCard``. ``value`` may be\ntextual \u2014 a non-numeric measure renders as text instead of a formatted number.\n``temporal=\"date-time-minute\"`` opts a textual timestamp into the deterministic\nminute-precision display floor without changing its source value.",
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NumberFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gloss"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kicker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker"
+          },
+          "kicker_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Kicker Gloss"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal"
+          },
+          "signal_gloss": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signal Gloss"
+          },
+          "signal_intent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IntentRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "temporal": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/TemporalFormat"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "KpiCell",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "value",
+            "kicker",
+            "gloss",
+            "kicker_gloss",
+            "format",
+            "temporal",
+            "currency",
+            "intent",
+            "signal",
+            "signal_intent",
+            "signal_gloss"
+          ]
+        }
+      },
+      "NumberFormat": {
+        "enum": [
+          "plain",
+          "integer",
+          "currency",
+          "percent",
+          "compact"
+        ],
+        "type": "string"
+      },
+      "RegisterIntent": {
+        "enum": [
+          "footnote",
+          "aside",
+          "authority"
+        ],
+        "type": "string"
+      },
+      "TemporalFormat": {
+        "const": "date-time-minute",
+        "type": "string"
+      },
+      "_SurfaceLink": {
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "title": "Href",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "_SurfaceLink",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "label",
+            "href"
+          ]
+        }
+      },
+      "_TaxisRosterRow": {
+        "additionalProperties": false,
+        "properties": {
+          "allocation": {
+            "title": "Allocation",
+            "type": "number",
+            "x-morphe": {
+              "role": "info",
+              "strategy": "progress"
+            }
+          },
+          "hourlyRate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hourly rate",
+            "x-morphe": {
+              "currency": "ISK",
+              "format": "currency",
+              "strategy": "number"
+            }
+          },
+          "name": {
+            "title": "Worker",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/$defs/_SurfaceLink",
+            "title": "Worker profile",
+            "x-morphe": {
+              "role": "primary-action",
+              "strategy": "linked-ref"
+            }
+          },
+          "state": {
+            "enum": [
+              "active",
+              "review",
+              "paused"
+            ],
+            "title": "Roster state",
+            "type": "string",
+            "x-morphe": {
+              "intents": {
+                "active": "success",
+                "paused": "neutral",
+                "review": "caution"
+              },
+              "strategy": "status"
+            }
+          },
+          "workerId": {
+            "title": "Worker ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workerId",
+          "name",
+          "state",
+          "allocation",
+          "profile"
+        ],
+        "title": "_TaxisRosterRow",
+        "type": "object",
+        "x-morphe": {
+          "order": [
+            "workerId",
+            "name",
+            "state",
+            "allocation",
+            "hourlyRate",
+            "profile"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "coverage": {
+        "title": "Window coverage",
+        "type": "number",
+        "x-morphe": {
+          "role": "info",
+          "strategy": "progress"
+        }
+      },
+      "keyFigures": {
+        "items": {
+          "$ref": "#/$defs/KpiCell"
+        },
+        "title": "Key figures",
+        "type": "array",
+        "x-morphe": {
+          "heading": false,
+          "strategy": "kpi-row"
+        }
+      },
+      "name": {
+        "title": "Roster",
+        "type": "string"
+      },
+      "windowLabel": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Window"
+      },
+      "workers": {
+        "items": {
+          "$ref": "#/$defs/_TaxisRosterRow"
+        },
+        "title": "Workers",
+        "type": "array",
+        "x-morphe": {
+          "strategy": "table"
+        }
+      }
+    },
+    "required": [
+      "name",
+      "coverage",
+      "keyFigures",
+      "workers"
+    ],
+    "title": "Weekly roster",
+    "type": "object",
+    "x-morphe": {
+      "order": [
+        "name",
+        "windowLabel",
+        "coverage",
+        "keyFigures",
+        "workers"
+      ]
+    }
+  },
+  "seals": {
+    "content_sha256": "sha256:0af553521adb6747adce468850e213a7ea5ec17d3394a54aaa7e18152f6293b5",
+    "schema_sha256": "sha256:f532e892c94eec35c6b217472fca1e742bfeca3441eec5a141d7f224dd46d0cd",
+    "testimony_sha256": "sha256:2c5ef20eecdfc5154110305598e515992dc5d45abe41c4c0b548c8a501b7e9b6"
+  },
+  "source_revision": "taxis-fixture-rev-0000",
+  "surface_id": "taxis.roster:westfjords:2026-W28",
+  "valid_until": null,
+  "view_model": {
+    "hint_vocabulary": "0.7.0",
+    "id": "taxis.roster",
+    "revision": 1,
+    "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "wire_version": "1.0"
+}

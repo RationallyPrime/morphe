@@ -29,8 +29,8 @@ import type { KernelSurfaceEntry, SourceConfig } from "./sources.js";
  * `carry` are viewer-level presentation params (KRA-789: `as_of`) that must SURVIVE a
  * drill-through so a panel link keeps the home date. They are merged onto the rewritten
  * viewer href AFTER the kernel link's own query, winning on a key collision. An empty or
- * omitted `carry` is a strict no-op — the rewrite stays byte-identical to the pre-KRA-789
- * behavior, so `as_of`-free navigation is unchanged.
+ * omitted `carry` leaves every ordinary producer filter intact, but still removes
+ * producer-authored `as_of`: only the viewer may establish cross-pane temporal state.
  */
 export function rewriteKernelLinks(
 	tree: Node,
@@ -57,12 +57,6 @@ function declaredRoutes(source: SourceConfig): ReadonlyMap<string, string> {
 function pathOnly(href: string): string {
 	const cut = href.search(/[?#]/);
 	return cut === -1 ? href : href.slice(0, cut);
-}
-
-/** The `?query#fragment` suffix of a kernel href, or "" when there is none. */
-function querySuffix(href: string): string {
-	const cut = href.search(/[?#]/);
-	return cut === -1 ? "" : href.slice(cut);
 }
 
 function isExternal(href: string): boolean {
@@ -93,16 +87,28 @@ function walk(
 	return out;
 }
 
-/** Merge the carried viewer params onto a rewritten viewer href's own query. */
-function withCarriedQuery(paneHref: string, carry: URLSearchParams | undefined): string {
-	if (carry === undefined) return paneHref;
-	const cut = paneHref.search(/[?#]/);
-	const base = cut === -1 ? paneHref : paneHref.slice(0, cut);
-	const existing = cut === -1 ? "" : paneHref.slice(cut + 1);
-	const merged = new URLSearchParams(existing);
-	for (const [key, value] of carry) merged.set(key, value);
+/**
+ * Rebuild a declared producer link on the viewer route.
+ *
+ * `as_of` is viewer-owned temporal state. A producer may use it to describe its
+ * own request, but it may not silently pin the operator's next navigation. The
+ * viewer therefore removes producer-authored `as_of` unconditionally, then adds
+ * the operator's explicitly selected frontier (when one exists). Other filters
+ * and the fragment remain producer-authored evidence and survive unchanged.
+ */
+function viewerPaneHref(
+	paneHref: string,
+	producerHref: string,
+	carry: URLSearchParams | undefined,
+): string {
+	const producer = new URL(producerHref, "http://morphe.invalid");
+	const merged = new URLSearchParams(producer.searchParams);
+	merged.delete("as_of");
+	if (carry !== undefined) {
+		for (const [key, value] of carry) merged.set(key, value);
+	}
 	const query = merged.toString();
-	return query === "" ? base : `${base}?${query}`;
+	return `${paneHref}${query === "" ? "" : `?${query}`}${producer.hash}`;
 }
 
 function rewriteNavigable(
@@ -119,7 +125,7 @@ function rewriteNavigable(
 	if (isExternal(href)) return node;
 	const pane = routes.get(pathOnly(href));
 	if (pane !== undefined) {
-		return { ...node, href: withCarriedQuery(`${pane}${querySuffix(href)}`, carry) };
+		return { ...node, href: viewerPaneHref(pane, href, carry) };
 	}
 	if (node.kind === "link") {
 		const label = typeof node.label === "string" ? node.label : "";

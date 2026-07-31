@@ -49,7 +49,6 @@ const PROVENANCE_INTENTS: ReadonlySet<string> = new Set(["provenance", "accessio
 const ATTENTION_STRATEGIES: ReadonlySet<string> = new Set(["status", "badge", "kpi-row"]);
 const ATTENTION_INTENTS: ReadonlySet<string> = new Set(["caution", "success", "info"]);
 const PRIMARY_WORKLIST_STRATEGIES: ReadonlySet<string> = new Set(["table", "card-stack"]);
-const TABLE_STICKY_ROW_THRESHOLD = 6;
 
 export interface EmitLimits {
 	readonly maxSpecDepth: number;
@@ -1102,7 +1101,8 @@ function collapsible(spec: SurfaceNode, ctx: EmitContext): Node {
 
 function table(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
-	const columnSpecs = spec.children.length > 0 ? spec.children : (spec.items[0]?.children ?? []);
+	const inferredColumns = columnsFromRows(spec.items);
+	const columnSpecs = [...spec.children, ...inferredColumns.slice(spec.children.length)];
 	const columns =
 		columnSpecs.length > 0
 			? columnSpecs.map((column, index) => tableColumn(column, index, spec.items))
@@ -1120,10 +1120,18 @@ function table(spec: SurfaceNode, ctx: EmitContext): Node {
 		rows: spec.items.map((item) => tableRow(item, columns.length, ctx)),
 		rowHeader: true,
 		responsive: "records",
-		...(spec.items.length > TABLE_STICKY_ROW_THRESHOLD ? { sticky: true } : {}),
 		...(spec.emphasis === undefined ? {} : { emphasis: spec.emphasis }),
 	};
 	return section(spec, [semanticTable]);
+}
+
+function columnsFromRows(rows: readonly SurfaceNode[]): readonly SurfaceNode[] {
+	const width = rows.reduce((maximum, row) => Math.max(maximum, row.children.length), 0);
+	return Array.from({ length: width }, (_, index) => {
+		const column = rows.find((row) => row.children[index] !== undefined)?.children[index];
+		if (column === undefined) throw new TypeError(`table column ${index} has no authored field`);
+		return column;
+	});
 }
 
 function tableColumn(
@@ -1148,6 +1156,7 @@ function tableColumn(
 					? "detail"
 					: "secondary",
 		...(column.intent === undefined ? {} : { intent: column.intent }),
+		...(column.gloss === undefined ? {} : { gloss: column.gloss }),
 	};
 }
 
@@ -1165,7 +1174,7 @@ function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): Tabl
 					...(row.children.length > 0 ? liftedCellAlerts(row.children) : []),
 				];
 	return {
-		cells: cells.slice(0, columnCount).map((cell) => ({ children: [cell] })),
+		cells: cells.map((cell) => ({ children: [cell] })),
 		...(diagnostics.length === 0 ? {} : { diagnostics }),
 	};
 }
@@ -1324,7 +1333,7 @@ function alert(diagnostic: CompilerDiagnostic): InlineAlert {
 	return {
 		kind: "inline-alert",
 		tone: diagnostic.severity === "info" ? "info" : "caution",
-		title: humanizeDiagnosticCode(diagnostic.code),
+		title: diagnostic.code,
 		detail: diagnostic.message,
 		...(diagnostic.repair_hint === undefined ? {} : { repair: diagnostic.repair_hint }),
 		// A diagnostic that names where its offending entries live renders as a
@@ -1340,31 +1349,7 @@ function labeledAlert(label: string, diagnostic: CompilerDiagnostic): InlineAler
 	// The lifted alert keeps everything alert() renders — including the authored
 	// repair hint (KRA-788) — only the title gains the field name.
 	const base = alert(diagnostic);
-	return label ? { ...base, title: `${label}: ${humanizeDiagnosticCode(diagnostic.code)}` } : base;
-}
-
-const DIAGNOSTIC_ACRONYMS = new Set(["api", "id", "po", "sla", "uuid", "vat"]);
-const DIAGNOSTIC_EXPANSIONS: Readonly<Record<string, string>> = Object.freeze({
-	max: "maximum",
-	min: "minimum",
-	qty: "quantity",
-});
-
-function humanizeDiagnosticCode(code: string): string {
-	const rawWords = pythonStrip(code)
-		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-		.split(/[\s._/-]+/)
-		.filter(Boolean);
-	if (rawWords.length === 0) return "Needs attention";
-	const words = rawWords.map((word) => {
-		const lower = word.toLowerCase();
-		if (DIAGNOSTIC_ACRONYMS.has(lower)) return lower.toUpperCase();
-		return DIAGNOSTIC_EXPANSIONS[lower] ?? lower;
-	});
-	const [first, ...rest] = words;
-	return `${first?.charAt(0).toUpperCase()}${first?.slice(1) ?? ""}${
-		rest.length > 0 ? ` ${rest.join(" ")}` : ""
-	}`;
+	return label ? { ...base, title: `${label}: ${diagnostic.code}` } : base;
 }
 
 function normalizeVisibleLabelText(value: string, fallback: string): string {

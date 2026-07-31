@@ -271,7 +271,7 @@ def test_entity_header_diagnostics_ride_the_meta_alert_head() -> None:
     head = [item for item in meta if item.get("kind") == "inline-alert"]
     # The node's own diagnostic AND the diagnostic on the child promoted to a bare
     # keyFigure arg both surface at the head of the meta row (nothing dropped, D8).
-    assert [alert["title"] for alert in head] == ["Own", "Keyfig"]
+    assert [alert["title"] for alert in head] == ["OWN", "KEYFIG"]
 
 
 # --- factory gate ---------------------------------------------------------------------

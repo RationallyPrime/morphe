@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 _SOURCE_GOLDEN_VECTOR_PATH = "fixtures/source-surface/source-surface-v1.ed25519-vector.json"
 _OBOLOS_GOLDEN_VECTOR_PATH = "fixtures/source-surface/source-surface-v1.obolos.ed25519-vector.json"
 _TAXIS_SOURCE_PATH = "fixtures/source-surface/taxis-roster.source.json"
+_TAXIS_PRE_EVENT_SOURCE_PATH = "fixtures/source-surface/taxis-roster.pre-event.source.json"
 _TAXIS_SURFACE_SPEC_PATH = "fixtures/source-surface/taxis-roster.surface-spec.json"
 _TAXIS_NODE_PATH = "fixtures/source-surface/taxis-roster.node.json"
 _OBOLOS_SOURCE_PATH = "fixtures/source-surface/obolos-evidence.source.json"
@@ -66,6 +67,7 @@ SOURCE_VECTOR_PATHS: tuple[str, ...] = (
     _SOURCE_GOLDEN_VECTOR_PATH,
     _OBOLOS_GOLDEN_VECTOR_PATH,
     _TAXIS_SOURCE_PATH,
+    _TAXIS_PRE_EVENT_SOURCE_PATH,
     _TAXIS_SURFACE_SPEC_PATH,
     _TAXIS_NODE_PATH,
     _OBOLOS_SOURCE_PATH,
@@ -420,6 +422,7 @@ type _Fixture = tuple[SourceSurfaceArtifactV1, Ed25519PrivateKey, str]
 def source_vector_documents() -> dict[str, str]:
     """Build every checked-in source artifact, crypto vector, and Python oracle."""
     taxis = _taxis_fixture()
+    taxis_pre_event = _taxis_pre_event_fixture()
     obolos = _obolos_fixture()
     krates = _krates_fixture()
     budget = _budget_fixture()
@@ -433,6 +436,7 @@ def source_vector_documents() -> dict[str, str]:
     profile_spec, profile_node = source_compiler_oracles(profile[0])
 
     _tassert_hidden_absent(taxis[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
+    _tassert_hidden_absent(taxis_pre_event[0], _TAXIS_HIDDEN_FIELD, _TAXIS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(obolos[0], _OBOLOS_HIDDEN_FIELD, _OBOLOS_HIDDEN_SENTINEL)
     _tassert_hidden_absent(krates[0], _KRATES_HIDDEN_FIELD, _KRATES_HIDDEN_SENTINEL)
     _tassert_hidden_absent(budget[0], _BUDGET_HIDDEN_FIELD, _BUDGET_HIDDEN_SENTINEL)
@@ -443,6 +447,7 @@ def source_vector_documents() -> dict[str, str]:
         _SOURCE_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(taxis)),
         _OBOLOS_GOLDEN_VECTOR_PATH: _json_document(_golden_vector(obolos)),
         _TAXIS_SOURCE_PATH: _json_document(_artifact_document(taxis[0])),
+        _TAXIS_PRE_EVENT_SOURCE_PATH: _json_document(_artifact_document(taxis_pre_event[0])),
         _TAXIS_SURFACE_SPEC_PATH: _json_document(taxis_spec),
         _TAXIS_NODE_PATH: _json_document(taxis_node),
         _OBOLOS_SOURCE_PATH: _json_document(_artifact_document(obolos[0])),
@@ -544,6 +549,65 @@ def _taxis_fixture() -> _Fixture:
         # Freshness/expiry behavior is pinned separately with injected-clock tests.
         valid_until=None,
         diagnostics=diagnostics,
+        required_capabilities=(),
+    )
+
+
+def _taxis_pre_event_fixture() -> _Fixture:
+    """Return a signed earlier frontier for the browser's temporal-causality proof."""
+    model = _TaxisRoster(
+        name='Vestfirðir — "night"\nroster',
+        windowLabel="2026-W28",
+        coverage=1.0,
+        keyFigures=[
+            KpiCell(
+                label="Scheduled payroll",
+                value=2_180_000,
+                kicker="Window",
+                format="currency",
+                currency="ISK",
+                intent="evidence",
+            ),
+            KpiCell(label="Dispatch mode", value="normal", kicker="Operations"),
+            KpiCell(
+                label="Newest event",
+                value="2026-07-10T11:59:14.582860Z",
+                kicker="System time",
+                temporal="date-time-minute",
+            ),
+        ],
+        workers=[
+            _TaxisRosterRow(
+                workerId="wrk-001",
+                name="Arna K.",
+                state="active",
+                allocation=0.8,
+                hourlyRate=7_950,
+                profile=_SurfaceLink(label="Open Arna", href="/workers/wrk-001"),
+                dispatchSecret=_TAXIS_HIDDEN_SENTINEL,
+            ),
+            _TaxisRosterRow(
+                workerId="wrk-002",
+                name="Baldur R.",
+                state="active",
+                allocation=0.8,
+                hourlyRate=7_950,
+                profile=_SurfaceLink(label="Open Baldur", href="/workers/wrk-002"),
+                dispatchSecret=f"{_TAXIS_HIDDEN_SENTINEL}-ROW-2",
+            ),
+        ],
+    )
+    return _prepare_fixture(
+        model,
+        seed_hex=_TAXIS_SEED_HEX,
+        key_id=_TAXIS_KEY_ID,
+        issuer="taxis",
+        surface_id="taxis.roster:westfjords:2026-W28",
+        source_revision="taxis-fixture-rev-0000",
+        view_model_id="taxis.roster",
+        produced_at=datetime(2026, 7, 10, 12, 0, 0, tzinfo=UTC),
+        valid_until=None,
+        diagnostics=(),
         required_capabilities=(),
     )
 

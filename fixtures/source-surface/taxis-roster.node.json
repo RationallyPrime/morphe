@@ -230,7 +230,7 @@
                     {
                       "detail": "Allocation reflects the signed planning window.",
                       "kind": "inline-alert",
-                      "title": "Allocation: Taxis allocation source",
+                      "title": "Allocation: TAXIS_ALLOCATION_SOURCE",
                       "tone": "info"
                     }
                   ]
@@ -301,7 +301,7 @@
                       "href": "/workers/wrk-002",
                       "kind": "inline-alert",
                       "repair": "Confirm the allocation before dispatch.",
-                      "title": "Taxis row review",
+                      "title": "TAXIS_ROW_REVIEW",
                       "tone": "caution"
                     }
                   ]

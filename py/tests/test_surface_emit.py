@@ -307,7 +307,7 @@ def test_table_cell_diagnostics_stay_visible() -> None:
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
     alert = _find(
-        node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Amount: Cell"
+        node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Amount: CELL"
     )
     assert alert is not None
     assert alert["detail"] == "probe"
@@ -329,7 +329,7 @@ def test_table_row_diagnostics_stay_visible() -> None:
     diags = {"$.balances[0]": [_diag("$.balances[0]", "ROW")]}
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
-    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Row")
+    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "ROW")
     assert alert is not None
     validate_node(node)
 
@@ -354,6 +354,83 @@ def test_non_record_table_row_renders_itself_not_blank() -> None:
     node = emit_node(table)
     link = _find(node, lambda n: n.get("kind") == "link" and n.get("href") == "#acc")
     assert link is not None
+    validate_node(node)
+
+
+def test_table_infers_late_columns_without_dropping_cells() -> None:
+    first = SurfaceNode(
+        path="$.rows[0]",
+        label="Row 0",
+        strategy="record-card",
+        children=(
+            SurfaceNode(path="$.rows[0].name", label="Name", strategy="scalar", value="Ada"),
+        ),
+    )
+    second = SurfaceNode(
+        path="$.rows[1]",
+        label="Row 1",
+        strategy="record-card",
+        children=(
+            SurfaceNode(path="$.rows[1].name", label="Name", strategy="scalar", value="Lin"),
+            SurfaceNode(
+                path="$.rows[1].role", label="Role", strategy="scalar", value="Operator"
+            ),
+        ),
+    )
+    node = emit_node(
+        SurfaceNode(path="$.rows", label="Rows", strategy="table", items=(first, second))
+    )
+    table = _find(node, lambda candidate: candidate.get("kind") == "table")
+
+    assert table is not None
+    assert [column["header"] for column in table["columns"]] == ["Name", "Role"]
+    assert [len(row["cells"]) for row in table["rows"]] == [2, 2]
+    assert table["rows"][0]["cells"][1]["children"] == [{"kind": "spacer", "size": "xs"}]
+    assert table["rows"][1]["cells"][1]["children"][0]["value"] == "Operator"
+    validate_node(node)
+
+
+def test_table_column_preserves_authored_gloss_and_intent() -> None:
+    column = SurfaceNode(
+        path="$.rows.*.id",
+        label="Evidence ID",
+        strategy="scalar",
+        intent="provenance",
+        gloss="The source-authored stable evidence identifier.",
+    )
+    row = SurfaceNode(
+        path="$.rows[0]",
+        label="Row 0",
+        strategy="record-card",
+        children=(
+            SurfaceNode(
+                path="$.rows[0].id",
+                label="Evidence ID",
+                strategy="scalar",
+                value="ev-1",
+            ),
+        ),
+    )
+    node = emit_node(
+        SurfaceNode(
+            path="$.rows",
+            label="Rows",
+            strategy="table",
+            children=(column,),
+            items=(row,),
+        )
+    )
+    table = _find(node, lambda candidate: candidate.get("kind") == "table")
+
+    assert table is not None
+    assert table["columns"] == [
+        {
+            "header": "Evidence ID",
+            "gloss": "The source-authored stable evidence identifier.",
+            "intent": "provenance",
+            "priority": "primary",
+        }
+    ]
     validate_node(node)
 
 

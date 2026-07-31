@@ -154,7 +154,7 @@ describe("trail lowering (KRA-786)", () => {
 		const alerts = (entry.slots?.provenance ?? [])
 			.filter((item) => item.kind === "inline-alert")
 			.map((item) => (item.kind === "inline-alert" ? item.title : ""));
-		expect(alerts).toEqual(["Evt", "Stamp"]);
+		expect(alerts).toEqual(["EVT", "STAMP"]);
 	});
 });
 

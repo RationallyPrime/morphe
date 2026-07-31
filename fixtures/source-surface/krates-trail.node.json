@@ -37,7 +37,7 @@
                   {
                     "detail": "Timestamp reflects the signed event log.",
                     "kind": "inline-alert",
-                    "title": "Trail event source",
+                    "title": "TRAIL_EVENT_SOURCE",
                     "tone": "info"
                   },
                   {
@@ -104,7 +104,7 @@
                     "detail": "The recompute event needs review.",
                     "kind": "inline-alert",
                     "repair": "Confirm the exposure delta before settlement.",
-                    "title": "Trail event review",
+                    "title": "TRAIL_EVENT_REVIEW",
                     "tone": "caution"
                   },
                   {

@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 const SURFACE_PATH = "/s/taxis/roster";
 const HIDDEN_FIELD = "dispatchSecret";
 const HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42";
-const GEOMETRY_TOLERANCE_PX = 1.5;
+const GEOMETRY_TOLERANCE_PX = 0.5;
 const TOUCH_TARGET_FLOOR_PX = 44;
 const SHIPPED_DIALECTS = [
 	"icelandic-archive",
@@ -18,6 +18,7 @@ const SHIPPED_DIALECTS = [
 ] as const;
 const VIEWPORTS = [
 	{ name: "wide", width: 1440, height: 1000 },
+	{ name: "mid", width: 760, height: 1000 },
 	{ name: "narrow", width: 390, height: 844 },
 ] as const;
 
@@ -79,18 +80,18 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	await expect(review).toHaveAttribute("role", "status");
 	await expect(review).toHaveAttribute("data-tone", "caution");
 
-	await expect(page.getByText("Taxis row review", { exact: true })).toBeVisible();
+	await expect(page.getByText("TAXIS_ROW_REVIEW", { exact: true })).toBeVisible();
 	// The producer named where the offending entry lives (Diagnostic.href); the
 	// trust gate rewrote it against the declared surfaces, so the warning IS the
 	// drill-through to the entry it indicts.
-	await expect(page.locator("a.mo-alert").filter({ hasText: "Taxis row review" })).toHaveAttribute(
+	await expect(page.locator("a.mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" })).toHaveAttribute(
 		"href",
 		"/s/taxis/worker-baldur",
 	);
 	// The cell diagnostic is lifted into the row lane (KRA-796 Defect 2) with the
 	// field label preserved in its visible copy, so the code now reads label-first.
 	await expect(
-		page.getByText("Allocation: Taxis allocation source", { exact: true }),
+		page.getByText("Allocation: TAXIS_ALLOCATION_SOURCE", { exact: true }),
 	).toBeVisible();
 	await expect(
 		page.getByText("The second worker needs roster review.", { exact: true }),
@@ -184,7 +185,7 @@ async function assertTableContract(page: Page, recordsExpected: boolean): Promis
 		}
 	}
 
-	const rowAlert = lanes.locator(".mo-alert").filter({ hasText: "Taxis row review" });
+	const rowAlert = lanes.locator(".mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" });
 	await expect(rowAlert).toHaveCount(1);
 	expect(
 		await rowAlert.evaluate((alert) => {
@@ -202,7 +203,7 @@ async function assertTableContract(page: Page, recordsExpected: boolean): Promis
 	// the field label, while the lane spans all six columns on wide and record
 	// layouts alike.
 	const cellAlert = lanes.locator(".mo-alert").filter({
-		hasText: "Taxis allocation source",
+		hasText: "TAXIS_ALLOCATION_SOURCE",
 	});
 	await expect(cellAlert).toHaveCount(1);
 	await expect(cellAlert).toContainText("Allocation:");
@@ -255,7 +256,7 @@ test.describe("dialect-independent source compilation", () => {
 		expect(compilationTreeSha256).toMatch(/^sha256:[0-9a-f]{64}$/);
 
 		await page.waitForLoadState("networkidle");
-		await page.locator("details.chrome__inspection > summary").click();
+		await page.getByText("Inspect", { exact: true }).click();
 		await page.getByLabel("Dialect").selectOption("ledger");
 		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=ledger$`));
 		await expect(page.locator(".viewer-surface .mo-root")).toHaveAttribute(
@@ -508,8 +509,7 @@ test.describe("operator-first composed home", () => {
 			testimony.getByRole("heading", { level: 2, name: "Weekly roster", exact: true }),
 		).toBeVisible();
 		await expect(home.locator("h1")).toHaveCount(1);
-		await expect(testimony).toContainText("Taxis row review");
-		await expect(testimony).not.toContainText("TAXIS_ROW_REVIEW");
+		await expect(testimony).toContainText("TAXIS_ROW_REVIEW");
 
 		const contrastRatios = await home
 			.locator('h1, h2, a.mo-link, .mo-alert[data-tone="caution"] .mo-alert__title')
@@ -565,22 +565,27 @@ test.describe("operator-first composed home", () => {
 	test("keeps pre- and post-event dated homes clean while carrying the exact frontier", async ({
 		page,
 	}) => {
-		// The fixture's newest signed event is 17 July. Exercise a frontier on
-		// either side so this is not merely one hard-coded query-retention check.
-		for (const perspective of [
-			{ date: "2026-07-15", display: "July 15, 2026" },
-			{ date: "2026-07-31", display: "July 31, 2026" },
-		]) {
-			const response = await page.goto(`/?as_of=${perspective.date}`, {
-				waitUntil: "networkidle",
-			});
-			expect(response?.ok(), "the dated composed home must answer").toBe(true);
+		const beforeResponse = await page.goto("/?as_of=2026-07-15", { waitUntil: "networkidle" });
+		expect(beforeResponse?.ok(), "the pre-event home must answer").toBe(true);
+		const before = page.locator("main.viewer-home");
+		await expect(before.getByText("Reporting date · July 15, 2026")).toBeVisible();
+		await expect(before.getByRole("heading", { name: "Needs attention" })).toHaveCount(0);
+		await expect(before.getByText("The second worker needs roster review.")).toHaveCount(0);
+		await expect(
+			before.getByRole("link", { name: "Open Taxis fixture", exact: true }),
+		).toHaveAttribute("href", "/s/taxis/roster?as_of=2026-07-15");
 
-			const home = page.locator("main.viewer-home");
-			await expect(home.getByText(`Reporting date · ${perspective.display}`)).toBeVisible();
-			await expect(
-				home.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
-			).toHaveAttribute("href", `/s/taxis/roster?as_of=${perspective.date}`);
+		const afterResponse = await page.goto("/?as_of=2026-07-31", { waitUntil: "networkidle" });
+		expect(afterResponse?.ok(), "the post-event home must answer").toBe(true);
+		const after = page.locator("main.viewer-home");
+		await expect(after.getByText("Reporting date · July 31, 2026")).toBeVisible();
+		await expect(after.getByRole("heading", { name: "Needs attention" })).toBeVisible();
+		await expect(after.getByText("The second worker needs roster review.")).toBeVisible();
+		await expect(
+			after.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
+		).toHaveAttribute("href", "/s/taxis/roster?as_of=2026-07-31");
+
+		for (const home of [before, after]) {
 			await expect(home).not.toContainText("Resolved ");
 			await expect(home).not.toContainText("westfjords:2026-W29");
 			await expect(home).not.toContainText(

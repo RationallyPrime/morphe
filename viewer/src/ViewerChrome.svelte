@@ -157,7 +157,7 @@
 				</fieldset>
 			{/if}
 			<details class="chrome__inspection">
-				<summary aria-label="Substrate inspection">Inspect</summary>
+				<summary aria-label="Inspect substrate">Inspect</summary>
 				<div class="chrome__inspection-panel">
 					<div class="chrome__inspection-head">
 						<strong>Substrate inspection</strong>
@@ -500,14 +500,6 @@
 		.chrome__control select,
 		.chrome__control input[type="date"] {
 			min-width: 0;
-		}
-
-		.chrome__inspection-panel {
-			position: fixed;
-			inset-block-start: 7rem;
-			inset-inline: var(--mo-space-3);
-			inline-size: auto;
-			max-block-size: calc(100vh - 8rem);
 		}
 
 		.chrome__panes {

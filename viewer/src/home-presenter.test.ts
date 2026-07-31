@@ -283,6 +283,7 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain('href="/s/taxis/roster?as_of=2026-07-15"');
 		expect(html).toContain('href="/s/obolos/evidence?as_of=2026-07-15"');
 		expect(html).toContain('href="/s/krates/budget?as_of=2026-07-15"');
+		expect(html).toContain('href="/surfaces?as_of=2026-07-15"');
 		expect(html).toContain("Open Workforce");
 		expect(html).toContain("Open Treasury details");
 		expect(html).toContain("Open Planning details");

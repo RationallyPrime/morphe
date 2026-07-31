@@ -19,6 +19,7 @@
  */
 
 import { type Node, resolveVaryOption } from "$lib";
+import { withForwardedQuery } from "./forward-query.js";
 
 interface PanelIdentity {
 	readonly sourceId: string;
@@ -598,10 +599,10 @@ function domainRow(view: HomePanelView, asOf?: string): Node {
 }
 
 function paneLink(view: PanelIdentity, asOf?: string, detail = false): Node {
-	const href =
-		asOf === undefined
-			? view.href
-			: `${view.href}?${new URLSearchParams({ as_of: asOf }).toString()}`;
+	const href = withForwardedQuery(
+		view.href,
+		asOf === undefined ? new URLSearchParams() : new URLSearchParams({ as_of: asOf }),
+	);
 	return {
 		kind: "link",
 		href,
@@ -619,7 +620,12 @@ function footer(model: HomeModel): Node {
 		children: [
 			{
 				kind: "link",
-				href: "/surfaces",
+				href: withForwardedQuery(
+					"/surfaces",
+					model.asOf === undefined
+						? new URLSearchParams()
+						: new URLSearchParams({ as_of: model.asOf }),
+				),
 				label: "Browse every declared surface",
 			},
 			{

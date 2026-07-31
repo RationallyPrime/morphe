@@ -1331,6 +1331,27 @@ describe("Table (ADR-0020) — genuine table semantics, declared responsive poli
 		expect(html).toContain('data-priority="detail"');
 	});
 
+	it("keeps numeric row-header styling and authored column explanations", () => {
+		const annotated: Node = {
+			...table,
+			columns: [
+				{
+					header: "Obligation",
+					numeric: true,
+					intent: "provenance",
+					gloss: "The stable obligation identity.",
+				},
+				...table.columns.slice(1),
+			],
+		};
+		const html = ssr(annotated);
+		expect(html).toMatch(/scope="row"[^>]*data-numeric/);
+		expect(html).toContain("Explain Obligation");
+		expect(html).toContain("The stable obligation identity.");
+		expect(html).toMatch(/color:\s*var\(--mo-intent-provenance-ink/);
+		expect(html).toContain("mo-table__record-label");
+	});
+
 	it("renders row diagnostics as a full-width lane after the row, never inside a cell", () => {
 		const html = ssr(table);
 		expect(html).toContain("mo-table__lane");

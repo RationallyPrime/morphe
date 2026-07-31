@@ -346,7 +346,7 @@ def test_kpi_source_diagnostic_renders_in_signal_card_body() -> None:
     spec = build_surface(TREASURY, _treasury_data(), root=TREASURY, diagnostics=diagnostics)
     kpis = _child(spec, "$.kpis")
     assert kpis.items[0].diagnostics[0].code == "KPI_SOURCE"
-    assert "Kpi source" in str(emit_node(kpis))
+    assert "KPI_SOURCE" in str(emit_node(kpis))
 
 
 def test_full_pipeline_compiles_and_validates() -> None:
