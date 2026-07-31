@@ -179,7 +179,7 @@ def test_timestamp_floor_covers_table_cells_and_textual_kpis_without_mutating_ir
     assert events.items[0].children[0].value == raw
 
     node = emit_node(spec)
-    table = _find(node, lambda item: item.get("kind") == "grid" and "columns" in item)
+    table = _find(node, lambda item: item.get("kind") == "table")
     assert table is not None
     assert _find(table, lambda item: item.get("value") == display) is not None
     assert _find(node, lambda item: item.get("value") == display) is not None
@@ -245,21 +245,20 @@ def test_collapsed_section_repairs_invisible_summary_to_keep_emission_total(
     validate_node(node)
 
 
-def test_flat_record_list_emits_tabular_grid_with_text_header() -> None:
+def test_flat_record_list_emits_semantic_responsive_table() -> None:
     node = emit_node(build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT))
-    grid = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+    table = _find(node, lambda n: n.get("kind") == "table")
 
-    assert grid is not None
-    assert grid["role"] == "list"
-    assert grid["columns"] == ["flexible", "flexible"]
-
-    header = grid["children"][0]
-    assert header["kind"] == "grid"
-    assert [cell["kind"] for cell in header["children"]] == ["text", "text"]
-    assert [cell["value"] for cell in header["children"]] == ["Account", "Amount"]
-
-    rows = grid["children"][1:]
-    assert [[cell["value"] for cell in row["children"]] for row in rows] == [
+    assert table is not None
+    assert table["caption"] == "Balances"
+    assert table["captionHidden"] is True
+    assert table["rowHeader"] is True
+    assert table["responsive"] == "records"
+    assert table["columns"] == [
+        {"header": "Account", "priority": "primary"},
+        {"header": "Amount", "numeric": True, "priority": "secondary"},
+    ]
+    assert [[cell["children"][0]["value"] for cell in row["cells"]] for row in table["rows"]] == [
         ["Cash", "100.0"],
         ["Receivables", "42.5"],
     ]
@@ -302,24 +301,21 @@ def _diag(path: str, code: str) -> Diagnostic:
 
 
 def test_table_cell_diagnostics_stay_visible() -> None:
-    # A cell diagnostic is lifted (KRA-796) out of its cell into the row diagnostics
-    # lane as a full-width sibling of the row grid, and its title names the field so
-    # the copy stays anchored: "<Field label>: <code>".
+    # A cell diagnostic is lifted (KRA-796) out of its cell into the table row's
+    # full-width diagnostics lane, and its title names the field it explains.
     diags = {"$.balances[0].amount": [_diag("$.balances[0].amount", "CELL")]}
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
     alert = _find(
-        node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Amount: CELL"
+        node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Amount: Cell"
     )
     assert alert is not None
     assert alert["detail"] == "probe"
-    # The lifted alert is a direct child of the columned table grid — never wrapped
-    # in a field-group stack inside the cell (that shape overpainted neighbours).
-    table = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+    table = _find(node, lambda n: n.get("kind") == "table")
     assert table is not None
-    assert alert in table["children"]
+    assert alert in table["rows"][0]["diagnostics"]
     assert not _find(
-        node,
+        table["rows"][0]["cells"],
         lambda n: (
             n.get("kind") == "stack"
             and n.get("role") == "field-group"
@@ -333,24 +329,21 @@ def test_table_row_diagnostics_stay_visible() -> None:
     diags = {"$.balances[0]": [_diag("$.balances[0]", "ROW")]}
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
-    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "ROW")
+    alert = _find(node, lambda n: n.get("kind") == "inline-alert" and n.get("title") == "Row")
     assert alert is not None
     validate_node(node)
 
 
-def test_table_row_alert_is_a_sibling_never_a_wrapper() -> None:
-    # A wrapped row is a grandchild of the table grid, so it never adopts the
-    # subgrid tracks and collapses into the first column. The alert must ride as
-    # a direct-child sibling of its row grid inside the columned table grid.
+def test_table_row_alert_uses_the_native_full_width_diagnostics_lane() -> None:
     diags = {"$.balances[0]": [_diag("$.balances[0]", "ROW")]}
     spec = build_surface(BALANCE_REPORT, BALANCE_DATA, root=BALANCE_REPORT, diagnostics=diags)
     node = emit_node(spec)
-    table = _find(node, lambda n: n.get("kind") == "grid" and "columns" in n)
+    table = _find(node, lambda n: n.get("kind") == "table")
     assert table is not None
-    kinds = [child.get("kind") for child in table["children"]]
-    assert "inline-alert" in kinds, "row alert must be a direct child of the table grid"
-    assert all(k in ("grid", "inline-alert") for k in kinds), (
-        "table grid children are row grids and their sibling alerts only — no wrappers"
+    row = table["rows"][0]
+    assert [item["kind"] for item in row["diagnostics"]] == ["inline-alert"]
+    assert all(
+        child["kind"] != "inline-alert" for cell in row["cells"] for child in cell["children"]
     )
 
 
@@ -384,15 +377,16 @@ def test_nullable_table_cell_keeps_its_grid_position() -> None:
     }
     data = [{"name": "Ada", "rate": None, "profile": {"label": "Open Ada", "href": "/ada"}}]
     node = emit_node(build_surface(schema, data, root=schema))
-    table = _find(
-        node,
-        lambda candidate: candidate.get("kind") == "grid" and "columns" in candidate,
-    )
+    table = _find(node, lambda candidate: candidate.get("kind") == "table")
 
     assert table is not None
-    row = table["children"][1]
-    assert [cell["kind"] for cell in row["children"]] == ["text", "spacer", "link"]
-    assert row["children"][1] == {"kind": "spacer", "size": "xs"}
+    row = table["rows"][0]
+    assert [cell["children"][0]["kind"] for cell in row["cells"]] == [
+        "text",
+        "spacer",
+        "link",
+    ]
+    assert row["cells"][1]["children"][0] == {"kind": "spacer", "size": "xs"}
     validate_node(node)
 
 

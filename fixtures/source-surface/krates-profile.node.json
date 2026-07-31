@@ -110,7 +110,7 @@
                       {
                         "detail": "Location was last confirmed a quarter ago.",
                         "kind": "inline-alert",
-                        "title": "PROFILE_LOCATION_STALE",
+                        "title": "Profile location stale",
                         "tone": "info"
                       }
                     ],

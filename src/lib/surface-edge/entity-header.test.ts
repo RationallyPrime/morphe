@@ -214,8 +214,8 @@ describe("entity-header lowering", () => {
 		const meta = node.slots?.meta ?? [];
 		const head = meta.filter((item) => item.kind === "inline-alert");
 		expect(head.map((alert) => (alert.kind === "inline-alert" ? alert.title : ""))).toEqual([
-			"OWN",
-			"KEYFIG",
+			"Own",
+			"Keyfig",
 		]);
 	});
 });

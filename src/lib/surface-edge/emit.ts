@@ -7,6 +7,9 @@ import type {
 	NumberNode,
 	Spacer,
 	Stack,
+	Table,
+	TableColumn,
+	TableRow,
 	Text,
 } from "../grammar/types.js";
 import {
@@ -46,6 +49,7 @@ const PROVENANCE_INTENTS: ReadonlySet<string> = new Set(["provenance", "accessio
 const ATTENTION_STRATEGIES: ReadonlySet<string> = new Set(["status", "badge", "kpi-row"]);
 const ATTENTION_INTENTS: ReadonlySet<string> = new Set(["caution", "success", "info"]);
 const PRIMARY_WORKLIST_STRATEGIES: ReadonlySet<string> = new Set(["table", "card-stack"]);
+const TABLE_STICKY_ROW_THRESHOLD = 6;
 
 export interface EmitLimits {
 	readonly maxSpecDepth: number;
@@ -391,7 +395,10 @@ export function emitNodeWithTrackedLinkPaints(
 	context: EmitContext = DEFAULT_EMIT_CONTEXT,
 ): LinkPaintEmission {
 	if (paints.size === 0) {
-		return { tree: emitNode(spec, overrides, context), paintedLinks: new Set() };
+		return {
+			tree: emitNode(spec, overrides, context),
+			paintedLinks: new Set(),
+		};
 	}
 	const runtime = prepareLinkPaintRuntime(spec, paints);
 	const paintedContext: EmitContextWithLinkPaints = {
@@ -490,7 +497,11 @@ function badge(spec: SurfaceNode): Node {
 
 function link(spec: SurfaceNode): Node {
 	if (!spec.href) {
-		return { kind: "text", value: pythonScalarText(spec.value ?? null), as: "body" };
+		return {
+			kind: "text",
+			value: pythonScalarText(spec.value ?? null),
+			as: "body",
+		};
 	}
 	return {
 		kind: "link",
@@ -1091,47 +1102,72 @@ function collapsible(spec: SurfaceNode, ctx: EmitContext): Node {
 
 function table(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
-	const columns = spec.children.length > 0 ? spec.children : (spec.items[0]?.children ?? []);
-	const body = spec.items.flatMap((item) => tableRow(item, columns.length, ctx));
-	const rows = columns.length > 0 ? [tableHeader(columns), ...body] : body;
-	const grid: Grid = {
-		kind: "grid",
-		role: "list",
-		children: rows,
-		...(columns.length > 0 ? { columns: columns.map(() => "flexible" as const), ruled: true } : {}),
+	const columnSpecs = spec.children.length > 0 ? spec.children : (spec.items[0]?.children ?? []);
+	const columns =
+		columnSpecs.length > 0
+			? columnSpecs.map((column, index) => tableColumn(column, index, spec.items))
+			: [
+					{
+						header: normalizeVisibleLabelText(spec.label, "Item"),
+						priority: "primary" as const,
+					},
+				];
+	const semanticTable: Table = {
+		kind: "table",
+		caption: normalizeVisibleLabelText(spec.label, "Items"),
+		captionHidden: true,
+		columns,
+		rows: spec.items.map((item) => tableRow(item, columns.length, ctx)),
+		rowHeader: true,
+		responsive: "records",
+		...(spec.items.length > TABLE_STICKY_ROW_THRESHOLD ? { sticky: true } : {}),
+		...(spec.emphasis === undefined ? {} : { emphasis: spec.emphasis }),
 	};
-	return section(spec, [grid]);
+	return section(spec, [semanticTable]);
 }
 
-function tableHeader(columns: readonly SurfaceNode[]): Grid {
-	return { kind: "grid", role: "inline", children: columns.map(headerCell) };
-}
-
-function headerCell(column: SurfaceNode): Text {
+function tableColumn(
+	column: SurfaceNode,
+	index: number,
+	rows: readonly SurfaceNode[],
+): TableColumn {
+	const numeric =
+		column.numeric ||
+		column.strategy === "number" ||
+		rows.some((row) => {
+			const cell = row.children[index];
+			return cell?.numeric || cell?.strategy === "number";
+		});
 	return {
-		...caption(column.label, column.gloss),
+		header: normalizeVisibleLabelText(column.label, `Column ${index + 1}`),
+		...(numeric ? { numeric: true } : {}),
+		priority:
+			index === 0
+				? "primary"
+				: column.intent !== undefined && PROVENANCE_INTENTS.has(column.intent)
+					? "detail"
+					: "secondary",
 		...(column.intent === undefined ? {} : { intent: column.intent }),
 	};
 }
 
-function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): Node[] {
+function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): TableRow {
 	const cells =
 		row.children.length > 0
 			? row.children.map((cell) => tableCell(cell, ctx))
 			: [tableCell(row, ctx)];
 	while (cells.length < columnCount) cells.push(emptyCell());
-	const grid: Grid = { kind: "grid", role: "inline", children: cells };
-	// Both row- and cell-level diagnostics stay visible (D8) as SIBLINGS of the row
-	// grid, never wrappers: only a direct-child grid adopts the table's subgrid
-	// tracks, so a wrapped row/cell lands in the first track and stacks vertically.
-	// A cell diagnostic wrapped INSIDE its cell also inherits InlineAlert's inline
-	// min-size floor and paints over dense neighbours (KRA-796). Lifting it to the
-	// row lane lets the Grid rule span it 1/-1 across the full row instead. Row
-	// diagnostics come first, then leaf cell diagnostics in cell order.
-	if (row.strategy === "diagnostic-node") return [grid];
-	const rowAlerts = row.diagnostics.map(alert);
-	const cellAlerts = row.children.length > 0 ? liftedCellAlerts(row.children) : [];
-	return [grid, ...rowAlerts, ...cellAlerts];
+	const diagnostics =
+		row.strategy === "diagnostic-node"
+			? []
+			: [
+					...row.diagnostics.map(alert),
+					...(row.children.length > 0 ? liftedCellAlerts(row.children) : []),
+				];
+	return {
+		cells: cells.slice(0, columnCount).map((cell) => ({ children: [cell] })),
+		...(diagnostics.length === 0 ? {} : { diagnostics }),
+	};
 }
 
 function liftedCellAlerts(cells: readonly SurfaceNode[]): InlineAlert[] {
@@ -1288,7 +1324,7 @@ function alert(diagnostic: CompilerDiagnostic): InlineAlert {
 	return {
 		kind: "inline-alert",
 		tone: diagnostic.severity === "info" ? "info" : "caution",
-		title: diagnostic.code,
+		title: humanizeDiagnosticCode(diagnostic.code),
 		detail: diagnostic.message,
 		...(diagnostic.repair_hint === undefined ? {} : { repair: diagnostic.repair_hint }),
 		// A diagnostic that names where its offending entries live renders as a
@@ -1304,7 +1340,31 @@ function labeledAlert(label: string, diagnostic: CompilerDiagnostic): InlineAler
 	// The lifted alert keeps everything alert() renders — including the authored
 	// repair hint (KRA-788) — only the title gains the field name.
 	const base = alert(diagnostic);
-	return label ? { ...base, title: `${label}: ${diagnostic.code}` } : base;
+	return label ? { ...base, title: `${label}: ${humanizeDiagnosticCode(diagnostic.code)}` } : base;
+}
+
+const DIAGNOSTIC_ACRONYMS = new Set(["api", "id", "po", "sla", "uuid", "vat"]);
+const DIAGNOSTIC_EXPANSIONS: Readonly<Record<string, string>> = Object.freeze({
+	max: "maximum",
+	min: "minimum",
+	qty: "quantity",
+});
+
+function humanizeDiagnosticCode(code: string): string {
+	const rawWords = pythonStrip(code)
+		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+		.split(/[\s._/-]+/)
+		.filter(Boolean);
+	if (rawWords.length === 0) return "Needs attention";
+	const words = rawWords.map((word) => {
+		const lower = word.toLowerCase();
+		if (DIAGNOSTIC_ACRONYMS.has(lower)) return lower.toUpperCase();
+		return DIAGNOSTIC_EXPANSIONS[lower] ?? lower;
+	});
+	const [first, ...rest] = words;
+	return `${first?.charAt(0).toUpperCase()}${first?.slice(1) ?? ""}${
+		rest.length > 0 ? ` ${rest.join(" ")}` : ""
+	}`;
 }
 
 function normalizeVisibleLabelText(value: string, fallback: string): string {

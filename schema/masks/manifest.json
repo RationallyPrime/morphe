@@ -7,6 +7,7 @@
           "EntityHeader",
           "ProvenanceFooter",
           "StatBand",
+          "ActionSummary",
           "Breakdown",
           "TrailEntry",
           "KeyValuePanel"
@@ -14,7 +15,7 @@
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "5196f68cf400a02f5e89037ddaf7b3f059f57f6afd14acf44c9bf2d8abda7ca2"
+      "sha256": "e93e4deea91c472c4a29f8c3ce7843532667fb02d4c9bb3bb2f93897a480a1c2"
     },
     "estate": {
       "compound_policy": {

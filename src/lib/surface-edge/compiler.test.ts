@@ -83,7 +83,7 @@ describe("surface-edge compiler adjudications", () => {
 		expect(state?.diagnostics).toEqual([
 			expect.objectContaining({ code: "UNKNOWN_HINT", path: "$.state" }),
 		]);
-		expect(JSON.stringify(emitNode(spec))).toContain("UNKNOWN_HINT");
+		expect(JSON.stringify(emitNode(spec))).toContain('"title":"Unknown hint"');
 	});
 
 	it("uses signed order once, then deterministically sorts the remainder", () => {
@@ -118,7 +118,11 @@ describe("surface-edge compiler adjudications", () => {
 	it("matches Python null semantics for defaulted booleans and local ref order", () => {
 		expect(
 			parseHint({
-				"x-morphe": { strategy: "badge", heading: null, order: ["second", "first"] },
+				"x-morphe": {
+					strategy: "badge",
+					heading: null,
+					order: ["second", "first"],
+				},
 			}).hint,
 		).toEqual({ hidden: false, heading: true, order: ["second", "first"] });
 		expect(parseHint({ "x-morphe": { order: null } }).hint.order).toEqual([]);
@@ -145,14 +149,23 @@ describe("surface-edge compiler adjudications", () => {
 			{
 				type: "object",
 				properties: {
-					ordered: { $ref: "#/$defs/Ordered", "x-morphe": { label: "Local label" } },
-					secret: { $ref: "#/$defs/Secret", "x-morphe": { label: "Cosmetic override" } },
+					ordered: {
+						$ref: "#/$defs/Ordered",
+						"x-morphe": { label: "Local label" },
+					},
+					secret: {
+						$ref: "#/$defs/Secret",
+						"x-morphe": { label: "Cosmetic override" },
+					},
 				},
 				$defs: {
 					Ordered: {
 						type: "object",
 						"x-morphe": { order: ["second", "first"] },
-						properties: { first: { type: "string" }, second: { type: "string" } },
+						properties: {
+							first: { type: "string" },
+							second: { type: "string" },
+						},
 					},
 					Secret: {
 						type: "object",
@@ -192,7 +205,9 @@ describe("surface-edge compiler adjudications", () => {
 			type: "string",
 			title: "Resolved",
 		});
-		const cycle = { $defs: { A: { $ref: "#/$defs/B" }, B: { $ref: "#/$defs/A" } } };
+		const cycle = {
+			$defs: { A: { $ref: "#/$defs/B" }, B: { $ref: "#/$defs/A" } },
+		};
 		expect(() => resolveRef({ $ref: "#/$defs/A" }, cycle, 4)).not.toThrow();
 	});
 
@@ -211,7 +226,11 @@ describe("surface-edge compiler adjudications", () => {
 		"١٢",
 	])("degrades unsafe numeric text %s to scalar instead of throwing", (value) => {
 		const spec = buildSurface(
-			{ type: "string", title: "Measure", "x-morphe": { strategy: "number" } },
+			{
+				type: "string",
+				title: "Measure",
+				"x-morphe": { strategy: "number" },
+			},
 			value,
 		);
 		expect(spec.strategy).toBe("scalar");
@@ -226,7 +245,11 @@ describe("surface-edge compiler adjudications", () => {
 		["1.25e-2", 0.0125],
 	] as const)("retains safely representable numeric text %s", (value, expected) => {
 		const spec = buildSurface(
-			{ type: "string", title: "Measure", "x-morphe": { strategy: "number" } },
+			{
+				type: "string",
+				title: "Measure",
+				"x-morphe": { strategy: "number" },
+			},
 			value,
 		);
 		expect(spec).toMatchObject({ strategy: "number", value: expected });
@@ -266,7 +289,10 @@ describe("surface-edge compiler adjudications", () => {
 			raw,
 		);
 		expect(spec.value).toBe(raw);
-		expect(rootPayload(emitNode(spec))).toMatchObject({ kind: "text", value: display });
+		expect(rootPayload(emitNode(spec))).toMatchObject({
+			kind: "text",
+			value: display,
+		});
 	});
 
 	it("floors an unhinted RFC 3339 instant under the default policy, exact one toggle away (KRA-767)", () => {
@@ -283,7 +309,12 @@ describe("surface-edge compiler adjudications", () => {
 		});
 		// Exact is one toggle away: policy=exact renders the full RFC 3339 value.
 		expect(
-			rootPayload(emitNode(spec, undefined, { temporalPolicy: "exact", now: () => new Date(0) })),
+			rootPayload(
+				emitNode(spec, undefined, {
+					temporalPolicy: "exact",
+					now: () => new Date(0),
+				}),
+			),
 		).toMatchObject({ kind: "text", value: instant });
 	});
 
@@ -377,7 +408,7 @@ describe("surface-edge compiler adjudications", () => {
 			},
 		);
 		expect(spec.items[0]?.diagnostics[0]?.code).toBe("KPI_SOURCE");
-		expect(JSON.stringify(emitNode(spec))).toContain("KPI_SOURCE");
+		expect(JSON.stringify(emitNode(spec))).toContain('"title":"Kpi source"');
 	});
 
 	it("uses generated labels when KPI or linked-ref data labels are empty", () => {
@@ -389,7 +420,11 @@ describe("surface-edge compiler adjudications", () => {
 
 		const linked = emitNode(
 			buildSurface(
-				{ type: "object", title: "Receipt", "x-morphe": { strategy: "linked-ref" } },
+				{
+					type: "object",
+					title: "Receipt",
+					"x-morphe": { strategy: "linked-ref" },
+				},
 				{ label: "", href: "/receipts/r-1" },
 			),
 		);
@@ -446,9 +481,20 @@ describe("surface-edge compiler adjudications", () => {
 		}
 
 		const badge = emitNode(
-			buildSurface({ type: "number", enum: [1], "x-morphe": { intents: { "1.0": "success" } } }, 1),
+			buildSurface(
+				{
+					type: "number",
+					enum: [1],
+					"x-morphe": { intents: { "1.0": "success" } },
+				},
+				1,
+			),
 		);
-		expect(rootPayload(badge)).toMatchObject({ kind: "badge", label: "1.0", intent: "success" });
+		expect(rootPayload(badge)).toMatchObject({
+			kind: "badge",
+			label: "1.0",
+			intent: "success",
+		});
 		const status = emitNode(
 			buildSurface(
 				{
@@ -478,15 +524,24 @@ describe("surface-edge compiler adjudications", () => {
 	});
 
 	it("canonicalizes explicitly scalarized containers independently of transport order", () => {
-		const schema = { type: "object", "x-morphe": { strategy: "scalar" } } as const;
+		const schema = {
+			type: "object",
+			"x-morphe": { strategy: "scalar" },
+		} as const;
 		const first = emitNode(buildSurface(schema, { a: "A", b: "B" }));
 		const second = emitNode(buildSurface(schema, { b: "B", a: "A" }));
 		expect(first).toEqual(second);
-		expect(rootPayload(first)).toMatchObject({ kind: "text", value: '{"a":"A","b":"B"}' });
+		expect(rootPayload(first)).toMatchObject({
+			kind: "text",
+			value: '{"a":"A","b":"B"}',
+		});
 	});
 
 	it("uses one deterministic sentinel for scalarized values outside the JCS domain", () => {
-		const schema = { type: "object", "x-morphe": { strategy: "scalar" } } as const;
+		const schema = {
+			type: "object",
+			"x-morphe": { strategy: "scalar" },
+		} as const;
 		const cyclic: Record<string, unknown> = {};
 		cyclic.self = cyclic;
 		const expected = {
@@ -523,13 +578,18 @@ describe("surface-edge compiler adjudications", () => {
 		const status = emitNode(
 			buildSurface({ type: "string", "x-morphe": { strategy: "status" } }, "\ufeffready\ufeff"),
 		);
-		expect(rootPayload(status)).toMatchObject({ signal: { text: "\ufeffready\ufeff" } });
+		expect(rootPayload(status)).toMatchObject({
+			signal: { text: "\ufeffready\ufeff" },
+		});
 	});
 
 	it("degrades compiler recursion exhaustion to a bounded diagnostic node", () => {
 		const schema = {
 			type: "array",
-			items: { type: "array", items: { type: "array", items: { type: "string" } } },
+			items: {
+				type: "array",
+				items: { type: "array", items: { type: "string" } },
+			},
 		};
 		const spec = buildSurface(schema, [[[["too deep"]]]], {
 			limits: { maxRecursionDepth: 1 },
@@ -543,7 +603,14 @@ describe("surface-edge compiler adjudications", () => {
 			path: "$",
 			label: "Root",
 			strategy: "record-card",
-			children: [surfaceNode({ path: "$.name", label: "Name", strategy: "scalar", value: "Ada" })],
+			children: [
+				surfaceNode({
+					path: "$.name",
+					label: "Name",
+					strategy: "scalar",
+					value: "Ada",
+				}),
+			],
 		});
 		expect(() => emitNode(spec, { maxEmittedNodes: 1 })).toThrow(SurfaceEmitLimitError);
 	});
@@ -551,11 +618,17 @@ describe("surface-edge compiler adjudications", () => {
 	it("keeps Python scalar spelling for booleans and schema-number integral floats", () => {
 		const boolean = buildSurface({ type: "boolean" }, true);
 		const floating = buildSurface({ type: "number" }, 100);
-		expect(rootPayload(emitNode(boolean))).toMatchObject({ kind: "text", value: "True" });
-		expect(rootPayload(emitNode(floating))).toMatchObject({ kind: "text", value: "100.0" });
+		expect(rootPayload(emitNode(boolean))).toMatchObject({
+			kind: "text",
+			value: "True",
+		});
+		expect(rootPayload(emitNode(floating))).toMatchObject({
+			kind: "text",
+			value: "100.0",
+		});
 	});
 
-	it("retains a grid item for a nullable table cell without inventing data", () => {
+	it("emits a semantic responsive table and retains a nullable cell without inventing data", () => {
 		const spec = buildSurface(
 			{
 				type: "array",
@@ -578,21 +651,36 @@ describe("surface-edge compiler adjudications", () => {
 					},
 				},
 			},
-			[{ name: "Ada", rate: null, profile: { label: "Open Ada", href: "/workers/ada" } }],
+			[
+				{
+					name: "Ada",
+					rate: null,
+					profile: { label: "Open Ada", href: "/workers/ada" },
+				},
+			],
 		);
 		expect(rootPayload(emitNode(spec))).toMatchObject({
 			kind: "stack",
 			children: [
 				{
-					kind: "grid",
-					children: [
-						{ kind: "grid" },
+					kind: "table",
+					caption: "Roster",
+					captionHidden: true,
+					columns: [
+						{ header: "Name", priority: "primary" },
+						{ header: "Rate", priority: "secondary" },
+						{ header: "Profile", priority: "secondary" },
+					],
+					responsive: "records",
+					rowHeader: true,
+					rows: [
 						{
-							kind: "grid",
-							children: [
-								{ kind: "text", value: "Ada" },
-								{ kind: "spacer", size: "xs" },
-								{ kind: "link", href: "/workers/ada", label: "Open Ada" },
+							cells: [
+								{ children: [{ kind: "text", value: "Ada" }] },
+								{ children: [{ kind: "spacer", size: "xs" }] },
+								{
+									children: [{ kind: "link", href: "/workers/ada", label: "Open Ada" }],
+								},
 							],
 						},
 					],

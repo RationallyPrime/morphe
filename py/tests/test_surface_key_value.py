@@ -153,7 +153,7 @@ def test_key_value_node_diagnostics_ride_the_primary_head() -> None:
     assert head == {
         "kind": "inline-alert",
         "tone": "info",
-        "title": "PANEL",
+        "title": "Panel",
         "detail": "node level",
     }
 

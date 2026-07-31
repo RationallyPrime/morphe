@@ -82,7 +82,12 @@ const liveAttention: HomePanelView = {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "Review the payroll run", as: "heading", level: 1 },
+			{
+				kind: "text",
+				value: "Review the payroll run",
+				as: "heading",
+				level: 1,
+			},
 			{ kind: "text", value: "signed payroll testimony", as: "body" },
 			{ kind: "status", tone: "caution", signal: { text: "review" } },
 			{
@@ -142,15 +147,20 @@ const dead: HomePanelView = {
 
 describe("homeTree operator-first composition", () => {
 	it("orders freshness and exceptions before domain navigation", () => {
-		const tree = homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [live, stale] });
+		const tree = homeTree({
+			title: "Operations",
+			grammarVersion: "0.3.0",
+			panels: [live, stale],
+		});
 		const authored = JSON.stringify(tree);
-		expect(authored.indexOf("Source freshness")).toBeLessThan(authored.indexOf("Needs attention"));
-		expect(authored.indexOf("Needs attention")).toBeLessThan(authored.indexOf("Domains"));
+		expect(authored.indexOf("Operational pulse")).toBeLessThan(authored.indexOf("Needs attention"));
+		expect(authored.indexOf("Needs attention")).toBeLessThan(authored.indexOf("Other domains"));
 
 		const html = ssr(tree);
 		expect(html).toContain("1 source is not current");
 		expect(html).toContain("1 current · 1 cached · 0 unavailable");
-		expect(html).toContain("Evidence is using cached data");
+		expect(html).toContain("Using last-good data");
+		expect(html).toContain("The surface admitted at 09:14 UTC remains available.");
 	});
 
 	it("lifts caution feedback from live authored testimony into Needs attention", () => {
@@ -162,24 +172,23 @@ describe("homeTree operator-first composition", () => {
 		});
 		const html = ssr(tree);
 		expect(html).toContain("Needs attention");
-		expect(html).toContain("Payroll run reports attention");
+		expect(html).toContain("Needs review");
+		expect(html).toContain("Payroll run");
 		const summary = findRecord(
 			tree,
-			(node) => node.kind === "inline-alert" && node.title === "Payroll run reports attention",
+			(node) =>
+				node.kind === "text" &&
+				node.value === "Two payslips need operator review. — Confirm approvals before release.",
 		);
-		expect(summary?.detail).toBe(
-			"Two payslips need operator review. — Confirm approvals before release.",
-		);
-		expect(String(summary?.detail)).not.toContain("PAYROLL_APPROVAL_REQUIRED");
-		expect(String(summary?.detail)).not.toBe("review");
+		expect(summary?.value).not.toContain("PAYROLL_APPROVAL_REQUIRED");
+		expect(summary?.value).not.toBe("review");
 		expect(html).not.toContain("Informational only ·");
-		expect(html).toContain("Review Payroll run");
+		expect(html).toContain("Inspect Payroll run testimony");
 		expect(html).toContain("Review the payroll run");
 		expect(html).toContain("signed payroll testimony");
 		expect(html).toContain("PAYROLL_APPROVAL_REQUIRED");
-		// One region owns a lifted source (KRA-819): the attention queue carries
-		// it, so Domains must NOT restate it as a second row — only the calm
-		// panel keeps a Domains row.
+		// Attention owns consequence and navigation exactly once; the compact map
+		// carries only calm domains that otherwise have no home representation.
 		expect(html).not.toContain("Current · 1 attention signal");
 		expect(html).not.toContain("Open Payroll</span>");
 		expect(html).toContain("Open Workforce");
@@ -244,14 +253,18 @@ describe("homeTree operator-first composition", () => {
 		};
 
 		const html = ssr(
-			homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [calmDefault] }),
+			homeTree({
+				title: "Operations",
+				grammarVersion: "0.3.0",
+				panels: [calmDefault],
+			}),
 		);
 		expect(html).toContain("The configured source is current");
 		expect(html).not.toContain("Needs attention");
 		expect(html).not.toContain("reports attention");
 	});
 
-	it("replaces equal raised panels with a plain declared-domain navigation list", () => {
+	it("uses one dominant attention frame and maps only otherwise-unrepresented domains", () => {
 		const tree = homeTree({
 			title: "Operations",
 			grammarVersion: "0.3.0",
@@ -259,20 +272,30 @@ describe("homeTree operator-first composition", () => {
 			panels: [live, stale, dead],
 		});
 		expect(countMatching(tree, (node) => node.kind === "frame" && node.surface === "raised")).toBe(
-			0,
+			1,
+		);
+		expect(countMatching(tree, (node) => node.kind === "frame" && node.surface === "sunken")).toBe(
+			2,
 		);
 
 		const html = ssr(tree);
+		expect(html).toContain("Reporting date · July 15, 2026");
 		expect(html).toContain('href="/s/taxis/roster?as_of=2026-07-15"');
 		expect(html).toContain('href="/s/obolos/evidence?as_of=2026-07-15"');
 		expect(html).toContain('href="/s/krates/budget?as_of=2026-07-15"');
 		expect(html).toContain("Open Workforce");
-		expect(html).toContain("Open Treasury");
-		expect(html).toContain("Open Planning");
+		expect(html).not.toContain("Open Treasury");
+		expect(html).not.toContain("Open Planning");
+		expect(html).toContain("Review Treasury");
+		expect(html).toContain("Review Planning");
 	});
 
 	it("keeps stale testimony available but does not duplicate every live pane on home", () => {
-		const tree = homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [live, stale] });
+		const tree = homeTree({
+			title: "Operations",
+			grammarVersion: "0.3.0",
+			panels: [live, stale],
+		});
 		// Only an exception keeps a compact, collapsed graft: live domains navigate instead.
 		expect(
 			countMatching(tree, (node) => node.kind === "within" && node.dimension === "density"),
@@ -299,17 +322,30 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain("All 2 sources are current");
 		expect(html).not.toContain("Needs attention");
 		expect(html).not.toContain("reports attention");
-		expect(html).toContain("Resolved westfjords:2026-W29");
+		expect(html).toContain("Workforce · westfjords:2026-W29");
 	});
 
 	it("names an unavailable source and says that no cached surface exists", () => {
-		const html = ssr(homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [dead] }));
-		expect(html).toContain("Budget is unavailable");
-		expect(html).toContain("no cached surface is available");
+		const html = ssr(
+			homeTree({
+				title: "Operations",
+				grammarVersion: "0.3.0",
+				panels: [dead],
+			}),
+		);
+		expect(html).toContain("Unavailable");
+		expect(html).toContain("Budget");
+		expect(html).toContain("no last-good surface is available");
 	});
 
 	it("keeps substrate detail progressive and the full catalog reachable", () => {
-		const html = ssr(homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [live] }));
+		const html = ssr(
+			homeTree({
+				title: "Operations",
+				grammarVersion: "0.3.0",
+				panels: [live],
+			}),
+		);
 		expect(html).toContain("Technical details");
 		expect(html).toContain("Grammar 0.3.0");
 		expect(html).toContain('href="/surfaces"');

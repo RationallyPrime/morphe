@@ -42,13 +42,13 @@
 	--mo-space-9: 4rem;
 
 	/* --- Type ramp (rem) ---------------------------------------------------- */
-	--mo-type-1: 0.6875rem; /* 11px — labels / footnote */
-	--mo-type-2: 0.75rem; /* 12px */
-	--mo-type-3: 0.875rem; /* 14px */
+	--mo-type-1: 0.75rem; /* 12px — labels / footnote */
+	--mo-type-2: 0.8125rem; /* 13px */
+	--mo-type-3: 0.9375rem; /* 15px */
 	--mo-type-4: 1rem; /* 16px — body */
-	--mo-type-5: 1.0625rem; /* 17px — deck */
-	--mo-type-6: 1.375rem; /* 22px — subheading */
-	--mo-type-7: 1.875rem; /* 30px — heading */
+	--mo-type-5: 1.125rem; /* 18px — deck */
+	--mo-type-6: 1.5rem; /* 24px — subheading */
+	--mo-type-7: 2rem; /* 32px — heading */
 	--mo-type-8: clamp(2.75rem, 1.1rem + 4.6vw, 4.5rem); /* 44px → 72px — display, fluid */
 
 	/* --- Line-height ramp --------------------------------------------------- */

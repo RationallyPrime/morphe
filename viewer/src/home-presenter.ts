@@ -6,16 +6,16 @@
  * same three states for every source: live, stale last-good, or unavailable. The reading order
  * is deliberate:
  *
- *   1. current admission freshness;
- *   2. exceptions that need attention (from admission state or authored caution feedback); and
- *   3. navigation to the declared domain panes.
+ *   1. immediate board identity and reporting date;
+ *   2. one compact freshness pulse;
+ *   3. exceptions that need attention (from admission state or authored caution feedback); and
+ *   4. a compact map of calm domains that are not already represented by an action.
  *
  * A live source no longer becomes an equal raised card or a duplicate embedded application.
  * Instead, generic Morphe feedback semantics (`status`/`inline-alert` with `caution` tone) lift
- * an attention-bearing live pane into the exception queue. Stale still beats blank. In both
- * cases, the whole admitted testimony remains available inside the exception that explains it;
- * an outline-retiered clone becomes the density/collapse `Within` target, and the admitted input
- * is never mutated.
+ * an attention-bearing live pane into a calm ActionSummary. Stale still beats blank. The whole
+ * admitted testimony remains available on demand; the default scan path carries source, state,
+ * consequence, and action without repeating raw resolution identifiers.
  */
 
 import { type Node, resolveVaryOption } from "$lib";
@@ -85,24 +85,80 @@ export function homeTree(model: HomeModel): Node {
 }
 
 function masthead(model: HomeModel): Node {
+	const count = model.panels.length;
 	return {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "Home", as: "caption", intent: "footnote" },
+			{
+				kind: "text",
+				value: "Operational board",
+				as: "caption",
+				intent: "footnote",
+			},
 			{ kind: "text", value: model.title, as: "display", emphasis: "strong" },
+			{
+				kind: "text",
+				value:
+					count === 0
+						? "A signed operating picture will appear as domains are declared."
+						: `${quantityWord(count)} independent ${count === 1 ? "domain" : "domains"}. One signed operating picture.`,
+				as: "body",
+				intent: "neutral",
+			},
 			...(model.asOf === undefined
 				? []
 				: [
 						{
 							kind: "text",
-							value: `as of ${model.asOf}`,
+							value: `Reporting date · ${displayDate(model.asOf)}`,
 							as: "caption",
 							intent: "provenance",
 						} as Node,
 					]),
 		],
 	};
+}
+
+function quantityWord(value: number): string {
+	const words = [
+		"Zero",
+		"One",
+		"Two",
+		"Three",
+		"Four",
+		"Five",
+		"Six",
+		"Seven",
+		"Eight",
+		"Nine",
+		"Ten",
+	];
+	return words[value] ?? String(value);
+}
+
+function displayDate(value: string): string {
+	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+	if (match === null) return value;
+	const month = Number(match[2]);
+	const day = Number(match[3]);
+	const months = [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December",
+	];
+	const monthName = months[month - 1];
+	if (monthName === undefined || day < 1 || day > 31) return value;
+	return `${monthName} ${day}, ${match[1]}`;
 }
 
 function emptyState(): Node {
@@ -116,19 +172,16 @@ function emptyState(): Node {
 
 function homeContent(panels: readonly HomePanelView[], asOf?: string): Node[] {
 	const exceptions = attentionQueue(panels);
-	// One region owns a source (KRA-819): a panel already lifted into the
-	// attention queue carries its own status, context, and pane link there, so
-	// repeating it as a Domains row restates the same testimony a second time —
-	// the schema-dump repetition PRODUCT.md forbids. Domains keeps only the calm
-	// remainder and disappears entirely when the queue owns every panel.
-	const attended = new Set(
-		exceptions.map((item) => ("view" in item ? item.view.sourceId : item.sourceId)),
+	const represented = new Set(
+		exceptions.map((exception) =>
+			"view" in exception ? exception.view.sourceId : exception.sourceId,
+		),
 	);
-	const calmPanels = panels.filter((panel) => !attended.has(panel.sourceId));
+	const calmPanels = panels.filter((panel) => !represented.has(panel.sourceId));
 	return [
 		freshnessSection(panels),
 		...(exceptions.length === 0 ? [] : [exceptionSection(exceptions, asOf)]),
-		...(calmPanels.length === 0 ? [] : [domainNavigation(calmPanels, asOf)]),
+		...(calmPanels.length === 0 ? [] : [domainNavigation(calmPanels, asOf, exceptions.length > 0)]),
 	];
 }
 
@@ -250,13 +303,33 @@ function freshnessSection(panels: readonly HomePanelView[]): Node {
 				]
 			: [];
 	return {
-		kind: "stack",
-		role: "section",
+		kind: "frame",
+		role: "panel",
+		surface: "sunken",
+		density: "compact",
 		children: [
-			{ kind: "text", value: "Source freshness", as: "heading", emphasis: "strong" },
-			summary,
-			...counts,
-			{ kind: "spacer", size: "md" },
+			{
+				kind: "cluster",
+				role: "toolbar",
+				justify: "between",
+				align: "center",
+				children: [
+					{
+						kind: "stack",
+						role: "section",
+						children: [
+							{
+								kind: "text",
+								value: "Operational pulse",
+								as: "subheading",
+								emphasis: "strong",
+							},
+							...counts,
+						],
+					},
+					summary,
+				],
+			},
 		],
 	};
 }
@@ -266,83 +339,118 @@ function exceptionSection(exceptions: readonly HomeException[], asOf?: string): 
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "Needs attention", as: "heading", emphasis: "strong" },
+			{
+				kind: "text",
+				value: "Needs attention",
+				as: "heading",
+				emphasis: "strong",
+			},
+			{
+				kind: "text",
+				value: `${exceptions.length} ${exceptions.length === 1 ? "domain has" : "domains have"} an open decision or freshness problem.`,
+				as: "body",
+				intent: "neutral",
+			},
 			{
 				kind: "stack",
 				role: "list",
-				children: exceptions.map((view) => exceptionItem(view, asOf)),
+				children: exceptions.map((view, index) => exceptionItem(view, asOf, index)),
 			},
 			{ kind: "spacer", size: "md" },
 		],
 	};
 }
 
-function exceptionItem(view: HomeException, asOf?: string): Node {
-	if ("view" in view) return liveAttentionItem(view, asOf);
+function exceptionItem(view: HomeException, asOf: string | undefined, index: number): Node {
+	if ("view" in view) return liveAttentionItem(view, asOf, index);
 	if (view.kind === "dead") {
-		return {
-			kind: "stack",
-			role: "section",
-			children: [
-				{
-					kind: "inline-alert",
-					tone: "caution",
-					title: `${view.title} is unavailable`,
-					detail: "The source could not be reached and no cached surface is available.",
-				},
-				paneLink(view, asOf, true),
-			],
-		};
+		return actionFrame(
+			view,
+			"Unavailable",
+			"The source could not be reached and no last-good surface is available.",
+			asOf,
+			index,
+		);
 	}
 
-	return {
-		kind: "stack",
-		role: "section",
-		children: [
-			{
-				kind: "inline-alert",
-				tone: "caution",
-				title: `${view.title} is using cached data`,
-				detail: `Current admission failed. The last admitted surface from ${view.staleAsOf} remains available.`,
-			},
-			...resolvedWindowContext(view),
-			staleDigest(view),
-			paneLink(view, asOf, true),
-		],
-	};
+	return actionFrame(
+		view,
+		"Using last-good data",
+		`Current admission failed. The surface admitted at ${view.staleAsOf} remains available.`,
+		asOf,
+		index,
+		index === 0 ? [staleDigest(view)] : [],
+	);
 }
 
-/**
- * The attention queue owns a lifted panel outright, so the context its Domains
- * row used to carry (the resolved window) rides the attention item instead.
- */
-function resolvedWindowContext(view: LivePanelView | StalePanelView): Node[] {
-	if (view.resolvedWindow === undefined) return [];
-	return [
-		{
-			kind: "text",
-			value: `Resolved ${view.resolvedWindow}`,
-			as: "caption",
-			intent: "provenance",
-		},
-	];
-}
-
-function liveAttentionItem(attention: TestimonyAttention, asOf?: string): Node {
+function liveAttentionItem(
+	attention: TestimonyAttention,
+	asOf: string | undefined,
+	index: number,
+): Node {
 	const { view, signals } = attention;
+	return actionFrame(
+		view,
+		"Needs review",
+		signals.join(" · "),
+		asOf,
+		index,
+		index === 0 ? [testimonyDigest(view, `Inspect ${view.title} testimony`)] : [],
+	);
+}
+
+function actionFrame(
+	view: PanelIdentity,
+	state: string,
+	summary: string,
+	asOf: string | undefined,
+	index: number,
+	detail: readonly Node[] = [],
+): Node {
 	return {
-		kind: "stack",
-		role: "section",
+		kind: "frame",
+		role: "panel",
+		surface: index === 0 ? "raised" : "base",
+		density: index === 0 ? "regular" : "compact",
 		children: [
 			{
-				kind: "inline-alert",
-				tone: "caution",
-				title: `${view.title} reports attention`,
-				detail: signals.join(" · "),
+				kind: "compound",
+				name: "ActionSummary",
+				args: {
+					eyebrow: {
+						kind: "text",
+						value: view.sourceTitle,
+						as: "caption",
+						intent: "footnote",
+					},
+					title: {
+						kind: "text",
+						value: view.title,
+						as: "subheading",
+						emphasis: index === 0 ? "strong" : "normal",
+					},
+					summary: {
+						kind: "text",
+						value: summary,
+						as: "body",
+						intent: "neutral",
+					},
+				},
+				slots: {
+					signal: [
+						{
+							kind: "status",
+							tone: "caution",
+							signal: {
+								text: state,
+								icon: state === "Unavailable" ? "cloud_off" : "warning",
+							},
+						},
+					],
+					action: [paneLink(view, asOf, true)],
+					detail,
+				},
 			},
-			...resolvedWindowContext(view),
-			testimonyDigest(view, `Review ${view.title}`),
-			paneLink(view, asOf, true),
 		],
 	};
 }
@@ -403,20 +511,32 @@ function cloneForEmbeddedOutline(value: unknown, seen: WeakMap<object, unknown>)
 	return clone;
 }
 
-function domainNavigation(panels: readonly HomePanelView[], asOf?: string): Node {
+function domainNavigation(
+	panels: readonly HomePanelView[],
+	asOf: string | undefined,
+	followsExceptions: boolean,
+): Node {
 	return {
 		kind: "stack",
 		role: "section",
 		children: [
-			{ kind: "text", value: "Domains", as: "heading", emphasis: "strong" },
 			{
 				kind: "text",
-				value: "Open a declared domain pane for its complete worklist and audit detail.",
+				value: followsExceptions ? "Other domains" : "Domains",
+				as: "heading",
+				emphasis: "strong",
+			},
+			{
+				kind: "text",
+				value: followsExceptions
+					? `${panels.length} current ${panels.length === 1 ? "domain has" : "domains have"} no open review.`
+					: "Every declared home pane is current and one move away.",
 				as: "body",
 			},
 			{
-				kind: "stack",
+				kind: "grid",
 				role: "list",
+				minTrack: "wide",
 				children: panels.map((view) => domainRow(view, asOf)),
 			},
 		],
@@ -428,12 +548,16 @@ function domainRow(view: HomePanelView, asOf?: string): Node {
 	const status: Node =
 		view.kind === "live"
 			? liveAttention === 0
-				? { kind: "status", tone: "success", signal: { text: "Current", icon: "check_circle" } }
+				? {
+						kind: "status",
+						tone: "success",
+						signal: { text: "Current", icon: "check_circle" },
+					}
 				: {
 						kind: "status",
 						tone: "caution",
 						signal: {
-							text: `Current · ${liveAttention} attention ${liveAttention === 1 ? "signal" : "signals"}`,
+							text: "Needs review",
 							icon: "warning",
 						},
 					}
@@ -443,39 +567,37 @@ function domainRow(view: HomePanelView, asOf?: string): Node {
 						tone: "caution",
 						signal: { text: `Cached from ${view.staleAsOf}`, icon: "history" },
 					}
-				: { kind: "status", tone: "caution", signal: { text: "Unavailable", icon: "warning" } };
-	const context =
-		view.kind !== "dead" && view.resolvedWindow !== undefined
-			? [
-					{
-						kind: "text",
-						value: `Resolved ${view.resolvedWindow}`,
-						as: "caption",
-						intent: "provenance",
-					} as Node,
-				]
-			: [];
+				: {
+						kind: "status",
+						tone: "caution",
+						signal: { text: "Unavailable", icon: "warning" },
+					};
 	const paneContext: Node[] =
 		view.title === view.sourceTitle
-			? context
-			: [{ kind: "text", value: view.title, as: "body", intent: "neutral" }, ...context];
+			? []
+			: [{ kind: "text", value: view.title, as: "body", intent: "neutral" }];
 
 	return {
-		kind: "cluster",
-		role: "toolbar",
-		justify: "between",
-		align: "center",
+		kind: "frame",
+		role: "panel",
+		surface: "sunken",
+		density: "compact",
 		children: [
 			{
 				kind: "stack",
-				role: "section",
+				role: "panel",
 				children: [
-					{ kind: "text", value: view.sourceTitle, as: "subheading" },
+					{
+						kind: "cluster",
+						role: "toolbar",
+						justify: "between",
+						align: "center",
+						children: [{ kind: "text", value: view.sourceTitle, as: "subheading" }, status],
+					},
 					...paneContext,
-					status,
+					paneLink(view, asOf),
 				],
 			},
-			paneLink(view, asOf),
 		],
 	};
 }
@@ -488,7 +610,8 @@ function paneLink(view: PanelIdentity, asOf?: string, detail = false): Node {
 	return {
 		kind: "link",
 		href,
-		label: detail ? `Open ${view.sourceTitle} details` : `Open ${view.sourceTitle}`,
+		label: detail ? `Review ${view.sourceTitle}` : `Open ${view.sourceTitle}`,
+		intent: "primary-action",
 	};
 }
 
@@ -499,7 +622,11 @@ function footer(model: HomeModel): Node {
 		justify: "between",
 		align: "baseline",
 		children: [
-			{ kind: "link", href: "/surfaces", label: "Browse every declared surface" },
+			{
+				kind: "link",
+				href: "/surfaces",
+				label: "Browse every declared surface",
+			},
 			{
 				kind: "disclosure",
 				summary: "Technical details",
@@ -510,6 +637,18 @@ function footer(model: HomeModel): Node {
 						as: "caption",
 						intent: "provenance",
 					},
+					...model.panels.flatMap((panel) =>
+						panel.kind !== "dead" && panel.resolvedWindow !== undefined
+							? [
+									{
+										kind: "text",
+										value: `${panel.sourceTitle} · ${panel.resolvedWindow}`,
+										as: "caption",
+										intent: "provenance",
+									} as Node,
+								]
+							: [],
+					),
 				],
 			},
 		],

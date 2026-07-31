@@ -37,13 +37,13 @@
                 "detail": "This vendor is under standing review.",
                 "kind": "inline-alert",
                 "repair": "Confirm the exposure before the next settlement run.",
-                "title": "VENDOR_STANDING_REVIEW",
+                "title": "Vendor standing review",
                 "tone": "caution"
               },
               {
                 "detail": "Exposure reflects the signed ledger position.",
                 "kind": "inline-alert",
-                "title": "VENDOR_EXPOSURE_SOURCE",
+                "title": "Vendor exposure source",
                 "tone": "info"
               },
               {

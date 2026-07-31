@@ -279,10 +279,10 @@ describe("operator-first surface compilation (KRA-798)", () => {
 		if (footer?.kind !== "compound") throw new Error("expected provenance footer");
 		const encoded = JSON.stringify(node);
 
-		expect(alert.title).toBe("Receipt id: BUNDLE_RECEIPT_REVIEW");
+		expect(alert.title).toBe("Receipt id: Bundle receipt review");
 		expect(footer.name).toBe("ProvenanceFooter");
-		expect(JSON.stringify(footer)).not.toContain("BUNDLE_RECEIPT_REVIEW");
-		expect(encoded.match(/BUNDLE_RECEIPT_REVIEW/g)).toHaveLength(1);
+		expect(JSON.stringify(footer)).not.toContain("Bundle receipt review");
+		expect(encoded.match(/Bundle receipt review/g)).toHaveLength(1);
 		expect(encoded.match(/Receipt bundle/g)).toHaveLength(1);
 		expect(encoded.match(/bundle-receipt-798/g)).toHaveLength(1);
 		expect(validateNodeDocument(node).ok).toBe(true);
@@ -312,11 +312,11 @@ describe("operator-first surface compilation (KRA-798)", () => {
 		if (footer?.kind !== "compound") throw new Error("expected provenance footer");
 		const encoded = JSON.stringify(node);
 
-		expect(encoded.match(/UNRENDERABLE/g)).toHaveLength(1);
+		expect(encoded.match(/Unrenderable/g)).toHaveLength(1);
 		expect(encoded.match(/unrenderable: unknown construct/g)).toHaveLength(1);
-		expect(JSON.stringify(footer)).not.toContain("UNRENDERABLE");
+		expect(JSON.stringify(footer)).not.toContain("Unrenderable");
 		expect(JSON.stringify(footer)).not.toContain("unrenderable: unknown construct");
-		expect(alert.title).toBe("Mystery: UNRENDERABLE");
+		expect(alert.title).toBe("Mystery: Unrenderable");
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
@@ -352,7 +352,7 @@ describe("operator-first surface compilation (KRA-798)", () => {
 			}),
 		);
 		const encoded = JSON.stringify(node);
-		expect(encoded.indexOf("FIELD_REVIEW")).toBeLessThan(encoded.indexOf("Worklist"));
+		expect(encoded.indexOf("Field review")).toBeLessThan(encoded.indexOf("Worklist"));
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
 
@@ -389,10 +389,10 @@ describe("operator-first surface compilation (KRA-798)", () => {
 		const footer = section.children[2];
 		if (alert?.kind !== "inline-alert") throw new Error("expected visible alert");
 		if (footer?.kind !== "compound") throw new Error("expected provenance footer");
-		expect(alert.title).toBe("Receipt id: SEAL_MISMATCH");
+		expect(alert.title).toBe("Receipt id: Seal mismatch");
 		expect(alert.repair).toBe("Request a fresh receipt.");
-		expect(JSON.stringify(footer)).not.toContain("SEAL_MISMATCH");
-		expect(JSON.stringify(node).match(/SEAL_MISMATCH/g)).toHaveLength(1);
+		expect(JSON.stringify(footer)).not.toContain("Seal mismatch");
+		expect(JSON.stringify(node).match(/Seal mismatch/g)).toHaveLength(1);
 		expect(JSON.stringify(node).match(/receipt-798/g)).toHaveLength(1);
 		expect(validateNodeDocument(node).ok).toBe(true);
 	});
@@ -430,9 +430,9 @@ describe("operator-first surface compilation (KRA-798)", () => {
 			}),
 		);
 		const encoded = JSON.stringify(node);
-		expect(encoded.match(/EVENT_RECEIPT_REVIEW/g)).toHaveLength(1);
+		expect(encoded.match(/Event receipt review/g)).toHaveLength(1);
 		expect(encoded.match(/event-receipt-798/g)).toHaveLength(1);
-		expect(encoded.indexOf("EVENT_RECEIPT_REVIEW")).toBeLessThan(
+		expect(encoded.indexOf("Event receipt review")).toBeLessThan(
 			encoded.indexOf("ProvenanceFooter"),
 		);
 		expect(validateNodeDocument(node).ok).toBe(true);

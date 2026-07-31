@@ -253,6 +253,64 @@ STAT_BAND = CompoundDefinition.model_validate(
     }
 )
 
+ACTION_SUMMARY = CompoundDefinition.model_validate(
+    {
+        "name": "ActionSummary",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "eyebrow": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Quiet source or category context for the action.",
+                },
+                "title": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Plain-language action or exception title.",
+                },
+                "summary": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The consequence or evidence the operator should understand.",
+                },
+            },
+        },
+        # ActionSummary owns reading order, not elevation. A caller may wrap the
+        # first or dominant action in a raised Frame while quieter siblings remain
+        # on the surrounding surface; baking a card here would recreate an equal
+        # wall of alerts. Every variable phrase stays a node-valued param or slot.
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            # Action summaries are a reading-order primitive, not a responsive
+            # toolbar. Keep source -> title -> consequence -> action in a stable
+            # vertical scan even inside a wide raised frame.
+            "direction": "block",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "center",
+                    "children": [
+                        {"kind": "param-ref", "param": "eyebrow"},
+                        {"kind": "slot", "name": "signal", "fallback": []},
+                    ],
+                },
+                {"kind": "param-ref", "param": "title"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "context", "fallback": []},
+                {"kind": "slot", "name": "action", "fallback": []},
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
 BREAKDOWN = CompoundDefinition.model_validate(
     {
         "name": "Breakdown",
@@ -374,6 +432,7 @@ PROMOTED_COMPOUNDS = MappingProxyType(
         ENTITY_HEADER.name: ENTITY_HEADER,
         PROVENANCE_FOOTER.name: PROVENANCE_FOOTER,
         STAT_BAND.name: STAT_BAND,
+        ACTION_SUMMARY.name: ACTION_SUMMARY,
         BREAKDOWN.name: BREAKDOWN,
         TRAIL_ENTRY.name: TRAIL_ENTRY,
         KEY_VALUE_PANEL.name: KEY_VALUE_PANEL,
@@ -519,6 +578,7 @@ validate_catalog()
 
 
 __all__ = [
+    "ACTION_SUMMARY",
     "BREAKDOWN",
     "ENTITY_HEADER",
     "KEY_VALUE_PANEL",

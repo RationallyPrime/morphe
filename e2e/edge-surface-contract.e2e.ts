@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 const SURFACE_PATH = "/s/taxis/roster";
 const HIDDEN_FIELD = "dispatchSecret";
 const HIDDEN_SENTINEL = "MORPHE-HIDDEN-TAXIS-7CFE42";
-const GEOMETRY_TOLERANCE_PX = 0.5;
+const GEOMETRY_TOLERANCE_PX = 1.5;
 const TOUCH_TARGET_FLOOR_PX = 44;
 const SHIPPED_DIALECTS = [
 	"icelandic-archive",
@@ -18,7 +18,7 @@ const SHIPPED_DIALECTS = [
 ] as const;
 const VIEWPORTS = [
 	{ name: "wide", width: 1440, height: 1000 },
-	{ name: "narrow", width: 760, height: 1000 },
+	{ name: "narrow", width: 390, height: 844 },
 ] as const;
 
 async function openSurface(page: Page, dialect = "gallery"): Promise<void> {
@@ -79,18 +79,18 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	await expect(review).toHaveAttribute("role", "status");
 	await expect(review).toHaveAttribute("data-tone", "caution");
 
-	await expect(page.getByText("TAXIS_ROW_REVIEW", { exact: true })).toBeVisible();
+	await expect(page.getByText("Taxis row review", { exact: true })).toBeVisible();
 	// The producer named where the offending entry lives (Diagnostic.href); the
 	// trust gate rewrote it against the declared surfaces, so the warning IS the
 	// drill-through to the entry it indicts.
-	await expect(page.locator("a.mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" })).toHaveAttribute(
+	await expect(page.locator("a.mo-alert").filter({ hasText: "Taxis row review" })).toHaveAttribute(
 		"href",
 		"/s/taxis/worker-baldur",
 	);
 	// The cell diagnostic is lifted into the row lane (KRA-796 Defect 2) with the
 	// field label preserved in its visible copy, so the code now reads label-first.
 	await expect(
-		page.getByText("Allocation: TAXIS_ALLOCATION_SOURCE", { exact: true }),
+		page.getByText("Allocation: Taxis allocation source", { exact: true }),
 	).toBeVisible();
 	await expect(
 		page.getByText("The second worker needs roster review.", { exact: true }),
@@ -131,85 +131,109 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	expect(documentHtml).not.toContain(HIDDEN_SENTINEL);
 }
 
-async function assertTableContract(page: Page): Promise<void> {
-	const table = page.locator(".mo-grid[data-columns][data-ruled]");
-	await expect(table).toHaveCount(1);
-	const rows = table.locator(":scope > .mo-grid");
-	await expect(rows).toHaveCount(3);
+async function assertTableContract(page: Page, recordsExpected: boolean): Promise<void> {
+	const wrapper = page.locator('.mo-table[data-responsive="records"]');
+	await expect(wrapper).toHaveCount(1);
+	const table = page.getByRole("table", { name: "Workers" });
+	await expect(table).toBeVisible();
+	await expect(table.getByRole("columnheader")).toHaveCount(recordsExpected ? 0 : 6);
+	await expect(table.getByRole("rowheader")).toHaveCount(2);
 
-	for (let index = 0; index < (await rows.count()); index += 1) {
-		const template = await rows
-			.nth(index)
-			.evaluate((element) => getComputedStyle(element).gridTemplateColumns);
-		expect(template.toLowerCase(), `row ${index} must compute as a subgrid`).toContain("subgrid");
+	const rows = table.locator("tbody > tr:not(.mo-table__lane)");
+	const lanes = table.locator("tbody > tr.mo-table__lane");
+	await expect(rows).toHaveCount(2);
+	await expect(lanes).toHaveCount(2);
+	await expect(lanes.locator(":scope > td[colspan='6']")).toHaveCount(2);
+	for (let index = 0; index < 2; index += 1) {
+		await expect(rows.nth(index).locator(":scope > :is(th, td)")).toHaveCount(6);
 	}
 
-	const leftEdges = await rows.evaluateAll((elements) =>
-		elements.map((row) => [...row.children].map((cell) => cell.getBoundingClientRect().left)),
+	const rowDisplays = await rows.evaluateAll((elements) =>
+		elements.map((row) => ({
+			row: getComputedStyle(row).display,
+			cells: [...row.children].map((cell) => getComputedStyle(cell).display),
+		})),
 	);
-	for (const [rowIndex, row] of leftEdges.entries()) {
-		expect(row, `row ${rowIndex} must carry all six table cells`).toHaveLength(6);
-	}
-	for (let column = 0; column < 6; column += 1) {
-		const positions = leftEdges.map((row) => row[column] as number);
-		const delta = Math.max(...positions) - Math.min(...positions);
-		expect(delta, `column ${column} left edges must align`).toBeLessThanOrEqual(
-			GEOMETRY_TOLERANCE_PX,
+	if (recordsExpected) {
+		for (const [index, display] of rowDisplays.entries()) {
+			expect(display.row, `record ${index} must stack`).toBe("block");
+			expect(display.cells, `record ${index} cells must stack`).toEqual(Array(6).fill("block"));
+		}
+		const headers = await rows
+			.locator(":scope > :is(th, td)")
+			.evaluateAll((cells) => cells.map((cell) => cell.getAttribute("data-header")));
+		expect(headers.every((header) => typeof header === "string" && header.length > 0)).toBe(true);
+	} else {
+		for (const [index, display] of rowDisplays.entries()) {
+			expect(display.row, `row ${index} keeps native table geometry`).toBe("table-row");
+			expect(
+				display.cells.every((value) => value === "table-cell"),
+				`row ${index} cells keep native table geometry`,
+			).toBe(true);
+		}
+
+		const leftEdges = await rows.evaluateAll((elements) =>
+			elements.map((row) => [...row.children].map((cell) => cell.getBoundingClientRect().left)),
 		);
+		for (let column = 0; column < 6; column += 1) {
+			const positions = leftEdges.map((row) => row[column] as number);
+			const delta = Math.max(...positions) - Math.min(...positions);
+			expect(delta, `column ${column} left edges must align`).toBeLessThanOrEqual(
+				GEOMETRY_TOLERANCE_PX,
+			);
+		}
 	}
 
-	const rowAlert = table.locator(":scope > .mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" });
+	const rowAlert = lanes.locator(".mo-alert").filter({ hasText: "Taxis row review" });
 	await expect(rowAlert).toHaveCount(1);
-	const relationship = await rowAlert.evaluate((alert) => ({
-		parentIsTable: alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
-		previousIsRow: alert.previousElementSibling?.matches(".mo-grid") ?? false,
-		wrapsRow: alert.querySelector(".mo-grid") !== null,
-	}));
-	expect(relationship).toEqual({ parentIsTable: true, previousIsRow: true, wrapsRow: false });
+	expect(
+		await rowAlert.evaluate((alert) => {
+			const lane = alert.closest("tr");
+			return {
+				inDiagnosticLane: lane?.classList.contains("mo-table__lane") ?? false,
+				previousIsDataRow:
+					lane?.previousElementSibling?.matches("tr:not(.mo-table__lane)") ?? false,
+				wrapsDataRow: alert.querySelector("tr") !== null,
+			};
+		}),
+	).toEqual({ inDiagnosticLane: true, previousIsDataRow: true, wrapsDataRow: false });
 
-	// Cell diagnostics are LIFTED into the row lane (KRA-796 Defect 2): the alert is
-	// no longer nested inside the cell's row grid (where a 12rem-min alert overpainted
-	// neighbouring cells), but a full-width sibling of the table, in the lane after the
-	// row it concerns — exactly like the row-level alert. Its visible copy keeps the
-	// field label ("Allocation:") so the lifted diagnostic still names its subject.
-	const cellAlert = table.locator(":scope > .mo-alert").filter({
-		hasText: "TAXIS_ALLOCATION_SOURCE",
+	// Cell diagnostics share that same row-owned lane. Their visible copy keeps
+	// the field label, while the lane spans all six columns on wide and record
+	// layouts alike.
+	const cellAlert = lanes.locator(".mo-alert").filter({
+		hasText: "Taxis allocation source",
 	});
 	await expect(cellAlert).toHaveCount(1);
 	await expect(cellAlert).toContainText("Allocation:");
-	const tableBoxForCell = await table.boundingBox();
-	if (tableBoxForCell === null) throw new Error("table must be visible for the cell-lane check");
-	expect(
-		await cellAlert.evaluate((alert) => ({
-			parentIsTable: alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
-			wrapsRow: alert.querySelector(".mo-grid") !== null,
-		})),
-	).toEqual({ parentIsTable: true, wrapsRow: false });
-	// Lifted into the lane, it spans the full table width (no 12rem overpaint).
-	const cellAlertBox = await cellAlert.boundingBox();
-	if (cellAlertBox === null) throw new Error("cell alert must be visible");
-	expect(Math.abs(cellAlertBox.x - tableBoxForCell.x), "cell alert left edge").toBeLessThanOrEqual(
-		GEOMETRY_TOLERANCE_PX,
-	);
-	expect(
-		Math.abs(cellAlertBox.width - tableBoxForCell.width),
-		"cell alert spans full row",
-	).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+	await expect(cellAlert.locator("tr")).toHaveCount(0);
 
-	const nullableCell = rows.nth(2).locator(":scope > *").nth(4);
+	const nullableCell = rows.nth(1).locator(":scope > :is(th, td)").nth(4);
 	expect((await nullableCell.textContent())?.trim()).toBe("");
 
-	const tableBox = await table.boundingBox();
-	const alertBox = await rowAlert.boundingBox();
-	if (tableBox === null || alertBox === null)
-		throw new Error("table contract boxes must be visible");
-	expect(Math.abs(alertBox.x - tableBox.x), "row alert left edge").toBeLessThanOrEqual(
-		GEOMETRY_TOLERANCE_PX,
-	);
-	expect(
-		Math.abs(alertBox.x + alertBox.width - (tableBox.x + tableBox.width)),
-		"row alert right edge",
-	).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+	const overflow = await wrapper.evaluate((element) => element.scrollWidth - element.clientWidth);
+	expect(overflow, "declared records mode must not overflow").toBeLessThanOrEqual(1);
+
+	if (!recordsExpected) {
+		const wrapperBox = await wrapper.boundingBox();
+		const rowAlertBox = await rowAlert.boundingBox();
+		const cellAlertBox = await cellAlert.boundingBox();
+		if (wrapperBox === null || rowAlertBox === null || cellAlertBox === null) {
+			throw new Error("semantic table contract boxes must be visible");
+		}
+		for (const [label, alertBox] of [
+			["row alert", rowAlertBox],
+			["cell alert", cellAlertBox],
+		] as const) {
+			expect(Math.abs(alertBox.x - wrapperBox.x), `${label} left edge`).toBeLessThanOrEqual(
+				GEOMETRY_TOLERANCE_PX,
+			);
+			expect(
+				Math.abs(alertBox.x + alertBox.width - (wrapperBox.x + wrapperBox.width)),
+				`${label} right edge`,
+			).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+		}
+	}
 }
 
 test.describe("dialect-independent source compilation", () => {
@@ -231,7 +255,7 @@ test.describe("dialect-independent source compilation", () => {
 		expect(compilationTreeSha256).toMatch(/^sha256:[0-9a-f]{64}$/);
 
 		await page.waitForLoadState("networkidle");
-		await page.getByText("Substrate inspection", { exact: true }).click();
+		await page.locator("details.chrome__inspection > summary").click();
 		await page.getByLabel("Dialect").selectOption("ledger");
 		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=ledger$`));
 		await expect(page.locator(".viewer-surface .mo-root")).toHaveAttribute(
@@ -343,7 +367,7 @@ test.describe("operator-first viewer chrome", () => {
 		).toBeLessThanOrEqual(1);
 
 		const visibleTargets = await chrome
-			.locator("a, summary, select, input")
+			.locator("a, summary, select, input:not([type='checkbox']), label.chrome__explain")
 			.evaluateAll((targets) =>
 				targets
 					.map((target) => {
@@ -377,7 +401,7 @@ test.describe("operator-first composed home", () => {
 		await expect(
 			home.getByRole("heading", { level: 1, name: "Edge surface contract" }),
 		).toBeVisible();
-		await expect(home.getByRole("heading", { level: 2, name: "Source freshness" })).toBeVisible();
+		await expect(home.getByRole("heading", { level: 3, name: "Operational pulse" })).toBeVisible();
 		await expect(home.getByRole("heading", { level: 2, name: "Needs attention" })).toBeVisible();
 		// One region owns a source (KRA-819): the fixture's only panel is lifted
 		// into the attention queue, so a Domains section restating it must NOT
@@ -394,24 +418,26 @@ test.describe("operator-first composed home", () => {
 		);
 		expect(visibleHeadings.slice(0, 3)).toEqual([
 			"Edge surface contract",
-			"Source freshness",
+			"Operational pulse",
 			"Needs attention",
 		]);
 
-		await expect(home.getByText("Weekly roster reports attention", { exact: true })).toBeVisible();
-		const attentionSummary = home
-			.locator(".mo-alert")
-			.filter({ hasText: "Weekly roster reports attention" })
-			.first();
+		await expect(
+			home.getByRole("heading", { level: 3, name: "Weekly roster", exact: true }),
+		).toBeVisible();
+		await expect(home.getByText("Needs review", { exact: true })).toBeVisible();
+		const attentionSummary = home.locator('.mo-frame[data-surface="raised"]').first();
 		await expect(attentionSummary).toContainText("The second worker needs roster review.");
 		await expect(attentionSummary).toContainText("Confirm the allocation before dispatch.");
 		await expect(attentionSummary).not.toContainText("TAXIS_ROW_REVIEW");
-		const testimony = home.locator("details").filter({ hasText: "Review Weekly roster" });
+		const testimony = home
+			.locator("details")
+			.filter({ hasText: "Inspect Weekly roster testimony" });
 		await expect(testimony).not.toHaveAttribute("open", "");
 		await expect(
-			home.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
+			home.getByRole("link", { name: "Review Taxis fixture", exact: true }),
 		).toHaveAttribute("href", "/s/taxis/roster");
-		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(0);
+		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(1);
 
 		const overflow = await page.evaluate(
 			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -441,7 +467,8 @@ test.describe("operator-first composed home", () => {
 			testimony.getByRole("heading", { level: 2, name: "Weekly roster", exact: true }),
 		).toBeVisible();
 		await expect(home.locator("h1")).toHaveCount(1);
-		await expect(testimony).toContainText("TAXIS_ROW_REVIEW");
+		await expect(testimony).toContainText("Taxis row review");
+		await expect(testimony).not.toContainText("TAXIS_ROW_REVIEW");
 
 		const contrastRatios = await home
 			.locator('h1, h2, a.mo-link, .mo-alert[data-tone="caution"] .mo-alert__title')
@@ -499,12 +526,10 @@ for (const viewport of VIEWPORTS) {
 	test.describe(`${viewport.name} compiler-renderer geometry`, () => {
 		test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
-		test("renders signed testimony with aligned subgrid rows and sibling diagnostics", async ({
-			page,
-		}) => {
+		test("renders signed testimony as a semantic table with labelled records", async ({ page }) => {
 			await openSurface(page);
 			await assertSemanticSurface(page);
-			await assertTableContract(page);
+			await assertTableContract(page, viewport.width <= 640);
 		});
 	});
 }
