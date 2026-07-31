@@ -183,14 +183,14 @@ describe("homeTree operator-first composition", () => {
 		expect(summary?.value).not.toContain("PAYROLL_APPROVAL_REQUIRED");
 		expect(summary?.value).not.toBe("review");
 		expect(html).not.toContain("Informational only ·");
-		expect(html).toContain("Inspect Payroll run testimony");
+		expect(html).toContain("Preview Payroll run here");
 		expect(html).toContain("Review the payroll run");
 		expect(html).toContain("signed payroll testimony");
 		expect(html).toContain("PAYROLL_APPROVAL_REQUIRED");
 		// Attention owns consequence and navigation exactly once; the compact map
 		// carries only calm domains that otherwise have no home representation.
 		expect(html).not.toContain("Current · 1 attention signal");
-		expect(html).not.toContain("Open Payroll</span>");
+		expect(html).toContain("Open Payroll details");
 		expect(html).toContain("Open Workforce");
 		expect(liveAttention.tree).toEqual(original);
 		expect(containsReference(tree, liveAttention.tree)).toBe(false);
@@ -284,10 +284,8 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain('href="/s/obolos/evidence?as_of=2026-07-15"');
 		expect(html).toContain('href="/s/krates/budget?as_of=2026-07-15"');
 		expect(html).toContain("Open Workforce");
-		expect(html).not.toContain("Open Treasury");
-		expect(html).not.toContain("Open Planning");
-		expect(html).toContain("Review Treasury");
-		expect(html).toContain("Review Planning");
+		expect(html).toContain("Open Treasury details");
+		expect(html).toContain("Open Planning details");
 	});
 
 	it("keeps stale testimony available but does not duplicate every live pane on home", () => {
@@ -305,7 +303,7 @@ describe("homeTree operator-first composition", () => {
 		).toBe(1);
 
 		const html = ssr(tree);
-		expect(html).toContain("Review cached Evidence");
+		expect(html).toContain("Preview cached Evidence here");
 		expect(html).toContain("obolos body");
 		expect(html).not.toContain("taxis body");
 		expect(html).toContain("--mo-ctx-space:var(--mo-space-3)");
@@ -322,7 +320,7 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain("All 2 sources are current");
 		expect(html).not.toContain("Needs attention");
 		expect(html).not.toContain("reports attention");
-		expect(html).toContain("Workforce · westfjords:2026-W29");
+		expect(html).not.toContain("westfjords:2026-W29");
 	});
 
 	it("names an unavailable source and says that no cached surface exists", () => {
@@ -348,6 +346,7 @@ describe("homeTree operator-first composition", () => {
 		);
 		expect(html).toContain("Technical details");
 		expect(html).toContain("Grammar 0.3.0");
+		expect(html).not.toContain("westfjords:2026-W29");
 		expect(html).toContain('href="/surfaces"');
 		expect(html).toContain("Browse every declared surface");
 	});

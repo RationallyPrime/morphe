@@ -430,13 +430,17 @@ test.describe("operator-first composed home", () => {
 		await expect(attentionSummary).toContainText("The second worker needs roster review.");
 		await expect(attentionSummary).toContainText("Confirm the allocation before dispatch.");
 		await expect(attentionSummary).not.toContainText("TAXIS_ROW_REVIEW");
-		const testimony = home
-			.locator("details")
-			.filter({ hasText: "Inspect Weekly roster testimony" });
+		const testimony = home.locator("details").filter({ hasText: "Preview Weekly roster here" });
 		await expect(testimony).not.toHaveAttribute("open", "");
-		await expect(
-			home.getByRole("link", { name: "Review Taxis fixture", exact: true }),
-		).toHaveAttribute("href", "/s/taxis/roster");
+		const primaryAction = home.getByRole("link", {
+			name: "Open Taxis fixture details",
+			exact: true,
+		});
+		await expect(primaryAction).toHaveAttribute("href", "/s/taxis/roster");
+		const primaryActionBox = await primaryAction.boundingBox();
+		if (primaryActionBox === null) throw new Error("Attention action must be visible");
+		expect(primaryActionBox.width).toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
+		expect(primaryActionBox.height).toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
 		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(1);
 
 		const overflow = await page.evaluate(
@@ -519,6 +523,33 @@ test.describe("operator-first composed home", () => {
 		expect(contrastRatios.length, "home contrast probes must render").toBeGreaterThan(0);
 		const contrastFailures = contrastRatios.filter((probe) => probe.ratio < 4.5);
 		expect(contrastFailures, "visible home copy must clear WCAG AA").toEqual([]);
+	});
+
+	test("keeps pre- and post-event dated homes clean while carrying the exact frontier", async ({
+		page,
+	}) => {
+		// The fixture's newest signed event is 17 July. Exercise a frontier on
+		// either side so this is not merely one hard-coded query-retention check.
+		for (const perspective of [
+			{ date: "2026-07-15", display: "July 15, 2026" },
+			{ date: "2026-07-31", display: "July 31, 2026" },
+		]) {
+			const response = await page.goto(`/?as_of=${perspective.date}`, {
+				waitUntil: "networkidle",
+			});
+			expect(response?.ok(), "the dated composed home must answer").toBe(true);
+
+			const home = page.locator("main.viewer-home");
+			await expect(home.getByText(`Reporting date · ${perspective.display}`)).toBeVisible();
+			await expect(
+				home.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
+			).toHaveAttribute("href", `/s/taxis/roster?as_of=${perspective.date}`);
+			await expect(home).not.toContainText("Resolved ");
+			await expect(home).not.toContainText("westfjords:2026-W29");
+			await expect(home).not.toContainText(
+				/[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/i,
+			);
+		}
 	});
 });
 

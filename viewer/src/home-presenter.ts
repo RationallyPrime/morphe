@@ -379,7 +379,7 @@ function exceptionItem(view: HomeException, asOf: string | undefined, index: num
 		`Current admission failed. The surface admitted at ${view.staleAsOf} remains available.`,
 		asOf,
 		index,
-		index === 0 ? [staleDigest(view)] : [],
+		[staleDigest(view)],
 	);
 }
 
@@ -389,14 +389,9 @@ function liveAttentionItem(
 	index: number,
 ): Node {
 	const { view, signals } = attention;
-	return actionFrame(
-		view,
-		"Needs review",
-		signals.join(" · "),
-		asOf,
-		index,
-		index === 0 ? [testimonyDigest(view, `Inspect ${view.title} testimony`)] : [],
-	);
+	return actionFrame(view, "Needs review", signals.join(" · "), asOf, index, [
+		testimonyDigest(view, `Preview ${view.title} here`),
+	]);
 }
 
 function actionFrame(
@@ -457,7 +452,7 @@ function actionFrame(
 
 /** Preserve the whole last-good compile without returning to an always-equal card wall. */
 function staleDigest(view: StalePanelView): Node {
-	return testimonyDigest(view, `Review cached ${view.title}`);
+	return testimonyDigest(view, `Preview cached ${view.title} here`);
 }
 
 function testimonyDigest(view: LivePanelView | StalePanelView, summary: string): Node {
@@ -610,7 +605,7 @@ function paneLink(view: PanelIdentity, asOf?: string, detail = false): Node {
 	return {
 		kind: "link",
 		href,
-		label: detail ? `Review ${view.sourceTitle}` : `Open ${view.sourceTitle}`,
+		label: detail ? `Open ${view.sourceTitle} details` : `Open ${view.sourceTitle}`,
 		intent: "primary-action",
 	};
 }
@@ -637,18 +632,6 @@ function footer(model: HomeModel): Node {
 						as: "caption",
 						intent: "provenance",
 					},
-					...model.panels.flatMap((panel) =>
-						panel.kind !== "dead" && panel.resolvedWindow !== undefined
-							? [
-									{
-										kind: "text",
-										value: `${panel.sourceTitle} · ${panel.resolvedWindow}`,
-										as: "caption",
-										intent: "provenance",
-									} as Node,
-								]
-							: [],
-					),
 				],
 			},
 		],
