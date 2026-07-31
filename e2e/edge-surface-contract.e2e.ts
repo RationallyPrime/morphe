@@ -210,29 +210,47 @@ async function assertTableContract(page: Page, recordsExpected: boolean): Promis
 	await expect(cellAlert.locator("tr")).toHaveCount(0);
 
 	const nullableCell = rows.nth(1).locator(":scope > :is(th, td)").nth(4);
-	expect((await nullableCell.textContent())?.trim()).toBe("");
+	// Responsive record labels are real visible text at narrow widths, so raw
+	// textContent is not a valid emptiness check. Remove that structural label
+	// and assert that the producer supplied no cell value of its own.
+	const nullableValue = await nullableCell.evaluate((cell) => {
+		const copy = cell.cloneNode(true) as HTMLElement;
+		copy.querySelector(":scope > .mo-table__record-label")?.remove();
+		return copy.textContent?.trim() ?? "";
+	});
+	expect(nullableValue).toBe("");
 
 	const overflow = await wrapper.evaluate((element) => element.scrollWidth - element.clientWidth);
 	expect(overflow, "declared records mode must not overflow").toBeLessThanOrEqual(1);
 
 	if (!recordsExpected) {
-		const wrapperBox = await wrapper.boundingBox();
 		const rowAlertBox = await rowAlert.boundingBox();
 		const cellAlertBox = await cellAlert.boundingBox();
-		if (wrapperBox === null || rowAlertBox === null || cellAlertBox === null) {
+		const laneContentBox = (alert: Locator) =>
+			alert.locator("xpath=..").evaluate((cell) => {
+				const rect = cell.getBoundingClientRect();
+				return { x: rect.x + cell.clientLeft, width: cell.clientWidth };
+			});
+		const rowLaneBox = await laneContentBox(rowAlert);
+		const cellLaneBox = await laneContentBox(cellAlert);
+		if (
+			rowAlertBox === null ||
+			cellAlertBox === null ||
+			rowLaneBox === null ||
+			cellLaneBox === null
+		) {
 			throw new Error("semantic table contract boxes must be visible");
 		}
-		for (const [label, alertBox] of [
-			["row alert", rowAlertBox],
-			["cell alert", cellAlertBox],
+		for (const [label, alertBox, laneBox] of [
+			["row alert", rowAlertBox, rowLaneBox],
+			["cell alert", cellAlertBox, cellLaneBox],
 		] as const) {
-			expect(Math.abs(alertBox.x - wrapperBox.x), `${label} left edge`).toBeLessThanOrEqual(
-				GEOMETRY_TOLERANCE_PX,
-			);
-			expect(
-				Math.abs(alertBox.x + alertBox.width - (wrapperBox.x + wrapperBox.width)),
-				`${label} right edge`,
-			).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+			expect(alertBox.x, `${label} stays inside its lane`).toBeGreaterThanOrEqual(laneBox.x);
+			expect(alertBox.x + alertBox.width, `${label} right edge`).toBe(laneBox.x + laneBox.width);
+			// Collapsed table layout reserves one device-independent pixel at the
+			// lane's leading edge. Assert that exact browser contract instead of
+			// weakening the shared subpixel-alignment tolerance.
+			expect(laneBox.width - alertBox.width, `${label} collapsed-table inset`).toBe(1);
 		}
 	}
 }
@@ -465,11 +483,15 @@ test.describe("operator-first composed home", () => {
 		).toBeVisible();
 		await expect(home.getByText("Needs review", { exact: true })).toBeVisible();
 		const attentionSummary = home.locator('.mo-frame[data-surface="raised"]').first();
-		await expect(attentionSummary).toContainText("The second worker needs roster review.");
-		await expect(attentionSummary).toContainText("Confirm the allocation before dispatch.");
-		await expect(attentionSummary).not.toContainText("TAXIS_ROW_REVIEW");
+		const operatorSummary = attentionSummary.getByText(
+			"The second worker needs roster review. — Confirm the allocation before dispatch.",
+			{ exact: true },
+		);
+		await expect(operatorSummary).toBeVisible();
+		await expect(operatorSummary).not.toContainText("TAXIS_ROW_REVIEW");
 		const testimony = home.locator("details").filter({ hasText: "Preview Weekly roster here" });
 		await expect(testimony).not.toHaveAttribute("open", "");
+		await expect(testimony).toContainText("TAXIS_ROW_REVIEW");
 		const primaryAction = home.getByRole("link", {
 			name: "Open Taxis fixture details",
 			exact: true,
@@ -580,7 +602,12 @@ test.describe("operator-first composed home", () => {
 		const after = page.locator("main.viewer-home");
 		await expect(after.getByText("Reporting date · July 31, 2026")).toBeVisible();
 		await expect(after.getByRole("heading", { name: "Needs attention" })).toBeVisible();
-		await expect(after.getByText("The second worker needs roster review.")).toBeVisible();
+		await expect(
+			after.getByText(
+				"The second worker needs roster review. — Confirm the allocation before dispatch.",
+				{ exact: true },
+			),
+		).toBeVisible();
 		await expect(
 			after.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
 		).toHaveAttribute("href", "/s/taxis/roster?as_of=2026-07-31");

@@ -210,7 +210,7 @@ def test_trail_preserves_promoted_arg_and_item_diagnostics() -> None:
     provenance = _trail_payload(node)["children"][0]["slots"]["provenance"]
     alerts = [item["title"] for item in provenance if item.get("kind") == "inline-alert"]
     # Event-level AND the stamp child's (a bare arg) diagnostics both surface (D8).
-    assert alerts == ["Evt", "Stamp"]
+    assert alerts == ["EVT", "STAMP"]
 
 
 # --- factory gate ---------------------------------------------------------------------

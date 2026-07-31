@@ -371,6 +371,7 @@ try {
 						"EntityHeader",
 						"ProvenanceFooter",
 						"StatBand",
+						"ActionSummary",
 						"Breakdown",
 						"TrailEntry",
 						"KeyValuePanel",

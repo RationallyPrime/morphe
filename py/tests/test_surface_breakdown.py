@@ -152,7 +152,7 @@ def test_breakdown_node_diagnostics_ride_the_rows_head() -> None:
     assert head == {
         "kind": "inline-alert",
         "tone": "info",
-        "title": "Split",
+        "title": "SPLIT",
         "detail": "node level",
     }
 
