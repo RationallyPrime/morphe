@@ -18,7 +18,8 @@ const SHIPPED_DIALECTS = [
 ] as const;
 const VIEWPORTS = [
 	{ name: "wide", width: 1440, height: 1000 },
-	{ name: "narrow", width: 760, height: 1000 },
+	{ name: "mid", width: 760, height: 1000 },
+	{ name: "narrow", width: 390, height: 844 },
 ] as const;
 
 async function openSurface(page: Page, dialect = "gallery"): Promise<void> {
@@ -131,85 +132,127 @@ async function assertSemanticSurface(page: Page): Promise<void> {
 	expect(documentHtml).not.toContain(HIDDEN_SENTINEL);
 }
 
-async function assertTableContract(page: Page): Promise<void> {
-	const table = page.locator(".mo-grid[data-columns][data-ruled]");
-	await expect(table).toHaveCount(1);
-	const rows = table.locator(":scope > .mo-grid");
-	await expect(rows).toHaveCount(3);
+async function assertTableContract(page: Page, recordsExpected: boolean): Promise<void> {
+	const wrapper = page.locator('.mo-table[data-responsive="records"]');
+	await expect(wrapper).toHaveCount(1);
+	const table = page.getByRole("table", { name: "Workers" });
+	await expect(table).toBeVisible();
+	await expect(table.getByRole("columnheader")).toHaveCount(recordsExpected ? 0 : 6);
+	await expect(table.getByRole("rowheader")).toHaveCount(2);
 
-	for (let index = 0; index < (await rows.count()); index += 1) {
-		const template = await rows
-			.nth(index)
-			.evaluate((element) => getComputedStyle(element).gridTemplateColumns);
-		expect(template.toLowerCase(), `row ${index} must compute as a subgrid`).toContain("subgrid");
+	const rows = table.locator("tbody > tr:not(.mo-table__lane)");
+	const lanes = table.locator("tbody > tr.mo-table__lane");
+	await expect(rows).toHaveCount(2);
+	await expect(lanes).toHaveCount(2);
+	await expect(lanes.locator(":scope > td[colspan='6']")).toHaveCount(2);
+	for (let index = 0; index < 2; index += 1) {
+		await expect(rows.nth(index).locator(":scope > :is(th, td)")).toHaveCount(6);
 	}
 
-	const leftEdges = await rows.evaluateAll((elements) =>
-		elements.map((row) => [...row.children].map((cell) => cell.getBoundingClientRect().left)),
+	const rowDisplays = await rows.evaluateAll((elements) =>
+		elements.map((row) => ({
+			row: getComputedStyle(row).display,
+			cells: [...row.children].map((cell) => getComputedStyle(cell).display),
+		})),
 	);
-	for (const [rowIndex, row] of leftEdges.entries()) {
-		expect(row, `row ${rowIndex} must carry all six table cells`).toHaveLength(6);
-	}
-	for (let column = 0; column < 6; column += 1) {
-		const positions = leftEdges.map((row) => row[column] as number);
-		const delta = Math.max(...positions) - Math.min(...positions);
-		expect(delta, `column ${column} left edges must align`).toBeLessThanOrEqual(
-			GEOMETRY_TOLERANCE_PX,
+	if (recordsExpected) {
+		for (const [index, display] of rowDisplays.entries()) {
+			expect(display.row, `record ${index} must stack`).toBe("block");
+			expect(display.cells, `record ${index} cells must stack`).toEqual(Array(6).fill("block"));
+		}
+		const headers = await rows
+			.locator(":scope > :is(th, td)")
+			.evaluateAll((cells) => cells.map((cell) => cell.getAttribute("data-header")));
+		expect(headers.every((header) => typeof header === "string" && header.length > 0)).toBe(true);
+	} else {
+		for (const [index, display] of rowDisplays.entries()) {
+			expect(display.row, `row ${index} keeps native table geometry`).toBe("table-row");
+			expect(
+				display.cells.every((value) => value === "table-cell"),
+				`row ${index} cells keep native table geometry`,
+			).toBe(true);
+		}
+
+		const leftEdges = await rows.evaluateAll((elements) =>
+			elements.map((row) => [...row.children].map((cell) => cell.getBoundingClientRect().left)),
 		);
+		for (let column = 0; column < 6; column += 1) {
+			const positions = leftEdges.map((row) => row[column] as number);
+			const delta = Math.max(...positions) - Math.min(...positions);
+			expect(delta, `column ${column} left edges must align`).toBeLessThanOrEqual(
+				GEOMETRY_TOLERANCE_PX,
+			);
+		}
 	}
 
-	const rowAlert = table.locator(":scope > .mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" });
+	const rowAlert = lanes.locator(".mo-alert").filter({ hasText: "TAXIS_ROW_REVIEW" });
 	await expect(rowAlert).toHaveCount(1);
-	const relationship = await rowAlert.evaluate((alert) => ({
-		parentIsTable: alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
-		previousIsRow: alert.previousElementSibling?.matches(".mo-grid") ?? false,
-		wrapsRow: alert.querySelector(".mo-grid") !== null,
-	}));
-	expect(relationship).toEqual({ parentIsTable: true, previousIsRow: true, wrapsRow: false });
+	expect(
+		await rowAlert.evaluate((alert) => {
+			const lane = alert.closest("tr");
+			return {
+				inDiagnosticLane: lane?.classList.contains("mo-table__lane") ?? false,
+				previousIsDataRow:
+					lane?.previousElementSibling?.matches("tr:not(.mo-table__lane)") ?? false,
+				wrapsDataRow: alert.querySelector("tr") !== null,
+			};
+		}),
+	).toEqual({ inDiagnosticLane: true, previousIsDataRow: true, wrapsDataRow: false });
 
-	// Cell diagnostics are LIFTED into the row lane (KRA-796 Defect 2): the alert is
-	// no longer nested inside the cell's row grid (where a 12rem-min alert overpainted
-	// neighbouring cells), but a full-width sibling of the table, in the lane after the
-	// row it concerns — exactly like the row-level alert. Its visible copy keeps the
-	// field label ("Allocation:") so the lifted diagnostic still names its subject.
-	const cellAlert = table.locator(":scope > .mo-alert").filter({
+	// Cell diagnostics share that same row-owned lane. Their visible copy keeps
+	// the field label, while the lane spans all six columns on wide and record
+	// layouts alike.
+	const cellAlert = lanes.locator(".mo-alert").filter({
 		hasText: "TAXIS_ALLOCATION_SOURCE",
 	});
 	await expect(cellAlert).toHaveCount(1);
 	await expect(cellAlert).toContainText("Allocation:");
-	const tableBoxForCell = await table.boundingBox();
-	if (tableBoxForCell === null) throw new Error("table must be visible for the cell-lane check");
-	expect(
-		await cellAlert.evaluate((alert) => ({
-			parentIsTable: alert.parentElement?.matches(".mo-grid[data-columns]") ?? false,
-			wrapsRow: alert.querySelector(".mo-grid") !== null,
-		})),
-	).toEqual({ parentIsTable: true, wrapsRow: false });
-	// Lifted into the lane, it spans the full table width (no 12rem overpaint).
-	const cellAlertBox = await cellAlert.boundingBox();
-	if (cellAlertBox === null) throw new Error("cell alert must be visible");
-	expect(Math.abs(cellAlertBox.x - tableBoxForCell.x), "cell alert left edge").toBeLessThanOrEqual(
-		GEOMETRY_TOLERANCE_PX,
-	);
-	expect(
-		Math.abs(cellAlertBox.width - tableBoxForCell.width),
-		"cell alert spans full row",
-	).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+	await expect(cellAlert.locator("tr")).toHaveCount(0);
 
-	const nullableCell = rows.nth(2).locator(":scope > *").nth(4);
-	expect((await nullableCell.textContent())?.trim()).toBe("");
+	const nullableCell = rows.nth(1).locator(":scope > :is(th, td)").nth(4);
+	// Responsive record labels are real visible text at narrow widths, so raw
+	// textContent is not a valid emptiness check. Remove that structural label
+	// and assert that the producer supplied no cell value of its own.
+	const nullableValue = await nullableCell.evaluate((cell) => {
+		const copy = cell.cloneNode(true) as HTMLElement;
+		copy.querySelector(":scope > .mo-table__record-label")?.remove();
+		return copy.textContent?.trim() ?? "";
+	});
+	expect(nullableValue).toBe("");
 
-	const tableBox = await table.boundingBox();
-	const alertBox = await rowAlert.boundingBox();
-	if (tableBox === null || alertBox === null)
-		throw new Error("table contract boxes must be visible");
-	expect(Math.abs(alertBox.x - tableBox.x), "row alert left edge").toBeLessThanOrEqual(
-		GEOMETRY_TOLERANCE_PX,
-	);
-	expect(
-		Math.abs(alertBox.x + alertBox.width - (tableBox.x + tableBox.width)),
-		"row alert right edge",
-	).toBeLessThanOrEqual(GEOMETRY_TOLERANCE_PX);
+	const overflow = await wrapper.evaluate((element) => element.scrollWidth - element.clientWidth);
+	expect(overflow, "declared records mode must not overflow").toBeLessThanOrEqual(1);
+
+	if (!recordsExpected) {
+		const rowAlertBox = await rowAlert.boundingBox();
+		const cellAlertBox = await cellAlert.boundingBox();
+		const laneContentBox = (alert: Locator) =>
+			alert.locator("xpath=..").evaluate((cell) => {
+				const rect = cell.getBoundingClientRect();
+				return { x: rect.x + cell.clientLeft, width: cell.clientWidth };
+			});
+		const rowLaneBox = await laneContentBox(rowAlert);
+		const cellLaneBox = await laneContentBox(cellAlert);
+		if (
+			rowAlertBox === null ||
+			cellAlertBox === null ||
+			rowLaneBox === null ||
+			cellLaneBox === null
+		) {
+			throw new Error("semantic table contract boxes must be visible");
+		}
+		for (const [label, alertBox, laneBox] of [
+			["row alert", rowAlertBox, rowLaneBox],
+			["cell alert", cellAlertBox, cellLaneBox],
+		] as const) {
+			expect(alertBox.x, `${label} stays inside its lane`).toBeGreaterThanOrEqual(laneBox.x);
+			expect(alertBox.x + alertBox.width, `${label} right edge`).toBe(laneBox.x + laneBox.width);
+			// Collapsed table layout reserves one device-independent pixel at the
+			// lane's leading edge. Assert that exact browser contract instead of
+			// weakening the shared subpixel-alignment tolerance.
+			expect(laneBox.width - alertBox.width, `${label} collapsed-table inset`).toBe(1);
+		}
+	}
 }
 
 test.describe("dialect-independent source compilation", () => {
@@ -231,7 +274,7 @@ test.describe("dialect-independent source compilation", () => {
 		expect(compilationTreeSha256).toMatch(/^sha256:[0-9a-f]{64}$/);
 
 		await page.waitForLoadState("networkidle");
-		await page.getByText("Substrate inspection", { exact: true }).click();
+		await page.getByText("Inspect", { exact: true }).click();
 		await page.getByLabel("Dialect").selectOption("ledger");
 		await expect(page).toHaveURL(new RegExp(`${SURFACE_PATH}\\?dialect=ledger$`));
 		await expect(page.locator(".viewer-surface .mo-root")).toHaveAttribute(
@@ -312,6 +355,43 @@ test.describe("operator-first viewer chrome", () => {
 		);
 	});
 
+	test("keeps a dated pane on the same frontier through catalog and home breadcrumbs", async ({
+		page,
+	}) => {
+		const response = await page.goto(`${SURFACE_PATH}?as_of=2026-07-31`, {
+			waitUntil: "networkidle",
+		});
+		expect(response?.ok(), "the dated pane must answer").toBe(true);
+
+		const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+		await expect(breadcrumb.getByRole("link", { name: "Home" })).toHaveAttribute(
+			"href",
+			"/?as_of=2026-07-31",
+		);
+		await expect(breadcrumb.getByRole("link", { name: "Surfaces" })).toHaveAttribute(
+			"href",
+			"/surfaces?as_of=2026-07-31",
+		);
+
+		await breadcrumb.getByRole("link", { name: "Surfaces" }).click();
+		await expect(page).toHaveURL(/\/surfaces\?as_of=2026-07-31$/);
+		await expect(page.getByLabel("As of")).toHaveValue("2026-07-31");
+		await expect(page.getByRole("link", { name: "Weekly roster" })).toHaveAttribute(
+			"href",
+			"/s/taxis/roster?as_of=2026-07-31",
+		);
+		await expect(
+			page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Home" }),
+		).toHaveAttribute("href", "/?as_of=2026-07-31");
+
+		await page
+			.getByRole("navigation", { name: "Breadcrumb" })
+			.getByRole("link", { name: "Home" })
+			.click();
+		await expect(page).toHaveURL(/\/\?as_of=2026-07-31$/);
+		await expect(page.getByText("Reporting date · July 31, 2026")).toBeVisible();
+	});
+
 	test("preserves breadcrumbs, collapses inspection, and keeps 44px native targets", async ({
 		page,
 	}) => {
@@ -343,7 +423,7 @@ test.describe("operator-first viewer chrome", () => {
 		).toBeLessThanOrEqual(1);
 
 		const visibleTargets = await chrome
-			.locator("a, summary, select, input")
+			.locator("a, summary, select, input:not([type='checkbox']), label.chrome__explain")
 			.evaluateAll((targets) =>
 				targets
 					.map((target) => {
@@ -377,7 +457,7 @@ test.describe("operator-first composed home", () => {
 		await expect(
 			home.getByRole("heading", { level: 1, name: "Edge surface contract" }),
 		).toBeVisible();
-		await expect(home.getByRole("heading", { level: 2, name: "Source freshness" })).toBeVisible();
+		await expect(home.getByRole("heading", { level: 3, name: "Operational pulse" })).toBeVisible();
 		await expect(home.getByRole("heading", { level: 2, name: "Needs attention" })).toBeVisible();
 		// One region owns a source (KRA-819): the fixture's only panel is lifted
 		// into the attention queue, so a Domains section restating it must NOT
@@ -394,24 +474,34 @@ test.describe("operator-first composed home", () => {
 		);
 		expect(visibleHeadings.slice(0, 3)).toEqual([
 			"Edge surface contract",
-			"Source freshness",
+			"Operational pulse",
 			"Needs attention",
 		]);
 
-		await expect(home.getByText("Weekly roster reports attention", { exact: true })).toBeVisible();
-		const attentionSummary = home
-			.locator(".mo-alert")
-			.filter({ hasText: "Weekly roster reports attention" })
-			.first();
-		await expect(attentionSummary).toContainText("The second worker needs roster review.");
-		await expect(attentionSummary).toContainText("Confirm the allocation before dispatch.");
-		await expect(attentionSummary).not.toContainText("TAXIS_ROW_REVIEW");
-		const testimony = home.locator("details").filter({ hasText: "Review Weekly roster" });
-		await expect(testimony).not.toHaveAttribute("open", "");
 		await expect(
-			home.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
-		).toHaveAttribute("href", "/s/taxis/roster");
-		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(0);
+			home.getByRole("heading", { level: 3, name: "Weekly roster", exact: true }),
+		).toBeVisible();
+		await expect(home.getByText("Needs review", { exact: true })).toBeVisible();
+		const attentionSummary = home.locator('.mo-frame[data-surface="raised"]').first();
+		const operatorSummary = attentionSummary.getByText(
+			"The second worker needs roster review. — Confirm the allocation before dispatch.",
+			{ exact: true },
+		);
+		await expect(operatorSummary).toBeVisible();
+		await expect(operatorSummary).not.toContainText("TAXIS_ROW_REVIEW");
+		const testimony = home.locator("details").filter({ hasText: "Preview Weekly roster here" });
+		await expect(testimony).not.toHaveAttribute("open", "");
+		await expect(testimony).toContainText("TAXIS_ROW_REVIEW");
+		const primaryAction = home.getByRole("link", {
+			name: "Open Taxis fixture details",
+			exact: true,
+		});
+		await expect(primaryAction).toHaveAttribute("href", "/s/taxis/roster");
+		const primaryActionBox = await primaryAction.boundingBox();
+		if (primaryActionBox === null) throw new Error("Attention action must be visible");
+		expect(primaryActionBox.width).toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
+		expect(primaryActionBox.height).toBeGreaterThanOrEqual(TOUCH_TARGET_FLOOR_PX);
+		await expect(home.locator('.mo-frame[data-surface="raised"]')).toHaveCount(1);
 
 		const overflow = await page.evaluate(
 			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -493,18 +583,53 @@ test.describe("operator-first composed home", () => {
 		const contrastFailures = contrastRatios.filter((probe) => probe.ratio < 4.5);
 		expect(contrastFailures, "visible home copy must clear WCAG AA").toEqual([]);
 	});
+
+	test("keeps pre- and post-event dated homes clean while carrying the exact frontier", async ({
+		page,
+	}) => {
+		const beforeResponse = await page.goto("/?as_of=2026-07-15", { waitUntil: "networkidle" });
+		expect(beforeResponse?.ok(), "the pre-event home must answer").toBe(true);
+		const before = page.locator("main.viewer-home");
+		await expect(before.getByText("Reporting date · July 15, 2026")).toBeVisible();
+		await expect(before.getByRole("heading", { name: "Needs attention" })).toHaveCount(0);
+		await expect(before.getByText("The second worker needs roster review.")).toHaveCount(0);
+		await expect(
+			before.getByRole("link", { name: "Open Taxis fixture", exact: true }),
+		).toHaveAttribute("href", "/s/taxis/roster?as_of=2026-07-15");
+
+		const afterResponse = await page.goto("/?as_of=2026-07-31", { waitUntil: "networkidle" });
+		expect(afterResponse?.ok(), "the post-event home must answer").toBe(true);
+		const after = page.locator("main.viewer-home");
+		await expect(after.getByText("Reporting date · July 31, 2026")).toBeVisible();
+		await expect(after.getByRole("heading", { name: "Needs attention" })).toBeVisible();
+		await expect(
+			after.getByText(
+				"The second worker needs roster review. — Confirm the allocation before dispatch.",
+				{ exact: true },
+			),
+		).toBeVisible();
+		await expect(
+			after.getByRole("link", { name: "Open Taxis fixture details", exact: true }),
+		).toHaveAttribute("href", "/s/taxis/roster?as_of=2026-07-31");
+
+		for (const home of [before, after]) {
+			await expect(home).not.toContainText("Resolved ");
+			await expect(home).not.toContainText("westfjords:2026-W29");
+			await expect(home).not.toContainText(
+				/[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/i,
+			);
+		}
+	});
 });
 
 for (const viewport of VIEWPORTS) {
 	test.describe(`${viewport.name} compiler-renderer geometry`, () => {
 		test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
-		test("renders signed testimony with aligned subgrid rows and sibling diagnostics", async ({
-			page,
-		}) => {
+		test("renders signed testimony as a semantic table with labelled records", async ({ page }) => {
 			await openSurface(page);
 			await assertSemanticSurface(page);
-			await assertTableContract(page);
+			await assertTableContract(page, viewport.width <= 640);
 		});
 	});
 }

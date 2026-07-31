@@ -14,6 +14,7 @@ export const DIALECT_COMPOUND_CONSTRAINTS = {
 			"EntityHeader",
 			"ProvenanceFooter",
 			"StatBand",
+			"ActionSummary",
 			"Breakdown",
 			"TrailEntry",
 			"KeyValuePanel",

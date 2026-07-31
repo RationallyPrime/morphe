@@ -118,6 +118,7 @@ export interface Spacer {
 
 export interface TableColumn {
 	readonly header: string;
+	readonly gloss?: string;
 	readonly numeric?: boolean;
 	readonly priority?: "primary" | "secondary" | "detail";
 	readonly intent?: IntentRef;

@@ -219,6 +219,78 @@ export const PROMOTED_COMPOUNDS = [
 		grammarVersion: "0.7.0",
 	},
 	{
+		name: "ActionSummary",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				eyebrow: {
+					type: "node",
+					required: true,
+					description: "Quiet source or category context for the action.",
+				},
+				title: {
+					type: "node",
+					required: true,
+					description: "Plain-language action or exception title.",
+				},
+				summary: {
+					type: "node",
+					required: true,
+					description: "The consequence or evidence the operator should understand.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			direction: "block",
+			children: [
+				{
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "center",
+					children: [
+						{
+							kind: "param-ref",
+							param: "eyebrow",
+						},
+						{
+							kind: "slot",
+							name: "signal",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "context",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "action",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
 		name: "Breakdown",
 		version: "1.0.0",
 		params: {

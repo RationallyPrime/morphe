@@ -23,6 +23,7 @@ describe("generated dialect constraints", () => {
 			"EntityHeader",
 			"ProvenanceFooter",
 			"StatBand",
+			"ActionSummary",
 			"Breakdown",
 			"TrailEntry",
 			"KeyValuePanel",
@@ -31,6 +32,7 @@ describe("generated dialect constraints", () => {
 		expect(registry.has("EntityHeader")).toBe(true);
 		expect(registry.has("ProvenanceFooter")).toBe(true);
 		expect(registry.has("StatBand")).toBe(true);
+		expect(registry.has("ActionSummary")).toBe(true);
 		expect(registry.has("Breakdown")).toBe(true);
 		expect(registry.has("TrailEntry")).toBe(true);
 		expect(registry.has("KeyValuePanel")).toBe(true);
@@ -43,7 +45,9 @@ describe("generated dialect constraints", () => {
 	});
 
 	it("accepts the exact promoted SignalCard under the restricted clinical dialect", () => {
-		expect(validateNodeForDialect(signalCard(), "clinical")).toEqual({ ok: true });
+		expect(validateNodeForDialect(signalCard(), "clinical")).toEqual({
+			ok: true,
+		});
 	});
 
 	it("rejects disallowed compounds anywhere in a restricted tree", () => {
@@ -123,7 +127,9 @@ describe("generated dialect constraints", () => {
 			default: 1,
 		};
 
-		expect(validateNodeForDialect(targetless, "clinical")).toEqual({ ok: true });
+		expect(validateNodeForDialect(targetless, "clinical")).toEqual({
+			ok: true,
+		});
 	});
 
 	it("rejects malformed promoted calls even when the name is permitted", () => {
@@ -210,7 +216,9 @@ describe("generated dialect constraints", () => {
 		};
 		for (const id of Object.keys(DIALECTS)) {
 			if (id === "clinical") continue;
-			expect(validateNodeForDialect(consumerCompound, id)).toEqual({ ok: true });
+			expect(validateNodeForDialect(consumerCompound, id)).toEqual({
+				ok: true,
+			});
 		}
 	});
 

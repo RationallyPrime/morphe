@@ -32,9 +32,11 @@
 		boundaryStyle,
 		provideReactiveMorpheContext,
 	} from "../../context/Context.svelte.js";
+	import Gloss from "../../gloss/Gloss.svelte";
 	import type { Table } from "../../grammar/types.js";
 	import Node from "../../render/Node.svelte";
 	import type { PrimitiveProps } from "../../render/props.js";
+	import { SLOTS } from "../../tokens/slots.js";
 
 	let { node, ctx }: PrimitiveProps<Table> = $props();
 
@@ -47,6 +49,8 @@
 
 	const responsive = $derived(node.responsive ?? "scroll");
 	const columnCount = $derived(node.columns.length);
+	const columnInk = (intent: Table["columns"][number]["intent"]): string | undefined =>
+		intent === undefined ? undefined : SLOTS.content.ink(intent);
 </script>
 
 <!-- In scroll mode the wrapper is a labelled, focusable region so overflowed
@@ -76,8 +80,15 @@
 						scope="col"
 						data-numeric={column.numeric ? "" : undefined}
 						data-priority={column.priority ?? undefined}
+						style:color={columnInk(column.intent)}
 					>
-						{column.header}
+						{#if column.gloss}
+							<Gloss label={column.header} gloss={column.gloss} ink={columnInk(column.intent)}>
+								{#snippet children()}{column.header}{/snippet}
+							</Gloss>
+						{:else}
+							{column.header}
+						{/if}
 					</th>
 				{/each}
 			</tr>
@@ -91,6 +102,7 @@
 							<th
 								scope="row"
 								data-header={column?.header}
+								data-numeric={column?.numeric ? "" : undefined}
 								data-priority={column?.priority ?? undefined}
 							>
 								{#each cell.children as cellChild, childIndex (childIndex)}
@@ -103,6 +115,17 @@
 								data-numeric={column?.numeric ? "" : undefined}
 								data-priority={column?.priority ?? undefined}
 							>
+								{#if column}
+									<span class="mo-table__record-label" style:color={columnInk(column.intent)}>
+										{#if column.gloss}
+											<Gloss label={column.header} gloss={column.gloss} ink={columnInk(column.intent)}>
+												{#snippet children()}{column.header}{/snippet}
+											</Gloss>
+										{:else}
+											{column.header}
+										{/if}
+									</span>
+								{/if}
 								{#each cell.children as cellChild, childIndex (childIndex)}
 									<Node node={cellChild} ctx={child} />
 								{/each}
@@ -188,6 +211,9 @@
 		color: var(--mo-intent-on-surface-muted);
 		border-block-end: var(--mo-border-width) solid var(--mo-intent-outline);
 	}
+	.mo-table__record-label {
+		display: none;
+	}
 
 	/* Row headers read at body ink and medium weight — the record's name. */
 	tbody th[scope="row"] {
@@ -262,17 +288,12 @@
 			padding-inline-end: 0;
 			text-align: start;
 		}
-		.mo-table[data-responsive="records"] tbody :is(th, td)[data-header]::before {
-			content: attr(data-header);
+		.mo-table[data-responsive="records"] .mo-table__record-label {
 			display: block;
 			font-family: var(--mo-font-label);
 			font-size: var(--mo-type-2);
 			letter-spacing: 0.01em;
 			color: var(--mo-intent-on-surface-muted);
-		}
-		/* The row header IS the record's title: no label needed above the name. */
-		.mo-table[data-responsive="records"] tbody th[scope="row"][data-header]::before {
-			display: none;
 		}
 	}
 </style>

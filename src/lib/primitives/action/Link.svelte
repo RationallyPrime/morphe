@@ -105,6 +105,21 @@
 		text-decoration-color: currentColor;
 	}
 
+	/* A primary action is still a real link, but it is also a control-sized
+	   navigation target. This keeps home attention actions obvious and touch-safe
+	   without making the surrounding panel a clickable div or nesting the adjacent
+	   disclosure inside an anchor. */
+	.mo-link[data-intent="primary-action"] {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-inline-size: 2.75rem;
+		min-block-size: 2.75rem;
+		box-sizing: border-box;
+		padding-inline: var(--mo-space-3);
+		font-weight: 600;
+	}
+
 	/* The external cue stays welded to the end of the label: the glyph never
 	   orphans onto its own line, and the trailing space before it is collapsed
 	   so the icon sits snug against the last word. */

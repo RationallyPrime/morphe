@@ -1,7 +1,7 @@
 # Krepis surface style guide
 
 How a kernel authors a Morphe surface that reads as one product across the family.
-Written against `morphe-grammar` **py-v0.11.0** (grammar 0.7.0, compiler 0.3.5 — the
+Written against `morphe-grammar` **py-v0.11.1** (grammar 0.7.0, compiler 0.3.5 — the
 floor for operator-first hierarchy and audit-proof composition). The
 authority order: the grammar (`py/morphe_grammar/models.py`) > this guide > per-kernel
 taste. If the guide fights the grammar, the grammar wins and the guide has a bug.

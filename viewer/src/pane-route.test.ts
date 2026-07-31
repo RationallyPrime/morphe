@@ -104,6 +104,10 @@ describe("source-v1 pane route as-of chrome", () => {
 		const current = render(PanePage, { props: { data: pageData() } }).body;
 
 		expect(selected).toMatch(/<input type="date" value="2026-07-15"/);
+		expect(selected).toContain('href="/?as_of=2026-07-15"');
+		expect(selected).toContain('href="/surfaces?as_of=2026-07-15"');
 		expect(current).toMatch(/<input type="date" value=""/);
+		expect(current).toContain('href="/"');
+		expect(current).toContain('href="/surfaces"');
 	});
 });

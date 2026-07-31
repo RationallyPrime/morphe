@@ -213,6 +213,9 @@
           "$ref": "#/$defs/CompoundRef_StatBand"
         },
         {
+          "$ref": "#/$defs/CompoundRef_ActionSummary"
+        },
+        {
           "$ref": "#/$defs/CompoundRef_Breakdown"
         },
         {
@@ -223,6 +226,83 @@
         }
       ],
       "title": "clinical CompoundRef"
+    },
+    "CompoundRef_ActionSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "eyebrow": {
+              "$ref": "#/$defs/Node",
+              "description": "Quiet source or category context for the action."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "description": "The consequence or evidence the operator should understand."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "Plain-language action or exception title."
+            }
+          },
+          "required": [
+            "eyebrow",
+            "title",
+            "summary"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "ActionSummary",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "context": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "ActionSummary",
+      "type": "object"
     },
     "CompoundRef_Breakdown": {
       "additionalProperties": false,
@@ -1967,6 +2047,12 @@
     "TableColumn": {
       "additionalProperties": false,
       "properties": {
+        "gloss": {
+          "minLength": 1,
+          "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
+          "title": "Gloss",
+          "type": "string"
+        },
         "header": {
           "minLength": 1,
           "pattern": "[^\\u0000-\\u0020\\u007F-\\u00A0\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u1680\\u17B4-\\u17B5\\u180B-\\u180F\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\u2800\\u3000\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF9-\\uFFFB]",
@@ -2538,6 +2624,7 @@
       "EntityHeader",
       "ProvenanceFooter",
       "StatBand",
+      "ActionSummary",
       "Breakdown",
       "TrailEntry",
       "KeyValuePanel"

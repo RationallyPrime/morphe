@@ -116,6 +116,7 @@ _DIALECT_CONSTRAINTS = (
         "EntityHeader",
         "ProvenanceFooter",
         "StatBand",
+        "ActionSummary",
         "Breakdown",
         "TrailEntry",
         "KeyValuePanel",

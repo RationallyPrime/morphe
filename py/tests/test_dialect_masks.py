@@ -60,6 +60,7 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
         "EntityHeader",
         "ProvenanceFooter",
         "StatBand",
+        "ActionSummary",
         "Breakdown",
         "TrailEntry",
         "KeyValuePanel",
@@ -120,6 +121,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
         "EntityHeader",
         "ProvenanceFooter",
         "StatBand",
+        "ActionSummary",
         "Breakdown",
         "TrailEntry",
         "KeyValuePanel",
@@ -258,7 +260,7 @@ def test_dialect_validator_validates_structural_tree_only_once(
     assert calls == 1
 
 
-def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape() -> None:  # noqa: PLR0915 - one assertion block per allowlisted compound
+def test_clinical_mask_replaces_generic_compounds_with_exact_promoted_shapes() -> None:  # noqa: PLR0915 - one assertion block per allowlisted compound
     document = dialect_mask_document("clinical")
     definitions = _definitions(document)
     compound_union = _object(definitions["CompoundRef"])
@@ -268,6 +270,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
         {"$ref": "#/$defs/CompoundRef_EntityHeader"},
         {"$ref": "#/$defs/CompoundRef_ProvenanceFooter"},
         {"$ref": "#/$defs/CompoundRef_StatBand"},
+        {"$ref": "#/$defs/CompoundRef_ActionSummary"},
         {"$ref": "#/$defs/CompoundRef_Breakdown"},
         {"$ref": "#/$defs/CompoundRef_TrailEntry"},
         {"$ref": "#/$defs/CompoundRef_KeyValuePanel"},
@@ -298,6 +301,20 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
     assert set(_object(band_args["properties"])) == set()
     band_slots = _object(band_properties["slots"])
     assert set(_object(band_slots["properties"])) == {"tiles"}
+
+    action_summary = _object(definitions["CompoundRef_ActionSummary"])
+    action_properties = _object(action_summary["properties"])
+    assert _object(action_properties["name"])["const"] == "ActionSummary"
+    action_args = _object(action_properties["args"])
+    assert action_args["required"] == ["eyebrow", "title", "summary"]
+    assert set(_object(action_args["properties"])) == {"eyebrow", "title", "summary"}
+    action_slots = _object(action_properties["slots"])
+    assert set(_object(action_slots["properties"])) == {
+        "signal",
+        "context",
+        "action",
+        "detail",
+    }
 
     # Breakdown: an optional `title` node param, one `rows` slot.
     breakdown = _object(definitions["CompoundRef_Breakdown"])
@@ -351,6 +368,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_signal_card_shape()
             "EntityHeader",
             "ProvenanceFooter",
             "StatBand",
+            "ActionSummary",
             "Breakdown",
             "TrailEntry",
             "KeyValuePanel",
@@ -443,6 +461,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
             "EntityHeader",
             "ProvenanceFooter",
             "StatBand",
+            "ActionSummary",
             "Breakdown",
             "TrailEntry",
             "KeyValuePanel",

@@ -7,6 +7,9 @@ import type {
 	NumberNode,
 	Spacer,
 	Stack,
+	Table,
+	TableColumn,
+	TableRow,
 	Text,
 } from "../grammar/types.js";
 import {
@@ -391,7 +394,10 @@ export function emitNodeWithTrackedLinkPaints(
 	context: EmitContext = DEFAULT_EMIT_CONTEXT,
 ): LinkPaintEmission {
 	if (paints.size === 0) {
-		return { tree: emitNode(spec, overrides, context), paintedLinks: new Set() };
+		return {
+			tree: emitNode(spec, overrides, context),
+			paintedLinks: new Set(),
+		};
 	}
 	const runtime = prepareLinkPaintRuntime(spec, paints);
 	const paintedContext: EmitContextWithLinkPaints = {
@@ -490,7 +496,11 @@ function badge(spec: SurfaceNode): Node {
 
 function link(spec: SurfaceNode): Node {
 	if (!spec.href) {
-		return { kind: "text", value: pythonScalarText(spec.value ?? null), as: "body" };
+		return {
+			kind: "text",
+			value: pythonScalarText(spec.value ?? null),
+			as: "body",
+		};
 	}
 	return {
 		kind: "link",
@@ -1091,47 +1101,82 @@ function collapsible(spec: SurfaceNode, ctx: EmitContext): Node {
 
 function table(spec: SurfaceNode, ctx: EmitContext): Node {
 	if (spec.items.length === 0) return section(spec, [emptyCollection(spec)]);
-	const columns = spec.children.length > 0 ? spec.children : (spec.items[0]?.children ?? []);
-	const body = spec.items.flatMap((item) => tableRow(item, columns.length, ctx));
-	const rows = columns.length > 0 ? [tableHeader(columns), ...body] : body;
-	const grid: Grid = {
-		kind: "grid",
-		role: "list",
-		children: rows,
-		...(columns.length > 0 ? { columns: columns.map(() => "flexible" as const), ruled: true } : {}),
+	const inferredColumns = columnsFromRows(spec.items);
+	const columnSpecs = [...spec.children, ...inferredColumns.slice(spec.children.length)];
+	const columns =
+		columnSpecs.length > 0
+			? columnSpecs.map((column, index) => tableColumn(column, index, spec.items))
+			: [
+					{
+						header: normalizeVisibleLabelText(spec.label, "Item"),
+						priority: "primary" as const,
+					},
+				];
+	const semanticTable: Table = {
+		kind: "table",
+		caption: normalizeVisibleLabelText(spec.label, "Items"),
+		captionHidden: true,
+		columns,
+		rows: spec.items.map((item) => tableRow(item, columns.length, ctx)),
+		rowHeader: true,
+		responsive: "records",
+		...(spec.emphasis === undefined ? {} : { emphasis: spec.emphasis }),
 	};
-	return section(spec, [grid]);
+	return section(spec, [semanticTable]);
 }
 
-function tableHeader(columns: readonly SurfaceNode[]): Grid {
-	return { kind: "grid", role: "inline", children: columns.map(headerCell) };
+function columnsFromRows(rows: readonly SurfaceNode[]): readonly SurfaceNode[] {
+	const width = rows.reduce((maximum, row) => Math.max(maximum, row.children.length), 0);
+	return Array.from({ length: width }, (_, index) => {
+		const column = rows.find((row) => row.children[index] !== undefined)?.children[index];
+		if (column === undefined) throw new TypeError(`table column ${index} has no authored field`);
+		return column;
+	});
 }
 
-function headerCell(column: SurfaceNode): Text {
+function tableColumn(
+	column: SurfaceNode,
+	index: number,
+	rows: readonly SurfaceNode[],
+): TableColumn {
+	const numeric =
+		column.numeric ||
+		column.strategy === "number" ||
+		rows.some((row) => {
+			const cell = row.children[index];
+			return cell?.numeric || cell?.strategy === "number";
+		});
 	return {
-		...caption(column.label, column.gloss),
+		header: normalizeVisibleLabelText(column.label, `Column ${index + 1}`),
+		...(numeric ? { numeric: true } : {}),
+		priority:
+			index === 0
+				? "primary"
+				: column.intent !== undefined && PROVENANCE_INTENTS.has(column.intent)
+					? "detail"
+					: "secondary",
 		...(column.intent === undefined ? {} : { intent: column.intent }),
+		...(column.gloss === undefined ? {} : { gloss: column.gloss }),
 	};
 }
 
-function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): Node[] {
+function tableRow(row: SurfaceNode, columnCount: number, ctx: EmitContext): TableRow {
 	const cells =
 		row.children.length > 0
 			? row.children.map((cell) => tableCell(cell, ctx))
 			: [tableCell(row, ctx)];
 	while (cells.length < columnCount) cells.push(emptyCell());
-	const grid: Grid = { kind: "grid", role: "inline", children: cells };
-	// Both row- and cell-level diagnostics stay visible (D8) as SIBLINGS of the row
-	// grid, never wrappers: only a direct-child grid adopts the table's subgrid
-	// tracks, so a wrapped row/cell lands in the first track and stacks vertically.
-	// A cell diagnostic wrapped INSIDE its cell also inherits InlineAlert's inline
-	// min-size floor and paints over dense neighbours (KRA-796). Lifting it to the
-	// row lane lets the Grid rule span it 1/-1 across the full row instead. Row
-	// diagnostics come first, then leaf cell diagnostics in cell order.
-	if (row.strategy === "diagnostic-node") return [grid];
-	const rowAlerts = row.diagnostics.map(alert);
-	const cellAlerts = row.children.length > 0 ? liftedCellAlerts(row.children) : [];
-	return [grid, ...rowAlerts, ...cellAlerts];
+	const diagnostics =
+		row.strategy === "diagnostic-node"
+			? []
+			: [
+					...row.diagnostics.map(alert),
+					...(row.children.length > 0 ? liftedCellAlerts(row.children) : []),
+				];
+	return {
+		cells: cells.map((cell) => ({ children: [cell] })),
+		...(diagnostics.length === 0 ? {} : { diagnostics }),
+	};
 }
 
 function liftedCellAlerts(cells: readonly SurfaceNode[]): InlineAlert[] {

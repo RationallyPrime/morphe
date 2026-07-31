@@ -146,6 +146,11 @@ class Spacer(GrammarModel):
 
 class TableColumn(GrammarModel):
     header: StrictStr = PydanticField(min_length=1, pattern=VISIBLE_LABEL_PATTERN)
+    gloss: StrictStr | None = PydanticField(
+        default=None,
+        min_length=1,
+        pattern=VISIBLE_LABEL_PATTERN,
+    )
     numeric: StrictBool | None = None
     priority: Literal["primary", "secondary", "detail"] | None = None
     intent: IntentRef | None = None

@@ -128,155 +128,185 @@
               "value": "Workers"
             },
             {
-              "children": [
+              "caption": "Workers",
+              "captionHidden": true,
+              "columns": [
                 {
-                  "children": [
-                    {
-                      "as": "caption",
-                      "intent": "neutral",
-                      "kind": "text",
-                      "value": "Worker ID"
-                    },
-                    {
-                      "as": "caption",
-                      "intent": "neutral",
-                      "kind": "text",
-                      "value": "Worker"
-                    },
-                    {
-                      "as": "caption",
-                      "intent": "neutral",
-                      "kind": "text",
-                      "value": "Roster state"
-                    },
-                    {
-                      "as": "caption",
-                      "intent": "info",
-                      "kind": "text",
-                      "value": "Allocation"
-                    },
-                    {
-                      "as": "caption",
-                      "intent": "neutral",
-                      "kind": "text",
-                      "value": "Hourly rate"
-                    },
-                    {
-                      "as": "caption",
-                      "intent": "primary-action",
-                      "kind": "text",
-                      "value": "Worker profile"
-                    }
-                  ],
-                  "kind": "grid",
-                  "role": "inline"
+                  "header": "Worker ID",
+                  "priority": "primary"
                 },
                 {
-                  "children": [
-                    {
-                      "as": "body",
-                      "kind": "text",
-                      "value": "wrk-001"
-                    },
-                    {
-                      "as": "body",
-                      "kind": "text",
-                      "value": "Arna K."
-                    },
-                    {
-                      "kind": "status",
-                      "signal": {
-                        "text": "active"
-                      },
-                      "tone": "success"
-                    },
-                    {
-                      "intent": "info",
-                      "kind": "progress",
-                      "label": "Allocation",
-                      "value": 0.8
-                    },
-                    {
-                      "currency": "ISK",
-                      "format": "currency",
-                      "kind": "number",
-                      "value": 7950
-                    },
-                    {
-                      "href": "/workers/wrk-001",
-                      "intent": "primary-action",
-                      "kind": "link",
-                      "label": "Open Arna"
-                    }
-                  ],
-                  "kind": "grid",
-                  "role": "inline"
+                  "header": "Worker",
+                  "priority": "secondary"
                 },
                 {
-                  "detail": "Allocation reflects the signed planning window.",
-                  "kind": "inline-alert",
-                  "title": "Allocation: TAXIS_ALLOCATION_SOURCE",
-                  "tone": "info"
+                  "header": "Roster state",
+                  "priority": "secondary"
                 },
                 {
-                  "children": [
-                    {
-                      "as": "body",
-                      "kind": "text",
-                      "value": "wrk-002"
-                    },
-                    {
-                      "as": "body",
-                      "kind": "text",
-                      "value": "Baldur R."
-                    },
-                    {
-                      "kind": "status",
-                      "signal": {
-                        "text": "review"
-                      },
-                      "tone": "caution"
-                    },
-                    {
-                      "intent": "info",
-                      "kind": "progress",
-                      "label": "Allocation",
-                      "value": 0.45
-                    },
-                    {
-                      "kind": "spacer",
-                      "size": "xs"
-                    },
-                    {
-                      "href": "/workers/wrk-002",
-                      "intent": "primary-action",
-                      "kind": "link",
-                      "label": "Open Baldur"
-                    }
-                  ],
-                  "kind": "grid",
-                  "role": "inline"
+                  "header": "Allocation",
+                  "intent": "info",
+                  "priority": "secondary"
                 },
                 {
-                  "detail": "The second worker needs roster review.",
-                  "href": "/workers/wrk-002",
-                  "kind": "inline-alert",
-                  "repair": "Confirm the allocation before dispatch.",
-                  "title": "TAXIS_ROW_REVIEW",
-                  "tone": "caution"
+                  "header": "Hourly rate",
+                  "numeric": true,
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Worker profile",
+                  "intent": "primary-action",
+                  "priority": "secondary"
                 }
               ],
-              "columns": [
-                "flexible",
-                "flexible",
-                "flexible",
-                "flexible",
-                "flexible",
-                "flexible"
-              ],
-              "kind": "grid",
-              "role": "list",
-              "ruled": true
+              "emphasis": "strong",
+              "kind": "table",
+              "responsive": "records",
+              "rowHeader": true,
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "as": "body",
+                          "kind": "text",
+                          "value": "wrk-001"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "as": "body",
+                          "kind": "text",
+                          "value": "Arna K."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "signal": {
+                            "text": "active"
+                          },
+                          "tone": "success"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "intent": "info",
+                          "kind": "progress",
+                          "label": "Allocation",
+                          "value": 0.8
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "currency": "ISK",
+                          "format": "currency",
+                          "kind": "number",
+                          "value": 7950
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "href": "/workers/wrk-001",
+                          "intent": "primary-action",
+                          "kind": "link",
+                          "label": "Open Arna"
+                        }
+                      ]
+                    }
+                  ],
+                  "diagnostics": [
+                    {
+                      "detail": "Allocation reflects the signed planning window.",
+                      "kind": "inline-alert",
+                      "title": "Allocation: TAXIS_ALLOCATION_SOURCE",
+                      "tone": "info"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "as": "body",
+                          "kind": "text",
+                          "value": "wrk-002"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "as": "body",
+                          "kind": "text",
+                          "value": "Baldur R."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "signal": {
+                            "text": "review"
+                          },
+                          "tone": "caution"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "intent": "info",
+                          "kind": "progress",
+                          "label": "Allocation",
+                          "value": 0.45
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "spacer",
+                          "size": "xs"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "href": "/workers/wrk-002",
+                          "intent": "primary-action",
+                          "kind": "link",
+                          "label": "Open Baldur"
+                        }
+                      ]
+                    }
+                  ],
+                  "diagnostics": [
+                    {
+                      "detail": "The second worker needs roster review.",
+                      "href": "/workers/wrk-002",
+                      "kind": "inline-alert",
+                      "repair": "Confirm the allocation before dispatch.",
+                      "title": "TAXIS_ROW_REVIEW",
+                      "tone": "caution"
+                    }
+                  ]
+                }
+              ]
             }
           ],
           "kind": "stack",

@@ -696,14 +696,30 @@ def _collapsible(spec: SurfaceNode) -> Node:
 def _table(spec: SurfaceNode) -> Node:
     if not spec.items:
         return _section(spec, [_empty_collection(spec)])
-    columns = spec.children or _columns_from_rows(spec.items)
-    body = [node for item in spec.items for node in _table_row(item, len(columns))]
-    rows = [_table_header(columns), *body] if columns else body
-    grid: Node = {"kind": "grid", "role": "list", "children": rows}
-    if columns:
-        grid["columns"] = ["flexible" for _ in columns]
-        grid["ruled"] = True
-    return _section(spec, [grid])
+    inferred_columns = _columns_from_rows(spec.items)
+    column_specs = (*spec.children, *inferred_columns[len(spec.children) :])
+    columns = (
+        [_table_column(column, index, spec.items) for index, column in enumerate(column_specs)]
+        if column_specs
+        else [
+            {
+                "header": normalize_visible_label_text(spec.label, fallback="Item"),
+                "priority": "primary",
+            }
+        ]
+    )
+    table: Node = {
+        "kind": "table",
+        "caption": normalize_visible_label_text(spec.label, fallback="Items"),
+        "captionHidden": True,
+        "columns": columns,
+        "rows": [_table_row(item, len(columns)) for item in spec.items],
+        "rowHeader": True,
+        "responsive": "records",
+    }
+    if spec.emphasis is not None:
+        table["emphasis"] = spec.emphasis
+    return _section(spec, [table])
 
 
 def _disclosure_summary(label: str) -> str:
@@ -712,38 +728,61 @@ def _disclosure_summary(label: str) -> str:
 
 
 def _columns_from_rows(rows: tuple[SurfaceNode, ...]) -> tuple[SurfaceNode, ...]:
-    return rows[0].children if rows else ()
+    width = max((len(row.children) for row in rows), default=0)
+    return tuple(
+        next(row.children[index] for row in rows if index < len(row.children))
+        for index in range(width)
+    )
 
 
-def _table_header(columns: tuple[SurfaceNode, ...]) -> Node:
-    return {"kind": "grid", "role": "inline", "children": [_header_cell(c) for c in columns]}
-
-
-def _header_cell(column: SurfaceNode) -> Node:
-    cell = _caption(column.label, column.gloss)
+def _table_column(column: SurfaceNode, index: int, rows: tuple[SurfaceNode, ...]) -> Node:
+    numeric = (
+        column.numeric
+        or column.strategy == "number"
+        or any(
+            index < len(row.children)
+            and (row.children[index].numeric or row.children[index].strategy == "number")
+            for row in rows
+        )
+    )
+    cell: Node = {
+        "header": normalize_visible_label_text(column.label, fallback=f"Column {index + 1}"),
+        "priority": (
+            "primary"
+            if index == 0
+            else "detail"
+            if column.intent in _PROVENANCE_INTENTS
+            else "secondary"
+        ),
+    }
+    if numeric:
+        cell["numeric"] = True
     if column.intent is not None:
         cell["intent"] = column.intent
+    if column.gloss is not None:
+        cell["gloss"] = column.gloss
     return cell
 
 
-def _table_row(row: SurfaceNode, column_count: int) -> list[Node]:
+def _table_row(row: SurfaceNode, column_count: int) -> Node:
     # A row without fields (D9 linked-ref backstop, scalar items under a table hint)
     # renders itself as the leading cell instead of vanishing into blank padding.
     cells = [_table_cell(cell) for cell in row.children] if row.children else [_table_cell(row)]
     cells.extend(_empty_cell() for _ in range(column_count - len(cells)))
-    grid: Node = {"kind": "grid", "role": "inline", "children": cells}
-    # Both row- and cell-level diagnostics stay visible (D8) as SIBLINGS of the row
-    # grid, never wrappers: only a direct-child grid adopts the table's subgrid
-    # tracks, so a wrapped row/cell lands in the first track and stacks vertically.
-    # A cell diagnostic wrapped INSIDE its cell also inherits InlineAlert's inline
-    # min-size floor and paints over dense neighbours (KRA-796). Lifting it to the
-    # row lane lets the Grid rule span it 1/-1 across the full row instead. Row
-    # diagnostics come first, then leaf cell diagnostics in cell order.
-    if row.strategy == "diagnostic-node":
-        return [grid]
-    row_alerts = [_alert(d) for d in row.diagnostics]
-    cell_alerts = _lifted_cell_alerts(row.children) if row.children else []
-    return [grid, *row_alerts, *cell_alerts]
+    diagnostics = (
+        []
+        if row.strategy == "diagnostic-node"
+        else [
+            *[_alert(d) for d in row.diagnostics],
+            *(_lifted_cell_alerts(row.children) if row.children else []),
+        ]
+    )
+    emitted: Node = {
+        "cells": [{"children": [cell]} for cell in cells],
+    }
+    if diagnostics:
+        emitted["diagnostics"] = diagnostics
+    return emitted
 
 
 def _lifted_cell_alerts(cells: tuple[SurfaceNode, ...]) -> list[Node]:

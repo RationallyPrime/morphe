@@ -17,6 +17,9 @@ const LEGACY_PATH = "/legacy/taxis-roster";
 const fixture = readFileSync(
 	new URL("../fixtures/source-surface/taxis-roster.source.json", import.meta.url),
 );
+const preEventFixture = readFileSync(
+	new URL("../fixtures/source-surface/taxis-roster.pre-event.source.json", import.meta.url),
+);
 const legacyTree = JSON.parse(
 	readFileSync(
 		new URL("../fixtures/source-surface/taxis-roster.node.json", import.meta.url),
@@ -68,12 +71,13 @@ const server = createServer((request, response) => {
 		json(response, 406, { error: "source-v1-accept-required" });
 		return;
 	}
+	const selected = url.searchParams.get("as_of") === "2026-07-15" ? preEventFixture : fixture;
 	response.writeHead(200, {
 		"cache-control": "no-store",
-		"content-length": String(fixture.byteLength),
+		"content-length": String(selected.byteLength),
 		"content-type": SOURCE_MEDIA_TYPE,
 	});
-	response.end(fixture);
+	response.end(selected);
 });
 
 server.listen(PORT, HOST, () => {

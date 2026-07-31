@@ -113,75 +113,82 @@
 </script>
 
 <header class="chrome">
-	<nav class="chrome__context" aria-label="Breadcrumb">
-		{#if crumbs !== undefined}
-			{#each crumbs as crumb, index (index)}
-				{#if index > 0}
-					<span class="chrome__sep" aria-hidden="true">›</span>
-				{/if}
-				{#if crumb.href !== undefined}
-					<a class="chrome__crumb" href={crumb.href}>{crumb.label}</a>
-				{:else}
-					<span
-						class="chrome__title"
-						aria-current={index === crumbs.length - 1 ? "page" : undefined}>{crumb.label}</span
-					>
-				{/if}
-			{/each}
-		{/if}
-	</nav>
-	<div class="chrome__controls">
-		{#if showOperatorControls}
-			<fieldset class="chrome__operator">
-				<legend class="chrome__legend">Operator controls</legend>
-				<div class="chrome__operator-controls">
-					{#if showAsOf}
-						<label class="chrome__control">
-							<span>As of</span>
-							<input type="date" value={asOf ?? ""} onchange={onAsOfChange} />
-						</label>
+	<div class="chrome__top">
+		<nav class="chrome__context" aria-label="Breadcrumb">
+			{#if crumbs !== undefined}
+				{#each crumbs as crumb, index (index)}
+					{#if index > 0}
+						<span class="chrome__sep" aria-hidden="true">›</span>
 					{/if}
-					{#if showTemporal}
-						<label class="chrome__control">
-							<span>Time</span>
-							<select value={temporalPolicy} onchange={onTemporalChange}>
-								{#each temporalPolicies ?? [] as policy (policy)}
-									<option value={policy}>{policy}</option>
-								{/each}
-							</select>
-						</label>
+					{#if crumb.href !== undefined}
+						<a class="chrome__crumb" href={crumb.href}>{crumb.label}</a>
+					{:else}
+						<span
+							class="chrome__title"
+							aria-current={index === crumbs.length - 1 ? "page" : undefined}
+							>{crumb.label}</span
+						>
+					{/if}
+				{/each}
+			{/if}
+		</nav>
+		<div class="chrome__controls">
+			{#if showOperatorControls}
+				<fieldset class="chrome__operator">
+					<legend class="chrome__legend">Operator controls</legend>
+					<div class="chrome__operator-controls">
+						{#if showAsOf}
+							<label class="chrome__control">
+								<span>As of</span>
+								<input type="date" value={asOf ?? ""} onchange={onAsOfChange} />
+							</label>
+						{/if}
+						{#if showTemporal}
+							<label class="chrome__control">
+								<span>Time</span>
+								<select value={temporalPolicy} onchange={onTemporalChange}>
+									{#each temporalPolicies ?? [] as policy (policy)}
+										<option value={policy}>{policy}</option>
+									{/each}
+								</select>
+							</label>
+						{/if}
+					</div>
+				</fieldset>
+			{/if}
+			<details class="chrome__inspection">
+				<summary aria-label="Inspect substrate">Inspect</summary>
+				<div class="chrome__inspection-panel">
+					<div class="chrome__inspection-head">
+						<strong>Substrate inspection</strong>
+						<span>Rendering tools, kept outside the operating surface.</span>
+					</div>
+					<label class="chrome__control chrome__explain">
+						<input type="checkbox" bind:checked={explainGlosses} />
+						<span>Explain this pane</span>
+					</label>
+					<label class="chrome__control">
+						<span>Dialect</span>
+						<select value={current} onchange={onDialectChange}>
+							{#each dialects as dialect (dialect.id)}
+								<option value={dialect.id}>{dialect.label}</option>
+							{/each}
+						</select>
+					</label>
+					{#if selectedDialect}
+						<div class="chrome__dialect-gloss">
+							<Gloss
+								label={selectedDialect.label}
+								gloss={selectedDialect.gloss}
+								revealAll={explainGlosses}
+							>
+								{#snippet children()}{selectedDialect.label}{/snippet}
+							</Gloss>
+						</div>
 					{/if}
 				</div>
-			</fieldset>
-		{/if}
-		<details class="chrome__inspection">
-			<summary>Substrate inspection</summary>
-			<div class="chrome__inspection-panel">
-				<label class="chrome__control chrome__explain">
-					<input type="checkbox" bind:checked={explainGlosses} />
-					<span>Explain this pane</span>
-				</label>
-				<label class="chrome__control">
-					<span>Dialect</span>
-					<select value={current} onchange={onDialectChange}>
-						{#each dialects as dialect (dialect.id)}
-							<option value={dialect.id}>{dialect.label}</option>
-						{/each}
-					</select>
-				</label>
-				{#if selectedDialect}
-					<div class="chrome__dialect-gloss">
-						<Gloss
-							label={selectedDialect.label}
-							gloss={selectedDialect.gloss}
-							revealAll={explainGlosses}
-						>
-							{#snippet children()}{selectedDialect.label}{/snippet}
-						</Gloss>
-					</div>
-				{/if}
-			</div>
-		</details>
+			</details>
+		</div>
 	</div>
 	{#if paneNav !== undefined && paneNav.length > 0}
 		<nav class="chrome__panes" aria-label="Source panes">
@@ -198,16 +205,26 @@
 
 <style>
 	.chrome {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 20;
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface);
+		border-bottom: 1px solid var(--mo-intent-outline);
+		font-family: var(--mo-font-label);
+		font-size: var(--mo-type-2);
+	}
+
+	.chrome__top {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.5rem 1.25rem;
-		background: var(--mo-intent-surface-raised);
-		color: var(--mo-intent-on-surface);
-		border-bottom: 1px solid var(--mo-intent-outline);
-		font-size: 0.8rem;
+		gap: var(--mo-space-3);
+		inline-size: 100%;
+		max-inline-size: 72rem;
+		margin-inline: auto;
+		padding: var(--mo-space-2) var(--mo-space-5);
 	}
 
 	.chrome__context {
@@ -215,7 +232,7 @@
 		flex: 1 1 20rem;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.75rem;
+		gap: var(--mo-space-2);
 		min-width: 0;
 	}
 
@@ -223,8 +240,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-block-size: 2.75rem;
 		min-inline-size: 2.75rem;
+		min-block-size: 2.75rem;
+		padding-inline: var(--mo-space-1);
 		max-width: 100%;
 		color: var(--mo-intent-primary-action-ink);
 		text-decoration: none;
@@ -240,45 +258,54 @@
 
 	.chrome__sep {
 		color: var(--mo-intent-on-surface-muted);
+		user-select: none;
 	}
 
 	.chrome__panes {
 		display: flex;
-		flex-basis: 100%;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		align-items: center;
-		column-gap: 1.25rem;
-		border-top: 1px solid var(--mo-intent-outline);
-		padding-block-start: 0.25rem;
+		gap: var(--mo-space-1);
+		inline-size: 100%;
+		max-inline-size: 72rem;
+		margin-inline: auto;
+		padding: 0 var(--mo-space-5) var(--mo-space-2);
+		overflow-x: auto;
+		scrollbar-width: thin;
 	}
 
 	.chrome__pane {
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: flex-start;
 		min-block-size: 2.75rem;
-		min-inline-size: 2.75rem;
+		padding-inline: var(--mo-space-3);
+		border-radius: var(--mo-radius-2);
 		color: var(--mo-intent-primary-action-ink);
 		text-decoration: none;
+		white-space: nowrap;
 	}
 
 	.chrome__pane:hover {
 		color: var(--mo-intent-primary-action-ink-hover);
-		text-decoration: underline;
+		background: var(--mo-intent-surface-sunken);
 	}
 
 	.chrome__pane--current {
 		color: var(--mo-intent-on-surface);
 		font-weight: 600;
+		background: var(--mo-intent-surface-sunken);
+		box-shadow: inset 0 -2px 0 var(--mo-intent-primary-action-border);
 	}
 
 	.chrome__title {
 		display: inline-flex;
-		flex: 1 1 8rem;
+		flex: 0 1 auto;
 		align-items: center;
 		min-block-size: 2.75rem;
 		min-width: 0;
-		color: var(--mo-intent-on-surface-muted);
+		color: var(--mo-intent-on-surface);
+		font-weight: 600;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -289,7 +316,8 @@
 		flex: 0 1 auto;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 1rem;
+		justify-content: flex-end;
+		gap: var(--mo-space-2);
 		min-width: 0;
 	}
 
@@ -316,49 +344,58 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 1rem;
+		gap: var(--mo-space-2);
+		padding: var(--mo-space-1) var(--mo-space-2);
+		border-radius: var(--mo-radius-2);
+		background: var(--mo-intent-surface-sunken);
 	}
 
 	.chrome__control {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: var(--mo-space-2);
 		color: var(--mo-intent-on-surface-muted);
 		white-space: nowrap;
 	}
 
 	.chrome__control select,
-	.chrome__control input[type="date"],
-	.chrome__control input[type="checkbox"] {
+	.chrome__control input[type="date"] {
 		min-block-size: 2.75rem;
 		max-inline-size: 100%;
-		background: var(--mo-intent-surface-sunken);
+		background: var(--mo-intent-surface-raised);
 		color: var(--mo-intent-on-surface);
 		border: 1px solid var(--mo-intent-outline);
-		border-radius: 0.25rem;
-		padding: 0.5rem 0.625rem;
+		border-radius: var(--mo-radius-2);
+		padding: var(--mo-space-2) var(--mo-space-3);
 		font: inherit;
 	}
 
 	.chrome__control input[type="checkbox"] {
-		inline-size: 2.75rem;
-		block-size: 2.75rem;
+		inline-size: 1.125rem;
+		block-size: 1.125rem;
 		margin: 0;
 		accent-color: var(--mo-intent-primary-action-surface);
+		flex: none;
 	}
 
 	.chrome__inspection {
+		position: relative;
 		min-width: 0;
 	}
 
 	.chrome__inspection summary {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		min-block-size: 2.75rem;
 		box-sizing: border-box;
-		padding: 0.5rem 0.75rem;
+		padding: var(--mo-space-2) var(--mo-space-3);
 		border: 1px solid var(--mo-intent-outline);
-		border-radius: 0.25rem;
-		color: var(--mo-intent-on-surface);
+		border-radius: var(--mo-radius-2);
+		color: var(--mo-intent-primary-action-ink);
 		cursor: pointer;
+		font-weight: 600;
+		list-style-position: inside;
 		white-space: nowrap;
 	}
 
@@ -366,26 +403,52 @@
 		background: var(--mo-intent-surface-sunken);
 	}
 
-	.chrome__inspection[open] {
-		flex-basis: 100%;
+	.chrome__inspection-panel {
+		position: absolute;
+		inset-block-start: calc(100% + var(--mo-space-2));
+		inset-inline-end: 0;
+		z-index: 30;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--mo-space-3);
+		inline-size: min(24rem, calc(100vw - 2 * var(--mo-space-5)));
+		max-block-size: calc(100vh - 6rem);
+		overflow: auto;
+		padding: var(--mo-space-5);
+		border-radius: var(--mo-radius-2);
+		outline: 1px solid var(--mo-intent-outline);
+		outline-offset: -1px;
+		background: var(--mo-intent-surface-raised);
+		color: var(--mo-intent-on-surface);
 	}
 
-	.chrome__inspection-panel {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: flex-end;
-		gap: 0.75rem 1rem;
-		margin-block-start: 0.5rem;
-		padding: 0.75rem;
-		border: 1px solid var(--mo-intent-outline);
-		border-radius: 0.25rem;
+	.chrome__inspection-head {
+		display: grid;
+		gap: var(--mo-space-1);
+		padding-block-end: var(--mo-space-2);
+		border-block-end: 1px solid var(--mo-intent-outline);
+	}
+
+	.chrome__inspection-head strong {
+		font-size: var(--mo-type-3);
+	}
+
+	.chrome__inspection-head span {
+		color: var(--mo-intent-on-surface-muted);
+		line-height: var(--mo-leading-normal);
+	}
+
+	.chrome__explain {
+		justify-content: flex-start;
+		min-block-size: 2.75rem;
+		padding: var(--mo-space-2) var(--mo-space-3);
+		border-radius: var(--mo-radius-2);
 		background: var(--mo-intent-surface-sunken);
 	}
 
 	.chrome__dialect-gloss {
-		flex: 1 1 100%;
-		text-align: end;
+		padding-block-start: var(--mo-space-2);
+		border-block-start: 1px solid var(--mo-intent-outline);
 		color: var(--mo-intent-on-surface-muted);
 	}
 
@@ -399,31 +462,34 @@
 		outline-offset: 2px;
 	}
 
-	@media (max-width: 390px) {
-		.chrome {
+	@media (max-width: 44rem) {
+		.chrome__top {
 			align-items: stretch;
-			gap: 0.25rem;
-			padding-inline: 0.75rem;
+			gap: var(--mo-space-1);
+			padding-inline: var(--mo-space-3);
 		}
 
 		.chrome__context,
-		.chrome__controls,
-		.chrome__operator,
-		.chrome__inspection {
+		.chrome__controls {
 			flex-basis: 100%;
-			width: 100%;
+			inline-size: 100%;
 		}
 
 		.chrome__context {
-			column-gap: 0.5rem;
-			row-gap: 0;
+			flex-wrap: nowrap;
+			overflow: hidden;
 		}
 
-		.chrome__controls,
+		.chrome__controls {
+			justify-content: space-between;
+		}
+
+		.chrome__operator {
+			flex: 1 1 auto;
+		}
+
 		.chrome__operator-controls {
-			display: grid;
-			grid-template-columns: minmax(0, 1fr);
-			gap: 0.5rem;
+			inline-size: 100%;
 		}
 
 		.chrome__control {
@@ -432,18 +498,19 @@
 		}
 
 		.chrome__control select,
-		.chrome__control input[type="date"],
-		.chrome__control input[type="checkbox"] {
+		.chrome__control input[type="date"] {
 			min-width: 0;
 		}
 
-		.chrome__inspection-panel {
-			justify-content: stretch;
+		.chrome__panes {
+			padding-inline: var(--mo-space-3);
 		}
+	}
 
-		.chrome__explain,
-		.chrome__dialect-gloss {
-			text-align: start;
+	@media (forced-colors: active) {
+		.chrome__pane--current {
+			outline: 2px solid Highlight;
+			outline-offset: -2px;
 		}
 	}
 </style>

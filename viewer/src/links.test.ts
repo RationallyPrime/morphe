@@ -183,6 +183,30 @@ describe("rewriteKernelLinks", () => {
 		});
 	});
 
+	it("drops a producer-owned as_of when the operator has not selected a frontier", () => {
+		const tree: Node = link(
+			"/books/b-1/surfaces/overview?party_id=p-7&as_of=2026-07-27#finding",
+			"Björn",
+		);
+		expect(rewriteKernelLinks(tree, ZYGOS)).toEqual({
+			kind: "link",
+			href: "/s/zygos/overview?party_id=p-7#finding",
+			label: "Björn",
+		});
+	});
+
+	it("replaces a producer-owned as_of with the operator-selected frontier", () => {
+		const tree: Node = link(
+			"/books/b-1/surfaces/overview?as_of=2026-07-27&party_id=p-7#finding",
+			"Björn",
+		);
+		expect(rewriteKernelLinks(tree, ZYGOS, new URLSearchParams({ as_of: "2026-07-31" }))).toEqual({
+			kind: "link",
+			href: "/s/zygos/overview?party_id=p-7&as_of=2026-07-31#finding",
+			label: "Björn",
+		});
+	});
+
 	it("carrying an EMPTY set is byte-identical to the pre-KRA-789 rewrite", () => {
 		const tree: Node = {
 			kind: "stack",
