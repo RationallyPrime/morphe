@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { DEFAULT_DIALECT_ID, GRAMMAR_VERSION, hasDialect } from "$lib";
+import { normalizeViewerQuery, withForwardedQuery } from "../../forward-query.js";
 import { type IndexSource, indexTree } from "../../index-presenter.js";
 import { loadBoard } from "../../sources.server.js";
 import type { PageServerLoad } from "./$types.js";
@@ -17,14 +18,19 @@ import type { PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = ({ url }) => {
 	const { sources } = loadBoard();
+	const query = normalizeViewerQuery(url.searchParams);
 	const declared = env.MORPHE_INDEX_DIALECT;
-	const override = url.searchParams.get("dialect");
+	const override = query.get("dialect");
 	const dialectId =
 		override !== null && hasDialect(override)
 			? override
 			: declared !== undefined && hasDialect(declared)
 				? declared
 				: DEFAULT_DIALECT_ID;
+	const rawAsOf = query.get("as_of");
+	const asOf = rawAsOf !== null && rawAsOf !== "" ? rawAsOf : undefined;
+	const frontier =
+		asOf === undefined ? new URLSearchParams() : new URLSearchParams({ as_of: asOf });
 
 	const title = env.MORPHE_INDEX_TITLE ?? "Surfaces";
 	const indexSources: IndexSource[] = [...sources.values()].map((source) => ({
@@ -37,7 +43,7 @@ export const load: PageServerLoad = ({ url }) => {
 			.filter((entry) => !entry.routeOnly)
 			.map((entry) => ({
 				title: entry.title,
-				href: `/s/${source.id}/${entry.id}`,
+				href: withForwardedQuery(`/s/${source.id}/${entry.id}`, frontier),
 			})),
 	}));
 
@@ -45,5 +51,6 @@ export const load: PageServerLoad = ({ url }) => {
 		title,
 		tree: indexTree({ title, grammarVersion: GRAMMAR_VERSION, sources: indexSources }),
 		dialectId,
+		asOf,
 	};
 };

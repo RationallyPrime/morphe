@@ -336,6 +336,43 @@ test.describe("operator-first viewer chrome", () => {
 		);
 	});
 
+	test("keeps a dated pane on the same frontier through catalog and home breadcrumbs", async ({
+		page,
+	}) => {
+		const response = await page.goto(`${SURFACE_PATH}?as_of=2026-07-31`, {
+			waitUntil: "networkidle",
+		});
+		expect(response?.ok(), "the dated pane must answer").toBe(true);
+
+		const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+		await expect(breadcrumb.getByRole("link", { name: "Home" })).toHaveAttribute(
+			"href",
+			"/?as_of=2026-07-31",
+		);
+		await expect(breadcrumb.getByRole("link", { name: "Surfaces" })).toHaveAttribute(
+			"href",
+			"/surfaces?as_of=2026-07-31",
+		);
+
+		await breadcrumb.getByRole("link", { name: "Surfaces" }).click();
+		await expect(page).toHaveURL(/\/surfaces\?as_of=2026-07-31$/);
+		await expect(page.getByLabel("As of")).toHaveValue("2026-07-31");
+		await expect(page.getByRole("link", { name: "Weekly roster" })).toHaveAttribute(
+			"href",
+			"/s/taxis/roster?as_of=2026-07-31",
+		);
+		await expect(
+			page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Home" }),
+		).toHaveAttribute("href", "/?as_of=2026-07-31");
+
+		await page
+			.getByRole("navigation", { name: "Breadcrumb" })
+			.getByRole("link", { name: "Home" })
+			.click();
+		await expect(page).toHaveURL(/\/\?as_of=2026-07-31$/);
+		await expect(page.getByText("Reporting date · July 31, 2026")).toBeVisible();
+	});
+
 	test("preserves breadcrumbs, collapses inspection, and keeps 44px native targets", async ({
 		page,
 	}) => {

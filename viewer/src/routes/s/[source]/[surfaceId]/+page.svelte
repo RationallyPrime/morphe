@@ -18,6 +18,7 @@
 			sourceTitle: data.sourceTitle,
 			surfaceTitle: data.surfaceTitle,
 			collectionHref: data.collectionHref,
+			asOf: data.asOf,
 		}),
 	);
 </script>

@@ -12,7 +12,7 @@
 	let explainGlosses = $state(false);
 
 	// Home (root) › Surfaces catalog (current), reachable from and linking back to home.
-	const crumbs = catalogCrumbs();
+	const crumbs = $derived(catalogCrumbs(data.asOf));
 </script>
 
 <svelte:head>
@@ -25,6 +25,8 @@
 		dialects={DIALECT_LIST}
 		current={data.dialectId}
 		{crumbs}
+		showAsOf
+		asOf={data.asOf}
 		bind:explainGlosses
 	/>
 	<main class="viewer-index">

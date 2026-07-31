@@ -48,4 +48,19 @@ describe("surface catalog route-only policy", () => {
 		expect(rendered).not.toContain("Employee detail should stay hidden");
 		expect(rendered).toContain("1 declared surfaces");
 	});
+
+	it("preserves a selected frontier on every catalog destination", () => {
+		loadBoard.mockReturnValue(board);
+		const result = load({
+			url: new URL("http://viewer.test/surfaces?as_of=2026-07-31"),
+		} as never) as {
+			asOf?: string;
+			tree: unknown;
+		};
+		const rendered = JSON.stringify(result.tree);
+
+		expect(result.asOf).toBe("2026-07-31");
+		expect(rendered).toContain("/s/taxis/employees?as_of=2026-07-31");
+		expect(rendered).not.toContain("Employee detail should stay hidden");
+	});
 });
