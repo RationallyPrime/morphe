@@ -1,10 +1,13 @@
 import { render } from "svelte/server";
 import { describe, expect, it } from "vitest";
-import type { JsonRecord } from "$lib";
+import type { JsonRecord, Node } from "$lib";
+import { GOLD_STANDARD_COMPOUND, getDialect, registry, validateNodeForDialect } from "$lib";
+import { validateNodeDocument } from "$lib/artifacts";
 import { MorpheRoot } from "$lib/components";
-import { EXHIBITS } from "./exhibits.js";
+import { DIALECT_OPTIONS, EXHIBITS } from "./exhibits.js";
 import { FALLBACK_LOCAL_ADAPTIVE_DRAFT } from "./fallback.js";
 import {
+	presentActionSummaryGold,
 	presentLocalAdaptiveDraft,
 	presentPinnedDialectProof,
 	presentPlayground,
@@ -24,6 +27,52 @@ const baseInput = {
 };
 
 describe("playground presenters", () => {
+	it("certifies ActionSummary through the complete benchmark fixture", () => {
+		const tree = presentActionSummaryGold();
+		expect(tree.kind).toBe("frame");
+		if (tree.kind !== "frame") throw new Error("gold fixture must start at a Frame boundary");
+		const raised = tree.children[0];
+		expect(raised).toMatchObject({ kind: "frame", surface: "raised" });
+		if (raised?.kind !== "frame") throw new Error("gold fixture must compose its own elevation");
+		const reference = raised.children[0];
+		expect(reference).toMatchObject({ kind: "compound", name: GOLD_STANDARD_COMPOUND });
+		if (reference?.kind !== "compound") throw new Error("gold fixture must call the catalog");
+		expect(Object.keys(reference.args).sort()).toEqual(["eyebrow", "summary", "title"]);
+		expect(Object.keys(reference.slots ?? {}).sort()).toEqual([
+			"action",
+			"context",
+			"detail",
+			"signal",
+		]);
+		for (const fill of Object.values(reference.slots ?? {})) expect(fill.length).toBeGreaterThan(0);
+
+		const expanded = registry.expand(reference);
+		expect(validateNodeDocument(expanded).ok).toBe(true);
+		expect(JSON.stringify(expanded)).not.toContain('"kind":"slot"');
+		expect(JSON.stringify(expanded)).not.toContain('"kind":"param-ref"');
+	});
+
+	it("keeps the same gold tree valid and renderable under every shipped dialect", () => {
+		const tree = presentActionSummaryGold();
+		for (const dialectId of DIALECT_OPTIONS) {
+			const validation = validateNodeForDialect(tree, dialectId, {
+				validateNodeValue: (value) => validateNodeDocument(value).ok,
+			});
+			expect(validation, dialectId).toEqual({ ok: true });
+			const html = render(MorpheRoot, {
+				props: { tree, dialect: getDialect(dialectId) },
+			}).body;
+			expect(html).toContain(`data-mo-dialect="${dialectId}"`);
+			expect(html).toContain("Gold circuit connected");
+		}
+	});
+
+	it("does not encode host choice state into the gold authored tree", () => {
+		const first: Node = presentActionSummaryGold();
+		const second: Node = presentActionSummaryGold();
+		expect(second).toEqual(first);
+	});
+
 	it("renders every registered exhibit through MorpheRoot on the server", () => {
 		for (const exhibit of EXHIBITS) {
 			const presentation = presentPlayground({

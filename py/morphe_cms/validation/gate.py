@@ -7,7 +7,12 @@ from morphe_cms.contracts.shared import Diagnostic, RenderHints
 from morphe_cms.presenter.capability_page import PRESENTER_VERSION, present_capability_page
 from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
 from morphe_cms.validation.policy import policy_diagnostics
-from morphe_grammar import GRAMMAR_VERSION, validate_node
+from morphe_grammar import (
+    GRAMMAR_VERSION,
+    validate_node,
+    validate_node_for_dialect,
+    validate_promoted_compound_references,
+)
 
 if TYPE_CHECKING:
     from morphe_cms.contracts.capability_page import CapabilityPageDraft
@@ -20,7 +25,7 @@ def compile_and_gate(
     revision_id: str = "",
     compiled_at: str = "",
 ) -> tuple[CompiledTree | None, list[Diagnostic]]:
-    """Run policy -> presenter -> validate_node. Returns (compiled | None, diagnostics).
+    """Run policy -> presenter -> grammar/catalog/dialect gates.
 
     Fail-closed: any error-severity diagnostic yields a None compiled tree.
     """
@@ -28,9 +33,11 @@ def compile_and_gate(
     if any(d.severity == "error" for d in diagnostics):
         return None, diagnostics
 
-    tree = present_capability_page(draft)
     try:
+        tree = present_capability_page(draft)
         validated_tree = validate_node(tree)
+        validated_tree = validate_promoted_compound_references(validated_tree)
+        validated_tree = validate_node_for_dialect(validated_tree, draft.morphe.dialect)
     except Exception as exc:  # noqa: BLE001 - convert any grammar failure to diagnostics
         diagnostics.extend(validation_error_to_diagnostics(exc))
         return None, diagnostics

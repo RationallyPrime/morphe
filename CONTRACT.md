@@ -458,6 +458,13 @@ where the active dialect names it in `compounds[]` (an explicit opt-in) or a
 root sets the `showCandidates` dev flag; `promote(name)` moves it into the
 default visible set.
 
+**Gold certification (ADR-0022):** `GOLD_STANDARD_COMPOUND` names `ActionSummary` as the maintained
+comparison benchmark. Gold is not a third lifecycle state: promotion proves the definition gate,
+while gold additionally proves a complete caller-owned fixture, strict CMS ingress, every declared
+argument and slot, host-bound store/actions/choices, all shipped dialects, and real-browser behavior.
+Only applicable seams count; the reserved tier-2 escalation vocabulary has no shipped in-tree
+affordance and is therefore deliberately not fabricated into the fixture.
+
 **Dialect restriction (L4, G|D's compound half):** `MorpheRoot` derives
 `restrictCompounds(registry, { allow: dialect.compounds })` and provides it to
 every `<Node>` via context (the prop chain does not survive container

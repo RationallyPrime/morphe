@@ -1,7 +1,11 @@
 # Morphe — Status
 
-**Date:** 2026-07-17
+**Date:** 2026-08-02
 **Verdict: GREEN.** The complete web, viewer, Python, schema, build, and package gate passes.
+
+ADR-0022 now machine-marks `ActionSummary@1.0.0` as the compound gold standard. Its maintained
+fixture closes the catalog → CMS → renderer → host-socket → nine-dialect → two-browser circuit;
+gold remains an evidence certification, not a third compound lifecycle state.
 
 The KRA-762 Stage 1 release candidate is also green: the TypeScript edge compiler, source-v1
 trust gate, dual viewer, and untouched legacy rollback reader are verified together. Production
@@ -20,9 +24,9 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **619 server + 8 DOM passing** |
-| Browser seam | `bunx playwright test` | **6 passing** across Chromium + Firefox |
-| Python tests | `pytest` | **415 passing** |
+| Web tests | `bun run test` | **881 server + 13 DOM passing** |
+| Browser seams | edge + contrast Playwright gates | **62 passing** across Chromium + Firefox |
+| Python tests | `pytest` | **542 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
 | npm package | `bun run pack:verify` | **Installed exports, source admission, compiler parity, client and SSR pass** |
@@ -61,8 +65,9 @@ emission with retry/fail-closed behavior.
   versioned `ContextDigest`; typed tier-2 vocabulary + `MorpheRoot.onEscalate`
   records); the R1.4 declarative action wire (`MorpheRoot.actions` binds
   in-tree `Button.action` ids without putting handlers in the tree); the R1.5 compound lifecycle
-  (`candidate`/`promoted` through one gate), the Pydantic-owned promoted
-  `SignalCard` catalog, and generated `Dialect.compounds[]` render-gating via
+  (`candidate`/`promoted` through one gate), the eight-definition Pydantic-owned promoted
+  catalog, the machine-visible `ActionSummary` gold benchmark (ADR-0022), and generated
+  `Dialect.compounds[]` render-gating via
   the `restrictCompounds` view (`clinical` is restricted; eight dialects remain
   explicitly unrestricted); the R2 bounded-delegation
   surface (ADR-0004/0018: `Within`/`VaryId` in the grammar, the emission envelope +
@@ -73,13 +78,15 @@ emission with retry/fail-closed behavior.
   Pydantic mirror and committed schema re-synced to the now-complete grammar.
 - **The neutral demo host (this repo's own routes, proof surfaces only):** `/` — the workbench
   index linking the playground, CMS preview, and published-pointer proof;
-  `/substrate` — the full-featured neutral playground: the nine-way dialect
-  toggle over all shipped dialects, one authored demo tree, live `actions`,
-  `bind` paths, `choices`, neutral assets, adaptive fallback rendering, and a
-  pinned nested-dialect proof; `/preview/[artifactId]/[revisionId]` — the
+  `/substrate` — the full-featured neutral playground: the ActionSummary gold circuit is the
+  default exhibit, with all declared lanes, the nine-way dialect toggle, live `actions`, four
+  bindable input families, Vary and targeted Within `choices`, recursive promoted expansion,
+  neutral assets, adaptive fallback rendering, and a pinned nested-dialect proof;
+  `/preview/[artifactId]/[revisionId]` — the
   local CMS preview route (reads compiled trees from
   `compiled/capability-pages/**`, falling back to the built-in
-  `capability-page.demo/rev-001` fixture); `/p/[slug]` — the publication
+  `capability-page.demo/rev-001` fixture; dialect overrides are revalidated, viewport is honored,
+  and preview-only action/choice receipts stay host-owned); `/p/[slug]` — the publication
   pointer route (`publications.json` → compiled revision; `/p/demo` always
   backed by the neutral built-in fixture); `/dignity` — a compatibility
   redirect to `/substrate`; `/plate-proof` — the responsive `Media.sources`
@@ -94,7 +101,7 @@ emission with retry/fail-closed behavior.
   envelopes and compiles them with the server-only TypeScript edge compiler. Both paths pass the
   same generated grammar/dialect policy ingress gate before rendering. `/healthz` exposes the
   grammar, source wire/media type, receipt contract, edge-compiler version, and self-derived build
-  identity (`sha256:7125ca1243f61f739b83f562c2566b61e614c3735e359dfc112691edf05065f0`).
+  identity (`sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8`).
   The adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless
   image, `viewer/Dockerfile`, built from repo root); the production image carries no Python
   compiler.
@@ -140,7 +147,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 474 server + 8 DOM passing
+bun run test       # vitest run (+ dom config)       → 881 server + 13 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)

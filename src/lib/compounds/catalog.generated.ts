@@ -4,6 +4,8 @@
  */
 import type { CompoundDef } from "./factory.js";
 
+export const GOLD_STANDARD_COMPOUND = "ActionSummary" as const;
+
 export const PROMOTED_COMPOUNDS = [
 	{
 		name: "SignalCard",

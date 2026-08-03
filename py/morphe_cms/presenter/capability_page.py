@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 Node = dict[str, Any]
 
-PRESENTER_VERSION = "0.1.0"
+PRESENTER_VERSION = "0.2.0"
 
 
 def _text(
@@ -71,8 +71,8 @@ def _present_hero_variation(
     variation: HeroVariation,
     morphe: MorpheControls,
 ) -> Node:
-    # Vary renders its default branch only until the mid-loop layer lands (CONTRACT §11);
-    # default (index 0) is the authored base hero so the page is stable today.
+    # The host may select this Vary through MorpheRoot.choices; default (index 0)
+    # remains the authored base hero when the host supplies no choice.
     options: list[Node] = [
         _hero_stack(hero.kicker, hero.title, hero.thesis, hero.supporting_claim, morphe)
     ]
@@ -126,9 +126,31 @@ def _section_shell(title: str, children: list[Node]) -> Node:
 
 
 def _present_problem_frame(s: ProblemFrameSection) -> Node:
-    body: list[Node] = [_text(s.claim, as_="body", intent=s.intent)]
-    body.extend(_text(e, as_="body", emphasis="muted") for e in s.evidence)
-    return _section_shell(s.title, body)
+    context: list[Node] = []
+    if s.evidence:
+        context.append(
+            {
+                "kind": "stack",
+                "role": "list",
+                "children": [_text(e, as_="body", emphasis="muted") for e in s.evidence],
+            }
+        )
+    return {
+        "kind": "stack",
+        "role": "section",
+        "children": [
+            {
+                "kind": "compound",
+                "name": "ActionSummary",
+                "args": {
+                    "eyebrow": _text("Problem frame", as_="caption", intent="accession"),
+                    "title": _text(s.title, as_="heading", emphasis="strong"),
+                    "summary": _text(s.claim, as_="body", intent=s.intent),
+                },
+                "slots": {"context": context},
+            }
+        ],
+    }
 
 
 def _present_workflow_map(s: WorkflowMapSection) -> Node:

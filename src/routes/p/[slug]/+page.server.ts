@@ -5,8 +5,12 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { error } from "@sveltejs/kit";
+import type { Node } from "$lib";
 import { DEMO_DIALECT_ID, DEMO_PUBLICATION_SLUG, demoArtifactTree } from "../../_demo/artifact.js";
-import { parseLocalCompiledTree } from "../../_demo/compiled-artifact.js";
+import {
+	parseLocalCompiledTree,
+	validateCompiledTreeDialect,
+} from "../../_demo/compiled-artifact.js";
 import type { PageServerLoad } from "./$types";
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -15,7 +19,17 @@ const REV_RE = /^rev-\d{3}$/;
 interface PublicationFile {
 	revision_id: string;
 }
+
+function resolveDialect(tree: Node, storedDialectId: string, requested: string | null): string {
+	const result = validateCompiledTreeDialect(tree, requested ?? storedDialectId);
+	if (!result.ok) {
+		throw error(requested === null ? 500 : 400, `Publication dialect rejected: ${result.reason}`);
+	}
+	return result.dialectId;
+}
+
 export const load: PageServerLoad = async ({ params, url }) => {
+	const requestedDialect = url.searchParams.get("dialect");
 	const root = process.cwd();
 	let publications: Record<string, PublicationFile>;
 	try {
@@ -27,7 +41,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (params.slug === DEMO_PUBLICATION_SLUG) {
 			return {
 				tree: demoArtifactTree,
-				dialectId: url.searchParams.get("dialect") ?? DEMO_DIALECT_ID,
+				dialectId: resolveDialect(demoArtifactTree, DEMO_DIALECT_ID, requestedDialect),
 			};
 		}
 		throw error(404, "No publications");
@@ -37,7 +51,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		if (params.slug === DEMO_PUBLICATION_SLUG) {
 			return {
 				tree: demoArtifactTree,
-				dialectId: url.searchParams.get("dialect") ?? DEMO_DIALECT_ID,
+				dialectId: resolveDialect(demoArtifactTree, DEMO_DIALECT_ID, requestedDialect),
 			};
 		}
 		throw error(404, `No publication for ${params.slug}`);
@@ -71,6 +85,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		throw error(500, `Published compiled artifact failed its trust gate: ${parsed.reason}`);
 	}
 
-	const dialectId = url.searchParams.get("dialect") ?? parsed.value.dialectId;
+	const dialectId = resolveDialect(parsed.value.tree, parsed.value.dialectId, requestedDialect);
 	return { tree: parsed.value.tree, dialectId };
 };

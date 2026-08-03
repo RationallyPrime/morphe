@@ -4,6 +4,12 @@ import { EXHIBIT_IDS, GRAMMAR_VARIANTS } from "./types.js";
 
 export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 	{
+		id: "gold",
+		label: "Gold Standard",
+		summary: "ActionSummary with every lane and every applicable host socket under evidence.",
+		proofFocus: "Certified compound circuit",
+	},
+	{
 		id: "grammar",
 		label: "Grammar Studio",
 		summary: "Curated primitive families and their authored Node data.",
@@ -41,7 +47,7 @@ export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 	},
 ]);
 
-export const DEFAULT_EXHIBIT: ExhibitId = "grammar";
+export const DEFAULT_EXHIBIT: ExhibitId = "gold";
 export const DEFAULT_GRAMMAR_VARIANT: GrammarVariant = "layout";
 export const DIALECT_OPTIONS: readonly string[] = DIALECT_IDS;
 

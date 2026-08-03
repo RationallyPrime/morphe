@@ -93,6 +93,18 @@ class DialectNodeValidationError(ValueError):
         super().__init__(f"{code} at {path} for dialect {dialect_id!r}: {message}")
 
 
+class PromotedCompoundReferenceError(ValueError):
+    """A package-authored tree references the promoted catalog incorrectly."""
+
+    code: str
+    path: str
+
+    def __init__(self, *, code: str, path: str, message: str) -> None:
+        self.code = code
+        self.path = path
+        super().__init__(f"{code} at {path}: {message}")
+
+
 def _constraint(
     dialect_id: DialectId,
     mode: CompoundPolicyMode,
@@ -149,32 +161,33 @@ def validate_dialect_constraints() -> None:
         raise ValueError(msg)
 
 
-def _validation_error(
-    constraint: DialectCompoundConstraint,
+def _reference_error(
+    constraint: DialectCompoundConstraint | None,
     *,
-    code: str,
+    dialect_code: str,
+    promoted_code: str,
     path: str,
     message: str,
-) -> DialectNodeValidationError:
+) -> DialectNodeValidationError | PromotedCompoundReferenceError:
+    if constraint is None:
+        return PromotedCompoundReferenceError(code=promoted_code, path=path, message=message)
     return DialectNodeValidationError(
-        code=code,
-        dialect_id=constraint.id,
-        path=path,
-        message=message,
+        code=dialect_code, dialect_id=constraint.id, path=path, message=message
     )
 
 
 def _validated_node(
     value: object,
-    constraint: DialectCompoundConstraint,
+    constraint: DialectCompoundConstraint | None,
     path: str,
 ) -> Node:
     try:
         return validate_node(value)
     except ValueError as exc:
-        raise _validation_error(
+        raise _reference_error(
             constraint,
-            code="DIALECT_NODE_SHAPE",
+            dialect_code="DIALECT_NODE_SHAPE",
+            promoted_code="COMPOUND_NODE_SHAPE",
             path=path,
             message=str(exc),
         ) from exc
@@ -183,7 +196,7 @@ def _validated_node(
 def _validate_parameter(
     value: object,
     parameter: CompoundParam,
-    constraint: DialectCompoundConstraint,
+    constraint: DialectCompoundConstraint | None,
     path: str,
 ) -> None:
     if parameter.type == "string":
@@ -203,9 +216,10 @@ def _validate_parameter(
             _walk_node(_validated_node(item, constraint, item_path), constraint, item_path)
         return
     if not valid:
-        raise _validation_error(
+        raise _reference_error(
             constraint,
-            code="DIALECT_COMPOUND_ARG_TYPE",
+            dialect_code="DIALECT_COMPOUND_ARG_TYPE",
+            promoted_code="COMPOUND_ARG_TYPE",
             path=path,
             message=f"expected {parameter.type}",
         )
@@ -213,24 +227,32 @@ def _validate_parameter(
 
 def _validate_compound(
     node: CompoundRef,
-    constraint: DialectCompoundConstraint,
+    constraint: DialectCompoundConstraint | None,
     path: str,
 ) -> None:
     name = node.name
-    if name not in constraint.compounds:
-        raise _validation_error(
+    if constraint is not None and name not in constraint.compounds:
+        raise _reference_error(
             constraint,
-            code="DIALECT_COMPOUND_NOT_ALLOWED",
+            dialect_code="DIALECT_COMPOUND_NOT_ALLOWED",
+            promoted_code="COMPOUND_NOT_ALLOWED",
             path=f"{path}.name",
             message=f"compound {name!r} is outside the allowlist",
+        )
+    if constraint is None and name not in PROMOTED_COMPOUNDS:
+        raise PromotedCompoundReferenceError(
+            code="COMPOUND_UNKNOWN_NAME",
+            path=f"{path}.name",
+            message=f"compound {name!r} is not in the promoted package catalog",
         )
     definition = promoted_compound(name)
     args = node.args
     unknown_args = sorted(set(args) - definition.params.properties.keys())
     if unknown_args:
-        raise _validation_error(
+        raise _reference_error(
             constraint,
-            code="DIALECT_COMPOUND_UNKNOWN_ARG",
+            dialect_code="DIALECT_COMPOUND_UNKNOWN_ARG",
+            promoted_code="COMPOUND_UNKNOWN_ARG",
             path=f"{path}.args",
             message=f"unknown arguments: {', '.join(unknown_args)}",
         )
@@ -240,9 +262,10 @@ def _validate_compound(
         if parameter.required and name not in args
     )
     if missing:
-        raise _validation_error(
+        raise _reference_error(
             constraint,
-            code="DIALECT_COMPOUND_MISSING_ARG",
+            dialect_code="DIALECT_COMPOUND_MISSING_ARG",
+            promoted_code="COMPOUND_MISSING_ARG",
             path=f"{path}.args",
             message=f"missing required arguments: {', '.join(missing)}",
         )
@@ -259,7 +282,7 @@ def _validate_compound(
 def _validate_slots(
     value: dict[str, tuple[Node, ...]] | None,
     definition: CompoundDefinition,
-    constraint: DialectCompoundConstraint,
+    constraint: DialectCompoundConstraint | None,
     path: str,
 ) -> None:
     if value is None:
@@ -268,9 +291,10 @@ def _validate_slots(
     allowed = set(compound_slot_names(definition))
     unknown = sorted(set(slots) - allowed)
     if unknown:
-        raise _validation_error(
+        raise _reference_error(
             constraint,
-            code="DIALECT_COMPOUND_UNKNOWN_SLOT",
+            dialect_code="DIALECT_COMPOUND_UNKNOWN_SLOT",
+            promoted_code="COMPOUND_UNKNOWN_SLOT",
             path=f"{path}.slots",
             message=f"unknown slots: {', '.join(unknown)}",
         )
@@ -281,14 +305,14 @@ def _validate_slots(
 
 def _walk_children(
     children: tuple[Node, ...],
-    constraint: DialectCompoundConstraint,
+    constraint: DialectCompoundConstraint | None,
     path: str,
 ) -> None:
     for index, child in enumerate(children):
         _walk_node(child, constraint, f"{path}[{index}]")
 
 
-def _walk_node(node: Node, constraint: DialectCompoundConstraint, path: str) -> None:
+def _walk_node(node: Node, constraint: DialectCompoundConstraint | None, path: str) -> None:
     if isinstance(node, CompoundRef):
         _validate_compound(node, constraint, path)
         return
@@ -325,6 +349,18 @@ def validate_node_for_dialect(payload: object, dialect_id: str) -> Node:
     return validated
 
 
+def validate_promoted_compound_references(payload: object) -> Node:
+    """Validate every compound call against the package-promoted catalog.
+
+    Unlike an unrestricted dialect, the package CMS may not rely on a consumer
+    registry that happens to exist in the rendering host. This gate therefore
+    rejects unknown names and validates the full recursive call contract.
+    """
+    validated = _validated_node(payload, None, "$")
+    _walk_node(validated, None, "$")
+    return validated
+
+
 def constraints_typescript_document() -> str:
     validate_dialect_constraints()
     document = {
@@ -352,8 +388,10 @@ __all__ = [
     "DialectCompoundConstraint",
     "DialectId",
     "DialectNodeValidationError",
+    "PromotedCompoundReferenceError",
     "constraints_typescript_document",
     "dialect_constraint",
     "validate_dialect_constraints",
     "validate_node_for_dialect",
+    "validate_promoted_compound_references",
 ]

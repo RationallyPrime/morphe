@@ -6,7 +6,7 @@
  * every native control, a real `mo-link`).
  */
 
-import { expect, test } from "@playwright/test";
+import { expect, type Locator, test } from "@playwright/test";
 
 const ROUTE = "/substrate";
 // A deterministic proof surface with real, un-disclosed Morphe links + ink on all
@@ -14,6 +14,26 @@ const ROUTE = "/substrate";
 const LAB = "/contrast-lab";
 const GEOMETRY_TOLERANCE_PX = 0.5;
 const AA_NORMAL = 4.5;
+const DIALECTS = [
+	"icelandic-archive",
+	"clinical",
+	"reykjavik-registry",
+	"timaeus",
+	"gallery",
+	"night",
+	"ledger",
+	"estate",
+	"foundry",
+] as const;
+
+async function setRange(control: Locator, value: number): Promise<void> {
+	await control.evaluate((element, next) => {
+		if (!(element instanceof HTMLInputElement)) throw new Error("range control is not an input");
+		element.value = String(next);
+		element.dispatchEvent(new Event("input", { bubbles: true }));
+		element.dispatchEvent(new Event("change", { bubbles: true }));
+	}, value);
+}
 
 type Rgb = [number, number, number];
 function relativeLuminance([red, green, blue]: Rgb): number {
@@ -163,6 +183,97 @@ test.describe("composed surface — reflow / zoom / keyboard / forced-colors / r
 			});
 			expect(ring, "focused Gloss marker has no visible focus indicator").toBe(true);
 		}
+	});
+});
+
+test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
+	test("the identical benchmark fixture renders through every shipped dialect", async ({
+		page,
+	}) => {
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await expect(page.getByRole("button", { name: /Gold Standard/ })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+
+		for (const dialect of DIALECTS) {
+			await page.locator("#dialect-select").selectOption(dialect);
+			await expect(page.locator(".workbench__preview .mo-root").first()).toHaveAttribute(
+				"data-mo-dialect",
+				dialect,
+			);
+			await expect(
+				page.getByRole("heading", { name: "Close the governed action circuit" }),
+			).toBeVisible();
+			await expect(page.getByText("Gold circuit connected")).toBeVisible();
+			await expect(page.getByRole("button", { name: "Advance evidence" })).toBeVisible();
+			const overflow = await page.evaluate(
+				() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			);
+			expect(overflow, `${dialect} introduced horizontal overflow`).toBeLessThanOrEqual(1);
+		}
+	});
+
+	test("store, actions, Vary, and both targeted Within dimensions stay host-bound", async ({
+		page,
+	}) => {
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+
+		const evidence = page.getByRole("textbox", { name: /Evidence note/ });
+		await expect(evidence).toHaveValue("Verify the complete evidence chain");
+		await evidence.fill("Browser-verified evidence");
+		await expect(evidence).toHaveValue("Browser-verified evidence");
+		await page.getByRole("combobox", { name: "Review posture" }).selectOption("ratify");
+		await expect(page.getByRole("combobox", { name: "Review posture" })).toHaveValue("ratify");
+		const reviewed = page.getByRole("switch", { name: "Evidence reviewed" });
+		await reviewed.click();
+		await expect(reviewed).toHaveAttribute("aria-checked", "true");
+		const confidence = page.getByRole("slider", { name: "Confidence" });
+		await setRange(confidence, 91);
+		await expect(confidence).toHaveValue("91");
+
+		await setRange(page.locator("#gold-mode-choice"), 2);
+		await expect(page.getByRole("heading", { name: "Decision receipt" })).toBeVisible();
+		await page.getByRole("button", { name: "Advance evidence" }).click();
+		await expect(page.getByRole("heading", { name: "Compact evidence" })).toBeVisible();
+		await page.getByRole("button", { name: "Record attestation" }).click();
+		await expect(page.locator(".workbench__proof")).toContainText("gold.attest");
+
+		const detail = page.locator("details").filter({ hasText: "Inspect the complete gold circuit" });
+		await expect(detail).toHaveAttribute("open", "");
+		await setRange(page.locator("#gold-detail-choice"), 1);
+		await expect(detail).not.toHaveAttribute("open", "");
+		await setRange(page.locator("#gold-detail-choice"), 0);
+		await expect(detail).toHaveAttribute("open", "");
+
+		const densityBoundary = page.locator(".mo-within-context").last();
+		const regularStyle = await densityBoundary.getAttribute("style");
+		await setRange(page.locator("#gold-density-choice"), 2);
+		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
+	});
+
+	test("CMS preview revalidates dialect, honors mobile viewport, and owns temporary sockets", async ({
+		page,
+	}) => {
+		await page.goto("/preview/capability-page.demo/rev-001?dialect=night&viewport=mobile", {
+			waitUntil: "networkidle",
+		});
+		const host = page.locator(".preview-host");
+		await expect(host).toHaveClass(/preview-host--mobile/);
+		expect((await host.boundingBox())?.width).toBeLessThanOrEqual(390);
+		await expect(page.locator(".preview-host__canvas .mo-root")).toHaveAttribute(
+			"data-mo-dialect",
+			"night",
+		);
+		await page.getByRole("combobox", { name: "Choice preview.mode" }).selectOption("1");
+		await expect(page.getByText("Host-selected branch")).toBeVisible();
+		await page.getByRole("button", { name: "Record preview action" }).click();
+		await expect(page.getByText("Preview action recorded: preview_record")).toBeVisible();
+
+		const response = await page.goto("/preview/capability-page.demo/rev-001?dialect=invented", {
+			waitUntil: "domcontentloaded",
+		});
+		expect(response?.status()).toBe(400);
 	});
 });
 

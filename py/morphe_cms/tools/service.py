@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
+from urllib.parse import urlencode
 
 from morphe_cms.contracts.artifact import ArtifactEnvelope, ArtifactProvenance, Publication
 from morphe_cms.contracts.capability_page import CapabilityPageDraft
@@ -110,8 +111,13 @@ def render_preview(payload: RenderPreviewInput, store: FileStore) -> RenderPrevi
             ],
         )
     url = f"/preview/{payload.artifact_id}/{payload.revision_id}"
+    query: list[tuple[str, str]] = []
     if payload.dialect is not None:
-        url = f"{url}?dialect={payload.dialect}"
+        query.append(("dialect", payload.dialect))
+    if payload.viewport != "desktop":
+        query.append(("viewport", payload.viewport))
+    if query:
+        url = f"{url}?{urlencode(query)}"
     return RenderPreviewResult(ok=True, preview_url=url)
 
 

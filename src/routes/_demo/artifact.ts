@@ -82,6 +82,58 @@ export const demoArtifactTree: Node = {
 				},
 			],
 		},
+		{
+			kind: "compound",
+			name: "ActionSummary",
+			args: {
+				eyebrow: { kind: "text", value: "Preview host", as: "caption", intent: "accession" },
+				title: { kind: "text", value: "Runtime sockets stay outside the artifact", as: "heading" },
+				summary: {
+					kind: "text",
+					value: "The compiled tree carries ids; this preview route owns their temporary handlers.",
+					as: "body",
+				},
+			},
+			slots: {
+				signal: [{ kind: "status", tone: "success", signal: { text: "Catalog valid" } }],
+				context: [
+					{
+						kind: "vary",
+						id: "preview.mode",
+						default: 0,
+						objective: "salience",
+						options: [
+							{ kind: "text", value: "Authored branch", as: "body" },
+							{ kind: "text", value: "Host-selected branch", as: "body" },
+						],
+					},
+				],
+				action: [
+					{
+						kind: "button",
+						label: "Record preview action",
+						action: "preview_record",
+						intent: "primary-action",
+					},
+				],
+				detail: [
+					{
+						kind: "within",
+						id: "preview.detail",
+						dimension: "collapse",
+						range: [0, 1],
+						default: 0,
+						summary: "Inspect preview authority",
+						target: {
+							kind: "text",
+							value: "Actions are receipts in preview, never production side effects.",
+							as: "caption",
+							intent: "aside",
+						},
+					},
+				],
+			},
+		},
 	],
 };
 

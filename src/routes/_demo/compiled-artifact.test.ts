@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GRAMMAR_VERSION } from "$lib";
-import { parseLocalCompiledTree } from "./compiled-artifact.js";
+import { parseLocalCompiledTree, validateCompiledTreeDialect } from "./compiled-artifact.js";
 
 const valid = {
 	artifact_id: "capability-page.demo",
@@ -127,6 +127,26 @@ describe("parseLocalCompiledTree", () => {
 		expect(result).toEqual({
 			ok: false,
 			reason: 'argument "kicker" must contain schema-valid nodes',
+		});
+	});
+
+	it("revalidates render-time dialect overrides", () => {
+		const tree = {
+			kind: "compound",
+			name: "consumer-private-card",
+			args: {},
+		} as const;
+		expect(validateCompiledTreeDialect(tree, "gallery")).toEqual({
+			ok: true,
+			dialectId: "gallery",
+		});
+		expect(validateCompiledTreeDialect(tree, "clinical")).toEqual({
+			ok: false,
+			reason: 'compound "consumer-private-card" is not permitted by dialect "clinical"',
+		});
+		expect(validateCompiledTreeDialect(tree, "invented")).toEqual({
+			ok: false,
+			reason: 'unknown Morphe dialect "invented"',
 		});
 	});
 });

@@ -2,7 +2,7 @@
 	import type { ActionMap, ChoiceMap, JsonRecord } from "$lib";
 	import { activeDialect, createInMemoryMorpheStore, getDialect } from "$lib";
 	import { MorpheRoot } from "$lib/components";
-	import { DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
+	import { DEFAULT_EXHIBIT, DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
 	import { FALLBACK_LOCAL_ADAPTIVE_DRAFT, fallbackDiagnostics } from "../_playground/fallback.js";
 	import { generateLocalAdaptiveDraft } from "../_playground/local-ai.js";
 	import { presentPinnedDialectProof, presentPlayground } from "../_playground/presenters.js";
@@ -11,13 +11,20 @@
 	import type { LocalAdaptiveDraft } from "../_playground/validation.js";
 
 	const store = createInMemoryMorpheStore({
+		"gold.note": "Verify the complete evidence chain",
+		"gold.posture": "observe",
+		"gold.reviewed": false,
+		"gold.confidence": 72,
 		"playground.goal": "Review an exception queue",
 		"playground.reviewed": false,
 	});
 
-	let activeExhibit = $state<ExhibitId>("grammar");
+	let activeExhibit = $state<ExhibitId>(DEFAULT_EXHIBIT);
 	let grammarVariant = $state<GrammarVariant>("layout");
 	let selectedVaryChoice = $state(0);
+	let goldModeChoice = $state(0);
+	let goldDetailChoice = $state(0);
+	let goldDensityChoice = $state(1);
 	let actionLog = $state<readonly string[]>([]);
 	let localGoal = $state("Review an exception queue");
 	let localDraft = $state<LocalAdaptiveDraft>(FALLBACK_LOCAL_ADAPTIVE_DRAFT);
@@ -25,8 +32,18 @@
 	let localDiagnostics = $state<readonly string[]>(["chrome-unavailable:LanguageModel"]);
 	let localBusy = $state(false);
 
-	const choices = $derived<ChoiceMap>({ "demo.mode": selectedVaryChoice });
+	const choices = $derived<ChoiceMap>({
+		"demo.mode": selectedVaryChoice,
+		"gold.mode": goldModeChoice,
+		"gold.detail": goldDetailChoice,
+		"gold.density": goldDensityChoice,
+	});
 	const actions = $derived<ActionMap>({
+		"gold.advance": () => {
+			goldModeChoice = (goldModeChoice + 1) % 3;
+			recordAction("gold.advance");
+		},
+		"gold.attest": () => recordAction("gold.attest"),
 		"demo.rotate": () => {
 			selectedVaryChoice = (selectedVaryChoice + 1) % 3;
 			recordAction("demo.rotate");
@@ -71,6 +88,18 @@
 
 	function setVaryChoice(event: Event): void {
 		selectedVaryChoice = Number((event.currentTarget as HTMLInputElement).value);
+	}
+
+	function setGoldModeChoice(event: Event): void {
+		goldModeChoice = Number((event.currentTarget as HTMLInputElement).value);
+	}
+
+	function setGoldDetailChoice(event: Event): void {
+		goldDetailChoice = Number((event.currentTarget as HTMLInputElement).value);
+	}
+
+	function setGoldDensityChoice(event: Event): void {
+		goldDensityChoice = Number((event.currentTarget as HTMLInputElement).value);
 	}
 
 	async function runLocalAi(): Promise<void> {
@@ -139,7 +168,52 @@
 
 		<section class="workbench__controls" aria-label="Exhibit controls">
 			<h2>Controls</h2>
-			{#if activeExhibit === "grammar"}
+				{#if activeExhibit === "gold"}
+					<label class="field" for="dialect-select">
+						<span>Global dialect</span>
+						<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
+							{#each DIALECT_OPTIONS as dialectId (dialectId)}
+								<option value={dialectId}>{dialectId}</option>
+							{/each}
+						</select>
+					</label>
+					<label class="field" for="gold-mode-choice">
+						<span>Vary gold.mode · {goldModeChoice}</span>
+						<input
+							id="gold-mode-choice"
+							type="range"
+							min="0"
+							max="2"
+							step="1"
+							value={goldModeChoice}
+							oninput={setGoldModeChoice}
+						/>
+					</label>
+					<label class="field" for="gold-detail-choice">
+						<span>Within gold.detail · {goldDetailChoice === 0 ? "open" : "closed"}</span>
+						<input
+							id="gold-detail-choice"
+							type="range"
+							min="0"
+							max="1"
+							step="1"
+							value={goldDetailChoice}
+							oninput={setGoldDetailChoice}
+						/>
+					</label>
+					<label class="field" for="gold-density-choice">
+						<span>Within gold.density · {goldDensityChoice}</span>
+						<input
+							id="gold-density-choice"
+							type="range"
+							min="0"
+							max="2"
+							step="1"
+							value={goldDensityChoice}
+							oninput={setGoldDensityChoice}
+						/>
+					</label>
+				{:else if activeExhibit === "grammar"}
 				<label class="field" for="grammar-variant">
 					<span>Primitive family</span>
 					<select id="grammar-variant" value={grammarVariant} onchange={setGrammarVariant}>

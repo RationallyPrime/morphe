@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import copy
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pytest
 
 from morphe_cms.contracts.capability_page import CapabilityPageDraft
 from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
@@ -51,3 +55,50 @@ def test_validation_error_converts_to_diagnostics() -> None:
     else:
         msg = "expected ValidationError"
         raise AssertionError(msg)
+
+
+def test_gate_rejects_a_malformed_promoted_compound(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "morphe_cms.validation.gate.present_capability_page",
+        lambda _draft: {"kind": "compound", "name": "ActionSummary", "args": {}},
+    )
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+
+    compiled, diagnostics = compile_and_gate(draft)
+
+    assert compiled is None
+    assert [diagnostic.code for diagnostic in diagnostics] == ["COMPOUND_MISSING_ARG"]
+    assert diagnostics[0].path == "$.args"
+
+
+def test_gate_rejects_a_non_catalog_compound(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "morphe_cms.validation.gate.present_capability_page",
+        lambda _draft: {"kind": "compound", "name": "ConsumerOnly", "args": {}},
+    )
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+
+    compiled, diagnostics = compile_and_gate(draft)
+
+    assert compiled is None
+    assert [diagnostic.code for diagnostic in diagnostics] == ["COMPOUND_UNKNOWN_NAME"]
+    assert diagnostics[0].path == "$.name"
+
+
+def test_gate_converts_a_presenter_failure_to_a_fail_closed_diagnostic(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_presenter(_draft: CapabilityPageDraft) -> dict[str, object]:
+        msg = "presenter failed"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("morphe_cms.validation.gate.present_capability_page", fail_presenter)
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+
+    compiled, diagnostics = compile_and_gate(draft)
+
+    assert compiled is None
+    assert [diagnostic.code for diagnostic in diagnostics] == ["UNEXPECTED_ERROR"]
+    assert diagnostics[0].message == "presenter failed"

@@ -5,7 +5,7 @@
  */
 
 // Compound factory (Lemma 1)
-export { PROMOTED_COMPOUNDS } from "./compounds/catalog.generated.js";
+export { GOLD_STANDARD_COMPOUND, PROMOTED_COMPOUNDS } from "./compounds/catalog.generated.js";
 export type {
 	CompoundDef,
 	CompoundLifecycle,

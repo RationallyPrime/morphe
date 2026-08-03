@@ -131,6 +131,11 @@ remain unrestricted for compatibility. Every dialect ships a
 versioned `G|D` decoder mask. Appearance still comes only from intents and bounded priors; a
 compound policy narrows structural vocabulary and never licenses geometry or consumer data.
 
+Compound quality has one explicit benchmark (ADR-0022): `ActionSummary` is the machine-marked gold
+standard. Its fixture is intentionally not a reusable page design. It is an evidence circuit showing
+that a pure definition can be composed by a caller, admitted through the CMS, re-themed unchanged,
+and given live bindings, choices, and action handlers only at `MorpheRoot`.
+
 ## 7. Operational surfaces
 
 Schema-derived surfaces should be intentional projections, not pretty-printed API responses.
