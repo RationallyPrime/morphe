@@ -12,10 +12,12 @@ describe("/substrate coherent playground", () => {
 		expect(html).toContain("Grammar Studio");
 		expect(html).toContain("Dialect Lab");
 		expect(html).toContain("State + Actions");
-		expect(html).toContain("Vary + Delta");
+		expect(html).toContain("Deterministic Vary + Delta");
 		expect(html).toContain("CMS Pipeline");
 		expect(html).toContain("Local AI Provider");
 		expect(html).toContain("Proof rail");
+		expect(html).toContain("tier-2 boundary");
+		expect(html).toContain("wired at MorpheRoot");
 		expect(html).toContain("Chrome local AI unavailable");
 		expect(html).toContain("Preview capability-page.demo/rev-001");
 		expect(html).toContain('class="mo-root');

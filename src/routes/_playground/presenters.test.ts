@@ -1,7 +1,14 @@
 import { render } from "svelte/server";
 import { describe, expect, it } from "vitest";
 import type { JsonRecord, Node } from "$lib";
-import { GOLD_STANDARD_COMPOUND, getDialect, registry, validateNodeForDialect } from "$lib";
+import {
+	GOLD_STANDARD_COMPOUND,
+	getDialect,
+	liveVariationIndex,
+	registry,
+	restrictCompounds,
+	validateNodeForDialect,
+} from "$lib";
 import { validateNodeDocument } from "$lib/artifacts";
 import { MorpheRoot } from "$lib/components";
 import { DIALECT_OPTIONS, EXHIBITS } from "./exhibits.js";
@@ -11,6 +18,7 @@ import {
 	presentLocalAdaptiveDraft,
 	presentPinnedDialectProof,
 	presentPlayground,
+	presentVaryDelta,
 } from "./presenters.js";
 import type { ExhibitId, GrammarVariant, ProviderSource } from "./types.js";
 
@@ -18,7 +26,6 @@ const baseInput = {
 	activeExhibit: "grammar" as ExhibitId,
 	grammarVariant: "layout" as GrammarVariant,
 	activeDialectId: "gallery",
-	selectedVaryChoice: 0,
 	actionLog: [] as readonly string[],
 	storeSnapshot: {} as JsonRecord,
 	localDraft: FALLBACK_LOCAL_ADAPTIVE_DRAFT,
@@ -71,6 +78,62 @@ describe("playground presenters", () => {
 		const first: Node = presentActionSummaryGold();
 		const second: Node = presentActionSummaryGold();
 		expect(second).toEqual(first);
+	});
+
+	it("keeps the deterministic proof tree byte-stable while fully declaring its live sockets", () => {
+		const first = presentVaryDelta();
+		const second = presentVaryDelta();
+		expect(JSON.stringify(second)).toBe(JSON.stringify(first));
+
+		const index = liveVariationIndex(first, {
+			resolver: restrictCompounds(registry, { allow: getDialect("gallery").compounds }),
+		});
+		expect(
+			index.descriptors.map((descriptor) => ({
+				id: descriptor.id,
+				occurrences: descriptor.occurrences.map((occurrence) => ({
+					kind: occurrence.kind,
+					bounds: occurrence.bounds,
+					dimension: occurrence.kind === "within" ? occurrence.dimension : undefined,
+				})),
+			})),
+		).toEqual([
+			{
+				id: "live.proof.mode",
+				occurrences: [{ kind: "vary", bounds: [0, 2], dimension: undefined }],
+			},
+			{
+				id: "live.proof.density",
+				occurrences: [{ kind: "within", bounds: [0, 2], dimension: "density" }],
+			},
+			{
+				id: "live.proof.emphasis",
+				occurrences: [{ kind: "within", bounds: [0, 3], dimension: "emphasis" }],
+			},
+			{
+				id: "live.proof.host-only",
+				occurrences: [{ kind: "vary", bounds: [0, 1], dimension: undefined }],
+			},
+			{
+				id: "live.proof.detail",
+				occurrences: [{ kind: "within", bounds: [0, 1], dimension: "collapse" }],
+			},
+		]);
+		for (const dialectId of DIALECT_OPTIONS) {
+			const dialectIndex = liveVariationIndex(first, {
+				resolver: restrictCompounds(registry, { allow: getDialect(dialectId).compounds }),
+			});
+			expect(
+				dialectIndex.descriptors.map((descriptor) => descriptor.id),
+				dialectId,
+			).toEqual([
+				"live.proof.mode",
+				"live.proof.density",
+				"live.proof.emphasis",
+				"live.proof.host-only",
+				"live.proof.detail",
+			]);
+		}
 	});
 
 	it("renders every registered exhibit through MorpheRoot on the server", () => {

@@ -35,9 +35,9 @@ export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 	},
 	{
 		id: "vary",
-		label: "Vary + Delta",
-		summary: "Host-owned choices select a branch without mutating the tree.",
-		proofFocus: "Choice map",
+		label: "Deterministic Vary + Delta",
+		summary: "A host policy admits only epoch-scoped choices inside the authored variation space.",
+		proofFocus: "Replayable choice evidence",
 	},
 	{
 		id: "cms",

@@ -46,7 +46,6 @@ export interface PlaygroundPresentationInput {
 	readonly activeExhibit: ExhibitId;
 	readonly grammarVariant: GrammarVariant;
 	readonly activeDialectId: string;
-	readonly selectedVaryChoice: number;
 	readonly actionLog: readonly string[];
 	readonly storeSnapshot: JsonRecord;
 	readonly localDraft: LocalAdaptiveDraft;
