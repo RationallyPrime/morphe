@@ -854,7 +854,7 @@ function variationBounds(tree: Node): ReadonlyMap<string, readonly Bounds[]> {
 			const bounds: Bounds = [0, node.options.length - 1];
 			out.set(node.id, [...(out.get(node.id) ?? []), bounds]);
 		}
-		if (node.kind === "within") {
+		if (node.kind === "within" && node.target !== undefined) {
 			out.set(node.id, [...(out.get(node.id) ?? []), node.range]);
 		}
 	});
@@ -1082,6 +1082,7 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 					dimension: "density",
 					range: [0, 2],
 					default: 1,
+					target: { kind: "text", value: "Density target", as: "body" },
 				},
 			],
 		};
