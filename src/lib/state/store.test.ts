@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
 	commitTier1,
 	createInMemoryMorpheStore,
+	type JsonRecord,
 	type JsonValue,
 	resolveMorpheStore,
 	TIER1_WINDOW_SIZE,
@@ -46,6 +47,38 @@ describe("Morphe client store — ADR-0003 contract", () => {
 			"case.4": ["a", 1, false, null],
 			"case.5": { filters: ["open", "late"], range: { min: 3, max: 9 }, visible: true },
 		});
+	});
+
+	it("treats magic-key bind paths as own JSON data without prototype fallthrough", () => {
+		const initial = JSON.parse(
+			'{"__proto__":{"nested":{"__proto__":7}},"constructor":"stored","toString":42}',
+		) as JsonRecord;
+		const store = createInMemoryMorpheStore(initial, { now: () => 17 });
+
+		expect(store.get("__proto__")).toEqual({ nested: JSON.parse('{"__proto__":7}') });
+		expect(store.get("constructor")).toBe("stored");
+		expect(store.get("toString")).toBe(42);
+
+		const snapshot = store.snapshot();
+		expect(Object.hasOwn(snapshot, "__proto__")).toBe(true);
+		expect(Object.getPrototypeOf(snapshot)).toBe(Object.prototype);
+		const topLevelMagicValue = Object.getOwnPropertyDescriptor(snapshot, "__proto__")?.value;
+		const nested = (topLevelMagicValue as JsonRecord).nested as JsonRecord;
+		expect(Object.hasOwn(nested, "__proto__")).toBe(true);
+		expect(Object.getOwnPropertyDescriptor(nested, "__proto__")?.value).toBe(7);
+		expect(({} as Record<string, unknown>).nested).toBeUndefined();
+
+		const observed: Array<JsonValue | undefined> = [];
+		store.subscribe("__proto__", (value) => observed.push(value));
+		commitTier1(store, "__proto__", "selection", JSON.parse('{"__proto__":"updated"}'));
+		expect(observed).toEqual([JSON.parse('{"__proto__":"updated"}')]);
+		expect(store.recentEvents()[0]?.value).toEqual(JSON.parse('{"__proto__":"updated"}'));
+		expect(Object.hasOwn(store.snapshot(), "__proto__")).toBe(true);
+
+		const empty = createInMemoryMorpheStore();
+		expect(empty.get("__proto__")).toBeUndefined();
+		expect(empty.get("constructor")).toBeUndefined();
+		expect(empty.get("toString")).toBeUndefined();
 	});
 
 	it("replaces values on write and notifies subscribers on every set", () => {

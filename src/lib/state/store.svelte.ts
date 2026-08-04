@@ -59,21 +59,24 @@ export class InMemoryMorpheStore implements MorpheStore {
 	#now: () => number;
 
 	constructor(initial: JsonRecord = {}, options: StoreOptions = {}) {
-		const values: Record<string, JsonValue> = {};
-		for (const [path, value] of Object.entries(initial)) {
-			values[path] = cloneJson(value);
-		}
-		this.#values = values;
+		this.#values = cloneJsonRecord(initial);
 		this.#now = options.now ?? (() => Date.now());
 	}
 
 	get(path: string): JsonValue | undefined {
+		// Bind paths are opaque strings. An ordinary record inherits names such as
+		// `__proto__`, `constructor`, and `toString`; none is stored unless it is an
+		// own property. Without this guard, an absent magic-key path becomes a
+		// phantom JSON object after cloneJson() instead of reading as absent.
+		if (!Object.hasOwn(this.#values, path)) return undefined;
 		const value = this.#values[path];
 		return value === undefined ? undefined : freezeForDev(cloneJson(value));
 	}
 
 	set(path: string, value: JsonValue): void {
-		this.#values = { ...this.#values, [path]: cloneJson(value) };
+		// Define opaque paths as own data properties. Object.fromEntries avoids the
+		// legacy `__proto__` setter that plain indexed assignment invokes.
+		this.#values = Object.fromEntries([...Object.entries(this.#values), [path, cloneJson(value)]]);
 		this.#notify(path);
 	}
 
@@ -203,9 +206,9 @@ export function commitTier1(
 }
 
 function cloneJsonRecord(value: JsonRecord): Record<string, JsonValue> {
-	const out: Record<string, JsonValue> = {};
-	for (const [key, child] of Object.entries(value)) out[key] = cloneJson(child);
-	return out;
+	// JSON.parse can mint an own `__proto__` data property. Rebuild records with
+	// own-property definition so cloning never drops it or mutates a prototype.
+	return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, cloneJson(child)]));
 }
 
 function cloneJson(value: JsonValue): JsonValue {
@@ -218,9 +221,7 @@ function cloneJson(value: JsonValue): JsonValue {
 		return value;
 	}
 	if (Array.isArray(value)) return value.map(cloneJson);
-	const out: Record<string, JsonValue> = {};
-	for (const [key, child] of Object.entries(value)) out[key] = cloneJson(child);
-	return out;
+	return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, cloneJson(child)]));
 }
 
 function freezeForDev<T extends JsonValue | JsonRecord>(value: T): T {
