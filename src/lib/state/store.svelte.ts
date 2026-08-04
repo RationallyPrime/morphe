@@ -59,15 +59,20 @@ export class InMemoryMorpheStore implements MorpheStore {
 	#now: () => number;
 
 	constructor(initial: JsonRecord = {}, options: StoreOptions = {}) {
-		const values: Record<string, JsonValue> = {};
-		for (const [path, value] of Object.entries(initial)) {
-			values[path] = cloneJson(value);
-		}
-		this.#values = values;
+		// Store paths are opaque strings: records are built via own-property
+		// definition (fromEntries) so magic keys like "__proto__" — which
+		// JSON.parse mints as own properties — survive instead of routing
+		// through the inherited prototype setter.
+		this.#values = Object.fromEntries(
+			Object.entries(initial).map(([path, value]) => [path, cloneJson(value)]),
+		);
 		this.#now = options.now ?? (() => Date.now());
 	}
 
 	get(path: string): JsonValue | undefined {
+		// Own-property guard: without it, get("__proto__") on a store that never
+		// set that path would read the inherited prototype instead of undefined.
+		if (!Object.hasOwn(this.#values, path)) return undefined;
 		const value = this.#values[path];
 		return value === undefined ? undefined : freezeForDev(cloneJson(value));
 	}
@@ -203,9 +208,9 @@ export function commitTier1(
 }
 
 function cloneJsonRecord(value: JsonRecord): Record<string, JsonValue> {
-	const out: Record<string, JsonValue> = {};
-	for (const [key, child] of Object.entries(value)) out[key] = cloneJson(child);
-	return out;
+	// fromEntries: own-property definition keeps own "__proto__" keys that
+	// assignment into a plain {} would lose (see the constructor note).
+	return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, cloneJson(child)]));
 }
 
 function cloneJson(value: JsonValue): JsonValue {
@@ -218,9 +223,8 @@ function cloneJson(value: JsonValue): JsonValue {
 		return value;
 	}
 	if (Array.isArray(value)) return value.map(cloneJson);
-	const out: Record<string, JsonValue> = {};
-	for (const [key, child] of Object.entries(value)) out[key] = cloneJson(child);
-	return out;
+	// fromEntries: JSON.parse can mint own "__proto__" keys; assignment would drop them.
+	return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, cloneJson(child)]));
 }
 
 function freezeForDev<T extends JsonValue | JsonRecord>(value: T): T {

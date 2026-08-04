@@ -82,6 +82,40 @@ describe("Morphe client store — ADR-0003 contract", () => {
 		}).toThrow();
 	});
 
+	it("preserves magic-key store paths and values (KRA-924)", () => {
+		const PROTO = "__proto__";
+
+		// Unset magic path reads undefined — never the inherited prototype.
+		expect(createInMemoryMorpheStore().get(PROTO)).toBeUndefined();
+
+		// Hydrated initial record with an own "__proto__" key (JSON.parse mints one).
+		const initial = JSON.parse('{"__proto__": {"polluted": true}, "plain": 1}') as Record<
+			string,
+			JsonValue
+		>;
+		const hydrated = createInMemoryMorpheStore(initial);
+		expect(hydrated.get(PROTO)).toEqual({ polluted: true });
+		const snap = hydrated.snapshot();
+		expect(Object.hasOwn(snap, PROTO)).toBe(true);
+		expect(Object.getPrototypeOf(snap)).toBe(Object.prototype);
+		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+
+		// set → get/snapshot round-trip.
+		const store = createInMemoryMorpheStore();
+		store.set(PROTO, 7);
+		expect(store.get(PROTO)).toBe(7);
+		expect(Object.hasOwn(store.snapshot(), PROTO)).toBe(true);
+
+		// Nested own "__proto__" keys survive the event snapshot clones.
+		store.recordEvent({
+			kind: "selection",
+			path: "filters",
+			value: JSON.parse('{"__proto__": "kept"}') as JsonValue,
+		});
+		const event = store.recentEvents().at(-1);
+		expect(Object.hasOwn(event?.value as object, PROTO)).toBe(true);
+	});
+
 	it("keeps store reads inside primitives that declare binding paths", () => {
 		const primitivesDir = fileURLToPath(new URL("../primitives", import.meta.url));
 		const readers = svelteFiles(primitivesDir)
