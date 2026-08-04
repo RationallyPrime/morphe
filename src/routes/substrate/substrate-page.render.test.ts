@@ -14,6 +14,7 @@ describe("/substrate coherent playground", () => {
 		expect(html).toContain("State + Actions");
 		expect(html).toContain("Deterministic Vary + Delta");
 		expect(html).toContain("CMS Pipeline");
+		expect(html).toContain("Six-kernel Evidence");
 		expect(html).toContain("Local AI Provider");
 		expect(html).toContain("Proof rail");
 		expect(html).toContain("tier-2 boundary");

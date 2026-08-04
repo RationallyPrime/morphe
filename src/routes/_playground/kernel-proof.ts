@@ -7,10 +7,19 @@ import obolosFinalityTree from "../../../fixtures/krepis-proof/artifacts/obolos-
 import taxisRosterTree from "../../../fixtures/krepis-proof/artifacts/taxis-roster/taxis-roster.node.json";
 import zygosPostedTransactionTree from "../../../fixtures/krepis-proof/artifacts/zygos-posted-transaction/zygos-posted-transaction.node.json";
 
+export const KERNEL_PROOF_CASE_IDS = [
+	"taxis-roster",
+	"misthos-run-summary",
+	"chreos-breached-obligations",
+	"obolos-finality",
+	"apotheke-expiry",
+	"zygos-posted-transaction",
+] as const;
+export type KernelProofCaseId = (typeof KERNEL_PROOF_CASE_IDS)[number];
 export type KernelProofIssuer = "taxis" | "misthos" | "chreos" | "obolos" | "apotheke" | "zygos";
 
 export interface KernelProofCase {
-	readonly id: string;
+	readonly id: KernelProofCaseId;
 	/** The owning kernel and signed source-v1 issuer are the same fixed identifier. */
 	readonly issuer: KernelProofIssuer;
 	readonly label: string;
@@ -124,3 +133,14 @@ const CASES = [
 ] as const satisfies SixKernelProofCases;
 
 export const KERNEL_PROOF_CASES: SixKernelProofCases = Object.freeze(CASES);
+export const DEFAULT_KERNEL_PROOF_CASE_ID: KernelProofCaseId = KERNEL_PROOF_CASE_IDS[0];
+
+export function isKernelProofCaseId(value: string): value is KernelProofCaseId {
+	return (KERNEL_PROOF_CASE_IDS as readonly string[]).includes(value);
+}
+
+export function kernelProofCaseFor(id: KernelProofCaseId): KernelProofCase {
+	const fixture = KERNEL_PROOF_CASES.find((candidate) => candidate.id === id);
+	if (fixture !== undefined) return fixture;
+	throw new Error(`Unknown kernel proof case "${id}".`);
+}

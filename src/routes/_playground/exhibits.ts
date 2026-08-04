@@ -46,6 +46,12 @@ export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 		proofFocus: "Compiled artifact",
 	},
 	{
+		id: "kernels",
+		label: "Six-kernel Evidence",
+		summary: "One sealed signed source-v1 surface from every Krepis kernel.",
+		proofFocus: "Producer compatibility",
+	},
+	{
 		id: "local-ai",
 		label: "Local AI Provider",
 		summary: "Chrome Prompt API as progressive enhancement behind a small draft contract.",

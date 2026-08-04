@@ -1,4 +1,5 @@
 import type { JsonRecord, Node } from "$lib";
+import type { KernelProofCaseId } from "./kernel-proof.js";
 import type { LocalAdaptiveDraft } from "./validation.js";
 
 export const EXHIBIT_IDS = [
@@ -9,6 +10,7 @@ export const EXHIBIT_IDS = [
 	"state",
 	"vary",
 	"cms",
+	"kernels",
 	"local-ai",
 ] as const;
 export type ExhibitId = (typeof EXHIBIT_IDS)[number];
@@ -51,6 +53,7 @@ export interface PlaygroundPresentationInput {
 	readonly localDraft: LocalAdaptiveDraft;
 	readonly localSource: ProviderSource;
 	readonly localDiagnostics: readonly string[];
+	readonly kernelProofCaseId: KernelProofCaseId;
 }
 
 export interface PlaygroundPresentation {

@@ -1,6 +1,7 @@
 import type { JsonRecord, Node } from "$lib";
 import { presentCompoundMint } from "./compound-mint.js";
 import { exhibitFor } from "./exhibits.js";
+import { kernelProofCaseFor } from "./kernel-proof.js";
 import { LIVE_PROOF_IDS, LIVE_PROOF_STORE_PATH } from "./live-proof-contract.js";
 import type {
 	GrammarVariant,
@@ -42,10 +43,15 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 				return presentVaryDelta();
 			case "cms":
 				return presentCmsPipeline();
+			case "kernels":
+				return kernelProofCaseFor(input.kernelProofCaseId).tree;
 			case "local-ai":
 				return presentLocalAiExhibit(input.localDraft, input.localSource, input.localDiagnostics);
 		}
 	})();
+
+	const kernelProof =
+		input.activeExhibit === "kernels" ? kernelProofCaseFor(input.kernelProofCaseId) : undefined;
 
 	return {
 		tree,
@@ -65,11 +71,27 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 				value: input.actionLog.length === 0 ? "none" : input.actionLog.join(", "),
 			},
 			{ label: "bound paths", value: summarizeStore(input.storeSnapshot) },
-			{ label: "source", value: input.localSource },
+			{
+				label: "source",
+				value: kernelProof === undefined ? input.localSource : "sealed signed source-v1 fixture",
+			},
 			{
 				label: "diagnostics",
-				value: input.localDiagnostics.length === 0 ? "none" : input.localDiagnostics.join(", "),
+				value:
+					kernelProof !== undefined || input.localDiagnostics.length === 0
+						? "none"
+						: input.localDiagnostics.join(", "),
 			},
+			...(kernelProof === undefined
+				? []
+				: [
+						{ label: "kernel / issuer", value: kernelProof.issuer },
+						{ label: "operation", value: kernelProof.operationId },
+						{ label: "surface id", value: kernelProof.surfaceId },
+						{ label: "source revision", value: kernelProof.sourceRevision },
+						{ label: "testimony", value: kernelProof.testimonySha256 },
+						{ label: "tree receipt", value: kernelProof.treeSha256 },
+					]),
 		],
 	};
 }

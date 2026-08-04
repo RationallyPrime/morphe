@@ -117,11 +117,13 @@
 	 * a heading at top tier is allowed to reach the display register.
 	 */
 	.mo-text {
+		min-inline-size: 0;
 		margin: 0;
 		font-family: var(--mo-font-body);
 		font-size: var(--mo-ctx-type, var(--mo-type-4));
 		line-height: var(--mo-leading-normal);
 		color: var(--mo-intent-on-surface);
+		overflow-wrap: anywhere;
 		text-wrap: pretty;
 	}
 

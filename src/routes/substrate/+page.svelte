@@ -28,6 +28,12 @@
 	import { MorpheRoot } from "$lib/components";
 	import { DEFAULT_EXHIBIT, DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
 	import { FALLBACK_LOCAL_ADAPTIVE_DRAFT, fallbackDiagnostics } from "../_playground/fallback.js";
+	import type { KernelProofCaseId } from "../_playground/kernel-proof.js";
+	import {
+		DEFAULT_KERNEL_PROOF_CASE_ID,
+		isKernelProofCaseId,
+		KERNEL_PROOF_CASES,
+	} from "../_playground/kernel-proof.js";
 	import { LIVE_PROOF_IDS, LIVE_PROOF_STORE_PATH } from "../_playground/live-proof-contract.js";
 	import { generateLocalAdaptiveDraft } from "../_playground/local-ai.js";
 	import {
@@ -52,6 +58,7 @@
 
 	let activeExhibit = $state<ExhibitId>(DEFAULT_EXHIBIT);
 	let grammarVariant = $state<GrammarVariant>("layout");
+	let kernelProofCaseId = $state<KernelProofCaseId>(DEFAULT_KERNEL_PROOF_CASE_ID);
 	let goldModeChoice = $state(0);
 	let goldDetailChoice = $state(0);
 	let goldDensityChoice = $state(1);
@@ -118,6 +125,7 @@
 			localDraft,
 			localSource,
 			localDiagnostics,
+			kernelProofCaseId,
 		}),
 	);
 	const renderedTree = $derived(activeExhibit === "vary" ? liveProofTree : presentation.tree);
@@ -140,6 +148,11 @@
 	function setDialect(event: Event): void {
 		const value = (event.currentTarget as HTMLSelectElement).value;
 		activeDialect.setById(value);
+	}
+
+	function setKernelProofCase(event: Event): void {
+		const value = (event.currentTarget as HTMLSelectElement).value;
+		if (isKernelProofCaseId(value)) kernelProofCaseId = value;
 	}
 
 	function setGoldModeChoice(event: Event): void {
@@ -457,6 +470,27 @@
 					<a href="/preview/capability-page.demo/rev-001">Preview route</a>
 					<a href="/p/demo">Published route</a>
 				</div>
+			{:else if activeExhibit === "kernels"}
+				<label class="field" for="dialect-select">
+					<span>Global dialect</span>
+					<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
+						{#each DIALECT_OPTIONS as dialectId (dialectId)}
+							<option value={dialectId}>{dialectId}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="field" for="kernel-proof-case">
+					<span>Sealed source-v1 case</span>
+					<select id="kernel-proof-case" value={kernelProofCaseId} onchange={setKernelProofCase}>
+						{#each KERNEL_PROOF_CASES as fixture (fixture.id)}
+							<option value={fixture.id}>{fixture.label}</option>
+						{/each}
+					</select>
+				</label>
+				<p class="control-copy">
+					Each fixed tree is replayed from a real Krepis route fixture. Morphe owns rendering and
+					validation; the kernel retains its domain semantics and signing authority.
+				</p>
 			{:else if activeExhibit === "local-ai"}
 				<label class="field" for="local-goal">
 					<span>Prompt goal</span>
