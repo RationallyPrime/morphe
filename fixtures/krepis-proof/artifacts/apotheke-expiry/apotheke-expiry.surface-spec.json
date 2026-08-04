@@ -1,0 +1,379 @@
+{
+  "path": "$",
+  "label": "Expiry horizon",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.name",
+      "label": "Deployment",
+      "strategy": "scalar",
+      "intent": "accession",
+      "diagnostics": [],
+      "value": "apotheke",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.kpis",
+      "label": "Expiry",
+      "strategy": "kpi-row",
+      "heading": false,
+      "items": [
+        {
+          "path": "$.kpis[0]",
+          "label": "Lots in horizon",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Expiry",
+          "gloss": "On-hand lots whose declared expiry is no later than the selected horizon end.",
+          "kicker_gloss": "A measure derived from declared lot expiry dates at the selected cut.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[1]",
+          "label": "Soonest expiry (days)",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Expiry",
+          "gloss": "Signed days to the earliest declared expiry in this upper-bounded set; negative means elapsed.",
+          "kicker_gloss": "A measure derived from declared lot expiry dates at the selected cut.",
+          "children": [],
+          "diagnostics": [],
+          "value": 11,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[2]",
+          "label": "Expiring ≤7d",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Expiry",
+          "gloss": "On-hand lots expiring within 7 days but not yet expired.",
+          "kicker_gloss": "A measure derived from declared lot expiry dates at the selected cut.",
+          "children": [],
+          "diagnostics": [],
+          "value": 0,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[3]",
+          "label": "Expired",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Expiry",
+          "gloss": "On-hand lots whose declared expiry date has passed.",
+          "kicker_gloss": "A measure derived from declared lot expiry dates at the selected cut.",
+          "children": [],
+          "diagnostics": [],
+          "value": 0,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[4]",
+          "label": "Lots written off",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Control",
+          "gloss": "Lots in this upper-bounded expiry set with a recorded positive write-off.",
+          "kicker_gloss": "A measure derived from inventory controls and recorded dispositions.",
+          "children": [],
+          "diagnostics": [],
+          "value": 0,
+          "heading": true,
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "children": []
+    },
+    {
+      "path": "$.rows",
+      "label": "Expiry horizon",
+      "strategy": "table",
+      "heading": false,
+      "emphasis": "strong",
+      "children": [
+        {
+          "path": "$.rows.item",
+          "label": "Item",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Item",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.lot",
+          "label": "Lot",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Lot",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.trace",
+          "label": "Trace",
+          "strategy": "scalar",
+          "value": "Trace",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.state",
+          "label": "State",
+          "strategy": "scalar",
+          "gloss": "Whether stock can be promised, is nearing or past expiry, is controlled, or has been exhausted.",
+          "value": "State",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.days_remaining",
+          "label": "Days remaining",
+          "strategy": "scalar",
+          "gloss": "Signed days until expiry at the selected cut; a negative value means already expired.",
+          "value": "Days remaining",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.on_hand",
+          "label": "On hand",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "gloss": "Quantity remaining after the inventory movements recorded for this stock.",
+          "value": "On hand",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.available",
+          "label": "Available",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "gloss": "Quantity currently free to promise after reservations and inventory controls.",
+          "value": "Available",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.written_off",
+          "label": "Written off",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "gloss": "Quantity covered by recorded write-off movements while the lot remains traceable.",
+          "value": "Written off",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.expiry",
+          "label": "Expiry",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "gloss": "The date after which this lot is treated as expired for availability and alerts.",
+          "value": "Expiry",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        }
+      ],
+      "items": [
+        {
+          "path": "$.rows[0]",
+          "label": "Expiry horizon 0",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[0].item",
+              "label": "Flour",
+              "strategy": "linked-ref",
+              "href": "/surfaces/item/00000000-0000-0000-0000-00000000a201?as_of=2026-07-20",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Flour",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].lot",
+              "label": "Lot",
+              "strategy": "scalar",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "SUP-8812",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].trace",
+              "label": "SUP-8812",
+              "strategy": "linked-ref",
+              "href": "/surfaces/trace?lot_id=00000000-0000-0000-0000-00000000a205&as_of=2026-07-20&as_of_sequence=5",
+              "diagnostics": [],
+              "value": "SUP-8812",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].state",
+              "label": "State",
+              "strategy": "status",
+              "intent": "success",
+              "gloss": "Whether stock can be promised, is nearing or past expiry, is controlled, or has been exhausted.",
+              "diagnostics": [],
+              "value": "available",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].days_remaining",
+              "label": "Days remaining",
+              "strategy": "number",
+              "number_format": "integer",
+              "gloss": "Signed days until expiry at the selected cut; a negative value means already expired.",
+              "diagnostics": [],
+              "value": 11,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].on_hand",
+              "label": "On hand",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "Quantity remaining after the inventory movements recorded for this stock.",
+              "diagnostics": [],
+              "value": "10 kg",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].available",
+              "label": "Available",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "Quantity currently free to promise after reservations and inventory controls.",
+              "diagnostics": [],
+              "value": "6 kg",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].written_off",
+              "label": "Written off",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "Quantity covered by recorded write-off movements while the lot remains traceable.",
+              "diagnostics": [],
+              "value": "0 kg",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].expiry",
+              "label": "Expiry",
+              "strategy": "scalar",
+              "intent": "provenance",
+              "gloss": "The date after which this lot is treated as expired for availability and alerts.",
+              "diagnostics": [],
+              "value": "2026-07-31",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "path": "$.horizon_days",
+      "label": "Horizon (days)",
+      "strategy": "number",
+      "number_format": "integer",
+      "gloss": "The forward expiry window selected for this pane.",
+      "diagnostics": [],
+      "value": 90,
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.effective_at",
+      "label": "Effective at",
+      "strategy": "scalar",
+      "intent": "provenance",
+      "diagnostics": [],
+      "value": "2026-07-20",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.as_of",
+      "label": "As of",
+      "strategy": "scalar",
+      "intent": "provenance",
+      "diagnostics": [],
+      "value": "2026-08-04T12:00:00Z",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.sequence",
+      "label": "Sequence",
+      "strategy": "scalar",
+      "intent": "provenance",
+      "numeric": true,
+      "polarity": "positive",
+      "diagnostics": [],
+      "value": 8,
+      "heading": true,
+      "children": [],
+      "items": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

@@ -1,0 +1,393 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Obligations",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "text",
+          "value": "chreos",
+          "as": "caption",
+          "emphasis": "muted",
+          "intent": "footnote"
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "compound",
+              "name": "StatBand",
+              "args": {},
+              "slots": {
+                "tiles": [
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Book",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure over obligations visible in the current book."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Obligations",
+                        "as": "subheading",
+                        "gloss": "Commitments whose effective start has occurred by the selected read date and are visible in this book."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Standing",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure grouped by the kernel's obligation standing classifier."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Breached",
+                        "as": "subheading",
+                        "gloss": "Effective obligations whose live non-expiry violations place them in breached standing."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "intent": "caution",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Standing",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure grouped by the kernel's obligation standing classifier."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Expiring",
+                        "as": "subheading",
+                        "gloss": "Effective obligations whose bound ruleset flags an approaching end without a breach."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 0,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Compliance",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "status",
+              "tone": "caution",
+              "signal": {
+                "text": "violations"
+              },
+              "gloss": "Whether mandatory rules produced any unresolved blocking violations for this read."
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "table",
+              "caption": "Obligations",
+              "captionHidden": true,
+              "columns": [
+                {
+                  "header": "Obligation",
+                  "priority": "primary",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Kind",
+                  "priority": "secondary",
+                  "intent": "info",
+                  "gloss": "The caller-authored commitment tag used to classify and select this obligation."
+                },
+                {
+                  "header": "Counterparty",
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Standing",
+                  "priority": "secondary",
+                  "gloss": "Where an obligation sits after lifecycle events, effective dates, and live rule violations are evaluated."
+                },
+                {
+                  "header": "Amount",
+                  "numeric": true,
+                  "priority": "secondary",
+                  "intent": "evidence",
+                  "gloss": "The obligation total shown only when its canonical minor-unit currency is ISK."
+                },
+                {
+                  "header": "Effective",
+                  "priority": "secondary",
+                  "gloss": "The obligation's effective start and, when bounded, end date."
+                },
+                {
+                  "header": "Next duty",
+                  "priority": "secondary",
+                  "gloss": "The first known duty due within the book's next 365 days."
+                }
+              ],
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/obligation?obligation_id=00000000-0000-0000-0000-000000000002&as_of=2026-09-01",
+                          "label": "lease · 00000000",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "lease",
+                          "intent": "info",
+                          "gloss": "The caller-authored commitment tag used to classify and select this obligation."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/party?party_id=00000000-0000-0000-0000-000000000001&as_of=2026-09-01",
+                          "label": "Organization · 00000000"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "caution",
+                          "signal": {
+                            "text": "breached"
+                          },
+                          "gloss": "Where an obligation sits after lifecycle events, effective dates, and live rule violations are evaluated."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 8400000,
+                          "format": "currency",
+                          "currency": "ISK",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-01-01 → 2027-12-31",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "index adjustment due 2026-10-01",
+                          "as": "body"
+                        }
+                      ]
+                    }
+                  ],
+                  "diagnostics": [
+                    {
+                      "kind": "inline-alert",
+                      "tone": "caution",
+                      "title": "Standing: LIVE_VIOLATIONS",
+                      "detail": "Milestone 'delivery' was due on 2026-06-01 and remains open after its grace period.",
+                      "repair": "Open the obligation, record the missing outcome or evidence, then re-evaluate the book."
+                    }
+                  ]
+                }
+              ],
+              "rowHeader": true,
+              "responsive": "records",
+              "emphasis": "strong"
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Counterparties",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "text",
+              "value": "PII redacted — governed read; counterparty names require include_pii.",
+              "as": "body",
+              "intent": "aside"
+            }
+          ]
+        },
+        {
+          "kind": "compound",
+          "name": "KeyValuePanel",
+          "args": {},
+          "slots": {
+            "primary": [],
+            "secondary": [],
+            "provenance": [
+              {
+                "kind": "compound",
+                "name": "ProvenanceFooter",
+                "args": {},
+                "slots": {
+                  "facts": [
+                    {
+                      "kind": "stack",
+                      "role": "field-group",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "As of",
+                          "as": "caption",
+                          "intent": "neutral"
+                        },
+                        {
+                          "kind": "text",
+                          "value": "2026-09-01",
+                          "as": "body",
+                          "intent": "provenance"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "stack",
+                      "role": "field-group",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Rules evaluated",
+                          "as": "caption",
+                          "intent": "neutral"
+                        },
+                        {
+                          "kind": "text",
+                          "value": "1",
+                          "as": "body",
+                          "intent": "provenance",
+                          "numeric": true,
+                          "polarity": "positive"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "stack",
+                      "role": "field-group",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Obligations evaluated",
+                          "as": "caption",
+                          "intent": "neutral"
+                        },
+                        {
+                          "kind": "text",
+                          "value": "1",
+                          "as": "body",
+                          "intent": "provenance",
+                          "numeric": true,
+                          "polarity": "positive"
+                        }
+                      ]
+                    }
+                  ],
+                  "seals": [],
+                  "links": []
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

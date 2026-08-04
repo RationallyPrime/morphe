@@ -1,0 +1,340 @@
+{
+  "path": "$",
+  "label": "Roster",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.name",
+      "label": "Org",
+      "strategy": "scalar",
+      "intent": "accession",
+      "diagnostics": [],
+      "value": "taxis",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.week",
+      "label": "Week",
+      "strategy": "scalar",
+      "intent": "accession",
+      "diagnostics": [],
+      "value": "2026-W30",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.as_of",
+      "label": "As of",
+      "strategy": "scalar",
+      "intent": "provenance",
+      "diagnostics": [],
+      "value": "2026-07-20",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.kpis",
+      "label": "Summary",
+      "strategy": "kpi-row",
+      "heading": false,
+      "items": [
+        {
+          "path": "$.kpis[0]",
+          "label": "Confirmed hours",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "2026-W30",
+          "gloss": "Hours scheduled across shifts the deployment has committed to.",
+          "kicker_gloss": "A measure calculated over the roster or reconciliation window named here.",
+          "children": [],
+          "diagnostics": [],
+          "value": 8,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[1]",
+          "label": "Shifts",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "2026-W30",
+          "gloss": "Rows in the selected roster or reconciliation window, including unmatched clock observations.",
+          "kicker_gloss": "A measure calculated over the roster or reconciliation window named here.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[2]",
+          "label": "Workers",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "2026-W30",
+          "gloss": "Distinct workers represented in the selected window.",
+          "kicker_gloss": "A measure calculated over the roster or reconciliation window named here.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[3]",
+          "label": "Blocking violations",
+          "strategy": "number",
+          "intent": "caution",
+          "number_format": "integer",
+          "kicker": "2026-W30",
+          "gloss": "Unresolved rule findings that block the selected roster.",
+          "kicker_gloss": "A measure calculated over the roster or reconciliation window named here.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "children": []
+    },
+    {
+      "path": "$.violation_state",
+      "label": "Compliance",
+      "strategy": "status",
+      "intent": "caution",
+      "gloss": "Whether unresolved workforce-rule violations exist for the selected scope.",
+      "diagnostics": [],
+      "value": "violations",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.confirmed_minutes",
+      "label": "Confirmed minutes",
+      "strategy": "scalar",
+      "intent": "evidence",
+      "numeric": true,
+      "polarity": "positive",
+      "diagnostics": [],
+      "value": "480",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.rows",
+      "label": "Roster",
+      "strategy": "table",
+      "heading": false,
+      "emphasis": "strong",
+      "children": [
+        {
+          "path": "$.rows.day",
+          "label": "Day",
+          "strategy": "scalar",
+          "value": "Day",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.time",
+          "label": "Time",
+          "strategy": "scalar",
+          "value": "Time",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.worker",
+          "label": "Worker",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Worker",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.role",
+          "label": "Role",
+          "strategy": "scalar",
+          "intent": "info",
+          "value": "Role",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.location",
+          "label": "Location",
+          "strategy": "scalar",
+          "value": "Location",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.state",
+          "label": "State",
+          "strategy": "scalar",
+          "gloss": "The roster lifecycle reached by this shift, from proposal through completion or cancellation.",
+          "value": "State",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.hours",
+          "label": "Hours",
+          "strategy": "scalar",
+          "value": "Hours",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.minutes",
+          "label": "Minutes",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "value": "Minutes",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        }
+      ],
+      "items": [
+        {
+          "path": "$.rows[0]",
+          "label": "Roster 0",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[0].day",
+              "label": "Day",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "Mon 20 Jul",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].time",
+              "label": "Time",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "09:00–17:00 UTC",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].worker",
+              "label": "Ada",
+              "strategy": "linked-ref",
+              "href": "/surfaces/employee?worker_id=00000000-0000-0000-0000-000000000067&as_of=2026-07-20",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Ada",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].role",
+              "label": "Barista",
+              "strategy": "linked-ref",
+              "href": "/surfaces/role?role_id=00000000-0000-0000-0000-000000000066",
+              "intent": "info",
+              "diagnostics": [],
+              "value": "Barista",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].location",
+              "label": "Vesturgata",
+              "strategy": "linked-ref",
+              "href": "/surfaces/location?location_id=00000000-0000-0000-0000-000000000065",
+              "diagnostics": [],
+              "value": "Vesturgata",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].state",
+              "label": "State",
+              "strategy": "badge",
+              "intent": "success",
+              "gloss": "The roster lifecycle reached by this shift, from proposal through completion or cancellation.",
+              "diagnostics": [],
+              "value": "confirmed",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].hours",
+              "label": "Hours",
+              "strategy": "number",
+              "diagnostics": [],
+              "value": 8,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].minutes",
+              "label": "Minutes",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "numeric": true,
+              "polarity": "positive",
+              "diagnostics": [],
+              "value": "480",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [
+            {
+              "code": "MAX_SHIFT_MINUTES",
+              "severity": "warning",
+              "path": "$.rows[0]",
+              "message": "The employer scheduled this shift for 480 minutes; the permitted maximum is 300 minutes.",
+              "repair_hint": "Shorten or split the implicated shift, then re-evaluate the roster."
+            }
+          ],
+          "items": []
+        }
+      ],
+      "diagnostics": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

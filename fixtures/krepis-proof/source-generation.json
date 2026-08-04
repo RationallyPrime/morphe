@@ -1,0 +1,325 @@
+{
+  "cases": [
+    {
+      "id": "taxis-roster",
+      "invariants": [
+        "The signed source schema and data omit confirmed_hours and open_violations.",
+        "The route is negotiated as source-v1, not a legacy compiled representation."
+      ],
+      "issuer": "taxis",
+      "operation_id": "get_surface_roster",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          }
+        ],
+        "fixture_story_id": "taxis.source-surface.roster.as-of-2026-07-20",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/taxis/src/taxis/surfaces.py:build_roster_surface",
+        "route": "packages/taxis/src/taxis/api/routes/surfaces.py:get_surface_roster",
+        "test_fixture": "packages/taxis/tests/integration/test_source_surface_routes.py:signed_client"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "taxis-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/surfaces/roster?as_of=2026-07-20"
+      },
+      "source": {
+        "byte_size": 9538,
+        "content_sha256": "sha256:6110d0c3c1e5f006d66c15912ed577001acea3aa7ff4a2dfb57eb83cf47fa68f",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/taxis-roster/taxis-roster.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:634b34efdfea94e76eda7a43ecf3520f1b3c71a59640aa7440cff3fc15739c8d",
+        "sha256": "c1260a83e51744d54636a842763bb752d794bcf43bbe6d86a6c02b769b257988",
+        "signature": "RtiI1I_Seoozuv-nkAbxCBV8D0WiPPz8dnGxzod8VEsCQU3nFS1GcarlxFXwyR8JbBir1w_zAcRclvn5wpN5Cg",
+        "source_revision": "seq-13.cfg-e6ac417f1e79",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:5e3a5f2a073482f454c74736fed72064bdeb421bc54a298b7a7f9a66afc9a8dd",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "taxis.roster:2026-W30:as-of:2026-07-20",
+      "view_model_id": "taxis.roster"
+    },
+    {
+      "id": "misthos-run-summary",
+      "invariants": [
+        "The test-owned PII sentinel values are absent from the signed source wire.",
+        "Visible synthetic display names are not treated as private production data."
+      ],
+      "issuer": "misthos",
+      "operation_id": "get_surface_run_summary",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          }
+        ],
+        "fixture_story_id": "misthos.source-surface.committed-run-summary",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/misthos/src/misthos/surfaces.py:build_run_summary",
+        "route": "packages/misthos/src/misthos/api/routes/surfaces.py:get_surface_run_summary",
+        "test_fixture": "packages/misthos/tests/integration/test_source_surface_routes.py:_seeded_store"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "misthos-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/surfaces/run-summary?run_id=8fc48217-03b7-5132-b493-6cdb0081b237"
+      },
+      "source": {
+        "byte_size": 14694,
+        "content_sha256": "sha256:c8dfed23db936354d72e46326ad56ef36b0fec57d94d204badd8ff2027bcda20",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/misthos-run-summary/misthos-run-summary.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:b0309446868b19325a41facbbbf7c5e6fe161a2e0e45485574ec08643bcea18e",
+        "sha256": "e2440206a7420b7f9bb7a6a077c1265858c2ac1dae5e8b3c361ce925eee40ba9",
+        "signature": "KZFTCmoIh0Nf1i91L-_NVp4OkFO_RlLd5yYVmzY13lmI_TwXgXg6wfj68PpnrM41ywdtPwn0HxbyjsEqJdPDCw",
+        "source_revision": "seq-33.cfg-0984b7ef3651",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:153bdadf5598a32bc2916ced302564e1462344be0e18e6d3dac165a3cfc5c81b",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "misthos.run-summary:8fc48217-03b7-5132-b493-6cdb0081b237",
+      "view_model_id": "misthos.run-summary"
+    },
+    {
+      "id": "chreos-breached-obligations",
+      "invariants": [
+        "The signed source has no PII field keys (legal_name, national_id, contact).",
+        "The breached-obligation route is exercised through its append-path fixture story."
+      ],
+      "issuer": "chreos",
+      "operation_id": "get_surface_obligations",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          }
+        ],
+        "fixture_story_id": "chreos.source-surface.breached-obligations.as-of-2026-09-01",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/chreos/src/chreos/surfaces.py:build_obligations",
+        "route": "packages/chreos/src/chreos/api/routes/surfaces.py:get_surface_obligations",
+        "test_fixture": "packages/chreos/tests/integration/test_source_surface_routes.py:_BREACHED + _seed"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "chreos-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/surfaces/obligations?as_of=2026-09-01"
+      },
+      "source": {
+        "byte_size": 11622,
+        "content_sha256": "sha256:e128297871a4625664adbce3adb8ab41e3354af608b72c87d1be1a01980e15a9",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/chreos-breached-obligations/chreos-breached-obligations.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:ad64f0c3eb888cc757a5f42bf67b37c5a904179533bf7f472593365bcb4c427a",
+        "sha256": "36216f17855b24ba553710a898e7bc7b3e5aeb805a643eccb2fec51d4dd998e8",
+        "signature": "HfHNcta-juLQkhqo7ymaZeQBfLqdYmmILiEsanLDJgFvdLx2-6lk8KUDAquld6hEqHvPVVGaJhbfQBqZRx5yBg",
+        "source_revision": "seq-5.cfg-051fb6baac09",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:416701c69120316e51915d4670695403c77a64eef49eb6407058b7d4b47b8567",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "chreos.obligations:deployment:as-of:2026-09-01",
+      "view_model_id": "chreos.obligations"
+    },
+    {
+      "id": "obolos-finality",
+      "invariants": [
+        "The signed source schema and data omit counterparty PII fields.",
+        "Finality references remain link-only rather than carrying hidden relationship ids."
+      ],
+      "issuer": "obolos",
+      "operation_id": "get_surface_finality",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          },
+          {
+            "detail": "The existing _seeded fixture pins _read_now to READ_NOW.",
+            "kind": "existing_kernel_test_clock",
+            "target": "projection read clock"
+          },
+          {
+            "detail": "The storage clock pin used by tests/integration/conftest.py is applied to the fixture story.",
+            "kind": "existing_kernel_test_clock",
+            "target": "storage utc_now seams"
+          }
+        ],
+        "fixture_story_id": "obolos.source-surface.finality.frozen-month",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/obolos/src/obolos/surfaces.py:build_finality_surface",
+        "route": "packages/obolos/src/obolos/api/routes/surfaces.py:get_surface_finality",
+        "test_fixture": "packages/obolos/tests/integration/test_source_surface_routes.py:_seeded"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "obolos-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/surfaces/finality"
+      },
+      "source": {
+        "byte_size": 12239,
+        "content_sha256": "sha256:e0450c75be4a5cf6d3ea488e698d85ac84ef308fb1814272a5456f6f219e3570",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/obolos-finality/obolos-finality.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:2848a5f83065f84c5375284ada644e1fdda54f0ae3b26200dc785607018aa8a5",
+        "sha256": "8b45ef9410eb2bca078ea263e4e6e495baaff0621285594623d7d45001c483a4",
+        "signature": "G6OeAHs3CXranVGD3eQdZZ_JWxcujBM-1q4NHAYe45vdD6Tw0CRjHnCqqBeQyoWOhECgsAvXDNmKBOJAqNXCCQ",
+        "source_revision": "seq-24.cfg-08e5b1e5d695.at-20260716T120000Z",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:f4191e91bf40f23c24f753596b3ad49d92ec25110414e17873aa2f9dab2c2f2b",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "obolos.finality:deployment:20260714T000000Z-20260801T000000Z:all:all:t3",
+      "view_model_id": "obolos.finality"
+    },
+    {
+      "id": "apotheke-expiry",
+      "invariants": [
+        "The retired tenancy property is absent from every signed schema/data position.",
+        "The selected as-of sequence is carried by the signed expiry identity/revision."
+      ],
+      "issuer": "apotheke",
+      "operation_id": "get_surface_expiry",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          },
+          {
+            "detail": "A deterministic eight-value UUID sequence is supplied only while the existing _seed story runs; values are not emitted in this manifest.",
+            "kind": "fixture_identity_control",
+            "target": "tests.integration.test_api.uuid4"
+          },
+          {
+            "detail": "The in-memory engine clock is fixed because the signed compiled-at testimony otherwise comes from wall time.",
+            "kind": "staging_fixture_clock",
+            "target": "krepis_core.storage.memory.utc_now"
+          }
+        ],
+        "fixture_story_id": "apotheke.source-surface.expiry.as-of-2026-07-20.seq-5.h90",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/apotheke/src/apotheke/kernel/surfaces.py:build_expiry_surface",
+        "route": "packages/apotheke/src/apotheke/api/routes/surfaces.py:get_surface_expiry",
+        "test_fixture": "packages/apotheke/tests/integration/test_api.py:_seed"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "apotheke-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/surfaces/expiry?as_of=2026-07-20&as_of_sequence=5&horizon_days=90"
+      },
+      "source": {
+        "byte_size": 10154,
+        "content_sha256": "sha256:c8947edc7462d0f71c58287cefba05aea1fa4d9d273a4922f60b3a79818c1665",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/apotheke-expiry/apotheke-expiry.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:d3c1bc0f5f2dcd02040fbf451f64aad6cc5cd57b233fe4f2d68cd31f6b7416e3",
+        "sha256": "b7f266515f63e1b400532e35fac46130da8753cb99a3b57a8cedd2aaa0017896",
+        "signature": "aGFJaAOSTK_E7GFG33xNYOz5uXJeh5ZaAviBCxjB75dEhfUhRcTpJJVq5_l5hDOrIbnHg4KN_df2ChlT-ILCBA",
+        "source_revision": "seq-8.cfg-8f3ec1bf2659.pin-5",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:093e2d5f8293455a98a413fed557e652f1d77e8fcf0a4b73ab10e1bfb7dbff44",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "apotheke.expiry:deployment:h90:as-of:2026-07-20",
+      "view_model_id": "apotheke.expiry"
+    },
+    {
+      "id": "zygos-posted-transaction",
+      "invariants": [
+        "Transaction posting rows have no raw account_id property; account relationships are authored as links.",
+        "The signed source omits PII field keys and the internal previous_hash chain field."
+      ],
+      "issuer": "zygos",
+      "operation_id": "get_surface_transaction",
+      "producer": {
+        "controls": [
+          {
+            "detail": "Fixed to 2026-08-04T12:00:00Z; no private signing material is copied.",
+            "kind": "shared_cross_kernel_control",
+            "target": "krepis_core.api.source_surface.SourceSigner.author.produced_at"
+          },
+          {
+            "detail": "The book-id factory is replaced only at the staging fixture boundary with one public deterministic fixture UUID.",
+            "kind": "fixture_identity_control",
+            "target": "zygos.api.routes.books.new_book_id"
+          },
+          {
+            "detail": "The in-memory engine clock is fixed because transaction system_time and event_hash are signed route output.",
+            "kind": "staging_fixture_clock",
+            "target": "krepis_core.storage.memory.utc_now"
+          }
+        ],
+        "fixture_story_id": "zygos.source-surface.posted-transaction.txn-1",
+        "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+        "presenter": "packages/zygos/src/zygos/api/surfaces.py:surface_transaction",
+        "route": "packages/zygos/src/zygos/api/routes/surfaces.py:get_surface_transaction",
+        "test_fixture": "packages/zygos/tests/integration/test_source_surface_routes.py:signed story constituents"
+      },
+      "public_key": {
+        "base64url": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+        "key_id": "zygos-fixture-2026-01"
+      },
+      "request": {
+        "accept": "application/vnd.morphe.source-surface+json;v=1",
+        "method": "GET",
+        "path_and_query": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/transactions/01927f3b-1234-7000-a000-000000000010"
+      },
+      "source": {
+        "byte_size": 7626,
+        "content_sha256": "sha256:657cf1dc18627b72db7db9ecd77b48395ee401ec1ca0b23ea37f2c87a007e739",
+        "kind": "morphe.source-surface",
+        "path": "artifacts/zygos-posted-transaction/zygos-posted-transaction.source.json",
+        "produced_at": "2026-08-04T12:00:00Z",
+        "schema_sha256": "sha256:b4e749b81db80a692ebc46e578abe114feba0aa384533798b9cc464dc06b0dd1",
+        "sha256": "a594163e497ee0aaa3f6553b2f8a4491427e5e60d4340dbdfed54c08817fb629",
+        "signature": "wcYSfrSP96G0OuZjrjofMMr7zp14bOFb5DjC1M94uR2vwa84BIdxXENYGXetE1WT5yQkQA5Qa1_mEGSgUaCyAQ",
+        "source_revision": "seq-4",
+        "source_version": "1.0",
+        "testimony_sha256": "sha256:acab17089bbb380d2c9345e9b1b8c9be589f6bd94d8f6d356e090db50517e6a2",
+        "two_fresh_generations_byte_identical": true
+      },
+      "surface_id": "zygos.transaction:01927f3b-1234-7000-a000-0000000000aa:01927f3b-1234-7000-a000-000000000010",
+      "view_model_id": "zygos.transaction"
+    }
+  ],
+  "format": "krepis-six-kernel-source-v1-generation/v1",
+  "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+  "shared_produced_at": "2026-08-04T12:00:00Z"
+}

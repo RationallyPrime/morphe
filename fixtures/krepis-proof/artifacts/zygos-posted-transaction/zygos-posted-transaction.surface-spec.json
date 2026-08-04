@@ -1,0 +1,381 @@
+{
+  "path": "$",
+  "label": "Transaction",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.transaction",
+      "label": "Transaction",
+      "strategy": "collapsed-section",
+      "heading": true,
+      "collapse": false,
+      "children": [
+        {
+          "path": "$.transaction.sequence",
+          "label": "Sequence",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "numeric": true,
+          "polarity": "positive",
+          "diagnostics": [],
+          "value": 4,
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.system_time",
+          "label": "System Time",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "2026-08-04T12:00:00.000000Z",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.idempotency_key",
+          "label": "Idempotency Key",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "ZYGOS-EVENT-IDEMP-SENTINEL-7C22BB",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.kind",
+          "label": "kind",
+          "strategy": "badge",
+          "intent": "success",
+          "gloss": "The kernel event that produced this immutable ledger record.",
+          "diagnostics": [],
+          "value": "transaction_posted",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.transaction_id",
+          "label": "Transaction Id",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "01927f3b-1234-7000-a000-000000000010",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.effective_date",
+          "label": "Effective Date",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "gloss": "The business date on which this transaction changes ledger balances.",
+          "diagnostics": [],
+          "value": "2024-01-15",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.transaction.lineage",
+          "label": "Lineage",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.transaction.lineage.relation",
+              "label": "Relation",
+              "strategy": "scalar",
+              "intent": "provenance",
+              "gloss": "How this transaction participates in the immutable reversal chain.",
+              "value": "Relation",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.transaction.lineage.transaction",
+              "label": "Transaction",
+              "strategy": "scalar",
+              "intent": "provenance",
+              "value": "Transaction",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.transaction.postings",
+          "label": "Postings",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.transaction.postings.account_name",
+              "label": "Account",
+              "strategy": "scalar",
+              "intent": "accession",
+              "value": "Account",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.transaction.postings.symbol",
+              "label": "Commodity",
+              "strategy": "scalar",
+              "intent": "accession",
+              "value": "Commodity",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.transaction.postings.quantity",
+              "label": "Quantity",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "Signed posting quantity in canonical commodity minor units.",
+              "value": "Quantity",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.transaction.postings.display_quantity",
+              "label": "Display quantity",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "The posting quantity rendered at the commodity's declared scale.",
+              "value": "Display quantity",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [
+            {
+              "path": "$.transaction.postings[0]",
+              "label": "Postings 0",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.transaction.postings[0].account_name",
+                  "label": "Assets:Cash",
+                  "strategy": "linked-ref",
+                  "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/events?account_id=01927f3b-1234-7000-a000-000000000001",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "Assets:Cash",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[0].symbol",
+                  "label": "USD",
+                  "strategy": "linked-ref",
+                  "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/commodity/USD",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "USD",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[0].quantity",
+                  "label": "Quantity",
+                  "strategy": "scalar",
+                  "intent": "evidence",
+                  "numeric": true,
+                  "polarity": "positive",
+                  "gloss": "Signed posting quantity in canonical commodity minor units.",
+                  "diagnostics": [],
+                  "value": "10000",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[0].display_quantity",
+                  "label": "Display quantity",
+                  "strategy": "scalar",
+                  "intent": "evidence",
+                  "gloss": "The posting quantity rendered at the commodity's declared scale.",
+                  "diagnostics": [],
+                  "value": "100.00 USD",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            },
+            {
+              "path": "$.transaction.postings[1]",
+              "label": "Postings 1",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.transaction.postings[1].account_name",
+                  "label": "Revenue",
+                  "strategy": "linked-ref",
+                  "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/events?account_id=01927f3b-1234-7000-a000-000000000002",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "Revenue",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[1].symbol",
+                  "label": "USD",
+                  "strategy": "linked-ref",
+                  "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/commodity/USD",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "USD",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[1].quantity",
+                  "label": "Quantity",
+                  "strategy": "scalar",
+                  "intent": "evidence",
+                  "numeric": true,
+                  "polarity": "negative",
+                  "gloss": "Signed posting quantity in canonical commodity minor units.",
+                  "diagnostics": [],
+                  "value": "-10000",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.postings[1].display_quantity",
+                  "label": "Display quantity",
+                  "strategy": "scalar",
+                  "intent": "evidence",
+                  "gloss": "The posting quantity rendered at the commodity's declared scale.",
+                  "diagnostics": [],
+                  "value": "-100.00 USD",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            }
+          ],
+          "diagnostics": []
+        },
+        {
+          "path": "$.transaction.metadata",
+          "label": "Metadata",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.transaction.metadata.key",
+              "label": "Key",
+              "strategy": "scalar",
+              "intent": "provenance",
+              "value": "Key",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.transaction.metadata.value",
+              "label": "Value",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "value": "Value",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [
+            {
+              "path": "$.transaction.metadata[0]",
+              "label": "Metadata 0",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.transaction.metadata[0].key",
+                  "label": "Key",
+                  "strategy": "scalar",
+                  "intent": "provenance",
+                  "diagnostics": [],
+                  "value": "source",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.transaction.metadata[0].value",
+                  "label": "Value",
+                  "strategy": "scalar",
+                  "intent": "evidence",
+                  "diagnostics": [],
+                  "value": "source-surface-test",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            }
+          ],
+          "diagnostics": []
+        },
+        {
+          "path": "$.transaction.event_hash",
+          "label": "Event hash",
+          "strategy": "scalar",
+          "intent": "authority",
+          "gloss": "The hash sealing this event to its predecessor in the immutable event chain.",
+          "diagnostics": [],
+          "value": "95fc36ff939a600d85b51a671e57ce55fd895d024b94a1a9dde1608d6e79b1c1",
+          "heading": true,
+          "children": [],
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

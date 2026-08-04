@@ -1,0 +1,953 @@
+{
+  "path": "$",
+  "label": "Run summary",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.title",
+      "label": "Title",
+      "strategy": "scalar",
+      "intent": "footnote",
+      "text_as": "caption",
+      "emphasis": "muted",
+      "diagnostics": [],
+      "value": "misthos",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.period",
+      "label": "Period",
+      "strategy": "scalar",
+      "intent": "accession",
+      "diagnostics": [],
+      "value": "2026-06-01/2026-06-30",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.kpis",
+      "label": "Kpis",
+      "strategy": "kpi-row",
+      "heading": false,
+      "items": [
+        {
+          "path": "$.kpis[0]",
+          "label": "Total gross",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "kicker": "Run",
+          "gloss": "Gross earnings across every worker in this run, before employee deductions.",
+          "kicker_gloss": "A measure aggregated across the workers included in this immutable payroll run.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1490770,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[1]",
+          "label": "Total net",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "kicker": "Run",
+          "gloss": "Pay due across every worker in this run after employee deductions.",
+          "kicker_gloss": "A measure aggregated across the workers included in this immutable payroll run.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1176258,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[2]",
+          "label": "Employer cost",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "kicker": "Run",
+          "gloss": "Gross earnings plus employer-side contributions and charges.",
+          "kicker_gloss": "A measure aggregated across the workers included in this immutable payroll run.",
+          "children": [],
+          "diagnostics": [],
+          "value": 266103,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[3]",
+          "label": "Headcount",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Roster",
+          "gloss": "Workers whose results are included in this payroll run.",
+          "kicker_gloss": "A measure derived from the applicable worker population.",
+          "children": [],
+          "diagnostics": [],
+          "value": 3,
+          "heading": true,
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "children": []
+    },
+    {
+      "path": "$.run_state",
+      "label": "Run",
+      "strategy": "status",
+      "intent": "success",
+      "gloss": "Whether this immutable payroll run is current or has been superseded by a later run.",
+      "diagnostics": [],
+      "value": "committed",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.violation_state",
+      "label": "Compliance",
+      "strategy": "status",
+      "intent": "success",
+      "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved.",
+      "diagnostics": [],
+      "value": "clean",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.rows",
+      "label": "Workers",
+      "strategy": "table",
+      "heading": true,
+      "emphasis": "strong",
+      "children": [
+        {
+          "path": "$.rows.worker",
+          "label": "Worker",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Worker",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.status",
+          "label": "Compliance",
+          "strategy": "scalar",
+          "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved.",
+          "value": "Compliance",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.gross",
+          "label": "Gross",
+          "strategy": "scalar",
+          "value": "Gross",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.deductions",
+          "label": "Deductions",
+          "strategy": "scalar",
+          "value": "Deductions",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.net",
+          "label": "Net",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "value": "Net",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.payslip",
+          "label": "Payslip",
+          "strategy": "scalar",
+          "intent": "primary-action",
+          "value": "Payslip",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        }
+      ],
+      "items": [
+        {
+          "path": "$.rows[0]",
+          "label": "Workers 0",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[0].worker",
+              "label": "Björn Björnsson",
+              "strategy": "linked-ref",
+              "href": "workforce:///19f85185-33ea-5e16-9ddf-a5a943c03c70",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Björn Björnsson",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].status",
+              "label": "Compliance",
+              "strategy": "status",
+              "intent": "success",
+              "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved.",
+              "diagnostics": [],
+              "value": "clean",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].gross",
+              "label": "Gross",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 700000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].deductions",
+              "label": "Deductions",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 175821,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].net",
+              "label": "Net",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 524179,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].payslip",
+              "label": "Björn Björnsson",
+              "strategy": "linked-ref",
+              "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=19f85185-33ea-5e16-9ddf-a5a943c03c70",
+              "intent": "primary-action",
+              "diagnostics": [],
+              "value": "Björn Björnsson",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        },
+        {
+          "path": "$.rows[1]",
+          "label": "Workers 1",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[1].worker",
+              "label": "Jóna Jónsdóttir",
+              "strategy": "linked-ref",
+              "href": "workforce:///91c7b3de-4d96-57a5-9e51-3869b81604ea",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Jóna Jónsdóttir",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].status",
+              "label": "Compliance",
+              "strategy": "status",
+              "intent": "success",
+              "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved.",
+              "diagnostics": [],
+              "value": "clean",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].gross",
+              "label": "Gross",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 440770,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].deductions",
+              "label": "Deductions",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 85126,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].net",
+              "label": "Net",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 355644,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].payslip",
+              "label": "Jóna Jónsdóttir",
+              "strategy": "linked-ref",
+              "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=91c7b3de-4d96-57a5-9e51-3869b81604ea",
+              "intent": "primary-action",
+              "diagnostics": [],
+              "value": "Jóna Jónsdóttir",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        },
+        {
+          "path": "$.rows[2]",
+          "label": "Workers 2",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[2].worker",
+              "label": "Lilja Leifsdóttir",
+              "strategy": "linked-ref",
+              "href": "workforce:///c76c3f39-1ac3-58f2-bb6d-c410f2923922",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Lilja Leifsdóttir",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].status",
+              "label": "Compliance",
+              "strategy": "status",
+              "intent": "success",
+              "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved.",
+              "diagnostics": [],
+              "value": "clean",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].gross",
+              "label": "Gross",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 350000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].deductions",
+              "label": "Deductions",
+              "strategy": "number",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 53565,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].net",
+              "label": "Net",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "currency",
+              "currency": "ISK",
+              "diagnostics": [],
+              "value": 296435,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].payslip",
+              "label": "Lilja Leifsdóttir",
+              "strategy": "linked-ref",
+              "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=c76c3f39-1ac3-58f2-bb6d-c410f2923922",
+              "intent": "primary-action",
+              "diagnostics": [],
+              "value": "Lilja Leifsdóttir",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "path": "$.earnings",
+      "label": "Earnings",
+      "strategy": "collapsed-section",
+      "heading": true,
+      "collapse": true,
+      "children": [
+        {
+          "path": "$.earnings.total",
+          "label": "Total",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "diagnostics": [],
+          "value": 1490770,
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.earnings.classes",
+          "label": "By class",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.earnings.classes.result_class",
+              "label": "Class",
+              "strategy": "scalar",
+              "intent": "accession",
+              "value": "Class",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.earnings.classes.amount",
+              "label": "Amount",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "value": "Amount",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [
+            {
+              "path": "$.earnings.classes[0]",
+              "label": "By class 0",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.earnings.classes[0].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "gross_regular",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.earnings.classes[0].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 1470000,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            },
+            {
+              "path": "$.earnings.classes[1]",
+              "label": "By class 1",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.earnings.classes[1].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "overtime",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.earnings.classes[1].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 20770,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            }
+          ],
+          "diagnostics": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    },
+    {
+      "path": "$.deductions",
+      "label": "Deductions",
+      "strategy": "collapsed-section",
+      "heading": true,
+      "collapse": true,
+      "children": [
+        {
+          "path": "$.deductions.total",
+          "label": "Total",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "diagnostics": [],
+          "value": 314512,
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.deductions.classes",
+          "label": "By class",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.deductions.classes.result_class",
+              "label": "Class",
+              "strategy": "scalar",
+              "intent": "accession",
+              "value": "Class",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.deductions.classes.amount",
+              "label": "Amount",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "value": "Amount",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [
+            {
+              "path": "$.deductions.classes[0]",
+              "label": "By class 0",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.deductions.classes[0].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "pension_employee",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.deductions.classes[0].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 59631,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            },
+            {
+              "path": "$.deductions.classes[1]",
+              "label": "By class 1",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.deductions.classes[1].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "tax_withheld",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.deductions.classes[1].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 244591,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            },
+            {
+              "path": "$.deductions.classes[2]",
+              "label": "By class 2",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.deductions.classes[2].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "union_dues",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.deductions.classes[2].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 10290,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            }
+          ],
+          "diagnostics": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    },
+    {
+      "path": "$.employer",
+      "label": "Employer",
+      "strategy": "collapsed-section",
+      "heading": true,
+      "collapse": true,
+      "children": [
+        {
+          "path": "$.employer.total",
+          "label": "Total",
+          "strategy": "number",
+          "intent": "evidence",
+          "number_format": "currency",
+          "currency": "ISK",
+          "diagnostics": [],
+          "value": 266103,
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.employer.classes",
+          "label": "By class",
+          "strategy": "table",
+          "heading": true,
+          "children": [
+            {
+              "path": "$.employer.classes.result_class",
+              "label": "Class",
+              "strategy": "scalar",
+              "intent": "accession",
+              "value": "Class",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            },
+            {
+              "path": "$.employer.classes.amount",
+              "label": "Amount",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "value": "Amount",
+              "heading": true,
+              "children": [],
+              "items": [],
+              "diagnostics": []
+            }
+          ],
+          "items": [
+            {
+              "path": "$.employer.classes[0]",
+              "label": "By class 0",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.employer.classes[0].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "employer_insurance",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.employer.classes[0].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 94664,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            },
+            {
+              "path": "$.employer.classes[1]",
+              "label": "By class 1",
+              "strategy": "collapsed-section",
+              "heading": true,
+              "collapse": true,
+              "children": [
+                {
+                  "path": "$.employer.classes[1].result_class",
+                  "label": "Class",
+                  "strategy": "scalar",
+                  "intent": "accession",
+                  "diagnostics": [],
+                  "value": "pension_employer",
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                },
+                {
+                  "path": "$.employer.classes[1].amount",
+                  "label": "Amount",
+                  "strategy": "number",
+                  "intent": "evidence",
+                  "number_format": "currency",
+                  "currency": "ISK",
+                  "diagnostics": [],
+                  "value": 171439,
+                  "heading": true,
+                  "children": [],
+                  "items": []
+                }
+              ],
+              "diagnostics": [],
+              "items": []
+            }
+          ],
+          "diagnostics": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    },
+    {
+      "path": "$.provenance",
+      "label": "Provenance",
+      "strategy": "collapsed-section",
+      "heading": true,
+      "collapse": true,
+      "children": [
+        {
+          "path": "$.provenance.run_id",
+          "label": "Run id",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "8fc48217-03b7-5132-b493-6cdb0081b237",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.pay_group",
+          "label": "main",
+          "strategy": "linked-ref",
+          "href": "/surfaces/pay-group?pay_group=main",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "main",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.seal_id",
+          "label": "855df948-bf34-5d2c-85b6-6db3bb35ca88",
+          "strategy": "linked-ref",
+          "href": "/surfaces/seal?seal_id=855df948-bf34-5d2c-85b6-6db3bb35ca88",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "855df948-bf34-5d2c-85b6-6db3bb35ca88",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.run_kind",
+          "label": "Run kind",
+          "strategy": "badge",
+          "intent": "info",
+          "gloss": "Why the payroll run was executed: regular schedule, off-cycle work, or final settlement.",
+          "diagnostics": [],
+          "value": "regular",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.supersedes",
+          "label": "Supersedes",
+          "strategy": "linked-ref",
+          "intent": "provenance",
+          "diagnostics": [],
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.result_hash",
+          "label": "Result hash",
+          "strategy": "scalar",
+          "intent": "authority",
+          "diagnostics": [],
+          "value": "2fe212ef56c7d77549250a627c1c065653b54fb8c04d16b03b61efa3e6a47134",
+          "heading": true,
+          "children": [],
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

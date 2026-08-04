@@ -1,0 +1,354 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Transaction",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "within",
+          "id": "$.transaction",
+          "dimension": "collapse",
+          "range": [
+            0,
+            1
+          ],
+          "default": 0,
+          "summary": "Transaction",
+          "target": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Sequence",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "4",
+                    "as": "body",
+                    "intent": "provenance",
+                    "numeric": true,
+                    "polarity": "positive"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "System Time",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-08-04 12:00 UTC",
+                    "as": "body",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Idempotency Key",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "ZYGOS-EVENT-IDEMP-SENTINEL-7C22BB",
+                    "as": "body",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "kind",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "badge",
+                    "label": "transaction_posted",
+                    "intent": "success",
+                    "gloss": "The kernel event that produced this immutable ledger record."
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Transaction Id",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "01927f3b-1234-7000-a000-000000000010",
+                    "as": "body",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Effective Date",
+                    "as": "caption",
+                    "intent": "neutral",
+                    "gloss": "The business date on which this transaction changes ledger balances."
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2024-01-15",
+                    "as": "body",
+                    "intent": "provenance"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Lineage",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "No lineage.",
+                    "as": "caption",
+                    "intent": "neutral"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Postings",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "table",
+                    "caption": "Postings",
+                    "captionHidden": true,
+                    "columns": [
+                      {
+                        "header": "Account",
+                        "priority": "primary",
+                        "intent": "accession"
+                      },
+                      {
+                        "header": "Commodity",
+                        "priority": "detail",
+                        "intent": "accession"
+                      },
+                      {
+                        "header": "Quantity",
+                        "numeric": true,
+                        "priority": "secondary",
+                        "intent": "evidence",
+                        "gloss": "Signed posting quantity in canonical commodity minor units."
+                      },
+                      {
+                        "header": "Display quantity",
+                        "priority": "secondary",
+                        "intent": "evidence",
+                        "gloss": "The posting quantity rendered at the commodity's declared scale."
+                      }
+                    ],
+                    "rows": [
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "link",
+                                "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/events?account_id=01927f3b-1234-7000-a000-000000000001",
+                                "label": "Assets:Cash",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "link",
+                                "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/commodity/USD",
+                                "label": "USD",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "10000",
+                                "as": "body",
+                                "intent": "evidence",
+                                "numeric": true,
+                                "polarity": "positive"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "100.00 USD",
+                                "as": "body",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "link",
+                                "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/events?account_id=01927f3b-1234-7000-a000-000000000002",
+                                "label": "Revenue",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "link",
+                                "href": "/books/01927f3b-1234-7000-a000-0000000000aa/surfaces/commodity/USD",
+                                "label": "USD",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "-10000",
+                                "as": "body",
+                                "intent": "evidence",
+                                "numeric": true,
+                                "polarity": "negative"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "-100.00 USD",
+                                "as": "body",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "rowHeader": true,
+                    "responsive": "records"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Metadata",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "table",
+                    "caption": "Metadata",
+                    "captionHidden": true,
+                    "columns": [
+                      {
+                        "header": "Key",
+                        "priority": "primary",
+                        "intent": "provenance"
+                      },
+                      {
+                        "header": "Value",
+                        "priority": "secondary",
+                        "intent": "evidence"
+                      }
+                    ],
+                    "rows": [
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "source",
+                                "as": "body",
+                                "intent": "provenance"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "source-surface-test",
+                                "as": "body",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "rowHeader": true,
+                    "responsive": "records"
+                  }
+                ]
+              },
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Event hash",
+                    "as": "caption",
+                    "intent": "neutral",
+                    "gloss": "The hash sealing this event to its predecessor in the immutable event chain."
+                  },
+                  {
+                    "kind": "text",
+                    "value": "95fc36ff939a600d85b51a671e57ce55fd895d024b94a1a9dde1608d6e79b1c1",
+                    "as": "body",
+                    "intent": "authority"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

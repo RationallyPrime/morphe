@@ -1,0 +1,338 @@
+{
+  "path": "$",
+  "label": "Obligations",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.title",
+      "label": "Title",
+      "strategy": "scalar",
+      "intent": "footnote",
+      "text_as": "caption",
+      "emphasis": "muted",
+      "diagnostics": [],
+      "value": "chreos",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.kpis",
+      "label": "Kpis",
+      "strategy": "kpi-row",
+      "heading": false,
+      "items": [
+        {
+          "path": "$.kpis[0]",
+          "label": "Obligations",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Book",
+          "gloss": "Commitments whose effective start has occurred by the selected read date and are visible in this book.",
+          "kicker_gloss": "A measure over obligations visible in the current book.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[1]",
+          "label": "Breached",
+          "strategy": "number",
+          "intent": "caution",
+          "number_format": "integer",
+          "kicker": "Standing",
+          "gloss": "Effective obligations whose live non-expiry violations place them in breached standing.",
+          "kicker_gloss": "A measure grouped by the kernel's obligation standing classifier.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[2]",
+          "label": "Expiring",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Standing",
+          "gloss": "Effective obligations whose bound ruleset flags an approaching end without a breach.",
+          "kicker_gloss": "A measure grouped by the kernel's obligation standing classifier.",
+          "children": [],
+          "diagnostics": [],
+          "value": 0,
+          "heading": true,
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "children": []
+    },
+    {
+      "path": "$.compliance",
+      "label": "Compliance",
+      "strategy": "status",
+      "intent": "caution",
+      "gloss": "Whether mandatory rules produced any unresolved blocking violations for this read.",
+      "diagnostics": [],
+      "value": "violations",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.pii_note",
+      "label": "Counterparties",
+      "strategy": "scalar",
+      "intent": "aside",
+      "diagnostics": [],
+      "value": "PII redacted — governed read; counterparty names require include_pii.",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.rows",
+      "label": "Obligations",
+      "strategy": "table",
+      "heading": false,
+      "emphasis": "strong",
+      "children": [
+        {
+          "path": "$.rows.name",
+          "label": "Obligation",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Obligation",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.tag",
+          "label": "Kind",
+          "strategy": "scalar",
+          "intent": "info",
+          "gloss": "The caller-authored commitment tag used to classify and select this obligation.",
+          "value": "Kind",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.counterparty",
+          "label": "Counterparty",
+          "strategy": "scalar",
+          "value": "Counterparty",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.standing",
+          "label": "Standing",
+          "strategy": "scalar",
+          "gloss": "Where an obligation sits after lifecycle events, effective dates, and live rule violations are evaluated.",
+          "value": "Standing",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.amount",
+          "label": "Amount",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "gloss": "The obligation total shown only when its canonical minor-unit currency is ISK.",
+          "value": "Amount",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.effective",
+          "label": "Effective",
+          "strategy": "scalar",
+          "gloss": "The obligation's effective start and, when bounded, end date.",
+          "value": "Effective",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.next_duty",
+          "label": "Next duty",
+          "strategy": "scalar",
+          "gloss": "The first known duty due within the book's next 365 days.",
+          "value": "Next duty",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        }
+      ],
+      "items": [
+        {
+          "path": "$.rows[0]",
+          "label": "Obligations 0",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[0].name",
+              "label": "lease · 00000000",
+              "strategy": "linked-ref",
+              "href": "/surfaces/obligation?obligation_id=00000000-0000-0000-0000-000000000002&as_of=2026-09-01",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "lease · 00000000",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].tag",
+              "label": "Kind",
+              "strategy": "badge",
+              "intent": "info",
+              "gloss": "The caller-authored commitment tag used to classify and select this obligation.",
+              "diagnostics": [],
+              "value": "lease",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].counterparty",
+              "label": "Organization · 00000000",
+              "strategy": "linked-ref",
+              "href": "/surfaces/party?party_id=00000000-0000-0000-0000-000000000001&as_of=2026-09-01",
+              "diagnostics": [],
+              "value": "Organization · 00000000",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].standing",
+              "label": "Standing",
+              "strategy": "status",
+              "intent": "caution",
+              "gloss": "Where an obligation sits after lifecycle events, effective dates, and live rule violations are evaluated.",
+              "diagnostics": [
+                {
+                  "code": "LIVE_VIOLATIONS",
+                  "severity": "warning",
+                  "path": "$.rows[0].standing",
+                  "message": "Milestone 'delivery' was due on 2026-06-01 and remains open after its grace period.",
+                  "repair_hint": "Open the obligation, record the missing outcome or evidence, then re-evaluate the book."
+                }
+              ],
+              "value": "breached",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].amount",
+              "label": "Amount",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "currency",
+              "currency": "ISK",
+              "gloss": "The obligation total shown only when its canonical minor-unit currency is ISK.",
+              "diagnostics": [],
+              "value": 8400000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].effective",
+              "label": "Effective",
+              "strategy": "scalar",
+              "gloss": "The obligation's effective start and, when bounded, end date.",
+              "diagnostics": [],
+              "value": "2026-01-01 → 2027-12-31",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].next_duty",
+              "label": "Next duty",
+              "strategy": "scalar",
+              "gloss": "The first known duty due within the book's next 365 days.",
+              "diagnostics": [],
+              "value": "index adjustment due 2026-10-01",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "path": "$.provenance",
+      "label": "Provenance",
+      "strategy": "key-value",
+      "heading": true,
+      "children": [
+        {
+          "path": "$.provenance.as_of",
+          "label": "As of",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "diagnostics": [],
+          "value": "2026-09-01",
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.evaluated_rules",
+          "label": "Rules evaluated",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "numeric": true,
+          "polarity": "positive",
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "children": [],
+          "items": []
+        },
+        {
+          "path": "$.provenance.evaluated_obligations",
+          "label": "Obligations evaluated",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "numeric": true,
+          "polarity": "positive",
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "children": [],
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "items": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

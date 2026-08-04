@@ -1,0 +1,410 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Roster",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "compound",
+              "name": "StatBand",
+              "args": {},
+              "slots": {
+                "tiles": [
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "2026-W30",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure calculated over the roster or reconciliation window named here."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Confirmed hours",
+                        "as": "subheading",
+                        "gloss": "Hours scheduled across shifts the deployment has committed to."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 8,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "2026-W30",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure calculated over the roster or reconciliation window named here."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Shifts",
+                        "as": "subheading",
+                        "gloss": "Rows in the selected roster or reconciliation window, including unmatched clock observations."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "2026-W30",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure calculated over the roster or reconciliation window named here."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Workers",
+                        "as": "subheading",
+                        "gloss": "Distinct workers represented in the selected window."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "2026-W30",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure calculated over the roster or reconciliation window named here."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Blocking violations",
+                        "as": "subheading",
+                        "gloss": "Unresolved rule findings that block the selected roster."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "intent": "caution",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Compliance",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "status",
+              "tone": "caution",
+              "signal": {
+                "text": "violations"
+              },
+              "gloss": "Whether unresolved workforce-rule violations exist for the selected scope."
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "table",
+              "caption": "Roster",
+              "captionHidden": true,
+              "columns": [
+                {
+                  "header": "Day",
+                  "priority": "primary"
+                },
+                {
+                  "header": "Time",
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Worker",
+                  "priority": "detail",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Role",
+                  "priority": "secondary",
+                  "intent": "info"
+                },
+                {
+                  "header": "Location",
+                  "priority": "secondary"
+                },
+                {
+                  "header": "State",
+                  "priority": "secondary",
+                  "gloss": "The roster lifecycle reached by this shift, from proposal through completion or cancellation."
+                },
+                {
+                  "header": "Hours",
+                  "numeric": true,
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Minutes",
+                  "numeric": true,
+                  "priority": "secondary",
+                  "intent": "evidence"
+                }
+              ],
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Mon 20 Jul",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "09:00–17:00 UTC",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/employee?worker_id=00000000-0000-0000-0000-000000000067&as_of=2026-07-20",
+                          "label": "Ada",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/role?role_id=00000000-0000-0000-0000-000000000066",
+                          "label": "Barista",
+                          "intent": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/location?location_id=00000000-0000-0000-0000-000000000065",
+                          "label": "Vesturgata"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "confirmed",
+                          "intent": "success",
+                          "gloss": "The roster lifecycle reached by this shift, from proposal through completion or cancellation."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 8
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "480",
+                          "as": "body",
+                          "intent": "evidence",
+                          "numeric": true,
+                          "polarity": "positive"
+                        }
+                      ]
+                    }
+                  ],
+                  "diagnostics": [
+                    {
+                      "kind": "inline-alert",
+                      "tone": "caution",
+                      "title": "MAX_SHIFT_MINUTES",
+                      "detail": "The employer scheduled this shift for 480 minutes; the permitted maximum is 300 minutes.",
+                      "repair": "Shorten or split the implicated shift, then re-evaluate the roster."
+                    }
+                  ]
+                }
+              ],
+              "rowHeader": true,
+              "responsive": "records",
+              "emphasis": "strong"
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Confirmed minutes",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "text",
+              "value": "480",
+              "as": "body",
+              "intent": "evidence",
+              "numeric": true,
+              "polarity": "positive"
+            }
+          ]
+        },
+        {
+          "kind": "compound",
+          "name": "ProvenanceFooter",
+          "args": {},
+          "slots": {
+            "facts": [
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Org",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "taxis",
+                    "as": "body",
+                    "intent": "accession"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Week",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-W30",
+                    "as": "body",
+                    "intent": "accession"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "As of",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-07-20",
+                    "as": "body",
+                    "intent": "provenance"
+                  }
+                ]
+              }
+            ],
+            "seals": [],
+            "links": []
+          }
+        }
+      ]
+    }
+  ]
+}
