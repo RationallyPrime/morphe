@@ -237,6 +237,15 @@ current tree, and a new epoch invalidates in-flight work.
 parent's bounded budget, and collapse becomes a native labelled disclosure. A targetless legacy
 leaf stays inert, so older trees remain total without granting implicit sibling authority.
 
+ADR-0024 completes the model-free operational host circuit. Its live variation index is specific to
+the emitted tree and effective compound resolver: a visible compound expands into authority, while
+unknown, hidden, and invalid refs grant none; duplicate ids intersect every occurrence's bounds.
+An explicit deterministic policy binds to that index and projects a digest through declared store
+paths plus declared Tier-1 kinds. The pure host runtime admits every parseable proposal through
+`applyDelta`, then policy gates it, fails malformed output closed, records immutable outcomes, and
+lets a user override lock one id until a strictly higher safe-integer epoch re-emits. The renderer
+still sees choices only. No tier-2 producer or model delegate is implied by this circuit.
+
 ## 10. Lemma 7 — venue feasibility
 
 The mid loop is useful only if its decision venue meets the interaction budget. A conforming host
@@ -287,7 +296,8 @@ Morphe must be a good deterministic UI substrate before any model participates.
 
 Pure typed boundaries make `(digest -> tree)` and `(digest, variation state -> accepted choice)`
 records replayable. Such records may later support evaluation or refinement, but corpus policy is
-outside the renderer and must not weaken runtime validation.
+outside the renderer and must not weaken runtime validation. In particular, six-kernel corpus
+curation and operational ledgers belong to their governing systems, not this package's doctrine.
 
 ### Cacheable decisions
 
@@ -331,8 +341,9 @@ meaningful shipped compound restriction. A live tier-2 producer remains incomple
 ### Phase 2 — constrained adaptation
 
 Epochs, variation ids, delta validation, per-dialect masks, slow and mid-loop adapters, objective
-strategies. Per-dialect masks, a schema-constrained slow-loop lab proof, and bounded `Vary` /
-`Within` mechanics ship; the operational mid loop and objective policy remain partial or future.
+strategies. Per-dialect masks, a schema-constrained slow-loop lab proof, bounded `Vary` / `Within`
+mechanics, and the deterministic resolver-aware mid-loop policy/runtime ship. A learned/model
+delegate and any producer-side tier-2 circuit remain future.
 
 ### Phase 3 — learned quality
 
@@ -360,6 +371,7 @@ Legend: **shipped**, **partial**, **future**.
 | tier-2 escalation | partial | provider/envelope exists; no producer |
 | `Vary` choices and epoch-checked deltas | shipped | delegation tests, renderer choice boundary |
 | targeted `Within` behavior | shipped | explicit target; reactive density, budgeted emphasis, native collapse |
+| deterministic operational mid-loop | shipped | resolver-specific index, policy/runtime, seeded delegation properties |
 | schema/data surface compiler | shipped | `py/morphe_surface` |
 | local CMS compile/preview/publish tooling | shipped | `py/morphe_cms`, preview routes |
 | Pydantic-AI adaptive lab | partial | installed-mask structured-output and retry proof; no production host path |
@@ -372,15 +384,14 @@ Legend: **shipped**, **partial**, **future**.
 
 1. **Canonical adaptive wire.** Unify TypeScript digest/escalation and Python decision contracts
    from one generated source.
-2. **Variation discovery.** Ensure live variation discovery includes template-contained `Vary`
-   nodes after compound expansion.
-3. **Objective policy.** Define a deterministic first strategy for `Vary.objective` before adding
-   a learned delegate.
-4. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
-   are represented.
-5. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
+2. **Learned objective and venue policy.** The deterministic policy is host-bound and explicit;
+   define any learned strategy, latency venue, and acknowledgment/rollback law before adding a
+   model delegate.
+3. **Corpus quality.** Define which replay records are suitable evidence and how negative signals
+   are represented. Six-kernel corpus curation and operational ledgers remain non-doctrine here.
+4. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
    durable automatic change.
-6. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
+5. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
    state commits, delta rerendering, and the stripped viewer boundary.
 
 The immediate direction is depth, not breadth: complete one deterministic artifact-to-viewer and

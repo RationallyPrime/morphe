@@ -2,6 +2,14 @@
 
 Guidance for Codex (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works: `CONTEXT.md` fixes the vocabulary, `VISION.md` explains the stratified adaptive tower, and `CONTRACT.md` defines the substrate. `Vary`, `Within`, `action` ids, and `bind` paths are declarative authority sockets, not invitations to put handlers or host state in authored trees. `action` ids wire at `MorpheRoot.actions`; `bind` paths wire to the client store; and `Vary` / `Within` choices wire through `MorpheRoot.choices` and the Delta machinery. A targeted `Within` owns exactly one subtree: density changes that target's incoming context, emphasis enters the target as a parent-budgeted claim, and collapse uses a native labelled disclosure. A targetless legacy `Within` remains inert.
 
+The deterministic operational mid-loop is host-side (ADR-0024): bind an explicit policy to a
+resolver-specific live variation index, project a digest only through declared path-plus-kind
+authority, and admit proposals through `runMidLoop` and canonical `applyDelta`. Unknown, hidden,
+invalid, or targetless variation references — and stale, malformed, or out-of-policy proposals —
+grant no authority. A user override locks its id until a strictly higher safe-integer re-emission.
+Keep this circuit out of grammar and renderer code: `MorpheRoot` still receives choices only, never
+an envelope, policy, runtime, model, or tier-2 producer.
+
 ## What this repo is
 
 **Morphe** is a stratified adaptive-UI substrate: UI is authored as **data** (a typed `Node` tree), rendered through a fixed grammar + a context algebra + a three-layer token system, and re-themed by swapping a **dialect** without touching the authored tree. It is an **independent, versioned package** and **Projection M of Eidos**: independence describes ownership and distribution; Projection M describes its architectural role. Projection M is not a repository-location or source-coupling claim.
@@ -49,9 +57,12 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 ## Demo host structure
 
 - `/` — neutral Morphe workbench index linking the playground, CMS preview, and published pointer proof.
-- `/substrate` — full-featured neutral playground: global dialect toggle over all shipped dialects, one authored demo tree, live `actions`, `bind` paths, `choices`, neutral assets, adaptive fallback rendering, and a pinned nested dialect proof.
+- `/substrate` — full-featured neutral playground and live host proof surface: global dialect
+  toggle over all shipped dialects, one authored demo tree, live `actions`, `bind` paths, and
+  `choices`, neutral assets, adaptive fallback rendering, and a pinned nested dialect proof.
 - `/preview/[artifactId]/[revisionId]` — local CMS preview route. Reads compiled trees from `compiled/capability-pages/**`; the built-in `capability-page.demo/rev-001` fixture renders when no local compiled artifact exists.
-- `/p/[slug]` — publication pointer route. Reads `publications.json` → compiled revision; `/p/demo` is always backed by the neutral built-in fixture if no real pointer exists.
+- `/p/[slug]` — publication pointer route. Reads `publications.json` → compiled revision;
+  `/p/demo` remains immutable to the mid-loop and is never a control host.
 - `/dignity` — compatibility redirect to `/substrate`.
 - `/api/adaptive/decision` — adaptive sidecar bridge. Calls `MORPHE_AGENT_BASE_URL` when configured and otherwise returns a deterministic schema-valid fallback tree.
 - Static demo assets live under `static/images/demo/`. Consumer-specific assets and application behavior live in consumer repos.

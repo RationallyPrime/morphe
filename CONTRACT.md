@@ -740,8 +740,31 @@ object; accepted deltas clone the envelope and choice map without mutating the
 tree. Epochs never enter `grammar/` and never reach `MorpheRoot`; the renderer
 sees only choices. The mid-loop seam is `MidLoopDelegate.propose(digest,
 liveVaryIds): Delta[]`; hosts run those proposals through `applyDelta` and then
-re-render with the returned choice map. The substrate ships a dev-only static
-choice delegate only to prove the plug-in path; the renderer never imports it.
+re-render with the returned choice map. The renderer never imports a delegate,
+policy, or runtime.
+
+**Deterministic operational mid-loop (ADR-0024).** `liveVariationIndex(tree, { resolver? })` is
+the host's immutable variation-authority proof. With an effective resolver it follows
+`Node.svelte` compound admission exactly: visible refs expand; unknown, dialect-hidden, and invalid
+refs authorize neither template sockets nor call-site args/slots. Without a resolver it preserves
+the registry-free direct-node and authored-fill walk without inventing template authority. Targeted
+`Within` is live; targetless compatibility `Within` is inert. A duplicate id retains all occurrences,
+and an admitted choice satisfies their bound intersection.
+
+`DeterministicObjectivePolicy` explicitly names policy targets/objectives/
+allowed choices plus readable store paths and Tier-1 kinds, then binds to one
+live index per emitted tree/resolver pair. `projectContextDigest` exposes state
+only for named paths and events only when both path and kind are named.
+`runMidLoop` is the canonical pure host runtime: it detaches and parses
+untrusted delegate output, runs structural `applyDelta` admission before policy
+admission, fails throws and malformed/dead/stale/invalid/out-of-policy output
+closed, and records immutable proposed/accepted/rejected/superseded outcomes.
+Native user overrides use the same admission path and lock an id for the epoch;
+only a strictly higher safe-integer re-emission clears that lock. Same, lower,
+fractional, and non-finite epochs are rejected without replacing the current
+envelope, choices, or locks. No clock, random source, I/O, Svelte state,
+persistence, tier-2 producer, learned model delegate, corpus policy, or
+six-kernel operational ledger belongs to this package seam.
 
 **Operational compiler projection (ADR-0021).** Stage 1 treats only a conventional root
 `name`/`title` scalar as identity context (`caption`, muted, `footnote`); it never promotes the first
