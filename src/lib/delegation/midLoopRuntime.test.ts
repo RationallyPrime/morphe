@@ -17,6 +17,7 @@ import type { MidLoopDelegate } from "./midLoop.js";
 import {
 	applyUserOverride,
 	createMidLoopRuntimeState,
+	MAX_PROPOSAL_PACKET_LENGTH,
 	type MidLoopRuntime,
 	reemitMidLoop,
 	runMidLoop,
@@ -26,6 +27,7 @@ import {
 	createDeterministicObjectiveDelegate,
 	type DeterministicObjectivePolicy,
 	type DeterministicPolicyTarget,
+	projectContextDigest,
 } from "./objectivePolicy.js";
 
 const text = (value: string): Node => ({ kind: "text", value, as: "body" });
@@ -351,6 +353,94 @@ describe("deterministic mid-loop host core", () => {
 			"out-of-policy-choice",
 		]);
 		expect(rejected.records.every((record) => record.status !== "accepted")).toBe(true);
+	});
+
+	it("preserves magic-key paths in projections, clones, and choice snapshots", () => {
+		// JSON.parse mints own "__proto__" data properties; opaque bind paths and
+		// vary ids make these reachable, so record builders must keep them.
+		const magicState = JSON.parse(
+			'{"__proto__": {"polluted": true}, "allowed": {"__proto__": 7}}',
+		) as ContextDigest["state"];
+		const projected = projectContextDigest(digest(magicState), {
+			observableStorePaths: ["__proto__", "allowed"],
+			observableTier1Kinds: [],
+		});
+
+		expect(Object.hasOwn(projected.state, "__proto__")).toBe(true);
+		// biome-ignore lint/complexity/useLiteralKeys: dot-access `__proto__` is the ambiguous special form under test; keep the explicit string key.
+		expect(projected.state["__proto__"]).toEqual({ polluted: true });
+		expect(Object.getPrototypeOf(projected.state)).toBe(Object.prototype);
+		// Nested clones keep the key too, and nothing leaks onto Object.prototype.
+		expect(Object.hasOwn(projected.state.allowed as object, "__proto__")).toBe(true);
+		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+
+		const tree = vary("mode");
+		const choicesWithMagicId = JSON.parse('{"__proto__": 0, "mode": 1}') as ChoiceMap;
+		const envelope = envelopeFor(tree, 1, choicesWithMagicId);
+		const policy = policyFor(liveVariationIndex(tree));
+		const malformedIngress: MidLoopRuntime = {
+			policy,
+			delegate: { propose: () => "nope" as unknown as readonly [] },
+		};
+		const result = runMidLoop(malformedIngress, createMidLoopRuntimeState(envelope), digest());
+
+		expect(Object.hasOwn(result.records[0]?.choices ?? {}, "__proto__")).toBe(true);
+		expect(result.records[0]?.choices.mode).toBe(1);
+	});
+
+	it("rejects oversized proposal packets and ignores hostile iterators", () => {
+		const tree = vary("mode");
+		const envelope = envelopeFor(tree);
+		const policy = policyFor(liveVariationIndex(tree));
+		const initial = createMidLoopRuntimeState(envelope);
+
+		const oversized: MidLoopRuntime = {
+			policy,
+			delegate: {
+				propose: () =>
+					Array.from(
+						{ length: MAX_PROPOSAL_PACKET_LENGTH + 1 },
+						() => null,
+					) as unknown as readonly [],
+			},
+		};
+		const rejected = runMidLoop(oversized, initial, digest());
+		expect(rejected.state.envelope).toBe(envelope);
+		expect(rejected.records).toHaveLength(1);
+		expect(rejected.records[0]).toMatchObject({
+			status: "rejected",
+			reason: "malformed-proposals",
+		});
+
+		// At the bound, every element is still admitted individually (no over-rejection).
+		const atLimit: MidLoopRuntime = {
+			policy,
+			delegate: {
+				propose: () =>
+					Array.from({ length: MAX_PROPOSAL_PACKET_LENGTH }, () => null) as unknown as readonly [],
+			},
+		};
+		const admitted = runMidLoop(atLimit, initial, digest());
+		expect(admitted.records).toHaveLength(MAX_PROPOSAL_PACKET_LENGTH);
+
+		// The snapshot copies by index up to the checked length; a hostile
+		// Symbol.iterator yielding forever must never be consulted.
+		const infinite: unknown[] = [null];
+		Object.defineProperty(infinite, Symbol.iterator, {
+			value: function* (): Generator<unknown> {
+				while (true) yield null;
+			},
+		});
+		const hostileIterator: MidLoopRuntime = {
+			policy,
+			delegate: { propose: () => infinite as unknown as readonly [] },
+		};
+		const survived = runMidLoop(hostileIterator, initial, digest());
+		expect(survived.records).toHaveLength(1);
+		expect(survived.records[0]).toMatchObject({
+			status: "rejected",
+			reason: "malformed-proposal",
+		});
 	});
 
 	it("projects declared evidence only and yields byte-stable receipts for equal inputs", () => {

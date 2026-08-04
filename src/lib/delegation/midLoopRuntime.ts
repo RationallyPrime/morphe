@@ -447,14 +447,30 @@ function parseDelta(value: unknown): Delta | undefined {
 }
 
 /**
+ * Upper bound on a single proposal packet. A meaningful packet carries at most
+ * one delta per live variation, and admission emits up to two evidence records
+ * per element, so an unbounded packet is a memory/event-loop exhaustion route.
+ * Far above any real envelope; anything larger is malformed ingress.
+ */
+export const MAX_PROPOSAL_PACKET_LENGTH = 64;
+
+/**
  * Detach an untrusted delegate's array before admission. A revoked proxy,
- * throwing iterator, or non-array response is malformed ingress rather than a
- * route to a host exception or mutable proposal list.
+ * throwing iterator, oversized packet, or non-array response is malformed
+ * ingress rather than a route to a host exception or mutable proposal list.
+ * The copy is an index loop bounded by the checked length so a hostile
+ * Symbol.iterator can never feed it more elements than declared.
  */
 function snapshotProposalArray(value: unknown): readonly unknown[] | undefined {
 	try {
 		if (!Array.isArray(value)) return undefined;
-		return Object.freeze(Array.from(value));
+		const length = value.length;
+		if (!Number.isSafeInteger(length) || length < 0 || length > MAX_PROPOSAL_PACKET_LENGTH) {
+			return undefined;
+		}
+		const snapshot: unknown[] = [];
+		for (let index = 0; index < length; index += 1) snapshot.push(value[index]);
+		return Object.freeze(snapshot);
 	} catch {
 		return undefined;
 	}
@@ -517,10 +533,12 @@ function evidence(
 }
 
 function snapshotChoices(choices: ChoiceMap): ChoiceMap {
-	const snapshot: Record<string, number> = {};
+	// Vary ids are opaque strings: own-property definition (fromEntries) keeps
+	// magic keys like "__proto__" that plain assignment would lose.
+	const entries: [string, number][] = [];
 	for (const id of Object.keys(choices).sort()) {
 		const choice = choices[id];
-		if (choice !== undefined) snapshot[id] = choice;
+		if (choice !== undefined) entries.push([id, choice]);
 	}
-	return Object.freeze(snapshot) as ChoiceMap;
+	return Object.freeze(Object.fromEntries(entries)) as ChoiceMap;
 }

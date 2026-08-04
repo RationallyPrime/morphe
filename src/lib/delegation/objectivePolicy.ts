@@ -108,11 +108,17 @@ export function projectContextDigest(
 	digest: ContextDigest,
 	policy: Pick<BoundDeterministicObjectivePolicy, "observableStorePaths" | "observableTier1Kinds">,
 ): ProjectedContextDigest {
-	const state: Record<string, JsonValue> = {};
+	// Bind paths are opaque strings, so records are built via own-property
+	// definition (fromEntries) — plain assignment would lose magic keys like
+	// "__proto__" to the inherited setter.
+	const stateEntries: [string, JsonValue][] = [];
 	const paths = new Set(unique(policy.observableStorePaths));
 	for (const path of paths) {
-		if (Object.hasOwn(digest.state, path)) state[path] = cloneJson(digest.state[path] as JsonValue);
+		if (Object.hasOwn(digest.state, path)) {
+			stateEntries.push([path, cloneJson(digest.state[path] as JsonValue)]);
+		}
 	}
+	const state = Object.fromEntries(stateEntries);
 	const kinds = new Set(policy.observableTier1Kinds);
 	const recentEvents = digest.recentEvents
 		.filter((event) => kinds.has(event.kind) && paths.has(event.path))
@@ -169,9 +175,8 @@ function cloneJson(value: JsonValue): JsonValue {
 		return value;
 	}
 	if (Array.isArray(value)) return value.map(cloneJson);
-	const output: Record<string, JsonValue> = {};
-	for (const [key, child] of Object.entries(value)) output[key] = cloneJson(child);
-	return output;
+	// fromEntries: JSON.parse can mint own "__proto__" keys; assignment would drop them.
+	return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, cloneJson(child)]));
 }
 
 function freezeJsonRecord(value: Record<string, JsonValue>): JsonRecord {
