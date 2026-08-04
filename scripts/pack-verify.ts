@@ -243,9 +243,17 @@ try {
 		`
 			import { render } from "svelte/server";
 			import {
+				bindDeterministicObjectivePolicy,
+				CONTEXT_DIGEST_VERSION,
+				createDeterministicObjectiveDelegate,
+				createMidLoopRuntimeState,
 				DIALECT_IDS,
 				GRAMMAR_VERSION,
+				liveVariationIndex,
 				PROMOTED_COMPOUNDS,
+				runMidLoop,
+				type ContextDigest,
+				type Node,
 			} from "@rationallyprime/morphe";
 			import App from "./App.svelte";
 
@@ -258,6 +266,84 @@ try {
 
 			export function renderSurface(): string {
 				return render(App).body;
+			}
+
+			const installedMidLoopTree: Node = {
+				kind: "vary",
+				id: "pack.mode",
+				objective: "density",
+				default: 0,
+				options: [
+					{ kind: "text", value: "Pack compact", as: "body" },
+					{ kind: "text", value: "Pack review", as: "body" },
+				],
+			};
+
+			export function runInstalledMidLoopCircuit() {
+				const index = liveVariationIndex(installedMidLoopTree);
+				const policy = bindDeterministicObjectivePolicy(
+					{
+						id: "pack-deterministic-policy",
+						targets: [
+							{ id: "pack.mode", objective: "density", allowedChoices: [0, 1] },
+						],
+						observableStorePaths: ["pack.pressure"],
+						observableTier1Kinds: ["selection"],
+						choose: ({ digest }) => digest.state["pack.pressure"] === "review" ? 1 : 0,
+					},
+					index,
+				);
+				const digest: ContextDigest = {
+					digestVersion: CONTEXT_DIGEST_VERSION,
+					state: { "pack.pressure": "review", "pack.hidden": "must-not-project" },
+					recentEvents: [
+						{
+							tier: 1,
+							kind: "selection",
+							path: "pack.pressure",
+							value: "review",
+							at: 7,
+						},
+						{
+							tier: 1,
+							kind: "selection",
+							path: "pack.hidden",
+							value: "must-not-project",
+							at: 8,
+						},
+					],
+				};
+				const runtime = {
+					policy,
+					delegate: createDeterministicObjectiveDelegate({ policy, epoch: 7 }),
+				};
+				const accepted = runMidLoop(
+					runtime,
+					createMidLoopRuntimeState({ epoch: 7, tree: installedMidLoopTree, choices: {} }),
+					digest,
+				);
+				const acceptedEnvelope = accepted.state.envelope;
+				const stale = runMidLoop(
+					{
+						policy,
+						delegate: {
+							propose: () => [{ id: "pack.mode", choice: 0, epoch: 6 }],
+						},
+					},
+					accepted.state,
+					digest,
+				);
+				return {
+					choices: acceptedEnvelope.choices,
+					statuses: accepted.records.map((record) => record.status),
+					projectedDigest: accepted.records[0]?.digest,
+					staleStatuses: stale.records.map((record) => record.status),
+					staleReasons: stale.records.map((record) => record.reason ?? null),
+					stalePreserved:
+						stale.state.envelope === acceptedEnvelope &&
+						stale.state.envelope.tree === acceptedEnvelope.tree &&
+						stale.state.envelope.choices === acceptedEnvelope.choices,
+				};
 			}
 		`,
 	);
@@ -308,16 +394,56 @@ try {
 				installedPromotedCompounds,
 				installedPromotedCompoundNames,
 				renderSurface,
+				runInstalledMidLoopCircuit,
 			} = await import("../.ssr/entry-server.js") as {
 				installedDialectIds: readonly string[];
 				installedGrammarVersion: string;
 				installedPromotedCompounds: readonly unknown[];
 				installedPromotedCompoundNames: readonly string[];
 				renderSurface: () => string;
+				runInstalledMidLoopCircuit: () => {
+					choices: Readonly<Record<string, number>>;
+					statuses: readonly string[];
+					projectedDigest: unknown;
+					staleStatuses: readonly string[];
+					staleReasons: readonly (string | null)[];
+					stalePreserved: boolean;
+				};
 			};
 			const body = renderSurface();
 			if (!body.includes("${surfaceText}")) {
 				throw new Error(\`expected rendered package surface, got: \${body}\`);
+			}
+			const installedMidLoop = runInstalledMidLoopCircuit();
+			if (!isDeepStrictEqual(installedMidLoop.choices, { "pack.mode": 1 })) {
+				throw new Error("expected installed deterministic mid-loop to accept the policy choice");
+			}
+			if (!isDeepStrictEqual(installedMidLoop.statuses, ["proposed", "accepted"])) {
+				throw new Error("expected installed deterministic mid-loop proposal and acceptance evidence");
+			}
+			if (
+				!isDeepStrictEqual(installedMidLoop.staleStatuses, ["proposed", "superseded"]) ||
+				!isDeepStrictEqual(installedMidLoop.staleReasons, [null, "stale-epoch"]) ||
+				!installedMidLoop.stalePreserved
+			) {
+				throw new Error("expected installed deterministic mid-loop stale replay to preserve state");
+			}
+			if (
+				!isDeepStrictEqual(installedMidLoop.projectedDigest, {
+					digestVersion: 1,
+					state: { "pack.pressure": "review" },
+					recentEvents: [
+						{
+							tier: 1,
+							kind: "selection",
+							path: "pack.pressure",
+							value: "review",
+							at: 7,
+						},
+					],
+				})
+			) {
+				throw new Error("expected installed deterministic policy to project declared evidence only");
 			}
 
 			function asRecord(value: unknown, label: string): Record<string, unknown> {
