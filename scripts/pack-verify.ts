@@ -137,11 +137,12 @@ try {
 				},
 				dependencies: {
 					"@rationallyprime/morphe": dependencySource,
-					"@sveltejs/vite-plugin-svelte": "^4.0.0",
+					"@sveltejs/vite-plugin-svelte": "4.0.4",
 					"@tanstack/svelte-query": "^6.1.34",
-					svelte: "^5.1.0",
-					typescript: "^5.6.0",
-					vite: "^5.4.0",
+					ajv: "8.20.0",
+					svelte: "5.56.3",
+					typescript: "5.9.3",
+					vite: "5.4.21",
 					zod: "^4.4.3",
 				},
 			},
@@ -188,6 +189,9 @@ try {
 
 			export default defineConfig({
 				plugins: [svelte()],
+				ssr: {
+					noExternal: ["@rationallyprime/morphe"],
+				},
 			});
 		`,
 	);
@@ -250,6 +254,7 @@ try {
 			export const installedPromotedCompoundNames = PROMOTED_COMPOUNDS.map(
 				(definition) => definition.name,
 			);
+			export const installedPromotedCompounds = PROMOTED_COMPOUNDS;
 
 			export function renderSurface(): string {
 				return render(App).body;
@@ -295,21 +300,105 @@ try {
 			import { readFileSync } from "node:fs";
 			import { fileURLToPath } from "node:url";
 			import { isDeepStrictEqual } from "node:util";
+			import Ajv2020 from "ajv/dist/2020.js";
 
 			const {
 				installedDialectIds,
 				installedGrammarVersion,
+				installedPromotedCompounds,
 				installedPromotedCompoundNames,
 				renderSurface,
 			} = await import("../.ssr/entry-server.js") as {
 				installedDialectIds: readonly string[];
 				installedGrammarVersion: string;
+				installedPromotedCompounds: readonly unknown[];
 				installedPromotedCompoundNames: readonly string[];
 				renderSurface: () => string;
 			};
 			const body = renderSurface();
 			if (!body.includes("${surfaceText}")) {
 				throw new Error(\`expected rendered package surface, got: \${body}\`);
+			}
+
+			function asRecord(value: unknown, label: string): Record<string, unknown> {
+				if (!value || typeof value !== "object" || Array.isArray(value)) {
+					throw new Error("expected " + label + " to be an object");
+				}
+				return value as Record<string, unknown>;
+			}
+
+			function textEvidence(value: string): Record<string, unknown> {
+				return { kind: "text", value, as: "body" };
+			}
+
+			function sampleParamValue(
+				rawParam: unknown,
+				compoundName: string,
+				paramName: string,
+			): unknown {
+				const param = asRecord(rawParam, "installed parameter " + compoundName + "." + paramName);
+				const evidence = "Installed Clinical schema evidence for " + compoundName + "." + paramName;
+				switch (param.type) {
+					case "string":
+						return evidence;
+					case "number":
+						return 1;
+					case "boolean":
+						return true;
+					case "node":
+						return textEvidence(evidence);
+					case "node-list":
+						return [textEvidence(evidence)];
+					default:
+						throw new Error(
+							"unsupported installed parameter type for " + compoundName + "." + paramName,
+						);
+				}
+			}
+
+			function collectSlotNames(value: unknown, names: Set<string>): void {
+				if (Array.isArray(value)) {
+					for (const item of value) collectSlotNames(item, names);
+					return;
+				}
+				if (!value || typeof value !== "object") return;
+				const node = value as Record<string, unknown>;
+				if (node.kind === "slot") {
+					if (typeof node.name !== "string" || node.name.length === 0) {
+						throw new Error("installed promoted compound has an unnamed slot");
+					}
+					names.add(node.name);
+				}
+				for (const child of Object.values(node)) collectSlotNames(child, names);
+			}
+
+			function completeCompoundReference(definition: unknown): Record<string, unknown> {
+				const installedDefinition = asRecord(definition, "installed promoted compound definition");
+				const name = installedDefinition.name;
+				if (typeof name !== "string" || name.length === 0) {
+					throw new Error("installed promoted compound definition has no name");
+				}
+				const params = asRecord(installedDefinition.params, "installed params for " + name);
+				const properties = asRecord(params.properties, "installed params.properties for " + name);
+				const args: Record<string, unknown> = {};
+				for (const [paramName, rawParam] of Object.entries(properties)) {
+					args[paramName] = sampleParamValue(rawParam, name, paramName);
+				}
+				const slotNames = new Set<string>();
+				collectSlotNames(asRecord(installedDefinition.template, "installed template for " + name), slotNames);
+				const reference: Record<string, unknown> = { kind: "compound", name, args };
+				if (slotNames.size > 0) {
+					reference.slots = Object.fromEntries(
+						[...slotNames]
+							.sort()
+							.map((slotName) => [slotName, [textEvidence("Installed slot evidence for " + name + "." + slotName)]]),
+					);
+				}
+				return reference;
+			}
+
+			function compoundTree(reference: Record<string, unknown>): Record<string, unknown> {
+				return { kind: "frame", role: "page", children: [reference] };
 			}
 
 			// The schemas seam: the JSON Schema artifacts resolve through the export
@@ -382,6 +471,55 @@ try {
 				)
 			) {
 				throw new Error("expected installed clinical mask to allow exactly the promoted catalog");
+			}
+			const clinicalSchemaPath = clinicalEntry?.schema;
+			if (typeof clinicalSchemaPath !== "string") {
+				throw new Error("expected installed clinical mask schema path");
+			}
+			const clinicalMaskModule = (await import(
+				"@rationallyprime/morphe/schemas/masks/" + clinicalSchemaPath
+			)) as { default?: Record<string, unknown> } & Record<string, unknown>;
+			const clinicalMask = clinicalMaskModule.default ?? clinicalMaskModule;
+			if (clinicalMask["x-morphe-dialect"] !== "clinical") {
+				throw new Error("expected installed Clinical decoder mask");
+			}
+			const installedDefinitions = [...installedPromotedCompounds];
+			const installedDefinitionNames = installedDefinitions.map((definition) => {
+				const installedDefinition = asRecord(definition, "installed promoted compound definition");
+				const name = installedDefinition.name;
+				if (typeof name !== "string" || name.length === 0) {
+					throw new Error("installed promoted compound definition has no name");
+				}
+				return name;
+			});
+			if (!isDeepStrictEqual(installedDefinitionNames, installedPromotedCompoundNames)) {
+				throw new Error("installed promoted compound exports disagree across package entrypoints");
+			}
+			// Build every reference from the installed catalog, including optional args and
+			// every template-declared slot. This proves the packaged schema's real Node →
+			// CompoundRef path without copying a compound list or fixture into the verifier.
+			const validateClinicalMask = new Ajv2020({
+				allErrors: true,
+				strict: false,
+				validateFormats: false,
+			}).compile(clinicalMask);
+			for (const definition of installedDefinitions) {
+				const reference = completeCompoundReference(definition);
+				if (!validateClinicalMask(compoundTree(reference))) {
+					throw new Error(
+						"installed Clinical mask rejected promoted compound " +
+							reference.name +
+							": " +
+							JSON.stringify(validateClinicalMask.errors),
+					);
+				}
+			}
+			if (
+				validateClinicalMask(
+					compoundTree({ kind: "compound", name: "UnknownCompound", args: {} }),
+				)
+			) {
+				throw new Error("installed Clinical mask accepted UnknownCompound");
 			}
 
 			const { SOURCE_SURFACE_ARTIFACT_JSON_SCHEMA, validateSurfaceArtifact } = await import(
