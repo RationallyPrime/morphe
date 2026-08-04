@@ -97,9 +97,10 @@ handlers. The tree stays declarative.
 Nine dialects ship: `gallery` (default), `night`, `icelandic-archive`,
 `clinical`, `reykjavik-registry`, `timaeus`, `ledger`, `estate`, and `foundry`.
 Every shipped dialect preserves the contract keyset.
-`clinical` additionally restricts the promoted compound vocabulary to `SignalCard`; generated
-decoder masks make every dialect's explicit structural policy available through both package
-distributions.
+`clinical` additionally restricts compound vocabulary to the full seventeen-definition promoted
+package catalog, excluding unreviewed consumer compounds without hiding reviewed package shapes;
+generated decoder masks make every dialect's explicit structural policy available through both
+package distributions.
 
 ## Repository Map
 

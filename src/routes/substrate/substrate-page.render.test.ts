@@ -8,6 +8,7 @@ describe("/substrate coherent playground", () => {
 
 		expect(html).toContain("Morphe Workbench");
 		expect(html).toContain("Gold Standard");
+		expect(html).toContain("Compound Mint");
 		expect(html).toContain("Grammar Studio");
 		expect(html).toContain("Dialect Lab");
 		expect(html).toContain("State + Actions");

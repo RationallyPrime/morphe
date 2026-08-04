@@ -465,11 +465,19 @@ argument and slot, host-bound store/actions/choices, all shipped dialects, and r
 Only applicable seams count; the reserved tier-2 escalation vocabulary has no shipped in-tree
 affordance and is therefore deliberately not fabricated into the fixture.
 
+**Promoted evidence ledger (ADR-0023):** the package catalog contains seventeen promoted
+definitions: the original eight plus `ContentSection`, `SignalBand`, `DefinitionRow`,
+`ProgressRow`, `Trail`, `OperationalPane`, `RecordCard`, `DiagnosticGroup`, and `EmptyState`.
+Every catalog entry has a contract-complete maintained fixture; together they must pass strict CMS
+ingress, all nine dialect gates, hygienic expansion, and SSR. The nine minted templates contain only
+structural nodes, node-valued params, and slots. Search, filters, pagination, breadcrumbs, action
+bars, virtualized grids, auth, routing, queries, and governed mutation remain host capabilities.
+
 **Dialect restriction (L4, G|D's compound half):** `MorpheRoot` derives
 `restrictCompounds(registry, { allow: dialect.compounds })` and provides it to
 every `<Node>` via context (the prop chain does not survive container
 recursion). An empty `compounds[]` is unrestricted (the compatibility policy used by eight shipped
-dialects); a non-empty list such as `clinical`'s promoted-only allowlist (the full package
+dialects); a non-empty list such as `clinical`'s promoted-only allowlist (derived from the full package
 catalog, excluding unreviewed consumer compounds — ratified KRA-788) makes out-of-dialect
 names read as UNKNOWN — render-nothing + dev-warn, never a throw. The base registry is never mutated; two roots under
 different dialects hold independent views over the same singleton.

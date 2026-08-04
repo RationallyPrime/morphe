@@ -429,4 +429,597 @@ export const PROMOTED_COMPOUNDS = [
 		},
 		grammarVersion: "0.7.0",
 	},
+	{
+		name: "ContentSection",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				heading: {
+					type: "node",
+					required: true,
+					description: "Visible heading that names the section.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional plain-language orientation for the section.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "section",
+			direction: "block",
+			children: [
+				{
+					kind: "param-ref",
+					param: "heading",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "meta",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "body",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "SignalBand",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				heading: {
+					type: "node",
+					required: true,
+					description: "Visible heading that names the signal collection.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional orientation or scope for the signals.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "param-ref",
+					param: "heading",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "meta",
+					fallback: [],
+				},
+				{
+					kind: "grid",
+					role: "list",
+					minTrack: "narrow",
+					children: [
+						{
+							kind: "slot",
+							name: "signals",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "DefinitionRow",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				term: {
+					type: "node",
+					required: true,
+					description: "The field, capability, or concept being defined.",
+				},
+				value: {
+					type: "node",
+					required: true,
+					description: "The caller-authored value or explanation.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "field-group",
+			children: [
+				{
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "baseline",
+					children: [
+						{
+							kind: "param-ref",
+							param: "term",
+						},
+						{
+							kind: "slot",
+							name: "signal",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "param-ref",
+					param: "value",
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "ProgressRow",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				label: {
+					type: "node",
+					required: true,
+					description: "Visible label for the measured progression.",
+				},
+				progress: {
+					type: "node",
+					required: true,
+					description: "A caller-authored Progress node with its own text label.",
+				},
+				value: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional exact value, count, or horizon beside the measure.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			children: [
+				{
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "baseline",
+					children: [
+						{
+							kind: "param-ref",
+							param: "label",
+						},
+						{
+							kind: "slot",
+							name: "signal",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "param-ref",
+					param: "progress",
+				},
+				{
+					kind: "param-ref",
+					param: "value",
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "Trail",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				heading: {
+					type: "node",
+					required: true,
+					description: "Visible heading for the ordered evidence trail.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional scope or frontier statement for the trail.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "param-ref",
+					param: "heading",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "meta",
+					fallback: [],
+				},
+				{
+					kind: "stack",
+					role: "list",
+					children: [
+						{
+							kind: "slot",
+							name: "items",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "OperationalPane",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				eyebrow: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional source, scope, or operating context.",
+				},
+				title: {
+					type: "node",
+					required: true,
+					description: "The pane's visible operational heading.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional orientation to the pane's current state.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "section",
+			direction: "block",
+			children: [
+				{
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "center",
+					children: [
+						{
+							kind: "param-ref",
+							param: "eyebrow",
+						},
+						{
+							kind: "slot",
+							name: "signal",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "controls",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "body",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "RecordCard",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				eyebrow: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "caption",
+					},
+					description: "Optional record type, collection, or source context.",
+				},
+				title: {
+					type: "node",
+					required: true,
+					description: "The record's visible identity.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional human-readable description of the record.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			direction: "block",
+			children: [
+				{
+					kind: "cluster",
+					role: "toolbar",
+					justify: "between",
+					align: "center",
+					children: [
+						{
+							kind: "param-ref",
+							param: "eyebrow",
+						},
+						{
+							kind: "slot",
+							name: "signal",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "facts",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "provenance",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "DiagnosticGroup",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				heading: {
+					type: "node",
+					required: true,
+					description: "Visible heading for the diagnostic collection.",
+				},
+				summary: {
+					type: "node",
+					required: false,
+					default: {
+						kind: "text",
+						value: "",
+						as: "body",
+					},
+					description: "Optional scope, count, or consequence statement.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "section",
+			children: [
+				{
+					kind: "param-ref",
+					param: "heading",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "signal",
+					fallback: [],
+				},
+				{
+					kind: "stack",
+					role: "list",
+					children: [
+						{
+							kind: "slot",
+							name: "diagnostics",
+							fallback: [],
+						},
+					],
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
+	{
+		name: "EmptyState",
+		version: "1.0.0",
+		params: {
+			type: "object",
+			properties: {
+				title: {
+					type: "node",
+					required: true,
+					description: "Visible heading that names the absent result or collection.",
+				},
+				summary: {
+					type: "node",
+					required: true,
+					description: "Plain-language reason, scope, or next-step orientation.",
+				},
+			},
+		},
+		template: {
+			kind: "stack",
+			role: "panel",
+			direction: "block",
+			children: [
+				{
+					kind: "slot",
+					name: "symbol",
+					fallback: [],
+				},
+				{
+					kind: "param-ref",
+					param: "title",
+				},
+				{
+					kind: "param-ref",
+					param: "summary",
+				},
+				{
+					kind: "slot",
+					name: "actions",
+					fallback: [],
+				},
+				{
+					kind: "slot",
+					name: "detail",
+					fallback: [],
+				},
+			],
+		},
+		grammarVersion: "0.7.0",
+	},
 ] as const satisfies readonly CompoundDef[];

@@ -25,6 +25,24 @@ const DIALECTS = [
 	"estate",
 	"foundry",
 ] as const;
+const NON_GOLD_COMPOUNDS = [
+	"SignalCard",
+	"EntityHeader",
+	"ProvenanceFooter",
+	"StatBand",
+	"Breakdown",
+	"TrailEntry",
+	"KeyValuePanel",
+	"ContentSection",
+	"SignalBand",
+	"DefinitionRow",
+	"ProgressRow",
+	"Trail",
+	"OperationalPane",
+	"RecordCard",
+	"DiagnosticGroup",
+	"EmptyState",
+] as const;
 
 async function setRange(control: Locator, value: number): Promise<void> {
 	await control.evaluate((element, next) => {
@@ -274,6 +292,72 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 			waitUntil: "domcontentloaded",
 		});
 		expect(response?.status()).toBe(400);
+	});
+});
+
+test.describe("ADR-0023 — promoted compound mint", () => {
+	test.describe.configure({ mode: "serial" });
+
+	test("the complete non-gold ledger survives every shipped dialect", async ({ page }) => {
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await page.getByRole("button", { name: /Compound Mint/ }).click();
+		await expect(page.getByRole("button", { name: /Compound Mint/ })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+
+		for (const name of NON_GOLD_COMPOUNDS) {
+			await expect(
+				page.getByRole("heading", { name: `${name} · benchmark`, exact: true }),
+			).toBeVisible();
+		}
+
+		const dialectSelect = page.locator("#dialect-select");
+		const previewRoot = page.locator(".workbench__preview > .mo-root");
+		for (const dialect of DIALECTS) {
+			await dialectSelect.selectOption(dialect);
+			await expect(dialectSelect).toHaveValue(dialect);
+			await expect
+				.poll(() => previewRoot.getAttribute("data-mo-dialect"), {
+					message: `mint did not settle on ${dialect}`,
+					timeout: 20_000,
+				})
+				.toBe(dialect);
+			await expect(
+				page.getByText("Every non-gold catalog entry has a complete fixture"),
+			).toBeVisible();
+			const overflow = await page.evaluate(
+				() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			);
+			expect(overflow, `${dialect} introduced mint overflow`).toBeLessThanOrEqual(1);
+		}
+	});
+
+	test("the 390px mint reflows and its action authority stays host-bound", async ({ page }) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await page.getByRole("button", { name: /Compound Mint/ }).click();
+
+		const action = page.getByRole("button", { name: "Record section evidence" });
+		await action.click();
+		await page.keyboard.press("Shift+Tab");
+		await page.keyboard.press("Tab");
+		await expect(action).toBeFocused();
+		const ring = await action.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return (
+				(style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0) ||
+				style.boxShadow !== "none"
+			);
+		});
+		expect(ring, "mint action has no visible focus indicator").toBe(true);
+		await page.keyboard.press("Enter");
+		await expect(page.locator(".workbench__proof")).toContainText("mint.record");
+
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		);
+		expect(overflow, "compound mint overflows at 390px").toBeLessThanOrEqual(1);
 	});
 });
 

@@ -10,12 +10,21 @@
           "ActionSummary",
           "Breakdown",
           "TrailEntry",
-          "KeyValuePanel"
+          "KeyValuePanel",
+          "ContentSection",
+          "SignalBand",
+          "DefinitionRow",
+          "ProgressRow",
+          "Trail",
+          "OperationalPane",
+          "RecordCard",
+          "DiagnosticGroup",
+          "EmptyState"
         ],
         "mode": "allowlist"
       },
       "schema": "dialects/morphe-node.clinical.schema.json",
-      "sha256": "d07c8fcdff48a9b57c1f9615471ef9211fe32305914f90067586e7e520f58c78"
+      "sha256": "20387b6ce01d4374057cc310c70ea940979ca7fff9a2ce2641c4eb0101d48c85"
     },
     "estate": {
       "compound_policy": {

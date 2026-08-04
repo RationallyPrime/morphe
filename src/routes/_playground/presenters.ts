@@ -1,4 +1,5 @@
 import type { JsonRecord, Node } from "$lib";
+import { presentCompoundMint } from "./compound-mint.js";
 import { exhibitFor } from "./exhibits.js";
 import type {
 	GrammarVariant,
@@ -28,6 +29,8 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 		switch (input.activeExhibit) {
 			case "gold":
 				return presentActionSummaryGold();
+			case "compounds":
+				return presentCompoundMint();
 			case "grammar":
 				return presentGrammarStudio(input.grammarVariant);
 			case "dialects":

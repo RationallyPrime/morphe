@@ -10,6 +10,12 @@ export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 		proofFocus: "Certified compound circuit",
 	},
 	{
+		id: "compounds",
+		label: "Compound Mint",
+		summary: "Every other promoted compound with every argument and slot under evidence.",
+		proofFocus: "Gold-standard comparison",
+	},
+	{
 		id: "grammar",
 		label: "Grammar Studio",
 		summary: "Curated primitive families and their authored Node data.",

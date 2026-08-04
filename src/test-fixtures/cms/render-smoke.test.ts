@@ -15,8 +15,9 @@ import MorpheRoot from "../../lib/render/MorpheRoot.svelte";
 import tree from "./capability-page.tree.json";
 
 describe("CMS compiled tree render-smoke", () => {
-	it("expands its promoted compound and resolves its action through the host", async () => {
+	it("expands its promoted compounds and resolves its action through the host", async () => {
 		const openComposer = vi.fn();
+		expect(JSON.stringify(tree)).toContain('"name":"ContentSection"');
 		render(MorpheRoot, {
 			props: {
 				tree: tree as unknown as Node,

@@ -57,8 +57,20 @@ def test_empty_proof_points_returns_none() -> None:
 def test_each_section_kind_compiles() -> None:
     for section in CapabilityPageDraft.model_validate(VALID_DRAFT).sections:
         node = present_section(section)
-        assert node["kind"] == "stack"
+        assert node["kind"] in {"stack", "compound"}
         _vn(node)
+
+
+def test_generic_section_shell_uses_the_minted_content_section() -> None:
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+    workflow = next(section for section in draft.sections if section.kind == "workflowMap")
+    node = present_section(workflow)
+
+    assert node["kind"] == "compound"
+    assert node["name"] == "ContentSection"
+    assert set(node["args"]) == {"heading"}
+    assert set(node["slots"]) == {"body"}
+    _vn(node)
 
 
 def test_problem_frame_uses_the_gold_standard_compound() -> None:
@@ -90,7 +102,8 @@ def test_faq_section_uses_disclosure() -> None:
         }
     )
     node = present_section(draft.sections[0])
-    kinds = [c["kind"] for c in node["children"]]
+    assert node["name"] == "ContentSection"
+    kinds = [c["kind"] for c in node["slots"]["body"]]
     assert "disclosure" in kinds
 
 

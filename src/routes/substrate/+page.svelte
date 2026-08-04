@@ -44,6 +44,7 @@
 			recordAction("gold.advance");
 		},
 		"gold.attest": () => recordAction("gold.attest"),
+		"mint.record": () => recordAction("mint.record"),
 		"demo.rotate": () => {
 			selectedVaryChoice = (selectedVaryChoice + 1) % 3;
 			recordAction("demo.rotate");
@@ -213,6 +214,18 @@
 							oninput={setGoldDensityChoice}
 						/>
 					</label>
+				{:else if activeExhibit === "compounds"}
+					<label class="field" for="dialect-select">
+						<span>Global dialect</span>
+						<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
+							{#each DIALECT_OPTIONS as dialectId (dialectId)}
+								<option value={dialectId}>{dialectId}</option>
+							{/each}
+						</select>
+					</label>
+					<p class="control-copy">
+						Sixteen complete fixtures; ActionSummary remains the separately certified gold benchmark.
+					</p>
 				{:else if activeExhibit === "grammar"}
 				<label class="field" for="grammar-variant">
 					<span>Primitive family</span>
