@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    import pytest
+import pytest
 
 from morphe_cms.contracts.capability_page import CapabilityPageDraft
 from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
 from morphe_cms.validation.gate import compile_and_gate
 from morphe_cms.validation.policy import policy_diagnostics
+from morphe_grammar.catalog import PROMOTED_COMPOUNDS
 
 from .cms_fixtures import VALID_DRAFT
+from .compound_fixtures import full_compound_reference
 
 
 def test_valid_draft_passes_gate() -> None:
@@ -21,6 +21,28 @@ def test_valid_draft_passes_gate() -> None:
     assert compiled.tree.kind == "frame"
     assert compiled.render_hints.dialect == "gallery"
     assert [d for d in diagnostics if d.severity == "error"] == []
+
+
+@pytest.mark.parametrize("compound_name", tuple(PROMOTED_COMPOUNDS))
+def test_clinical_cms_gate_accepts_every_complete_promoted_reference(
+    compound_name: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = full_compound_reference(PROMOTED_COMPOUNDS[compound_name])
+    monkeypatch.setattr(
+        "morphe_cms.validation.gate.present_capability_page",
+        lambda _draft: reference,
+    )
+    payload = copy.deepcopy(VALID_DRAFT)
+    payload["morphe"]["dialect"] = "clinical"
+    draft = CapabilityPageDraft.model_validate(payload)
+
+    compiled, diagnostics = compile_and_gate(draft)
+
+    assert compiled is not None
+    assert compiled.tree.kind == "compound"
+    assert compiled.render_hints.dialect == "clinical"
+    assert [diagnostic for diagnostic in diagnostics if diagnostic.severity == "error"] == []
 
 
 def test_duplicate_section_ids_rejected_by_policy() -> None:

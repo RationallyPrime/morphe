@@ -426,6 +426,405 @@ KEY_VALUE_PANEL = CompoundDefinition.model_validate(
     }
 )
 
+CONTENT_SECTION = CompoundDefinition.model_validate(
+    {
+        "name": "ContentSection",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible heading that names the section.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional plain-language orientation for the section.",
+                },
+            },
+        },
+        # A section owns reading order only. Framing, elevation, navigation, and
+        # live authority stay with the caller and host.
+        "template": {
+            "kind": "stack",
+            "role": "section",
+            "direction": "block",
+            "children": [
+                {"kind": "param-ref", "param": "heading"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "meta", "fallback": []},
+                {"kind": "slot", "name": "body", "fallback": []},
+                {"kind": "slot", "name": "actions", "fallback": []},
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
+SIGNAL_BAND = CompoundDefinition.model_validate(
+    {
+        "name": "SignalBand",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible heading that names the signal collection.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional orientation or scope for the signals.",
+                },
+            },
+        },
+        # The band owns only its wrap-capable list geometry. Each signal remains a
+        # complete caller-authored feedback or compound node.
+        "template": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+                {"kind": "param-ref", "param": "heading"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "meta", "fallback": []},
+                {
+                    "kind": "grid",
+                    "role": "list",
+                    "minTrack": "narrow",
+                    "children": [{"kind": "slot", "name": "signals", "fallback": []}],
+                },
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
+DEFINITION_ROW = CompoundDefinition.model_validate(
+    {
+        "name": "DefinitionRow",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "term": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The field, capability, or concept being defined.",
+                },
+                "value": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The caller-authored value or explanation.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "field-group",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "baseline",
+                    "children": [
+                        {"kind": "param-ref", "param": "term"},
+                        {"kind": "slot", "name": "signal", "fallback": []},
+                    ],
+                },
+                {"kind": "param-ref", "param": "value"},
+                {"kind": "slot", "name": "detail", "fallback": []},
+                {"kind": "slot", "name": "actions", "fallback": []},
+            ],
+        },
+    }
+)
+
+PROGRESS_ROW = CompoundDefinition.model_validate(
+    {
+        "name": "ProgressRow",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible label for the measured progression.",
+                },
+                "progress": {
+                    "type": "node",
+                    "required": True,
+                    "description": "A caller-authored Progress node with its own text label.",
+                },
+                "value": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional exact value, count, or horizon beside the measure.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "baseline",
+                    "children": [
+                        {"kind": "param-ref", "param": "label"},
+                        {"kind": "slot", "name": "signal", "fallback": []},
+                    ],
+                },
+                {"kind": "param-ref", "param": "progress"},
+                {"kind": "param-ref", "param": "value"},
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
+TRAIL = CompoundDefinition.model_validate(
+    {
+        "name": "Trail",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible heading for the ordered evidence trail.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional scope or frontier statement for the trail.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+                {"kind": "param-ref", "param": "heading"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "meta", "fallback": []},
+                {
+                    "kind": "stack",
+                    "role": "list",
+                    "children": [{"kind": "slot", "name": "items", "fallback": []}],
+                },
+                {"kind": "slot", "name": "actions", "fallback": []},
+                {"kind": "slot", "name": "provenance", "fallback": []},
+            ],
+        },
+    }
+)
+
+OPERATIONAL_PANE = CompoundDefinition.model_validate(
+    {
+        "name": "OperationalPane",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "eyebrow": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional source, scope, or operating context.",
+                },
+                "title": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The pane's visible operational heading.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional orientation to the pane's current state.",
+                },
+            },
+        },
+        # Panes are content boundaries, not Frame boundaries. The route decides
+        # whether a pane resets context or receives elevation.
+        "template": {
+            "kind": "stack",
+            "role": "section",
+            "direction": "block",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "center",
+                    "children": [
+                        {"kind": "param-ref", "param": "eyebrow"},
+                        {"kind": "slot", "name": "signal", "fallback": []},
+                    ],
+                },
+                {"kind": "param-ref", "param": "title"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "controls", "fallback": []},
+                {"kind": "slot", "name": "body", "fallback": []},
+                {"kind": "slot", "name": "detail", "fallback": []},
+                {"kind": "slot", "name": "provenance", "fallback": []},
+            ],
+        },
+    }
+)
+
+RECORD_CARD = CompoundDefinition.model_validate(
+    {
+        "name": "RecordCard",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "eyebrow": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "caption"},
+                    "description": "Optional record type, collection, or source context.",
+                },
+                "title": {
+                    "type": "node",
+                    "required": True,
+                    "description": "The record's visible identity.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional human-readable description of the record.",
+                },
+            },
+        },
+        # The caller may make a card by wrapping this record summary in a Frame;
+        # persistence identity alone does not imply elevation.
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "direction": "block",
+            "children": [
+                {
+                    "kind": "cluster",
+                    "role": "toolbar",
+                    "justify": "between",
+                    "align": "center",
+                    "children": [
+                        {"kind": "param-ref", "param": "eyebrow"},
+                        {"kind": "slot", "name": "signal", "fallback": []},
+                    ],
+                },
+                {"kind": "param-ref", "param": "title"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "facts", "fallback": []},
+                {"kind": "slot", "name": "actions", "fallback": []},
+                {"kind": "slot", "name": "provenance", "fallback": []},
+            ],
+        },
+    }
+)
+
+DIAGNOSTIC_GROUP = CompoundDefinition.model_validate(
+    {
+        "name": "DiagnosticGroup",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible heading for the diagnostic collection.",
+                },
+                "summary": {
+                    "type": "node",
+                    "default": {"kind": "text", "value": "", "as": "body"},
+                    "description": "Optional scope, count, or consequence statement.",
+                },
+            },
+        },
+        "template": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+                {"kind": "param-ref", "param": "heading"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "signal", "fallback": []},
+                {
+                    "kind": "stack",
+                    "role": "list",
+                    "children": [
+                        {"kind": "slot", "name": "diagnostics", "fallback": []}
+                    ],
+                },
+                {"kind": "slot", "name": "actions", "fallback": []},
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
+EMPTY_STATE = CompoundDefinition.model_validate(
+    {
+        "name": "EmptyState",
+        "version": "1.0.0",
+        "grammar_version": GRAMMAR_VERSION,
+        "lifecycle": "promoted",
+        "params": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Visible heading that names the absent result or collection.",
+                },
+                "summary": {
+                    "type": "node",
+                    "required": True,
+                    "description": "Plain-language reason, scope, or next-step orientation.",
+                },
+            },
+        },
+        # EmptyState expresses absence, not failure. Tone and next-step authority
+        # stay in caller-authored slot nodes.
+        "template": {
+            "kind": "stack",
+            "role": "panel",
+            "direction": "block",
+            "children": [
+                {"kind": "slot", "name": "symbol", "fallback": []},
+                {"kind": "param-ref", "param": "title"},
+                {"kind": "param-ref", "param": "summary"},
+                {"kind": "slot", "name": "actions", "fallback": []},
+                {"kind": "slot", "name": "detail", "fallback": []},
+            ],
+        },
+    }
+)
+
 PROMOTED_COMPOUNDS = MappingProxyType(
     {
         SIGNAL_CARD.name: SIGNAL_CARD,
@@ -436,6 +835,15 @@ PROMOTED_COMPOUNDS = MappingProxyType(
         BREAKDOWN.name: BREAKDOWN,
         TRAIL_ENTRY.name: TRAIL_ENTRY,
         KEY_VALUE_PANEL.name: KEY_VALUE_PANEL,
+        CONTENT_SECTION.name: CONTENT_SECTION,
+        SIGNAL_BAND.name: SIGNAL_BAND,
+        DEFINITION_ROW.name: DEFINITION_ROW,
+        PROGRESS_ROW.name: PROGRESS_ROW,
+        TRAIL.name: TRAIL,
+        OPERATIONAL_PANE.name: OPERATIONAL_PANE,
+        RECORD_CARD.name: RECORD_CARD,
+        DIAGNOSTIC_GROUP.name: DIAGNOSTIC_GROUP,
+        EMPTY_STATE.name: EMPTY_STATE,
     }
 )
 
@@ -589,13 +997,22 @@ validate_catalog()
 __all__ = [
     "ACTION_SUMMARY",
     "BREAKDOWN",
+    "CONTENT_SECTION",
+    "DEFINITION_ROW",
+    "DIAGNOSTIC_GROUP",
+    "EMPTY_STATE",
     "ENTITY_HEADER",
     "GOLD_STANDARD_COMPOUND",
     "KEY_VALUE_PANEL",
+    "OPERATIONAL_PANE",
+    "PROGRESS_ROW",
     "PROMOTED_COMPOUNDS",
     "PROVENANCE_FOOTER",
+    "RECORD_CARD",
+    "SIGNAL_BAND",
     "SIGNAL_CARD",
     "STAT_BAND",
+    "TRAIL",
     "TRAIL_ENTRY",
     "CompoundDefinition",
     "CompoundLifecycle",

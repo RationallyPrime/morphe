@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 Node = dict[str, Any]
 
-PRESENTER_VERSION = "0.2.0"
+PRESENTER_VERSION = "0.3.0"
 
 
 def _text(
@@ -121,8 +121,12 @@ def present_cta(cta: CTA) -> Node:
 
 
 def _section_shell(title: str, children: list[Node]) -> Node:
-    head: list[Node] = [_text(title, as_="heading", emphasis="strong")]
-    return {"kind": "stack", "role": "section", "children": head + children}
+    return {
+        "kind": "compound",
+        "name": "ContentSection",
+        "args": {"heading": _text(title, as_="heading", emphasis="strong")},
+        "slots": {"body": children},
+    }
 
 
 def _present_problem_frame(s: ProblemFrameSection) -> Node:

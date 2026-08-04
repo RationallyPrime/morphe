@@ -128,64 +128,68 @@
 					]
 				},
 				{
-					"kind": "stack",
-					"role": "section",
-					"children": [
-						{
+					"kind": "compound",
+					"name": "ContentSection",
+					"args": {
+						"heading": {
 							"kind": "text",
 							"value": "How it works",
 							"as": "heading",
 							"emphasis": "strong"
-						},
-						{
-							"kind": "stack",
-							"role": "list",
-							"children": [
-								{
-									"kind": "stack",
-									"role": "inline",
-									"children": [
-										{
-											"kind": "badge",
-											"label": "1"
-										},
-										{
-											"kind": "text",
-											"value": "Model the operation",
-											"as": "subheading",
-											"emphasis": "strong"
-										},
-										{
-											"kind": "text",
-											"value": "Define the domain objects, actions, and transitions.",
-											"as": "body"
-										}
-									]
-								},
-								{
-									"kind": "stack",
-									"role": "inline",
-									"children": [
-										{
-											"kind": "badge",
-											"label": "2"
-										},
-										{
-											"kind": "text",
-											"value": "Compile the interface",
-											"as": "subheading",
-											"emphasis": "strong"
-										},
-										{
-											"kind": "text",
-											"value": "Render the workflow through grammar + dialect.",
-											"as": "body"
-										}
-									]
-								}
-							]
 						}
-					]
+					},
+					"slots": {
+						"body": [
+							{
+								"kind": "stack",
+								"role": "list",
+								"children": [
+									{
+										"kind": "stack",
+										"role": "inline",
+										"children": [
+											{
+												"kind": "badge",
+												"label": "1"
+											},
+											{
+												"kind": "text",
+												"value": "Model the operation",
+												"as": "subheading",
+												"emphasis": "strong"
+											},
+											{
+												"kind": "text",
+												"value": "Define the domain objects, actions, and transitions.",
+												"as": "body"
+											}
+										]
+									},
+									{
+										"kind": "stack",
+										"role": "inline",
+										"children": [
+											{
+												"kind": "badge",
+												"label": "2"
+											},
+											{
+												"kind": "text",
+												"value": "Compile the interface",
+												"as": "subheading",
+												"emphasis": "strong"
+											},
+											{
+												"kind": "text",
+												"value": "Render the workflow through grammar + dialect.",
+												"as": "body"
+											}
+										]
+									}
+								]
+							}
+						]
+					}
 				}
 			]
 		},

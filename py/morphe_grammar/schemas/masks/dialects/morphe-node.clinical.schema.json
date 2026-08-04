@@ -223,6 +223,33 @@
         },
         {
           "$ref": "#/$defs/CompoundRef_KeyValuePanel"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_ContentSection"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_SignalBand"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_DefinitionRow"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_ProgressRow"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_Trail"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_OperationalPane"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_RecordCard"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_DiagnosticGroup"
+        },
+        {
+          "$ref": "#/$defs/CompoundRef_EmptyState"
         }
       ],
       "title": "clinical CompoundRef"
@@ -355,6 +382,290 @@
       "title": "Breakdown",
       "type": "object"
     },
+    "CompoundRef_ContentSection": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "heading": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible heading that names the section."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional plain-language orientation for the section."
+            }
+          },
+          "required": [
+            "heading"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "ContentSection",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "body": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "meta": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "ContentSection",
+      "type": "object"
+    },
+    "CompoundRef_DefinitionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "term": {
+              "$ref": "#/$defs/Node",
+              "description": "The field, capability, or concept being defined."
+            },
+            "value": {
+              "$ref": "#/$defs/Node",
+              "description": "The caller-authored value or explanation."
+            }
+          },
+          "required": [
+            "term",
+            "value"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "DefinitionRow",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "DefinitionRow",
+      "type": "object"
+    },
+    "CompoundRef_DiagnosticGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "heading": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible heading for the diagnostic collection."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional scope, count, or consequence statement."
+            }
+          },
+          "required": [
+            "heading"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "DiagnosticGroup",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "diagnostics": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "DiagnosticGroup",
+      "type": "object"
+    },
+    "CompoundRef_EmptyState": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "description": "Plain-language reason, scope, or next-step orientation."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible heading that names the absent result or collection."
+            }
+          },
+          "required": [
+            "title",
+            "summary"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "EmptyState",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "symbol": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "EmptyState",
+      "type": "object"
+    },
     "CompoundRef_EntityHeader": {
       "additionalProperties": false,
       "properties": {
@@ -478,6 +789,166 @@
       "title": "KeyValuePanel",
       "type": "object"
     },
+    "CompoundRef_OperationalPane": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "eyebrow": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional source, scope, or operating context."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional orientation to the pane's current state."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "The pane's visible operational heading."
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "OperationalPane",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "body": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "controls": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "OperationalPane",
+      "type": "object"
+    },
+    "CompoundRef_ProgressRow": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible label for the measured progression."
+            },
+            "progress": {
+              "$ref": "#/$defs/Node",
+              "description": "A caller-authored Progress node with its own text label."
+            },
+            "value": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional exact value, count, or horizon beside the measure."
+            }
+          },
+          "required": [
+            "label",
+            "progress"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "ProgressRow",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "ProgressRow",
+      "type": "object"
+    },
     "CompoundRef_ProvenanceFooter": {
       "additionalProperties": false,
       "properties": {
@@ -539,6 +1010,161 @@
         "args"
       ],
       "title": "ProvenanceFooter",
+      "type": "object"
+    },
+    "CompoundRef_RecordCard": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "eyebrow": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "caption",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional record type, collection, or source context."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional human-readable description of the record."
+            },
+            "title": {
+              "$ref": "#/$defs/Node",
+              "description": "The record's visible identity."
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "RecordCard",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "facts": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "RecordCard",
+      "type": "object"
+    },
+    "CompoundRef_SignalBand": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "heading": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible heading that names the signal collection."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional orientation or scope for the signals."
+            }
+          },
+          "required": [
+            "heading"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "SignalBand",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "meta": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "signals": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "SignalBand",
       "type": "object"
     },
     "CompoundRef_SignalCard": {
@@ -644,6 +1270,82 @@
         "args"
       ],
       "title": "StatBand",
+      "type": "object"
+    },
+    "CompoundRef_Trail": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "heading": {
+              "$ref": "#/$defs/Node",
+              "description": "Visible heading for the ordered evidence trail."
+            },
+            "summary": {
+              "$ref": "#/$defs/Node",
+              "default": {
+                "as": "body",
+                "kind": "text",
+                "value": ""
+              },
+              "description": "Optional scope or frontier statement for the trail."
+            }
+          },
+          "required": [
+            "heading"
+          ],
+          "type": "object"
+        },
+        "emphasis": {
+          "$ref": "#/$defs/EmphasisClaim"
+        },
+        "kind": {
+          "const": "compound",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "const": "Trail",
+          "type": "string"
+        },
+        "slots": {
+          "additionalProperties": false,
+          "properties": {
+            "actions": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "meta": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "provenance": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "args"
+      ],
+      "title": "Trail",
       "type": "object"
     },
     "CompoundRef_TrailEntry": {
@@ -2627,7 +3329,16 @@
       "ActionSummary",
       "Breakdown",
       "TrailEntry",
-      "KeyValuePanel"
+      "KeyValuePanel",
+      "ContentSection",
+      "SignalBand",
+      "DefinitionRow",
+      "ProgressRow",
+      "Trail",
+      "OperationalPane",
+      "RecordCard",
+      "DiagnosticGroup",
+      "EmptyState"
     ],
     "mode": "allowlist"
   },

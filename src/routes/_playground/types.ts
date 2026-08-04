@@ -3,6 +3,7 @@ import type { LocalAdaptiveDraft } from "./validation.js";
 
 export const EXHIBIT_IDS = [
 	"gold",
+	"compounds",
 	"grammar",
 	"dialects",
 	"state",

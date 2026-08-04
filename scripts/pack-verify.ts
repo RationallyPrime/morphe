@@ -238,11 +238,18 @@ try {
 		join(scaffold, "src", "entry-server.ts"),
 		`
 			import { render } from "svelte/server";
-			import { DIALECT_IDS, GRAMMAR_VERSION } from "@rationallyprime/morphe";
+			import {
+				DIALECT_IDS,
+				GRAMMAR_VERSION,
+				PROMOTED_COMPOUNDS,
+			} from "@rationallyprime/morphe";
 			import App from "./App.svelte";
 
 			export const installedDialectIds = DIALECT_IDS;
 			export const installedGrammarVersion = GRAMMAR_VERSION;
+			export const installedPromotedCompoundNames = PROMOTED_COMPOUNDS.map(
+				(definition) => definition.name,
+			);
 
 			export function renderSurface(): string {
 				return render(App).body;
@@ -289,11 +296,15 @@ try {
 			import { fileURLToPath } from "node:url";
 			import { isDeepStrictEqual } from "node:util";
 
-			const { installedDialectIds, installedGrammarVersion, renderSurface } = await import(
-				"../.ssr/entry-server.js"
-			) as {
+			const {
+				installedDialectIds,
+				installedGrammarVersion,
+				installedPromotedCompoundNames,
+				renderSurface,
+			} = await import("../.ssr/entry-server.js") as {
 				installedDialectIds: readonly string[];
 				installedGrammarVersion: string;
+				installedPromotedCompoundNames: readonly string[];
 				renderSurface: () => string;
 			};
 			const body = renderSurface();
@@ -365,17 +376,10 @@ try {
 				!clinicalPolicy ||
 				typeof clinicalPolicy !== "object" ||
 				(clinicalPolicy as Record<string, unknown>).mode !== "allowlist" ||
-				JSON.stringify((clinicalPolicy as Record<string, unknown>).compounds) !==
-					JSON.stringify([
-						"SignalCard",
-						"EntityHeader",
-						"ProvenanceFooter",
-						"StatBand",
-						"ActionSummary",
-						"Breakdown",
-						"TrailEntry",
-						"KeyValuePanel",
-					])
+				!isDeepStrictEqual(
+					(clinicalPolicy as Record<string, unknown>).compounds,
+					installedPromotedCompoundNames,
+				)
 			) {
 				throw new Error("expected installed clinical mask to allow exactly the promoted catalog");
 			}

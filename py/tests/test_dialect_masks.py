@@ -64,6 +64,15 @@ def test_signal_card_is_a_neutral_promoted_compound() -> None:
         "Breakdown",
         "TrailEntry",
         "KeyValuePanel",
+        "ContentSection",
+        "SignalBand",
+        "DefinitionRow",
+        "ProgressRow",
+        "Trail",
+        "OperationalPane",
+        "RecordCard",
+        "DiagnosticGroup",
+        "EmptyState",
     )
     assert SIGNAL_CARD.lifecycle == "promoted"
     assert SIGNAL_CARD.grammar_version == GRAMMAR_VERSION
@@ -116,16 +125,7 @@ def test_only_clinical_is_restricted_and_others_remain_explicitly_unrestricted()
     )
     assert tuple(DIALECT_CONSTRAINTS) == DIALECT_IDS
     assert DIALECT_CONSTRAINTS["clinical"].mode == "allowlist"
-    assert DIALECT_CONSTRAINTS["clinical"].compounds == (
-        "SignalCard",
-        "EntityHeader",
-        "ProvenanceFooter",
-        "StatBand",
-        "ActionSummary",
-        "Breakdown",
-        "TrailEntry",
-        "KeyValuePanel",
-    )
+    assert DIALECT_CONSTRAINTS["clinical"].compounds == tuple(PROMOTED_COMPOUNDS)
 
     for dialect_id in DIALECT_IDS:
         if dialect_id != "clinical":
@@ -266,15 +266,28 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_promoted_shapes() -
     compound_union = _object(definitions["CompoundRef"])
     options = compound_union["oneOf"]
     assert options == [
-        {"$ref": "#/$defs/CompoundRef_SignalCard"},
-        {"$ref": "#/$defs/CompoundRef_EntityHeader"},
-        {"$ref": "#/$defs/CompoundRef_ProvenanceFooter"},
-        {"$ref": "#/$defs/CompoundRef_StatBand"},
-        {"$ref": "#/$defs/CompoundRef_ActionSummary"},
-        {"$ref": "#/$defs/CompoundRef_Breakdown"},
-        {"$ref": "#/$defs/CompoundRef_TrailEntry"},
-        {"$ref": "#/$defs/CompoundRef_KeyValuePanel"},
+        {"$ref": f"#/$defs/CompoundRef_{name}"} for name in PROMOTED_COMPOUNDS
     ]
+
+    # Every promoted definition receives an exact argument/slot schema in the
+    # restricted mask; the detailed assertions below retain historical contracts.
+    for name, definition in PROMOTED_COMPOUNDS.items():
+        reference = _object(definitions[f"CompoundRef_{name}"])
+        properties = _object(reference["properties"])
+        assert _object(properties["name"])["const"] == name
+        args = _object(properties["args"])
+        assert set(_object(args["properties"])) == set(definition.params.properties)
+        required = [
+            param_name
+            for param_name, parameter in definition.params.properties.items()
+            if parameter.required
+        ]
+        if required:
+            assert args["required"] == required
+        else:
+            assert "required" not in args
+        slots = _object(properties["slots"])
+        assert set(_object(slots["properties"])) == set(compound_slot_names(definition))
 
     entity_header = _object(definitions["CompoundRef_EntityHeader"])
     header_properties = _object(entity_header["properties"])
@@ -363,16 +376,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_promoted_shapes() -
 
     assert document["x-morphe-compound-policy"] == {
         "mode": "allowlist",
-        "compounds": [
-            "SignalCard",
-            "EntityHeader",
-            "ProvenanceFooter",
-            "StatBand",
-            "ActionSummary",
-            "Breakdown",
-            "TrailEntry",
-            "KeyValuePanel",
-        ],
+        "compounds": list(PROMOTED_COMPOUNDS),
     }
 
 
@@ -456,16 +460,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
     assert clinical["schema"] == "dialects/morphe-node.clinical.schema.json"
     assert clinical["compound_policy"] == {
         "mode": "allowlist",
-        "compounds": [
-            "SignalCard",
-            "EntityHeader",
-            "ProvenanceFooter",
-            "StatBand",
-            "ActionSummary",
-            "Breakdown",
-            "TrailEntry",
-            "KeyValuePanel",
-        ],
+        "compounds": list(PROMOTED_COMPOUNDS),
     }
     assert gallery["compound_policy"] == {"mode": "unrestricted", "compounds": []}
 

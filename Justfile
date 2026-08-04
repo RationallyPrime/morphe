@@ -75,6 +75,11 @@ lint:
 format:
 	bunx biome check --write .
 
+# install the produced npm tarball into a throwaway Vite + Svelte consumer and
+# prove its public exports, masks, browser build, typecheck, and SSR build.
+pack-verify:
+	bun run pack:verify
+
 # --- python (uv) -------------------------------------------------------
 
 # pytest over py/
@@ -143,7 +148,7 @@ _gated inner:
 # Whole-machine run: serialized machine-wide by the heavy gate.
 gates: (_gated "_gates")
 
-_gates: compiler-id-check lint check test build viewer-check viewer-build-node edge-e2e contrast py-test py-lint py-types schema-check cms-schema-check py-pack-verify
+_gates: compiler-id-check lint check test build pack-verify viewer-check viewer-build-node edge-e2e contrast py-test py-lint py-types schema-check cms-schema-check py-pack-verify
 
 # install the prek git hooks (once per checkout)
 hooks:

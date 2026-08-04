@@ -136,6 +136,12 @@ standard. Its fixture is intentionally not a reusable page design. It is an evid
 that a pure definition can be composed by a caller, admitted through the CMS, re-themed unchanged,
 and given live bindings, choices, and action handlers only at `MorpheRoot`.
 
+ADR-0023 applies that benchmark as an evidence ledger without multiplying gold markers. Nine
+neutral shapes cover sections, signal collections, definitions, progress, trails, panes, records,
+diagnostics, and absence. Their names and templates carry no Recipe, Law, kernel, model, telemetry,
+query, permission, or mutation semantics. Those concerns remain in the consumer and host; a
+`RecordCard` may present any governed record but can never become its authority.
+
 ## 7. Operational surfaces
 
 Schema-derived surfaces should be intentional projections, not pretty-printed API responses.

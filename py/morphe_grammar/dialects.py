@@ -120,18 +120,12 @@ _DIALECT_CONSTRAINTS = (
     # unreviewed consumer compounds — it does not narrow the reviewed package
     # vocabulary. Earlier doctrine describing a SignalCard-only clinical mask
     # documented the first entry, not the policy; the live catalog is the truth.
-    # A compound promoted into the package catalog is added here in the same change.
+    # Derive the allowlist from the authoritative catalog so minting cannot create
+    # partial dialect admission or schema drift.
     _constraint(
         "clinical",
         "allowlist",
-        "SignalCard",
-        "EntityHeader",
-        "ProvenanceFooter",
-        "StatBand",
-        "ActionSummary",
-        "Breakdown",
-        "TrailEntry",
-        "KeyValuePanel",
+        *PROMOTED_COMPOUNDS,
     ),
     _constraint("reykjavik-registry", "unrestricted"),
     _constraint("timaeus", "unrestricted"),

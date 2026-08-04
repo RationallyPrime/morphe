@@ -1,11 +1,16 @@
 # Morphe — Status
 
-**Date:** 2026-08-02
+**Date:** 2026-08-04
 **Verdict: GREEN.** The complete web, viewer, Python, schema, build, and package gate passes.
 
 ADR-0022 now machine-marks `ActionSummary@1.0.0` as the compound gold standard. Its maintained
 fixture closes the catalog → CMS → renderer → host-socket → nine-dialect → two-browser circuit;
 gold remains an evidence certification, not a third compound lifecycle state.
+
+ADR-0023 mints nine additional neutral definitions and gives all seventeen promoted compounds one
+complete evidence ledger. Clinical admission now derives from the authoritative catalog; the
+separate Compound Mint exhibit proves every non-gold argument and slot without moving host
+capabilities or governance into Morphe.
 
 The KRA-762 Stage 1 release candidate is also green: the TypeScript edge compiler, source-v1
 trust gate, dual viewer, and untouched legacy rollback reader are verified together. Production
@@ -24,9 +29,9 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **881 server + 13 DOM passing** |
-| Browser seams | edge + contrast Playwright gates | **62 passing** across Chromium + Firefox |
-| Python tests | `pytest` | **542 passing** |
+| Web tests | `bun run test` | **886 server + 13 DOM passing** |
+| Browser seams | edge + contrast Playwright gates | **66 passing** across Chromium + Firefox |
+| Python tests | `pytest` | **562 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
 | npm package | `bun run pack:verify` | **Installed exports, source admission, compiler parity, client and SSR pass** |
@@ -65,7 +70,7 @@ emission with retry/fail-closed behavior.
   versioned `ContextDigest`; typed tier-2 vocabulary + `MorpheRoot.onEscalate`
   records); the R1.4 declarative action wire (`MorpheRoot.actions` binds
   in-tree `Button.action` ids without putting handlers in the tree); the R1.5 compound lifecycle
-  (`candidate`/`promoted` through one gate), the eight-definition Pydantic-owned promoted
+  (`candidate`/`promoted` through one gate), the seventeen-definition Pydantic-owned promoted
   catalog, the machine-visible `ActionSummary` gold benchmark (ADR-0022), and generated
   `Dialect.compounds[]` render-gating via
   the `restrictCompounds` view (`clinical` is restricted; eight dialects remain
@@ -81,7 +86,8 @@ emission with retry/fail-closed behavior.
   `/substrate` — the full-featured neutral playground: the ActionSummary gold circuit is the
   default exhibit, with all declared lanes, the nine-way dialect toggle, live `actions`, four
   bindable input families, Vary and targeted Within `choices`, recursive promoted expansion,
-  neutral assets, adaptive fallback rendering, and a pinned nested-dialect proof;
+  plus a separate complete Compound Mint ledger, neutral assets, adaptive fallback rendering, and
+  a pinned nested-dialect proof;
   `/preview/[artifactId]/[revisionId]` — the
   local CMS preview route (reads compiled trees from
   `compiled/capability-pages/**`, falling back to the built-in
@@ -147,7 +153,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 881 server + 13 DOM passing
+bun run test       # vitest run (+ dom config)       → 886 server + 13 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)
