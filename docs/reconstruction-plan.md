@@ -5,16 +5,18 @@
 > `STATUS.md`. This plan closes the gaps between them, in an order that keeps
 > the package and both hosts shipping green at every step.
 
-> **Status update:** R0 and R1 exit criteria are met. R2's `Vary`, targeted
-> `Within`, and epoch-validation paths have shipped, but the phase remains
-> partial because there is no deterministic operational mid loop.
+> **Status update:** R0, R1, and the model-free R2 exit criteria are met. R2's
+> `Vary`, targeted `Within`, epoch-validation paths, resolver-specific live
+> variation index, explicit policy projection, and deterministic operational
+> host runtime have shipped.
 > Consistent with `CONTRACT.md` §12: no known R0
 > substrate-integrity gaps remain. The Pydantic source, generated TypeScript,
 > schema parity gate, public package, and stripped viewer have shipped. The old
 > monorepo landing is retired: Morphe remains an independent package while
 > serving as Projection M of Eidos. True dialect-restricted decoding and bounded
-> target semantics have shipped; the adaptive circuit remains partial at the
-> operational mid loop.
+> target semantics have shipped. A learned/model delegate, tier-2 producer,
+> and venue policy remain future rather than package doctrine. Six-kernel corpus
+> curation and operational ledgers remain outside this plan and package doctrine.
 > R4.2 is superseded — see its entry.
 
 ## Principles
@@ -125,15 +127,25 @@ Everything here is pure TS — no model required; A4 masking comes with R3.
   obligation).
 - **R2.3 (S, ✔ shipped) Renderer: live choice.** `Node.svelte` renders `Vary` from the
   envelope's current choice map instead of bare `default` (falling back to
-  `default` — Corollary 1). The mid-loop *interface* (something that proposes
-  deltas) is a DI seam; its first implementation can be a trivial heuristic to
-  prove the loop. `Within` owns one explicit target and resolves density into its
-  context, emphasis into its parent's budget, and collapse into a native labelled
-  disclosure; targetless compatibility leaves remain inert.
+  `default` — Corollary 1). `MorpheRoot` receives only that admitted choice map;
+  the mid-loop interface remains outside the renderer. `Within` owns one explicit
+  target and resolves density into its context, emphasis into its parent's budget,
+  and collapse into a native labelled disclosure; targetless compatibility leaves
+  remain inert.
+- **R2.4 (M, ✔ shipped) Deterministic operational host core.** Build a
+  resolver-specific `liveVariationIndex` for each emitted tree/resolver pair;
+  targetless `Within` grants no authority and duplicate ids intersect all bounds.
+  Bind an explicit `DeterministicObjectivePolicy` to that proof and project only
+  declared store paths plus Tier-1 path-and-kind events. `runMidLoop` is the
+  canonical pure runtime: it admits structural deltas through `applyDelta`, then
+  policy-gates them; malformed or invalid output fails closed. Native user
+  overrides lock an id until only a strictly higher safe-integer re-emission.
 
-**Exit:** Not yet met. Both variation forms are covered by property and DOM tests;
-the phase closes when a deterministic mid-loop adapter proves the complete
-bounded-delegation path.
+**Exit: met for the model-free scope.** Both variation forms and the deterministic host circuit
+are covered by property, canonical DOM, packed-consumer, and Chromium/Firefox tests. A
+learned/model producer, tier-2 producer, and venue policy are later work; six-kernel corpus
+curation and operational ledgers are not R2/Morphe doctrine. The neutral host's sealed public
+producer fixtures are compatibility evidence only.
 
 ---
 
@@ -181,7 +193,7 @@ R0.1 R0.2 R0.3 R0.4 R0.5      (parallel, land first)
   └──────────┬─────────┘
         R1.1 → R1.2 → R1.3
           └→ R1.4      └→ (R1.5 after R1.1)
-                R2.1 → R2.2 → R2.3
+                R2.1 → R2.2 → R2.3 → R2.4
                           └→ R3.1 → R3.3
                                   R3.2 (settled) → R3.4
 R4.1 (anytime)   R4.2 (retired)

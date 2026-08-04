@@ -37,9 +37,11 @@ import {
 	TOP_TIER_CAP,
 	transform,
 } from "./context/algebra.js";
-import { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
-import type { Delta, EmissionEnvelope } from "./delegation/envelope.js";
+import { applyDelta, liveVariationIndex, liveVaryIds } from "./delegation/applyDelta.js";
+import type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
 import { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+import { createMidLoopRuntimeState, runMidLoop } from "./delegation/midLoopRuntime.js";
+import { bindDeterministicObjectivePolicy } from "./delegation/objectivePolicy.js";
 import { resolveWithin } from "./delegation/resolveChoice.js";
 import { clinical } from "./dialects/clinical.js";
 import { applyDialect } from "./dialects/provider.svelte.js";
@@ -854,7 +856,7 @@ function variationBounds(tree: Node): ReadonlyMap<string, readonly Bounds[]> {
 			const bounds: Bounds = [0, node.options.length - 1];
 			out.set(node.id, [...(out.get(node.id) ?? []), bounds]);
 		}
-		if (node.kind === "within") {
+		if (node.kind === "within" && node.target !== undefined) {
 			out.set(node.id, [...(out.get(node.id) ?? []), node.range]);
 		}
 	});
@@ -878,8 +880,8 @@ function validChoiceFor(bounds: readonly Bounds[]): number {
 	return lo <= hi ? lo : Number.NaN;
 }
 
-function envelopeFor(tree: Node, epoch = 1): EmissionEnvelope {
-	return { epoch, tree, choices: {} };
+function envelopeFor(tree: Node, epoch = 1, choices: ChoiceMap = {}): EmissionEnvelope {
+	return { epoch, tree, choices };
 }
 
 function expectedDeltaResult(
@@ -1041,6 +1043,107 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 		});
 	});
 
+	it("runtime fails closed and is byte-stable for seeded rejected proposal packets", () => {
+		forEachSeed("L6.runtime-rejected-packets", (rng, seed) => {
+			const epoch = intIn(rng, 1, 50);
+			const controlledId = `controlled-${seed}`;
+			const unownedId = `unowned-${seed}`;
+			const allowedChoice = intIn(rng, 0, 1);
+			const disallowedChoice = allowedChoice === 0 ? 1 : 0;
+			const tree: Node = {
+				kind: "stack",
+				role: "section",
+				children: [
+					{
+						kind: "vary",
+						id: controlledId,
+						default: 0,
+						options: [
+							{ kind: "text", value: "controlled-0", as: "body" },
+							{ kind: "text", value: "controlled-1", as: "body" },
+						],
+					},
+					{
+						kind: "vary",
+						id: unownedId,
+						default: 0,
+						options: [
+							{ kind: "text", value: "unowned-0", as: "body" },
+							{ kind: "text", value: "unowned-1", as: "body" },
+						],
+					},
+				],
+			};
+			const choices: ChoiceMap = Object.freeze({ [controlledId]: allowedChoice });
+			const envelope = envelopeFor(tree, epoch, choices);
+			const policy = bindDeterministicObjectivePolicy(
+				{
+					id: `runtime-policy-${seed}`,
+					targets: [
+						{
+							id: controlledId,
+							objective: "density",
+							allowedChoices: [allowedChoice],
+						},
+					],
+					observableStorePaths: [],
+					observableTier1Kinds: [],
+					choose: () => allowedChoice,
+				},
+				liveVariationIndex(tree),
+			);
+			const packet: unknown[] = [
+				rng() < 0.5 ? null : { id: controlledId, choice: "not-a-number", epoch },
+				{ id: controlledId, choice: allowedChoice, epoch: epoch + intIn(rng, 1, 5) },
+				{ id: `dead-${seed}`, choice: allowedChoice, epoch },
+				{ id: controlledId, choice: intIn(rng, 2, 9), epoch },
+				{ id: unownedId, choice: intIn(rng, 0, 1), epoch },
+				{ id: controlledId, choice: disallowedChoice, epoch },
+			];
+			for (let index = packet.length - 1; index > 0; index -= 1) {
+				const swap = intIn(rng, 0, index);
+				const current = packet[index];
+				packet[index] = packet[swap] as unknown;
+				packet[swap] = current as unknown;
+			}
+			const runtime = {
+				policy,
+				delegate: { propose: () => packet as unknown as readonly Delta[] },
+			};
+			const digest: ContextDigest = {
+				digestVersion: CONTEXT_DIGEST_VERSION,
+				state: {},
+				recentEvents: [],
+			};
+			const initial = createMidLoopRuntimeState(envelope);
+
+			let first: ReturnType<typeof runMidLoop> | undefined;
+			expect(() => {
+				first = runMidLoop(runtime, initial, digest);
+			}).not.toThrow();
+			expect(first).toBeDefined();
+			const result = first as ReturnType<typeof runMidLoop>;
+			const repeat = runMidLoop(runtime, initial, digest);
+
+			expect(result.records.every((record) => record.status !== "accepted")).toBe(true);
+			expect(result.state.envelope).toBe(envelope);
+			expect(result.state.envelope.tree).toBe(tree);
+			expect(result.state.envelope.choices).toBe(choices);
+			expect(result.records.map((record) => record.reason).filter(Boolean)).toEqual(
+				expect.arrayContaining([
+					"malformed-proposal",
+					"stale-epoch",
+					"unknown-id",
+					"out-of-range",
+					"out-of-policy-target",
+					"out-of-policy-choice",
+				]),
+			);
+			expect(JSON.stringify(result.records)).toBe(JSON.stringify(repeat.records));
+			expect(JSON.stringify(result.state)).toBe(JSON.stringify(repeat.state));
+		});
+	});
+
 	it("accepted delta sequences keep every effective choice inside its authored bounds", () => {
 		forEachSeed("L6.applied-sequence-valid", (rng) => {
 			const tree = genTree(rng, 4);
@@ -1082,6 +1185,7 @@ describe("Lemma 6 (BOUNDED DELEGATION): applyDelta is pure, total, and epoch-gat
 					dimension: "density",
 					range: [0, 2],
 					default: 1,
+					target: { kind: "text", value: "Density target", as: "body" },
 				},
 			],
 		};

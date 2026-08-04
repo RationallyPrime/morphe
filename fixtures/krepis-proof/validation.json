@@ -1,0 +1,347 @@
+{
+  "format": "krepis-six-kernel-source-v1-validation/v1",
+  "passed": true,
+  "krepis_base_sha": "e13edd1a1fcc251dc8e8252914671bf0ba8e1fdc",
+  "morphe_base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+  "checks": {
+    "two_fresh_source_generations_byte_identical": true,
+    "source_signature_and_public_key_admitted_by_exact_morphe": true,
+    "expected_issuer_view_model_and_surface_id_verified": true,
+    "producer_field_minimization_and_pii_invariants_verified": true,
+    "compiled_node_grammar_valid": true,
+    "all_nine_current_dialect_constraints_admitted": true,
+    "two_exact_morphe_compiles_byte_identical": true
+  },
+  "cases": [
+    {
+      "id": "taxis-roster",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:5e3a5f2a073482f454c74736fed72064bdeb421bc54a298b7a7f9a66afc9a8dd",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:b66b82403beed85f13b7bdfadb14afbe05592b2c1d196f01fa9a86d242399278",
+            "diagnosticsSha256": "sha256:7e82cd830fa75ea268754acd0dacbd5c59456d6ac7e076de1bb6c08c5117a0c3",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/taxis-roster/taxis-roster.surface-spec.json",
+            "byte_size": 9748,
+            "sha256": "079b7a9ba85e74ce740c1887e615a62868f082189b7a29e89e7fb7de0572242d"
+          },
+          "node": {
+            "path": "artifacts/taxis-roster/taxis-roster.node.json",
+            "byte_size": 13379,
+            "sha256": "85f3371e17309c56fe7beb9340b9694e0958a07dbafb93d11f7b6a719f2321fc"
+          }
+        }
+      }
+    },
+    {
+      "id": "misthos-run-summary",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:153bdadf5598a32bc2916ced302564e1462344be0e18e6d3dac165a3cfc5c81b",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:655d98a328896a970c95aaa3df5eb6c5f02e852a22987c69dc03c2817c69745b",
+            "diagnosticsSha256": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/misthos-run-summary/misthos-run-summary.surface-spec.json",
+            "byte_size": 29248,
+            "sha256": "b163e8e1216e4cd246df7e460eed743769e6b416fb8b5c68c204ffff4c1df14c"
+          },
+          "node": {
+            "path": "artifacts/misthos-run-summary/misthos-run-summary.node.json",
+            "byte_size": 32853,
+            "sha256": "a56786d53ef51875517ce5957b76b4969209c10642448a3c5d3892c2415f6b43"
+          }
+        }
+      }
+    },
+    {
+      "id": "chreos-breached-obligations",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:416701c69120316e51915d4670695403c77a64eef49eb6407058b7d4b47b8567",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:0b05c97016dcc2b47396d709f4a07df9a8c869fb8db64a83a5cae8e7c96ebe8e",
+            "diagnosticsSha256": "sha256:9ba12af7674c5ac4f3ff82e13383eb70536aedcb145b1f30ab6008ed49cdb45b",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/chreos-breached-obligations/chreos-breached-obligations.surface-spec.json",
+            "byte_size": 10496,
+            "sha256": "53fe094d6cea02e285987659fa5e57fd97cf7d90629fcd54f5d4bfe373079231"
+          },
+          "node": {
+            "path": "artifacts/chreos-breached-obligations/chreos-breached-obligations.node.json",
+            "byte_size": 13465,
+            "sha256": "cce8fcde883e691f833a211cf80187f478bdadb76be3b650f138bd39aadab89e"
+          }
+        }
+      }
+    },
+    {
+      "id": "obolos-finality",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:f4191e91bf40f23c24f753596b3ad49d92ec25110414e17873aa2f9dab2c2f2b",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:80bcd933363fab2178a299e12ac3726cfbb5bdfe543908d8f23eed5aa1447273",
+            "diagnosticsSha256": "sha256:3a99a968dbc82cb315165e1d2da5a9cfb2ecbe4adeae20655e801460d07df084",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/obolos-finality/obolos-finality.surface-spec.json",
+            "byte_size": 27130,
+            "sha256": "2b2ddab74492caa1fcb97b6da4563b3df04de8429fe8fe62fe2fd116add5e378"
+          },
+          "node": {
+            "path": "artifacts/obolos-finality/obolos-finality.node.json",
+            "byte_size": 26942,
+            "sha256": "049dc83fe1fd34ff892cceb84b4926a2f04f1565fb6ef10ef64d51f41c145291"
+          }
+        }
+      }
+    },
+    {
+      "id": "apotheke-expiry",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:093e2d5f8293455a98a413fed557e652f1d77e8fcf0a4b73ab10e1bfb7dbff44",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:2485abecd6f26694685f283629ea0ec541b51205b64206830b12cd8736e0d83a",
+            "diagnosticsSha256": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/apotheke-expiry/apotheke-expiry.surface-spec.json",
+            "byte_size": 11651,
+            "sha256": "183f8d7e5b52dd05da9c374b850a42117ea6edfdebc8738b3c433f6f2a77b2ae"
+          },
+          "node": {
+            "path": "artifacts/apotheke-expiry/apotheke-expiry.node.json",
+            "byte_size": 15214,
+            "sha256": "3dababbd08f2dc02c3dfe053584cdeec08201f99e36c952664648d59a2139313"
+          }
+        }
+      }
+    },
+    {
+      "id": "zygos-posted-transaction",
+      "passed": true,
+      "morphe": {
+        "base_sha": "5aca9c20d7a62d8264702dc61a8f84e4ffade200",
+        "compiler_version": "0.3.6",
+        "presentation_now": "2026-08-04T12:00:00Z",
+        "admission": {
+          "signature_verified": true,
+          "issuer_verified": true,
+          "surface_id_verified": true,
+          "view_model_id_verified": true,
+          "public_key_id_verified": true,
+          "freshness_now": "2026-08-04T12:01:00Z"
+        },
+        "compilation": {
+          "two_runs_byte_identical": true,
+          "grammar_valid": true,
+          "all_nine_dialects_admitted": true,
+          "dialects": {
+            "icelandic-archive": true,
+            "clinical": true,
+            "reykjavik-registry": true,
+            "timaeus": true,
+            "gallery": true,
+            "night": true,
+            "ledger": true,
+            "estate": true,
+            "foundry": true
+          },
+          "receipt": {
+            "sourceTestimonySha256": "sha256:acab17089bbb380d2c9345e9b1b8c9be589f6bd94d8f6d356e090db50517e6a2",
+            "compilerVersion": "0.3.6",
+            "compilerBuildSha256": "sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8",
+            "grammarVersion": "0.7.0",
+            "treeSha256": "sha256:f3a33ef07c50b25988c485ca445341e567710ff2e5da32d3af342fa6679b692b",
+            "diagnosticsSha256": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "temporalPolicy": "minute",
+            "surfaceIdGate": "exact"
+          }
+        },
+        "documents": {
+          "surface_spec": {
+            "path": "artifacts/zygos-posted-transaction/zygos-posted-transaction.surface-spec.json",
+            "byte_size": 12736,
+            "sha256": "6c879ef03b9f92d2a1c6474ccc176012bc301e89bce9b70526397917b1d60373"
+          },
+          "node": {
+            "path": "artifacts/zygos-posted-transaction/zygos-posted-transaction.node.json",
+            "byte_size": 12400,
+            "sha256": "5673c2f866c084382446e9ffbf1293c3e2d32a6ca5fc69985d396efd2ec1928d"
+          }
+        }
+      }
+    }
+  ]
+}

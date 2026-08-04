@@ -54,6 +54,8 @@ The PRD's shared types (§8.1) were written against an older snapshot. Corrected
 | `EmphasisLevel = low/normal/high` | `EmphasisClaim ∈ muted/normal/strong/critical` | `EmphasisClaim = muted \| normal \| strong \| critical` |
 | `Audience` | (no substrate constraint) | keep PRD list: `founder, operator, cto, cfo, operations_lead, developer, buyer` |
 
+> **As-built correction (2026-08-04):** This table retains the historical 2026-06 snapshot. The current grammar's `RegisterIntent` keys are `footnote`, `aside`, and `authority`, not `folio`, `marginalia`, and `seal`.
+
 `IntentRef` is intentionally a **closed grouped `Literal`** in the CMS contract and the grammar mirror so the exported JSON Schema constrains agent generation to known intents.
 
 **`dialect` is a render hint, not content.** Per content⊥presentation, the presenter does **not** emit dialect into the tree. `MorpheControls.dialect` is carried on the artifact and passed to `MorpheRoot` at the preview/publication route. `primary_intent`, `surface`, and `emphasis` genuinely shape the tree, so they stay authoring-side in `MorpheControls`:

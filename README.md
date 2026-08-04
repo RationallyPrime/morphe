@@ -129,8 +129,11 @@ package distributions.
 The root app is a neutral proof host, not a consumer marketing site:
 
 - `/` — Morphe workbench index.
-- `/substrate` — full playground with all dialects, actions, bind paths,
-  choices, neutral assets, adaptive fallback rendering, and nested dialect proof.
+- `/substrate` — full playground with all dialects, actions, bind paths, the deterministic
+  Delta/choice circuit and bounded outcome ledger, the complete promoted compound proof, six
+  sealed signed Krepis source-v1 fixtures, neutral assets, adaptive fallback rendering, and nested
+  dialect proof. The fixtures demonstrate the generic source/compiler/render boundary without
+  importing kernel models or authority.
 - `/preview/[artifactId]/[revisionId]` — local CMS compiled-tree preview.
 - `/p/[slug]` — publication pointer route.
 - `/dignity` — compatibility redirect to `/substrate`.

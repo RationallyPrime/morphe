@@ -1,0 +1,978 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Run summary",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "text",
+          "value": "misthos",
+          "as": "caption",
+          "emphasis": "muted",
+          "intent": "footnote"
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "compound",
+              "name": "StatBand",
+              "args": {},
+              "slots": {
+                "tiles": [
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Run",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure aggregated across the workers included in this immutable payroll run."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Total gross",
+                        "as": "subheading",
+                        "gloss": "Gross earnings across every worker in this run, before employee deductions."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1490770,
+                        "format": "currency",
+                        "currency": "ISK",
+                        "intent": "evidence",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Run",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure aggregated across the workers included in this immutable payroll run."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Total net",
+                        "as": "subheading",
+                        "gloss": "Pay due across every worker in this run after employee deductions."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1176258,
+                        "format": "currency",
+                        "currency": "ISK",
+                        "intent": "evidence",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Run",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure aggregated across the workers included in this immutable payroll run."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Employer cost",
+                        "as": "subheading",
+                        "gloss": "Gross earnings plus employer-side contributions and charges."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 266103,
+                        "format": "currency",
+                        "currency": "ISK",
+                        "intent": "evidence",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Roster",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from the applicable worker population."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Headcount",
+                        "as": "subheading",
+                        "gloss": "Workers whose results are included in this payroll run."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 3,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Run",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "status",
+              "tone": "success",
+              "signal": {
+                "text": "committed"
+              },
+              "gloss": "Whether this immutable payroll run is current or has been superseded by a later run."
+            },
+            {
+              "kind": "text",
+              "value": "Compliance",
+              "as": "caption",
+              "intent": "neutral"
+            },
+            {
+              "kind": "status",
+              "tone": "success",
+              "signal": {
+                "text": "clean"
+              },
+              "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved."
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "text",
+              "value": "Workers",
+              "as": "heading",
+              "emphasis": "strong"
+            },
+            {
+              "kind": "table",
+              "caption": "Workers",
+              "captionHidden": true,
+              "columns": [
+                {
+                  "header": "Worker",
+                  "priority": "primary",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Compliance",
+                  "priority": "secondary",
+                  "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved."
+                },
+                {
+                  "header": "Gross",
+                  "numeric": true,
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Deductions",
+                  "numeric": true,
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Net",
+                  "numeric": true,
+                  "priority": "secondary",
+                  "intent": "evidence"
+                },
+                {
+                  "header": "Payslip",
+                  "priority": "secondary",
+                  "intent": "primary-action"
+                }
+              ],
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "workforce:///19f85185-33ea-5e16-9ddf-a5a943c03c70",
+                          "label": "Björn Björnsson",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "success",
+                          "signal": {
+                            "text": "clean"
+                          },
+                          "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 700000,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 175821,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 524179,
+                          "format": "currency",
+                          "currency": "ISK",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=19f85185-33ea-5e16-9ddf-a5a943c03c70",
+                          "label": "Björn Björnsson",
+                          "intent": "primary-action"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "workforce:///91c7b3de-4d96-57a5-9e51-3869b81604ea",
+                          "label": "Jóna Jónsdóttir",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "success",
+                          "signal": {
+                            "text": "clean"
+                          },
+                          "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 440770,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 85126,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 355644,
+                          "format": "currency",
+                          "currency": "ISK",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=91c7b3de-4d96-57a5-9e51-3869b81604ea",
+                          "label": "Jóna Jónsdóttir",
+                          "intent": "primary-action"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "workforce:///c76c3f39-1ac3-58f2-bb6d-c410f2923922",
+                          "label": "Lilja Leifsdóttir",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "success",
+                          "signal": {
+                            "text": "clean"
+                          },
+                          "gloss": "Whether blocking payroll findings are absent, dispositioned, or still unresolved."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 350000,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 53565,
+                          "format": "currency",
+                          "currency": "ISK"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 296435,
+                          "format": "currency",
+                          "currency": "ISK",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/payslip?run_id=8fc48217-03b7-5132-b493-6cdb0081b237&worker_id=c76c3f39-1ac3-58f2-bb6d-c410f2923922",
+                          "label": "Lilja Leifsdóttir",
+                          "intent": "primary-action"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "rowHeader": true,
+              "responsive": "records",
+              "emphasis": "strong"
+            }
+          ]
+        },
+        {
+          "kind": "within",
+          "id": "$.earnings",
+          "dimension": "collapse",
+          "range": [
+            0,
+            1
+          ],
+          "default": 1,
+          "summary": "Earnings",
+          "target": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Total",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "number",
+                    "value": 1490770,
+                    "format": "currency",
+                    "currency": "ISK",
+                    "intent": "evidence"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "By class",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "table",
+                    "caption": "By class",
+                    "captionHidden": true,
+                    "columns": [
+                      {
+                        "header": "Class",
+                        "priority": "primary",
+                        "intent": "accession"
+                      },
+                      {
+                        "header": "Amount",
+                        "numeric": true,
+                        "priority": "secondary",
+                        "intent": "evidence"
+                      }
+                    ],
+                    "rows": [
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "gross_regular",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 1470000,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "overtime",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 20770,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "rowHeader": true,
+                    "responsive": "records"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "within",
+          "id": "$.deductions",
+          "dimension": "collapse",
+          "range": [
+            0,
+            1
+          ],
+          "default": 1,
+          "summary": "Deductions",
+          "target": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Total",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "number",
+                    "value": 314512,
+                    "format": "currency",
+                    "currency": "ISK",
+                    "intent": "evidence"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "By class",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "table",
+                    "caption": "By class",
+                    "captionHidden": true,
+                    "columns": [
+                      {
+                        "header": "Class",
+                        "priority": "primary",
+                        "intent": "accession"
+                      },
+                      {
+                        "header": "Amount",
+                        "numeric": true,
+                        "priority": "secondary",
+                        "intent": "evidence"
+                      }
+                    ],
+                    "rows": [
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "pension_employee",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 59631,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "tax_withheld",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 244591,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "union_dues",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 10290,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "rowHeader": true,
+                    "responsive": "records"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "within",
+          "id": "$.employer",
+          "dimension": "collapse",
+          "range": [
+            0,
+            1
+          ],
+          "default": 1,
+          "summary": "Employer",
+          "target": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Total",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "number",
+                    "value": 266103,
+                    "format": "currency",
+                    "currency": "ISK",
+                    "intent": "evidence"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "section",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "By class",
+                    "as": "heading"
+                  },
+                  {
+                    "kind": "table",
+                    "caption": "By class",
+                    "captionHidden": true,
+                    "columns": [
+                      {
+                        "header": "Class",
+                        "priority": "primary",
+                        "intent": "accession"
+                      },
+                      {
+                        "header": "Amount",
+                        "numeric": true,
+                        "priority": "secondary",
+                        "intent": "evidence"
+                      }
+                    ],
+                    "rows": [
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "employer_insurance",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 94664,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "cells": [
+                          {
+                            "children": [
+                              {
+                                "kind": "text",
+                                "value": "pension_employer",
+                                "as": "body",
+                                "intent": "accession"
+                              }
+                            ]
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "number",
+                                "value": 171439,
+                                "format": "currency",
+                                "currency": "ISK",
+                                "intent": "evidence"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "rowHeader": true,
+                    "responsive": "records"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "within",
+          "id": "$.provenance",
+          "dimension": "collapse",
+          "range": [
+            0,
+            1
+          ],
+          "default": 1,
+          "summary": "Provenance",
+          "target": {
+            "kind": "stack",
+            "role": "section",
+            "children": [
+              {
+                "kind": "grid",
+                "role": "field-group",
+                "columns": [
+                  "content",
+                  "flexible"
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Run id",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "8fc48217-03b7-5132-b493-6cdb0081b237",
+                    "as": "body",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "main",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "link",
+                    "href": "/surfaces/pay-group?pay_group=main",
+                    "label": "main",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "855df948-bf34-5d2c-85b6-6db3bb35ca88",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "link",
+                    "href": "/surfaces/seal?seal_id=855df948-bf34-5d2c-85b6-6db3bb35ca88",
+                    "label": "855df948-bf34-5d2c-85b6-6db3bb35ca88",
+                    "intent": "provenance"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Run kind",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "badge",
+                    "label": "regular",
+                    "intent": "info",
+                    "gloss": "Why the payroll run was executed: regular schedule, off-cycle work, or final settlement."
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Supersedes",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "",
+                    "as": "body"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "Result hash",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2fe212ef56c7d77549250a627c1c065653b54fb8c04d16b03b61efa3e6a47134",
+                    "as": "body",
+                    "intent": "authority"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "compound",
+          "name": "ProvenanceFooter",
+          "args": {},
+          "slots": {
+            "facts": [
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Period",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-06-01/2026-06-30",
+                    "as": "body",
+                    "intent": "accession"
+                  }
+                ]
+              }
+            ],
+            "seals": [],
+            "links": []
+          }
+        }
+      ]
+    }
+  ]
+}

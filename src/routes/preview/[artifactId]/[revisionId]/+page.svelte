@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { ActionMap, ChoiceMap } from "$lib";
-	import { createInMemoryMorpheStore, getDialect } from "$lib";
+	import { createInMemoryMorpheStore, getDialect, registry, restrictCompounds } from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { inspectPreviewHost } from "../../../_demo/preview-host.js";
 	import type { PageData } from "./$types";
 
 	let { data }: { data: PageData } = $props();
 	const dialect = $derived(getDialect(data.dialectId));
-	const host = $derived(inspectPreviewHost(data.tree));
+	const resolver = $derived(restrictCompounds(registry, { allow: dialect.compounds }));
+	const host = $derived(inspectPreviewHost(data.tree, { resolver }));
 	const store = createInMemoryMorpheStore();
 	let actionLog = $state<readonly string[]>([]);
 	let choiceOverrides = $state<ChoiceMap>({});
@@ -28,10 +29,13 @@
 		]),
 	));
 
-	function setChoice(id: string, event: Event): void {
+	function setChoice(id: string, range: readonly [number, number], event: Event): void {
+		const raw = Number((event.currentTarget as HTMLInputElement | HTMLSelectElement).value);
+		if (!Number.isFinite(raw)) return;
+		const choice = Math.min(Math.max(Math.trunc(raw), range[0]), range[1]);
 		choiceOverrides = {
 			...choiceOverrides,
-			[id]: Number((event.currentTarget as HTMLSelectElement).value),
+			[id]: choice,
 		};
 	}
 </script>
@@ -44,15 +48,28 @@
 		</div>
 		{#each host.variations as variation (variation.id)}
 			<label>
-				<span>Choice {variation.id}</span>
-				<select
-					value={choices[variation.id]}
-					onchange={(event) => setChoice(variation.id, event)}
-				>
-					{#each Array(variation.optionCount) as _, index (index)}
-						<option value={index}>Branch {index + 1}</option>
-					{/each}
-				</select>
+				<span>
+					Choice {variation.id} · {variation.kind} · {variation.range[0]}–{variation.range[1]}
+				</span>
+				{#if variation.kind === "vary"}
+					<select
+						value={choices[variation.id]}
+						onchange={(event) => setChoice(variation.id, variation.range, event)}
+					>
+						{#each variation.options as option (option.value)}
+							<option value={option.value}>{option.label}</option>
+						{/each}
+					</select>
+				{:else}
+					<input
+						type="number"
+						min={variation.range[0]}
+						max={variation.range[1]}
+						step="1"
+						value={choices[variation.id]}
+						oninput={(event) => setChoice(variation.id, variation.range, event)}
+					/>
+				{/if}
 			</label>
 		{/each}
 		<p class="preview-host__receipt" aria-live="polite">
@@ -62,7 +79,7 @@
 		</p>
 	</header>
 	<section class="preview-host__canvas" aria-label="Compiled Morphe artifact">
-		<MorpheRoot tree={data.tree} {dialect} {store} {actions} {choices} />
+		<MorpheRoot tree={data.tree} {dialect} {registry} {store} {actions} {choices} />
 	</section>
 </main>
 
@@ -107,7 +124,8 @@
 		font-size: var(--mo-type-2);
 		font-weight: 700;
 	}
-	.preview-host__controls select {
+	.preview-host__controls select,
+	.preview-host__controls input {
 		min-block-size: 44px;
 		border: 1px solid var(--mo-intent-outline);
 		border-radius: var(--mo-radius-1);

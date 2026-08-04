@@ -1,6 +1,8 @@
 import type { JsonRecord, Node } from "$lib";
 import { presentCompoundMint } from "./compound-mint.js";
 import { exhibitFor } from "./exhibits.js";
+import { kernelProofCaseFor } from "./kernel-proof.js";
+import { LIVE_PROOF_IDS, LIVE_PROOF_STORE_PATH } from "./live-proof-contract.js";
 import type {
 	GrammarVariant,
 	PlaygroundPresentation,
@@ -38,13 +40,18 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 			case "state":
 				return presentStateActions(input.storeSnapshot, input.actionLog);
 			case "vary":
-				return presentVaryDelta(input.selectedVaryChoice);
+				return presentVaryDelta();
 			case "cms":
 				return presentCmsPipeline();
+			case "kernels":
+				return kernelProofCaseFor(input.kernelProofCaseId).tree;
 			case "local-ai":
 				return presentLocalAiExhibit(input.localDraft, input.localSource, input.localDiagnostics);
 		}
 	})();
+
+	const kernelProof =
+		input.activeExhibit === "kernels" ? kernelProofCaseFor(input.kernelProofCaseId) : undefined;
 
 	return {
 		tree,
@@ -52,17 +59,39 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 			{ label: "exhibit", value: exhibit.label },
 			{ label: "proof", value: exhibit.proofFocus },
 			{ label: "dialect", value: input.activeDialectId },
-			{ label: "choice demo.mode", value: String(input.selectedVaryChoice) },
+			{
+				label: "variation host",
+				value:
+					input.activeExhibit === "vary"
+						? "Native deterministic policy; renderer receives choices only"
+						: "Host-owned choice map",
+			},
 			{
 				label: "actions",
 				value: input.actionLog.length === 0 ? "none" : input.actionLog.join(", "),
 			},
 			{ label: "bound paths", value: summarizeStore(input.storeSnapshot) },
-			{ label: "source", value: input.localSource },
+			{
+				label: "source",
+				value: kernelProof === undefined ? input.localSource : "sealed signed source-v1 fixture",
+			},
 			{
 				label: "diagnostics",
-				value: input.localDiagnostics.length === 0 ? "none" : input.localDiagnostics.join(", "),
+				value:
+					kernelProof !== undefined || input.localDiagnostics.length === 0
+						? "none"
+						: input.localDiagnostics.join(", "),
 			},
+			...(kernelProof === undefined
+				? []
+				: [
+						{ label: "kernel / issuer", value: kernelProof.issuer },
+						{ label: "operation", value: kernelProof.operationId },
+						{ label: "surface id", value: kernelProof.surfaceId },
+						{ label: "source revision", value: kernelProof.sourceRevision },
+						{ label: "testimony", value: kernelProof.testimonySha256 },
+						{ label: "tree receipt", value: kernelProof.treeSha256 },
+					]),
 		],
 	};
 }
@@ -431,23 +460,150 @@ function presentStateActions(snapshot: JsonRecord, actionLog: readonly string[])
 	);
 }
 
-function presentVaryDelta(selectedChoice: number): Node {
-	return section("Vary + Delta", "The host choice map selects the live branch.", [
-		{
-			kind: "vary",
-			id: "demo.mode",
-			default: 0,
-			objective: "salience",
-			options: [
-				varyPanel("Compact triage", "Short, scannable, operator-first."),
-				varyPanel("Evidence review", "Expanded evidence with diagnostics."),
-				varyPanel("Decision close", "Final branch focused on action."),
-			],
-		},
+/** A pure authored proof tree. It never reads host choices, epoch, policy, or digest. */
+export function presentVaryDelta(): Node {
+	return section("Deterministic Vary + Delta", "The tree grants a narrow live variation space.", [
 		{
 			kind: "status",
 			tone: "info",
-			signal: { text: `Host choice demo.mode=${selectedChoice}` },
+			signal: {
+				text: "Evidence stays visible.",
+				icon: "fact_check",
+			},
+		},
+		{
+			kind: "grid",
+			role: "form",
+			minTrack: "regular",
+			children: [
+				{
+					kind: "select",
+					a11y: {
+						id: "live-proof-preference",
+						label: { mode: "visible", text: "Deterministic policy preference" },
+					},
+					bind: LIVE_PROOF_STORE_PATH,
+					options: [
+						{ value: "compact", label: "Compact" },
+						{ value: "evidence", label: "Evidence" },
+						{ value: "decision", label: "Decision" },
+					],
+				},
+			],
+		},
+		{
+			kind: "text",
+			value:
+				"Policy neutral-deterministic-live-proof-v1 observes only live.proof.preference and tier-1 selection events. live.proof.host-only is structurally live but intentionally outside policy authority.",
+			as: "caption",
+			intent: "provenance",
+		},
+		{
+			kind: "vary",
+			id: LIVE_PROOF_IDS.mode,
+			default: 0,
+			objective: "salience",
+			options: [
+				varyPanel("Compact reading", "Short, scannable, neutral evidence."),
+				varyPanel("Evidence review", "Expanded context without changing authored authority."),
+				varyPanel("Decision preparation", "A third authored branch for a bounded choice."),
+			],
+		},
+		{
+			kind: "within",
+			id: LIVE_PROOF_IDS.density,
+			dimension: "density",
+			range: [0, 2],
+			default: 1,
+			target: {
+				kind: "frame",
+				role: "panel",
+				surface: "raised",
+				children: [
+					{
+						kind: "stack",
+						role: "panel",
+						children: [
+							{
+								kind: "text",
+								value: "Targeted density",
+								as: "heading",
+							},
+							{
+								kind: "text",
+								value: "Only this panel receives the resolved density context.",
+								as: "body",
+								emphasis: "muted",
+							},
+						],
+					},
+				],
+			},
+		},
+		{
+			kind: "within",
+			id: LIVE_PROOF_IDS.emphasis,
+			dimension: "emphasis",
+			range: [0, 3],
+			default: 1,
+			target: {
+				kind: "frame",
+				role: "panel",
+				surface: "sunken",
+				children: [
+					{
+						kind: "text",
+						value:
+							"Targeted emphasis enters the normal sibling budget; it cannot create extra visual authority.",
+						as: "body",
+					},
+				],
+			},
+		},
+		{
+			kind: "vary",
+			id: LIVE_PROOF_IDS.hostOnly,
+			default: 0,
+			objective: "compactness",
+			options: [
+				{
+					kind: "status",
+					tone: "caution",
+					signal: { text: "Host-only: policy excluded." },
+				},
+				{
+					kind: "status",
+					tone: "caution",
+					signal: { text: "Policy cannot select this." },
+				},
+			],
+		},
+		{
+			kind: "within",
+			id: LIVE_PROOF_IDS.detail,
+			dimension: "collapse",
+			range: [0, 1],
+			default: 0,
+			summary: "Reveal bounded variation evidence",
+			target: {
+				kind: "stack",
+				role: "list",
+				children: [
+					{
+						kind: "text",
+						value:
+							"Collapse owns one explicit detail subtree and has no authority over its visible evidence siblings.",
+						as: "body",
+					},
+					{
+						kind: "text",
+						value:
+							"Epoch, digest, policy, user locks, and receipts remain host state outside the authored tree.",
+						as: "caption",
+						intent: "aside",
+					},
+				],
+			},
 		},
 	]);
 }

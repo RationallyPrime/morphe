@@ -6,7 +6,7 @@
  * every native control, a real `mo-link`).
  */
 
-import { expect, type Locator, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 
 const ROUTE = "/substrate";
 // A deterministic proof surface with real, un-disclosed Morphe links + ink on all
@@ -43,6 +43,44 @@ const NON_GOLD_COMPOUNDS = [
 	"DiagnosticGroup",
 	"EmptyState",
 ] as const;
+const KERNEL_PROOF_CASES = [
+	{
+		id: "taxis-roster",
+		issuer: "taxis",
+		operation: "get_surface_roster",
+		marker: "Roster",
+	},
+	{
+		id: "misthos-run-summary",
+		issuer: "misthos",
+		operation: "get_surface_run_summary",
+		marker: "Run summary",
+	},
+	{
+		id: "chreos-breached-obligations",
+		issuer: "chreos",
+		operation: "get_surface_obligations",
+		marker: "Obligations",
+	},
+	{
+		id: "obolos-finality",
+		issuer: "obolos",
+		operation: "get_surface_finality",
+		marker: "Finality",
+	},
+	{
+		id: "apotheke-expiry",
+		issuer: "apotheke",
+		operation: "get_surface_expiry",
+		marker: "Expiry horizon",
+	},
+	{
+		id: "zygos-posted-transaction",
+		issuer: "zygos",
+		operation: "get_surface_transaction",
+		marker: "Transaction",
+	},
+] as const;
 
 async function setRange(control: Locator, value: number): Promise<void> {
 	await control.evaluate((element, next) => {
@@ -51,6 +89,15 @@ async function setRange(control: Locator, value: number): Promise<void> {
 		element.dispatchEvent(new Event("input", { bubbles: true }));
 		element.dispatchEvent(new Event("change", { bubbles: true }));
 	}, value);
+}
+
+function captureBrowserErrors(page: Page): string[] {
+	const errors: string[] = [];
+	page.on("pageerror", (error) => errors.push(`pageerror:${error.message}`));
+	page.on("console", (message) => {
+		if (message.type() === "error") errors.push(`console:${message.text()}`);
+	});
+	return errors;
 }
 
 type Rgb = [number, number, number];
@@ -295,6 +342,31 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 	});
 });
 
+test.describe("dialect boundary proof", () => {
+	test("every global dialect leaves the pinned night root intact", async ({ page }) => {
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await page.getByRole("button", { name: /Dialect Lab/ }).click();
+		await expect(page.getByRole("button", { name: /Dialect Lab/ })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+
+		const dialectSelect = page.locator("#dialect-select");
+		const mainRoot = page.locator(".workbench__preview > .mo-root");
+		const pinnedRoot = page.locator(".workbench__preview .pinned .mo-root");
+		const boundaryHeading = page.getByRole("heading", { name: "Pinned dialect boundary" });
+
+		await expect(boundaryHeading).toBeVisible();
+		for (const dialect of DIALECTS) {
+			await dialectSelect.selectOption(dialect);
+			await expect(dialectSelect).toHaveValue(dialect);
+			await expect(mainRoot).toHaveAttribute("data-mo-dialect", dialect);
+			await expect(pinnedRoot).toHaveAttribute("data-mo-dialect", "night");
+			await expect(boundaryHeading).toBeVisible();
+		}
+	});
+});
+
 test.describe("ADR-0023 — promoted compound mint", () => {
 	test.describe.configure({ mode: "serial" });
 
@@ -333,10 +405,25 @@ test.describe("ADR-0023 — promoted compound mint", () => {
 		}
 	});
 
-	test("the 390px mint reflows and its action authority stays host-bound", async ({ page }) => {
+	test("at 390px Clinical the complete mint and Gold host controls stay reachable", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto(ROUTE, { waitUntil: "networkidle" });
 		await page.getByRole("button", { name: /Compound Mint/ }).click();
+		const dialectSelect = page.locator("#dialect-select");
+		await dialectSelect.selectOption("clinical");
+		await expect(dialectSelect).toHaveValue("clinical");
+		await expect(page.locator(".workbench__preview > .mo-root")).toHaveAttribute(
+			"data-mo-dialect",
+			"clinical",
+		);
+
+		for (const name of NON_GOLD_COMPOUNDS) {
+			await expect(
+				page.getByRole("heading", { name: `${name} · benchmark`, exact: true }),
+			).toBeVisible();
+		}
 
 		const action = page.getByRole("button", { name: "Record section evidence" });
 		await action.click();
@@ -354,10 +441,153 @@ test.describe("ADR-0023 — promoted compound mint", () => {
 		await page.keyboard.press("Enter");
 		await expect(page.locator(".workbench__proof")).toContainText("mint.record");
 
+		const mintOverflow = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		);
+		expect(mintOverflow, "Clinical compound mint overflows at 390px").toBeLessThanOrEqual(1);
+
+		await page.getByRole("button", { name: /Gold Standard/ }).click();
+		await expect(page.getByRole("button", { name: /Gold Standard/ })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+		await expect(page.locator(".workbench__preview > .mo-root")).toHaveAttribute(
+			"data-mo-dialect",
+			"clinical",
+		);
+
+		const mode = page.locator("#gold-mode-choice");
+		await mode.focus();
+		await page.keyboard.press("End");
+		await expect(mode).toHaveValue("2");
+		await expect(page.getByRole("heading", { name: "Decision receipt" })).toBeVisible();
+
+		const detail = page.locator("details").filter({ hasText: "Inspect the complete gold circuit" });
+		await expect(detail).toHaveAttribute("open", "");
+		const detailChoice = page.locator("#gold-detail-choice");
+		await detailChoice.focus();
+		await page.keyboard.press("End");
+		await expect(detailChoice).toHaveValue("1");
+		await expect(detail).not.toHaveAttribute("open", "");
+
+		const densityBoundary = page.locator(".mo-within-context").last();
+		const regularStyle = await densityBoundary.getAttribute("style");
+		const density = page.locator("#gold-density-choice");
+		await density.focus();
+		await page.keyboard.press("End");
+		await expect(density).toHaveValue("2");
+		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
+
+		const goldOverflow = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+		);
+		expect(goldOverflow, "Clinical Gold Standard overflows at 390px").toBeLessThanOrEqual(1);
+	});
+});
+
+test.describe("deterministic operational mid-loop", () => {
+	test("the native host proves admission, rejection, override, epoch, and replay without hiding evidence", async ({
+		page,
+	}) => {
+		const browserErrors = captureBrowserErrors(page);
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await page.getByRole("button", { name: /Deterministic Vary \+ Delta/ }).click();
+
+		const policyButton = page.getByRole("button", { name: "Run policy" });
+		await policyButton.focus();
+		await page.keyboard.press("Tab");
+		const keyboardControl = page.getByRole("button", {
+			name: "Reject structurally live host-only socket",
+		});
+		await expect(keyboardControl).toBeFocused();
+		const focusVisible = await keyboardControl.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return (
+				(style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0) ||
+				style.boxShadow !== "none"
+			);
+		});
+		expect(focusVisible, "mid-loop control has no visible focus indicator").toBe(true);
+
+		await page
+			.getByRole("combobox", { name: "Deterministic policy preference" })
+			.selectOption("decision");
+		await policyButton.click();
+		await expect(page.getByRole("heading", { name: "Decision preparation" })).toBeVisible();
+		await expect(page.getByText("Evidence stays visible.")).toBeVisible();
+		await expect(page.getByText(/observes only live\.proof\.preference/)).toBeVisible();
+		await expect(page.locator('.midloop__ledger li[data-status="accepted"]')).toHaveCount(4);
+
+		await page.getByRole("button", { name: "Reject structurally live host-only socket" }).click();
+		await expect(page.getByText("reason out-of-policy-target")).toBeVisible();
+
+		await page.getByRole("button", { name: "Replay stale epoch" }).click();
+		await expect(page.getByText("reason stale-epoch")).toBeVisible();
+
+		await page.getByRole("button", { name: "Apply user override" }).click();
+		await expect(
+			page.locator(".midloop__state").getByText("user locks", { exact: true }).locator(".."),
+		).toContainText("live.proof.mode");
+		await policyButton.click();
+		await expect(page.getByText("reason user-lock")).toBeVisible();
+
+		await page.getByRole("button", { name: "Re-emit strictly newer epoch" }).click();
+		await expect(
+			page.locator(".midloop__state").getByText("epoch", { exact: true }).locator(".."),
+		).toContainText("2");
+		await expect(
+			page.locator(".midloop__state").getByText("user locks", { exact: true }).locator(".."),
+		).toContainText("none");
+		await policyButton.click();
+		await expect(page.getByRole("heading", { name: "Decision preparation" })).toBeVisible();
+
+		await page.getByRole("button", { name: "Compare identical replay inputs" }).click();
+		await expect(
+			page.locator(".midloop__state").getByText("replay comparison", { exact: true }).locator(".."),
+		).toContainText("stable");
+		await expect(page.getByText(/no in-tree tier-2 producer is fabricated/)).toBeVisible();
+
 		const overflow = await page.evaluate(
 			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
 		);
-		expect(overflow, "compound mint overflows at 390px").toBeLessThanOrEqual(1);
+		expect(overflow, "deterministic mid-loop overflows at 390px").toBeLessThanOrEqual(1);
+		expect(await page.locator("vite-error-overlay, .vite-error-overlay").count()).toBe(0);
+		expect(await page.locator("body").innerText()).toContain("Substrate under live pressure");
+		expect(browserErrors).toEqual([]);
+	});
+});
+
+test.describe("six-kernel signed evidence surface", () => {
+	test("all six real route fixtures render under the restrictive Clinical dialect at 390px", async ({
+		page,
+	}) => {
+		const browserErrors = captureBrowserErrors(page);
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		await page.getByRole("button", { name: /Six-kernel Evidence/ }).click();
+
+		const caseSelect = page.getByRole("combobox", { name: "Sealed source-v1 case" });
+		const dialectSelect = page.locator("#dialect-select");
+		const preview = page.locator(".workbench__preview > .mo-root");
+		const proof = page.locator(".workbench__proof");
+		await dialectSelect.selectOption("clinical");
+		await expect(preview).toHaveAttribute("data-mo-dialect", "clinical");
+
+		for (const fixture of KERNEL_PROOF_CASES) {
+			await caseSelect.selectOption(fixture.id);
+			await expect(caseSelect).toHaveValue(fixture.id);
+			await expect(preview).toContainText(fixture.marker);
+			await expect(proof).toContainText(fixture.issuer);
+			await expect(proof).toContainText(fixture.operation);
+			await expect(proof).toContainText("sealed signed source-v1 fixture");
+			const overflow = await page.evaluate(
+				() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			);
+			expect(overflow, `${fixture.id} overflows at 390px`).toBeLessThanOrEqual(1);
+		}
+		expect(await page.locator("vite-error-overlay, .vite-error-overlay").count()).toBe(0);
+		expect(browserErrors).toEqual([]);
 	});
 });
 

@@ -1,0 +1,775 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Finality",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "compound",
+              "name": "StatBand",
+              "args": {},
+              "slots": {
+                "tiles": [
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Window",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from instructions dated inside the selected reporting window."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Instructions",
+                        "as": "subheading",
+                        "gloss": "Payment instructions dated inside the selected reporting window."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 4,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Finality",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from outcomes established by the payment rail."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Settled",
+                        "as": "subheading",
+                        "gloss": "Instructions whose rail evidence establishes final settlement."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Rail",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from outcomes reported by the payment rail."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Returned",
+                        "as": "subheading",
+                        "gloss": "Instructions the rail returned after execution."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "intent": "caution",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Worklist",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from exceptions requiring human review."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Needs attention",
+                        "as": "subheading",
+                        "gloss": "Instruction rows with an unresolved finality annotation."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 2,
+                        "format": "integer",
+                        "intent": "caution",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "table",
+              "caption": "Finality",
+              "captionHidden": true,
+              "columns": [
+                {
+                  "header": "Day",
+                  "priority": "primary"
+                },
+                {
+                  "header": "Instruction",
+                  "priority": "detail",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Repaired by",
+                  "priority": "detail",
+                  "intent": "provenance"
+                },
+                {
+                  "header": "Kind",
+                  "priority": "secondary",
+                  "intent": "info",
+                  "gloss": "The business purpose that determines how this payment instruction is handled."
+                },
+                {
+                  "header": "State",
+                  "priority": "secondary",
+                  "gloss": "The instruction's current lifecycle state, from proposal through settlement or return."
+                },
+                {
+                  "header": "Submission",
+                  "priority": "secondary",
+                  "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement."
+                },
+                {
+                  "header": "Age",
+                  "priority": "secondary"
+                },
+                {
+                  "header": "Evidence match",
+                  "priority": "secondary",
+                  "intent": "evidence",
+                  "gloss": "How settlement evidence was matched to this payment instruction."
+                },
+                {
+                  "header": "Amount",
+                  "numeric": true,
+                  "priority": "secondary",
+                  "intent": "evidence"
+                },
+                {
+                  "header": "Currency",
+                  "priority": "secondary",
+                  "intent": "info"
+                },
+                {
+                  "header": "Counterparty",
+                  "priority": "detail",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Rail",
+                  "priority": "detail",
+                  "intent": "accession"
+                }
+              ],
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-07-14",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e5",
+                          "label": "Instruction details",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "spacer",
+                          "size": "xs"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "supplier_ap",
+                          "intent": "neutral",
+                          "gloss": "The business purpose that determines how this payment instruction is handled."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "success",
+                          "signal": {
+                            "text": "settled"
+                          },
+                          "gloss": "The instruction's current lifecycle state, from proposal through settlement or return."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "accepted",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "current",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "none",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 300000,
+                          "format": "integer",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "ISK",
+                          "as": "body",
+                          "intent": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7981",
+                          "label": "supplier · fingerprint 2d",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+                          "label": "Primary bank",
+                          "intent": "accession"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-07-14",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e6",
+                          "label": "Instruction details",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "spacer",
+                          "size": "xs"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "payroll_net",
+                          "intent": "info",
+                          "gloss": "The business purpose that determines how this payment instruction is handled."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "caution",
+                          "signal": {
+                            "text": "returned"
+                          },
+                          "gloss": "The instruction's current lifecycle state, from proposal through settlement or return."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "accepted",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "current",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "none",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 1200000,
+                          "format": "integer",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "ISK",
+                          "as": "body",
+                          "intent": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7982",
+                          "label": "payroll · fingerprint 2d",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+                          "label": "Primary bank",
+                          "intent": "accession"
+                        }
+                      ]
+                    }
+                  ],
+                  "diagnostics": [
+                    {
+                      "kind": "inline-alert",
+                      "tone": "caution",
+                      "title": "RETURNED",
+                      "detail": "Returned by the rail and not yet repaired; retry only through one linear repair child."
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-07-14",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e9",
+                          "label": "Instruction details",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "spacer",
+                          "size": "xs"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "supplier_ap",
+                          "intent": "neutral",
+                          "gloss": "The business purpose that determines how this payment instruction is handled."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "caution",
+                          "signal": {
+                            "text": "executed"
+                          },
+                          "gloss": "The instruction's current lifecycle state, from proposal through settlement or return."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "accepted",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2 days",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "none",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 850000,
+                          "format": "integer",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "ISK",
+                          "as": "body",
+                          "intent": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7981",
+                          "label": "supplier · fingerprint 2d",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+                          "label": "Primary bank",
+                          "intent": "accession"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-07-31",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e8",
+                          "label": "Instruction details",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "spacer",
+                          "size": "xs"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "badge",
+                          "label": "statutory_remittance",
+                          "intent": "info",
+                          "gloss": "The business purpose that determines how this payment instruction is handled."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "caution",
+                          "signal": {
+                            "text": "authorized"
+                          },
+                          "gloss": "The instruction's current lifecycle state, from proposal through settlement or return."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "not submitted",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "current",
+                          "as": "body"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "none",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 480000,
+                          "format": "integer",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "ISK",
+                          "as": "body",
+                          "intent": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7983",
+                          "label": "statutory · fingerprint 2d",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+                          "label": "Primary bank",
+                          "intent": "accession"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "rowHeader": true,
+              "responsive": "records",
+              "emphasis": "strong"
+            }
+          ]
+        },
+        {
+          "kind": "progress",
+          "label": "Window settled",
+          "value": 0.25
+        },
+        {
+          "kind": "compound",
+          "name": "ProvenanceFooter",
+          "args": {},
+          "slots": {
+            "facts": [
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Deployment",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "obolos",
+                    "as": "body",
+                    "intent": "accession"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Window",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-07-14 00:00:00+00:00 – 2026-08-01 00:00:00+00:00",
+                    "as": "body",
+                    "intent": "provenance"
+                  }
+                ]
+              }
+            ],
+            "seals": [],
+            "links": []
+          }
+        }
+      ]
+    }
+  ]
+}

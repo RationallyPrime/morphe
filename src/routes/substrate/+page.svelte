@@ -1,14 +1,50 @@
 <script lang="ts">
-	import type { ActionMap, ChoiceMap, JsonRecord } from "$lib";
-	import { activeDialect, createInMemoryMorpheStore, getDialect } from "$lib";
+	import type {
+		ActionMap,
+		ChoiceMap,
+		ContextDigest,
+		JsonRecord,
+		MidLoopEvidenceRecord,
+		MidLoopRuntime,
+		MidLoopRuntimeResult,
+		MidLoopRuntimeState,
+		Tier2Escalation,
+	} from "$lib";
+	import {
+		activeDialect,
+		applyUserOverride,
+		bindDeterministicObjectivePolicy,
+		createDeterministicObjectiveDelegate,
+		createInMemoryMorpheStore,
+		createMidLoopRuntimeState,
+		digestOf,
+		getDialect,
+		liveVariationIndex,
+		reemitMidLoop,
+		registry,
+		restrictCompounds,
+		runMidLoop,
+	} from "$lib";
 	import { MorpheRoot } from "$lib/components";
 	import { DEFAULT_EXHIBIT, DIALECT_OPTIONS, EXHIBITS } from "../_playground/exhibits.js";
 	import { FALLBACK_LOCAL_ADAPTIVE_DRAFT, fallbackDiagnostics } from "../_playground/fallback.js";
+	import type { KernelProofCaseId } from "../_playground/kernel-proof.js";
+	import {
+		DEFAULT_KERNEL_PROOF_CASE_ID,
+		isKernelProofCaseId,
+		KERNEL_PROOF_CASES,
+	} from "../_playground/kernel-proof.js";
+	import { LIVE_PROOF_IDS, LIVE_PROOF_STORE_PATH } from "../_playground/live-proof-contract.js";
 	import { generateLocalAdaptiveDraft } from "../_playground/local-ai.js";
-	import { presentPinnedDialectProof, presentPlayground } from "../_playground/presenters.js";
+	import {
+	presentPinnedDialectProof,
+	presentPlayground,
+	presentVaryDelta,
+} from "../_playground/presenters.js";
 	import type { ExhibitId, GrammarVariant, ProviderSource } from "../_playground/types.js";
 	import { GRAMMAR_VARIANTS } from "../_playground/types.js";
 	import type { LocalAdaptiveDraft } from "../_playground/validation.js";
+	import { LIVE_PROOF_POLICY } from "./live-proof.js";
 
 	const store = createInMemoryMorpheStore({
 		"gold.note": "Verify the complete evidence chain",
@@ -17,11 +53,12 @@
 		"gold.confidence": 72,
 		"playground.goal": "Review an exception queue",
 		"playground.reviewed": false,
-	});
+		[LIVE_PROOF_STORE_PATH]: "evidence",
+	}, { now: () => 0 });
 
 	let activeExhibit = $state<ExhibitId>(DEFAULT_EXHIBIT);
 	let grammarVariant = $state<GrammarVariant>("layout");
-	let selectedVaryChoice = $state(0);
+	let kernelProofCaseId = $state<KernelProofCaseId>(DEFAULT_KERNEL_PROOF_CASE_ID);
 	let goldModeChoice = $state(0);
 	let goldDetailChoice = $state(0);
 	let goldDensityChoice = $state(1);
@@ -31,13 +68,41 @@
 	let localSource = $state<ProviderSource>("chrome-unavailable");
 	let localDiagnostics = $state<readonly string[]>(["chrome-unavailable:LanguageModel"]);
 	let localBusy = $state(false);
+	const liveProofTree = presentVaryDelta();
+	let liveProofState = $state<MidLoopRuntimeState>(
+		createMidLoopRuntimeState({ epoch: 1, tree: liveProofTree, choices: {} }),
+	);
+	let liveProofLedger = $state<readonly MidLoopEvidenceRecord[]>([]);
+	let liveProofDigest = $state<ContextDigest | undefined>(undefined);
+	let liveProofReplay = $state<"not-run" | "stable" | "mismatch">("not-run");
+	let tier2Receipts = $state<readonly Tier2Escalation[]>([]);
 
-	const choices = $derived<ChoiceMap>({
-		"demo.mode": selectedVaryChoice,
+	const liveProofDialect = $derived(getDialect(activeDialect.id));
+	const liveProofResolver = $derived(
+		restrictCompounds(registry, { allow: liveProofDialect.compounds }),
+	);
+	const liveProofIndex = $derived(
+		liveVariationIndex(liveProofTree, { resolver: liveProofResolver }),
+	);
+	const liveProofPolicy = $derived(
+		bindDeterministicObjectivePolicy(LIVE_PROOF_POLICY, liveProofIndex),
+	);
+	const liveProofRuntime = $derived<MidLoopRuntime>({
+		policy: liveProofPolicy,
+		delegate: createDeterministicObjectiveDelegate({
+			policy: liveProofPolicy,
+			epoch: liveProofState.envelope.epoch,
+		}),
+	});
+
+	const exhibitChoices = $derived<ChoiceMap>({
 		"gold.mode": goldModeChoice,
 		"gold.detail": goldDetailChoice,
 		"gold.density": goldDensityChoice,
 	});
+	const choices = $derived<ChoiceMap>(
+		activeExhibit === "vary" ? liveProofState.envelope.choices : exhibitChoices,
+	);
 	const actions = $derived<ActionMap>({
 		"gold.advance": () => {
 			goldModeChoice = (goldModeChoice + 1) % 3;
@@ -45,10 +110,7 @@
 		},
 		"gold.attest": () => recordAction("gold.attest"),
 		"mint.record": () => recordAction("mint.record"),
-		"demo.rotate": () => {
-			selectedVaryChoice = (selectedVaryChoice + 1) % 3;
-			recordAction("demo.rotate");
-		},
+		"demo.rotate": () => recordAction("demo.rotate"),
 		"demo.review": () => recordAction("demo.review"),
 		"local-ai.next": () => recordAction("local-ai.next"),
 	});
@@ -58,14 +120,15 @@
 			activeExhibit,
 			grammarVariant,
 			activeDialectId: activeDialect.id,
-			selectedVaryChoice,
 			actionLog,
 			storeSnapshot,
 			localDraft,
 			localSource,
 			localDiagnostics,
+			kernelProofCaseId,
 		}),
 	);
+	const renderedTree = $derived(activeExhibit === "vary" ? liveProofTree : presentation.tree);
 
 	function recordAction(id: string): void {
 		actionLog = [id, ...actionLog].slice(0, 8);
@@ -87,8 +150,9 @@
 		activeDialect.setById(value);
 	}
 
-	function setVaryChoice(event: Event): void {
-		selectedVaryChoice = Number((event.currentTarget as HTMLInputElement).value);
+	function setKernelProofCase(event: Event): void {
+		const value = (event.currentTarget as HTMLSelectElement).value;
+		if (isKernelProofCaseId(value)) kernelProofCaseId = value;
 	}
 
 	function setGoldModeChoice(event: Event): void {
@@ -126,6 +190,80 @@
 		localDraft = FALLBACK_LOCAL_ADAPTIVE_DRAFT;
 		localSource = "fallback";
 		localDiagnostics = fallbackDiagnostics("manual-reset");
+	}
+
+	function captureLiveProofDigest(): ContextDigest {
+		const digest = digestOf(store);
+		liveProofDigest = digest;
+		return digest;
+	}
+
+	function appendLiveProof(result: MidLoopRuntimeResult): void {
+		liveProofState = result.state;
+		liveProofLedger = [...liveProofLedger, ...result.records].slice(-24);
+	}
+
+	function runDeterministicPolicy(): void {
+		appendLiveProof(runMidLoop(liveProofRuntime, liveProofState, captureLiveProofDigest()));
+	}
+
+	function rejectOutOfPolicySocket(): void {
+		appendLiveProof(
+			applyUserOverride(liveProofRuntime, liveProofState, captureLiveProofDigest(), {
+				id: LIVE_PROOF_IDS.hostOnly,
+				choice: 1,
+				epoch: liveProofState.envelope.epoch,
+			}),
+		);
+	}
+
+	function replayStaleEpoch(): void {
+		appendLiveProof(
+			applyUserOverride(liveProofRuntime, liveProofState, captureLiveProofDigest(), {
+				id: LIVE_PROOF_IDS.mode,
+				choice: 1,
+				epoch: liveProofState.envelope.epoch - 1,
+			}),
+		);
+	}
+
+	function applyLiveProofUserOverride(): void {
+		const current = liveProofState.envelope.choices[LIVE_PROOF_IDS.mode] ?? 1;
+		const choice = current === 0 ? 2 : 0;
+		appendLiveProof(
+			applyUserOverride(liveProofRuntime, liveProofState, captureLiveProofDigest(), {
+				id: LIVE_PROOF_IDS.mode,
+				choice,
+				epoch: liveProofState.envelope.epoch,
+			}),
+		);
+	}
+
+	function reemitLiveProof(): void {
+		appendLiveProof(
+			reemitMidLoop(
+				liveProofRuntime,
+				liveProofState,
+				{
+					epoch: liveProofState.envelope.epoch + 1,
+					tree: liveProofTree,
+					choices: {},
+				},
+				captureLiveProofDigest(),
+			),
+		);
+	}
+
+	function compareLiveProofReplay(): void {
+		const digest = captureLiveProofDigest();
+		const first = runMidLoop(liveProofRuntime, liveProofState, digest);
+		const second = runMidLoop(liveProofRuntime, liveProofState, digest);
+		liveProofReplay = JSON.stringify(first) === JSON.stringify(second) ? "stable" : "mismatch";
+		appendLiveProof(first);
+	}
+
+	function onEscalate(receipt: Tier2Escalation): void {
+		tier2Receipts = [...tier2Receipts, receipt].slice(-8);
 	}
 </script>
 
@@ -250,23 +388,109 @@
 					{String(storeSnapshot["playground.reviewed"])}
 				</p>
 			{:else if activeExhibit === "vary"}
-				<label class="field" for="vary-choice">
-					<span>Choice demo.mode</span>
-					<input
-						id="vary-choice"
-						type="range"
-						min="0"
-						max="2"
-						step="1"
-						value={selectedVaryChoice}
-						oninput={setVaryChoice}
-					/>
-				</label>
+				<div class="midloop">
+					<p class="control-copy">
+						One declared policy observes <code>{LIVE_PROOF_STORE_PATH}</code> and tier-1
+						<code>selection</code> only. Every native proposal enters the same canonical Delta
+						admission path.
+					</p>
+					<div class="midloop__actions" aria-label="Deterministic mid-loop controls">
+						<button type="button" onclick={runDeterministicPolicy}>Run policy</button>
+						<button type="button" onclick={rejectOutOfPolicySocket}>
+							Reject structurally live host-only socket
+						</button>
+						<button type="button" onclick={replayStaleEpoch}>Replay stale epoch</button>
+						<button type="button" onclick={applyLiveProofUserOverride}>
+							Apply user override
+						</button>
+						<button type="button" onclick={reemitLiveProof}>
+							Re-emit strictly newer epoch
+						</button>
+						<button type="button" onclick={compareLiveProofReplay}>
+							Compare identical replay inputs
+						</button>
+					</div>
+					<dl class="midloop__state" aria-label="Native deterministic host state">
+						<div>
+							<dt>epoch</dt>
+							<dd>{liveProofState.envelope.epoch}</dd>
+						</div>
+						<div>
+							<dt>policy</dt>
+							<dd>{liveProofPolicy.id}</dd>
+						</div>
+						<div>
+							<dt>live sockets</dt>
+							<dd>{liveProofIndex.descriptors.map((descriptor) => descriptor.id).join(", ")}</dd>
+						</div>
+						<div>
+							<dt>user locks</dt>
+							<dd>
+								{liveProofState.lockedIds.length === 0
+									? "none"
+									: liveProofState.lockedIds.join(", ")}
+							</dd>
+						</div>
+						<div>
+							<dt>digest</dt>
+							<dd>
+								{liveProofDigest === undefined
+									? "not captured"
+									: `${Object.keys(liveProofDigest.state).length} state paths · ${liveProofDigest.recentEvents.length} tier-1 events`}
+							</dd>
+						</div>
+						<div>
+							<dt>replay comparison</dt>
+							<dd>{liveProofReplay}</dd>
+						</div>
+					</dl>
+					<section class="midloop__ledger" aria-labelledby="midloop-ledger-title">
+						<h3 id="midloop-ledger-title">Bounded evidence ledger</h3>
+						<p aria-live="polite">
+							{liveProofLedger.length === 0
+								? "No host proposals have been admitted or rejected yet."
+								: `${liveProofLedger.length} immutable records retained (newest twenty-four).`}
+						</p>
+						<ol>
+							{#each liveProofLedger as record, index (`${record.group}:${record.sequence}:${index}`)}
+								<li data-status={record.status}>
+									<strong>{record.status}</strong>
+									<span>objective {record.objective ?? "—"}</span>
+									<span>id {record.proposal?.id ?? "—"}</span>
+									<span>choice {record.proposal?.choice ?? "—"}</span>
+									<span>epoch {record.envelopeEpoch}</span>
+									<span>reason {record.reason ?? record.result ?? "—"}</span>
+								</li>
+							{/each}
+						</ol>
+					</section>
+				</div>
 			{:else if activeExhibit === "cms"}
 				<div class="link-stack">
 					<a href="/preview/capability-page.demo/rev-001">Preview route</a>
 					<a href="/p/demo">Published route</a>
 				</div>
+			{:else if activeExhibit === "kernels"}
+				<label class="field" for="dialect-select">
+					<span>Global dialect</span>
+					<select id="dialect-select" value={activeDialect.id} onchange={setDialect}>
+						{#each DIALECT_OPTIONS as dialectId (dialectId)}
+							<option value={dialectId}>{dialectId}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="field" for="kernel-proof-case">
+					<span>Sealed source-v1 case</span>
+					<select id="kernel-proof-case" value={kernelProofCaseId} onchange={setKernelProofCase}>
+						{#each KERNEL_PROOF_CASES as fixture (fixture.id)}
+							<option value={fixture.id}>{fixture.label}</option>
+						{/each}
+					</select>
+				</label>
+				<p class="control-copy">
+					Each fixed tree is replayed from a real Krepis route fixture. Morphe owns rendering and
+					validation; the kernel retains its domain semantics and signing authority.
+				</p>
 			{:else if activeExhibit === "local-ai"}
 				<label class="field" for="local-goal">
 					<span>Prompt goal</span>
@@ -283,7 +507,15 @@
 		</section>
 
 		<section class="workbench__preview" aria-label="Morphe preview">
-			<MorpheRoot tree={presentation.tree} {store} {actions} {choices} />
+			<MorpheRoot
+				tree={renderedTree}
+				dialect={activeExhibit === "vary" ? liveProofDialect : undefined}
+				{registry}
+				{store}
+				{actions}
+				{choices}
+				{onEscalate}
+			/>
 			{#if activeExhibit === "dialects"}
 				<div class="pinned">
 					<MorpheRoot tree={presentPinnedDialectProof()} dialect={getDialect("night")} />
@@ -300,6 +532,14 @@
 						<dd>{item.value}</dd>
 					</div>
 				{/each}
+				<div>
+					<dt>tier-2 boundary</dt>
+					<dd>
+						{tier2Receipts.length === 0
+							? "wired at MorpheRoot · no in-tree tier-2 producer is fabricated"
+							: `${tier2Receipts.length} genuine escalation receipt(s) captured`}
+					</dd>
+				</div>
 			</dl>
 		</aside>
 	</div>
@@ -437,6 +677,10 @@
 	.field textarea {
 		resize: vertical;
 	}
+	.workbench :is(button, select, input, textarea, a):focus-visible {
+		outline: 2px solid var(--mo-intent-primary-action-ring);
+		outline-offset: 2px;
+	}
 	.button-row,
 	.link-stack {
 		display: grid;
@@ -452,6 +696,103 @@
 	}
 	.link-stack a {
 		text-decoration: none;
+	}
+	.midloop {
+		display: grid;
+		min-inline-size: 0;
+		gap: var(--mo-space-3);
+	}
+	.midloop__actions {
+		display: grid;
+		gap: var(--mo-space-2);
+	}
+	.midloop__actions button {
+		box-sizing: border-box;
+		inline-size: 100%;
+		min-inline-size: 0;
+		border: 1px solid var(--mo-intent-outline);
+		border-radius: var(--mo-radius-2);
+		padding: var(--mo-space-3);
+		background: var(--mo-intent-surface-base);
+		color: var(--mo-intent-on-surface);
+		font: inherit;
+		font-weight: 750;
+		text-align: start;
+		cursor: pointer;
+		overflow-wrap: anywhere;
+	}
+	.midloop__actions button:first-child {
+		border-color: var(--mo-intent-primary-action-surface);
+		background: var(--mo-intent-primary-action-surface);
+		color: var(--mo-intent-primary-action-on);
+	}
+	.midloop__state {
+		display: grid;
+		gap: var(--mo-space-2);
+		margin: 0;
+	}
+	.midloop__state div {
+		display: grid;
+		gap: var(--mo-space-1);
+		min-inline-size: 0;
+		padding-block-end: var(--mo-space-2);
+		border-block-end: 1px solid var(--mo-intent-outline);
+	}
+	.midloop__state dt {
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-2);
+		color: var(--mo-intent-accession-on);
+	}
+	.midloop__state dd {
+		margin: 0;
+		color: var(--mo-intent-on-surface-muted);
+		font-size: var(--mo-type-2);
+		overflow-wrap: anywhere;
+	}
+	.midloop__ledger {
+		min-inline-size: 0;
+		border: 1px solid var(--mo-intent-outline);
+		border-radius: var(--mo-radius-2);
+		padding: var(--mo-space-3);
+		background: var(--mo-intent-surface-sunken);
+	}
+	.midloop__ledger h3,
+	.midloop__ledger p {
+		margin: 0;
+	}
+	.midloop__ledger h3 {
+		font-size: var(--mo-type-3);
+	}
+	.midloop__ledger p {
+		margin-block-start: var(--mo-space-1);
+		font-size: var(--mo-type-2);
+		color: var(--mo-intent-on-surface-muted);
+	}
+	.midloop__ledger ol {
+		display: grid;
+		max-block-size: 24rem;
+		gap: var(--mo-space-2);
+		margin: var(--mo-space-3) 0 0;
+		padding: 0;
+		overflow: auto;
+		list-style: none;
+	}
+	.midloop__ledger li {
+		display: grid;
+		min-inline-size: 0;
+		gap: var(--mo-space-1);
+		border-inline-start: 3px solid var(--mo-intent-provenance-surface);
+		padding: var(--mo-space-2);
+		background: var(--mo-intent-surface-raised);
+		font-family: var(--mo-font-mono);
+		font-size: var(--mo-type-1);
+		overflow-wrap: anywhere;
+	}
+	.midloop__ledger li[data-status="rejected"] {
+		border-inline-start-color: var(--mo-intent-caution-surface);
+	}
+	.midloop__ledger li[data-status="accepted"] {
+		border-inline-start-color: var(--mo-intent-success-surface);
 	}
 	.workbench__preview {
 		min-inline-size: 0;

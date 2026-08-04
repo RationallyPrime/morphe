@@ -1,0 +1,447 @@
+{
+  "kind": "frame",
+  "role": "page",
+  "surface": "base",
+  "children": [
+    {
+      "kind": "stack",
+      "role": "section",
+      "children": [
+        {
+          "kind": "text",
+          "value": "Expiry horizon",
+          "as": "heading",
+          "level": 1
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "compound",
+              "name": "StatBand",
+              "args": {},
+              "slots": {
+                "tiles": [
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Expiry",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from declared lot expiry dates at the selected cut."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Lots in horizon",
+                        "as": "subheading",
+                        "gloss": "On-hand lots whose declared expiry is no later than the selected horizon end."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 1,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Expiry",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from declared lot expiry dates at the selected cut."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Soonest expiry (days)",
+                        "as": "subheading",
+                        "gloss": "Signed days to the earliest declared expiry in this upper-bounded set; negative means elapsed."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 11,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Expiry",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from declared lot expiry dates at the selected cut."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Expiring ≤7d",
+                        "as": "subheading",
+                        "gloss": "On-hand lots expiring within 7 days but not yet expired."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 0,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Expiry",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from declared lot expiry dates at the selected cut."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Expired",
+                        "as": "subheading",
+                        "gloss": "On-hand lots whose declared expiry date has passed."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 0,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  },
+                  {
+                    "kind": "compound",
+                    "name": "SignalCard",
+                    "args": {
+                      "kicker": {
+                        "kind": "text",
+                        "value": "Control",
+                        "as": "caption",
+                        "intent": "footnote",
+                        "gloss": "A measure derived from inventory controls and recorded dispositions."
+                      },
+                      "title": {
+                        "kind": "text",
+                        "value": "Lots written off",
+                        "as": "subheading",
+                        "gloss": "Lots in this upper-bounded expiry set with a recorded positive write-off."
+                      },
+                      "measure": {
+                        "kind": "number",
+                        "value": 0,
+                        "format": "integer",
+                        "emphasis": "strong"
+                      }
+                    },
+                    "slots": {
+                      "signal": [],
+                      "body": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "stack",
+          "role": "section",
+          "children": [
+            {
+              "kind": "table",
+              "caption": "Expiry horizon",
+              "captionHidden": true,
+              "columns": [
+                {
+                  "header": "Item",
+                  "priority": "primary",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Lot",
+                  "priority": "detail",
+                  "intent": "accession"
+                },
+                {
+                  "header": "Trace",
+                  "priority": "secondary"
+                },
+                {
+                  "header": "State",
+                  "priority": "secondary",
+                  "gloss": "Whether stock can be promised, is nearing or past expiry, is controlled, or has been exhausted."
+                },
+                {
+                  "header": "Days remaining",
+                  "numeric": true,
+                  "priority": "secondary",
+                  "gloss": "Signed days until expiry at the selected cut; a negative value means already expired."
+                },
+                {
+                  "header": "On hand",
+                  "priority": "secondary",
+                  "intent": "evidence",
+                  "gloss": "Quantity remaining after the inventory movements recorded for this stock."
+                },
+                {
+                  "header": "Available",
+                  "priority": "secondary",
+                  "intent": "evidence",
+                  "gloss": "Quantity currently free to promise after reservations and inventory controls."
+                },
+                {
+                  "header": "Written off",
+                  "priority": "secondary",
+                  "intent": "evidence",
+                  "gloss": "Quantity covered by recorded write-off movements while the lot remains traceable."
+                },
+                {
+                  "header": "Expiry",
+                  "priority": "detail",
+                  "intent": "provenance",
+                  "gloss": "The date after which this lot is treated as expired for availability and alerts."
+                }
+              ],
+              "rows": [
+                {
+                  "cells": [
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/item/00000000-0000-0000-0000-00000000a201?as_of=2026-07-20",
+                          "label": "Flour",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "SUP-8812",
+                          "as": "body",
+                          "intent": "accession"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "link",
+                          "href": "/surfaces/trace?lot_id=00000000-0000-0000-0000-00000000a205&as_of=2026-07-20&as_of_sequence=5",
+                          "label": "SUP-8812"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "status",
+                          "tone": "success",
+                          "signal": {
+                            "text": "available"
+                          },
+                          "gloss": "Whether stock can be promised, is nearing or past expiry, is controlled, or has been exhausted."
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "number",
+                          "value": 11,
+                          "format": "integer"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "10 kg",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "6 kg",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "0 kg",
+                          "as": "body",
+                          "intent": "evidence"
+                        }
+                      ]
+                    },
+                    {
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "2026-07-31",
+                          "as": "body",
+                          "intent": "provenance"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "rowHeader": true,
+              "responsive": "records",
+              "emphasis": "strong"
+            }
+          ]
+        },
+        {
+          "kind": "grid",
+          "role": "field-group",
+          "columns": [
+            "content",
+            "flexible"
+          ],
+          "children": [
+            {
+              "kind": "text",
+              "value": "Horizon (days)",
+              "as": "caption",
+              "intent": "neutral",
+              "gloss": "The forward expiry window selected for this pane."
+            },
+            {
+              "kind": "number",
+              "value": 90,
+              "format": "integer"
+            }
+          ]
+        },
+        {
+          "kind": "compound",
+          "name": "ProvenanceFooter",
+          "args": {},
+          "slots": {
+            "facts": [
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Deployment",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "apotheke",
+                    "as": "body",
+                    "intent": "accession"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Effective at",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-07-20",
+                    "as": "body",
+                    "intent": "provenance"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "As of",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "2026-08-04 12:00 UTC",
+                    "as": "body",
+                    "intent": "provenance"
+                  }
+                ]
+              },
+              {
+                "kind": "stack",
+                "role": "field-group",
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Sequence",
+                    "as": "caption",
+                    "intent": "neutral"
+                  },
+                  {
+                    "kind": "text",
+                    "value": "8",
+                    "as": "body",
+                    "intent": "provenance",
+                    "numeric": true,
+                    "polarity": "positive"
+                  }
+                ]
+              }
+            ],
+            "seals": [],
+            "links": []
+          }
+        }
+      ]
+    }
+  ]
+}

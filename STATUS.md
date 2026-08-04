@@ -12,6 +12,18 @@ complete evidence ledger. Clinical admission now derives from the authoritative 
 separate Compound Mint exhibit proves every non-gold argument and slot without moving host
 capabilities or governance into Morphe.
 
+ADR-0024 completes Lemma 6's model-free operational circuit: a resolver-specific variation index,
+explicit path-plus-kind digest projection, and the pure `runMidLoop` host runtime admit only
+bounded choices. It fails untrusted malformed output closed, keeps user overrides locked until a
+strictly higher safe-integer epoch, and leaves `MorpheRoot` choice-only. It does not add a tier-2
+producer, model delegate, corpus policy, or operational ledger to Morphe.
+
+The neutral `/substrate` host now proves that circuit under hydration and carries a sealed
+compatibility exhibit with one real signed route fixture from each Krepis kernel. Those fixed
+public artifacts are admitted, compiled twice, checked against their exact SurfaceSpec/Node
+receipts, rendered under all nine dialects, and exercised in Chromium and Firefox. They remain
+producer evidence, not copied kernel models, live production data, or Morphe-owned authority.
+
 The KRA-762 Stage 1 release candidate is also green: the TypeScript edge compiler, source-v1
 trust gate, dual viewer, and untouched legacy rollback reader are verified together. Production
 activation remains viewer-first and follows merge; kernels do not switch before that deployment.
@@ -29,8 +41,8 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **886 server + 13 DOM passing** |
-| Browser seams | edge + contrast Playwright gates | **66 passing** across Chromium + Firefox |
+| Web tests | `bun run test` | **906 server + 14 DOM passing** |
+| Browser seams | edge + contrast Playwright gates | **72 passing** across Chromium + Firefox |
 | Python tests | `pytest` | **562 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
@@ -80,21 +92,27 @@ emission with retry/fail-closed behavior.
   renderer contract change — epochs never reach the renderer), including an
   explicit single-target `Within` contract with reactive density, parent-budgeted
   emphasis, native labelled collapse, and target-aware traversal, with the `py/`
-  Pydantic mirror and committed schema re-synced to the now-complete grammar.
+  Pydantic mirror and committed schema re-synced to the now-complete grammar;
+  the ADR-0024 deterministic operational host circuit (`liveVariationIndex`,
+  `DeterministicObjectivePolicy`, and `runMidLoop`) with resolver-specific authority,
+  duplicate-id bound intersection, explicit path-plus-kind digest projection,
+  fail-closed delegate admission, and monotonic user-override locks. The host passes only
+  the admitted choice map to `MorpheRoot`; no tier-2 producer or model delegate ships.
 - **The neutral demo host (this repo's own routes, proof surfaces only):** `/` — the workbench
   index linking the playground, CMS preview, and published-pointer proof;
-  `/substrate` — the full-featured neutral playground: the ActionSummary gold circuit is the
-  default exhibit, with all declared lanes, the nine-way dialect toggle, live `actions`, four
-  bindable input families, Vary and targeted Within `choices`, recursive promoted expansion,
-  plus a separate complete Compound Mint ledger, neutral assets, adaptive fallback rendering, and
-  a pinned nested-dialect proof;
+  `/substrate` — the full-featured neutral playground and live host proof surface: the
+  ActionSummary gold circuit is the default exhibit, with all declared lanes, the nine-way dialect
+  toggle, live `actions`, four bindable input families, Vary and targeted Within `choices`, recursive
+  promoted expansion, plus a separate complete Compound Mint ledger, a resolver-bound deterministic
+  policy/Delta/outcome circuit, and six sealed signed source-v1 producer fixtures, neutral assets,
+  adaptive fallback rendering, and a pinned nested-dialect proof;
   `/preview/[artifactId]/[revisionId]` — the
   local CMS preview route (reads compiled trees from
   `compiled/capability-pages/**`, falling back to the built-in
   `capability-page.demo/rev-001` fixture; dialect overrides are revalidated, viewport is honored,
   and preview-only action/choice receipts stay host-owned); `/p/[slug]` — the publication
-  pointer route (`publications.json` → compiled revision; `/p/demo` always
-  backed by the neutral built-in fixture); `/dignity` — a compatibility
+  pointer route (`publications.json` → compiled revision; `/p/demo` is immutable to the mid-loop,
+  never a control host); `/dignity` — a compatibility
   redirect to `/substrate`; `/plate-proof` — the responsive `Media.sources`
   plate-derivative proof tree; `/api/adaptive/decision` — the adaptive
   sidecar bridge (calls `MORPHE_AGENT_BASE_URL` when configured, otherwise
@@ -129,10 +147,10 @@ private infrastructure details are intentionally outside this public snapshot.
 
 Two different categories — do not conflate them:
 
-- **Reserved strata sockets** (`CONTRACT.md` §11): `Vary.objective` (what a
-  future mid loop optimizes — the variation points themselves are wired as of
-  R2) and `persona`. These are *typed seams for Phase 2*, not unfinished
-  features. Do not wire them ad hoc; do not remove them.
+- **Reserved strata sockets** (`CONTRACT.md` §11): `Vary.objective` (an authored declaration;
+  deterministic policies name their target objective explicitly) and `persona`. Learned objective
+  selection, a model delegate, and a tier-2 producer remain future. Do not wire them ad hoc; do not
+  remove them.
 - **Known defects, scheduled** (`CONTRACT.md` §12 / `docs/reconstruction-plan.md`):
   **none** — the R0 substrate-integrity pass closed all four (budget×expansion
   commutation, render totality at unknown compounds, index child keying,
@@ -145,6 +163,9 @@ Other standing notes:
 - Fonts / Material Symbols are self-hosted (`src/app-fonts.css`, fontsource +
   material-symbols packages) so the stripped viewer has no runtime font-network
   dependency.
+- Six-kernel corpus curation and operational ledgers are governed elsewhere. The six sealed public
+  compatibility fixtures in the neutral host prove only the generic source/compiler/render seam;
+  they do not make kernel semantics, a training corpus, or an operational ledger package doctrine.
 
 ---
 
@@ -153,7 +174,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 886 server + 13 DOM passing
+bun run test       # vitest run (+ dom config)       → 906 server + 14 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)

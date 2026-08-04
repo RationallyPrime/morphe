@@ -35,15 +35,21 @@ export const EXHIBITS: readonly ExhibitDefinition[] = Object.freeze([
 	},
 	{
 		id: "vary",
-		label: "Vary + Delta",
-		summary: "Host-owned choices select a branch without mutating the tree.",
-		proofFocus: "Choice map",
+		label: "Deterministic Vary + Delta",
+		summary: "A host policy admits only epoch-scoped choices inside the authored variation space.",
+		proofFocus: "Replayable choice evidence",
 	},
 	{
 		id: "cms",
 		label: "CMS Pipeline",
 		summary: "Compiled preview and publication pointer proof surfaces.",
 		proofFocus: "Compiled artifact",
+	},
+	{
+		id: "kernels",
+		label: "Six-kernel Evidence",
+		summary: "One sealed signed source-v1 surface from every Krepis kernel.",
+		proofFocus: "Producer compatibility",
 	},
 	{
 		id: "local-ai",

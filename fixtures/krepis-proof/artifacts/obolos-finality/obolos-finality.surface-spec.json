@@ -1,0 +1,849 @@
+{
+  "path": "$",
+  "label": "Finality",
+  "strategy": "record-card",
+  "heading": true,
+  "children": [
+    {
+      "path": "$.name",
+      "label": "Deployment",
+      "strategy": "scalar",
+      "intent": "accession",
+      "diagnostics": [],
+      "value": "obolos",
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.kpis",
+      "label": "Summary",
+      "strategy": "kpi-row",
+      "heading": false,
+      "items": [
+        {
+          "path": "$.kpis[0]",
+          "label": "Instructions",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Window",
+          "gloss": "Payment instructions dated inside the selected reporting window.",
+          "kicker_gloss": "A measure derived from instructions dated inside the selected reporting window.",
+          "children": [],
+          "diagnostics": [],
+          "value": 4,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[1]",
+          "label": "Settled",
+          "strategy": "number",
+          "number_format": "integer",
+          "kicker": "Finality",
+          "gloss": "Instructions whose rail evidence establishes final settlement.",
+          "kicker_gloss": "A measure derived from outcomes established by the payment rail.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[2]",
+          "label": "Returned",
+          "strategy": "number",
+          "intent": "caution",
+          "number_format": "integer",
+          "kicker": "Rail",
+          "gloss": "Instructions the rail returned after execution.",
+          "kicker_gloss": "A measure derived from outcomes reported by the payment rail.",
+          "children": [],
+          "diagnostics": [],
+          "value": 1,
+          "heading": true,
+          "items": []
+        },
+        {
+          "path": "$.kpis[3]",
+          "label": "Needs attention",
+          "strategy": "number",
+          "intent": "caution",
+          "number_format": "integer",
+          "kicker": "Worklist",
+          "gloss": "Instruction rows with an unresolved finality annotation.",
+          "kicker_gloss": "A measure derived from exceptions requiring human review.",
+          "children": [],
+          "diagnostics": [],
+          "value": 2,
+          "heading": true,
+          "items": []
+        }
+      ],
+      "diagnostics": [],
+      "children": []
+    },
+    {
+      "path": "$.settled_fraction",
+      "label": "Window settled",
+      "strategy": "progress",
+      "diagnostics": [],
+      "value": 0.25,
+      "heading": true,
+      "children": [],
+      "items": []
+    },
+    {
+      "path": "$.rows",
+      "label": "Finality",
+      "strategy": "table",
+      "heading": false,
+      "emphasis": "strong",
+      "children": [
+        {
+          "path": "$.rows.day",
+          "label": "Day",
+          "strategy": "scalar",
+          "value": "Day",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.instruction_id",
+          "label": "Instruction",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Instruction",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.repaired_by",
+          "label": "Repaired by",
+          "strategy": "scalar",
+          "intent": "provenance",
+          "value": "Repaired by",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.kind",
+          "label": "Kind",
+          "strategy": "scalar",
+          "intent": "info",
+          "gloss": "The business purpose that determines how this payment instruction is handled.",
+          "value": "Kind",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.state",
+          "label": "State",
+          "strategy": "scalar",
+          "gloss": "The instruction's current lifecycle state, from proposal through settlement or return.",
+          "value": "State",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.submission",
+          "label": "Submission",
+          "strategy": "scalar",
+          "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement.",
+          "value": "Submission",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.age",
+          "label": "Age",
+          "strategy": "scalar",
+          "value": "Age",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.evidence_match",
+          "label": "Evidence match",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "gloss": "How settlement evidence was matched to this payment instruction.",
+          "value": "Evidence match",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.amount",
+          "label": "Amount",
+          "strategy": "scalar",
+          "intent": "evidence",
+          "value": "Amount",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.currency",
+          "label": "Currency",
+          "strategy": "scalar",
+          "intent": "info",
+          "value": "Currency",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.counterparty",
+          "label": "Counterparty",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Counterparty",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        },
+        {
+          "path": "$.rows.rail",
+          "label": "Rail",
+          "strategy": "scalar",
+          "intent": "accession",
+          "value": "Rail",
+          "heading": true,
+          "children": [],
+          "items": [],
+          "diagnostics": []
+        }
+      ],
+      "items": [
+        {
+          "path": "$.rows[0]",
+          "label": "Finality 0",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[0].day",
+              "label": "Day",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "2026-07-14",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].instruction_id",
+              "label": "Instruction details",
+              "strategy": "linked-ref",
+              "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e5",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Instruction details",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].repaired_by",
+              "label": "Repaired by",
+              "strategy": "linked-ref",
+              "intent": "provenance",
+              "diagnostics": [],
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].kind",
+              "label": "Kind",
+              "strategy": "badge",
+              "intent": "neutral",
+              "gloss": "The business purpose that determines how this payment instruction is handled.",
+              "diagnostics": [],
+              "value": "supplier_ap",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].state",
+              "label": "State",
+              "strategy": "status",
+              "intent": "success",
+              "gloss": "The instruction's current lifecycle state, from proposal through settlement or return.",
+              "diagnostics": [],
+              "value": "settled",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].submission",
+              "label": "Submission",
+              "strategy": "scalar",
+              "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement.",
+              "diagnostics": [],
+              "value": "accepted",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].age",
+              "label": "Age",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "current",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].evidence_match",
+              "label": "Evidence match",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "How settlement evidence was matched to this payment instruction.",
+              "diagnostics": [],
+              "value": "none",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].amount",
+              "label": "Amount",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "integer",
+              "diagnostics": [],
+              "value": 300000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].currency",
+              "label": "Currency",
+              "strategy": "scalar",
+              "intent": "info",
+              "diagnostics": [],
+              "value": "ISK",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].counterparty",
+              "label": "supplier · fingerprint 2d",
+              "strategy": "linked-ref",
+              "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7981",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "supplier · fingerprint 2d",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[0].rail",
+              "label": "Primary bank",
+              "strategy": "linked-ref",
+              "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Primary bank",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        },
+        {
+          "path": "$.rows[1]",
+          "label": "Finality 1",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[1].day",
+              "label": "Day",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "2026-07-14",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].instruction_id",
+              "label": "Instruction details",
+              "strategy": "linked-ref",
+              "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e6",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Instruction details",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].repaired_by",
+              "label": "Repaired by",
+              "strategy": "linked-ref",
+              "intent": "provenance",
+              "diagnostics": [],
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].kind",
+              "label": "Kind",
+              "strategy": "badge",
+              "intent": "info",
+              "gloss": "The business purpose that determines how this payment instruction is handled.",
+              "diagnostics": [],
+              "value": "payroll_net",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].state",
+              "label": "State",
+              "strategy": "status",
+              "intent": "caution",
+              "gloss": "The instruction's current lifecycle state, from proposal through settlement or return.",
+              "diagnostics": [],
+              "value": "returned",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].submission",
+              "label": "Submission",
+              "strategy": "scalar",
+              "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement.",
+              "diagnostics": [],
+              "value": "accepted",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].age",
+              "label": "Age",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "current",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].evidence_match",
+              "label": "Evidence match",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "How settlement evidence was matched to this payment instruction.",
+              "diagnostics": [],
+              "value": "none",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].amount",
+              "label": "Amount",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "integer",
+              "diagnostics": [],
+              "value": 1200000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].currency",
+              "label": "Currency",
+              "strategy": "scalar",
+              "intent": "info",
+              "diagnostics": [],
+              "value": "ISK",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].counterparty",
+              "label": "payroll · fingerprint 2d",
+              "strategy": "linked-ref",
+              "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7982",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "payroll · fingerprint 2d",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[1].rail",
+              "label": "Primary bank",
+              "strategy": "linked-ref",
+              "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Primary bank",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [
+            {
+              "code": "RETURNED",
+              "severity": "warning",
+              "path": "$.rows[1]",
+              "message": "Returned by the rail and not yet repaired; retry only through one linear repair child."
+            }
+          ],
+          "items": []
+        },
+        {
+          "path": "$.rows[2]",
+          "label": "Finality 2",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[2].day",
+              "label": "Day",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "2026-07-14",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].instruction_id",
+              "label": "Instruction details",
+              "strategy": "linked-ref",
+              "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e9",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Instruction details",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].repaired_by",
+              "label": "Repaired by",
+              "strategy": "linked-ref",
+              "intent": "provenance",
+              "diagnostics": [],
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].kind",
+              "label": "Kind",
+              "strategy": "badge",
+              "intent": "neutral",
+              "gloss": "The business purpose that determines how this payment instruction is handled.",
+              "diagnostics": [],
+              "value": "supplier_ap",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].state",
+              "label": "State",
+              "strategy": "status",
+              "intent": "caution",
+              "gloss": "The instruction's current lifecycle state, from proposal through settlement or return.",
+              "diagnostics": [],
+              "value": "executed",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].submission",
+              "label": "Submission",
+              "strategy": "scalar",
+              "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement.",
+              "diagnostics": [],
+              "value": "accepted",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].age",
+              "label": "Age",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "2 days",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].evidence_match",
+              "label": "Evidence match",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "How settlement evidence was matched to this payment instruction.",
+              "diagnostics": [],
+              "value": "none",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].amount",
+              "label": "Amount",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "integer",
+              "diagnostics": [],
+              "value": 850000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].currency",
+              "label": "Currency",
+              "strategy": "scalar",
+              "intent": "info",
+              "diagnostics": [],
+              "value": "ISK",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].counterparty",
+              "label": "supplier · fingerprint 2d",
+              "strategy": "linked-ref",
+              "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7981",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "supplier · fingerprint 2d",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[2].rail",
+              "label": "Primary bank",
+              "strategy": "linked-ref",
+              "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Primary bank",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        },
+        {
+          "path": "$.rows[3]",
+          "label": "Finality 3",
+          "strategy": "collapsed-section",
+          "heading": true,
+          "collapse": true,
+          "children": [
+            {
+              "path": "$.rows[3].day",
+              "label": "Day",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "2026-07-31",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].instruction_id",
+              "label": "Instruction details",
+              "strategy": "linked-ref",
+              "href": "/surfaces/instruction?instruction_id=00000000-0000-0000-0000-0000000b79e8",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Instruction details",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].repaired_by",
+              "label": "Repaired by",
+              "strategy": "linked-ref",
+              "intent": "provenance",
+              "diagnostics": [],
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].kind",
+              "label": "Kind",
+              "strategy": "badge",
+              "intent": "info",
+              "gloss": "The business purpose that determines how this payment instruction is handled.",
+              "diagnostics": [],
+              "value": "statutory_remittance",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].state",
+              "label": "State",
+              "strategy": "status",
+              "intent": "caution",
+              "gloss": "The instruction's current lifecycle state, from proposal through settlement or return.",
+              "diagnostics": [],
+              "value": "authorized",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].submission",
+              "label": "Submission",
+              "strategy": "scalar",
+              "gloss": "Whether the instruction has been submitted and, if so, the rail's latest acknowledgement.",
+              "diagnostics": [],
+              "value": "not submitted",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].age",
+              "label": "Age",
+              "strategy": "scalar",
+              "diagnostics": [],
+              "value": "current",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].evidence_match",
+              "label": "Evidence match",
+              "strategy": "scalar",
+              "intent": "evidence",
+              "gloss": "How settlement evidence was matched to this payment instruction.",
+              "diagnostics": [],
+              "value": "none",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].amount",
+              "label": "Amount",
+              "strategy": "number",
+              "intent": "evidence",
+              "number_format": "integer",
+              "diagnostics": [],
+              "value": 480000,
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].currency",
+              "label": "Currency",
+              "strategy": "scalar",
+              "intent": "info",
+              "diagnostics": [],
+              "value": "ISK",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].counterparty",
+              "label": "statutory · fingerprint 2d",
+              "strategy": "linked-ref",
+              "href": "/surfaces/counterparty?counterparty_id=00000000-0000-0000-0000-0000000b7983",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "statutory · fingerprint 2d",
+              "heading": true,
+              "children": [],
+              "items": []
+            },
+            {
+              "path": "$.rows[3].rail",
+              "label": "Primary bank",
+              "strategy": "linked-ref",
+              "href": "/surfaces/rail?rail_id=00000000-0000-0000-0000-0000000b798a",
+              "intent": "accession",
+              "diagnostics": [],
+              "value": "Primary bank",
+              "heading": true,
+              "children": [],
+              "items": []
+            }
+          ],
+          "diagnostics": [],
+          "items": []
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "path": "$.window",
+      "label": "Window",
+      "strategy": "scalar",
+      "intent": "provenance",
+      "diagnostics": [],
+      "value": "2026-07-14 00:00:00+00:00 – 2026-08-01 00:00:00+00:00",
+      "heading": true,
+      "children": [],
+      "items": []
+    }
+  ],
+  "diagnostics": [],
+  "items": []
+}

@@ -45,12 +45,58 @@ export {
 	provideMorpheContext,
 	useMorpheContext,
 } from "./context/Context.svelte.js";
-export type { ApplyDeltaOutcome, ApplyDeltaResult } from "./delegation/applyDelta.js";
-export { applyDelta, liveVaryIds } from "./delegation/applyDelta.js";
+export type {
+	ApplyDeltaOptions,
+	ApplyDeltaOutcome,
+	ApplyDeltaResult,
+	ChoiceBounds,
+	LiveVariationDescriptor,
+	LiveVariationIndex,
+	LiveVariationOccurrence,
+	LiveVariationOptions,
+	LiveVaryOccurrence,
+	LiveWithinOccurrence,
+} from "./delegation/applyDelta.js";
+export {
+	applyDelta,
+	liveVariationFor,
+	liveVariationIndex,
+	liveVaryIds,
+} from "./delegation/applyDelta.js";
 // Delegation envelope (Lemma 6 / ADR-0004)
 export type { ChoiceMap, Delta, EmissionEnvelope } from "./delegation/envelope.js";
 export type { DevStaticChoiceMidLoopOptions, MidLoopDelegate } from "./delegation/midLoop.js";
 export { createDevStaticChoiceMidLoop } from "./delegation/midLoop.js";
+export type {
+	MidLoopEvidenceReason,
+	MidLoopEvidenceRecord,
+	MidLoopEvidenceSource,
+	MidLoopEvidenceStatus,
+	MidLoopRuntime,
+	MidLoopRuntimeResult,
+	MidLoopRuntimeState,
+} from "./delegation/midLoopRuntime.js";
+export {
+	applyUserOverride,
+	createMidLoopRuntimeState,
+	reemitMidLoop,
+	runMidLoop,
+} from "./delegation/midLoopRuntime.js";
+export type {
+	BoundDeterministicObjectivePolicy,
+	BoundDeterministicPolicyTarget,
+	DeterministicObjective,
+	DeterministicObjectiveDelegateOptions,
+	DeterministicObjectivePolicy,
+	DeterministicPolicyChoiceInput,
+	DeterministicPolicyTarget,
+	ProjectedContextDigest,
+} from "./delegation/objectivePolicy.js";
+export {
+	bindDeterministicObjectivePolicy,
+	createDeterministicObjectiveDelegate,
+	projectContextDigest,
+} from "./delegation/objectivePolicy.js";
 export type { ResolvedWithin } from "./delegation/resolveChoice.js";
 export { resolveVaryOption, resolveWithin } from "./delegation/resolveChoice.js";
 export { activeDialect } from "./dialects/active.svelte.js";
