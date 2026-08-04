@@ -18,6 +18,12 @@ bounded choices. It fails untrusted malformed output closed, keeps user override
 strictly higher safe-integer epoch, and leaves `MorpheRoot` choice-only. It does not add a tier-2
 producer, model delegate, corpus policy, or operational ledger to Morphe.
 
+The neutral `/substrate` host now proves that circuit under hydration and carries a sealed
+compatibility exhibit with one real signed route fixture from each Krepis kernel. Those fixed
+public artifacts are admitted, compiled twice, checked against their exact SurfaceSpec/Node
+receipts, rendered under all nine dialects, and exercised in Chromium and Firefox. They remain
+producer evidence, not copied kernel models, live production data, or Morphe-owned authority.
+
 The KRA-762 Stage 1 release candidate is also green: the TypeScript edge compiler, source-v1
 trust gate, dual viewer, and untouched legacy rollback reader are verified together. Production
 activation remains viewer-first and follows merge; kernels do not switch before that deployment.
@@ -35,8 +41,8 @@ Package manager is **bun** (never npm/pnpm/yarn).
 | Step | Command | Result |
 |---|---|---|
 | Types | root + viewer `svelte-check`, `ty check` | **0 errors, 0 warnings** |
-| Web tests | `bun run test` | **895 server + 13 DOM passing** |
-| Browser seams | edge + contrast Playwright gates | **66 passing** across Chromium + Firefox |
+| Web tests | `bun run test` | **906 server + 14 DOM passing** |
+| Browser seams | edge + contrast Playwright gates | **72 passing** across Chromium + Firefox |
 | Python tests | `pytest` | **562 passing** |
 | Builds | root Vercel + stripped adapter-node viewer | **Success** |
 | Schemas | grammar + surface + CMS drift checks | **Byte-stable** |
@@ -97,8 +103,9 @@ emission with retry/fail-closed behavior.
   `/substrate` — the full-featured neutral playground and live host proof surface: the
   ActionSummary gold circuit is the default exhibit, with all declared lanes, the nine-way dialect
   toggle, live `actions`, four bindable input families, Vary and targeted Within `choices`, recursive
-  promoted expansion, plus a separate complete Compound Mint ledger, neutral assets, adaptive
-  fallback rendering, and a pinned nested-dialect proof;
+  promoted expansion, plus a separate complete Compound Mint ledger, a resolver-bound deterministic
+  policy/Delta/outcome circuit, and six sealed signed source-v1 producer fixtures, neutral assets,
+  adaptive fallback rendering, and a pinned nested-dialect proof;
   `/preview/[artifactId]/[revisionId]` — the
   local CMS preview route (reads compiled trees from
   `compiled/capability-pages/**`, falling back to the built-in
@@ -156,8 +163,9 @@ Other standing notes:
 - Fonts / Material Symbols are self-hosted (`src/app-fonts.css`, fontsource +
   material-symbols packages) so the stripped viewer has no runtime font-network
   dependency.
-- Six-kernel corpus curation and operational ledgers are governed elsewhere; replay evidence in
-  Morphe does not make either part of this package's doctrine.
+- Six-kernel corpus curation and operational ledgers are governed elsewhere. The six sealed public
+  compatibility fixtures in the neutral host prove only the generic source/compiler/render seam;
+  they do not make kernel semantics, a training corpus, or an operational ledger package doctrine.
 
 ---
 
@@ -166,7 +174,7 @@ Other standing notes:
 ```bash
 bun install
 bun run check      # svelte-kit sync && svelte-check → 0 errors, 0 warnings
-bun run test       # vitest run (+ dom config)       → 895 server + 13 DOM passing
+bun run test       # vitest run (+ dom config)       → 906 server + 14 DOM passing
 bun run build      # vite build                      → client + SSR bundles
 bun run pack:verify # tarball install in throwaway Vite + Svelte consumer
 bun run dev        # http://localhost:5173/          (the neutral playground)

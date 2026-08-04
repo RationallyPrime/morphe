@@ -142,8 +142,10 @@ Everything here is pure TS — no model required; A4 masking comes with R3.
   overrides lock an id until only a strictly higher safe-integer re-emission.
 
 **Exit: met for the model-free scope.** Both variation forms and the deterministic host circuit
-are covered by property and DOM tests. A learned/model producer, tier-2 producer, and venue policy
-are later work; six-kernel corpus curation and operational ledgers are not R2/Morphe doctrine.
+are covered by property, canonical DOM, packed-consumer, and Chromium/Firefox tests. A
+learned/model producer, tier-2 producer, and venue policy are later work; six-kernel corpus
+curation and operational ledgers are not R2/Morphe doctrine. The neutral host's sealed public
+producer fixtures are compatibility evidence only.
 
 ---
 

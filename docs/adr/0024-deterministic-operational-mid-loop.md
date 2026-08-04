@@ -71,3 +71,7 @@ this package.
 - `src/lib/delegation/midLoopRuntime.ts` — pure runtime, outcome records, overrides, and epoch law.
 - `src/lib/delegation/midLoopRuntime.test.ts` and `src/lib/lemmas.property.test.ts` — focused and
   seeded fail-closed, identity, duplicate-bound, projection, re-emission, and byte-stability proof.
+- `src/routes/substrate/live-proof.ts`, `src/routes/substrate/+page.svelte`, and the canonical DOM
+  fixture — one real host-owned digest → policy → proposal → Delta → choices → receipt circuit.
+- `e2e/contrast-a11y.e2e.ts` — Chromium/Firefox hydration, keyboard focus, accepted/rejected/stale
+  proposals, user locks, monotonic re-emission, byte-stable replay, and 390px evidence visibility.

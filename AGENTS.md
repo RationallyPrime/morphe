@@ -58,8 +58,11 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 
 - `/` — neutral Morphe workbench index linking the playground, CMS preview, and published pointer proof.
 - `/substrate` — full-featured neutral playground and live host proof surface: global dialect
-  toggle over all shipped dialects, one authored demo tree, live `actions`, `bind` paths, and
-  `choices`, neutral assets, adaptive fallback rendering, and a pinned nested dialect proof.
+  toggle over all shipped dialects, the deterministic resolver-bound Delta circuit, live `actions`,
+  `bind` paths and `choices`, the complete promoted compound ledger, one sealed signed source-v1
+  fixture from each Krepis kernel, neutral assets, adaptive fallback rendering, and a pinned nested
+  dialect proof. The kernel fixtures are static public evidence only; no kernel model or authority
+  moves into Morphe.
 - `/preview/[artifactId]/[revisionId]` — local CMS preview route. Reads compiled trees from `compiled/capability-pages/**`; the built-in `capability-page.demo/rev-001` fixture renders when no local compiled artifact exists.
 - `/p/[slug]` — publication pointer route. Reads `publications.json` → compiled revision;
   `/p/demo` remains immutable to the mid-loop and is never a control host.

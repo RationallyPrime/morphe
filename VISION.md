@@ -372,6 +372,8 @@ Legend: **shipped**, **partial**, **future**.
 | `Vary` choices and epoch-checked deltas | shipped | delegation tests, renderer choice boundary |
 | targeted `Within` behavior | shipped | explicit target; reactive density, budgeted emphasis, native collapse |
 | deterministic operational mid-loop | shipped | resolver-specific index, policy/runtime, seeded delegation properties |
+| neutral live mid-loop proof | shipped | `/substrate`, canonical DOM test, Chromium + Firefox |
+| sealed six-kernel compatibility exhibit | shipped as evidence, not doctrine | real signed source-v1 fixtures, exact replay, nine-dialect SSR |
 | schema/data surface compiler | shipped | `py/morphe_surface` |
 | local CMS compile/preview/publish tooling | shipped | `py/morphe_cms`, preview routes |
 | Pydantic-AI adaptive lab | partial | installed-mask structured-output and retry proof; no production host path |
@@ -391,8 +393,9 @@ Legend: **shipped**, **partial**, **future**.
    are represented. Six-kernel corpus curation and operational ledgers remain non-doctrine here.
 4. **Dialect refinement.** Define scope, hysteresis, acknowledgment, and rollback before any
    durable automatic change.
-5. **Browser proof.** Add end-to-end verification for hydration, platform overlays, action wiring,
-   state commits, delta rerendering, and the stripped viewer boundary.
+5. **Deployed observation.** Local Chromium/Firefox gates now cover hydration, overlays, action and
+   state wiring, Delta rerendering, signed fixture rendering, and the stripped viewer boundary.
+   Production monitoring and cross-host operational evidence remain deployment-owner concerns.
 
 The immediate direction is depth, not breadth: complete one deterministic artifact-to-viewer and
 interaction circuit through the existing public seams before adding primitives, dialects, or
