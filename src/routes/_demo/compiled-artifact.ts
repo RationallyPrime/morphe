@@ -11,8 +11,33 @@ export type LocalCompiledTreeResult =
 	| { readonly ok: true; readonly value: LocalCompiledTree }
 	| { readonly ok: false; readonly reason: string };
 
+export type CompiledDialectResult =
+	| { readonly ok: true; readonly dialectId: string }
+	| { readonly ok: false; readonly reason: string };
+
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Re-run the dialect trust gate whenever a route requests a render-time override. */
+export function validateCompiledTreeDialect(
+	tree: Node,
+	requestedDialectId: string,
+): CompiledDialectResult {
+	if (!hasDialect(requestedDialectId)) {
+		return { ok: false, reason: `unknown Morphe dialect "${requestedDialectId}"` };
+	}
+	const dialectValidation = validateNodeForDialect(tree, requestedDialectId, {
+		validateNodeValue: (value) => validateNodeDocument(value).ok,
+	});
+	if (!dialectValidation.ok) {
+		return {
+			ok: false,
+			reason:
+				dialectValidation.issues[0]?.message ?? "compiled tree violates its dialect constraint",
+		};
+	}
+	return { ok: true, dialectId: requestedDialectId };
 }
 
 export function parseLocalCompiledTree(
@@ -45,14 +70,11 @@ export function parseLocalCompiledTree(
 			reason: issue ? formatArtifactValidationIssue(issue) : "compiled tree is invalid",
 		};
 	}
-	const dialectValidation = validateNodeForDialect(tree.value, dialectId, {
-		validateNodeValue: (value) => validateNodeDocument(value).ok,
-	});
+	const dialectValidation = validateCompiledTreeDialect(tree.value, dialectId);
 	if (!dialectValidation.ok) {
 		return {
 			ok: false,
-			reason:
-				dialectValidation.issues[0]?.message ?? "compiled tree violates its dialect constraint",
+			reason: dialectValidation.reason,
 		};
 	}
 	return { ok: true, value: { tree: tree.value, dialectId } };

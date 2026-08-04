@@ -26,6 +26,8 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 	const exhibit = exhibitFor(input.activeExhibit);
 	const tree = (() => {
 		switch (input.activeExhibit) {
+			case "gold":
+				return presentActionSummaryGold();
 			case "grammar":
 				return presentGrammarStudio(input.grammarVariant);
 			case "dialects":
@@ -57,6 +59,210 @@ export function presentPlayground(input: PlaygroundPresentationInput): Playgroun
 			{
 				label: "diagnostics",
 				value: input.localDiagnostics.length === 0 ? "none" : input.localDiagnostics.join(", "),
+			},
+		],
+	};
+}
+
+/** The machine-marked benchmark fixture from ADR-0022. Keep this tree host-neutral. */
+export function presentActionSummaryGold(): Node {
+	return {
+		kind: "frame",
+		role: "page",
+		surface: "base",
+		budget: 4,
+		children: [
+			{
+				kind: "frame",
+				role: "section",
+				surface: "raised",
+				children: [
+					{
+						kind: "compound",
+						name: "ActionSummary",
+						args: {
+							eyebrow: {
+								kind: "text",
+								value: "Gold Standard · ActionSummary@1.0.0",
+								as: "caption",
+								intent: "accession",
+							},
+							title: {
+								kind: "text",
+								value: "Close the governed action circuit",
+								as: "heading",
+								emphasis: "strong",
+							},
+							summary: {
+								kind: "text",
+								value:
+									"Every ActionSummary lane is populated while dialect, bindings, choices, and actions remain owned by MorpheRoot.",
+								as: "body",
+							},
+						},
+						slots: {
+							signal: [
+								{
+									kind: "status",
+									tone: "success",
+									signal: { text: "Gold circuit connected", icon: "verified" },
+								},
+							],
+							context: [
+								{
+									kind: "grid",
+									role: "form",
+									minTrack: "regular",
+									children: [
+										{
+											kind: "field",
+											a11y: {
+												id: "gold-note",
+												label: { mode: "visible", text: "Evidence note" },
+												required: true,
+											},
+											bind: "gold.note",
+											hint: "A tier-1 path owned by the host store.",
+										},
+										{
+											kind: "select",
+											a11y: {
+												id: "gold-posture",
+												label: { mode: "visible", text: "Review posture" },
+											},
+											bind: "gold.posture",
+											options: [
+												{ value: "observe", label: "Observe" },
+												{ value: "ratify", label: "Ratify" },
+											],
+										},
+										{
+											kind: "toggle",
+											a11y: {
+												id: "gold-reviewed",
+												label: { mode: "visible", text: "Evidence reviewed" },
+											},
+											bind: "gold.reviewed",
+											variant: "switch",
+										},
+										{
+											kind: "range",
+											a11y: {
+												id: "gold-confidence",
+												label: { mode: "visible", text: "Confidence" },
+											},
+											min: 0,
+											max: 100,
+											step: 1,
+											bind: "gold.confidence",
+										},
+									],
+								},
+							],
+							action: [
+								{
+									kind: "cluster",
+									role: "toolbar",
+									children: [
+										{
+											kind: "button",
+											label: "Advance evidence",
+											action: "gold.advance",
+											intent: "primary-action",
+											icon: "arrow_forward",
+										},
+										{
+											kind: "button",
+											label: "Record attestation",
+											action: "gold.attest",
+											intent: "success",
+											icon: "verified_user",
+										},
+										{
+											kind: "link",
+											href: "/preview/capability-page.demo/rev-001",
+											label: "Open CMS proof",
+											intent: "provenance",
+										},
+									],
+								},
+							],
+							detail: [
+								{
+									kind: "within",
+									id: "gold.detail",
+									dimension: "collapse",
+									range: [0, 1],
+									default: 0,
+									summary: "Inspect the complete gold circuit",
+									target: {
+										kind: "stack",
+										role: "field-group",
+										children: [
+											{
+												kind: "vary",
+												id: "gold.mode",
+												default: 0,
+												objective: "salience",
+												options: [
+													varyPanel("Compact evidence", "The base authored branch."),
+													varyPanel("Expanded review", "The host selected deeper context."),
+													varyPanel("Decision receipt", "The host selected the close-out branch."),
+												],
+											},
+											{
+												kind: "within",
+												id: "gold.density",
+												dimension: "density",
+												range: [0, 2],
+												default: 1,
+												target: {
+													kind: "compound",
+													name: "ProvenanceFooter",
+													args: {
+														heading: {
+															kind: "text",
+															value: "Certification evidence",
+															as: "caption",
+															intent: "authority",
+														},
+													},
+													slots: {
+														facts: [
+															{
+																kind: "text",
+																value:
+																	"Catalog, CMS, renderer, and browser evidence share this fixture.",
+																as: "caption",
+																intent: "footnote",
+															},
+														],
+														seals: [
+															{
+																kind: "badge",
+																label: "ADR-0022",
+																intent: "success",
+																icon: "verified",
+															},
+														],
+														links: [
+															{
+																kind: "link",
+																href: "/substrate",
+																label: "Re-run workbench evidence",
+																intent: "provenance",
+															},
+														],
+													},
+												},
+											},
+										],
+									},
+								},
+							],
+						},
+					},
+				],
 			},
 		],
 	};

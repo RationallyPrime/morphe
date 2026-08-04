@@ -7,6 +7,7 @@ describe("/substrate coherent playground", () => {
 		const html = render(SubstratePage).body;
 
 		expect(html).toContain("Morphe Workbench");
+		expect(html).toContain("Gold Standard");
 		expect(html).toContain("Grammar Studio");
 		expect(html).toContain("Dialect Lab");
 		expect(html).toContain("State + Actions");
@@ -18,7 +19,14 @@ describe("/substrate coherent playground", () => {
 		expect(html).toContain("Preview capability-page.demo/rev-001");
 		expect(html).toContain('class="mo-root');
 		expect(html).toContain('data-mo-dialect="gallery"');
-		expect(html).toContain("Node families are authored data, not components.");
-		expect(html).toContain("Selected Node JSON");
+		expect(html).toContain("Close the governed action circuit");
+		expect(html).toContain("Gold circuit connected");
+		expect(html).toContain('data-action="gold.advance"');
+		expect(html).toContain('data-action="gold.attest"');
+		for (const path of ["gold.note", "gold.posture", "gold.reviewed", "gold.confidence"]) {
+			expect(html).toContain(`data-bind="${path}"`);
+		}
+		expect(html).toContain("Compact evidence");
+		expect(html).toContain("Inspect the complete gold circuit");
 	});
 });

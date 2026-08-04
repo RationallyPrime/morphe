@@ -61,6 +61,18 @@ def test_each_section_kind_compiles() -> None:
         _vn(node)
 
 
+def test_problem_frame_uses_the_gold_standard_compound() -> None:
+    draft = CapabilityPageDraft.model_validate(VALID_DRAFT)
+    problem = next(section for section in draft.sections if section.kind == "problemFrame")
+    node = present_section(problem)
+    compound = node["children"][0]
+    assert compound["kind"] == "compound"
+    assert compound["name"] == "ActionSummary"
+    assert set(compound["args"]) == {"eyebrow", "title", "summary"}
+    assert set(compound["slots"]) == {"context"}
+    _vn(node)
+
+
 def test_faq_section_uses_disclosure() -> None:
     draft = CapabilityPageDraft.model_validate(
         {

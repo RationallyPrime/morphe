@@ -1,7 +1,15 @@
 import type { JsonRecord, Node } from "$lib";
 import type { LocalAdaptiveDraft } from "./validation.js";
 
-export const EXHIBIT_IDS = ["grammar", "dialects", "state", "vary", "cms", "local-ai"] as const;
+export const EXHIBIT_IDS = [
+	"gold",
+	"grammar",
+	"dialects",
+	"state",
+	"vary",
+	"cms",
+	"local-ai",
+] as const;
 export type ExhibitId = (typeof EXHIBIT_IDS)[number];
 
 export const GRAMMAR_VARIANTS = [

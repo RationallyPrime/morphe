@@ -80,28 +80,50 @@
 					"role": "section",
 					"children": [
 						{
-							"kind": "text",
-							"value": "The problem",
-							"as": "heading",
-							"emphasis": "strong"
-						},
-						{
-							"kind": "text",
-							"value": "Most workflow UIs collapse when operational context changes.",
-							"as": "body",
-							"intent": "caution"
-						},
-						{
-							"kind": "text",
-							"value": "Different roles need different levels of detail.",
-							"as": "body",
-							"emphasis": "muted"
-						},
-						{
-							"kind": "text",
-							"value": "Operational states change faster than static frontend releases.",
-							"as": "body",
-							"emphasis": "muted"
+							"kind": "compound",
+							"name": "ActionSummary",
+							"args": {
+								"eyebrow": {
+									"kind": "text",
+									"value": "Problem frame",
+									"as": "caption",
+									"intent": "accession"
+								},
+								"title": {
+									"kind": "text",
+									"value": "The problem",
+									"as": "heading",
+									"emphasis": "strong"
+								},
+								"summary": {
+									"kind": "text",
+									"value": "Most workflow UIs collapse when operational context changes.",
+									"as": "body",
+									"intent": "caution"
+								}
+							},
+							"slots": {
+								"context": [
+									{
+										"kind": "stack",
+										"role": "list",
+										"children": [
+											{
+												"kind": "text",
+												"value": "Different roles need different levels of detail.",
+												"as": "body",
+												"emphasis": "muted"
+											},
+											{
+												"kind": "text",
+												"value": "Operational states change faster than static frontend releases.",
+												"as": "body",
+												"emphasis": "muted"
+											}
+										]
+									}
+								]
+							}
 						}
 					]
 				},
@@ -170,7 +192,7 @@
 		{
 			"kind": "button",
 			"label": "See the workflow",
-			"action": "open_playground",
+			"action": "open_composer",
 			"intent": "primary-action"
 		}
 	]

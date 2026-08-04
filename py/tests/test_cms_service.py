@@ -205,3 +205,20 @@ def test_render_preview_url_includes_dialect(tmp_path: Path) -> None:
         store,
     )
     assert preview.preview_url == f"/preview/{artifact_id}/{revision_id}?dialect=night"
+
+
+def test_render_preview_url_honors_mobile_viewport(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    artifact_id, revision_id = _create(store, VALID_DRAFT)
+    preview = render_preview(
+        RenderPreviewInput(
+            artifact_id=artifact_id,
+            revision_id=revision_id,
+            dialect="night",
+            viewport="mobile",
+        ),
+        store,
+    )
+    assert preview.preview_url == (
+        f"/preview/{artifact_id}/{revision_id}?dialect=night&viewport=mobile"
+    )

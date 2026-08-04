@@ -439,6 +439,11 @@ PROMOTED_COMPOUNDS = MappingProxyType(
     }
 )
 
+# Gold certification is deliberately orthogonal to the candidate/promoted minting
+# lifecycle. It names the one promoted definition whose complete, maintained
+# end-to-end fixture is the benchmark for every other compound (ADR-0022).
+GOLD_STANDARD_COMPOUND = "ActionSummary"
+
 
 def promoted_compound(name: str) -> CompoundDefinition:
     try:
@@ -477,6 +482,9 @@ def validate_catalog() -> None:
             msg = f"built-in compound {name!r} must be promoted"
             raise ValueError(msg)
         validate_node(definition.template)
+    if GOLD_STANDARD_COMPOUND not in PROMOTED_COMPOUNDS:
+        msg = "the gold-standard compound must be present in the promoted catalog"
+        raise ValueError(msg)
 
 
 def _typescript_definition(definition: CompoundDefinition) -> dict[str, object]:
@@ -570,6 +578,7 @@ def catalog_typescript_document() -> str:
         " * Source of truth: `py/morphe_grammar/catalog.py`.\n"
         " */\n"
         'import type { CompoundDef } from "./factory.js";\n\n'
+        f'export const GOLD_STANDARD_COMPOUND = "{GOLD_STANDARD_COMPOUND}" as const;\n\n'
         f"export const PROMOTED_COMPOUNDS = {encoded} as const satisfies readonly CompoundDef[];\n"
     )
 
@@ -581,6 +590,7 @@ __all__ = [
     "ACTION_SUMMARY",
     "BREAKDOWN",
     "ENTITY_HEADER",
+    "GOLD_STANDARD_COMPOUND",
     "KEY_VALUE_PANEL",
     "PROMOTED_COMPOUNDS",
     "PROVENANCE_FOOTER",

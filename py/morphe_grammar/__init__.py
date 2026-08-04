@@ -1,14 +1,16 @@
 """Pydantic mirror of the Morphe grammar."""
 
-from .catalog import PROMOTED_COMPOUNDS, SIGNAL_CARD, CompoundDefinition
+from .catalog import GOLD_STANDARD_COMPOUND, PROMOTED_COMPOUNDS, SIGNAL_CARD, CompoundDefinition
 from .dialects import (
     DIALECT_CONSTRAINTS,
     DIALECT_IDS,
     DialectCompoundConstraint,
     DialectId,
     DialectNodeValidationError,
+    PromotedCompoundReferenceError,
     dialect_constraint,
     validate_node_for_dialect,
+    validate_promoted_compound_references,
 )
 from .labels import (
     VISIBLE_LABEL_PATTERN,
@@ -71,6 +73,7 @@ from .version import GRAMMAR_VERSION
 __all__ = [
     "DIALECT_CONSTRAINTS",
     "DIALECT_IDS",
+    "GOLD_STANDARD_COMPOUND",
     "GRAMMAR_VERSION",
     "NODE_ADAPTER",
     "PROMOTED_COMPOUNDS",
@@ -107,6 +110,7 @@ __all__ = [
     "ParamRef",
     "Popover",
     "Progress",
+    "PromotedCompoundReferenceError",
     "Range",
     "RegisterIntent",
     "Select",
@@ -134,4 +138,5 @@ __all__ = [
     "normalize_visible_label_text",
     "validate_node",
     "validate_node_for_dialect",
+    "validate_promoted_compound_references",
 ]

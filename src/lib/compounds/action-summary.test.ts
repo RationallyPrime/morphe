@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { validateNodeDocument } from "../artifacts/surface.js";
 import type { Node } from "../grammar/types.js";
-import { PROMOTED_COMPOUNDS } from "./catalog.generated.js";
+import { GOLD_STANDARD_COMPOUND, PROMOTED_COMPOUNDS } from "./catalog.generated.js";
 import { CompoundReferenceError, registry } from "./factory.js";
 
 const action: Node = {
@@ -24,6 +24,7 @@ const action: Node = {
 
 describe("ActionSummary promoted compound", () => {
 	it("expands every authored lane without baking in a card surface", () => {
+		expect(GOLD_STANDARD_COMPOUND).toBe("ActionSummary");
 		expect(PROMOTED_COMPOUNDS.map((definition) => definition.name)).toContain("ActionSummary");
 		expect(registry.has("ActionSummary")).toBe(true);
 
