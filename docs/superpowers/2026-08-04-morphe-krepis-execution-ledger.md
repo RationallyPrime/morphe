@@ -24,12 +24,16 @@ been cleaned, reset, switched, staged, or otherwise repurposed.
 
 | Wave | Role | Requested route | Actual route | Scope | State |
 |---|---|---|---|---|---|
-| 0 | Orchestrator | GPT-5.6 Sol max | GPT-5.6 Sol max | Contracts, worktrees, adjudication, integration, delivery | active |
+| 0 | Orchestrator | GPT-5.6 Sol max | GPT-5.6 Sol max | Contracts, worktrees, adjudication, integration, delivery | complete through authorized boundary |
 | 1A | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Morphe deterministic mid-loop audit and core | complete; worker `d6e3621`, Sol accepted as `8ea5c00` |
 | 1B | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Morphe compound/CMS/package audit | complete; staging corpus handed off |
 | 1C | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Morphe neutral browser-proof audit | complete; worker `2e89748`, Sol accepted as `06e4f1c` |
 | 1D | Implementer/writer | GPT-5.6 Luna max | GPT-5.6 Terra max | Deterministic mid-loop doctrine | complete; worker `575ca55`, Sol accepted as `a96ecf7` |
 | 1E | Implementer/verifier | GPT-5.6 Luna max | GPT-5.6 Terra max | Sealed six-kernel source-v1 corpus | complete; worker `7572503`, Sol accepted as `49f11f7` |
+| 2A | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Taxis + Misthos profiles | complete; worker `93fd081`, Sol accepted as `ca9a8e4` |
+| 2B | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Chreos + Obolos profiles | complete; worker `9dfe823`, Sol accepted as `006dbc6` |
+| 2C | Implementer/auditor | GPT-5.6 Luna max | GPT-5.6 Terra max | Apotheke + Zygos profiles | complete; worker `377aaf7`, Sol accepted Zygos as `135a484`; Apotheke correctly unchanged |
+| 2D | Implementer | GPT-5.6 Luna max | GPT-5.6 Terra max | Obolos signed static evidence-detail source | complete; worker `2d6fc45`, Sol accepted as `f1d5ae0` and repaired gates/boundaries in `3ddef70`, `d6bd026` |
 
 Luna is not exposed by this harness. Terra substitutions are explicit and must not be reported as a
 Luna trial. Token and billing measurements are unavailable unless the runtime later exposes them.
@@ -318,10 +322,153 @@ PRs #88 and #89. The supported-tag lane must keep the committed pin unchanged. T
 may use a reversible exact-SHA substitution only in an isolated verification environment. No tag or
 publication is authorized.
 
-## Pending evidence
+## Morphe remote delivery
 
-- Morphe PR/current-head CI.
-- Six-profile Krepis audit and evidence matrix.
-- Supported-tag and exact-head compatibility lanes.
-- Krepis PR/current-head CI.
-- Final model-routing efficacy assessment and requirement-by-requirement completion audit.
+Morphe PR #90, `feat: prove deterministic Morphe control-plane substrate`, was opened non-draft
+from `codex/deterministic-control-plane-integration`. Its reviewed head `bb902838` was mergeable and
+current-head green across the web, Python, package dry-run, Vercel, and preview-comment checks; the
+tag-only publisher correctly skipped.
+
+External review found two real hostile-input defects. Commit `bb902838` preserves magic-key records
+through projected digests and immutable clones, caps proposal packets at 64, and avoids consuming a
+hostile iterable. A separate Vite allowlist concern was falsified against the composed SvelteKit
+configuration; the exact sealed-fixture root remains a required browser-proof boundary.
+
+PR #90 was merged by an external actor at 2026-08-04T16:45:57Z as
+`8c7aad10215e3dc96e194f7415fba3bbc66a97be`. Sol did not perform or authorize that merge. The
+subsequent store-specific magic-key repair was independently implemented twice: Sol's old branch
+reached `e6f8769`, while another active workflow opened canonical non-draft PR #91 at
+`effd6b1dab5ed16966fb0712c3316f72bb2fb756`. The duplicate was reconciled rather than published;
+#91 is the retained exact-head candidate and was refreshed as mergeable with all current-head
+checks green. It remains unmerged.
+
+## Six-profile Krepis audit
+
+The common rubric was ratified before profile edits: runtime/tests outrank committed OpenAPI,
+OpenAPI outranks ADR/document prose, kernel differences are preserved, and a profile version moves
+only for a material agent-facing correction. No `SourceSystemProfile` vNext was invented.
+
+| Kernel | Accepted profile | Re-derived authority and correction |
+|---|---:|---|
+| Taxis | `1.1.0` | Local workforce-record authority; `worker_id` remains caller supplied; no implicit global-person or sibling join. |
+| Misthos | `2.1.0` | Local payroll registry; its existing 2.x line is preserved; Taxis/person mapping belongs to an explicit bridge or recipe. |
+| Chreos | `1.1.0` | `effective_at`, horizon `window_start`/`window_end`, and milestone `due_after`/`due_before` are distinct selectors. |
+| Obolos | `1.2.0` | Duplicate evidence, settlement/return compensation, repair-child, and signed static evidence-detail semantics are corrected. |
+| Apotheke | `1.0.0` | Current profile already matches runtime/spec/tests; no wording or version churn is justified. |
+| Zygos | `1.1.0` | Immutable deployment book registry, four read shapes, dry run, and book-state append remain distinct from registry creation. |
+
+All changed claims point at current code, operation ids, specs, or tests. Retired tenant language is
+retained only where it describes an explicit historical boundary. The final branch is
+`codex/profile-morphe-integration` at `d6bd026a31065cac25c6709464a5210f225ad2ba` and contains eight
+intentional commits atop refreshed Krepis `main` `e13edd1`.
+
+## Obolos evidence-detail repair
+
+The profile audit exposed a real dead `/surfaces/evidence` reference. The accepted repair adds a
+signed static `GET /surfaces/evidence?evidence_id=<UUID>` representation with an explicit
+`include_pii` drill-in and no false `as_of` vocabulary. It uses
+`obolos.evidence:<uuid>` identity, current fold/config revision, and the route read clock. Default
+artifacts contain neither raw PII nor account fingerprints. Instruction and evidence joins remain
+local; case, allocation, and payment-rail identities are typed external references.
+
+The repair also made two pre-existing gates truthful:
+
+- the outbound audit admits exactly one app-bound MCP `ASGITransport` using the fixed internal base
+  URL and still rejects network egress capability;
+- dependency audit exceptions name only the lazy core PostgreSQL engine and settings seam.
+
+Both committed OpenAPI documents were regenerated from the live app and match byte-for-byte.
+
+## Compatibility lanes
+
+Each lane used an isolated environment and inspected `direct_url.json`; no editable checkout or
+unintended Git revision could satisfy the proof.
+
+| Proof | Supported lane | Exact candidate lane |
+|---|---:|---:|
+| Morphe ref | `py-v0.12.0` / `f119d0e` | PR #91 / `effd6b1` |
+| Installed version | `0.12.0` | `0.12.0` pending a separately authorized release bump |
+| Dialect masks schema-valid | 9 | 9 |
+| Promoted compounds | 8 | 17 |
+| Complete reference admissions | 72 | 153 |
+| Six profile/conformance results | 160 pass + 1 declared abstention | 160 pass + 1 declared abstention |
+| Six real source-v1 route suites | covered by producer baselines | 275 pass + 26 declared PostgreSQL-without-DSN skips |
+| Representative signatures reverified | 6 | 6 |
+| Representative trees admitted across nine dialects | 54 | 54 |
+
+The six representative source-v1 artifacts produced identical canonical Python tree hashes in
+both lanes:
+
+| Producer case | SHA-256 |
+|---|---|
+| Taxis roster | `b866b12b0eac5079efc479c929457c24aab1729a68e35208705cdf7af9539d35` |
+| Misthos run summary | `77b99d6c4135a359dc62e1d5b34257d5c63f8bd9bde2065f4ee50c01e2112752` |
+| Chreos breached obligations | `6af230fe33be19a5f4799e791f547c9962a0ad93c012a58c929aac80b0145c74` |
+| Obolos finality | `4078d94f9cf3b0b15880635e71463c67cb19ab74584f3e4dfabf18ffe609a931` |
+| Apotheke expiry | `5e6c44e47452d46b6d53e14291869efad9abc6356214f7c47457289aae674fe7` |
+| Zygos posted transaction | `b047c5d83475100d4b85ac7a7c260911d0bcafff1336c10161565f82521ce8c0` |
+
+The sealed TypeScript target and current Python compiler differ only at the documented edge policy:
+Taxis renders `8` rather than `8.0`, and exact Apotheke/Zygos timestamps are minute-normalized by
+the TypeScript target's declared `temporalPolicy`. Those are versioned compiler-boundary facts, not
+cross-lane drift.
+
+## Krepis focused gates and escalation record
+
+- Taxis, Misthos, Chreos, Apotheke, and Zygos each passed 27 supported-tag conformance cases;
+  Obolos passed 26 with its one explicit sequence-pin abstention.
+- Every kernel's committed package and integration mirror passed its OpenAPI drift gate.
+- `packages/krepis-conformance` passed lock, format, lint, types, and 358 tests.
+- `packages/obolos` passed format, lint, types, architecture, repository hygiene, dependency and
+  outbound audits, byte-identical OpenAPI drift, and 558 tests with 12 explicit
+  PostgreSQL-without-DSN skips at 92.10% coverage.
+- The exact-candidate source-v1 route suites passed Taxis 38, Misthos 28, Chreos 42, Obolos 44,
+  Apotheke 71, and Zygos 52, with 26 Zygos PostgreSQL-without-DSN skips.
+
+A clean aggregate workspace run found and enabled repair of one shared query-list type hole. After
+that repair it cleared shared formatting/lint/types and five package suites. It was deliberately
+interrupted during Zygos once its remaining work duplicated already-green focused proof. Because
+it exited 130, it is not recorded as a passing gate. Remote CI is the full current-head integration
+boundary.
+
+## Krepis remote delivery
+
+Krepis PR #43, `feat: rederive six-kernel profiles and seal Morphe evidence`, is open non-draft at
+`d6bd026`. It is mergeable, and all seven current-head CI jobs passed: the fast gate cleared lint,
+types, SQLite/memory tests, workspace gates, and all-six family conformance; every Taxis, Misthos,
+Chreos, Obolos, Apotheke, and Zygos PostgreSQL leg passed against a real PostgreSQL 17 service. The
+runner's cache-reservation notices were non-failing post-job races between parallel jobs. No merge
+is authorized or performed.
+
+## Requirement completion audit
+
+| Authorized objective | Evidence | State |
+|---|---|---|
+| Deterministic operational Morphe mid-loop | ADR-0024, pure host runtime, `/substrate` circuit, hostile packet and installed-consumer proof | complete |
+| Full compound/CMS/package/browser chain | 17-definition catalog, generated masks, installed Clinical schema, SSR, nine dialects, 72 two-engine browser checks | complete |
+| Neutral six-kernel proof surface | Six fixed signed source/spec/tree triples, receipts, all-dialect SSR, Clinical 390px selector proof | complete |
+| Morphe non-draft PR and current-head CI | PR #90 reached green; external merge recorded; canonical follow-up PR #91 is open and green | complete through authorized review boundary |
+| Six Krepis profile re-derivations | Three two-kernel audits, common rubric, six accepted profile decisions | complete |
+| Supported-tag compatibility | Isolated `py-v0.12.0` install, masks/catalog, all-six conformance, six stable hashes | complete |
+| Exact-head compatibility | Isolated `effd6b1` install, masks/catalog, all-six conformance and source-v1 suites, six stable hashes | complete |
+| Krepis non-draft PR and current-head CI | PR #43 at `d6bd026`; all-workspace/conformance gate plus six PostgreSQL legs passed | complete through authorized review boundary |
+| Sol/implementer efficacy report | Measured handoffs, corrections, collisions, unavailable metrics, and recommendation | complete |
+
+## Remaining authority and release boundary
+
+The executable work is complete through the authorized branch/PR boundary. No Sokrates, Hive,
+website, deployment, or unrelated repository was modified. The original Morphe and Krepis
+checkouts retain their user-owned untracked files and were never cleaned, reset, or repurposed.
+
+The following remain deliberately outside this run:
+
+- merge Morphe PR #91 or Krepis PR #43;
+- bump Morphe's Python package version;
+- create or move `py-v0.13.0`;
+- publish npm or Python packages;
+- change Krepis's supported `py-v0.12.0` pin;
+- deploy any host or kernel;
+- begin the Sokrates-owned recipe, law, telemetry, catalog, or proposal-governance milestones.
+
+The proposed Python release sequence is recorded separately in
+`docs/superpowers/2026-08-04-morphe-python-release-manifest.md`.

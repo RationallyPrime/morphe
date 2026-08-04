@@ -4,7 +4,7 @@
 >
 > Date: 2026-08-04
 >
-> Status: Morphe local phase complete; remote Morphe CI and the Krepis phase remain to be appended.
+> Status: implementation and local evidence complete; remote delivery evidence is recorded below.
 
 ## Executive finding
 
@@ -148,22 +148,112 @@ shared authority seam. Resolver authorization, evidence meaning, epoch law, and 
 composition benefited from Sol retaining the join. The correct response is not to avoid workers;
 it is to keep packets narrower and budget orchestrator review explicitly.
 
-## Preliminary recommendation
+## Krepis task decomposition and measured handoffs
 
-Continue the pattern for the Krepis phase with three constraints:
+Sol ratified one profile-evidence rubric before distributing three disjoint two-kernel audits. The
+rubric ranked runtime and tests above committed OpenAPI, committed OpenAPI above prose, preserved
+legitimate kernel differences, and required a semantic version change only for a material
+agent-facing correction. Shared conformance code and cross-family acceptance remained root-owned.
 
-1. Ratify one common profile-evidence rubric before distributing profile pairs.
-2. Keep shared conformance tooling in its own non-overlapping packet.
-3. Treat each worker's green result as a candidate; require Sol to inspect the exact diff and run
-   the smallest cross-family falsifier before acceptance.
+| Packet | Terra output | Sol integration | Acceptance interval | Review/rework |
+|---|---|---|---:|---|
+| Taxis + Misthos profiles | `93fd081` | `ca9a8e4` | about 461 s | Both exact operation sets passed; Sol later tightened registry and replay wording in `4e7aedc`. |
+| Chreos + Obolos profiles | `9dfe823` | `006dbc6` | about 255 s | Both profile gates passed; the audit exposed a dead Obolos evidence-detail link, which became a separate repair packet. |
+| Apotheke + Zygos profiles | `377aaf7` | `135a484` | about 372 s | Apotheke correctly remained unchanged; Sol tightened Zygos's registry-versus-book-state boundary in `4e7aedc`. |
+| Obolos signed evidence surface | `2d6fc45` | `f1d5ae0` | unavailable | Accepted only after focused source-v1 proof; Sol then added gate and typed-boundary repairs in `3ddef70` and `d6bd026`. |
 
-Terra max was capable and fast enough for the bounded implementation role. Because Luna never ran,
-this experiment cannot compare Luna quality, latency, or cost with Terra. A future trial should
-preserve the same packet boundaries and evidence rubric while changing only the implementer model.
+The intervals are the available acceptance-latency observations, not task duration, model latency,
+or billing measurements. The harness exposed none of those latter quantities.
 
-## Pending final update
+The shared conformance hardening landed root-owned as `1dbdba2`. It checks semantic profile
+versions, source/bundle identity, operation references against every committed mirror, exhaustive
+temporal-versus-static surface classification, signature and representation behavior, and
+same-clock plus far-separated-clock invariants. Keeping this packet with Sol avoided three workers
+concurrently redefining the family rubric.
 
-This report will be completed with Morphe remote-CI evidence, the three Krepis two-profile audits,
-shared conformance/compatibility work, supported-tag and exact-Morphe-head lanes, Krepis remote CI,
-and the final cross-repository recommendation. Until then, the conclusion is Morphe-phase evidence,
-not a completed multi-repository experiment.
+## Krepis review value and rework
+
+The profile workers were effective at bounded reconstruction. They preserved Misthos's 2.x line,
+left accurate Apotheke claims alone, retained Zygos's book scope, and found the missing Obolos
+evidence-detail target. Their focused handoffs were internally green and cherry-picked without a
+conflict.
+
+Sol review and clean-environment verification still found material defects after those handoffs:
+
+| Area | Defect found after worker handoff | Accepted correction |
+|---|---|---|
+| Obolos relationship typing | Payment-rail ids were emitted as local-looking raw references. | Introduce a typed external payment-rail carrier and pin it in source-v1 and compiler tests. |
+| Egress audit | The no-outbound gate contradicted the deliberate in-process MCP ASGI client. | Admit exactly one app-bound `ASGITransport` and fixed internal base URL while continuing to reject socket capability. |
+| Dependency audit | Lazy PostgreSQL and settings seams were real but unexplained failures. | Add narrow, documented dependency exceptions without broadening runtime authority. |
+| Shared query typing | A list-invariance hole appeared only in a fresh all-package environment. | Widen the conformance query scalar union and retain strict type checking. |
+| Static evidence semantics | Temporal probes could be accidentally generalized over the new static route. | Require an exhaustive temporal/static partition and prove static identity, `Vary`, signature, and clock behavior independently. |
+
+The focused final boundaries passed:
+
+- shared conformance: lock, formatting, lint, types, and 358 tests;
+- Obolos: formatting, lint, types, architecture, hygiene, dependency and egress audits, exact OpenAPI
+  drift, 558 tests with 12 declared PostgreSQL-without-DSN skips, and 92.10% coverage;
+- supported `py-v0.12.0`: 160 six-kernel conformance passes and one declared Obolos sequence-pin
+  abstention;
+- exact Morphe `effd6b1`: the same conformance result plus 275 six-kernel source-v1 route passes and
+  26 declared PostgreSQL-without-DSN skips.
+
+A clean all-package aggregate run found the query-typing defect and subsequently cleared the shared
+lint/type layers and five package suites. Once that uncertainty had been removed, the still-running
+duplicate package sweep was interrupted during Zygos and is **not** counted as a pass. The focused
+changed-package gates above and the remote seven-job matrix are the acceptance evidence. This is a
+useful process correction: broad gates should be paid for at a real shared or release boundary, not
+repeated after focused proof has already collapsed the relevant uncertainty.
+
+## Remote review and coordination evidence
+
+Morphe PR #90 reached a current-head green, non-draft, mergeable state at `bb90283`. External review
+found two real hostile-input defects: magic-key records were not preserved by object spread, and an
+unbounded proposal iterable could be consumed. The correction preserved magic keys with
+`Object.fromEntries`, bounded proposal packets to 64 indexed entries without consuming hostile
+iterators, and added regression tests. A third concern about Vite's fixture allowlist was falsified
+against SvelteKit's merged configuration; the narrow allowlist remained because it is required for
+the sealed browser fixture.
+
+PR #90 was then merged externally as `8c7aad1`. That merge was not performed or authorized by this
+orchestrator. While Sol independently repaired the same store magic-key boundary on its old branch,
+another active workflow opened canonical PR #91 at `effd6b1`. Sol reconciled the collision, did not
+open a duplicate PR, and treated #91 as the executable exact-head candidate. PR #91 is non-draft,
+mergeable, and current-head green.
+
+Krepis PR #43 was opened non-draft at `d6bd026` with all six profile results, the signed Obolos
+boundary, focused gates, and both compatibility lanes. Its exact head passed all seven remote jobs:
+the all-workspace/family-conformance gate and one real-PostgreSQL leg for each kernel. No PR in this
+run was merged by Sol.
+
+The duplicate store repair is the clearest coordination failure in the experiment. File-disjoint
+worker packets avoided merge conflicts, but branch ownership alone did not prevent two independent
+orchestrators from solving the same newly reported review issue. Future runs need a live
+issue-to-branch reservation and an explicit handoff when an external reviewer assumes repair
+ownership.
+
+## Final recommendation
+
+Continue the orchestrator/implementer pattern, with the following operating rules:
+
+1. Use the implementer for bounded, independently falsifiable packets with disjoint writable files
+   and an exact return contract.
+2. Keep shared schemas, authority joins, compatibility interpretation, and integration composition
+   with the orchestrator.
+3. Treat a green worker handoff as a candidate. Require exact-diff review and the smallest
+   cross-boundary falsifier before acceptance.
+4. Reserve file **and issue ownership** in the live ledger; branch separation alone is insufficient
+   when external review creates new work mid-flight.
+5. Run focused gates while iterating. Pay for a full family/package sweep only at a genuine shared,
+   release, or remote-CI boundary, and never promote an interrupted run to evidence.
+6. Preserve abstentions and unavailable measurements literally. A backend without a DSN, a model
+   route the harness did not expose, and billing data the runtime did not report are not passes or
+   estimates.
+
+Terra max was capable and fast enough for the bounded implementation role, and parallel packets
+materially increased evidence throughput. Sol review was not ceremonial: it changed both Morphe
+and Krepis correctness. The experiment therefore supports **Sol-orchestrated, Terra-implemented**
+work under strict review seams. Because Luna never ran, it provides no evidence about Luna quality,
+speed, or cost and must not be described as a Sol/Luna comparison. A future controlled trial should
+keep these packet boundaries, acceptance probes, and repository slice constant while changing only
+the implementer model.
