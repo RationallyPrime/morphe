@@ -20,12 +20,13 @@ service = [
 	"uvicorn>=0.38.0",
 ]
 
+# ruff/ty are deliberately NOT dev dependencies: weave-doctrine's mise.toml is
+# the one version authority for the toolchain — hooks, Justfile, and seats call
+# the bare binaries off PATH.
 [dependency-groups]
 dev = [
 	"hypothesis>=6.155.7",
 	"pytest>=8.4.0",
-	"ruff>=0.13.0",
-	"ty>=0.0.1a23",
 ]
 
 [tool.uv]
