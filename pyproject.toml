@@ -65,6 +65,9 @@ ignore = [
 	"ISC001",
 	"N815",
 	"S101",
+	# Left preview in ruff 0.16 (96 hits, every py/ file). A repo-wide license
+	# header is a deliberate policy pass, not a tool-bump concern.
+	"CPY001",
 ]
 
 [tool.ruff.lint.flake8-type-checking]

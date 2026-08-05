@@ -108,15 +108,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-type JsonValue = (
-    None
-    | bool
-    | int
-    | float
-    | str
-    | list[JsonValue]
-    | dict[str, JsonValue]
-)
+type JsonValue = None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
 type JsonObject = dict[str, JsonValue]
 type Sha256 = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 
@@ -127,10 +119,10 @@ class WireModel(BaseModel):
 
 class ViewModelContract(WireModel):
     # Stable human/operational identity, not a Python import path.
-    id: str                    # e.g. "taxis.roster"
+    id: str  # e.g. "taxis.roster"
     revision: int = Field(ge=1)
     schema_dialect: Literal["https://json-schema.org/draft/2020-12/schema"]
-    hint_vocabulary: str      # independent Morphe hint semver
+    hint_vocabulary: str  # independent Morphe hint semver
 
 
 class SourceSeals(WireModel):
@@ -142,16 +134,16 @@ class SourceSeals(WireModel):
 class Ed25519Attestation(WireModel):
     algorithm: Literal["Ed25519"]
     key_id: str
-    signature: str            # unpadded base64url
+    signature: str  # unpadded base64url
 
 
 class SourceSurfaceArtifactV1(WireModel):
     kind: Literal["morphe.source-surface"]
     wire_version: Literal["1.0"]
 
-    issuer: str               # configured kernel identity
-    surface_id: str           # concrete subject/query instance, checked by the caller
-    source_revision: str      # opaque kernel revision/query identity
+    issuer: str  # configured kernel identity
+    surface_id: str  # concrete subject/query instance, checked by the caller
+    source_revision: str  # opaque kernel revision/query identity
     produced_at: datetime
     valid_until: datetime | None = None
 

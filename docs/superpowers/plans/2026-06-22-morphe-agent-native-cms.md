@@ -325,8 +325,16 @@ VALID_DRAFT: dict[str, Any] = {
         "supporting_claim": "The interface changes register and emphasis without escaping the grammar.",
     },
     "proof_points": [
-        {"label": "Typed", "claim": "Every artifact is validated before it reaches the renderer.", "intent": "evidence"},
-        {"label": "Adaptive", "claim": "Variation happens inside authorized Morphe envelopes.", "intent": "info"},
+        {
+            "label": "Typed",
+            "claim": "Every artifact is validated before it reaches the renderer.",
+            "intent": "evidence",
+        },
+        {
+            "label": "Adaptive",
+            "claim": "Variation happens inside authorized Morphe envelopes.",
+            "intent": "info",
+        },
     ],
     "sections": [
         {
@@ -345,8 +353,14 @@ VALID_DRAFT: dict[str, Any] = {
             "id": "how-it-works",
             "title": "How it works",
             "steps": [
-                {"label": "Model the operation", "description": "Define the domain objects, actions, and transitions."},
-                {"label": "Compile the interface", "description": "Render the workflow through grammar + dialect."},
+                {
+                    "label": "Model the operation",
+                    "description": "Define the domain objects, actions, and transitions.",
+                },
+                {
+                    "label": "Compile the interface",
+                    "description": "Render the workflow through grammar + dialect.",
+                },
             ],
             "intent": "info",
         },
@@ -848,10 +862,14 @@ def _hero_stack(
     return {"kind": "stack", "role": "section", "children": children}
 
 
-def _present_hero_variation(hero: HeroBlock, variation: HeroVariation, morphe: MorpheControls) -> Node:
+def _present_hero_variation(
+    hero: HeroBlock, variation: HeroVariation, morphe: MorpheControls
+) -> Node:
     # Vary renders its default branch only until the mid-loop layer lands (CONTRACT §11);
     # default (index 0) is the authored base hero so the page is stable today.
-    options: list[Node] = [_hero_stack(hero.kicker, hero.title, hero.thesis, hero.supporting_claim, morphe)]
+    options: list[Node] = [
+        _hero_stack(hero.kicker, hero.title, hero.thesis, hero.supporting_claim, morphe)
+    ]
     options.extend(
         _hero_stack(hero.kicker, v.title, v.thesis, hero.supporting_claim, morphe)
         for v in variation.variants
@@ -977,8 +995,16 @@ def test_hero_variation_emits_vary() -> None:
             "hero_variation": {
                 "objective": "salience",
                 "variants": [
-                    {"angle": "governance", "title": "Accountable automation", "thesis": "Stay on the record while moving fast."},
-                    {"angle": "speed", "title": "Faster operational loops", "thesis": "Cut release latency without losing control."},
+                    {
+                        "angle": "governance",
+                        "title": "Accountable automation",
+                        "thesis": "Stay on the record while moving fast.",
+                    },
+                    {
+                        "angle": "speed",
+                        "title": "Faster operational loops",
+                        "thesis": "Cut release latency without losing control.",
+                    },
                 ],
             },
         }
@@ -1499,9 +1525,7 @@ class FileStore:
     def publish(self, slug: str, publication: Publication) -> None:
         pubs = self.read_publications()
         pubs[slug] = publication
-        payload = json.dumps(
-            {s: p.model_dump() for s, p in pubs.items()}, indent=2, sort_keys=True
-        )
+        payload = json.dumps({s: p.model_dump() for s, p in pubs.items()}, indent=2, sort_keys=True)
         self._atomic_write(self._publications_path(), payload + "\n")
 ```
 
@@ -1556,9 +1580,7 @@ _NOW = "2026-06-22T00:00:00Z"
 
 def _create(store: FileStore, draft_payload: dict) -> tuple[str, str]:
     draft = CapabilityPageDraft.model_validate(draft_payload)
-    result = create_capability_page(
-        CreateCapabilityPageInput(draft=draft), store, now=_NOW
-    )
+    result = create_capability_page(CreateCapabilityPageInput(draft=draft), store, now=_NOW)
     assert result.ok is True
     assert result.artifact_id and result.revision_id
     return result.artifact_id, result.revision_id
@@ -1568,7 +1590,9 @@ def test_create_validate_publish(tmp_path: Path) -> None:
     store = FileStore(tmp_path)
     artifact_id, revision_id = _create(store, VALID_DRAFT)
 
-    preview = render_preview(RenderPreviewInput(artifact_id=artifact_id, revision_id=revision_id), store)
+    preview = render_preview(
+        RenderPreviewInput(artifact_id=artifact_id, revision_id=revision_id), store
+    )
     assert preview.preview_url == f"/preview/{artifact_id}/{revision_id}"
 
     pub = publish_content_artifact(
@@ -2002,7 +2026,9 @@ def test_committed_cms_schemas_are_byte_stable() -> None:
     root = Path(__file__).resolve().parents[2]  # repo root
     for rel_path, content in artifact_documents().items():
         committed = (root / rel_path).read_text(encoding="utf-8")
-        assert committed == content, f"stale schema artifact: {rel_path} — run `just cms-schema-write`"
+        assert committed == content, (
+            f"stale schema artifact: {rel_path} — run `just cms-schema-write`"
+        )
 ```
 
 - [ ] **Step 2: Run to verify failure**

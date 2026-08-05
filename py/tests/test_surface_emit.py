@@ -372,9 +372,7 @@ def test_table_infers_late_columns_without_dropping_cells() -> None:
         strategy="record-card",
         children=(
             SurfaceNode(path="$.rows[1].name", label="Name", strategy="scalar", value="Lin"),
-            SurfaceNode(
-                path="$.rows[1].role", label="Role", strategy="scalar", value="Operator"
-            ),
+            SurfaceNode(path="$.rows[1].role", label="Role", strategy="scalar", value="Operator"),
         ),
     )
     node = emit_node(

@@ -18,7 +18,7 @@ from pydantic import Field as PydanticField
 from .labels import VISIBLE_LABEL_PATTERN, has_visible_label_text
 
 type NumberValue = StrictInt | StrictFloat
-type JsonValue = None | bool | NumberValue | str | list[JsonValue] | dict[str, JsonValue]
+type JsonValue = bool | NumberValue | str | list[JsonValue] | dict[str, JsonValue] | None
 type ParamValue = JsonValue | Node
 
 type ContainerRole = Literal[
