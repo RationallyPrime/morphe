@@ -299,7 +299,7 @@ class _FrozenJsonDict(dict[str, JsonValue]):
     def clear(self) -> Never:
         return self._reject_mutation()
 
-    def pop(self, _key: str, _default: object = None, /) -> Never:
+    def pop(self, _key: object, _default: object = None, /) -> Never:
         return self._reject_mutation()
 
     def popitem(self) -> Never:
