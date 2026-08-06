@@ -56,7 +56,7 @@ if TYPE_CHECKING:
         Ed25519PublicKey,
     )
 
-type JsonValue = None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
+type JsonValue = bool | int | float | str | list[JsonValue] | dict[str, JsonValue] | None
 type JsonObject = dict[str, JsonValue]
 type Sha256 = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 type DiagnosticPathToken = str | int
@@ -102,6 +102,8 @@ def surface_family(surface_id: str) -> str | None:
     if not is_valid_surface_id(surface_id):
         return None
     return surface_id.split(":", 1)[0]
+
+
 _ED25519_SIGNATURE_BYTES = 64
 _DEFINITION_REF_PARTS = 2
 
@@ -297,7 +299,7 @@ class _FrozenJsonDict(dict[str, JsonValue]):
     def clear(self) -> Never:
         return self._reject_mutation()
 
-    def pop(self, _key: str, _default: object = None, /) -> Never:
+    def pop(self, _key: object, _default: object = None, /) -> Never:
         return self._reject_mutation()
 
     def popitem(self) -> Never:
@@ -1274,7 +1276,7 @@ def _prune_data_node(  # noqa: C901, PLR0912 - mirrors the schema traversal abov
                 )
 
 
-def _prune_alternative_data(  # noqa: PLR0913 - mirrors the data-node traversal state
+def _prune_alternative_data(  # noqa: PLR0913, PLR0917 - mirrors the data-node traversal state
     keyword: str,
     branches: list[object],
     data: JsonValue,
@@ -1441,7 +1443,7 @@ def _path_resolves_data(
     return True
 
 
-def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913 - explicit traversal state
+def _path_targets_hidden(  # noqa: C901, PLR0911, PLR0912, PLR0913, PLR0917 - explicit traversal state
     schema: dict[str, Any],
     tokens: tuple[DiagnosticPathToken, ...],
     root: JsonObject,

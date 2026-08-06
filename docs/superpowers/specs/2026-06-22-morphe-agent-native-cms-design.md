@@ -63,7 +63,7 @@ The PRD's shared types (§8.1) were written against an older snapshot. Corrected
 ```python
 class MorpheControls(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    dialect: DialectName = "gallery"          # render hint only
+    dialect: DialectName = "gallery"  # render hint only
     primary_intent: IntentRef = "evidence"
     surface: SurfaceRef = "base"
     emphasis: EmphasisClaim = "normal"
@@ -128,9 +128,9 @@ publications.json                                    # slug → {artifact_id, re
 - `artifact_id = capability-page.<slug>`; `revision_id = rev-NNN` (zero-padded, per artifact).
 - **`CompiledTree` carries `render_hints`** so it is self-sufficient to render — the route reads **one file**:
   ```python
-  class CompiledTree(BaseModel):   # extends PRD §7.2
+  class CompiledTree(BaseModel):  # extends PRD §7.2
       ...
-      render_hints: RenderHints     # {"dialect": draft.morphe.dialect}
+      render_hints: RenderHints  # {"dialect": draft.morphe.dialect}
   ```
   The dialect lives here (a render hint), **not** in the `tree` (content⊥presentation, §2).
 - **Immutability (resolves append-only vs "mark validated"):** a revision file is **written exactly once and never mutated**. Its `status` is frozen at write time — `draft` if the gate failed, `validated` if it passed — and never changes afterward. **"Published" is not a revision-file status; it is the existence of a pointer in `publications.json`.** Equivalently: a revision is *validated* iff a matching compiled tree exists with ok diagnostics; *published* iff a publication pointer references it. Per-revision diagnostics are written once alongside the revision (`content/.../rev-NNN.diagnostics.json`), never edited.

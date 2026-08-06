@@ -45,7 +45,10 @@ if TYPE_CHECKING:
 
 
 class TypeAliasLike(Protocol):
-    __value__: object
+    # Read-only: a mutable protocol member would demand invariance, and
+    # `TypeAliasType.__value__` (a property) could never satisfy it.
+    @property
+    def __value__(self) -> object: ...
 
 
 def _alias_name(annotation: object) -> str | None:

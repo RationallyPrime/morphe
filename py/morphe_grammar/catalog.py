@@ -13,7 +13,7 @@ from .version import GRAMMAR_VERSION
 type CompoundParamType = Literal["string", "number", "boolean", "node", "node-list"]
 type CompoundLifecycle = Literal["candidate", "promoted"]
 type TypeScriptValue = (
-    None | bool | int | float | str | list[TypeScriptValue] | dict[str, TypeScriptValue]
+    bool | int | float | str | list[TypeScriptValue] | dict[str, TypeScriptValue] | None
 )
 
 _TYPESCRIPT_IDENTIFIER = re.compile(r"^[A-Za-z_$][A-Za-z0-9_$]*$")
@@ -776,9 +776,7 @@ DIAGNOSTIC_GROUP = CompoundDefinition.model_validate(
                 {
                     "kind": "stack",
                     "role": "list",
-                    "children": [
-                        {"kind": "slot", "name": "diagnostics", "fallback": []}
-                    ],
+                    "children": [{"kind": "slot", "name": "diagnostics", "fallback": []}],
                 },
                 {"kind": "slot", "name": "actions", "fallback": []},
                 {"kind": "slot", "name": "detail", "fallback": []},

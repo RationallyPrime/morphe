@@ -930,7 +930,7 @@ def source_compiler_oracles(
     return spec.model_dump(mode="json", by_alias=True, exclude_none=True), node
 
 
-def _conformance_manifest(  # noqa: PLR0913 - one explicit fixture per conformance case
+def _conformance_manifest(  # noqa: PLR0913, PLR0917 - one explicit fixture per conformance case
     taxis: _Fixture,
     obolos: _Fixture,
     krates: _Fixture,

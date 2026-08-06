@@ -191,11 +191,15 @@ jobs:
       - name: Tests (pytest)
         run: uv run pytest
 
+      # TRANSITIONAL pins: authority is weave-doctrine's mise.toml (private
+      # repo — unreadable from GitHub-hosted runners). Keep in lockstep;
+      # delete the @pins at the cx53 self-hosted-runner migration, where mise
+      # provides the bare binaries.
       - name: Lint (ruff)
-        run: uv run ruff check
+        run: uvx ruff@0.16.1 check
 
       - name: Types (ty)
-        run: uv run ty check
+        run: uvx ty@0.0.63 check
 
       - name: Schema artifacts are byte-stable
         run: |

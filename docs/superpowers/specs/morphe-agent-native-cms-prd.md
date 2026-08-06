@@ -767,8 +767,7 @@ This makes the agent powerful without making it visually sovereign.
 Each content type gets a deterministic presenter.
 
 ```python
-def present_capability_page(draft: CapabilityPageDraft) -> dict:
-    ...
+def present_capability_page(draft: CapabilityPageDraft) -> dict: ...
 ```
 
 Conceptual mapping:
@@ -1196,8 +1195,7 @@ def present_capability_page(draft: CapabilityPageDraft) -> dict:
                 "kind": "stack",
                 "role": "section",
                 "children": [
-                    present_capability_section(section, draft.morphe)
-                    for section in draft.sections
+                    present_capability_section(section, draft.morphe) for section in draft.sections
                 ],
             },
             present_cta(draft.cta),

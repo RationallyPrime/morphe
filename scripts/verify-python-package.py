@@ -15,7 +15,7 @@ from hmac import compare_digest
 from pathlib import Path, PurePosixPath
 from typing import cast
 
-type JsonValue = None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
+type JsonValue = bool | int | float | str | list[JsonValue] | dict[str, JsonValue] | None
 type JsonObject = dict[str, JsonValue]
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

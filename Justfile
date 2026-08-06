@@ -86,13 +86,15 @@ pack-verify:
 py-test:
 	env -u PYTHONPATH uv run --extra service pytest
 
-# ruff (the uv.lock-pinned one — the arbiter, never uvx)
+# ruff — bare binary off PATH: weave-doctrine's mise.toml is the version
+# authority (one pin, every seat and runner). Wrong version = machine-setup
+# bug — run `just tools` in weave-doctrine.
 py-lint:
-	env -u PYTHONPATH uv run --extra service ruff check
+	ruff check
 
-# ty (pinned, same rule as ruff)
+# ty (same rule as ruff; env guard for the leading-colon PYTHONPATH footgun)
 py-types:
-	env -u PYTHONPATH uv run --extra service ty check
+	env -u PYTHONPATH ty check
 
 # build wheel + sdist and prove installed decoder-mask resources load in isolation
 py-pack-verify:

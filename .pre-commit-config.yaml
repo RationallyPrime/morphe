@@ -1,35 +1,55 @@
-# Git hooks, run by prek (house standard — never the Python pre-commit framework).
+# Weave-standard prek config (house standard — never the Python pre-commit
+# framework), extended with morphe's own gates.
 #
-# These mirror the CI gates (CI is the arbiter; see .github/workflows/ci.yml):
-# Biome runs via bunx (the package.json-pinned version), ruff is pinned to the
-# uv.lock version so the hook and `uv run ruff` can never disagree, ty runs
-# through `uv run` (the pinned one), and the schema byte-stability hook is the
-# same parity gate CI runs. The slow web gates (svelte-check / vitest / build /
-# SSR smoke) stay CI-only — too slow for a commit hook.
+# The toolchain hooks call BARE binaries: weave-doctrine's mise.toml is the one
+# version authority for ruff/ty/uv on every seat and CI runner — there is no
+# hook rev to drift and no per-repo pin. The machine contract is `just tools`
+# plus the mise shims on PATH; a wrong-version binary is a machine-setup bug,
+# not a hook-config bug.
+#
+# Morphe's own hooks below mirror the CI gates (CI is the arbiter; see
+# .github/workflows/ci.yml): Biome runs via bunx (the package.json-pinned
+# version), and the schema byte-stability hook is the same parity gate CI runs.
+# The slow web gates (svelte-check / vitest / build / SSR smoke) stay CI-only —
+# too slow for a commit hook.
 #
 # `env -u PYTHONPATH` guards against an inherited leading-colon PYTHONPATH
 # (= CWD on sys.path), which gives ty phantom unresolved-import errors.
+
+# Without this, a plain `prek install` only wires the pre-commit stage and the
+# commit-msg + pre-push hooks below silently never run.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.16 # keep in lockstep with ruff in uv.lock
-    hooks:
-      - id: ruff-check
-      - id: ruff-format
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.19 # keep in lockstep with the local uv
-    hooks:
-      - id: uv-lock
   - repo: local
     hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check --force-exclude --fix
+        language: system
+        types_or: [python, pyi, jupyter]
+        stages: [pre-commit]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format --force-exclude
+        language: system
+        types_or: [python, pyi, jupyter]
+        stages: [pre-commit]
+      - id: uv-lock
+        name: uv lock check
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        files: '(^|/)pyproject\.toml$|(^|/)uv\.(lock|toml)$'
       - id: biome-check
         name: biome check (pinned, via bunx)
         language: system
         entry: bunx biome check --no-errors-on-unmatched
         files: \.(ts|js|svelte|css|json|jsonc)$
       - id: ty-check
-        name: ty check (pinned, via uv run)
+        name: ty check
         language: system
-        entry: env -u PYTHONPATH uv run ty check
+        entry: env -u PYTHONPATH ty check
         pass_filenames: false
         files: ^(py/.*\.py|pyproject\.toml|uv\.lock)$
       - id: schema-byte-stability
@@ -38,3 +58,14 @@ repos:
         entry: bash -c 'env -u PYTHONPATH uv run python -m morphe_grammar.schema | diff - schema/morphe-grammar.schema.json'
         pass_filenames: false
         files: ^(py/.*\.py|schema/morphe-grammar\.schema\.json)$
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]

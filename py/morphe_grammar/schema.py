@@ -7,7 +7,7 @@ from typing import cast
 from .models import NODE_ADAPTER
 
 type JsonSchemaValue = (
-    None | bool | int | float | str | list[JsonSchemaValue] | dict[str, JsonSchemaValue]
+    bool | int | float | str | list[JsonSchemaValue] | dict[str, JsonSchemaValue] | None
 )
 type JsonSchema = dict[str, JsonSchemaValue]
 

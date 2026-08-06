@@ -265,9 +265,7 @@ def test_clinical_mask_replaces_generic_compounds_with_exact_promoted_shapes() -
     definitions = _definitions(document)
     compound_union = _object(definitions["CompoundRef"])
     options = compound_union["oneOf"]
-    assert options == [
-        {"$ref": f"#/$defs/CompoundRef_{name}"} for name in PROMOTED_COMPOUNDS
-    ]
+    assert options == [{"$ref": f"#/$defs/CompoundRef_{name}"} for name in PROMOTED_COMPOUNDS]
 
     # Every promoted definition receives an exact argument/slot schema in the
     # restricted mask; the detailed assertions below retain historical contracts.

@@ -35,7 +35,7 @@ def test_cta_with_action_is_button() -> None:
 
 
 def test_cta_with_href_is_link() -> None:
-    cta = CTA(label="Visit", href="https://example.com/x")  # ty: ignore[invalid-argument-type]
+    cta = CTA(label="Visit", href="https://example.com/x")
     node = present_cta(cta)
     assert node["kind"] == "link"
     assert node["href"].startswith("https://example.com")

@@ -44,9 +44,18 @@ py/tests/test_surface_*.py
 **Canonical signatures (used across tasks — keep names/types exact):**
 
 ```python
-Strategy = Literal["scalar","badge","record-card","collapsed-section","linked-ref",
-                   "table","card-stack","diagnostic-node"]
-Priority = Literal["hero","primary","secondary"]
+Strategy = Literal[
+    "scalar",
+    "badge",
+    "record-card",
+    "collapsed-section",
+    "linked-ref",
+    "table",
+    "card-stack",
+    "diagnostic-node",
+]
+Priority = Literal["hero", "primary", "secondary"]
+
 
 class MorpheHint(ContractModel):
     strategy: Strategy | None = None
@@ -55,6 +64,7 @@ class MorpheHint(ContractModel):
     label: str | None = None
     role: IntentRef | None = None
     collapse: bool | None = None
+
 
 class SurfaceNode(ContractModel):
     path: str
@@ -68,16 +78,30 @@ class SurfaceNode(ContractModel):
     items: tuple[SurfaceNode, ...] = ()
     diagnostics: tuple[Diagnostic, ...] = ()
 
+
 def parse_hint(schema: dict[str, object]) -> MorpheHint: ...
 def resolve_strategy(schema: dict, data: object, hint: MorpheHint) -> Strategy: ...
-def build_surface(schema: dict, data: object, *, root: dict, path: str = "$",
-                  label: str = "", diagnostics: dict[str, list[Diagnostic]] | None = None,
-                  depth: int = 0, seen: frozenset[str] = frozenset()) -> SurfaceNode: ...
+def build_surface(
+    schema: dict,
+    data: object,
+    *,
+    root: dict,
+    path: str = "$",
+    label: str = "",
+    diagnostics: dict[str, list[Diagnostic]] | None = None,
+    depth: int = 0,
+    seen: frozenset[str] = frozenset(),
+) -> SurfaceNode: ...
 def emit_node(spec: SurfaceNode) -> dict[str, object]: ...
-def compile_surface(schema: dict, data: object | None = None, *,
-                    diagnostics: list[Diagnostic] | None = None,
-                    grammar_version: str = "0.1.0", compiler_version: str = "0.1.0",
-                    compiled_at: str = "") -> CompiledSurface: ...
+def compile_surface(
+    schema: dict,
+    data: object | None = None,
+    *,
+    diagnostics: list[Diagnostic] | None = None,
+    grammar_version: str = "0.1.0",
+    compiler_version: str = "0.1.0",
+    compiled_at: str = "",
+) -> CompiledSurface: ...
 ```
 
 **MAX_DEPTH = 6** (D9 backstop, mirrors the compound depth bound).
@@ -149,14 +173,27 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 IntentRef = Literal[
-    "primary-action", "neutral", "provenance", "evidence",
-    "accession", "caution", "success", "info",
+    "primary-action",
+    "neutral",
+    "provenance",
+    "evidence",
+    "accession",
+    "caution",
+    "success",
+    "info",
 ]
 SurfaceRef = Literal["base", "raised", "sunken"]
 EmphasisClaim = Literal["muted", "normal", "strong", "critical"]
 DialectName = Literal[
-    "gallery", "night", "icelandic-archive", "clinical", "reykjavik-registry",
-    "timaeus", "ledger", "estate", "foundry",
+    "gallery",
+    "night",
+    "icelandic-archive",
+    "clinical",
+    "reykjavik-registry",
+    "timaeus",
+    "ledger",
+    "estate",
+    "foundry",
 ]
 
 
@@ -273,14 +310,28 @@ from morphe_contracts import (
 )
 
 __all__ = [
-    "Audience", "CmsModel", "Diagnostic", "DialectName", "EmphasisClaim",
-    "IntentRef", "MorpheControls", "RenderHints", "Slug", "SurfaceRef",
+    "Audience",
+    "CmsModel",
+    "Diagnostic",
+    "DialectName",
+    "EmphasisClaim",
+    "IntentRef",
+    "MorpheControls",
+    "RenderHints",
+    "Slug",
+    "SurfaceRef",
 ]
 
 CmsModel = ContractModel  # back-compat alias for existing cms imports
 
 Audience = Literal[
-    "founder", "operator", "cto", "cfo", "operations_lead", "developer", "buyer",
+    "founder",
+    "operator",
+    "cto",
+    "cfo",
+    "operations_lead",
+    "developer",
+    "buyer",
 ]
 Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")]
 ```
@@ -292,6 +343,7 @@ In `py/morphe_cms/contracts/artifact.py`, import provenance from contracts and b
 from morphe_contracts import ArtifactProvenance, CompiledArtifact
 
 from .shared import CmsModel, Diagnostic, RenderHints  # noqa: F401
+
 
 class CompiledTree(CompiledArtifact):
     artifact_id: str
@@ -364,15 +416,25 @@ from morphe_surface.spec import SurfaceNode
 
 def test_surfacenode_is_recursive_and_frozen_extra() -> None:
     node = SurfaceNode(
-        path="$", label="Root", strategy="record-card",
+        path="$",
+        label="Root",
+        strategy="record-card",
         children=(SurfaceNode(path="$.a", label="A", strategy="scalar", value="x"),),
     )
     assert node.children[0].value == "x"
 
 
 def test_parse_hint_reads_x_morphe_block() -> None:
-    hint = parse_hint({"x-morphe": {"section": "Compliance", "priority": "secondary",
-                                     "collapse": True, "strategy": "table"}})
+    hint = parse_hint(
+        {
+            "x-morphe": {
+                "section": "Compliance",
+                "priority": "secondary",
+                "collapse": True,
+                "strategy": "table",
+            }
+        }
+    )
     assert hint.section == "Compliance"
     assert hint.priority == "secondary"
     assert hint.collapse is True
@@ -399,8 +461,14 @@ from __future__ import annotations
 from typing import Literal
 
 Strategy = Literal[
-    "scalar", "badge", "record-card", "collapsed-section",
-    "linked-ref", "table", "card-stack", "diagnostic-node",
+    "scalar",
+    "badge",
+    "record-card",
+    "collapsed-section",
+    "linked-ref",
+    "table",
+    "card-stack",
+    "diagnostic-node",
 ]
 Priority = Literal["hero", "primary", "secondary"]
 ```
@@ -509,8 +577,11 @@ def test_resolve_ref_follows_defs() -> None:
 
 
 def test_hint_strategy_wins_over_structure() -> None:
-    s = resolve_strategy({"type": "array", "items": {"type": "object"}},
-                         data=[], hint=MorpheHint(strategy="card-stack"))
+    s = resolve_strategy(
+        {"type": "array", "items": {"type": "object"}},
+        data=[],
+        hint=MorpheHint(strategy="card-stack"),
+    )
     assert s == "card-stack"
 
 
@@ -520,8 +591,9 @@ def test_object_resolves_record_card() -> None:
 
 
 def test_array_of_objects_resolves_table() -> None:
-    s = resolve_strategy({"type": "array", "items": {"type": "object"}},
-                         data=[{"a": 1}], hint=MorpheHint())
+    s = resolve_strategy(
+        {"type": "array", "items": {"type": "object"}}, data=[{"a": 1}], hint=MorpheHint()
+    )
     assert s == "table"
 
 
@@ -644,8 +716,9 @@ WORKER = {
         "address": {"$ref": "#/$defs/Addr"},
         "manager_id": {"type": "string", "x-morphe": {"strategy": "linked-ref"}},
     },
-    "$defs": {"Addr": {"type": "object", "title": "Address",
-                       "properties": {"city": {"type": "string"}}}},
+    "$defs": {
+        "Addr": {"type": "object", "title": "Address", "properties": {"city": {"type": "string"}}}
+    },
 }
 
 
@@ -675,8 +748,12 @@ def test_reference_field_is_linked_ref() -> None:
 
 
 def test_cycle_degrades_to_linked_ref() -> None:
-    cyclic = {"type": "object", "title": "Node", "properties": {"parent": {"$ref": "#"}},
-              "$id": "Node"}
+    cyclic = {
+        "type": "object",
+        "title": "Node",
+        "properties": {"parent": {"$ref": "#"}},
+        "$id": "Node",
+    }
     spec = build_surface(cyclic, {"parent": {"parent": {}}}, root=cyclic)
     parent = next(c for c in spec.children if c.path == "$.parent")
     # second visit of the same schema id -> linked-ref, not infinite recursion
@@ -753,40 +830,76 @@ def build_surface(
     if strategy in {"record-card", "collapsed-section"} and (
         depth >= MAX_DEPTH or (resolved_id is not None and resolved_id in seen)
     ):
-        return SurfaceNode(path=path, label=node_label, strategy="linked-ref",
-                           value=node_label, diagnostics=diags)
+        return SurfaceNode(
+            path=path, label=node_label, strategy="linked-ref", value=node_label, diagnostics=diags
+        )
 
     if hint.strategy == "linked-ref" or strategy == "linked-ref":
         href = data if isinstance(data, str) else None
-        return SurfaceNode(path=path, label=node_label, strategy="linked-ref",
-                           value=href, href=None, diagnostics=diags)
+        return SurfaceNode(
+            path=path,
+            label=node_label,
+            strategy="linked-ref",
+            value=href,
+            href=None,
+            diagnostics=diags,
+        )
 
     if strategy == "scalar":
-        return SurfaceNode(path=path, label=node_label, strategy="scalar",
-                           value=_as_scalar(data), diagnostics=diags)
+        return SurfaceNode(
+            path=path,
+            label=node_label,
+            strategy="scalar",
+            value=_as_scalar(data),
+            diagnostics=diags,
+        )
 
     if strategy == "badge":
-        return SurfaceNode(path=path, label=node_label, strategy="badge",
-                           value=_as_scalar(data), diagnostics=diags)
+        return SurfaceNode(
+            path=path, label=node_label, strategy="badge", value=_as_scalar(data), diagnostics=diags
+        )
 
     if strategy in {"record-card", "collapsed-section"}:
         next_seen = seen | ({resolved_id} if resolved_id else set())
         props = resolved.get("properties", {})
         children = tuple(
             build_surface(
-                sub if isinstance(sub, dict) else {}, _get(data, key),
-                root=root, path=f"{path}.{key}", label=str(key),
-                diagnostics=diagnostics, depth=depth + 1, seen=next_seen,
+                sub if isinstance(sub, dict) else {},
+                _get(data, key),
+                root=root,
+                path=f"{path}.{key}",
+                label=str(key),
+                diagnostics=diagnostics,
+                depth=depth + 1,
+                seen=next_seen,
             )
             for key, sub in (props.items() if isinstance(props, dict) else [])
         )
         # nested object (depth>0) collapses by default (D5); top object is a record-card
-        is_section = depth > 0 and strategy != "record-card" or (depth > 0 and schema_type(resolved) == "object" and "x-morphe" not in schema and strategy == "record-card")
-        eff_strategy = "collapsed-section" if (depth > 0 and schema_type(resolved) == "object") else "record-card"
+        is_section = (
+            depth > 0
+            and strategy != "record-card"
+            or (
+                depth > 0
+                and schema_type(resolved) == "object"
+                and "x-morphe" not in schema
+                and strategy == "record-card"
+            )
+        )
+        eff_strategy = (
+            "collapsed-section"
+            if (depth > 0 and schema_type(resolved) == "object")
+            else "record-card"
+        )
         return SurfaceNode(
-            path=path, label=node_label, strategy=eff_strategy,
-            collapse=True if eff_strategy == "collapsed-section" and hint.collapse is not False else None,
-            children=children, diagnostics=diags,
+            path=path,
+            label=node_label,
+            strategy=eff_strategy,
+            collapse=True
+            if eff_strategy == "collapsed-section" and hint.collapse is not False
+            else None,
+            children=children,
+            diagnostics=diags,
         )
 
     if strategy in {"table", "card-stack"}:
@@ -794,20 +907,33 @@ def build_surface(
         items_schema = items_schema if isinstance(items_schema, dict) else {}
         rows = data if isinstance(data, list) else []
         items = tuple(
-            build_surface(items_schema, row, root=root, path=f"{path}[{i}]",
-                          label=f"{node_label} {i}", diagnostics=diagnostics,
-                          depth=depth + 1, seen=seen)
+            build_surface(
+                items_schema,
+                row,
+                root=root,
+                path=f"{path}[{i}]",
+                label=f"{node_label} {i}",
+                diagnostics=diagnostics,
+                depth=depth + 1,
+                seen=seen,
+            )
             for i, row in enumerate(rows)
         )
-        return SurfaceNode(path=path, label=node_label, strategy=strategy,
-                           items=items, diagnostics=diags)
+        return SurfaceNode(
+            path=path, label=node_label, strategy=strategy, items=items, diagnostics=diags
+        )
 
     # totality (D8): unrenderable
     why = f"unrenderable: {schema_type(resolved) or 'unknown construct'}"
     return SurfaceNode(
-        path=path, label=node_label, strategy="diagnostic-node", value=why,
-        diagnostics=(*diags, Diagnostic(code="UNRENDERABLE", severity="warning",
-                                        path=path, message=why)),
+        path=path,
+        label=node_label,
+        strategy="diagnostic-node",
+        value=why,
+        diagnostics=(
+            *diags,
+            Diagnostic(code="UNRENDERABLE", severity="warning", path=path, message=why),
+        ),
     )
 
 
@@ -852,11 +978,14 @@ git commit -m "feat(surface): build_surface — records, embed/link, collapse, d
 ```python
 # append to py/tests/test_surface_build.py
 SCHEDULE = {
-    "type": "object", "title": "Schedule",
+    "type": "object",
+    "title": "Schedule",
     "properties": {
-        "assignments": {"type": "array", "title": "Assignments",
-                        "items": {"type": "object",
-                                  "properties": {"worker": {"type": "string"}}}},
+        "assignments": {
+            "type": "array",
+            "title": "Assignments",
+            "items": {"type": "object", "properties": {"worker": {"type": "string"}}},
+        },
         "tags": {"type": "array", "items": {"type": "string"}},
     },
 }
@@ -921,12 +1050,16 @@ from morphe_surface.build import build_surface
 from morphe_surface.emit import emit_node
 
 WORKER = {
-    "type": "object", "title": "Worker",
+    "type": "object",
+    "title": "Worker",
     "properties": {
         "name": {"type": "string", "title": "Name"},
         "status": {"enum": ["active", "leave"], "title": "Status"},
-        "address": {"type": "object", "title": "Address",
-                    "properties": {"city": {"type": "string", "title": "City"}}},
+        "address": {
+            "type": "object",
+            "title": "Address",
+            "properties": {"city": {"type": "string", "title": "City"}},
+        },
     },
 }
 DATA = {"name": "Ada", "status": "active", "address": {"city": "Rvk"}}
@@ -1001,19 +1134,28 @@ def emit_node(spec: SurfaceNode) -> Node:
     if spec.strategy == "scalar":
         return _labeled(spec, {"kind": "text", "value": _str(spec.value), "as": "body"})
     if spec.strategy == "badge":
-        return {"kind": "badge", "label": _str(spec.value),
-                "intent": spec.intent or "neutral"}
+        return {"kind": "badge", "label": _str(spec.value), "intent": spec.intent or "neutral"}
     if spec.strategy == "linked-ref":
         return {"kind": "link", "href": spec.href or "#", "label": spec.label}
     if spec.strategy == "diagnostic-node":
-        return {"kind": "inline-alert", "tone": "caution", "title": spec.label,
-                "detail": _str(spec.value)}
+        return {
+            "kind": "inline-alert",
+            "tone": "caution",
+            "title": spec.label,
+            "detail": _str(spec.value),
+        }
     if spec.strategy in {"table", "card-stack"}:
         return _stack(spec, [emit_node(i) for i in spec.items])
     if spec.strategy == "collapsed-section":
         inner = _stack(spec, [emit_node(c) for c in spec.children])
-        return {"kind": "within", "id": spec.path, "dimension": "collapse",
-                "range": [0, 1], "default": 1 if spec.collapse else 0, "children": [inner]}
+        return {
+            "kind": "within",
+            "id": spec.path,
+            "dimension": "collapse",
+            "range": [0, 1],
+            "default": 1 if spec.collapse else 0,
+            "children": [inner],
+        }
     # record-card
     body = _stack(spec, [emit_node(c) for c in spec.children])
     return {"kind": "frame", "role": "page", "surface": "base", "children": [body]}
@@ -1021,16 +1163,22 @@ def emit_node(spec: SurfaceNode) -> Node:
 
 def _stack(spec: SurfaceNode, children: list[Node]) -> Node:
     head: Node = {"kind": "text", "value": spec.label, "as": "heading"}
-    alerts = [{"kind": "inline-alert", "tone": _tone(d.severity), "title": d.code,
-               "detail": d.message} for d in spec.diagnostics]
+    alerts = [
+        {"kind": "inline-alert", "tone": _tone(d.severity), "title": d.code, "detail": d.message}
+        for d in spec.diagnostics
+    ]
     return {"kind": "stack", "role": "section", "children": [head, *alerts, *children]}
 
 
 def _labeled(spec: SurfaceNode, value_node: Node) -> Node:
-    return {"kind": "stack", "role": "field-group", "children": [
-        {"kind": "text", "value": spec.label, "as": "caption", "intent": "neutral"},
-        value_node,
-    ]}
+    return {
+        "kind": "stack",
+        "role": "field-group",
+        "children": [
+            {"kind": "text", "value": spec.label, "as": "caption", "intent": "neutral"},
+            value_node,
+        ],
+    }
 
 
 def _tone(sev: str) -> str:
@@ -1078,21 +1226,34 @@ from morphe_grammar import validate_node
 from morphe_surface.build import build_surface
 from morphe_surface.emit import emit_node
 
-SCHEMA = {"type": "object", "title": "Shift",
-          "properties": {"worker_id": {"type": "string", "title": "Worker"}}}
+SCHEMA = {
+    "type": "object",
+    "title": "Shift",
+    "properties": {"worker_id": {"type": "string", "title": "Worker"}},
+}
 
 
 def test_path_keyed_diagnostic_attaches_to_field() -> None:
-    diags = {"$.worker_id": [Diagnostic(code="CERT", severity="error",
-                                        path="$.worker_id", message="Lacks forklift cert.")]}
+    diags = {
+        "$.worker_id": [
+            Diagnostic(
+                code="CERT", severity="error", path="$.worker_id", message="Lacks forklift cert."
+            )
+        ]
+    }
     spec = build_surface(SCHEMA, {"worker_id": "w-3"}, root=SCHEMA, diagnostics=diags)
     field = next(c for c in spec.children if c.path == "$.worker_id")
     assert field.diagnostics[0].code == "CERT"
 
 
 def test_attached_diagnostic_renders_inline_alert() -> None:
-    diags = {"$.worker_id": [Diagnostic(code="CERT", severity="error",
-                                        path="$.worker_id", message="Lacks forklift cert.")]}
+    diags = {
+        "$.worker_id": [
+            Diagnostic(
+                code="CERT", severity="error", path="$.worker_id", message="Lacks forklift cert."
+            )
+        ]
+    }
     node = emit_node(build_surface(SCHEMA, {"worker_id": "w-3"}, root=SCHEMA, diagnostics=diags))
     txt = repr(node)
     assert "inline-alert" in txt and "Lacks forklift cert." in txt
@@ -1110,12 +1271,19 @@ In `emit.py`, update `_labeled` to append the field's own alerts:
 
 ```python
 def _labeled(spec: SurfaceNode, value_node: Node) -> Node:
-    alerts = [{"kind": "inline-alert", "tone": _tone(d.severity), "title": d.code,
-               "detail": d.message} for d in spec.diagnostics]
-    return {"kind": "stack", "role": "field-group", "children": [
-        {"kind": "text", "value": spec.label, "as": "caption", "intent": "neutral"},
-        value_node, *alerts,
-    ]}
+    alerts = [
+        {"kind": "inline-alert", "tone": _tone(d.severity), "title": d.code, "detail": d.message}
+        for d in spec.diagnostics
+    ]
+    return {
+        "kind": "stack",
+        "role": "field-group",
+        "children": [
+            {"kind": "text", "value": spec.label, "as": "caption", "intent": "neutral"},
+            value_node,
+            *alerts,
+        ],
+    }
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -1163,8 +1331,11 @@ _leaf = st.fixed_dictionaries({"type": st.sampled_from(["string", "integer", "bo
 _schema = st.recursive(
     _leaf | st.just({"enum": ["a", "b"]}) | st.just({"type": "null"}) | st.just({}),
     lambda c: st.fixed_dictionaries(
-        {"type": st.just("object"),
-         "properties": st.dictionaries(st.text(min_size=1, max_size=6), c, max_size=4)}),
+        {
+            "type": st.just("object"),
+            "properties": st.dictionaries(st.text(min_size=1, max_size=6), c, max_size=4),
+        }
+    ),
     max_leaves=8,
 )
 
@@ -1172,8 +1343,8 @@ _schema = st.recursive(
 @given(schema=_schema, data=st.none() | st.dictionaries(st.text(), st.integers(), max_size=3))
 def test_compiler_is_total_and_valid(schema: dict, data: object) -> None:
     spec = build_surface(schema, data, root=schema)  # must not raise
-    node = emit_node(spec)                            # must not raise
-    validate_node(node)                               # must produce a valid tree
+    node = emit_node(spec)  # must not raise
+    validate_node(node)  # must produce a valid tree
 ```
 
 - [ ] **Step 2: Run test to verify it fails (or surfaces a non-total case)**
@@ -1232,8 +1403,7 @@ class Worker(BaseModel):
 
 
 def test_compile_surface_returns_versioned_artifact() -> None:
-    art = compile_surface(Worker.model_json_schema(),
-                          {"name": "Ada", "address": {"city": "Rvk"}})
+    art = compile_surface(Worker.model_json_schema(), {"name": "Ada", "address": {"city": "Rvk"}})
     assert art.grammar_version and art.compiler_version
     assert art.tree["kind"] == "frame"
     validate_node(art.tree)
@@ -1253,9 +1423,13 @@ def test_surface_from_model_adapter() -> None:
 
 def test_envelope_adapter_unwraps_diagnostics() -> None:
     from morphe_surface.adapters import from_envelope
-    data, diags = from_envelope({"data": {"name": "Ada"},
-                                 "diagnostics": [{"code": "X", "severity": "info",
-                                                  "path": "$.name", "message": "hi"}]})
+
+    data, diags = from_envelope(
+        {
+            "data": {"name": "Ada"},
+            "diagnostics": [{"code": "X", "severity": "info", "path": "$.name", "message": "hi"}],
+        }
+    )
     assert data == {"name": "Ada"}
     assert diags["$.name"][0].code == "X"
 ```
@@ -1309,8 +1483,12 @@ def compile_surface(
     collected: list[Diagnostic] = []
     _collect(spec, collected)
     return CompiledSurface(
-        tree=tree, grammar_version=grammar_version, producer_version=compiler_version,
-        compiler_version=compiler_version, diagnostics=collected, produced_at=compiled_at,
+        tree=tree,
+        grammar_version=grammar_version,
+        producer_version=compiler_version,
+        compiler_version=compiler_version,
+        diagnostics=collected,
+        produced_at=compiled_at,
     )
 ```
 
@@ -1355,8 +1533,15 @@ from .spec import SurfaceNode
 from .strategies import Priority, Strategy
 
 __all__ = [
-    "MorpheHint", "Priority", "Strategy", "SurfaceNode",
-    "compile_surface", "from_envelope", "from_pydantic", "parse_hint", "surface_from_model",
+    "MorpheHint",
+    "Priority",
+    "Strategy",
+    "SurfaceNode",
+    "compile_surface",
+    "from_envelope",
+    "from_pydantic",
+    "parse_hint",
+    "surface_from_model",
 ]
 ```
 
