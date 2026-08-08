@@ -29,7 +29,7 @@ concurrency:
 jobs:
   web:
     name: web (svelte-check · vitest · build · SSR smoke)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, cx53]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -177,7 +177,7 @@ jobs:
 
   python:
     name: python (pytest · ruff · ty · schema stability)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, cx53]
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
