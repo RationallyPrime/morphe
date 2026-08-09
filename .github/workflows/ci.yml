@@ -29,7 +29,7 @@ concurrency:
 jobs:
   web:
     name: web (svelte-check · vitest · build · SSR smoke)
-    runs-on: [self-hosted, cx53]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - name: Install compiler-renderer contract browsers
-        run: bunx playwright install chromium firefox
+        run: bunx playwright install --with-deps chromium firefox
 
       - name: Verify compiler build identity
         run: bun run compiler-id:check
@@ -177,7 +177,7 @@ jobs:
 
   python:
     name: python (pytest · ruff · ty · schema stability)
-    runs-on: [self-hosted, cx53]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -191,10 +191,9 @@ jobs:
       - name: Tests (pytest)
         run: uv run pytest
 
-      # TRANSITIONAL pins: authority is weave-doctrine's mise.toml (private
-      # repo — unreadable from GitHub-hosted runners). Keep in lockstep;
-      # delete the @pins at the cx53 self-hosted-runner migration, where mise
-      # provides the bare binaries.
+      # PINS in lockstep with weave-doctrine's mise.toml (private repo —
+      # unreadable from GitHub-hosted runners). Public repos run GitHub-hosted
+      # so fork PRs never execute on Weave metal; the pins stay.
       - name: Lint (ruff)
         run: uvx ruff@0.16.1 check
 
