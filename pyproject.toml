@@ -50,6 +50,11 @@ testpaths = ["py/tests"]
 line-length = 100
 target-version = "py312"
 src = ["py"]
+# weave-doctrine owns .github/scripts/review_loop.py. A copy this repo
+# reformats is no longer a copy, and re-adopting an updated template must stay a
+# straight file copy — so the lint gate leaves it alone (the CI step runs bare
+# `ruff check` at the repo root, which would otherwise reach it).
+exclude = [".github/scripts"]
 
 [tool.ruff.lint]
 select = ["ALL"]
