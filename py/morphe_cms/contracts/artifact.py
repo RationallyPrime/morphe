@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
-from pydantic import field_serializer
+from pydantic import field_serializer, model_validator
 
 from morphe_contracts import ArtifactProvenance, CompiledArtifact
-from morphe_grammar import NODE_ADAPTER, Node
+from morphe_grammar import NODE_ADAPTER, Node, require_installed_identity
 
 from .shared import CmsModel, RenderHints
 
@@ -54,6 +54,14 @@ class CompiledTree(CompiledArtifact[Node]):
     @staticmethod
     def serialize_tree(tree: Node) -> object:
         return NODE_ADAPTER.dump_python(tree, mode="json", by_alias=True, exclude_none=True)
+
+    @model_validator(mode="after")
+    def require_installed_grammar_identity(self) -> Self:
+        require_installed_identity(
+            grammar_version=self.grammar_version,
+            grammar_fingerprint=self.grammar_fingerprint,
+        )
+        return self
 
 
 class Publication(CmsModel):

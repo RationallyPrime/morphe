@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import ValidationError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -84,6 +86,19 @@ def test_has_validated_revision(tmp_path: Path) -> None:
     assert store.has_validated_revision("demo", "rev-001") is False
     store.write_compiled("demo", "rev-001", _compiled("rev-001"))
     assert store.has_validated_revision("demo", "rev-001") is True
+
+
+def test_foreign_fingerprint_is_not_a_validated_revision(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    payload = json.loads(_compiled("rev-001").model_dump_json(by_alias=True, exclude_none=True))
+    payload["grammar_fingerprint"] = "sha256:" + "a" * 64
+    path = tmp_path / "compiled" / "capability-pages" / "demo" / "rev-001.tree.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValidationError, match="grammar_fingerprint"):
+        store.read_compiled("demo", "rev-001")
+    assert store.has_validated_revision("demo", "rev-001") is False
 
 
 def test_corrupt_compiled_tree_is_not_a_validated_revision(tmp_path: Path) -> None:

@@ -10,6 +10,7 @@ from .dialects import DIALECT_CONSTRAINTS, DIALECT_IDS
 from .fingerprint_stamp import GRAMMAR_FINGERPRINT
 from .masks import dialect_mask_document
 from .schema import JsonSchemaValue, schema_document
+from .version import GRAMMAR_VERSION
 
 type ContractDocument = dict[str, JsonSchemaValue]
 
@@ -52,6 +53,22 @@ def compute_grammar_fingerprint() -> str:
     return fingerprint_contract(grammar_contract_document())
 
 
+def require_installed_identity(*, grammar_version: str, grammar_fingerprint: str) -> None:
+    """Reject a foreign grammar version or fingerprint at a typed artifact ingress."""
+    if grammar_version != GRAMMAR_VERSION:
+        msg = (
+            "grammar_version must equal the installed GRAMMAR_VERSION "
+            f"({GRAMMAR_VERSION!r}); received {grammar_version!r}"
+        )
+        raise ValueError(msg)
+    if grammar_fingerprint != GRAMMAR_FINGERPRINT:
+        msg = (
+            "grammar_fingerprint must equal the installed GRAMMAR_FINGERPRINT "
+            f"({GRAMMAR_FINGERPRINT!r}); received {grammar_fingerprint!r}"
+        )
+        raise ValueError(msg)
+
+
 def fingerprint_stamp_document() -> str:
     fingerprint = compute_grammar_fingerprint()
     return (
@@ -72,4 +89,5 @@ __all__ = [
     "fingerprint_contract",
     "fingerprint_stamp_document",
     "grammar_contract_document",
+    "require_installed_identity",
 ]

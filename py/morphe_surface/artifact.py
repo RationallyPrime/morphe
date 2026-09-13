@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 from pydantic import field_serializer, model_validator
 
 from morphe_contracts import CompiledArtifact
-from morphe_grammar import NODE_ADAPTER, Node
+from morphe_grammar import NODE_ADAPTER, Node, require_installed_identity
 
 if TYPE_CHECKING:
     from pydantic import GetJsonSchemaHandler
@@ -48,6 +48,14 @@ class CompiledSurface(CompiledArtifact[Node]):
         if handler.mode == "serialization" and isinstance(properties, dict):
             properties["tree"] = handler(NODE_ADAPTER.core_schema)
         return document
+
+    @model_validator(mode="after")
+    def require_installed_grammar_identity(self) -> Self:
+        require_installed_identity(
+            grammar_version=self.grammar_version,
+            grammar_fingerprint=self.grammar_fingerprint,
+        )
+        return self
 
     @model_validator(mode="after")
     def require_one_producer_version(self) -> Self:

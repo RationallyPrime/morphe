@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import re
 from importlib.resources import files
 from typing import TypedDict, cast
+
+SOURCE_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
 class ContractHistoryEntry(TypedDict):
@@ -20,8 +23,7 @@ class ContractHistoryDocument(TypedDict):
 CONTRACT_HISTORY_RESOURCE = "contract_history.json"
 
 
-def load_contract_history() -> ContractHistoryDocument:
-    raw = files("morphe_grammar").joinpath(CONTRACT_HISTORY_RESOURCE).read_text(encoding="utf-8")
+def parse_contract_history(raw: str) -> ContractHistoryDocument:
     decoded = json.loads(raw)
     if not isinstance(decoded, dict):
         msg = "contract history must be a JSON object"
@@ -49,6 +51,9 @@ def load_contract_history() -> ContractHistoryDocument:
         ):
             msg = f"contract history entry {index} is missing required string fields"
             raise ValueError(msg)
+        if not SOURCE_COMMIT_PATTERN.fullmatch(cast("str", source_commit)):
+            msg = f"contract history entry {index} source_commit must be a 40-character git SHA"
+            raise ValueError(msg)
         parsed.append(
             {
                 "grammar_version": cast("str", grammar_version),
@@ -60,9 +65,16 @@ def load_contract_history() -> ContractHistoryDocument:
     return {"format_version": 1, "entries": parsed}
 
 
+def load_contract_history() -> ContractHistoryDocument:
+    raw = files("morphe_grammar").joinpath(CONTRACT_HISTORY_RESOURCE).read_text(encoding="utf-8")
+    return parse_contract_history(raw)
+
+
 __all__ = [
     "CONTRACT_HISTORY_RESOURCE",
+    "SOURCE_COMMIT_PATTERN",
     "ContractHistoryDocument",
     "ContractHistoryEntry",
     "load_contract_history",
+    "parse_contract_history",
 ]

@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+
+import pytest
 
 import morphe_grammar.fingerprint as fingerprint_mod
-from morphe_grammar.contract_history import load_contract_history
+from morphe_grammar.contract_history import load_contract_history, parse_contract_history
 from morphe_grammar.fingerprint import (
     GRAMMAR_FINGERPRINT,
     compute_grammar_fingerprint,
@@ -17,11 +18,9 @@ from morphe_grammar.fingerprint_stamp import GRAMMAR_FINGERPRINT as RELEASED_FIN
 from morphe_grammar.masks import load_mask_manifest
 from morphe_grammar.version import GRAMMAR_VERSION, version_typescript_document
 
-if TYPE_CHECKING:
-    import pytest
-
 KRA_831_COMMIT = "a931e2c8bcd9bcb4d157a677cf7c540dad46b75d"
 KRA_831_FINGERPRINT = "sha256:11b53181bbe69b165874ea556967b43918ae52e640f427073c53fdfa990cf61f"
+KRA_920_COMMIT = "52a4b0d60e3d2d8b0df8b5defc2e7b47c4134665"
 HISTORY_PATH = Path("py/morphe_grammar/contract_history.json")
 STAMP_PATH = Path("py/morphe_grammar/fingerprint_stamp.py")
 
@@ -35,7 +34,7 @@ RELEASED_CONTRACTS: tuple[dict[str, str], ...] = (
     {
         "grammar_version": "0.8.0",
         "fingerprint": "sha256:c0ecb8a72bbb22ed06c5480d7bd0700c28c3ae312a040fd68f8f2ea47f821f1c",
-        "source_commit": "KRA-920",
+        "source_commit": KRA_920_COMMIT,
         "issue": "KRA-920",
     },
 )
@@ -83,6 +82,25 @@ def test_contract_history_records_current_identity_and_freezes_every_release() -
     assert entries[-1]["fingerprint"] == GRAMMAR_FINGERPRINT
     committed = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
     assert committed["entries"] == list(RELEASED_CONTRACTS)
+
+
+def test_contract_history_rejects_a_placeholder_source_commit() -> None:
+    with pytest.raises(ValueError, match="source_commit"):
+        parse_contract_history(
+            json.dumps(
+                {
+                    "format_version": 1,
+                    "entries": [
+                        {
+                            "grammar_version": "0.8.0",
+                            "fingerprint": GRAMMAR_FINGERPRINT,
+                            "source_commit": "KRA-920",
+                            "issue": "KRA-920",
+                        }
+                    ],
+                }
+            )
+        )
 
 
 def test_same_grammar_version_cannot_alias_a_changed_contract() -> None:

@@ -6,6 +6,8 @@ from pydantic import ValidationError
 from morphe_cms.contracts.artifact import ArtifactEnvelope, CompiledTree, Publication
 from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION
 
+FOREIGN_FINGERPRINT = "sha256:" + "a" * 64
+
 
 def _envelope(**overrides: object) -> ArtifactEnvelope:
     base: dict[str, object] = {
@@ -30,6 +32,40 @@ def test_envelope_accepts_valid() -> None:
 def test_envelope_rejects_unknown_status() -> None:
     with pytest.raises(ValidationError):
         _envelope(status="totally-shipped")
+
+
+def test_compiled_tree_rejects_a_foreign_fingerprint() -> None:
+    with pytest.raises(ValidationError, match="grammar_fingerprint"):
+        CompiledTree.model_validate(
+            {
+                "artifact_id": "capability-page.x",
+                "revision_id": "rev-001",
+                "grammar_version": GRAMMAR_VERSION,
+                "grammar_fingerprint": FOREIGN_FINGERPRINT,
+                "producer_version": "0.1.0",
+                "presenter_version": "0.1.0",
+                "tree": {"kind": "frame", "role": "page", "children": []},
+                "render_hints": {"dialect": "gallery"},
+                "produced_at": "2026-06-22T00:00:00Z",
+            }
+        )
+
+
+def test_compiled_tree_rejects_a_foreign_grammar_version() -> None:
+    with pytest.raises(ValidationError, match="grammar_version"):
+        CompiledTree.model_validate(
+            {
+                "artifact_id": "capability-page.x",
+                "revision_id": "rev-001",
+                "grammar_version": "0.7.0",
+                "grammar_fingerprint": GRAMMAR_FINGERPRINT,
+                "producer_version": "0.1.0",
+                "presenter_version": "0.1.0",
+                "tree": {"kind": "frame", "role": "page", "children": []},
+                "render_hints": {"dialect": "gallery"},
+                "produced_at": "2026-06-22T00:00:00Z",
+            }
+        )
 
 
 def test_compiled_tree_carries_render_hints() -> None:
