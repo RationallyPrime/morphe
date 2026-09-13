@@ -22,6 +22,28 @@ const VIEWPORTS = [
 	{ name: "narrow", width: 390, height: 844 },
 ] as const;
 
+async function tabUntilFocused(page: Page, target: Locator, maxTabs = 80): Promise<void> {
+	for (let i = 0; i < maxTabs; i++) {
+		if (await target.evaluate((node) => node === document.activeElement)) return;
+		await page.keyboard.press("Tab");
+	}
+	if (await target.evaluate((node) => node === document.activeElement)) return;
+	throw new Error("keyboard Tab order never reached the target control");
+}
+
+async function assertVisibleFocusRing(control: Locator): Promise<void> {
+	expect(
+		await control.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return (
+				(style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0) ||
+				style.boxShadow !== "none"
+			);
+		}),
+		"keyboard focus must remain visible",
+	).toBe(true);
+}
+
 async function openSurface(page: Page, dialect = "gallery"): Promise<void> {
 	const response = await page.goto(`${SURFACE_PATH}?dialect=${dialect}`);
 	expect(response, "the real stripped-viewer route must answer").not.toBeNull();
@@ -582,6 +604,27 @@ test.describe("operator-first composed home", () => {
 		expect(contrastRatios.length, "home contrast probes must render").toBeGreaterThan(0);
 		const contrastFailures = contrastRatios.filter((probe) => probe.ratio < 4.5);
 		expect(contrastFailures, "visible home copy must clear WCAG AA").toEqual([]);
+	});
+
+	test("reaches the attention link by Tab, shows its focus ring, and keeps as_of on Enter", async ({
+		page,
+	}) => {
+		const asOf = "2026-07-15";
+		const response = await page.goto(`/?as_of=${asOf}`, { waitUntil: "networkidle" });
+		expect(response?.ok(), "the dated composed home must answer").toBe(true);
+
+		const attentionLink = page.getByRole("link", {
+			name: "Open Taxis fixture details",
+			exact: true,
+		});
+		await expect(attentionLink).toHaveAttribute("href", `/s/taxis/roster?as_of=${asOf}`);
+		await tabUntilFocused(page, attentionLink);
+		await expect(attentionLink).toBeFocused();
+		await assertVisibleFocusRing(attentionLink);
+		await page.keyboard.press("Enter");
+		await expect(page).toHaveURL(new RegExp(`/s/taxis/roster\\?as_of=${asOf}$`));
+		await expect(page.getByLabel("As of")).toHaveValue(asOf);
+		await expect(page.locator(".viewer-surface .mo-root")).toBeVisible();
 	});
 
 	test("keeps pre- and post-event dated homes clean while carrying the exact frontier", async ({
