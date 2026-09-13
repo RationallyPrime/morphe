@@ -82,6 +82,20 @@ const KERNEL_PROOF_CASES = [
 	},
 ] as const;
 
+async function tabUntilFocused(
+	page: Page,
+	target: Locator,
+	maxTabs = 80,
+	key: "Tab" | "Shift+Tab" = "Tab",
+): Promise<void> {
+	for (let i = 0; i < maxTabs; i++) {
+		if (await target.evaluate((node) => node === document.activeElement)) return;
+		await page.keyboard.press(key);
+	}
+	if (await target.evaluate((node) => node === document.activeElement)) return;
+	throw new Error("keyboard Tab order never reached the target control");
+}
+
 async function setRange(control: Locator, value: number): Promise<void> {
 	await control.evaluate((element, next) => {
 		if (!(element instanceof HTMLInputElement)) throw new Error("range control is not an input");
@@ -315,6 +329,71 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 		const regularStyle = await densityBoundary.getAttribute("style");
 		await setRange(page.locator("#gold-density-choice"), 2);
 		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
+	});
+
+	test("keyboard-only: the gold circuit is traversed, edited, and activated without a pointer", async ({
+		page,
+	}) => {
+		await page.goto(ROUTE, { waitUntil: "networkidle" });
+		const evidence = page.getByRole("textbox", { name: /Evidence note/ });
+		const posture = page.getByRole("combobox", { name: "Review posture" });
+		const reviewed = page.getByRole("switch", { name: "Evidence reviewed" });
+		const confidence = page.getByRole("slider", { name: "Confidence" });
+		const mode = page.locator("#gold-mode-choice");
+		const advance = page.getByRole("button", { name: "Advance evidence" });
+		const attest = page.getByRole("button", { name: "Record attestation" });
+		const detailChoice = page.locator("#gold-detail-choice");
+		const density = page.locator("#gold-density-choice");
+		const detail = page.locator("details").filter({ hasText: "Inspect the complete gold circuit" });
+
+		// Host ranges sit in the sidebar before the ActionSummary tree. Firefox
+		// does not wrap Tab, so the walk follows document order instead of
+		// filling the tree and then wrapping back to the sidebar.
+		await tabUntilFocused(page, mode);
+		await page.keyboard.press("End");
+		await expect(mode).toHaveValue("2");
+		await expect(page.getByRole("heading", { name: "Decision receipt" })).toBeVisible();
+
+		await tabUntilFocused(page, evidence);
+		await page.keyboard.press("Shift+Tab");
+		await page.keyboard.press("Tab");
+		await expect(evidence).toBeFocused();
+		await page.keyboard.press("Control+A");
+		await page.keyboard.type("Keyboard-verified evidence");
+		await expect(evidence).toHaveValue("Keyboard-verified evidence");
+
+		await tabUntilFocused(page, posture);
+		await page.keyboard.press("ArrowDown");
+		await expect(posture).toHaveValue("ratify");
+
+		await tabUntilFocused(page, reviewed);
+		await page.keyboard.press("Space");
+		await expect(reviewed).toHaveAttribute("aria-checked", "true");
+
+		await tabUntilFocused(page, confidence);
+		const beforeConfidence = await confidence.inputValue();
+		await page.keyboard.press("ArrowRight");
+		await page.keyboard.press("ArrowRight");
+		await expect(confidence).not.toHaveValue(beforeConfidence);
+
+		await tabUntilFocused(page, advance);
+		await page.keyboard.press("Enter");
+		await expect(page.getByRole("heading", { name: "Compact evidence" })).toBeVisible();
+
+		await tabUntilFocused(page, attest);
+		await page.keyboard.press("Space");
+		await expect(page.locator(".workbench__proof")).toContainText("gold.attest");
+
+		const densityBoundary = page.locator(".mo-within-context").last();
+		const regularStyle = await densityBoundary.getAttribute("style");
+		await tabUntilFocused(page, density, 80, "Shift+Tab");
+		await page.keyboard.press("End");
+		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
+
+		await tabUntilFocused(page, detailChoice, 80, "Shift+Tab");
+		await expect(detail).toHaveAttribute("open", "");
+		await page.keyboard.press("End");
+		await expect(detail).not.toHaveAttribute("open", "");
 	});
 
 	test("CMS preview revalidates dialect, honors mobile viewport, and owns temporary sockets", async ({
