@@ -82,10 +82,15 @@ const KERNEL_PROOF_CASES = [
 	},
 ] as const;
 
-async function tabUntilFocused(page: Page, target: Locator, maxTabs = 80): Promise<void> {
+async function tabUntilFocused(
+	page: Page,
+	target: Locator,
+	maxTabs = 80,
+	key: "Tab" | "Shift+Tab" = "Tab",
+): Promise<void> {
 	for (let i = 0; i < maxTabs; i++) {
 		if (await target.evaluate((node) => node === document.activeElement)) return;
-		await page.keyboard.press("Tab");
+		await page.keyboard.press(key);
 	}
 	if (await target.evaluate((node) => node === document.activeElement)) return;
 	throw new Error("keyboard Tab order never reached the target control");
@@ -341,6 +346,14 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 		const density = page.locator("#gold-density-choice");
 		const detail = page.locator("details").filter({ hasText: "Inspect the complete gold circuit" });
 
+		// Host ranges sit in the sidebar before the ActionSummary tree. Firefox
+		// does not wrap Tab, so the walk follows document order instead of
+		// filling the tree and then wrapping back to the sidebar.
+		await tabUntilFocused(page, mode);
+		await page.keyboard.press("End");
+		await expect(mode).toHaveValue("2");
+		await expect(page.getByRole("heading", { name: "Decision receipt" })).toBeVisible();
+
 		await tabUntilFocused(page, evidence);
 		await page.keyboard.press("Shift+Tab");
 		await page.keyboard.press("Tab");
@@ -363,11 +376,6 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 		await page.keyboard.press("ArrowRight");
 		await expect(confidence).not.toHaveValue(beforeConfidence);
 
-		await tabUntilFocused(page, mode);
-		await page.keyboard.press("End");
-		await expect(mode).toHaveValue("2");
-		await expect(page.getByRole("heading", { name: "Decision receipt" })).toBeVisible();
-
 		await tabUntilFocused(page, advance);
 		await page.keyboard.press("Enter");
 		await expect(page.getByRole("heading", { name: "Compact evidence" })).toBeVisible();
@@ -376,16 +384,16 @@ test.describe("ADR-0022 — ActionSummary gold-standard circuit", () => {
 		await page.keyboard.press("Space");
 		await expect(page.locator(".workbench__proof")).toContainText("gold.attest");
 
-		await tabUntilFocused(page, detailChoice);
+		const densityBoundary = page.locator(".mo-within-context").last();
+		const regularStyle = await densityBoundary.getAttribute("style");
+		await tabUntilFocused(page, density, 80, "Shift+Tab");
+		await page.keyboard.press("End");
+		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
+
+		await tabUntilFocused(page, detailChoice, 80, "Shift+Tab");
 		await expect(detail).toHaveAttribute("open", "");
 		await page.keyboard.press("End");
 		await expect(detail).not.toHaveAttribute("open", "");
-
-		const densityBoundary = page.locator(".mo-within-context").last();
-		const regularStyle = await densityBoundary.getAttribute("style");
-		await tabUntilFocused(page, density);
-		await page.keyboard.press("End");
-		await expect.poll(async () => densityBoundary.getAttribute("style")).not.toBe(regularStyle);
 	});
 
 	test("CMS preview revalidates dialect, honors mobile viewport, and owns temporary sockets", async ({
