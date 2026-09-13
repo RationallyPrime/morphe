@@ -120,10 +120,12 @@ emission with retry/fail-closed behavior.
   attribution (`?dialect=` selects the dialect on landing — valid param >
   persisted choice, explicit toggle always wins afterward).
 - **The stripped viewer (`viewer/`):** a second, stripped SvelteKit app sharing the same `$lib`.
-  The legacy `/surfaces/[artifactId]` compiled-tree route remains unchanged as the rollback path;
-  the dual `/s/[source]/[surfaceId]` route admits bounded, Ed25519-authenticated source-v1
-  envelopes and compiles them with the server-only TypeScript edge compiler. Both paths pass the
-  same generated grammar/dialect policy ingress gate before rendering. `/healthz` exposes the
+  Its browse space is config-declared: `/` (composed home), `/surfaces` (the source catalog),
+  `/s/[source]/[surfaceId]` (declared panes), and `/healthz`. The `/s/[source]/[surfaceId]`
+  route admits bounded, Ed25519-authenticated source-v1 envelopes and compiles them with the
+  server-only TypeScript edge compiler, then the generated grammar/dialect policy ingress gate.
+  The legacy `/surfaces/[artifactId]` compiled-tree reader is retired (KRA-775 Stage 5) and 404s.
+  `/healthz` exposes the
   grammar, source wire/media type, receipt contract, edge-compiler version, and self-derived build
   identity (`sha256:bf16315c1853607d04e5705aae0ab46d3dee931cf72cba19b811e0dc8d5d32b8`).
   The adapter is env-switched (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless

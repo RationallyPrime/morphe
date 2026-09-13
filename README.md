@@ -167,11 +167,11 @@ Pydantic Gateway proxy. CI and local gates do not require a live model call.
 ## Stripped Viewer
 
 `viewer/` is a stripped SvelteKit app for artifact rendering. It shares the
-same `src/lib` substrate, exposes declared `/s/[source]/[surfaceId]` routes,
-the compatible `/surfaces/[artifactId]` route, and `/healthz`. Each declared
-surface independently selects the untouched compiled-tree reader or the
-source-v1 path: bounded JSON admission, Ed25519 testimony verification,
-TypeScript compilation, link rewriting, then the final grammar/dialect gate.
+same `src/lib` substrate and exposes the config-declared browse space: `/`,
+`/surfaces`, `/s/[source]/[surfaceId]`, and `/healthz`. Declared surfaces
+admit signed source-v1 testimony only: bounded JSON admission, Ed25519
+verification, TypeScript compilation, link rewriting, then the final
+grammar/dialect gate. The compiled-tree reader is retired.
 It exists so the playground's outbound-capable adaptive bridge does not ship
 in the deployment image.
 

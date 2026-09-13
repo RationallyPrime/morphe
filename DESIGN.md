@@ -219,8 +219,9 @@ config-declared:
 - `/` is the composed home;
 - `/surfaces` is the source catalog;
 - `/s/[source]/[surfaceId]` renders a declared pane;
-- `/surfaces/[artifactId]` remains as a legacy compiled-artifact route;
 - `/healthz` reports readiness, the supported grammar version, and the grammar fingerprint.
+
+The legacy compiled-artifact reader at `/surfaces/[artifactId]` is retired and 404s.
 
 Nothing is discovered by probing upstreams, and the viewer is not an open proxy. Credentials stay
 server-only (`token_env` names a PRIVATE env var used in SSR loaders). Primitives, authored trees,
