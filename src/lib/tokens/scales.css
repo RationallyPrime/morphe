@@ -86,6 +86,7 @@
 	--mo-layer-overlay: 30;
 	--mo-layer-toast: 40;
 	--mo-layer-tooltip: 50;
+	--mo-layer-skip: 60;
 
 	/* --- Stroke & focus-ring geometry --------------------------------------- */
 	/* Border/ring COLOR is per-intent (the `border` / `ring` channels); only the

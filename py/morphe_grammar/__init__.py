@@ -6,12 +6,11 @@ from .dialects import (
     DIALECT_IDS,
     DialectCompoundConstraint,
     DialectId,
-    DialectNodeValidationError,
-    PromotedCompoundReferenceError,
     dialect_constraint,
     validate_node_for_dialect,
     validate_promoted_compound_references,
 )
+from .errors import DialectNodeValidationError, MorpheGrammarError, PromotedCompoundReferenceError
 from .fingerprint import GRAMMAR_FINGERPRINT
 from .labels import (
     VISIBLE_LABEL_PATTERN,
@@ -107,6 +106,7 @@ __all__ = [
     "LabelRelation",
     "Link",
     "Media",
+    "MorpheGrammarError",
     "Node",
     "NumberNode",
     "ParamRef",

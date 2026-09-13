@@ -193,7 +193,7 @@ Spacer   { kind:"spacer";  size?:"xs"|"sm"|"md"|"lg"|"xl" }
 // (validator-enforced); `responsive` is a DECLARED policy, never inference; row `diagnostics`
 // render as a full-width lane after the row. Not a generic container: no ContainerRole,
 // not a context reset. Cells hold ordinary Node children.
-TableColumn { header:string; numeric?:boolean; priority?:"primary"|"secondary"|"detail"; intent?:IntentRef }
+TableColumn { header:string; gloss?:string; numeric?:boolean; priority?:"primary"|"secondary"|"detail"; intent?:IntentRef }
 TableRow    { cells:{children:Node[]}[]; diagnostics?:Node[] }
 Table    { kind:"table";   caption:string; captionHidden?:boolean; columns:TableColumn[]; rows:TableRow[];
            rowHeader?:boolean; responsive?:"scroll"|"collapse"|"records"; sticky?:boolean; emphasis?:EmphasisClaim }
@@ -223,8 +223,9 @@ register; `display` is not an automatic synonym for root identity.
 
 `gloss` is optional producer-authored plain text, never a glossary id or runtime lookup. It is
 admitted only where the same node paints the term it explains: `Badge`, `Status`, `Link`, a
-`NumberNode` with a visible `label`, and `Text` in `display`/`heading`/`subheading`/`caption`
-registers (including compound titles and kickers). Body/open-data `Text`, bare numbers, and all
+`NumberNode` with a visible `label`, `Text` in `display`/`heading`/`subheading`/`caption`
+registers (including compound titles and kickers), and `TableColumn.header` (a painted table-column
+header is a label-bearing gloss locus). Body/open-data `Text`, bare numbers, and all
 other node kinds reject it. The shared `Gloss` disclosure paints a native button beside the term;
 an interactive term and that button are siblings, never nested interactive controls.
 
@@ -511,7 +512,7 @@ fixed point.
   `--mo-neutral-0..11`, chromatic `--mo-amber-* / --mo-blue-* / --mo-green-* /
   --mo-red-*`, fonts `--mo-font-display / -body / -mono`, plus the OVERLAY/ACTION
   additions: a neutral **layer (z-index) ramp** `--mo-layer-{base,dropdown,
-  sticky,overlay,toast,tooltip}` (raw integers; the rare non-top-layer fallback —
+  sticky,overlay,toast,tooltip,skip}` (raw integers; the rare non-top-layer fallback —
   native showModal/popover own the platform top layer and need none) and the
   **focus-ring geometry** `--mo-ring-width` / `--mo-ring-offset` (ring COLOR stays
   per-intent; only the geometry is neutral). `--mo-elev-5` is the overlay tonal

@@ -116,6 +116,7 @@ export const SLOTS = {
 			overlay: (): string => `var(--mo-layer-overlay)`,
 			toast: (): string => `var(--mo-layer-toast)`,
 			tooltip: (): string => `var(--mo-layer-tooltip)`,
+			skip: (): string => `var(--mo-layer-skip)`,
 		},
 	},
 	/**

@@ -93,7 +93,7 @@
 	.nav {
 		position: sticky;
 		inset-block-start: 0;
-		z-index: 30;
+		z-index: var(--mo-layer-overlay);
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--mo-space-4);
@@ -165,7 +165,7 @@
 		position: absolute;
 		inset-inline-start: var(--mo-space-3);
 		inset-block-start: -100%;
-		z-index: 60;
+		z-index: var(--mo-layer-skip);
 		padding: var(--mo-space-3) var(--mo-space-5);
 		border-radius: var(--mo-radius-2);
 		background: var(--mo-intent-primary-action-surface);
