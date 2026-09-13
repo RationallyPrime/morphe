@@ -79,11 +79,13 @@ The package root is `src/lib`. It contains the reusable core only.
   not share a semantic version.
 
 - `@rationallyprime/morphe/artifacts` — runtime validation for compiled-surface
-  artifacts: `validateSurfaceArtifact` (bounds → generated schema → semantic walk,
-  branding a `TrustedSurfaceArtifact`), `validateNodeDocument`, and the issue
-  formatting helpers. This is the subpath every TS ingress uses to admit an
-  untrusted artifact; consumers validating store responses should use it rather
-  than re-deriving validation from the raw schemas.
+  artifacts: `validateSurfaceArtifact` (bounds → generated schema → installed
+  grammar identity → semantic walk, branding a `TrustedSurfaceArtifact`),
+  `validateNodeDocument`, and the issue formatting helpers. This is the subpath
+  every TS ingress uses to admit an untrusted artifact; consumers validating
+  store responses should use it rather than re-deriving validation from the raw
+  schemas. The branded value carries the installed `(GRAMMAR_VERSION,
+  GRAMMAR_FINGERPRINT)` pair; a foreign stamp is not trusted.
 
 - `@rationallyprime/morphe/surface-edge` — the server-only source-v1 seam:
   2 MiB-bounded duplicate-safe JSON admission, RFC 8785/Ed25519 testimony

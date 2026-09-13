@@ -185,12 +185,12 @@ def dialect_mask_text(dialect_id: str) -> str:
 
 
 def mask_manifest_document() -> JsonSchema:
-    from .fingerprint import GRAMMAR_FINGERPRINT  # noqa: PLC0415
+    from .fingerprint import compute_grammar_fingerprint  # noqa: PLC0415
 
     return {
         "format_version": 1,
         "grammar_version": GRAMMAR_VERSION,
-        "grammar_fingerprint": GRAMMAR_FINGERPRINT,
+        "grammar_fingerprint": compute_grammar_fingerprint(),
         "dialects": {
             dialect_id: {
                 "compound_policy": {
