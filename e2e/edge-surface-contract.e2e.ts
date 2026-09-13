@@ -609,7 +609,7 @@ test.describe("operator-first composed home", () => {
 	test("reaches the attention link by Tab, shows its focus ring, and keeps as_of on Enter", async ({
 		page,
 	}) => {
-		const asOf = "2026-07-15";
+		const asOf = "2026-07-31";
 		const response = await page.goto(`/?as_of=${asOf}`, { waitUntil: "networkidle" });
 		expect(response?.ok(), "the dated composed home must answer").toBe(true);
 
