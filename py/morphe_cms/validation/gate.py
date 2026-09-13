@@ -8,6 +8,7 @@ from morphe_cms.presenter.capability_page import PRESENTER_VERSION, present_capa
 from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
 from morphe_cms.validation.policy import policy_diagnostics
 from morphe_grammar import (
+    GRAMMAR_FINGERPRINT,
     GRAMMAR_VERSION,
     validate_node,
     validate_node_for_dialect,
@@ -46,6 +47,7 @@ def compile_and_gate(
         artifact_id=artifact_id,
         revision_id=revision_id,
         grammar_version=GRAMMAR_VERSION,
+        grammar_fingerprint=GRAMMAR_FINGERPRINT,
         producer_version=PRESENTER_VERSION,
         presenter_version=PRESENTER_VERSION,
         tree=validated_tree,

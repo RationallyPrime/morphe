@@ -15,7 +15,7 @@ from morphe_cms.contracts.artifact import (
 )
 from morphe_cms.contracts.shared import RenderHints
 from morphe_cms.store.files import FileStore
-from morphe_grammar import GRAMMAR_VERSION, validate_node
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION, validate_node
 
 
 def _envelope() -> ArtifactEnvelope:
@@ -35,6 +35,7 @@ def _compiled(rev: str) -> CompiledTree:
         artifact_id="capability-page.demo",
         revision_id=rev,
         grammar_version=GRAMMAR_VERSION,
+        grammar_fingerprint=GRAMMAR_FINGERPRINT,
         producer_version="0.1.0",
         presenter_version="0.1.0",
         tree=validate_node({"kind": "frame", "role": "page", "children": []}),

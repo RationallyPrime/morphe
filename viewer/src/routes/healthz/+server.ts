@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { GRAMMAR_VERSION } from "$lib";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "$lib";
 import { COMPILER_BUILD_SHA256 } from "$lib/surface-edge/build-id.generated.js";
 import { COMPILER_VERSION } from "$lib/surface-edge/compile.js";
 import { SOURCE_SURFACE_V1_MEDIA_TYPE } from "../../surface-reader.js";
@@ -15,6 +15,7 @@ export const GET: RequestHandler = () => {
 	return json({
 		status: "ok",
 		grammar_version: GRAMMAR_VERSION,
+		grammar_fingerprint: GRAMMAR_FINGERPRINT,
 		edge_compiler_version: COMPILER_VERSION,
 		compiler_build_sha256: COMPILER_BUILD_SHA256,
 		source_surface_wire_version: "1.0",

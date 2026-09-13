@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from morphe_grammar import GRAMMAR_VERSION, validate_node
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION, validate_node
 
 from .artifact import SURFACE_ARTIFACT_VERSION, CompiledSurface
 from .build import build_surface
@@ -36,6 +36,7 @@ def compile_surface(
         artifact_version=SURFACE_ARTIFACT_VERSION,
         tree=validated_tree,
         grammar_version=GRAMMAR_VERSION,
+        grammar_fingerprint=GRAMMAR_FINGERPRINT,
         producer_version=COMPILER_VERSION,
         compiler_version=COMPILER_VERSION,
         diagnostics=collected,

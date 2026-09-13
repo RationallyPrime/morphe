@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { GRAMMAR_VERSION, type Node } from "$lib";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION, type Node } from "$lib";
 import type { Sha256 } from "$lib/artifacts/source-types.generated.js";
 import type { CompilationReceipt } from "$lib/surface-edge/spec.js";
 import { dialectGateReason, loadGatedSurface } from "./surface-load.server.js";
@@ -12,18 +12,25 @@ const compilationReceipt: CompilationReceipt = {
 	compilerVersion: "0.3.3",
 	compilerBuildSha256: hash("2"),
 	grammarVersion: GRAMMAR_VERSION,
+	grammarFingerprint: GRAMMAR_FINGERPRINT,
 	treeSha256: hash("3"),
 	diagnosticsSha256: hash("4"),
 	temporalPolicy: "minute",
 	surfaceIdGate: "exact",
 };
 
-function parsed(tree: Node, withReceipt = false, grammarVersion = GRAMMAR_VERSION) {
+function parsed(
+	tree: Node,
+	withReceipt = false,
+	grammarVersion = GRAMMAR_VERSION,
+	grammarFingerprint = GRAMMAR_FINGERPRINT,
+) {
 	return {
 		ok: true as const,
 		envelope: {
 			artifactId: "taxis:roster",
 			grammarVersion,
+			grammarFingerprint,
 			compilerVersion: "0.3.3",
 			dialectHint: "ledger",
 			tree,
@@ -125,6 +132,97 @@ describe("loadGatedSurface", () => {
 				code: "grammar-mismatch",
 				artifactVersion: "0.6.0",
 				supportedVersion: GRAMMAR_VERSION,
+			},
+		});
+	});
+
+	it("admits the current grammar version with the current fingerprint", async () => {
+		const result = await loadGatedSurface({
+			fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+			url: "http://taxis.test/roster",
+			artifactId: "taxis:roster",
+			parse: async () => parsed({ kind: "text", value: "current", as: "body" }),
+			dialectOverride: null,
+		});
+		expect(result.tree).toEqual({ kind: "text", value: "current", as: "body" });
+	});
+
+	it("names both versions when a 0.7.0 artifact is presented to this viewer", async () => {
+		await expect(
+			loadGatedSurface({
+				fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+				url: "http://taxis.test/roster",
+				artifactId: "taxis:roster",
+				parse: async () =>
+					parsed(
+						{ kind: "text", value: "stale", as: "body" },
+						false,
+						"0.7.0",
+						`sha256:${"b".repeat(64)}`,
+					),
+				dialectOverride: null,
+			}),
+		).rejects.toMatchObject({
+			status: 409,
+			body: {
+				code: "grammar-mismatch",
+				artifactId: "taxis:roster",
+				artifactVersion: "0.7.0",
+				supportedVersion: GRAMMAR_VERSION,
+			},
+		});
+	});
+
+	it("fails closed on equal versions with unequal fingerprints", async () => {
+		const staleFingerprint = `sha256:${"c".repeat(64)}`;
+		await expect(
+			loadGatedSurface({
+				fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+				url: "http://taxis.test/roster",
+				artifactId: "taxis:roster",
+				parse: async () =>
+					parsed(
+						{ kind: "text", value: "aliased", as: "body" },
+						false,
+						GRAMMAR_VERSION,
+						staleFingerprint,
+					),
+				dialectOverride: null,
+			}),
+		).rejects.toMatchObject({
+			status: 409,
+			body: {
+				code: "contract-mismatch",
+				artifactId: "taxis:roster",
+				artifactVersion: GRAMMAR_VERSION,
+				supportedVersion: GRAMMAR_VERSION,
+				artifactFingerprint: staleFingerprint,
+				supportedFingerprint: GRAMMAR_FINGERPRINT,
+			},
+		});
+	});
+
+	it("does not render a new promoted compound through an older fingerprint", async () => {
+		const staleFingerprint = `sha256:${"d".repeat(64)}`;
+		await expect(
+			loadGatedSurface({
+				fetch: (async () => new Response("{}")) as typeof globalThis.fetch,
+				url: "http://taxis.test/roster",
+				artifactId: "taxis:roster",
+				parse: async () => ({
+					ok: false as const,
+					reason: "ActionSummary is not in the older catalog",
+					rawGrammarVersion: GRAMMAR_VERSION,
+					rawGrammarFingerprint: staleFingerprint,
+				}),
+				dialectOverride: null,
+			}),
+		).rejects.toMatchObject({
+			status: 409,
+			body: {
+				code: "contract-mismatch",
+				artifactFingerprint: staleFingerprint,
+				supportedFingerprint: GRAMMAR_FINGERPRINT,
 			},
 		});
 	});

@@ -78,6 +78,7 @@ def _manifest_resources() -> tuple[Resource, ...]:
         msg = "mask manifest format_version must be 1"
         raise ValueError(msg)
     _string(manifest.get("grammar_version"), "manifest.grammar_version")
+    _string(manifest.get("grammar_fingerprint"), "manifest.grammar_fingerprint")
 
     dialects = _object(manifest.get("dialects"), "manifest.dialects")
     if not dialects:
@@ -243,6 +244,8 @@ if manifest.get("format_version") != 1:
     raise RuntimeError("installed manifest has an unsupported format version")
 if manifest.get("grammar_version") != morphe_grammar.GRAMMAR_VERSION:
     raise RuntimeError("installed manifest and GRAMMAR_VERSION disagree")
+if manifest.get("grammar_fingerprint") != morphe_grammar.GRAMMAR_FINGERPRINT:
+    raise RuntimeError("installed manifest and GRAMMAR_FINGERPRINT disagree")
 if set(dialects) != set(morphe_grammar.DIALECT_IDS):
     raise RuntimeError("installed manifest and DIALECT_IDS disagree")
 

@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from morphe_cms.contracts.artifact import ArtifactEnvelope, CompiledTree, Publication
-from morphe_grammar import GRAMMAR_VERSION
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION
 
 
 def _envelope(**overrides: object) -> ArtifactEnvelope:
@@ -38,6 +38,7 @@ def test_compiled_tree_carries_render_hints() -> None:
             "artifact_id": "capability-page.x",
             "revision_id": "rev-001",
             "grammar_version": GRAMMAR_VERSION,
+            "grammar_fingerprint": GRAMMAR_FINGERPRINT,
             "producer_version": "0.1.0",
             "presenter_version": "0.1.0",
             "tree": {"kind": "frame", "role": "page", "children": []},

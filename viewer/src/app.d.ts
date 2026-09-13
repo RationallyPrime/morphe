@@ -3,14 +3,22 @@ declare global {
 		/**
 		 * Structured error surface for the fail-closed grammar gate (MO-D5):
 		 * a grammar_version mismatch renders a diagnostic page naming BOTH
-		 * versions — never a silent partial render.
+		 * versions — never a silent partial render. Equal versions with unequal
+		 * fingerprints fail closed as contract-mismatch and name both fingerprints.
 		 */
 		interface Error {
 			message: string;
-			code?: "grammar-mismatch" | "invalid-artifact" | "upstream-unreachable" | "not-configured";
+			code?:
+				| "grammar-mismatch"
+				| "contract-mismatch"
+				| "invalid-artifact"
+				| "upstream-unreachable"
+				| "not-configured";
 			artifactId?: string;
 			artifactVersion?: string;
 			supportedVersion?: string;
+			artifactFingerprint?: string;
+			supportedFingerprint?: string;
 		}
 	}
 }

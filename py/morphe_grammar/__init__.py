@@ -12,6 +12,7 @@ from .dialects import (
     validate_node_for_dialect,
     validate_promoted_compound_references,
 )
+from .fingerprint import GRAMMAR_FINGERPRINT
 from .labels import (
     VISIBLE_LABEL_PATTERN,
     has_visible_label_text,
@@ -74,6 +75,7 @@ __all__ = [
     "DIALECT_CONSTRAINTS",
     "DIALECT_IDS",
     "GOLD_STANDARD_COMPOUND",
+    "GRAMMAR_FINGERPRINT",
     "GRAMMAR_VERSION",
     "NODE_ADAPTER",
     "PROMOTED_COMPOUNDS",

@@ -12,6 +12,7 @@
 
 	const err = $derived(page.error);
 	const isGrammarMismatch = $derived(err?.code === "grammar-mismatch");
+	const isContractMismatch = $derived(err?.code === "contract-mismatch");
 </script>
 
 <svelte:head>
@@ -34,6 +35,25 @@
 			Rendering is fail-closed: nothing is drawn from an artifact this viewer cannot interpret
 			faithfully. Recompile the surface with a matching compiler, or deploy a viewer that supports
 			the artifact's grammar.
+		</p>
+	{:else if isContractMismatch}
+		<h1>Unsupported grammar contract</h1>
+		<p>{err?.message}</p>
+		<dl>
+			<dt>Artifact</dt>
+			<dd><code>{err?.artifactId}</code></dd>
+			<dt>Artifact grammar version</dt>
+			<dd><code>{err?.artifactVersion}</code></dd>
+			<dt>Viewer supports</dt>
+			<dd><code>{err?.supportedVersion}</code></dd>
+			<dt>Artifact grammar fingerprint</dt>
+			<dd><code>{err?.artifactFingerprint}</code></dd>
+			<dt>Viewer fingerprint</dt>
+			<dd><code>{err?.supportedFingerprint}</code></dd>
+		</dl>
+		<p class="hint">
+			Rendering is fail-closed: matching semantic versions with unequal fingerprints is a contract
+			alias, not a compatible decoder. Recompile the surface against this viewer's grammar.
 		</p>
 	{:else}
 		<h1>{page.status}</h1>

@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from morphe_grammar import GRAMMAR_VERSION
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION
 from morphe_surface import (
     SURFACE_ARTIFACT_VERSION,
     CompiledSurface,
@@ -24,6 +24,7 @@ def _artifact(**overrides: object) -> CompiledSurface:
             "children": [{"kind": "text", "value": "Trusted", "as": "heading"}],
         },
         "grammar_version": GRAMMAR_VERSION,
+        "grammar_fingerprint": GRAMMAR_FINGERPRINT,
         "producer_version": "0.3.0",
         "compiler_version": "0.3.0",
         "diagnostics": [],

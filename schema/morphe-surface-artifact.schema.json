@@ -2071,6 +2071,10 @@
       "title": "Diagnostics",
       "type": "array"
     },
+    "grammar_fingerprint": {
+      "title": "Grammar Fingerprint",
+      "type": "string"
+    },
     "grammar_version": {
       "title": "Grammar Version",
       "type": "string"
@@ -2090,6 +2094,7 @@
   "required": [
     "tree",
     "grammar_version",
+    "grammar_fingerprint",
     "producer_version",
     "produced_at",
     "artifact_version",

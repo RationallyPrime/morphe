@@ -10,13 +10,14 @@ playground app — no decision endpoint, no outbound proxy surface.
 | -- | -- |
 | `/` | Source index: every configured source and its declared surfaces |
 | `/s/[source]/[surfaceId]` | A declared surface from a configured source |
-| `/healthz` | Liveness + the supported `grammar_version` |
+| `/healthz` | Liveness + the supported `grammar_version` and `grammar_fingerprint` |
 
 Every render path runs the same trust gate: generated-schema validation of the
 compiled artifact, dialect-mask enforcement, and the fail-closed grammar gate —
 a foreign `grammar_version` renders a 409 diagnostic naming both versions,
-never a silent partial render (MO-D5). `?dialect=` overrides the pane dialect
-when it names a shipped dialect.
+and equal versions with unequal `grammar_fingerprint` values fail closed as
+`contract-mismatch`, never a silent partial render (MO-D5). `?dialect=`
+overrides the pane dialect when it names a shipped dialect.
 
 Kernel entries admit signed `source-v1` testimony only (KRA-775 Stage 5): the
 viewer negotiates the source-v1 media type, verifies and compiles the testimony
@@ -110,7 +111,8 @@ map is retired and rejected; joins and mounts travel atomically:
   lockfile at build time, verified during the Docker build, and stamped by the
   compiler itself; it is not accepted from testimony, callers, or mutable
   runtime configuration. `/healthz` reports this identity, compiler/wire
-  versions, media type, and delivery-receipt version alongside `grammar_version`.
+  versions, media type, and delivery-receipt version alongside `grammar_version`
+  and `grammar_fingerprint`.
 - `token_env` — name of the PRIVATE env var holding the source's bearer token,
   injected during SSR only; the browser never sees it. A named-but-unset token
   env is a 503, never a silent unauthenticated fetch.

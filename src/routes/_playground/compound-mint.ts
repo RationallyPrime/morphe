@@ -174,7 +174,7 @@ export const COMPOUND_MINT_FIXTURES: readonly CompoundMintFixture[] = Object.fre
 			slots: {
 				primary: [text("Primary · promoted", "body", "evidence")],
 				secondary: [text("Secondary · node and slot variability only", "caption")],
-				provenance: [text("catalog:morphe@0.12.0", "caption", "provenance")],
+				provenance: [text("catalog:morphe@0.13.0", "caption", "provenance")],
 			},
 		},
 	},

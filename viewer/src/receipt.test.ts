@@ -10,6 +10,7 @@ const compilation: CompilationReceipt = {
 	compilerVersion: "0.3.3",
 	compilerBuildSha256: sha("2"),
 	grammarVersion: "0.3.0",
+	grammarFingerprint: `sha256:${"a".repeat(64)}`,
 	treeSha256: sha("3"),
 	diagnosticsSha256: sha("4"),
 	temporalPolicy: "minute",

@@ -66,7 +66,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "EntityHeader",
@@ -146,7 +146,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "ProvenanceFooter",
@@ -197,7 +197,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "StatBand",
@@ -218,7 +218,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "ActionSummary",
@@ -290,7 +290,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "Breakdown",
@@ -331,7 +331,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "TrailEntry",
@@ -397,7 +397,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "KeyValuePanel",
@@ -427,7 +427,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "ContentSection",
@@ -487,7 +487,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "SignalBand",
@@ -548,7 +548,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "DefinitionRow",
@@ -605,7 +605,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "ProgressRow",
@@ -671,7 +671,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "Trail",
@@ -736,7 +736,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "OperationalPane",
@@ -823,7 +823,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "RecordCard",
@@ -905,7 +905,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "DiagnosticGroup",
@@ -970,7 +970,7 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 	{
 		name: "EmptyState",
@@ -1020,6 +1020,6 @@ export const PROMOTED_COMPOUNDS = [
 				},
 			],
 		},
-		grammarVersion: "0.7.0",
+		grammarVersion: "0.8.0",
 	},
 ] as const satisfies readonly CompoundDef[];

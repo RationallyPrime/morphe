@@ -18,6 +18,7 @@ export interface SurfaceArtifactDocument {
 	readonly artifact_version: "1.0.0";
 	readonly tree: Node;
 	readonly grammar_version: string;
+	readonly grammar_fingerprint: string;
 	readonly producer_version: string;
 	readonly compiler_version: string;
 	readonly diagnostics: readonly SurfaceArtifactDiagnostic[];
