@@ -443,7 +443,7 @@ function actionFrame(
 							},
 						},
 					],
-					action: [paneLink(view, asOf, true)],
+					action: [paneLink(view, asOf, { detail: true, intent: "primary-action" })],
 					detail,
 				},
 			},
@@ -591,14 +591,18 @@ function domainRow(view: HomePanelView, asOf?: string): Node {
 						children: [{ kind: "text", value: view.sourceTitle, as: "subheading" }, status],
 					},
 					...paneContext,
-					paneLink(view, asOf),
+					paneLink(view, asOf, { intent: "neutral" }),
 				],
 			},
 		],
 	};
 }
 
-function paneLink(view: PanelIdentity, asOf?: string, detail = false): Node {
+function paneLink(
+	view: PanelIdentity,
+	asOf: string | undefined,
+	options: { readonly detail?: boolean; readonly intent: "neutral" | "primary-action" },
+): Node {
 	const href = withForwardedQuery(
 		view.href,
 		asOf === undefined ? new URLSearchParams() : new URLSearchParams({ as_of: asOf }),
@@ -606,8 +610,8 @@ function paneLink(view: PanelIdentity, asOf?: string, detail = false): Node {
 	return {
 		kind: "link",
 		href,
-		label: detail ? `Open ${view.sourceTitle} details` : `Open ${view.sourceTitle}`,
-		intent: "primary-action",
+		label: options.detail ? `Open ${view.sourceTitle} details` : `Open ${view.sourceTitle}`,
+		intent: options.intent,
 	};
 }
 

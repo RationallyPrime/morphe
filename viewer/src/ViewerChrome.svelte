@@ -207,7 +207,7 @@
 	.chrome {
 		position: sticky;
 		inset-block-start: 0;
-		z-index: 20;
+		z-index: var(--mo-layer-sticky);
 		background: var(--mo-intent-surface-raised);
 		color: var(--mo-intent-on-surface);
 		border-bottom: 1px solid var(--mo-intent-outline);
@@ -407,7 +407,7 @@
 		position: absolute;
 		inset-block-start: calc(100% + var(--mo-space-2));
 		inset-inline-end: 0;
-		z-index: 30;
+		z-index: var(--mo-layer-overlay);
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--mo-space-3);

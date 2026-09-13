@@ -377,7 +377,7 @@ Legend: **shipped**, **partial**, **future**.
 | schema/data surface compiler | shipped | `py/morphe_surface` |
 | local CMS compile/preview/publish tooling | shipped | `py/morphe_cms`, preview routes |
 | Pydantic-AI adaptive lab | partial | installed-mask structured-output and retry proof; no production host path |
-| stripped viewer and grammar fail-closed gate | shipped | `viewer/` |
+| stripped viewer and grammar fail-closed gate | shipped | `viewer/` config-declared browse space (`/`, `/surfaces`, `/s/[source]/[surfaceId]`, legacy `/surfaces/[artifactId]`, `/healthz`); version+fingerprint identity |
 | viewer runtime validation of untrusted trees | shipped | generated artifact schema + dialect policy gate |
 | production slow loop | future | no operational host path in this package |
 | production mid-loop model | future | no deployed delegate in this package |

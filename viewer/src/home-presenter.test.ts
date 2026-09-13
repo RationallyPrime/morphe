@@ -352,6 +352,31 @@ describe("homeTree operator-first composition", () => {
 		expect(html).toContain("Browse every declared surface");
 	});
 
+	it("keeps calm-domain navigation free of the primary-action beacon", () => {
+		const tree = homeTree({
+			title: "Operations",
+			grammarVersion: "0.3.0",
+			panels: [calmLive],
+		});
+		expect(
+			countMatching(tree, (node) => node.kind === "link" && node.intent === "primary-action"),
+		).toBe(0);
+		expect(
+			countMatching(tree, (node) => node.kind === "link" && node.intent === "neutral"),
+		).toBeGreaterThan(0);
+	});
+
+	it("allows at most one primary-action beacon on an attention pane", () => {
+		const tree = homeTree({
+			title: "Operations",
+			grammarVersion: "0.3.0",
+			panels: [liveAttention],
+		});
+		expect(
+			countMatching(tree, (node) => node.kind === "link" && node.intent === "primary-action"),
+		).toBe(1);
+	});
+
 	it("renders a product-facing empty state when no source declares a home pane", () => {
 		const html = ssr(homeTree({ title: "Operations", grammarVersion: "0.3.0", panels: [] }));
 		expect(html).toContain("No home sources configured");
