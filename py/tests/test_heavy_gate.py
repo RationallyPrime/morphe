@@ -17,6 +17,8 @@ def _run(
     timeout_s: str = "5",
 ) -> subprocess.CompletedProcess[str]:
     merged = os.environ.copy()
+    merged.pop("MORPHE_HEAVY_GATE", None)
+    merged.pop("_MORPHE_GATE_HELD", None)
     merged.update(env)
     merged["HEAVY_GATE_RUNNER"] = runner
     merged["HEAVY_GATE_LOCK"] = str(lock)
