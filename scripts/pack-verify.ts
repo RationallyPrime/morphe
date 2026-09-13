@@ -393,6 +393,7 @@ try {
 			const {
 				installedDialectIds,
 				installedGrammarVersion,
+				installedGrammarFingerprint,
 				installedPromotedCompounds,
 				installedPromotedCompoundNames,
 				renderSurface,
@@ -400,6 +401,7 @@ try {
 			} = await import("../.ssr/entry-server.js") as {
 				installedDialectIds: readonly string[];
 				installedGrammarVersion: string;
+				installedGrammarFingerprint: string;
 				installedPromotedCompounds: readonly unknown[];
 				installedPromotedCompoundNames: readonly string[];
 				renderSurface: () => string;
