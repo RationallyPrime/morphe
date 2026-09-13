@@ -14,7 +14,8 @@ def version_typescript_document() -> str:
         " * Source of truth: `py/morphe_grammar/version.py`.\n"
         " */\n"
         f'export const GRAMMAR_VERSION = "{GRAMMAR_VERSION}";\n'
-        f'export const GRAMMAR_FINGERPRINT = "{GRAMMAR_FINGERPRINT}";\n'
+        "export const GRAMMAR_FINGERPRINT =\n"
+        f'\t"{GRAMMAR_FINGERPRINT}";\n'
     )
 
 

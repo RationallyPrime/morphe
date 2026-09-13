@@ -24,7 +24,7 @@ def test_live_fingerprint_is_stable_and_exported() -> None:
     assert len(GRAMMAR_FINGERPRINT) == len("sha256:") + 64
     typescript = version_typescript_document()
     assert f'GRAMMAR_VERSION = "{GRAMMAR_VERSION}"' in typescript
-    assert f'GRAMMAR_FINGERPRINT = "{GRAMMAR_FINGERPRINT}"' in typescript
+    assert f'"{GRAMMAR_FINGERPRINT}"' in typescript
 
 
 def test_contract_history_records_current_identity_and_freezes_kra_831() -> None:

@@ -473,7 +473,7 @@ def test_manifest_records_paths_and_policies_without_implicit_empty_semantics() 
 
 def test_typescript_grammar_version_is_generated_from_python() -> None:
     assert f'GRAMMAR_VERSION = "{GRAMMAR_VERSION}"' in version_typescript_document()
-    assert f'GRAMMAR_FINGERPRINT = "{GRAMMAR_FINGERPRINT}"' in version_typescript_document()
+    assert f'"{GRAMMAR_FINGERPRINT}"' in version_typescript_document()
 
 
 def test_committed_dialect_artifacts_are_byte_stable() -> None:

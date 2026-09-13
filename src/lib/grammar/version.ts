@@ -3,4 +3,5 @@
  * Source of truth: `py/morphe_grammar/version.py`.
  */
 export const GRAMMAR_VERSION = "0.8.0";
-export const GRAMMAR_FINGERPRINT = "sha256:c0ecb8a72bbb22ed06c5480d7bd0700c28c3ae312a040fd68f8f2ea47f821f1c";
+export const GRAMMAR_FINGERPRINT =
+	"sha256:c0ecb8a72bbb22ed06c5480d7bd0700c28c3ae312a040fd68f8f2ea47f821f1c";
