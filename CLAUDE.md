@@ -1,6 +1,14 @@
 # CLAUDE.md
 
-Guidance for Claude Code (and any agent) working in this repo. These instructions override default behavior. Read this **before** asking how the system works: `CONTEXT.md` fixes the vocabulary, `VISION.md` explains the stratified adaptive tower, and `CONTRACT.md` defines the substrate. `Vary`, `Within`, `action` ids, and `bind` paths are declarative authority sockets, not invitations to put handlers or host state in authored trees. `action` ids wire at `MorpheRoot.actions`; `bind` paths wire to the client store; and `Vary` / `Within` choices wire through `MorpheRoot.choices` and the Delta machinery. A targeted `Within` owns exactly one subtree: density changes that target's incoming context, emphasis enters the target as a parent-budgeted claim, and collapse uses a native labelled disclosure. A targetless legacy `Within` remains inert.
+Guidance for any agent working in this repo. These instructions override default behavior. Read this **before** asking how the system works: `CONTEXT.md` fixes the vocabulary, `VISION.md` explains the stratified adaptive tower, and `CONTRACT.md` defines the substrate. `Vary`, `Within`, `action` ids, and `bind` paths are declarative authority sockets, not invitations to put handlers or host state in authored trees. `action` ids wire at `MorpheRoot.actions`; `bind` paths wire to the client store; and `Vary` / `Within` choices wire through `MorpheRoot.choices` and the Delta machinery. A targeted `Within` owns exactly one subtree: density changes that target's incoming context, emphasis enters the target as a parent-budgeted claim, and collapse uses a native labelled disclosure. A targetless legacy `Within` remains inert.
+
+The deterministic operational mid-loop is host-side (ADR-0024): bind an explicit policy to a
+resolver-specific live variation index, project a digest only through declared path-plus-kind
+authority, and admit proposals through `runMidLoop` and canonical `applyDelta`. Unknown, hidden,
+invalid, or targetless variation references — and stale, malformed, or out-of-policy proposals —
+grant no authority. A user override locks its id until a strictly higher safe-integer re-emission.
+Keep this circuit out of grammar and renderer code: `MorpheRoot` still receives choices only, never
+an envelope, policy, runtime, model, or tier-2 producer.
 
 ## What this repo is
 
@@ -27,6 +35,8 @@ Four lower-tower lemmas shape the shipped substrate. The single source of truth 
 
 Nine dialects ship (`src/lib/dialects/registry.ts`): `gallery` (**default**, light paper ground), `night`, `icelandic-archive` (the retired amber-on-charcoal identity), `clinical`, `reykjavik-registry`, `timaeus`, and the three register expansions `ledger`, `estate`, `foundry`. Dialects are **global**: `activeDialect` (`dialects/active.svelte.ts`) is the rune store; `MorpheRoot` follows it when no `dialect` prop is passed, and an explicit `dialect` prop pins a subtree boundary. The neutral playground toggle lives on `/substrate`; the shell persists explicit choices in `localStorage` (`mo-dialect.v2`) and accepts `?dialect=` through `dialects/arrival.ts`. **Tokens are trivial because of this — never hardcode a color; pick the right intent.**
 
+Optional `gloss` is inline producer-authored plain text, never a term id or lookup. It is locked to label-bearing `Badge`, `Status`, `Link`, labeled `NumberNode`, title/caption-register `Text`, and `TableColumn.header` (a painted table-column header is a label-bearing gloss locus). Body text, bare numbers, and other node kinds reject it. Render it only through the shared `Gloss` primitive. Interactive painted terms and the Gloss button must be siblings so anchors never contain buttons. `MorpheRoot.explainGlosses` is the shared pane-inspection reveal state.
+
 ## Compounds (the open vocabulary) — and the constraint that bites
 
 A **compound** is `createCompoundComponent` lifted from code to **data**: a `CompoundDef` = params schema + a template `Node` with `ParamRef`/`Slot` leaves. Promoted package compounds are authored once in `py/morphe_grammar/catalog.py`; generation emits `src/lib/compounds/catalog.generated.ts`, and the runtime singleton registers that catalog through the factory **gate**. The gate checks grammar-version compatibility, parameter/default consistency, reference shape, expansion, acyclicity, and depth; a failing definition is never added and an invalid call renders empty without taking down its siblings. Consumer-owned compounds may still register through the same public gate. Never hand-edit generated catalogs or masks.
@@ -47,18 +57,23 @@ Morphe `Button` is **declarative** (carries an `action` id, no live wire) and `L
 ## Demo host structure
 
 - `/` — neutral Morphe workbench index linking the playground, CMS preview, and published pointer proof.
-- `/substrate` — full-featured neutral playground: global dialect toggle over all shipped dialects, one authored demo tree, live `actions`, `bind` paths, `choices`, neutral assets, adaptive fallback rendering, and a pinned nested dialect proof.
+- `/substrate` — full-featured neutral playground and live host proof surface: global dialect
+  toggle over all shipped dialects, the deterministic resolver-bound Delta circuit, live `actions`,
+  `bind` paths and `choices`, the complete promoted compound ledger, one sealed signed source-v1
+  fixture from each Krepis kernel, neutral assets, adaptive fallback rendering, and a pinned nested
+  dialect proof. The kernel fixtures are static public evidence only; no kernel model or authority
+  moves into Morphe.
 - `/preview/[artifactId]/[revisionId]` — local CMS preview route. Reads compiled trees from `compiled/capability-pages/**`; the built-in `capability-page.demo/rev-001` fixture renders when no local compiled artifact exists.
-- `/p/[slug]` — publication pointer route. Reads `publications.json` → compiled revision; `/p/demo` is always backed by the neutral built-in fixture if no real pointer exists.
+- `/p/[slug]` — publication pointer route. Reads `publications.json` → compiled revision;
+  `/p/demo` remains immutable to the mid-loop and is never a control host.
 - `/dignity` — compatibility redirect to `/substrate`.
 - `/api/adaptive/decision` — adaptive sidecar bridge. Calls `MORPHE_AGENT_BASE_URL` when configured and otherwise returns a deterministic schema-valid fallback tree.
 - Static demo assets live under `static/images/demo/`. Consumer-specific assets and application behavior live in consumer repos.
-
 - Fonts are self-hosted (`src/app-fonts.css`, fontsource + material-symbols packages) — never reintroduce CDN font links; the stripped viewer must have no runtime font dependency.
 
 ## The stripped viewer (`viewer/`)
 
-A second, STRIPPED SvelteKit app sharing the same `$lib` (`kit.files.lib = "../src/lib"`): the config-declared browse space only — `/` (the source index, itself an authored Morphe tree; `MORPHE_INDEX_TITLE`/`MORPHE_INDEX_DIALECT`), `/s/[source]/[surfaceId]` (multi-source panes from `MORPHE_SOURCES`, KRA-752 §4), the legacy `/surfaces/[artifactId]` (SSR-fetches from `MORPHE_ARTIFACT_BASE_URL/{id}`), plus `/healthz` (reports the supported `grammar_version`). Nothing is discovered by probing upstreams, and kernel-tree links are rewired at the trust gate to declared panes (unmatched relative hrefs degrade to text — `viewer/src/links.ts`). It is isolated because the playground app exposes an outbound-capable `/api/adaptive/decision` and is not a minimal deployment surface. Fail-closed grammar gate: an artifact stamped with an unsupported `grammar_version` renders a 409 diagnostic naming both versions (`GRAMMAR_VERSION` in `src/lib/grammar/version.ts` mirrors `py/morphe_surface/compile.py`; a vitest pins parity). Adapter is env-switched in `viewer/svelte.config.js` (`MORPHE_VIEWER_ADAPTER=node` → adapter-node for the distroless image, `viewer/Dockerfile`, built from repo root). Never give the viewer more routes than the declared browse space; host-level controls (the back link + dialect switcher in `ViewerChrome.svelte`) stay native, outside the tree, styled with `--mo-*` tokens.
+A second, STRIPPED SvelteKit app sharing the same `$lib` (`kit.files.lib = "../src/lib"`): the config-declared browse space only — `/` (composed home), `/surfaces` (the source catalog), `/s/[source]/[surfaceId]` (multi-source panes from `MORPHE_SOURCES`), and `/healthz`. The retired `/surfaces/[artifactId]` compiled-tree reader is gone and that path 404s. Nothing is discovered by probing upstreams. Credentials are server-only and configuration-injected (`token_env` names a PRIVATE env var); primitives, authored trees, client bundles, and route output never contain them. Fail-closed grammar gate: unsupported `grammar_version` or unequal `grammar_fingerprint` renders a dedicated 409 naming both sides. Keep it stripped: no playground, CMS, adaptive outbound route, open proxy, or consumer integrations. Host-level controls stay native, outside the tree, styled with `--mo-*` tokens including the named layer slots.
 
 ## Adding things (the right way)
 
@@ -69,7 +84,7 @@ A second, STRIPPED SvelteKit app sharing the same `$lib` (`kit.files.lib = "../s
 
 ## Deploy
 
-Package publication goes through the public npm registry as `@rationallyprime/morphe` (MIT); see `PACKAGING.md`. The neutral demo host and stripped viewer are separate deployment targets; deployment ownership and private infrastructure details stay outside this repository's public doctrine. Pushing to the repo is the user's call — never `git push` without an explicit request.
+Package publication goes to public npm as `@rationallyprime/morphe`; Python release artifacts are versioned independently but must pin the same grammar contract. See `PACKAGING.md`. The neutral demo host and stripped viewer are separate deployment targets; deployment ownership and private infrastructure details stay outside this repository's public doctrine. Pushing to the repo is the user's call — never `git push` without an explicit request.
 
 ## Agent skills
 

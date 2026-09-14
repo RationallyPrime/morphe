@@ -14,6 +14,7 @@ from .catalog import (
     promoted_compound,
     typescript_data_literal,
 )
+from .errors import DialectNodeValidationError, PromotedCompoundReferenceError
 from .models import (
     Cluster,
     CompoundRef,
@@ -79,30 +80,6 @@ class DialectCompoundConstraint(GrammarModel):
             msg = f"allowlisted dialect {self.id!r} requires at least one promoted compound"
             raise ValueError(msg)
         return self
-
-
-class DialectNodeValidationError(ValueError):
-    code: str
-    dialect_id: str
-    path: str
-
-    def __init__(self, *, code: str, dialect_id: str, path: str, message: str) -> None:
-        self.code = code
-        self.dialect_id = dialect_id
-        self.path = path
-        super().__init__(f"{code} at {path} for dialect {dialect_id!r}: {message}")
-
-
-class PromotedCompoundReferenceError(ValueError):
-    """A package-authored tree references the promoted catalog incorrectly."""
-
-    code: str
-    path: str
-
-    def __init__(self, *, code: str, path: str, message: str) -> None:
-        self.code = code
-        self.path = path
-        super().__init__(f"{code} at {path}: {message}")
 
 
 def _constraint(

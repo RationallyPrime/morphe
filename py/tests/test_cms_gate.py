@@ -9,6 +9,11 @@ from morphe_cms.validation.diagnostics import validation_error_to_diagnostics
 from morphe_cms.validation.gate import compile_and_gate
 from morphe_cms.validation.policy import policy_diagnostics
 from morphe_grammar.catalog import PROMOTED_COMPOUNDS
+from morphe_grammar.errors import (
+    DialectNodeValidationError,
+    MorpheGrammarError,
+    PromotedCompoundReferenceError,
+)
 
 from .cms_fixtures import VALID_DRAFT
 from .compound_fixtures import full_compound_reference
@@ -124,3 +129,34 @@ def test_gate_converts_a_presenter_failure_to_a_fail_closed_diagnostic(
     assert compiled is None
     assert [diagnostic.code for diagnostic in diagnostics] == ["UNEXPECTED_ERROR"]
     assert diagnostics[0].message == "presenter failed"
+
+
+def test_diagnostics_map_typed_grammar_errors_structurally() -> None:
+    dialect = DialectNodeValidationError(
+        code="COMPOUND_NOT_PERMITTED",
+        dialect_id="clinical",
+        path="$.children[0]",
+        message="not permitted",
+    )
+    promoted = PromotedCompoundReferenceError(
+        code="COMPOUND_UNKNOWN_NAME",
+        path="$.name",
+        message="unknown",
+    )
+    dialect_diags = validation_error_to_diagnostics(dialect)
+    promoted_diags = validation_error_to_diagnostics(promoted)
+    assert dialect_diags[0].code == "COMPOUND_NOT_PERMITTED"
+    assert dialect_diags[0].path == "$.children[0]"
+    assert promoted_diags[0].code == "COMPOUND_UNKNOWN_NAME"
+    assert isinstance(dialect, MorpheGrammarError)
+    assert isinstance(promoted, MorpheGrammarError)
+
+
+def test_diagnostics_do_not_duck_type_foreign_exceptions() -> None:
+    class ForeignError(Exception):
+        code = "LOOKS_TYPED"
+        path = "$.spoof"
+
+    diags = validation_error_to_diagnostics(ForeignError("nope"))
+    assert [diagnostic.code for diagnostic in diags] == ["UNEXPECTED_ERROR"]
+    assert diags[0].path == ""

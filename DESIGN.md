@@ -213,16 +213,21 @@ valid output and deterministic fallback, not a production slow or mid loop.
 
 ## 10. The stripped viewer
 
-The viewer is a deployment renderer, not a second application shell. Its surface is intentionally
-tiny:
+The viewer is a deployment renderer, not a second application shell. Its only browse space is
+config-declared:
 
-- `/surfaces/[artifactId]` renders one compiled artifact;
-- `/healthz` reports readiness and the supported grammar version.
+- `/` is the composed home;
+- `/surfaces` is the source catalog;
+- `/s/[source]/[surfaceId]` renders a declared pane;
+- `/healthz` reports readiness, the supported grammar version, and the grammar fingerprint.
 
-It must remain free of the playground, CMS, adaptive outbound route, source credentials, and
-consumer-specific integrations. It fails closed on an unsupported `grammar_version`. The next
-hardening step is full runtime validation of the fetched tree; producer validation alone is not a
-trust boundary.
+The legacy compiled-artifact reader at `/surfaces/[artifactId]` is retired and 404s.
+
+Nothing is discovered by probing upstreams, and the viewer is not an open proxy. Credentials stay
+server-only (`token_env` names a PRIVATE env var used in SSR loaders). Primitives, authored trees,
+client bundles, and route output never contain them. It fails closed on an unsupported
+`grammar_version` or an unequal `grammar_fingerprint`. The fetched tree is runtime-validated at the
+trust gate; producer validation alone is not a trust boundary.
 
 When a surface cannot render, the host should still provide a concise text digest or diagnostic.
 The viewer link is an enhancement, never the only copy of an operational outcome.

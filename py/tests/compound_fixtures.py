@@ -1,8 +1,15 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Literal, TypedDict
 
 from morphe_grammar.catalog import CompoundDefinition, compound_slot_names
+
+
+class CompoundReference(TypedDict):
+    kind: Literal["compound"]
+    name: str
+    args: dict[str, object]
+    slots: dict[str, list[dict[str, str]]]
 
 
 def _parameter_value(parameter_type: str, label: str) -> object:
@@ -20,7 +27,7 @@ def _parameter_value(parameter_type: str, label: str) -> object:
     raise AssertionError(msg)
 
 
-def full_compound_reference(definition: CompoundDefinition) -> dict[str, Any]:
+def full_compound_reference(definition: CompoundDefinition) -> CompoundReference:
     """Build a contract-complete reference for CMS and dialect gate proofs."""
     args = {
         name: _parameter_value(parameter.type, f"{definition.name}.{name}")

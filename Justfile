@@ -49,6 +49,10 @@ viewer-build:
 viewer-build-node:
 	bun run viewer:build:node
 
+# client bundle and serialized route output must not contain bearer credentials
+viewer-credentials-check:
+	bun run scripts/check-viewer-client-credentials.ts
+
 # real-browser source trust -> compiler -> renderer contract (Chromium + Firefox)
 edge-e2e:
 	bun run test:edge-e2e
@@ -132,25 +136,24 @@ cms-schema-check:
 # idle box) or plain `nice` where scopes are unavailable; everyone else queues
 # on the flock (up to 2 h). MORPHE_HEAVY_GATE=off bypasses (dedicated CI
 # runners); _MORPHE_GATE_HELD makes nested gated recipes reentrant.
+# Generate CLAUDE.md from AGENTS.md (canonical full project instruction source).
+doctrine-write:
+	env -u PYTHONPATH uv run --extra service python scripts/doctrine.py --write
+
+# CLAUDE.md must equal the mechanical projection of AGENTS.md.
+doctrine-check:
+	env -u PYTHONPATH uv run --extra service python scripts/doctrine.py --check
+
 _gated inner:
 	#!/usr/bin/env bash
 	set -euo pipefail
-	if [ "${_MORPHE_GATE_HELD:-}" = "1" ] || [ "${MORPHE_HEAVY_GATE:-on}" = "off" ]; then
-		exec just {{ inner }}
-	fi
-	wrap=(nice -n 10)
-	if command -v systemd-run >/dev/null 2>&1 && systemd-run --user --scope true >/dev/null 2>&1; then
-		wrap=(systemd-run --user --scope --quiet -p MemoryHigh=24G -p CPUWeight=50 --)
-	fi
-	echo "[heavy-gate] waiting for the machine-wide slot (/tmp/machine-heavy-gate.lock)…" >&2
-	exec flock -w 7200 /tmp/machine-heavy-gate.lock \
-		env _MORPHE_GATE_HELD=1 "${wrap[@]}" just {{ inner }}
+	exec bash scripts/heavy-gate.sh {{ inner }}
 
 # every gate CI runs, both stacks — green here means CI goes green.
 # Whole-machine run: serialized machine-wide by the heavy gate.
 gates: (_gated "_gates")
 
-_gates: compiler-id-check lint check test build pack-verify viewer-check viewer-build-node edge-e2e contrast py-test py-lint py-types schema-check cms-schema-check py-pack-verify
+_gates: compiler-id-check lint check test build pack-verify viewer-check viewer-build-node viewer-credentials-check edge-e2e contrast py-test py-lint py-types schema-check cms-schema-check py-pack-verify doctrine-check
 
 # install the prek git hooks (once per checkout)
 hooks:
