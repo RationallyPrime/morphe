@@ -9,7 +9,13 @@
 
 import { error } from "@sveltejs/kit";
 import type { Node } from "$lib";
-import { GRAMMAR_VERSION, getDialect, hasDialect, validateNodeForDialect } from "$lib";
+import {
+	GRAMMAR_FINGERPRINT,
+	GRAMMAR_VERSION,
+	getDialect,
+	hasDialect,
+	validateNodeForDialect,
+} from "$lib";
 import { validateNodeDocument } from "$lib/artifacts";
 import type { EmitContext } from "$lib/surface-edge/emit.js";
 import type { CompilationReceipt, SurfaceNode } from "$lib/surface-edge/spec.js";
@@ -65,6 +71,7 @@ export interface GatedSurface {
 interface GatedParsedEnvelope {
 	readonly artifactId: string;
 	readonly grammarVersion: string;
+	readonly grammarFingerprint: string;
 	readonly compilerVersion: string;
 	readonly dialectHint: string;
 	readonly tree: Node;
@@ -76,7 +83,12 @@ interface GatedParsedEnvelope {
 
 type GatedParseResult =
 	| { readonly ok: true; readonly envelope: GatedParsedEnvelope }
-	| { readonly ok: false; readonly reason: string; readonly rawGrammarVersion?: string };
+	| {
+			readonly ok: false;
+			readonly reason: string;
+			readonly rawGrammarVersion?: string;
+			readonly rawGrammarFingerprint?: string;
+	  };
 
 export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<GatedSurface> {
 	const headers: Record<string, string> = { accept: request.accept ?? "application/json" };
@@ -128,6 +140,22 @@ export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<Ga
 				supportedVersion: GRAMMAR_VERSION,
 			});
 		}
+		if (
+			parsed.rawGrammarVersion === GRAMMAR_VERSION &&
+			parsed.rawGrammarFingerprint !== undefined &&
+			parsed.rawGrammarFingerprint !== GRAMMAR_FINGERPRINT
+		) {
+			error(409, {
+				message:
+					"This artifact was compiled under a grammar contract this viewer does not support.",
+				code: "contract-mismatch",
+				artifactId: request.artifactId,
+				artifactVersion: parsed.rawGrammarVersion,
+				supportedVersion: GRAMMAR_VERSION,
+				artifactFingerprint: parsed.rawGrammarFingerprint,
+				supportedFingerprint: GRAMMAR_FINGERPRINT,
+			});
+		}
 		error(502, {
 			message: `The artifact failed its trust gate: ${parsed.reason}.`,
 			code: "invalid-artifact",
@@ -143,6 +171,17 @@ export async function loadGatedSurface(request: GatedSurfaceRequest): Promise<Ga
 			artifactId: request.artifactId,
 			artifactVersion: parsed.envelope.grammarVersion,
 			supportedVersion: GRAMMAR_VERSION,
+		});
+	}
+	if (parsed.envelope.grammarFingerprint !== GRAMMAR_FINGERPRINT) {
+		error(409, {
+			message: "This artifact was compiled under a grammar contract this viewer does not support.",
+			code: "contract-mismatch",
+			artifactId: request.artifactId,
+			artifactVersion: parsed.envelope.grammarVersion,
+			supportedVersion: GRAMMAR_VERSION,
+			artifactFingerprint: parsed.envelope.grammarFingerprint,
+			supportedFingerprint: GRAMMAR_FINGERPRINT,
 		});
 	}
 

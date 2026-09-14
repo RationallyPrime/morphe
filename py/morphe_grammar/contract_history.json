@@ -1,0 +1,17 @@
+{
+	"format_version": 1,
+	"entries": [
+		{
+			"grammar_version": "0.7.0",
+			"fingerprint": "sha256:11b53181bbe69b165874ea556967b43918ae52e640f427073c53fdfa990cf61f",
+			"source_commit": "a931e2c8bcd9bcb4d157a677cf7c540dad46b75d",
+			"issue": "KRA-831"
+		},
+		{
+			"grammar_version": "0.8.0",
+			"fingerprint": "sha256:c0ecb8a72bbb22ed06c5480d7bd0700c28c3ae312a040fd68f8f2ea47f821f1c",
+			"source_commit": "52a4b0d60e3d2d8b0df8b5defc2e7b47c4134665",
+			"issue": "KRA-920"
+		}
+	]
+}

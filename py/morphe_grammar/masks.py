@@ -185,9 +185,12 @@ def dialect_mask_text(dialect_id: str) -> str:
 
 
 def mask_manifest_document() -> JsonSchema:
+    from .fingerprint import compute_grammar_fingerprint  # noqa: PLC0415
+
     return {
         "format_version": 1,
         "grammar_version": GRAMMAR_VERSION,
+        "grammar_fingerprint": compute_grammar_fingerprint(),
         "dialects": {
             dialect_id: {
                 "compound_policy": {
@@ -221,6 +224,15 @@ def load_mask_manifest() -> JsonSchema:
         msg = (
             "installed decoder-mask manifest grammar version mismatch: "
             f"expected {GRAMMAR_VERSION!r}, received {grammar_version!r}"
+        )
+        raise ValueError(msg)
+    from .fingerprint import GRAMMAR_FINGERPRINT  # noqa: PLC0415
+
+    grammar_fingerprint = manifest.get("grammar_fingerprint")
+    if grammar_fingerprint != GRAMMAR_FINGERPRINT:
+        msg = (
+            "installed decoder-mask manifest grammar fingerprint mismatch: "
+            f"expected {GRAMMAR_FINGERPRINT!r}, received {grammar_fingerprint!r}"
         )
         raise ValueError(msg)
     return manifest

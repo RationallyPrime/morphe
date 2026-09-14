@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from morphe_grammar import GRAMMAR_VERSION
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION
 from morphe_surface import (
     SURFACE_ARTIFACT_VERSION,
     CompiledSurface,
@@ -24,6 +24,7 @@ def _artifact(**overrides: object) -> CompiledSurface:
             "children": [{"kind": "text", "value": "Trusted", "as": "heading"}],
         },
         "grammar_version": GRAMMAR_VERSION,
+        "grammar_fingerprint": GRAMMAR_FINGERPRINT,
         "producer_version": "0.3.0",
         "compiler_version": "0.3.0",
         "diagnostics": [],
@@ -49,6 +50,16 @@ def test_surface_artifact_requires_its_wire_version() -> None:
     del document["artifact_version"]
     with pytest.raises(ValidationError, match="artifact_version"):
         CompiledSurface.model_validate(document)
+
+
+def test_surface_artifact_rejects_a_foreign_fingerprint() -> None:
+    with pytest.raises(ValidationError, match="grammar_fingerprint"):
+        _artifact(grammar_fingerprint="sha256:" + "a" * 64)
+
+
+def test_surface_artifact_rejects_a_foreign_grammar_version() -> None:
+    with pytest.raises(ValidationError, match="grammar_version"):
+        _artifact(grammar_version="0.7.0")
 
 
 def test_surface_artifact_rejects_divergent_producer_and_compiler_versions() -> None:

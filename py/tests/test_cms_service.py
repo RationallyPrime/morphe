@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from typing import TYPE_CHECKING
 
 import pytest
@@ -84,6 +85,30 @@ def test_policy_invalid_saves_draft_not_published(tmp_path: Path) -> None:
         now=_NOW,
     )
     assert pub.ok is False
+
+
+def test_publish_rejects_a_foreign_fingerprint(tmp_path: Path) -> None:
+    store = FileStore(tmp_path)
+    artifact_id, revision_id = _create(store, VALID_DRAFT)
+    path = (
+        tmp_path
+        / "compiled"
+        / "capability-pages"
+        / "workflow-automation"
+        / f"{revision_id}.tree.json"
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["grammar_fingerprint"] = "sha256:" + "a" * 64
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    pub = publish_content_artifact(
+        PublishContentArtifactInput(
+            artifact_id=artifact_id, revision_id=revision_id, slug="workflow-automation"
+        ),
+        store,
+        now=_NOW,
+    )
+    assert pub.ok is False
+    assert any(d["code"] == "REVISION_NOT_VALIDATED" for d in pub.diagnostics)
 
 
 def test_publish_requires_exact_validated_revision(tmp_path: Path) -> None:

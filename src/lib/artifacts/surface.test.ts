@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { fromJSONSchema } from "zod";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "../grammar/version.js";
 import { validateNodeDocument, validateSurfaceArtifact } from "./surface.js";
 import { SURFACE_ARTIFACT_JSON_SCHEMA } from "./surface-schema.generated.js";
 
 const validArtifact = {
 	artifact_version: "1.0.0",
 	tree: { kind: "frame", role: "page", children: [{ kind: "spacer" }] },
-	grammar_version: "0.3.0",
+	grammar_version: GRAMMAR_VERSION,
+	grammar_fingerprint: GRAMMAR_FINGERPRINT,
 	producer_version: "0.3.0",
 	compiler_version: "0.3.0",
 	diagnostics: [],
@@ -121,6 +123,26 @@ describe("validateSurfaceArtifact", () => {
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
 		expect(result.issues[0]?.code).toBe("metadata");
+	});
+
+	it("rejects a foreign grammar version before branding", () => {
+		const result = validateSurfaceArtifact({ ...validArtifact, grammar_version: "0.7.0" });
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.issues[0]?.code).toBe("metadata");
+		expect(result.issues[0]?.path).toEqual(["grammar_version"]);
+	});
+
+	it("rejects a foreign grammar fingerprint before branding", () => {
+		const result = validateSurfaceArtifact({
+			...validArtifact,
+			grammar_fingerprint:
+				"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		});
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.issues[0]?.code).toBe("metadata");
+		expect(result.issues[0]?.path).toEqual(["grammar_fingerprint"]);
 	});
 
 	it("bounds input before recursive schema evaluation", () => {

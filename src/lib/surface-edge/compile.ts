@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Sha256 } from "../artifacts/source-types.generated.js";
 import { validateNodeDocument } from "../artifacts/surface.js";
-import { GRAMMAR_VERSION } from "../grammar/version.js";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "../grammar/version.js";
 import { buildSurface } from "./build.js";
 import { COMPILER_BUILD_SHA256 } from "./build-id.generated.js";
 import { DEFAULT_EMIT_CONTEXT, type EmitContext, emitNode, SurfaceEmitLimitError } from "./emit.js";
@@ -150,6 +150,7 @@ export function compileSourceSurfaceDetailed(
 			compilerVersion: COMPILER_VERSION,
 			compilerBuildSha256: COMPILER_BUILD_SHA256,
 			grammarVersion: GRAMMAR_VERSION,
+			grammarFingerprint: GRAMMAR_FINGERPRINT,
 			treeSha256: sha256(validated.value),
 			diagnosticsSha256: sha256(diagnostics),
 			temporalPolicy: context.temporalPolicy,

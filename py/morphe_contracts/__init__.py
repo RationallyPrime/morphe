@@ -92,6 +92,7 @@ class CompiledArtifact[TreeT](ContractModel):
 
     tree: TreeT
     grammar_version: str
+    grammar_fingerprint: str
     producer_version: str
     diagnostics: list[Diagnostic] = Field(default_factory=list)
     produced_at: str

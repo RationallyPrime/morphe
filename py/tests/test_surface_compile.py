@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from morphe_grammar import validate_node
+from morphe_grammar import GRAMMAR_FINGERPRINT, validate_node
 from morphe_surface import SURFACE_ARTIFACT_VERSION, compile_surface, surface_from_model
 from morphe_surface.adapters import from_envelope
 
@@ -20,6 +20,7 @@ def test_compile_surface_returns_versioned_artifact() -> None:
     art = compile_surface(Worker.model_json_schema(), {"name": "Ada", "address": {"city": "Rvk"}})
     assert art.artifact_version == SURFACE_ARTIFACT_VERSION
     assert art.grammar_version
+    assert art.grammar_fingerprint == GRAMMAR_FINGERPRINT
     assert art.compiler_version
     assert art.tree.kind == "frame"
     validate_node(art.tree)

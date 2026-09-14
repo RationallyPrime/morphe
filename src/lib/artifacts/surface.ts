@@ -1,6 +1,7 @@
 import { fromJSONSchema } from "zod";
 import { hasVisibleLabelText } from "../grammar/labels.js";
 import type { Node } from "../grammar/types.js";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "../grammar/version.js";
 import { SURFACE_ARTIFACT_JSON_SCHEMA } from "./surface-schema.generated.js";
 
 type JsonSchemaInput = Parameters<typeof fromJSONSchema>[0];
@@ -18,6 +19,7 @@ export interface SurfaceArtifactDocument {
 	readonly artifact_version: "1.0.0";
 	readonly tree: Node;
 	readonly grammar_version: string;
+	readonly grammar_fingerprint: string;
 	readonly producer_version: string;
 	readonly compiler_version: string;
 	readonly diagnostics: readonly SurfaceArtifactDiagnostic[];
@@ -26,7 +28,7 @@ export interface SurfaceArtifactDocument {
 
 declare const trustedSurfaceArtifact: unique symbol;
 
-/** A surface artifact that crossed the bounded, generated-schema trust gate. */
+/** A surface artifact that crossed the bounded schema, identity, and semantic trust gate. */
 export type TrustedSurfaceArtifact = SurfaceArtifactDocument & {
 	readonly [trustedSurfaceArtifact]: true;
 };
@@ -552,6 +554,30 @@ export function validateSurfaceArtifact(
 	const parsed = shallowSurfaceArtifactSchema.safeParse(value);
 	if (!parsed.success) return { ok: false, issues: schemaIssues(parsed.error) };
 	const document = parsed.data as SurfaceArtifactDocument;
+	if (document.grammar_version !== GRAMMAR_VERSION) {
+		return {
+			ok: false,
+			issues: [
+				{
+					code: "metadata",
+					path: ["grammar_version"],
+					message: "grammar_version must equal the installed GRAMMAR_VERSION",
+				},
+			],
+		};
+	}
+	if (document.grammar_fingerprint !== GRAMMAR_FINGERPRINT) {
+		return {
+			ok: false,
+			issues: [
+				{
+					code: "metadata",
+					path: ["grammar_fingerprint"],
+					message: "grammar_fingerprint must equal the installed GRAMMAR_FINGERPRINT",
+				},
+			],
+		};
+	}
 	const dispatched = dispatchNodeIssue(document.tree, ["tree"]);
 	if (dispatched) return { ok: false, issues: [dispatched] };
 	const semantic = semanticNodeIssue(document.tree, ["tree"]);

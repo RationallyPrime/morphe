@@ -1,5 +1,5 @@
 import type { Node } from "$lib";
-import { GRAMMAR_VERSION } from "$lib";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "$lib";
 import { compileSourceSurfaceDetailed } from "$lib/surface-edge/compile.js";
 import type { EmitContext } from "$lib/surface-edge/emit.js";
 import { admitSourceSurfaceJson, type SourceAdmissionOptions } from "$lib/surface-edge/source.js";
@@ -9,6 +9,7 @@ import { readSourceSurfaceResponse } from "./surface-reader.js";
 export interface CompiledSourceEnvelope {
 	readonly artifactId: string;
 	readonly grammarVersion: string;
+	readonly grammarFingerprint: string;
 	readonly compilerVersion: string;
 	readonly dialectHint: string;
 	readonly tree: Node;
@@ -28,7 +29,12 @@ export interface CompiledSourceEnvelope {
 
 export type SourceEnvelopeResult =
 	| { readonly ok: true; readonly envelope: CompiledSourceEnvelope }
-	| { readonly ok: false; readonly reason: string; readonly rawGrammarVersion?: string };
+	| {
+			readonly ok: false;
+			readonly reason: string;
+			readonly rawGrammarVersion?: string;
+			readonly rawGrammarFingerprint?: string;
+	  };
 
 export interface SourceEnvelopeOptions {
 	readonly artifactId: string;
@@ -81,6 +87,15 @@ export async function parseSourceSurfaceResponse(
 			ok: false,
 			reason: `edge compiler grammar_version ${compiled.receipt.grammarVersion} is not supported`,
 			rawGrammarVersion: compiled.receipt.grammarVersion,
+			rawGrammarFingerprint: compiled.receipt.grammarFingerprint,
+		};
+	}
+	if (compiled.receipt.grammarFingerprint !== GRAMMAR_FINGERPRINT) {
+		return {
+			ok: false,
+			reason: `edge compiler grammar_fingerprint ${compiled.receipt.grammarFingerprint} is not supported`,
+			rawGrammarVersion: compiled.receipt.grammarVersion,
+			rawGrammarFingerprint: compiled.receipt.grammarFingerprint,
 		};
 	}
 	return {
@@ -88,6 +103,7 @@ export async function parseSourceSurfaceResponse(
 		envelope: {
 			artifactId: options.artifactId,
 			grammarVersion: compiled.receipt.grammarVersion,
+			grammarFingerprint: compiled.receipt.grammarFingerprint,
 			compilerVersion: compiled.receipt.compilerVersion,
 			dialectHint: options.dialectHint,
 			tree: compiled.tree,

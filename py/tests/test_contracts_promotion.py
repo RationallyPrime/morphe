@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from morphe_cms.contracts.shared import Diagnostic as CmsDiagnostic
 from morphe_contracts import CompiledArtifact, ContractModel, Diagnostic
-from morphe_grammar import GRAMMAR_VERSION
+from morphe_grammar import GRAMMAR_FINGERPRINT, GRAMMAR_VERSION
 
 
 def test_diagnostic_shape_matches_affordance_contract() -> None:
@@ -26,6 +26,7 @@ def test_compiled_artifact_base_fields() -> None:
     art = CompiledArtifact[dict[str, object]](
         tree={"kind": "spacer"},
         grammar_version=GRAMMAR_VERSION,
+        grammar_fingerprint=GRAMMAR_FINGERPRINT,
         producer_version="0.1.0",
         diagnostics=[],
         produced_at="",

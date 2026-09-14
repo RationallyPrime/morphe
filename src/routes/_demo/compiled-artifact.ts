@@ -1,5 +1,5 @@
 import type { Node } from "$lib";
-import { GRAMMAR_VERSION, hasDialect, validateNodeForDialect } from "$lib";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION, hasDialect, validateNodeForDialect } from "$lib";
 import { formatArtifactValidationIssue, validateNodeDocument } from "$lib/artifacts";
 
 export interface LocalCompiledTree {
@@ -54,6 +54,9 @@ export function parseLocalCompiledTree(
 	}
 	if (document.grammar_version !== GRAMMAR_VERSION) {
 		return { ok: false, reason: "compiled artifact grammar version is unsupported" };
+	}
+	if (document.grammar_fingerprint !== GRAMMAR_FINGERPRINT) {
+		return { ok: false, reason: "compiled artifact grammar fingerprint is unsupported" };
 	}
 	if (!isRecord(document.render_hints)) {
 		return { ok: false, reason: "compiled artifact has an unknown dialect" };

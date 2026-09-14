@@ -180,7 +180,7 @@ export type {
 	Within,
 } from "./grammar/types.js";
 export { assertNever } from "./grammar/types.js";
-export { GRAMMAR_VERSION } from "./grammar/version.js";
+export { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "./grammar/version.js";
 // Render contracts
 export type { PrimitiveProps } from "./render/props.js";
 export type { PrimitiveKind } from "./render/registry.js";

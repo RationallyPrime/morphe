@@ -92,5 +92,6 @@
     }
   },
   "format_version": 1,
-  "grammar_version": "0.7.0"
+  "grammar_fingerprint": "sha256:c0ecb8a72bbb22ed06c5480d7bd0700c28c3ae312a040fd68f8f2ea47f821f1c",
+  "grammar_version": "0.8.0"
 }

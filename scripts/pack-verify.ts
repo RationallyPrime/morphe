@@ -248,6 +248,7 @@ try {
 				createDeterministicObjectiveDelegate,
 				createMidLoopRuntimeState,
 				DIALECT_IDS,
+				GRAMMAR_FINGERPRINT,
 				GRAMMAR_VERSION,
 				liveVariationIndex,
 				PROMOTED_COMPOUNDS,
@@ -259,6 +260,7 @@ try {
 
 			export const installedDialectIds = DIALECT_IDS;
 			export const installedGrammarVersion = GRAMMAR_VERSION;
+			export const installedGrammarFingerprint = GRAMMAR_FINGERPRINT;
 			export const installedPromotedCompoundNames = PROMOTED_COMPOUNDS.map(
 				(definition) => definition.name,
 			);
@@ -391,6 +393,7 @@ try {
 			const {
 				installedDialectIds,
 				installedGrammarVersion,
+				installedGrammarFingerprint,
 				installedPromotedCompounds,
 				installedPromotedCompoundNames,
 				renderSurface,
@@ -398,6 +401,7 @@ try {
 			} = await import("../.ssr/entry-server.js") as {
 				installedDialectIds: readonly string[];
 				installedGrammarVersion: string;
+				installedGrammarFingerprint: string;
 				installedPromotedCompounds: readonly unknown[];
 				installedPromotedCompoundNames: readonly string[];
 				renderSurface: () => string;
@@ -547,6 +551,9 @@ try {
 			if (maskManifest.grammar_version !== installedGrammarVersion) {
 				throw new Error("installed decoder-mask manifest and runtime grammar disagree");
 			}
+			if (maskManifest.grammar_fingerprint !== installedGrammarFingerprint) {
+				throw new Error("installed decoder-mask manifest and runtime fingerprint disagree");
+			}
 			const dialectEntries = maskManifest.dialects;
 			if (!dialectEntries || typeof dialectEntries !== "object" || Array.isArray(dialectEntries)) {
 				throw new Error("expected installed decoder-mask manifest dialect entries");
@@ -665,6 +672,7 @@ try {
 				artifact_version: "1.0.0",
 				tree: { kind: "frame", role: "page", children: [] },
 				grammar_version: installedGrammarVersion,
+				grammar_fingerprint: installedGrammarFingerprint,
 				producer_version: "0.3.0",
 				compiler_version: "0.3.0",
 				diagnostics: [],
@@ -734,7 +742,8 @@ try {
 			if (
 				compiled.receipt.compilerBuildSha256 !== COMPILER_BUILD_SHA256 ||
 				compiled.receipt.compilerVersion !== COMPILER_VERSION ||
-				compiled.receipt.grammarVersion !== installedGrammarVersion
+				compiled.receipt.grammarVersion !== installedGrammarVersion ||
+				compiled.receipt.grammarFingerprint !== installedGrammarFingerprint
 			) {
 				throw new Error("installed source compiler stamped an inconsistent receipt");
 			}

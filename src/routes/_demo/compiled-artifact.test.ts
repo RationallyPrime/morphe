@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { GRAMMAR_VERSION } from "$lib";
+import { GRAMMAR_FINGERPRINT, GRAMMAR_VERSION } from "$lib";
 import { parseLocalCompiledTree, validateCompiledTreeDialect } from "./compiled-artifact.js";
 
 const valid = {
 	artifact_id: "capability-page.demo",
 	revision_id: "rev-001",
 	grammar_version: GRAMMAR_VERSION,
+	grammar_fingerprint: GRAMMAR_FINGERPRINT,
 	producer_version: "0.1.0",
 	presenter_version: "0.1.0",
 	tree: { kind: "frame", role: "page", children: [{ kind: "spacer" }] },

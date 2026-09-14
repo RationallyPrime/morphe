@@ -142,6 +142,7 @@ export interface CompilationReceipt {
 	readonly compilerVersion: string;
 	readonly compilerBuildSha256: Sha256;
 	readonly grammarVersion: string;
+	readonly grammarFingerprint: string;
 	readonly treeSha256: Sha256;
 	readonly diagnosticsSha256: Sha256;
 	/**

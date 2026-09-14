@@ -2076,6 +2076,10 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
       "title": "Diagnostics",
       "type": "array"
     },
+    "grammar_fingerprint": {
+      "title": "Grammar Fingerprint",
+      "type": "string"
+    },
     "grammar_version": {
       "title": "Grammar Version",
       "type": "string"
@@ -2095,6 +2099,7 @@ export const SURFACE_ARTIFACT_JSON_SCHEMA = JSON.parse(
   "required": [
     "tree",
     "grammar_version",
+    "grammar_fingerprint",
     "producer_version",
     "produced_at",
     "artifact_version",
